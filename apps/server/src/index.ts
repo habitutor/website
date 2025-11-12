@@ -1,7 +1,6 @@
 import { env } from "cloudflare:workers";
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
-import { createAuth } from "@habitutor/auth";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
@@ -10,8 +9,9 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { auth } from "@habitutor/auth";
 
-const app = new Hono();
+const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.use(logger());
 app.use(
@@ -24,10 +24,7 @@ app.use(
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => {
-  const auth = createAuth(c.env as CloudflareBindings);
-  return auth.handler(c.req.raw);
-});
+app.on(["POST", "GET"], "/api/auth/*", (c) => auth(c.env).handler(c.req.raw));
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [

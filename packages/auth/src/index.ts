@@ -1,16 +1,16 @@
-import { createDb } from "@habitutor/db";
+import { db } from "@habitutor/db";
 import * as schema from "@habitutor/db/schema/auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 // create new instance for every request due to cloudflare's serverless nature
-export const createAuth = (
+export const auth = (
   env: CloudflareBindings,
 ): ReturnType<typeof betterAuth> => {
-  const db = createDb(env);
+  const dbInstance = db(env);
 
   return betterAuth({
-    database: drizzleAdapter(db, {
+    database: drizzleAdapter(dbInstance, {
       provider: "pg",
       schema: schema,
     }),
@@ -43,4 +43,4 @@ export const createAuth = (
   });
 };
 
-export type Auth = ReturnType<typeof createAuth>;
+export type Auth = ReturnType<typeof auth>;
