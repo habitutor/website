@@ -7,7 +7,6 @@ import { env } from "cloudflare:workers";
 export const auth = betterAuth<BetterAuthOptions>({
 	database: drizzleAdapter(db, {
 		provider: "pg",
-
 		schema: schema,
 	}),
 	trustedOrigins: [env.CORS_ORIGIN],
