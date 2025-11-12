@@ -13,6 +13,7 @@ export async function createContext({ context }: CreateContextOptions) {
   });
   return {
     session,
+    env: context.env,
   };
 }
 
