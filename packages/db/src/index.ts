@@ -1,4 +1,8 @@
-import { env } from "cloudflare:workers";
 import { drizzle } from "drizzle-orm/node-postgres";
 
-export const db = drizzle(env.DATABASE_URL || "");
+export function createDb(env: CloudflareBindings) {
+  return drizzle({
+    connection: env.DATABASE_URL,
+    casing: "snake_case",
+  });
+}

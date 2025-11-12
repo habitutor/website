@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
-import { auth } from "@habitutor/auth";
+import { createAuth } from "@habitutor/auth";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
@@ -15,64 +15,67 @@ const app = new Hono();
 
 app.use(logger());
 app.use(
-	"/*",
-	cors({
-		origin: env.CORS_ORIGIN || "",
-		allowMethods: ["GET", "POST", "OPTIONS"],
-		allowHeaders: ["Content-Type", "Authorization"],
-		credentials: true,
-	}),
+  "/*",
+  cors({
+    origin: env.CORS_ORIGIN || "",
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+app.on(["POST", "GET"], "/api/auth/*", (c) => {
+  const auth = createAuth(c.env as CloudflareBindings);
+  return auth.handler(c.req.raw);
+});
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
-	plugins: [
-		new OpenAPIReferencePlugin({
-			schemaConverters: [new ZodToJsonSchemaConverter()],
-		}),
-	],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+  plugins: [
+    new OpenAPIReferencePlugin({
+      schemaConverters: [new ZodToJsonSchemaConverter()],
+    }),
+  ],
+  interceptors: [
+    onError((error) => {
+      console.error(error);
+    }),
+  ],
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+  interceptors: [
+    onError((error) => {
+      console.error(error);
+    }),
+  ],
 });
 
 app.use("/*", async (c, next) => {
-	const context = await createContext({ context: c });
+  const context = await createContext({ context: c });
 
-	const rpcResult = await rpcHandler.handle(c.req.raw, {
-		prefix: "/rpc",
-		context: context,
-	});
+  const rpcResult = await rpcHandler.handle(c.req.raw, {
+    prefix: "/rpc",
+    context: context,
+  });
 
-	if (rpcResult.matched) {
-		return c.newResponse(rpcResult.response.body, rpcResult.response);
-	}
+  if (rpcResult.matched) {
+    return c.newResponse(rpcResult.response.body, rpcResult.response);
+  }
 
-	const apiResult = await apiHandler.handle(c.req.raw, {
-		prefix: "/api-reference",
-		context: context,
-	});
+  const apiResult = await apiHandler.handle(c.req.raw, {
+    prefix: "/api-reference",
+    context: context,
+  });
 
-	if (apiResult.matched) {
-		return c.newResponse(apiResult.response.body, apiResult.response);
-	}
+  if (apiResult.matched) {
+    return c.newResponse(apiResult.response.body, apiResult.response);
+  }
 
-	await next();
+  await next();
 });
 
 app.get("/", (c) => {
-	return c.text("OK");
+  return c.text("OK");
 });
 
 export default app;
