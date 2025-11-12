@@ -21,11 +21,13 @@ function HomeComponent() {
   const healthCheck = useQuery(orpc.healthCheck.queryOptions());
   const greet = useMutation(
     orpc.greet.mutationOptions({
-      onSuccess: () => {
-        toast("bisa");
+      onSuccess: (data) => {
+        toast("Message from server:", {
+          description: data,
+        });
       },
       onError: () => {
-        toast.error("peler");
+        toast.error("Failed to Greet User");
       },
     }),
   );
@@ -51,7 +53,7 @@ function HomeComponent() {
           </div>
         </section>
         <section className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">Contoh Query DB</h2>
+          <h2 className="mb-2 font-medium">List of Users</h2>
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground text-sm">
               {users.isLoading
@@ -64,15 +66,14 @@ function HomeComponent() {
             </span>
           </div>
         </section>
+        <Button
+          onClick={() => {
+            greet.mutate({ name: "andre" });
+          }}
+        >
+          Greet
+        </Button>
       </div>
-
-      <Button
-        onClick={() => {
-          greet.mutate({ name: "andre" });
-        }}
-      >
-        greet
-      </Button>
     </div>
   );
 }
