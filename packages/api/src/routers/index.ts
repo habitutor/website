@@ -15,10 +15,10 @@ export const appRouter = {
     };
   }),
   greet: publicProcedure
-    .input(z.object({ name: z.string() }))
+    .input(z.string())
     .output(z.string())
     .handler(({ input }) => {
-      return `hello ${input.name}`;
+      return `hello ${input}`;
     }),
   users: publicProcedure.handler(async ({ context }) => {
     return await db(context.env).select().from(user);

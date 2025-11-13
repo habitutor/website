@@ -68,7 +68,7 @@ function HomeComponent() {
         </section>
         <Button
           onClick={() => {
-            greet.mutate({ name: "andre" });
+            greet.mutate("Andre");
           }}
         >
           Greet
