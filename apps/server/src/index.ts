@@ -1,15 +1,15 @@
 import { env } from "cloudflare:workers";
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
+import { auth } from "@habitutor/auth";
+import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConverter } from "@orpc/arktype";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { auth } from "@habitutor/auth";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -29,7 +29,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => auth(c.env).handler(c.req.raw));
 export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [
     new OpenAPIReferencePlugin({
-      schemaConverters: [new ZodToJsonSchemaConverter()],
+      schemaConverters: [new ArkTypeToJsonSchemaConverter()],
     }),
   ],
   interceptors: [
