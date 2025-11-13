@@ -1,8 +1,11 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 export function db(env: CloudflareBindings) {
-  return drizzle({
-    connection: env.HYPERDRIVE.connectionString,
-    casing: "snake_case",
-  });
+	const sql = neon(env.DATABASE_URL);
+
+	return drizzle({
+		client: sql,
+		casing: "snake_case",
+	});
 }

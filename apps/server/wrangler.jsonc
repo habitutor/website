@@ -13,7 +13,7 @@
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "d30e6e66f6ea4bf395c13327f0eda26e",
+      "id": "2945a81e13084e2b89729d03a650541d",
       "localConnectionString": "postgresql://postgres:password@localhost:5432/habitutor"
     }
   ]
