@@ -11,6 +11,7 @@ export default function Header() {
   return (
     <div className="-translate-x-1/2 fixed top-4 left-1/2 flex flex-row items-center justify-between gap-8 rounded-lg border border-accent bg-background/50 p-2 backdrop-blur-lg">
       <nav className="flex gap-2 text-lg">
+        Ilhanm
         {links.map(({ to, label }) => {
           return (
             <Button key={to} variant={"link"} asChild>
