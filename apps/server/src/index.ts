@@ -75,4 +75,8 @@ app.get("/", (c) => {
   return c.text("OK");
 });
 
+app.get("/cors", (c) => {
+  return c.text(c.env.CORS_ORIGIN);
+});
+
 export default app;
