@@ -9,6 +9,7 @@ export const authMiddleware = createMiddleware().server(
         throw: true,
       },
     });
+    console.log("VITE_SERVER_URL", import.meta.env.VITE_SERVER_URL);
     return next({
       context: { session },
     });
