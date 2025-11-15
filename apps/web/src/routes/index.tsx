@@ -67,8 +67,6 @@ function HomeComponent() {
           </div>
         </section>
 
-        {process.env.VITE_SERVER_URL}
-
         <Button
           onClick={() => {
             greet.mutate("Andre");

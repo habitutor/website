@@ -17,6 +17,14 @@
         "CORS_ORIGIN": "https://habitutor.ithabitutor.workers.dev"
       }
     }
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
   }
   // For sensitive data, use:
   // wrangler secret put SECRET_NAME
