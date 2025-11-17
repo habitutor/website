@@ -37,7 +37,8 @@
 		"db:start": "turbo -F @habitutor/db db:start",
 		"db:watch": "turbo -F @habitutor/db db:watch",
 		"db:stop": "turbo -F @habitutor/db db:stop",
-		"db:down": "turbo -F @habitutor/db db:down"
+		"db:down": "turbo -F @habitutor/db db:down",
+		"db:seed": "turbo -F @habitutor/db db:seed"
 	},
 	"dependencies": {
 		"dotenv": "^17.2.2"
