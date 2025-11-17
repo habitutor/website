@@ -6,3 +6,7 @@ export function db(env: CloudflareBindings) {
     casing: "snake_case",
   });
 }
+
+export * from "./schema/auth";
+export * from "./schema/lesson";
+export * from "./schema/practice";
