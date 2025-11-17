@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LoadRouteImport } from './routes/load'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BeforeLoadRouteImport } from './routes/before-load'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PracticeRoute = PracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
+  '/practice': typeof PracticeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
+  '/practice': typeof PracticeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,27 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
+  '/practice': typeof PracticeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/before-load' | '/dashboard' | '/load' | '/login'
+  fullPaths:
+    | '/'
+    | '/before-load'
+    | '/dashboard'
+    | '/load'
+    | '/login'
+    | '/practice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/before-load' | '/dashboard' | '/load' | '/login'
-  id: '__root__' | '/' | '/before-load' | '/dashboard' | '/load' | '/login'
+  to: '/' | '/before-load' | '/dashboard' | '/load' | '/login' | '/practice'
+  id:
+    | '__root__'
+    | '/'
+    | '/before-load'
+    | '/dashboard'
+    | '/load'
+    | '/login'
+    | '/practice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,10 +99,18 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   LoadRoute: typeof LoadRoute
   LoginRoute: typeof LoginRoute
+  PracticeRoute: typeof PracticeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/practice': {
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -125,6 +155,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LoadRoute: LoadRoute,
   LoginRoute: LoginRoute,
+  PracticeRoute: PracticeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

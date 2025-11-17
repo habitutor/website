@@ -2,19 +2,19 @@ import { auth } from "@habitutor/auth";
 import type { Context as HonoContext } from "hono";
 
 export type CreateContextOptions = {
-  context: HonoContext;
+	context: HonoContext;
 };
 
 export async function createContext({ context }: CreateContextOptions) {
-  const authInstance = auth(context.env);
+	const authInstance = auth(context.env);
 
-  const session = await authInstance.api.getSession({
-    headers: context.req.raw.headers,
-  });
-  return {
-    session,
-    env: context.env,
-  };
+	const session = await authInstance.api.getSession({
+		headers: context.req.raw.headers,
+	});
+	return {
+		session,
+		env: context.env,
+	};
 }
 
 export type Context = Awaited<ReturnType<typeof createContext>>;

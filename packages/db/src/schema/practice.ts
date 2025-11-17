@@ -34,7 +34,7 @@ export const practicePackAttempt = pgTable("practice_pack_attempt", {
 export const question = pgTable("question", {
 	id: serial("id").primaryKey(),
 	content: text("content"),
-	type: text("type").notNull(),   
+	type: text("type").notNull(),
 });
 
 //Practice Pack Questions
