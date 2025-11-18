@@ -94,6 +94,7 @@
         "@orpc/server": "catalog:",
         "arktype": "catalog:",
         "dotenv": "catalog:",
+        "drizzle-orm": "catalog:",
         "hono": "catalog:",
       },
       "devDependencies": {
@@ -129,7 +130,7 @@
       "dependencies": {
         "arktype": "catalog:",
         "dotenv": "catalog:",
-        "drizzle-orm": "^0.44.2",
+        "drizzle-orm": "catalog:",
         "pg": "^8.14.1",
       },
       "devDependencies": {
@@ -151,6 +152,7 @@
     "arktype": "^2.1.26",
     "better-auth": "^1.3.28",
     "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.2",
     "hono": "^4.8.2",
     "tsdown": "^0.15.5",
     "typescript": "^5.8.2",
