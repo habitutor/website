@@ -3,7 +3,6 @@ import {
   integer,
   pgTable,
   primaryKey,
-  serial,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
@@ -44,13 +43,13 @@ export const practicePackQuestions = pgTable(
       .references(() => question.id, { onDelete: "cascade" }),
     order: integer("order"),
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.practicePackId, table.questionId] }),
-  }),
+  (table) => [
+    primaryKey({ columns: [table.practicePackId, table.questionId] }),
+  ],
 );
 
 export const multipleChoiceAnswer = pgTable("multiple_choice_answer", {
-  id: serial("id").primaryKey(),
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
   questionId: integer("question_id")
     .notNull()
     .references(() => question.id, { onDelete: "cascade" }),
@@ -67,7 +66,7 @@ export const essayAnswer = pgTable("essay_answer", {
 });
 
 export const questionResponse = pgTable("question_response", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
   attemptId: integer("attempt_id")
     .notNull()
     .references(() => practicePackAttempt.id, { onDelete: "cascade" }),
@@ -78,7 +77,7 @@ export const questionResponse = pgTable("question_response", {
 });
 
 export const mcqResponse = pgTable("mcq_response", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
   selectedMcqId: integer("selected_mcq_id")
     .notNull()
     .references(() => multipleChoiceAnswer.id, { onDelete: "cascade" }),
@@ -86,7 +85,7 @@ export const mcqResponse = pgTable("mcq_response", {
 });
 
 export const essayResponse = pgTable("essay_response", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
   essayInput: text("essay_input"),
   essayAnswerId: integer("essay_answer_id").references(() => essayAnswer.id, {
     onDelete: "set null",
