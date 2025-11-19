@@ -3,6 +3,7 @@ import {
   essayAnswer,
   multipleChoiceAnswer,
   practicePack,
+  practicePackAttempt,
   practicePackQuestions,
   question,
 } from "@habitutor/db";
@@ -86,9 +87,28 @@ const create = protectedProcedure
     return pack;
   });
 
+const start = protectedProcedure
+  .input(type({ id: "number" }))
+  .handler(async ({ input, context }) => {
+    const [attempt] = await db(context.env)
+      .insert(practicePackAttempt)
+      .values({
+        practicePackId: input.id,
+        userId: context.session.user.id,
+      })
+      .returning();
+
+    if (!attempt) throw new ORPCError("NOT_FOUND");
+
+    return {
+      message: `Memulai latihan soal ${input.id}`,
+    };
+  });
+
 export const practicePackRouter = {
   list,
   getById,
   getQuestions,
   create,
+  start,
 };
