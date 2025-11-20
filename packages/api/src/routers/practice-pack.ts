@@ -1,15 +1,15 @@
 import {
   db,
-  essayAnswer,
-  multipleChoiceAnswer,
   practicePack,
   practicePackAttempt,
   practicePackQuestions,
+  practicePackUserAnswer,
   question,
+  questionAnswerOption,
 } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { protectedProcedure, publicProcedure } from "../index";
 
 const list = publicProcedure.handler(async ({ context }) => {
@@ -27,7 +27,7 @@ const getById = publicProcedure
 
     if (!pack)
       throw new ORPCError("NOT_FOUND", {
-        message: `No practice pack found with id: ${input.id}`,
+        message: "Gagal menemukan latihan soal",
       });
 
     return pack;
@@ -56,24 +56,14 @@ const getQuestions = publicProcedure
 
     const questionIds = packQuestions.map((q) => q.questionId);
 
-    const [mcqAnswers, essayAnswers] = await Promise.all([
-      database
-        .select()
-        .from(multipleChoiceAnswer)
-        .where(inArray(multipleChoiceAnswer.questionId, questionIds)),
-      database
-        .select()
-        .from(essayAnswer)
-        .where(inArray(essayAnswer.questionId, questionIds)),
-    ]);
-
-    const mcqByQuestion = Map.groupBy(mcqAnswers, (a) => a.questionId);
-    const essayByQuestion = Map.groupBy(essayAnswers, (a) => a.questionId);
+    const answers = await database
+      .select()
+      .from(questionAnswerOption)
+      .where(inArray(questionAnswerOption.questionId, questionIds));
 
     return packQuestions.map((pq) => ({
       ...pq,
-      multipleChoiceAnswers: mcqByQuestion.get(pq.questionId) ?? [],
-      essayAnswer: essayByQuestion.get(pq.questionId)?.[0] ?? null,
+      answers,
     }));
   });
 
@@ -87,8 +77,9 @@ const create = protectedProcedure
     return pack;
   });
 
-const start = protectedProcedure
+const startAttempt = protectedProcedure
   .input(type({ id: "number" }))
+  .output(type({ message: "string" }))
   .handler(async ({ input, context }) => {
     const [attempt] = await db(context.env)
       .insert(practicePackAttempt)
@@ -98,10 +89,93 @@ const start = protectedProcedure
       })
       .returning();
 
-    if (!attempt) throw new ORPCError("NOT_FOUND");
+    if (!attempt)
+      throw new ORPCError("NOT_FOUND", {
+        message: "Gagal menemukan sesi pengerjaan latihan soal",
+      });
 
     return {
       message: `Memulai latihan soal ${input.id}`,
+    };
+  });
+
+const saveAnswer = protectedProcedure
+  .input(
+    type({
+      attemptId: "number",
+      questionId: "number",
+      selectedAnswerId: "number",
+    }),
+  )
+  .output(
+    type({
+      message: "string",
+    }),
+  )
+  .handler(async ({ input, context }) => {
+    const database = db(context.env);
+
+    const [currentAttempt] = await database
+      .select({
+        userId: practicePackAttempt.userId,
+        status: practicePackAttempt.status,
+      })
+      .from(practicePackAttempt)
+      .where(eq(practicePackAttempt.id, input.attemptId))
+      .limit(1);
+
+    if (!currentAttempt)
+      throw new ORPCError("NOT_FOUND", {
+        message: "Gagal menemukan sesi pengerjaan latihan soal",
+      });
+
+    if (currentAttempt.userId !== context.session.user.id)
+      throw new ORPCError("UNAUTHORIZED", {
+        message: "Sesi pengerjaan latihan soal ini bukan milikmu",
+      });
+
+    if (currentAttempt.status !== "ongoing")
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        message:
+          "Tidak bisa menyimpan jawaban pada tes yang tidak sedang berlangsung",
+      });
+
+    await database.insert(practicePackUserAnswer).values({
+      ...input,
+    });
+
+    return { message: "Berhasil menyimpan jawaban!" };
+  });
+
+const submitAttempt = protectedProcedure
+  .input(
+    type({
+      attemptId: "number",
+    }),
+  )
+  .output(type({ message: "string" }))
+  .handler(async ({ context, input }) => {
+    const [attempt] = await db(context.env)
+      .update(practicePackAttempt)
+      .set({
+        completedAt: new Date(),
+        status: "finished",
+      })
+      .where(
+        and(
+          eq(practicePackAttempt.id, input.attemptId),
+          eq(practicePackAttempt.userId, context.session.user.id),
+        ),
+      )
+      .returning();
+
+    if (!attempt)
+      throw new ORPCError("NOT_FOUND", {
+        message: "Gagal menemukan sesi latihan soal",
+      });
+
+    return {
+      message: "Berhasil mengumpul latihan soal",
     };
   });
 
@@ -110,5 +184,7 @@ export const practicePackRouter = {
   getById,
   getQuestions,
   create,
-  start,
+  startAttempt,
+  saveAnswer,
+  submitAttempt,
 };

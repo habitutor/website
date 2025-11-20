@@ -1,10 +1,10 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import {
-  essayAnswer,
-  multipleChoiceAnswer,
   practicePack,
   practicePackQuestions,
+  practicePackUserAnswer,
   question,
+  questionAnswerOption,
 } from "../schema/practice";
 
 const SEED_DATA = {
@@ -190,9 +190,8 @@ const SEED_DATA = {
 
 export async function clearPractice(db: NodePgDatabase) {
   await db.delete(practicePackQuestions);
-  await db.delete(multipleChoiceAnswer);
-  await db.delete(essayAnswer);
   await db.delete(question);
+  await db.delete(practicePackUserAnswer);
   await db.delete(practicePack);
 }
 
@@ -217,7 +216,7 @@ export async function seedPractice(db: NodePgDatabase) {
 
     if (!q) throw new Error("Failed to create question");
 
-    await db.insert(multipleChoiceAnswer).values(
+    await db.insert(questionAnswerOption).values(
       mcqData.answers.map((ans) => ({
         questionId: q.id,
         content: ans.content,
@@ -240,11 +239,6 @@ export async function seedPractice(db: NodePgDatabase) {
 
     if (!q) throw new Error("Failed to create question");
 
-    await db.insert(essayAnswer).values({
-      questionId: q.id,
-      correctAnswer: essayData.correctAnswer,
-    });
-
     await db.insert(practicePackQuestions).values({
       practicePackId: pack1.id,
       questionId: q.id,
@@ -261,33 +255,13 @@ export async function seedPractice(db: NodePgDatabase) {
 
     if (!q) throw new Error("Failed to create question");
 
-    await db.insert(multipleChoiceAnswer).values(
+    await db.insert(questionAnswerOption).values(
       mcqData.answers.map((ans) => ({
         questionId: q.id,
         content: ans.content,
         isCorrect: ans.isCorrect,
       })),
     );
-
-    await db.insert(practicePackQuestions).values({
-      practicePackId: pack2.id,
-      questionId: q.id,
-      order: order++,
-    });
-  }
-
-  for (const essayData of SEED_DATA.pack2_essay) {
-    const [q] = await db
-      .insert(question)
-      .values({ content: essayData.content, type: "essay" })
-      .returning();
-
-    if (!q) throw new Error("Failed to create question");
-
-    await db.insert(essayAnswer).values({
-      questionId: q.id,
-      correctAnswer: essayData.correctAnswer,
-    });
 
     await db.insert(practicePackQuestions).values({
       practicePackId: pack2.id,

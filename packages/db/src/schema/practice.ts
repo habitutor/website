@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   primaryKey,
   text,
@@ -13,6 +14,12 @@ export const practicePack = pgTable("practice_pack", {
   title: text("title").notNull(),
 });
 
+export const practicePackStatus = pgEnum("practice_pack_status", [
+  "not_started",
+  "ongoing",
+  "finished",
+]);
+
 export const practicePackAttempt = pgTable("practice_pack_attempt", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   userId: text("user_id")
@@ -23,13 +30,9 @@ export const practicePackAttempt = pgTable("practice_pack_attempt", {
     .references(() => practicePack.id, { onDelete: "cascade" }),
   startedAt: timestamp("started_at"),
   completedAt: timestamp("completed_at"),
-  status: text("status"),
-});
-
-export const question = pgTable("question", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  content: text("content"),
-  type: text("type").notNull(),
+  status: practicePackStatus("practice_pack_status")
+    .notNull()
+    .default("ongoing"),
 });
 
 export const practicePackQuestions = pgTable(
@@ -48,7 +51,13 @@ export const practicePackQuestions = pgTable(
   ],
 );
 
-export const multipleChoiceAnswer = pgTable("multiple_choice_answer", {
+export const question = pgTable("question", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  content: text("content"),
+  type: text("type").notNull(),
+});
+
+export const questionAnswerOption = pgTable("question_answer_option", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   questionId: integer("question_id")
     .notNull()
@@ -57,15 +66,8 @@ export const multipleChoiceAnswer = pgTable("multiple_choice_answer", {
   isCorrect: boolean("is_correct").default(false),
 });
 
-export const essayAnswer = pgTable("essay_answer", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  questionId: integer("question_id")
-    .notNull()
-    .references(() => question.id, { onDelete: "cascade" }),
-  correctAnswer: text("correct_answer"),
-});
-
-export const questionResponse = pgTable("question_response", {
+// we can save the user's responses with the table below
+export const practicePackUserAnswer = pgTable("practice_pack_user_answer", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   attemptId: integer("attempt_id")
     .notNull()
@@ -73,23 +75,7 @@ export const questionResponse = pgTable("question_response", {
   questionId: integer("question_id")
     .notNull()
     .references(() => question.id, { onDelete: "cascade" }),
-  responseDataId: integer("response_data_id"),
-});
-
-export const mcqResponse = pgTable("mcq_response", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  selectedMcqId: integer("selected_mcq_id")
+  selectedAnswerId: integer("selected_answer_id")
     .notNull()
-    .references(() => multipleChoiceAnswer.id, { onDelete: "cascade" }),
-  isCorrect: boolean("is_correct"),
-});
-
-export const essayResponse = pgTable("essay_response", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  essayInput: text("essay_input"),
-  essayAnswerId: integer("essay_answer_id").references(() => essayAnswer.id, {
-    onDelete: "set null",
-  }),
-  gradingStatus: text("grading_status"),
-  isCorrect: boolean("is_correct"),
+    .references(() => questionAnswerOption.id, { onDelete: "set null" }),
 });
