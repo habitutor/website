@@ -63,7 +63,7 @@ const getQuestions = publicProcedure
 
     return packQuestions.map((pq) => ({
       ...pq,
-      answers,
+      answers: answers.filter((ans) => ans.questionId === pq.questionId),
     }));
   });
 

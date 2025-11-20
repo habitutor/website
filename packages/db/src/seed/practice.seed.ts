@@ -1,6 +1,7 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import {
   practicePack,
+  practicePackAttempt,
   practicePackQuestions,
   practicePackUserAnswer,
   question,
@@ -65,39 +66,6 @@ const SEED_DATA = {
     },
   ],
 
-  pack1_essay: [
-    {
-      content:
-        "Jelaskan perbedaan antara argumen induktif dan deduktif, serta berikan contoh masing-masing!",
-      correctAnswer:
-        "Argumen deduktif adalah argumen yang kesimpulannya pasti benar jika premisnya benar (contoh: silogisme). Argumen induktif adalah argumen yang kesimpulannya mungkin benar berdasarkan observasi (contoh: generalisasi dari sampel). Deduktif bersifat pasti, induktif bersifat probabilitas.",
-    },
-    {
-      content:
-        "Analisis kekeliruan logika dalam pernyataan: 'Semua politisi korup, maka tidak ada politisi yang jujur.'",
-      correctAnswer:
-        "Pernyataan ini mengandung fallacy hasty generalization (generalisasi terburu-buru) dan false dichotomy. Premis 'semua politisi korup' sendiri sudah merupakan generalisasi yang tidak valid. Kesimpulan mengabaikan kemungkinan adanya politisi yang jujur, menciptakan dikotomi palsu antara korup dan jujur.",
-    },
-    {
-      content:
-        "Jika diketahui: (1) Semua A adalah B, (2) Semua B adalah C. Buatlah kesimpulan yang valid dan jelaskan alasannya!",
-      correctAnswer:
-        "Kesimpulan yang valid adalah 'Semua A adalah C'. Ini menggunakan silogisme kategorikal dengan pola transitif. Jika A termasuk dalam B, dan B termasuk dalam C, maka secara logis A juga termasuk dalam C. Contoh: Semua kucing adalah mamalia, semua mamalia adalah hewan, maka semua kucing adalah hewan.",
-    },
-    {
-      content:
-        "Evaluasi validitas argumen berikut: 'Cuaca panas menyebabkan orang membeli es krim. Penjualan es krim meningkat. Maka cuaca sedang panas.'",
-      correctAnswer:
-        "Argumen ini tidak valid karena mengandung fallacy affirming the consequent. Struktur logikanya: Jika P maka Q, Q benar, maka P benar. Ini keliru karena Q (penjualan meningkat) bisa disebabkan faktor lain selain P (cuaca panas), misalnya promosi, hari libur, atau acara khusus.",
-    },
-    {
-      content:
-        "Susun argumen yang logis untuk mendukung atau menolak pernyataan: 'Teknologi AI akan menggantikan semua pekerjaan manusia.'",
-      correctAnswer:
-        "Argumen menolak: (1) AI unggul dalam tugas berulang dan komputasi, tetapi lemah dalam kreativitas, empati, dan judgment kompleks. (2) Sejarah menunjukkan teknologi baru menciptakan jenis pekerjaan baru. (3) Banyak pekerjaan memerlukan interaksi manusia yang tidak bisa digantikan AI. (4) Regulasi dan etika akan membatasi penggunaan AI. Kesimpulan: AI akan mengubah, bukan menggantikan semua pekerjaan manusia.",
-    },
-  ],
-
   pack2_mcq: [
     {
       content:
@@ -153,45 +121,14 @@ const SEED_DATA = {
       ],
     },
   ],
-
-  pack2_essay: [
-    {
-      content:
-        "Identifikasi dan jelaskan fallacy (kekeliruan logika) dalam pernyataan: 'Orang kaya sukses karena kerja keras. Jika kamu tidak sukses, berarti kamu tidak kerja keras.'",
-      correctAnswer:
-        "Pernyataan ini mengandung beberapa fallacy: (1) Post hoc ergo propter hoc - mengasumsikan korelasi adalah kausalitas, (2) Oversimplification - mengabaikan faktor lain seperti privilege, kesempatan, dan keberuntungan, (3) False dichotomy - seolah hanya ada dua kemungkinan (sukses karena kerja keras, atau tidak sukses karena malas), padahal ada banyak variabel lain yang mempengaruhi kesuksesan.",
-    },
-    {
-      content:
-        "Diberikan premis: (1) Jika hujan, jalanan basah, (2) Jalanan basah, (3) Mobil melaju lambat. Apakah valid menyimpulkan 'Karena hujan, mobil melaju lambat'? Jelaskan!",
-      correctAnswer:
-        "Tidak valid. Ini adalah fallacy affirming the consequent. Dari premis (1) dan (2), kita tidak bisa menyimpulkan pasti bahwa hujan (jalanan bisa basah karena dicuci, pipa bocor, dll). Premis (3) juga tidak memiliki hubungan kausal yang jelas dengan premis lain. Kesimpulan mengasumsikan hubungan kausal yang tidak terbukti dari premis yang ada.",
-    },
-    {
-      content:
-        "Analisis argumen berikut: 'Semakin banyak pemadam kebakaran di lokasi, semakin besar kerusakan yang terjadi. Maka pemadam kebakaran menyebabkan kerusakan.'",
-      correctAnswer:
-        "Argumen ini keliru karena confusing correlation with causation. Korelasi antara jumlah pemadam kebakaran dan kerusakan memang ada, tetapi bukan sebab-akibat. Keduanya disebabkan oleh variabel ketiga: besarnya kebakaran. Kebakaran besar memerlukan lebih banyak pemadam dan menyebabkan kerusakan lebih besar. Ini adalah contoh klasik dari spurious correlation.",
-    },
-    {
-      content:
-        "Buatlah silogisme yang valid dengan struktur: (1) Premis Mayor, (2) Premis Minor, (3) Kesimpulan. Gunakan tema pendidikan!",
-      correctAnswer:
-        "Contoh silogisme valid: (1) Premis Mayor: Semua mahasiswa yang lulus S1 mendapat gelar sarjana. (2) Premis Minor: Dewi adalah mahasiswa yang lulus S1. (3) Kesimpulan: Dewi mendapat gelar sarjana. Silogisme ini valid karena mengikuti struktur Barbara (All A are B, C is A, therefore C is B).",
-    },
-    {
-      content:
-        "Evaluasi kekuatan argumen: 'Dalam survei 100 responden di Jakarta, 80% menyukai kopi. Maka 80% orang Indonesia menyukai kopi.' Apa kelemahannya?",
-      correctAnswer:
-        "Argumen ini lemah karena: (1) Sampling bias - sampel hanya dari Jakarta, tidak representatif untuk seluruh Indonesia, (2) Hasty generalization - generalisasi dari sampel kecil ke populasi besar, (3) Mengabaikan variasi geografis, budaya, dan demografi Indonesia yang sangat beragam, (4) Ukuran sampel 100 terlalu kecil untuk populasi 270+ juta. Untuk kesimpulan yang valid, perlu sampel yang lebih besar, acak, dan tersebar secara geografis.",
-    },
-  ],
 };
 
 export async function clearPractice(db: NodePgDatabase) {
-  await db.delete(practicePackQuestions);
-  await db.delete(question);
   await db.delete(practicePackUserAnswer);
+  await db.delete(questionAnswerOption);
+  await db.delete(practicePackQuestions);
+  await db.delete(practicePackAttempt);
+  await db.delete(question);
   await db.delete(practicePack);
 }
 
@@ -231,21 +168,6 @@ export async function seedPractice(db: NodePgDatabase) {
     });
   }
 
-  for (const essayData of SEED_DATA.pack1_essay) {
-    const [q] = await db
-      .insert(question)
-      .values({ content: essayData.content, type: "essay" })
-      .returning();
-
-    if (!q) throw new Error("Failed to create question");
-
-    await db.insert(practicePackQuestions).values({
-      practicePackId: pack1.id,
-      questionId: q.id,
-      order: order++,
-    });
-  }
-
   order = 1;
   for (const mcqData of SEED_DATA.pack2_mcq) {
     const [q] = await db
@@ -270,11 +192,7 @@ export async function seedPractice(db: NodePgDatabase) {
     });
   }
 
-  const totalQuestions =
-    SEED_DATA.pack1_mcq.length +
-    SEED_DATA.pack1_essay.length +
-    SEED_DATA.pack2_mcq.length +
-    SEED_DATA.pack2_essay.length;
+  const totalQuestions = SEED_DATA.pack1_mcq.length + SEED_DATA.pack2_mcq.length;
 
   console.log(`Practice: ${packs.length} packs, ${totalQuestions} questions`);
 }

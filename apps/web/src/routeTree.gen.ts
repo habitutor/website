@@ -9,18 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LoadRouteImport } from './routes/load'
+import { Route as LatihanSoalRouteImport } from './routes/latihan-soal'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BeforeLoadRouteImport } from './routes/before-load'
 import { Route as IndexRouteImport } from './routes/index'
 
-const PracticeRoute = PracticeRouteImport.update({
-  id: '/practice',
-  path: '/practice',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -29,6 +24,11 @@ const LoginRoute = LoginRouteImport.update({
 const LoadRoute = LoadRouteImport.update({
   id: '/load',
   path: '/load',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LatihanSoalRoute = LatihanSoalRouteImport.update({
+  id: '/latihan-soal',
+  path: '/latihan-soal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -51,26 +51,26 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/before-load': typeof BeforeLoadRoute
   '/dashboard': typeof DashboardRoute
+  '/latihan-soal': typeof LatihanSoalRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
-  '/practice': typeof PracticeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/before-load': typeof BeforeLoadRoute
   '/dashboard': typeof DashboardRoute
+  '/latihan-soal': typeof LatihanSoalRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
-  '/practice': typeof PracticeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/before-load': typeof BeforeLoadRoute
   '/dashboard': typeof DashboardRoute
+  '/latihan-soal': typeof LatihanSoalRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
-  '/practice': typeof PracticeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,39 +78,32 @@ export interface FileRouteTypes {
     | '/'
     | '/before-load'
     | '/dashboard'
+    | '/latihan-soal'
     | '/load'
     | '/login'
-    | '/practice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/before-load' | '/dashboard' | '/load' | '/login' | '/practice'
+  to: '/' | '/before-load' | '/dashboard' | '/latihan-soal' | '/load' | '/login'
   id:
     | '__root__'
     | '/'
     | '/before-load'
     | '/dashboard'
+    | '/latihan-soal'
     | '/load'
     | '/login'
-    | '/practice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BeforeLoadRoute: typeof BeforeLoadRoute
   DashboardRoute: typeof DashboardRoute
+  LatihanSoalRoute: typeof LatihanSoalRoute
   LoadRoute: typeof LoadRoute
   LoginRoute: typeof LoginRoute
-  PracticeRoute: typeof PracticeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/practice': {
-      id: '/practice'
-      path: '/practice'
-      fullPath: '/practice'
-      preLoaderRoute: typeof PracticeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -123,6 +116,13 @@ declare module '@tanstack/react-router' {
       path: '/load'
       fullPath: '/load'
       preLoaderRoute: typeof LoadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/latihan-soal': {
+      id: '/latihan-soal'
+      path: '/latihan-soal'
+      fullPath: '/latihan-soal'
+      preLoaderRoute: typeof LatihanSoalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -153,9 +153,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BeforeLoadRoute: BeforeLoadRoute,
   DashboardRoute: DashboardRoute,
+  LatihanSoalRoute: LatihanSoalRoute,
   LoadRoute: LoadRoute,
   LoginRoute: LoginRoute,
-  PracticeRoute: PracticeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
