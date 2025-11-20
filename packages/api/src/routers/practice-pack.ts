@@ -13,7 +13,27 @@ import { and, eq, inArray } from "drizzle-orm";
 import { protectedProcedure, publicProcedure } from "../index";
 
 const list = publicProcedure.handler(async ({ context }) => {
-  return await db(context.env).select().from(practicePack);
+  const attempts = await db(context.env)
+    .select({
+      id: practicePack.id,
+      attemptId: practicePackAttempt.id,
+      title: practicePack.title,
+      status: practicePackAttempt.status ?? "not_started",
+      startedAt: practicePackAttempt.startedAt,
+      completedAt: practicePackAttempt.completedAt,
+    })
+    .from(practicePack)
+    .leftJoin(
+      practicePackAttempt,
+      eq(practicePack.id, practicePackAttempt.practicePackId),
+    );
+
+  if (!attempts)
+    throw new ORPCError("NOT_FOUND", {
+      message: "Gagal menemukan latihan soal",
+    });
+
+  return attempts;
 });
 
 const getById = publicProcedure
@@ -79,7 +99,7 @@ const create = protectedProcedure
 
 const startAttempt = protectedProcedure
   .input(type({ id: "number" }))
-  .output(type({ message: "string" }))
+  .output(type({ message: "string", attemptId: "number" }))
   .handler(async ({ input, context }) => {
     const [attempt] = await db(context.env)
       .insert(practicePackAttempt)
@@ -96,6 +116,7 @@ const startAttempt = protectedProcedure
 
     return {
       message: `Memulai latihan soal ${input.id}`,
+      attemptId: attempt.id,
     };
   });
 

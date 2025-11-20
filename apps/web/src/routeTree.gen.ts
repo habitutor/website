@@ -11,10 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LoadRouteImport } from './routes/load'
-import { Route as LatihanSoalRouteImport } from './routes/latihan-soal'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BeforeLoadRouteImport } from './routes/before-load'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LatihanSoalIndexRouteImport } from './routes/latihan-soal/index'
+import { Route as LatihanSoalIdRouteImport } from './routes/latihan-soal/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -24,11 +25,6 @@ const LoginRoute = LoginRouteImport.update({
 const LoadRoute = LoadRouteImport.update({
   id: '/load',
   path: '/load',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LatihanSoalRoute = LatihanSoalRouteImport.update({
-  id: '/latihan-soal',
-  path: '/latihan-soal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -46,31 +42,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LatihanSoalIndexRoute = LatihanSoalIndexRouteImport.update({
+  id: '/latihan-soal/',
+  path: '/latihan-soal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LatihanSoalIdRoute = LatihanSoalIdRouteImport.update({
+  id: '/latihan-soal/$id',
+  path: '/latihan-soal/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/before-load': typeof BeforeLoadRoute
   '/dashboard': typeof DashboardRoute
-  '/latihan-soal': typeof LatihanSoalRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
+  '/latihan-soal/$id': typeof LatihanSoalIdRoute
+  '/latihan-soal': typeof LatihanSoalIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/before-load': typeof BeforeLoadRoute
   '/dashboard': typeof DashboardRoute
-  '/latihan-soal': typeof LatihanSoalRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
+  '/latihan-soal/$id': typeof LatihanSoalIdRoute
+  '/latihan-soal': typeof LatihanSoalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/before-load': typeof BeforeLoadRoute
   '/dashboard': typeof DashboardRoute
-  '/latihan-soal': typeof LatihanSoalRoute
   '/load': typeof LoadRoute
   '/login': typeof LoginRoute
+  '/latihan-soal/$id': typeof LatihanSoalIdRoute
+  '/latihan-soal/': typeof LatihanSoalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,28 +87,38 @@ export interface FileRouteTypes {
     | '/'
     | '/before-load'
     | '/dashboard'
-    | '/latihan-soal'
     | '/load'
     | '/login'
+    | '/latihan-soal/$id'
+    | '/latihan-soal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/before-load' | '/dashboard' | '/latihan-soal' | '/load' | '/login'
+  to:
+    | '/'
+    | '/before-load'
+    | '/dashboard'
+    | '/load'
+    | '/login'
+    | '/latihan-soal/$id'
+    | '/latihan-soal'
   id:
     | '__root__'
     | '/'
     | '/before-load'
     | '/dashboard'
-    | '/latihan-soal'
     | '/load'
     | '/login'
+    | '/latihan-soal/$id'
+    | '/latihan-soal/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BeforeLoadRoute: typeof BeforeLoadRoute
   DashboardRoute: typeof DashboardRoute
-  LatihanSoalRoute: typeof LatihanSoalRoute
   LoadRoute: typeof LoadRoute
   LoginRoute: typeof LoginRoute
+  LatihanSoalIdRoute: typeof LatihanSoalIdRoute
+  LatihanSoalIndexRoute: typeof LatihanSoalIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,13 +135,6 @@ declare module '@tanstack/react-router' {
       path: '/load'
       fullPath: '/load'
       preLoaderRoute: typeof LoadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/latihan-soal': {
-      id: '/latihan-soal'
-      path: '/latihan-soal'
-      fullPath: '/latihan-soal'
-      preLoaderRoute: typeof LatihanSoalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -146,6 +158,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/latihan-soal/': {
+      id: '/latihan-soal/'
+      path: '/latihan-soal'
+      fullPath: '/latihan-soal'
+      preLoaderRoute: typeof LatihanSoalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/latihan-soal/$id': {
+      id: '/latihan-soal/$id'
+      path: '/latihan-soal/$id'
+      fullPath: '/latihan-soal/$id'
+      preLoaderRoute: typeof LatihanSoalIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -153,9 +179,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BeforeLoadRoute: BeforeLoadRoute,
   DashboardRoute: DashboardRoute,
-  LatihanSoalRoute: LatihanSoalRoute,
   LoadRoute: LoadRoute,
   LoginRoute: LoginRoute,
+  LatihanSoalIdRoute: LatihanSoalIdRoute,
+  LatihanSoalIndexRoute: LatihanSoalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
