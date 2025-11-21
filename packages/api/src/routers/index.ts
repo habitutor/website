@@ -3,6 +3,7 @@ import { user } from "@habitutor/db/schema/auth";
 import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { protectedProcedure, publicProcedure } from "../index";
+import { practicePackRouter } from "./practice-pack";
 
 export const appRouter = {
   healthCheck: publicProcedure.handler(() => {
@@ -23,6 +24,7 @@ export const appRouter = {
   users: publicProcedure.handler(async ({ context }) => {
     return await db(context.env).select().from(user);
   }),
+  practicePack: practicePackRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

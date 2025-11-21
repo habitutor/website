@@ -26,6 +26,7 @@
 		"@orpc/client": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/arktype": "catalog:",
+		"drizzle-orm": "catalog:",
 		"hono": "catalog:",
 		"dotenv": "catalog:",
 		"arktype": "catalog:",
