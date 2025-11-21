@@ -28,6 +28,6 @@
 		"tsdown": "catalog:",
 		"@habitutor/config": "workspace:*",
 		"wrangler": "catalog:",
-		"@types/node": "^22.13.11"
+		"@types/node": "^24.10.1"
 	}
 }
