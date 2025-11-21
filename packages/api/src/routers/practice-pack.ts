@@ -126,10 +126,6 @@ const find = protectedProcedure
       (a, b) => a.order - b.order,
     );
 
-    for (const question of pack.questions) {
-      console.log("answers: ", question.selectedAnswerId);
-    }
-
     return pack;
   });
 
