@@ -9,10 +9,11 @@ import {
 } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq, inArray } from "drizzle-orm";
-import { protectedProcedure, publicProcedure } from "../index";
+import { and, eq } from "drizzle-orm";
+import { protectedProcedure } from "../index";
+import type { Question } from "../types/practice-pack";
 
-const list = publicProcedure.handler(async ({ context }) => {
+const list = protectedProcedure.handler(async ({ context }) => {
   const attempts = await db(context.env)
     .select({
       id: practicePack.id,
@@ -25,7 +26,10 @@ const list = publicProcedure.handler(async ({ context }) => {
     .from(practicePack)
     .leftJoin(
       practicePackAttempt,
-      eq(practicePack.id, practicePackAttempt.practicePackId),
+      and(
+        eq(practicePack.id, practicePackAttempt.practicePackId),
+        eq(practicePackAttempt.userId, context.session?.session.id),
+      ),
     );
 
   if (!attempts)
@@ -36,77 +40,110 @@ const list = publicProcedure.handler(async ({ context }) => {
   return attempts;
 });
 
-const getById = publicProcedure
-  .input(type({ id: "number" }))
-  .handler(async ({ input, context }) => {
-    const [pack] = await db(context.env)
-      .select()
-      .from(practicePack)
-      .where(eq(practicePack.id, input.id))
-      .limit(1);
-
-    if (!pack)
-      throw new ORPCError("NOT_FOUND", {
-        message: "Gagal menemukan latihan soal",
-      });
-
-    return pack;
-  });
-
-const getQuestions = publicProcedure
+const find = protectedProcedure
   .input(type({ practicePackId: "number" }))
   .handler(async ({ input, context }) => {
     const database = db(context.env);
 
-    const packQuestions = await database
+    // YES 50 INNER JOIN LAGI
+    const rows = await database
       .select({
-        practicePackId: practicePackQuestions.practicePackId,
+        attemptId: practicePackAttempt.id,
+        title: practicePack.title,
+        status: practicePackAttempt.status,
+        startedAt: practicePackAttempt.startedAt,
+        completedAt: practicePackAttempt.completedAt,
         questionId: practicePackQuestions.questionId,
-        order: practicePackQuestions.order,
-        content: question.content,
-        type: question.type,
+        questionOrder: practicePackQuestions.order,
+        questionContent: question.content,
+        answerId: questionAnswerOption.id,
+        answerContent: questionAnswerOption.content,
+        userSelectedAnswerId: practicePackUserAnswer.selectedAnswerId,
       })
-      .from(practicePackQuestions)
-      .innerJoin(question, eq(practicePackQuestions.questionId, question.id))
-      .where(eq(practicePackQuestions.practicePackId, input.practicePackId));
+      .from(practicePack)
+      .innerJoin(
+        practicePackAttempt,
+        eq(practicePackAttempt.practicePackId, practicePack.id),
+      )
+      .innerJoin(
+        practicePackQuestions,
+        eq(practicePackQuestions.practicePackId, practicePack.id),
+      )
+      .innerJoin(question, eq(question.id, practicePackQuestions.questionId))
+      .innerJoin(
+        questionAnswerOption,
+        eq(questionAnswerOption.questionId, question.id),
+      )
+      .leftJoin(
+        practicePackUserAnswer,
+        and(
+          eq(practicePackUserAnswer.questionId, question.id),
+          eq(practicePackUserAnswer.attemptId, practicePackAttempt.id),
+        ),
+      )
+      .where(
+        and(
+          eq(practicePack.id, input.practicePackId),
+          eq(practicePackAttempt.userId, context.session.user.id),
+        ),
+      );
 
-    if (packQuestions.length === 0) {
-      throw new ORPCError("NOT_FOUND");
+    if (rows.length === 0 || !rows[0])
+      throw new ORPCError("NOT_FOUND", {
+        message: "Gagal menemukan latihan soal",
+      });
+
+    const pack = {
+      attemptId: rows[0].attemptId,
+      title: rows[0].title,
+      status: rows[0].status,
+      startedAt: rows[0].startedAt,
+      completedAt: rows[0].completedAt,
+      questions: [] as Question[],
+    };
+
+    const questionMap = new Map<number, Question>();
+
+    for (const row of rows) {
+      if (!questionMap.has(row.questionId))
+        questionMap.set(row.questionId, {
+          id: row.questionId,
+          // set order fallback to 1 or 999 as a default
+          order: row.questionOrder ?? 1,
+          content: row.questionContent,
+          selectedAnswerId: row.userSelectedAnswerId,
+          answers: [],
+        });
+
+      questionMap.get(row.questionId)?.answers.push({
+        id: row.answerId,
+        content: row.answerContent,
+      });
     }
 
-    const questionIds = packQuestions.map((q) => q.questionId);
+    // Format and sort the questions based on order
+    pack.questions = Array.from(questionMap.values()).sort(
+      (a, b) => a.order - b.order,
+    );
 
-    const answers = await database
-      .select()
-      .from(questionAnswerOption)
-      .where(inArray(questionAnswerOption.questionId, questionIds));
+    for (const question of pack.questions) {
+      console.log("answers: ", question.answers);
+    }
 
-    return packQuestions.map((pq) => ({
-      ...pq,
-      answers: answers.filter((ans) => ans.questionId === pq.questionId),
-    }));
-  });
-
-const create = protectedProcedure
-  .input(type({ title: "string" }))
-  .handler(async ({ input, context }) => {
-    const [pack] = await db(context.env)
-      .insert(practicePack)
-      .values({ title: input.title })
-      .returning();
     return pack;
   });
 
 const startAttempt = protectedProcedure
-  .input(type({ id: "number" }))
+  .input(type({ practicePackId: "number" }))
   .output(type({ message: "string", attemptId: "number" }))
   .handler(async ({ input, context }) => {
     const [attempt] = await db(context.env)
       .insert(practicePackAttempt)
       .values({
-        practicePackId: input.id,
+        practicePackId: input.practicePackId,
         userId: context.session.user.id,
       })
+      .onConflictDoNothing()
       .returning();
 
     if (!attempt)
@@ -115,7 +152,7 @@ const startAttempt = protectedProcedure
       });
 
     return {
-      message: `Memulai latihan soal ${input.id}`,
+      message: "Memulai latihan soal",
       attemptId: attempt.id,
     };
   });
@@ -202,10 +239,8 @@ const submitAttempt = protectedProcedure
 
 export const practicePackRouter = {
   list,
-  getById,
-  getQuestions,
-  create,
+  find,
   startAttempt,
-  saveAnswer,
   submitAttempt,
+  saveAnswer,
 };

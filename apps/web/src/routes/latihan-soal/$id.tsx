@@ -1,70 +1,69 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Label } from "@/components/ui/label";
-import { client, queryClient } from "@/utils/orpc";
+import { orpc, queryClient } from "@/utils/orpc";
 
 export const Route = createFileRoute("/latihan-soal/$id")({
+  params: {
+    parse: (rawParams) => {
+      const id = Number(rawParams.id);
+      return { id };
+    },
+  },
   component: RouteComponent,
-  validateSearch: (search: Record<string, unknown>) => ({
-    attemptId: Number(search.attemptId),
-  }),
 });
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { attemptId } = Route.useSearch();
   const navigate = useNavigate();
-  const practicePackId = Number(id);
 
   const [answers, setAnswers] = useState<Record<number, number>>({});
 
-  const pack = useQuery({
-    queryKey: ["practicePack", practicePackId],
-    queryFn: () => client.practicePack.getById({ id: practicePackId }),
-  });
+  const pack = useQuery(
+    orpc.practicePack.find.queryOptions({
+      input: {
+        practicePackId: id,
+      },
+    }),
+  );
 
-  const questions = useQuery({
-    queryKey: ["practicePackQuestions", practicePackId],
-    queryFn: () => client.practicePack.getQuestions({ practicePackId }),
-  });
+  const saveMutation = useMutation(
+    orpc.practicePack.saveAnswer.mutationOptions(),
+  );
 
-  const saveMutation = useMutation({
-    mutationFn: (params: {
-      attemptId: number;
-      questionId: number;
-      selectedAnswerId: number;
-    }) => client.practicePack.saveAnswer(params),
-  });
-
-  const submitMutation = useMutation({
-    mutationFn: (attemptId: number) =>
-      client.practicePack.submitAttempt({ attemptId }),
-    onSuccess: (data) => {
-      toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: ["practicePack"] });
-      navigate({ to: "/latihan-soal" });
-    },
-  });
+  const submitMutation = useMutation(
+    orpc.practicePack.submitAttempt.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(data.message);
+        queryClient.invalidateQueries({
+          queryKey: orpc.practicePack.key(),
+        });
+        navigate({ to: "/latihan-soal" });
+      },
+    }),
+  );
 
   const handleAnswerChange = (questionId: number, answerId: number) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
-    if (attemptId) {
+    if (pack.data?.attemptId) {
       saveMutation.mutate({
-        attemptId,
+        attemptId: pack.data.attemptId,
         questionId,
         selectedAnswerId: answerId,
       });
     }
   };
 
+  if (Number.isNaN(id)) return notFound();
+
   const handleSubmit = () => {
-    if (attemptId) {
-      submitMutation.mutate(attemptId);
+    if (pack.data?.attemptId) {
+      submitMutation.mutate({ attemptId: pack.data.attemptId });
     }
   };
 
@@ -88,15 +87,9 @@ function RouteComponent() {
     <Container className="pt-20">
       <h1 className="mb-6 font-bold text-2xl">{pack.data?.title}</h1>
 
-      {questions.isLoading && <p className="animate-pulse">Loading questions...</p>}
-
-      {questions.isError && (
-        <p className="text-red-500">Error: {questions.error.message}</p>
-      )}
-
       <div className="space-y-6">
-        {questions.data?.map((q, idx) => (
-          <Card key={q.questionId} className="p-6">
+        {pack.data?.questions.map((q, idx) => (
+          <Card key={q.id} className="p-6">
             <h3 className="mb-4 font-medium text-lg">
               {idx + 1}. {q.content}
             </h3>
@@ -108,10 +101,10 @@ function RouteComponent() {
                 >
                   <input
                     type="radio"
-                    name={`question-${q.questionId}`}
+                    name={`question-${q.id}`}
                     value={answer.id}
-                    checked={answers[q.questionId] === answer.id}
-                    onChange={() => handleAnswerChange(q.questionId, answer.id)}
+                    checked={answers[q.id] === answer.id}
+                    onChange={() => handleAnswerChange(q.id, answer.id)}
                     className="cursor-pointer"
                   />
                   <span>{answer.content}</span>
@@ -121,17 +114,16 @@ function RouteComponent() {
           </Card>
         ))}
 
-        {questions.data && questions.data.length > 0 && (
+        {pack.data?.questions && pack.data.questions.length > 0 && (
           <Button
             onClick={handleSubmit}
             disabled={submitMutation.isPending}
             className="w-full"
           >
-            {submitMutation.isPending ? "Submitting..." : "Submit Attempt"}
+            {submitMutation.isPending ? "Memasak..." : "Kumpulkan"}
           </Button>
         )}
       </div>
     </Container>
   );
 }
-

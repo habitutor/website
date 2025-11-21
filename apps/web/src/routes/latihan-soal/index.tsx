@@ -6,20 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { getUser } from "@/lib/get-user";
-import { client, orpc } from "@/utils/orpc";
+import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/latihan-soal/")({
   beforeLoad: async () => {
     const session = await getUser();
-    if (!session)
-      throw redirect({
-        to: "/login",
-        search: {
-          redirect: location.href,
-        },
-      });
 
     return { session };
+  },
+  loader: async ({ context }) => {
+    if (!context.session)
+      throw redirect({
+        to: "/login",
+      });
   },
   component: RouteComponent,
 });
@@ -28,22 +27,22 @@ function RouteComponent() {
   const navigate = useNavigate();
   const packs = useQuery(orpc.practicePack.list.queryOptions());
 
-  const startMutation = useMutation({
-    mutationFn: (id: number) => client.practicePack.startAttempt({ id }),
-    onSuccess: (data, packId) => {
-      toast.success(data.message);
-      navigate({
-        to: "/latihan-soal/$id",
-        params: { id: String(packId) },
-        search: { attemptId: data.attemptId },
-      });
-    },
-    onError: (data) => {
-      toast.error("Error", {
-        description: () => <p>{data.message}</p>,
-      });
-    },
-  });
+  const startMutation = useMutation(
+    orpc.practicePack.startAttempt.mutationOptions({
+      onSuccess: (data, pack) => {
+        toast.success(data.message);
+        navigate({
+          to: "/latihan-soal/$id",
+          params: { id: pack.practicePackId },
+        });
+      },
+      onError: (data) => {
+        toast.error("Error", {
+          description: () => <p>{data.message}</p>,
+        });
+      },
+    }),
+  );
 
   return (
     <Container className="pt-20">
@@ -71,7 +70,11 @@ function RouteComponent() {
                   type="button"
                   variant={"secondary"}
                   className="flex-1"
-                  onClick={() => startMutation.mutate(pack.id)}
+                  onClick={() =>
+                    startMutation.mutate({
+                      practicePackId: pack.id,
+                    })
+                  }
                   disabled={startMutation.isPending}
                 >
                   <Eye />
