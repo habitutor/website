@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,8 +22,6 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
 
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-
   const pack = useQuery(
     orpc.practicePack.find.queryOptions({
       input: {
@@ -31,6 +29,20 @@ function RouteComponent() {
       },
     }),
   );
+
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    if (pack.data?.questions) {
+      const savedAnswers: Record<number, number> = {};
+      pack.data.questions.forEach((q) => {
+        if (q.selectedAnswerId !== null) {
+          savedAnswers[q.id] = q.selectedAnswerId;
+        }
+      });
+      setAnswers(savedAnswers);
+    }
+  }, [pack.data]);
 
   const saveMutation = useMutation(
     orpc.practicePack.saveAnswer.mutationOptions(),
@@ -41,7 +53,7 @@ function RouteComponent() {
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({
-          queryKey: orpc.practicePack.key(),
+          queryKey: orpc.practicePack.list.key(),
         });
         navigate({ to: "/latihan-soal" });
       },

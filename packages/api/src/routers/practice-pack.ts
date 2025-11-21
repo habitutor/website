@@ -1,11 +1,11 @@
 import {
-  db,
-  practicePack,
-  practicePackAttempt,
-  practicePackQuestions,
-  practicePackUserAnswer,
-  question,
-  questionAnswerOption,
+	db,
+	practicePack,
+	practicePackAttempt,
+	practicePackQuestions,
+	practicePackUserAnswer,
+	question,
+	questionAnswerOption,
 } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
@@ -28,7 +28,7 @@ const list = protectedProcedure.handler(async ({ context }) => {
       practicePackAttempt,
       and(
         eq(practicePack.id, practicePackAttempt.practicePackId),
-        eq(practicePackAttempt.userId, context.session?.session.id),
+        eq(practicePackAttempt.userId, context.session.user.id),
       ),
     );
 
@@ -127,7 +127,7 @@ const find = protectedProcedure
     );
 
     for (const question of pack.questions) {
-      console.log("answers: ", question.answers);
+      console.log("answers: ", question.selectedAnswerId);
     }
 
     return pack;
@@ -195,12 +195,21 @@ const saveAnswer = protectedProcedure
     if (currentAttempt.status !== "ongoing")
       throw new ORPCError("UNPROCESSABLE_CONTENT", {
         message:
-          "Tidak bisa menyimpan jawaban pada tes yang tidak sedang berlangsung",
+          "Tidak bisa menyimpan jawaban pada latihan soal yang tidak sedang berlangsung",
       });
 
-    await database.insert(practicePackUserAnswer).values({
-      ...input,
-    });
+    await database
+      .insert(practicePackUserAnswer)
+      .values({
+        ...input,
+      })
+      .onConflictDoUpdate({
+        target: [
+          practicePackUserAnswer.attemptId,
+          practicePackUserAnswer.questionId,
+        ],
+        set: { selectedAnswerId: input.selectedAnswerId },
+      });
 
     return { message: "Berhasil menyimpan jawaban!" };
   });
@@ -229,7 +238,7 @@ const submitAttempt = protectedProcedure
 
     if (!attempt)
       throw new ORPCError("NOT_FOUND", {
-        message: "Gagal menemukan sesi latihan soal",
+        message: "Gagal memulai sesi latihan soal",
       });
 
     return {
