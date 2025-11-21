@@ -1,4 +1,3 @@
-import { env } from "cloudflare:workers";
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
 import { auth } from "@habitutor/auth";
@@ -11,23 +10,20 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
-const app = new Hono<{ Bindings: CloudflareBindings }>();
+const app = new Hono();
 
 app.use(logger());
 app.use(
   "/*",
   cors({
-    origin: [
-      env.CORS_ORIGIN || "https://habitutor-server.ithabitutor.workers.dev",
-      "http://localhost:3000", // for local development
-    ],
+    origin: [process.env.CORS_ORIGIN || "http://localhost:3000"],
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => auth(c.env).handler(c.req.raw));
+app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [
@@ -78,8 +74,7 @@ app.get("/", (c) => {
   return c.text("OK");
 });
 
-app.get("/cors", (c) => {
-  return c.text(c.env.CORS_ORIGIN);
-});
-
-export default app;
+export default {
+  port: process.env.PORT || 3001,
+  fetch: app.fetch,
+};

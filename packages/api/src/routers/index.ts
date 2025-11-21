@@ -21,8 +21,8 @@ export const appRouter = {
     .handler(({ input }) => {
       return `hello ${input}`;
     }),
-  users: publicProcedure.handler(async ({ context }) => {
-    return await db(context.env).select().from(user);
+  users: publicProcedure.handler(async () => {
+    return await db.select().from(user);
   }),
   practicePack: practicePackRouter,
 };

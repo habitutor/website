@@ -6,14 +6,12 @@ export type CreateContextOptions = {
 };
 
 export async function createContext({ context }: CreateContextOptions) {
-	const authInstance = auth(context.env);
-
-	const session = await authInstance.api.getSession({
+	const session = await auth.api.getSession({
 		headers: context.req.raw.headers,
 	});
+
 	return {
 		session,
-		env: context.env,
 	};
 }
 

@@ -14,7 +14,7 @@ import { protectedProcedure } from "../index";
 import type { Question } from "../types/practice-pack";
 
 const list = protectedProcedure.handler(async ({ context }) => {
-  const attempts = await db(context.env)
+  const attempts = await db
     .select({
       id: practicePack.id,
       attemptId: practicePackAttempt.id,
@@ -43,10 +43,8 @@ const list = protectedProcedure.handler(async ({ context }) => {
 const find = protectedProcedure
   .input(type({ practicePackId: "number" }))
   .handler(async ({ input, context }) => {
-    const database = db(context.env);
-
     // YES 50 INNER JOIN LAGI
-    const rows = await database
+    const rows = await db
       .select({
         attemptId: practicePackAttempt.id,
         title: practicePack.title,
@@ -133,7 +131,7 @@ const startAttempt = protectedProcedure
   .input(type({ practicePackId: "number" }))
   .output(type({ message: "string", attemptId: "number" }))
   .handler(async ({ input, context }) => {
-    const [attempt] = await db(context.env)
+    const [attempt] = await db
       .insert(practicePackAttempt)
       .values({
         practicePackId: input.practicePackId,
@@ -167,9 +165,7 @@ const saveAnswer = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const database = db(context.env);
-
-    const [currentAttempt] = await database
+    const [currentAttempt] = await db
       .select({
         userId: practicePackAttempt.userId,
         status: practicePackAttempt.status,
@@ -194,7 +190,7 @@ const saveAnswer = protectedProcedure
           "Tidak bisa menyimpan jawaban pada latihan soal yang tidak sedang berlangsung",
       });
 
-    await database
+    await db
       .insert(practicePackUserAnswer)
       .values({
         ...input,
@@ -218,7 +214,7 @@ const submitAttempt = protectedProcedure
   )
   .output(type({ message: "string" }))
   .handler(async ({ context, input }) => {
-    const [attempt] = await db(context.env)
+    const [attempt] = await db
       .update(practicePackAttempt)
       .set({
         completedAt: new Date(),

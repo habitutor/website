@@ -5,9 +5,7 @@
 	"scripts": {
 		"build": "vite build",
 		"serve": "vite preview --port=3000",
-		"dev": "vite dev --port=3000",
-		"deploy": "bun run build && wrangler deploy",
-		"cf-typegen": "wrangler types --env-interface Env"
+		"dev": "vite dev --port=3000"
 	},
 	"dependencies": {
 		"radix-ui": "^1.4.2",
@@ -49,8 +47,6 @@
 		"vite": "^7.2.4",
 		"web-vitals": "^5.0.3",
 		"@tanstack/react-query-devtools": "^5.85.5",
-		"@habitutor/config": "workspace:*",
-		"wrangler": "catalog:",
-		"@cloudflare/vite-plugin": "^1.15.2"
+		"@habitutor/config": "workspace:*"
 	}
 }
