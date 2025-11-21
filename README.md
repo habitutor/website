@@ -65,14 +65,6 @@ BETTER_AUTH_URL={your-production-server-domain}
 - In `apps/server/src/lib/auth.ts`, uncomment the `session.cookieCache` and `advanced.crossSubDomainCookies` sections and replace `<your-workers-subdomain>` with your actual workers subdomain. These settings are required to ensure cookies are transferred properly between your web and server domains.
 
 
-
-
-## Deployment (Cloudflare Wrangler)
-- Web deploy: cd apps/web && bun run deploy
-- Server dev: cd apps/server && bun run dev
-- Server deploy: cd apps/server && bun run deploy
-
-
 ## Project Structure
 
 ```

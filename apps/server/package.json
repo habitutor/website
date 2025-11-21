@@ -24,7 +24,6 @@
     "typescript": "catalog:",
     "tsdown": "catalog:",
     "@habitutor/config": "workspace:*",
-    "wrangler": "catalog:",
     "@types/node": "^24.10.1"
   }
 }
