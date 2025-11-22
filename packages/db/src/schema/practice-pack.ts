@@ -60,6 +60,7 @@ export const practicePackQuestions = pgTable(
 export const question = pgTable("question", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   content: text("content").notNull(),
+  discussion: text("discussion").notNull(),
 });
 
 export const questionAnswerOption = pgTable("question_answer_option", {
@@ -67,7 +68,7 @@ export const questionAnswerOption = pgTable("question_answer_option", {
   questionId: integer("question_id")
     .notNull()
     .references(() => question.id, { onDelete: "cascade" }),
-  content: text("content").notNull(),
+  content: text().notNull(),
   isCorrect: boolean("is_correct").default(false),
 });
 

@@ -9,7 +9,7 @@ import {
 } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, count, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { authed } from "../index";
 import type { Question } from "../types/practice-pack";
 
@@ -316,6 +316,7 @@ const historyByPack = authed
         questionId: practicePackQuestions.questionId,
         questionOrder: practicePackQuestions.order,
         questionContent: question.content,
+        questionDiscussion: question.discussion,
         answerId: questionAnswerOption.id,
         answerContent: questionAnswerOption.content,
         answerIsCorrect: questionAnswerOption.isCorrect,
@@ -382,6 +383,7 @@ const historyByPack = authed
           // set order fallback to 1 or 999 as a default
           order: row.questionOrder ?? 1,
           content: row.questionContent,
+          discussion: row.questionDiscussion,
           selectedAnswerId: row.userSelectedAnswerId,
           userAnswerIsCorrect,
           answers: [],

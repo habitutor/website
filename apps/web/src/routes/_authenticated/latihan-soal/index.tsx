@@ -28,7 +28,7 @@ function RouteComponent() {
       </div>
 
       <div className="space-y-4">
-        {packs.isLoading && (
+        {packs.isPending && (
           <p className="animate-pulse">Memasak Nasi Custom...</p>
         )}
 

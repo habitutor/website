@@ -15,6 +15,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Semua siswa yang rajin belajar akan lulus ujian. Budi tidak lulus ujian. Kesimpulan yang tepat adalah...",
+			discussion: "Ini adalah contoh modus tollens. Jika premis 'Semua siswa rajin → lulus' benar, dan faktanya Budi tidak lulus, maka Budi pasti tidak rajin belajar.",
 			answers: [
 				{ content: "Budi tidak rajin belajar", isCorrect: true },
 				{ content: "Budi rajin belajar", isCorrect: false },
@@ -25,6 +26,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Jika hari ini hujan, maka jalanan akan basah. Jalanan tidak basah. Kesimpulan yang tepat adalah...",
+			discussion: "Modus tollens: Jika hujan → jalanan basah. Jalanan tidak basah, maka tidak hujan.",
 			answers: [
 				{ content: "Hari ini tidak hujan", isCorrect: true },
 				{ content: "Hari ini hujan", isCorrect: false },
@@ -35,6 +37,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Dalam suatu kelas, setiap siswa yang suka matematika juga suka fisika. Ana suka matematika. Maka...",
+			discussion: "Modus ponens: Jika suka matematika → suka fisika. Ana suka matematika, maka Ana pasti suka fisika.",
 			answers: [
 				{ content: "Ana pasti suka fisika", isCorrect: true },
 				{ content: "Ana tidak suka fisika", isCorrect: false },
@@ -45,6 +48,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Semua bunga mawar berwarna merah. Beberapa tanaman di taman adalah bunga mawar. Kesimpulan yang tepat adalah...",
+			discussion: "Silogisme: Semua mawar merah, beberapa tanaman adalah mawar, maka beberapa tanaman pasti merah.",
 			answers: [
 				{
 					content: "Beberapa tanaman di taman berwarna merah",
@@ -57,6 +61,7 @@ const SEED_DATA = {
 		},
 		{
 			content: "Jika A lebih tinggi dari B, dan B lebih tinggi dari C, maka...",
+			discussion: "Transitif: Jika A > B dan B > C, maka A > C.",
 			answers: [
 				{ content: "A lebih tinggi dari C", isCorrect: true },
 				{ content: "C lebih tinggi dari A", isCorrect: false },
@@ -70,6 +75,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Tidak ada ikan yang bisa hidup di darat. Hiu adalah ikan. Kesimpulan yang tepat adalah...",
+			discussion: "Silogisme kategorikal: Tidak ada ikan yang hidup di darat, hiu adalah ikan, maka hiu tidak bisa hidup di darat.",
 			answers: [
 				{ content: "Hiu tidak bisa hidup di darat", isCorrect: true },
 				{ content: "Hiu bisa hidup di darat", isCorrect: false },
@@ -80,6 +86,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Semua dokter adalah sarjana. Beberapa sarjana adalah peneliti. Kesimpulan yang PASTI BENAR adalah...",
+			discussion: "Tidak ada hubungan pasti antara dokter dan peneliti. Hanya diketahui keduanya subset dari sarjana, tapi tidak ada irisan yang pasti.",
 			answers: [
 				{ content: "Tidak dapat disimpulkan dengan pasti", isCorrect: true },
 				{ content: "Semua dokter adalah peneliti", isCorrect: false },
@@ -90,6 +97,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Jika cuaca cerah, maka Andi pergi ke pantai. Andi pergi ke pantai. Maka...",
+			discussion: "Ini adalah kesalahan logika 'affirming the consequent'. Andi bisa pergi ke pantai karena alasan lain, tidak harus cuaca cerah.",
 			answers: [
 				{
 					content: "Tidak dapat disimpulkan tentang cuaca",
@@ -103,6 +111,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Urutan yang benar dari yang terbesar ke terkecil: P > Q, R < Q, S > P. Maka urutan yang benar adalah...",
+			discussion: "S > P (given), P > Q (given), Q > R (dari R < Q). Jadi: S > P > Q > R.",
 			answers: [
 				{ content: "S > P > Q > R", isCorrect: true },
 				{ content: "P > S > Q > R", isCorrect: false },
@@ -113,6 +122,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Dalam sebuah lomba, A lebih cepat dari B tetapi lebih lambat dari C. D lebih cepat dari C. Siapa yang tercepat?",
+			discussion: "D > C > A > B. D paling cepat karena lebih cepat dari C, dan C lebih cepat dari semua yang lain.",
 			answers: [
 				{ content: "D", isCorrect: true },
 				{ content: "C", isCorrect: false },
@@ -148,7 +158,7 @@ export async function seedPractice(db: NodePgDatabase) {
 	for (const mcqData of SEED_DATA.pack1_mcq) {
 		const [q] = await db
 			.insert(question)
-			.values({ content: mcqData.content, type: "mcq" })
+			.values({ content: mcqData.content, discussion: mcqData.discussion })
 			.returning();
 
 		if (!q) throw new Error("Failed to create question");
@@ -172,7 +182,7 @@ export async function seedPractice(db: NodePgDatabase) {
 	for (const mcqData of SEED_DATA.pack2_mcq) {
 		const [q] = await db
 			.insert(question)
-			.values({ content: mcqData.content, type: "mcq" })
+			.values({ content: mcqData.content, discussion: mcqData.discussion })
 			.returning();
 
 		if (!q) throw new Error("Failed to create question");

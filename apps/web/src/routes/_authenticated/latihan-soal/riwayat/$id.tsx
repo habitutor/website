@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Lightbulb, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
@@ -32,7 +32,7 @@ function RouteComponent() {
 
   if (Number.isNaN(id)) return notFound();
 
-  if (history.isLoading) {
+  if (history.isPending) {
     return (
       <Container className="pt-20">
         <p className="animate-pulse">Memuat detail...</p>
@@ -51,7 +51,8 @@ function RouteComponent() {
   const correctAnswers =
     history.data?.questions.filter((q) => q.userAnswerIsCorrect).length ?? 0;
   const totalQuestions = history.data?.questions.length ?? 0;
-  const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+  const score =
+    totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
 
   return (
     <Container className="pt-20">
@@ -92,13 +93,13 @@ function RouteComponent() {
           </div>
           <div>
             <p className="text-muted-foreground text-sm">Benar</p>
-            <p className="font-bold text-green-600 text-3xl">
+            <p className="font-bold text-3xl text-green-600">
               {correctAnswers}
             </p>
           </div>
           <div>
             <p className="text-muted-foreground text-sm">Salah</p>
-            <p className="font-bold text-red-600 text-3xl">
+            <p className="font-bold text-3xl text-red-600">
               {totalQuestions - correctAnswers}
             </p>
           </div>
@@ -106,73 +107,70 @@ function RouteComponent() {
       </Card>
 
       <div className="space-y-6">
-        {history.data?.questions.map((q, idx) => {
-          const userAnswer = q.answers.find(
-            (ans) => ans.id === q.selectedAnswerId,
-          );
-          const correctAnswer = q.answers.find((ans) => ans.isCorrect);
-
-          return (
-            <Card key={q.id} className="p-6">
-              <div className="mb-4 flex items-start justify-between">
-                <h3 className="flex-1 font-medium text-lg">
-                  {idx + 1}. {q.content}
-                </h3>
-                {q.userAnswerIsCorrect ? (
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                ) : (
-                  <XCircle className="h-6 w-6 text-red-600" />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                {q.answers.map((answer) => {
-                  const isUserAnswer = answer.id === q.selectedAnswerId;
-                  const isCorrectAnswer = answer.isCorrect;
-
-                  return (
-                    <Label
-                      key={answer.id}
-                      className={`flex cursor-default items-center gap-2 rounded border p-3 ${
-                        isCorrectAnswer
-                          ? "border-green-600 bg-green-50"
-                          : isUserAnswer
-                            ? "border-red-600 bg-red-50"
-                            : ""
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name={`question-${q.id}`}
-                        value={answer.id}
-                        checked={isUserAnswer}
-                        disabled
-                        className="cursor-default"
-                      />
-                      <span className="flex-1">{answer.content}</span>
-                      {isCorrectAnswer && (
-                        <span className="text-green-600 text-xs">
-                          Jawaban Benar
-                        </span>
-                      )}
-                      {isUserAnswer && !isCorrectAnswer && (
-                        <span className="text-red-600 text-xs">
-                          Jawaban Anda
-                        </span>
-                      )}
-                    </Label>
-                  );
-                })}
-              </div>
-
-              {!q.selectedAnswerId && (
-                <p className="mt-2 text-muted-foreground text-sm">
-                  Tidak dijawab
-                </p>
+        {history.data?.questions.map((q, idx) => (
+          <Card key={q.id} className="p-6">
+            <div className="mb-4 flex items-start justify-between">
+              <h3 className="flex-1 font-medium text-lg">
+                {idx + 1}. {q.content}
+              </h3>
+              {q.userAnswerIsCorrect ? (
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              ) : (
+                <XCircle className="h-6 w-6 text-red-600" />
               )}
-            </Card>
-          );
-        })}
+            </div>
+            <div className="space-y-2">
+              {q.answers.map((answer) => {
+                const isUserAnswer = answer.id === q.selectedAnswerId;
+                const isCorrectAnswer = answer.isCorrect;
+
+                return (
+                  <Label
+                    key={answer.id}
+                    className={`flex cursor-default items-center gap-2 rounded border border-border p-3 ${isCorrectAnswer
+                        ? "bg-green-800"
+                        : isUserAnswer && "bg-muted text-muted-foreground"
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`question-${q.id}`}
+                      value={answer.id}
+                      checked={isUserAnswer}
+                      disabled
+                      className="cursor-default"
+                    />
+                    <span className="flex-1">{answer.content}</span>
+                    {isCorrectAnswer && (
+                      <span className="text-green-500 text-xs">
+                        Jawaban Benar
+                      </span>
+                    )}
+                    {isUserAnswer && !isCorrectAnswer && (
+                      <span className="text-destructive text-xs">
+                        Jawaban Anda
+                      </span>
+                    )}
+                  </Label>
+                );
+              })}
+            </div>
+            {!q.selectedAnswerId && (
+              <p className="mt-2 text-muted-foreground text-sm">
+                Tidak dijawab
+              </p>
+            )}
+            {q.discussion && (
+              <div className="mt-4 rounded-lg border bg-accent p-4">
+                <div className="mb-2 flex items-center gap-2 font-medium text-sm">
+                  <Lightbulb className="h-4 w-4 text-amber-200" />
+                  Pembahasan
+                </div>
+                <p className="text-sm">{q.discussion}</p>
+              </div>
+            )}
+          </Card>
+        ))}
       </div>
     </Container>
   );
