@@ -1,0 +1,27 @@
+server:
+  - changed-files:
+      - any-glob-to-any-file: apps/server/**
+
+web:
+  - changed-files:
+      - any-glob-to-any-file: apps/web/**
+
+db:
+  - changed-files:
+      - any-glob-to-any-file: packages/db/**
+
+api:
+  - changed-files:
+      - any-glob-to-any-file: packages/api/**
+
+auth:
+  - changed-files:
+      - any-glob-to-any-file: packages/auth/**
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ["**/*.md", "**/*.{md,mdx,markdown}"]
+
+deps:
+  - changed-files:
+    - any-glob-to-any-file: **/package.json
