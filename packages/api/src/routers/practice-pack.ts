@@ -10,10 +10,10 @@ import {
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq } from "drizzle-orm";
-import { protectedProcedure } from "../index";
+import { authed } from "../index";
 import type { Question } from "../types/practice-pack";
 
-const list = protectedProcedure
+const list = authed
   .route({
     path: "/practice-packs",
     method: "GET",
@@ -46,7 +46,7 @@ const list = protectedProcedure
     return attempts;
   });
 
-const find = protectedProcedure
+const find = authed
   .route({
     path: "/practice-packs/{id}",
     method: "GET",
@@ -138,7 +138,7 @@ const find = protectedProcedure
     return pack;
   });
 
-const startAttempt = protectedProcedure
+const startAttempt = authed
   .route({
     path: "/practice-packs/{id}/start",
     method: "POST",
@@ -167,7 +167,7 @@ const startAttempt = protectedProcedure
     };
   });
 
-const saveAnswer = protectedProcedure
+const saveAnswer = authed
   .route({
     path: "/practice-packs/{id}/{questionId}/save",
     method: "POST",
@@ -235,7 +235,7 @@ const saveAnswer = protectedProcedure
     return { message: "Berhasil menyimpan jawaban!" };
   });
 
-const submitAttempt = protectedProcedure
+const submitAttempt = authed
   .route({
     path: "/practice-packs/{id}/submit",
     method: "POST",
