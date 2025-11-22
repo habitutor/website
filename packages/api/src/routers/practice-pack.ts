@@ -318,6 +318,7 @@ const historyByPack = authed
         questionContent: question.content,
         answerId: questionAnswerOption.id,
         answerContent: questionAnswerOption.content,
+        answerIsCorrect: questionAnswerOption.isCorrect,
         userSelectedAnswerId: practicePackUserAnswer.selectedAnswerId,
         startedAt: practicePackAttempt.startedAt,
         completedAt: practicePackAttempt.completedAt,
@@ -361,26 +362,47 @@ const historyByPack = authed
       title: rows[0].title,
       startedAt: rows[0].startedAt,
       completedAt: rows[0].completedAt,
-      questions: [] as Question[],
+      questions: [] as (Question & { userAnswerIsCorrect: boolean })[],
     };
 
-    const questionMap = new Map<number, Question>();
+    const questionMap = new Map<
+      number,
+      Question & { userAnswerIsCorrect: boolean }
+    >();
 
     for (const row of rows) {
-      if (!questionMap.has(row.questionId))
+      if (!questionMap.has(row.questionId)) {
+        const userAnswerIsCorrect =
+          row.userSelectedAnswerId !== null &&
+          row.answerIsCorrect === true &&
+          row.userSelectedAnswerId === row.answerId;
+
         questionMap.set(row.questionId, {
           id: row.questionId,
           // set order fallback to 1 or 999 as a default
           order: row.questionOrder ?? 1,
           content: row.questionContent,
           selectedAnswerId: row.userSelectedAnswerId,
+          userAnswerIsCorrect,
           answers: [],
         });
+      }
 
       questionMap.get(row.questionId)?.answers.push({
         id: row.answerId,
         content: row.answerContent,
+        isCorrect: row.answerIsCorrect ?? undefined,
       });
+
+      // Update userAnswerIsCorrect if this row shows the user selected the correct answer
+      const question = questionMap.get(row.questionId);
+      if (
+        question &&
+        row.userSelectedAnswerId === row.answerId &&
+        row.answerIsCorrect === true
+      ) {
+        question.userAnswerIsCorrect = true;
+      }
     }
 
     // Format and sort the questions based on order
