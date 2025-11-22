@@ -93,7 +93,7 @@ function RouteComponent() {
           </div>
           <div>
             <p className="text-muted-foreground text-sm">Benar</p>
-            <p className="font-bold text-3xl text-green-600">
+            <p className="font-bold text-3xl text-green-800">
               {correctAnswers}
             </p>
           </div>
@@ -128,7 +128,7 @@ function RouteComponent() {
                   <Label
                     key={answer.id}
                     className={`flex cursor-default items-center gap-2 rounded border border-border p-3 ${isCorrectAnswer
-                        ? "bg-green-800"
+                        ? "bg-green-600"
                         : isUserAnswer && "bg-muted text-muted-foreground"
                       }`}
                   >

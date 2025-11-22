@@ -290,7 +290,7 @@ const history = authed
       })
       .from(practicePackAttempt)
       .where(eq(practicePackAttempt.userId, context.session.user.id))
-      .orderBy(desc(practicePackAttempt.completedAt));
+      .orderBy(desc(practicePackAttempt.startedAt));
 
     return {
       packsFinished: attempts.filter((pack) => pack.status === "finished")
