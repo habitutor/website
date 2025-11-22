@@ -1,0 +1,10 @@
+api:
+  - 'apps/server/**'
+  - 'packages/**'
+
+web:
+  - 'apps/web/**'
+
+documentation:
+  - '**/*.md'
+  - '**/*.{md,mdx,markdown}'
