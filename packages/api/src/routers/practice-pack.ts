@@ -9,7 +9,7 @@ import {
 } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { authed } from "../index";
 import type { Question } from "../types/practice-pack";
 
@@ -272,10 +272,131 @@ const submitAttempt = authed
     };
   });
 
+const history = authed
+  .route({
+    path: "/practice-packs/history",
+    method: "GET",
+    tags: ["Practice Packs"],
+  })
+  .handler(async ({ context }) => {
+    const attempts = await db
+      .select({
+        count: count(),
+        practicePackId: practicePackAttempt.practicePackId,
+        startedAt: practicePackAttempt.startedAt,
+        completedAt: practicePackAttempt.completedAt,
+        status: practicePackAttempt.status,
+      })
+      .from(practicePackAttempt)
+      .where(eq(practicePackAttempt.userId, context.session.user.id));
+
+    return {
+      packsFinished: attempts[0]?.count,
+      data: attempts,
+    };
+  });
+
+const historyByPack = authed
+  .route({
+    path: "/practice-packs/{id}/history",
+    method: "GET",
+    tags: ["Practice Packs"],
+  })
+  .input(
+    type({
+      id: "number",
+    }),
+  )
+  .handler(async ({ input, context }) => {
+    // same query as .find()
+    const rows = await db
+      .select({
+        attemptId: practicePackAttempt.id,
+        title: practicePack.title,
+        questionId: practicePackQuestions.questionId,
+        questionOrder: practicePackQuestions.order,
+        questionContent: question.content,
+        answerId: questionAnswerOption.id,
+        answerContent: questionAnswerOption.content,
+        userSelectedAnswerId: practicePackUserAnswer.selectedAnswerId,
+        startedAt: practicePackAttempt.startedAt,
+        completedAt: practicePackAttempt.completedAt,
+      })
+      .from(practicePack)
+      .innerJoin(
+        practicePackAttempt,
+        eq(practicePackAttempt.practicePackId, practicePack.id),
+      )
+      .innerJoin(
+        practicePackQuestions,
+        eq(practicePackQuestions.practicePackId, practicePack.id),
+      )
+      .innerJoin(question, eq(question.id, practicePackQuestions.questionId))
+      .innerJoin(
+        questionAnswerOption,
+        eq(questionAnswerOption.questionId, question.id),
+      )
+      .leftJoin(
+        practicePackUserAnswer,
+        and(
+          eq(practicePackUserAnswer.questionId, question.id),
+          eq(practicePackUserAnswer.attemptId, practicePackAttempt.id),
+        ),
+      )
+      .where(
+        and(
+          eq(practicePack.id, input.id),
+          eq(practicePackAttempt.userId, context.session.user.id),
+          eq(practicePackAttempt.status, "finished"),
+        ),
+      );
+
+    if (rows.length === 0 || !rows[0])
+      throw new ORPCError("NOT_FOUND", {
+        message: "Gagal menemukan latihan soal",
+      });
+
+    const pack = {
+      attemptId: rows[0].attemptId,
+      title: rows[0].title,
+      startedAt: rows[0].startedAt,
+      completedAt: rows[0].completedAt,
+      questions: [] as Question[],
+    };
+
+    const questionMap = new Map<number, Question>();
+
+    for (const row of rows) {
+      if (!questionMap.has(row.questionId))
+        questionMap.set(row.questionId, {
+          id: row.questionId,
+          // set order fallback to 1 or 999 as a default
+          order: row.questionOrder ?? 1,
+          content: row.questionContent,
+          selectedAnswerId: row.userSelectedAnswerId,
+          answers: [],
+        });
+
+      questionMap.get(row.questionId)?.answers.push({
+        id: row.answerId,
+        content: row.answerContent,
+      });
+    }
+
+    // Format and sort the questions based on order
+    pack.questions = Array.from(questionMap.values()).sort(
+      (a, b) => a.order - b.order,
+    );
+
+    return pack;
+  });
+
 export const practicePackRouter = {
   list,
   find,
   startAttempt,
   submitAttempt,
   saveAnswer,
+  history,
+  historyByPack,
 };
