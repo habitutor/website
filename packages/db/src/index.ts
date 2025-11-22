@@ -1,13 +1,13 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import * as practice from "./schema/practice";
+import * as practice from "./schema/practice-pack";
 
 export const db = drizzle({
-	connection: process.env.DATABASE_URL || "",
-	casing: "snake_case",
-	schema: {
-		...practice,
-	},
+  connection: process.env.DATABASE_URL || "",
+  casing: "snake_case",
+  schema: {
+    ...practice,
+  },
 });
 
 export * from "./schema/auth";
-export * from "./schema/practice";
+export * from "./schema/practice-pack";

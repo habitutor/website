@@ -1,10 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Check, Eye } from "lucide-react";
+import { ArrowRight, Check, Eye, LogsIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/latihan-soal/")({
@@ -15,11 +14,20 @@ function RouteComponent() {
   const packs = useQuery(orpc.practicePack.list.queryOptions());
 
   return (
-    <Container className="pt-20">
-      <h1 className="mb-6 font-bold text-2xl">Latihan Soal</h1>
+    <>
+      <div className="flex justify-between gap-4">
+        <h1 className="mb-6 font-bold text-2xl">Latihan Soal</h1>
+
+        <Button asChild>
+          <Link to="/latihan-soal/riwayat">
+            <LogsIcon />
+            Lihat Riwayat
+          </Link>
+        </Button>
+      </div>
 
       <div className="space-y-4">
-        {packs.isLoading && (
+        {packs.isPending && (
           <p className="animate-pulse">Memasak Nasi Custom...</p>
         )}
 
@@ -42,7 +50,7 @@ function RouteComponent() {
           ))}
         </div>
       </div>
-    </Container>
+    </>
   );
 }
 

@@ -79,7 +79,7 @@ function RouteComponent() {
     }
   };
 
-  if (pack.isLoading) {
+  if (pack.isPending) {
     return (
       <Container className="pt-20">
         <p className="animate-pulse">Loading...</p>
@@ -96,7 +96,7 @@ function RouteComponent() {
   }
 
   return (
-    <Container className="pt-20">
+    <>
       <h1 className="mb-6 font-bold text-2xl">{pack.data?.title}</h1>
 
       <div className="space-y-6">
@@ -136,6 +136,6 @@ function RouteComponent() {
           </Button>
         )}
       </div>
-    </Container>
+    </>
   );
 }

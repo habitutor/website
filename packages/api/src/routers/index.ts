@@ -1,10 +1,10 @@
 import type { RouterClient } from "@orpc/server";
-import { publicProcedure } from "../index";
+import { pub } from "../index";
 import { practicePackRouter } from "./practice-pack";
 import { type } from "arktype";
 
 export const appRouter = {
-  healthCheck: publicProcedure
+  healthCheck: pub
     .route({
       path: "/healthcheck",
       method: "GET",

@@ -9,11 +9,11 @@ import {
 } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq } from "drizzle-orm";
-import { protectedProcedure } from "../index";
+import { and, desc, eq } from "drizzle-orm";
+import { authed } from "../index";
 import type { Question } from "../types/practice-pack";
 
-const list = protectedProcedure
+const list = authed
   .route({
     path: "/practice-packs",
     method: "GET",
@@ -46,7 +46,7 @@ const list = protectedProcedure
     return attempts;
   });
 
-const find = protectedProcedure
+const find = authed
   .route({
     path: "/practice-packs/{id}",
     method: "GET",
@@ -65,6 +65,7 @@ const find = protectedProcedure
         questionId: practicePackQuestions.questionId,
         questionOrder: practicePackQuestions.order,
         questionContent: question.content,
+        questionDiscussion: question.discussion,
         answerId: questionAnswerOption.id,
         answerContent: questionAnswerOption.content,
         userSelectedAnswerId: practicePackUserAnswer.selectedAnswerId,
@@ -120,6 +121,7 @@ const find = protectedProcedure
           // set order fallback to 1 or 999 as a default
           order: row.questionOrder ?? 1,
           content: row.questionContent,
+          discussion: row.questionDiscussion,
           selectedAnswerId: row.userSelectedAnswerId,
           answers: [],
         });
@@ -138,7 +140,7 @@ const find = protectedProcedure
     return pack;
   });
 
-const startAttempt = protectedProcedure
+const startAttempt = authed
   .route({
     path: "/practice-packs/{id}/start",
     method: "POST",
@@ -167,7 +169,7 @@ const startAttempt = protectedProcedure
     };
   });
 
-const saveAnswer = protectedProcedure
+const saveAnswer = authed
   .route({
     path: "/practice-packs/{id}/{questionId}/save",
     method: "POST",
@@ -235,7 +237,7 @@ const saveAnswer = protectedProcedure
     return { message: "Berhasil menyimpan jawaban!" };
   });
 
-const submitAttempt = protectedProcedure
+const submitAttempt = authed
   .route({
     path: "/practice-packs/{id}/submit",
     method: "POST",
@@ -272,10 +274,156 @@ const submitAttempt = protectedProcedure
     };
   });
 
+const history = authed
+  .route({
+    path: "/practice-packs/history",
+    method: "GET",
+    tags: ["Practice Packs"],
+  })
+  .handler(async ({ context }) => {
+    const attempts = await db
+      .select({
+        practicePackId: practicePackAttempt.practicePackId,
+        startedAt: practicePackAttempt.startedAt,
+        completedAt: practicePackAttempt.completedAt,
+        status: practicePackAttempt.status,
+      })
+      .from(practicePackAttempt)
+      .where(eq(practicePackAttempt.userId, context.session.user.id))
+      .orderBy(desc(practicePackAttempt.startedAt));
+
+    return {
+      packsFinished: attempts.filter((pack) => pack.status === "finished")
+        .length,
+      data: attempts,
+    };
+  });
+
+const historyByPack = authed
+  .route({
+    path: "/practice-packs/{id}/history",
+    method: "GET",
+    tags: ["Practice Packs"],
+  })
+  .input(
+    type({
+      id: "number",
+    }),
+  )
+  .handler(async ({ input, context }) => {
+    // same query as .find()
+    const rows = await db
+      .select({
+        attemptId: practicePackAttempt.id,
+        title: practicePack.title,
+        questionId: practicePackQuestions.questionId,
+        questionOrder: practicePackQuestions.order,
+        questionContent: question.content,
+        questionDiscussion: question.discussion,
+        answerId: questionAnswerOption.id,
+        answerContent: questionAnswerOption.content,
+        answerIsCorrect: questionAnswerOption.isCorrect,
+        userSelectedAnswerId: practicePackUserAnswer.selectedAnswerId,
+        startedAt: practicePackAttempt.startedAt,
+        completedAt: practicePackAttempt.completedAt,
+      })
+      .from(practicePack)
+      .innerJoin(
+        practicePackAttempt,
+        eq(practicePackAttempt.practicePackId, practicePack.id),
+      )
+      .innerJoin(
+        practicePackQuestions,
+        eq(practicePackQuestions.practicePackId, practicePack.id),
+      )
+      .innerJoin(question, eq(question.id, practicePackQuestions.questionId))
+      .innerJoin(
+        questionAnswerOption,
+        eq(questionAnswerOption.questionId, question.id),
+      )
+      .leftJoin(
+        practicePackUserAnswer,
+        and(
+          eq(practicePackUserAnswer.questionId, question.id),
+          eq(practicePackUserAnswer.attemptId, practicePackAttempt.id),
+        ),
+      )
+      .where(
+        and(
+          eq(practicePack.id, input.id),
+          eq(practicePackAttempt.userId, context.session.user.id),
+          eq(practicePackAttempt.status, "finished"),
+        ),
+      );
+
+    if (rows.length === 0 || !rows[0])
+      throw new ORPCError("NOT_FOUND", {
+        message: "Gagal menemukan latihan soal",
+      });
+
+    const pack = {
+      attemptId: rows[0].attemptId,
+      title: rows[0].title,
+      startedAt: rows[0].startedAt,
+      completedAt: rows[0].completedAt,
+      questions: [] as (Question & { userAnswerIsCorrect: boolean })[],
+    };
+
+    const questionMap = new Map<
+      number,
+      Question & { userAnswerIsCorrect: boolean }
+    >();
+
+    for (const row of rows) {
+      if (!questionMap.has(row.questionId)) {
+        const userAnswerIsCorrect =
+          row.userSelectedAnswerId !== null &&
+          row.answerIsCorrect === true &&
+          row.userSelectedAnswerId === row.answerId;
+
+        questionMap.set(row.questionId, {
+          id: row.questionId,
+          // set order fallback to 1 or 999 as a default
+          order: row.questionOrder ?? 1,
+          content: row.questionContent,
+          discussion: row.questionDiscussion,
+          selectedAnswerId: row.userSelectedAnswerId,
+          userAnswerIsCorrect,
+          answers: [],
+        });
+      }
+
+      questionMap.get(row.questionId)?.answers.push({
+        id: row.answerId,
+        content: row.answerContent,
+        isCorrect: row.answerIsCorrect ?? undefined,
+      });
+
+      // Update userAnswerIsCorrect if this row shows the user selected the correct answer
+      const question = questionMap.get(row.questionId);
+      if (
+        question &&
+        row.userSelectedAnswerId === row.answerId &&
+        row.answerIsCorrect === true
+      ) {
+        question.userAnswerIsCorrect = true;
+      }
+    }
+
+    // Format and sort the questions based on order
+    pack.questions = Array.from(questionMap.values()).sort(
+      (a, b) => a.order - b.order,
+    );
+
+    return pack;
+  });
+
 export const practicePackRouter = {
   list,
   find,
   startAttempt,
   submitAttempt,
   saveAnswer,
+  history,
+  historyByPack,
 };
