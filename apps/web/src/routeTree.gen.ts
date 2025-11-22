@@ -10,31 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as LoadRouteImport } from './routes/load'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as BeforeLoadRouteImport } from './routes/before-load'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LatihanSoalIndexRouteImport } from './routes/latihan-soal/index'
-import { Route as LatihanSoalIdRouteImport } from './routes/latihan-soal/$id'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
+import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoadRoute = LoadRouteImport.update({
-  id: '/load',
-  path: '/load',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BeforeLoadRoute = BeforeLoadRouteImport.update({
-  id: '/before-load',
-  path: '/before-load',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -42,83 +30,71 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LatihanSoalIndexRoute = LatihanSoalIndexRouteImport.update({
-  id: '/latihan-soal/',
-  path: '/latihan-soal/',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const LatihanSoalIdRoute = LatihanSoalIdRouteImport.update({
-  id: '/latihan-soal/$id',
-  path: '/latihan-soal/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedLatihanSoalIndexRoute =
+  AuthenticatedLatihanSoalIndexRouteImport.update({
+    id: '/latihan-soal/',
+    path: '/latihan-soal/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedLatihanSoalIdRoute =
+  AuthenticatedLatihanSoalIdRouteImport.update({
+    id: '/latihan-soal/$id',
+    path: '/latihan-soal/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/before-load': typeof BeforeLoadRoute
-  '/dashboard': typeof DashboardRoute
-  '/load': typeof LoadRoute
   '/login': typeof LoginRoute
-  '/latihan-soal/$id': typeof LatihanSoalIdRoute
-  '/latihan-soal': typeof LatihanSoalIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/before-load': typeof BeforeLoadRoute
-  '/dashboard': typeof DashboardRoute
-  '/load': typeof LoadRoute
   '/login': typeof LoginRoute
-  '/latihan-soal/$id': typeof LatihanSoalIdRoute
-  '/latihan-soal': typeof LatihanSoalIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/before-load': typeof BeforeLoadRoute
-  '/dashboard': typeof DashboardRoute
-  '/load': typeof LoadRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/latihan-soal/$id': typeof LatihanSoalIdRoute
-  '/latihan-soal/': typeof LatihanSoalIndexRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/before-load'
-    | '/dashboard'
-    | '/load'
     | '/login'
+    | '/dashboard'
     | '/latihan-soal/$id'
     | '/latihan-soal'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/before-load'
-    | '/dashboard'
-    | '/load'
-    | '/login'
-    | '/latihan-soal/$id'
-    | '/latihan-soal'
+  to: '/' | '/login' | '/dashboard' | '/latihan-soal/$id' | '/latihan-soal'
   id:
     | '__root__'
     | '/'
-    | '/before-load'
-    | '/dashboard'
-    | '/load'
+    | '/_authenticated'
     | '/login'
-    | '/latihan-soal/$id'
-    | '/latihan-soal/'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/latihan-soal/$id'
+    | '/_authenticated/latihan-soal/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BeforeLoadRoute: typeof BeforeLoadRoute
-  DashboardRoute: typeof DashboardRoute
-  LoadRoute: typeof LoadRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
-  LatihanSoalIdRoute: typeof LatihanSoalIdRoute
-  LatihanSoalIndexRoute: typeof LatihanSoalIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -130,25 +106,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/load': {
-      id: '/load'
-      path: '/load'
-      fullPath: '/load'
-      preLoaderRoute: typeof LoadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/before-load': {
-      id: '/before-load'
-      path: '/before-load'
-      fullPath: '/before-load'
-      preLoaderRoute: typeof BeforeLoadRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -158,31 +120,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/latihan-soal/': {
-      id: '/latihan-soal/'
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/latihan-soal/': {
+      id: '/_authenticated/latihan-soal/'
       path: '/latihan-soal'
       fullPath: '/latihan-soal'
-      preLoaderRoute: typeof LatihanSoalIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedLatihanSoalIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/latihan-soal/$id': {
-      id: '/latihan-soal/$id'
+    '/_authenticated/latihan-soal/$id': {
+      id: '/_authenticated/latihan-soal/$id'
       path: '/latihan-soal/$id'
       fullPath: '/latihan-soal/$id'
-      preLoaderRoute: typeof LatihanSoalIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
+  AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
+  AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BeforeLoadRoute: BeforeLoadRoute,
-  DashboardRoute: DashboardRoute,
-  LoadRoute: LoadRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
-  LatihanSoalIdRoute: LatihanSoalIdRoute,
-  LatihanSoalIndexRoute: LatihanSoalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

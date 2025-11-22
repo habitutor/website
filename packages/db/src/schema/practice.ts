@@ -85,7 +85,5 @@ export const practicePackUserAnswer = pgTable(
 			.notNull()
 			.references(() => questionAnswerOption.id, { onDelete: "set null" }),
 	},
-	(t) => [
-		primaryKey({ columns: [t.attemptId, t.questionId] }),
-	],
+	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] })],
 );
