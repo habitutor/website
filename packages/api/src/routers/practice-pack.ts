@@ -48,11 +48,11 @@ const list = protectedProcedure
 
 const find = protectedProcedure
   .route({
-    path: "/practice-packs/{practicePackId}",
+    path: "/practice-packs/{id}",
     method: "GET",
     tags: ["Practice Packs"],
   })
-  .input(type({ practicePackId: "number" }))
+  .input(type({ id: "number" }))
   .handler(async ({ input, context }) => {
     // YES 50 INNER JOIN LAGI
     const rows = await db
@@ -92,7 +92,7 @@ const find = protectedProcedure
       )
       .where(
         and(
-          eq(practicePack.id, input.practicePackId),
+          eq(practicePack.id, input.id),
           eq(practicePackAttempt.userId, context.session.user.id),
         ),
       );
@@ -140,17 +140,17 @@ const find = protectedProcedure
 
 const startAttempt = protectedProcedure
   .route({
-    path: "/practice-packs/{practicePackId}/start",
+    path: "/practice-packs/{id}/start",
     method: "POST",
     tags: ["Practice Packs"],
   })
-  .input(type({ practicePackId: "number" }))
+  .input(type({ id: "number" }))
   .output(type({ message: "string", attemptId: "number" }))
   .handler(async ({ input, context }) => {
     const [attempt] = await db
       .insert(practicePackAttempt)
       .values({
-        practicePackId: input.practicePackId,
+        practicePackId: input.id,
         userId: context.session.user.id,
       })
       .onConflictDoNothing()
@@ -169,13 +169,13 @@ const startAttempt = protectedProcedure
 
 const saveAnswer = protectedProcedure
   .route({
-    path: "/practice-packs/{practicePackId}/{questionId}",
+    path: "/practice-packs/{id}/{questionId}/save",
     method: "POST",
     tags: ["Practice Packs"],
   })
   .input(
     type({
-      practicePackId: "number",
+      id: "number",
       questionId: "number",
       selectedAnswerId: "number",
     }),
@@ -195,7 +195,7 @@ const saveAnswer = protectedProcedure
       .from(practicePackAttempt)
       .where(
         and(
-          eq(practicePackAttempt.practicePackId, input.practicePackId),
+          eq(practicePackAttempt.practicePackId, input.id),
           eq(practicePackAttempt.userId, context.session.user.id),
         ),
       )
@@ -237,13 +237,13 @@ const saveAnswer = protectedProcedure
 
 const submitAttempt = protectedProcedure
   .route({
-    path: "/practice-packs/{practicePackId}/submit",
+    path: "/practice-packs/{id}/submit",
     method: "POST",
     tags: ["Practice Packs"],
   })
   .input(
     type({
-      practicePackId: "number",
+      id: "number",
     }),
   )
   .output(type({ message: "string" }))
@@ -256,7 +256,7 @@ const submitAttempt = protectedProcedure
       })
       .where(
         and(
-          eq(practicePackAttempt.practicePackId, input.practicePackId),
+          eq(practicePackAttempt.practicePackId, input.id),
           eq(practicePackAttempt.userId, context.session.user.id),
         ),
       )

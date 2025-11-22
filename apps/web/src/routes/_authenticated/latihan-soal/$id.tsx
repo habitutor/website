@@ -25,7 +25,7 @@ function RouteComponent() {
   const pack = useQuery(
     orpc.practicePack.find.queryOptions({
       input: {
-        practicePackId: id,
+        id: id,
       },
     }),
   );
@@ -64,7 +64,7 @@ function RouteComponent() {
     setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
     if (pack.data?.attemptId) {
       saveMutation.mutate({
-        practicePackId: id,
+        id: id,
         questionId,
         selectedAnswerId: answerId,
       });
@@ -75,7 +75,7 @@ function RouteComponent() {
 
   const handleSubmit = () => {
     if (pack.data?.attemptId) {
-      submitMutation.mutate({ practicePackId: id });
+      submitMutation.mutate({ id: id });
     }
   };
 
