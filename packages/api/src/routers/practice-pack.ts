@@ -281,7 +281,6 @@ const history = authed
   .handler(async ({ context }) => {
     const attempts = await db
       .select({
-        count: count(),
         practicePackId: practicePackAttempt.practicePackId,
         startedAt: practicePackAttempt.startedAt,
         completedAt: practicePackAttempt.completedAt,
@@ -291,7 +290,8 @@ const history = authed
       .where(eq(practicePackAttempt.userId, context.session.user.id));
 
     return {
-      packsFinished: attempts[0]?.count,
+      packsFinished: attempts.filter((pack) => pack.status === "finished")
+        .length,
       data: attempts,
     };
   });

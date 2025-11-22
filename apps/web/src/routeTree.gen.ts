@@ -15,6 +15,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
+import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
+import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -47,6 +49,18 @@ const AuthenticatedLatihanSoalIdRoute =
     path: '/latihan-soal/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLatihanSoalRiwayatIndexRoute =
+  AuthenticatedLatihanSoalRiwayatIndexRouteImport.update({
+    id: '/latihan-soal/riwayat/',
+    path: '/latihan-soal/riwayat/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedLatihanSoalRiwayatIdRoute =
+  AuthenticatedLatihanSoalRiwayatIdRouteImport.update({
+    id: '/latihan-soal/riwayat/$id',
+    path: '/latihan-soal/riwayat/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +68,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,6 +77,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,6 +88,8 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
+  '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -79,8 +99,17 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/latihan-soal/$id'
     | '/latihan-soal'
+    | '/latihan-soal/riwayat/$id'
+    | '/latihan-soal/riwayat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/latihan-soal/$id' | '/latihan-soal'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/latihan-soal/$id'
+    | '/latihan-soal'
+    | '/latihan-soal/riwayat/$id'
+    | '/latihan-soal/riwayat'
   id:
     | '__root__'
     | '/'
@@ -89,6 +118,8 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/latihan-soal/'
+    | '/_authenticated/latihan-soal/riwayat/$id'
+    | '/_authenticated/latihan-soal/riwayat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -141,6 +172,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/latihan-soal/riwayat/': {
+      id: '/_authenticated/latihan-soal/riwayat/'
+      path: '/latihan-soal/riwayat'
+      fullPath: '/latihan-soal/riwayat'
+      preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/latihan-soal/riwayat/$id': {
+      id: '/_authenticated/latihan-soal/riwayat/$id'
+      path: '/latihan-soal/riwayat/$id'
+      fullPath: '/latihan-soal/riwayat/$id'
+      preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -148,12 +193,18 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
+  AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  AuthenticatedLatihanSoalRiwayatIndexRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
+  AuthenticatedLatihanSoalRiwayatIdRoute:
+    AuthenticatedLatihanSoalRiwayatIdRoute,
+  AuthenticatedLatihanSoalRiwayatIndexRoute:
+    AuthenticatedLatihanSoalRiwayatIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

@@ -6,7 +6,7 @@ import {
 	practicePackUserAnswer,
 	question,
 	questionAnswerOption,
-} from "../schema/practice";
+} from "../schema/practice-pack";
 
 const SEED_DATA = {
 	packs: [{ title: "Penalaran Umum #1" }, { title: "Penalaran Umum #2" }],
