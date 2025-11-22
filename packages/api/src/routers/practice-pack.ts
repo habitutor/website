@@ -1,12 +1,12 @@
+import { db } from "@habitutor/db";
 import {
-  db,
   practicePack,
   practicePackAttempt,
   practicePackQuestions,
   practicePackUserAnswer,
   question,
   questionAnswerOption,
-} from "@habitutor/db";
+} from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq } from "drizzle-orm";

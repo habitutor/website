@@ -8,6 +8,7 @@ import {
   timestamp,
   unique,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { user } from "./auth";
 
 export const practicePack = pgTable("practice_pack", {
@@ -88,3 +89,22 @@ export const practicePackUserAnswer = pgTable(
   },
   (t) => [primaryKey({ columns: [t.attemptId, t.questionId] })],
 );
+
+// Relations
+export const questionRelations = relations(question, ({ many }) => ({
+  answerOptions: many(questionAnswerOption),
+  userFlashcards: many(userFlashcard),
+}));
+
+export const questionAnswerOptionRelations = relations(
+  questionAnswerOption,
+  ({ one }) => ({
+    question: one(question, {
+      fields: [questionAnswerOption.questionId],
+      references: [question.id],
+    }),
+  })
+);
+
+// Import for relations (avoid circular dependency)
+import { userFlashcard } from "./flashcard";

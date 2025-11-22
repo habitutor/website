@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
+import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
 
 export const db = drizzle({
@@ -6,8 +7,6 @@ export const db = drizzle({
   casing: "snake_case",
   schema: {
     ...practice,
+    ...flashcard,
   },
 });
-
-export * from "./schema/auth";
-export * from "./schema/practice-pack";
