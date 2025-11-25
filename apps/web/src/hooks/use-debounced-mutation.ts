@@ -18,6 +18,7 @@ export function useDebouncedMutation<
 	debouncedMutate: (variables: TVariables) => void;
 } {
 	const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+	const isMountedRef = useRef(true);
 	const mutation = useMutation(options);
 	const mutateRef = useRef(mutation.mutate);
 
@@ -28,7 +29,9 @@ export function useDebouncedMutation<
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
+		isMountedRef.current = true;
 		return () => {
+			isMountedRef.current = false;
 			if (timeoutRef.current) {
 				clearTimeout(timeoutRef.current);
 			}
@@ -42,7 +45,9 @@ export function useDebouncedMutation<
 			}
 
 			timeoutRef.current = setTimeout(() => {
-				mutateRef.current(variables);
+				if (isMountedRef.current) {
+					mutateRef.current(variables);
+				}
 			}, delay);
 		},
 		[delay],
