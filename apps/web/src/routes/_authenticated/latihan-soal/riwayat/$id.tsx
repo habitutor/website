@@ -124,55 +124,55 @@ function RouteComponent() {
 								const isUserAnswer = answer.id === q.selectedAnswerId;
 								const isCorrectAnswer = answer.isCorrect;
 
-                return (
-                  <Label
-                    key={answer.id}
-                    className={`flex cursor-default items-center gap-2 rounded border border-border p-3 ${
-                      isCorrectAnswer
-                        ? "bg-green-600"
-                        : isUserAnswer && "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name={`question-${q.id}`}
-                      value={answer.id}
-                      checked={isUserAnswer}
-                      disabled
-                      className="cursor-default"
-                    />
-                    <span className="flex-1">{answer.content}</span>
-                    {isCorrectAnswer && (
-                      <span className="text-green-500 text-xs">
-                        Jawaban Benar
-                      </span>
-                    )}
-                    {isUserAnswer && !isCorrectAnswer && (
-                      <span className="text-destructive text-xs">
-                        Jawaban Anda
-                      </span>
-                    )}
-                  </Label>
-                );
-              })}
-            </div>
-            {!q.selectedAnswerId && (
-              <p className="mt-2 text-muted-foreground text-sm">
-                Tidak dijawab
-              </p>
-            )}
-            {q.discussion && (
-              <div className="mt-4 rounded-lg border bg-accent p-4">
-                <div className="mb-2 flex items-center gap-2 font-medium text-sm">
-                  <Lightbulb className="h-4 w-4 text-amber-200" />
-                  Pembahasan
-                </div>
-                <p className="text-sm">{q.discussion}</p>
-              </div>
-            )}
-          </Card>
-        ))}
-      </div>
-    </Container>
-  );
+								return (
+									<Label
+										key={answer.id}
+										className={`flex cursor-default items-center gap-2 rounded border border-border p-3 ${
+											isCorrectAnswer
+												? "bg-green-600"
+												: isUserAnswer && "bg-muted text-muted-foreground"
+										}`}
+									>
+										<input
+											type="radio"
+											name={`question-${q.id}`}
+											value={answer.id}
+											checked={isUserAnswer}
+											disabled
+											className="cursor-default"
+										/>
+										<span className="flex-1">{answer.content}</span>
+										{isCorrectAnswer && (
+											<span className="text-green-500 text-xs">
+												Jawaban Benar
+											</span>
+										)}
+										{isUserAnswer && !isCorrectAnswer && (
+											<span className="text-destructive text-xs">
+												Jawaban Anda
+											</span>
+										)}
+									</Label>
+								);
+							})}
+						</div>
+						{!q.selectedAnswerId && (
+							<p className="mt-2 text-muted-foreground text-sm">
+								Tidak dijawab
+							</p>
+						)}
+						{q.discussion && (
+							<div className="mt-4 rounded-lg border bg-accent p-4">
+								<div className="mb-2 flex items-center gap-2 font-medium text-sm">
+									<Lightbulb className="h-4 w-4 text-amber-200" />
+									Pembahasan
+								</div>
+								<p className="text-sm">{q.discussion}</p>
+							</div>
+						)}
+					</Card>
+				))}
+			</div>
+		</Container>
+	);
 }

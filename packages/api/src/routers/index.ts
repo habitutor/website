@@ -5,18 +5,18 @@ import { type } from "arktype";
 import { flashcardRouter } from "./flashcard";
 
 export const appRouter = {
-  healthCheck: pub
-    .route({
-      path: "/healthcheck",
-      method: "GET",
-      tags: ["Uncategorized"],
-    })
-    .output(type("string"))
-    .handler(() => {
-      return "OK";
-    }),
-  practicePack: practicePackRouter,
-  flashcard: flashcardRouter,
+	healthCheck: pub
+		.route({
+			path: "/healthcheck",
+			method: "GET",
+			tags: ["Uncategorized"],
+		})
+		.output(type("string"))
+		.handler(() => {
+			return "OK";
+		}),
+	practicePack: practicePackRouter,
+	flashcard: flashcardRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;
