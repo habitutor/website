@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Label } from "@/components/ui/label";
+import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
 import { orpc, queryClient } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/latihan-soal/$id")({
@@ -44,8 +45,9 @@ function RouteComponent() {
 		}
 	}, [pack.data]);
 
-	const saveMutation = useMutation(
+	const saveMutation = useDebouncedMutation(
 		orpc.practicePack.saveAnswer.mutationOptions(),
+		500, // 500ms delay
 	);
 
 	const submitMutation = useMutation(
@@ -62,8 +64,9 @@ function RouteComponent() {
 
 	const handleAnswerChange = (questionId: number, answerId: number) => {
 		setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+		
 		if (pack.data?.attemptId) {
-			saveMutation.mutate({
+			saveMutation.debouncedMutate({
 				id: id,
 				questionId,
 				selectedAnswerId: answerId,
