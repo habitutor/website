@@ -24,12 +24,12 @@ docs:
 
 deps:
   - changed-files:
-      - any-glob-to-any-file: **/package.json
+      - any-glob-to-any-file: "**/package.json"
 
-# Add 'feature' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
+  # Add 'feature' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
 feature:
-   - head-branch: ['^feature', 'feature']
+  - head-branch: ["^feature", "feature"]
 
 # Add 'release' label to any PR that is opened against the `main` branch
 release:
-   - base-branch: 'main'
+  - base-branch: "main"
