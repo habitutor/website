@@ -4,7 +4,7 @@ import type {
 	UseMutationResult,
 } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 export function useDebouncedMutation<
 	TData = unknown,
@@ -19,6 +19,21 @@ export function useDebouncedMutation<
 } {
 	const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 	const mutation = useMutation(options);
+	const mutateRef = useRef(mutation.mutate);
+
+	// Keep the mutate ref up to date
+	useEffect(() => {
+		mutateRef.current = mutation.mutate;
+	}, [mutation.mutate]);
+
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
 
 	const debouncedMutate = useCallback(
 		(variables: TVariables) => {
@@ -27,10 +42,10 @@ export function useDebouncedMutation<
 			}
 
 			timeoutRef.current = setTimeout(() => {
-				mutation.mutate(variables);
+				mutateRef.current(variables);
 			}, delay);
 		},
-		[mutation, delay],
+		[delay],
 	);
 
 	return {
