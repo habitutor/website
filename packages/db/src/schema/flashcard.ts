@@ -4,28 +4,33 @@ import {
   date,
   integer,
   pgTable,
+  primaryKey,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { question, questionAnswerOption } from "./practice-pack";
 
-export const userFlashcard = pgTable("user_flashcard", {
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  questionId: integer("question_id")
-    .notNull()
-    .references(() => question.id, { onDelete: "cascade" }),
-  assignedDate: date("assigned_date", { mode: "date" }).notNull(),
-  answeredAt: timestamp("answered_at"),
-  selectedAnswerId: integer("selected_answer_id").references(
-    () => questionAnswerOption.id,
-    { onDelete: "set null" },
-  ),
-  // isCorrect: boolean("is_correct"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const userFlashcard = pgTable(
+  "user_flashcard",
+  {
+    assignedDate: date("assigned_date", { mode: "date" }).notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    questionId: integer("question_id")
+      .notNull()
+      .references(() => question.id, { onDelete: "cascade" }),
+    answeredAt: timestamp("answered_at"),
+    selectedAnswerId: integer("selected_answer_id").references(
+      () => questionAnswerOption.id,
+      { onDelete: "set null" },
+    ),
+    // isCorrect: boolean("is_correct"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.assignedDate] })],
+);
 
 export const userFlashcardStreak = pgTable("user_flashcard_streak", {
   userId: text("user_id")
