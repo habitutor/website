@@ -1,8 +1,9 @@
 import { db } from "@habitutor/db";
 import { userFlashcard } from "@habitutor/db/schema/flashcard";
+import { question } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq, gte } from "drizzle-orm";
+import { and, eq, gte, notIn } from "drizzle-orm";
 import { authed } from "..";
 
 // Cutoff in 30 Days
@@ -37,11 +38,18 @@ const today = authed
         Date.now() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000,
       );
 
+      const recentlyAssignedSubquery = db
+        .select({ id: userFlashcard.questionId })
+        .from(userFlashcard)
+        .where(
+          and(
+            eq(userFlashcard.userId, context.session.user.id),
+            gte(userFlashcard.assignedDate, dateBoundary),
+          ),
+        );
+
       const availableQuestion = await db.query.question.findFirst({
-        where: and(
-          eq(userFlashcard.userId, context.session.user.id),
-          gte(userFlashcard.assignedDate, dateBoundary),
-        ),
+        where: notIn(question.id, recentlyAssignedSubquery),
         with: {
           answerOptions: true,
         },
@@ -74,21 +82,21 @@ const today = authed
       };
     }
 
-    if (!flashcard)
-      throw new ORPCError("NOT_FOUND", {
-        message: "Gagal menemukan flashcard hari ini.",
-      });
-
     return flashcard;
   });
 
 const saveAnswer = authed
+  .route({
+    path: "/flashcard",
+    method: "POST",
+    tags: ["Flashcard"],
+  })
   .input(type("number"))
   .handler(async ({ context, input }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    await db
+    const [flashcard] = await db
       .update(userFlashcard)
       .set({
         selectedAnswerId: input,
@@ -99,7 +107,13 @@ const saveAnswer = authed
           eq(userFlashcard.userId, context.session.user.id),
           eq(userFlashcard.assignedDate, today),
         ),
-      );
+      )
+      .returning();
+
+    if (!flashcard)
+      throw new ORPCError("NOT_FOUND", {
+        message: "Gagal menemukan flashcard hari ini.",
+      });
   });
 
 export const flashcardRouter = {
