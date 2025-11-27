@@ -115,6 +115,7 @@ const saveAnswer = authed
       throw new ORPCError("NOT_FOUND", {
         message: "Gagal menemukan flashcard hari ini.",
       });
+    return { message: "Berhasil menyimpan jawaban flashcard!" };
   });
 
 export const flashcardRouter = {
