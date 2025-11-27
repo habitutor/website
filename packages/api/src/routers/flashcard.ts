@@ -3,7 +3,7 @@ import { userFlashcard } from "@habitutor/db/schema/flashcard";
 import { question } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq, gte, notIn } from "drizzle-orm";
+import { and, eq, gte, inArray, not } from "drizzle-orm";
 import { authed } from "..";
 
 // Cutoff in 30 Days
@@ -46,10 +46,11 @@ const today = authed
             eq(userFlashcard.userId, context.session.user.id),
             gte(userFlashcard.assignedDate, dateBoundary),
           ),
-        );
+        )
+        .as("recentlyAssigned");
 
       const availableQuestion = await db.query.question.findFirst({
-        where: notIn(question.id, recentlyAssignedSubquery),
+        where: not(inArray(question.id, recentlyAssignedSubquery)),
         with: {
           answerOptions: true,
         },
