@@ -23,7 +23,7 @@ export const userFlashcard = pgTable("user_flashcard", {
     () => questionAnswerOption.id,
     { onDelete: "set null" },
   ),
-  isCorrect: boolean("is_correct"),
+  // isCorrect: boolean("is_correct"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

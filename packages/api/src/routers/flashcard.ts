@@ -1,11 +1,12 @@
 import { db } from "@habitutor/db";
 import { userFlashcard } from "@habitutor/db/schema/flashcard";
 import { ORPCError } from "@orpc/client";
+import { type } from "arktype";
 import { and, eq, gte } from "drizzle-orm";
 import { authed } from "..";
 
 // Cutoff in 30 Days
-const FLASHCARD_CUTOFF_LIMIT = 30;
+const FLASHCARD_REPEAT_CUTOFF_LIMIT = 30;
 
 const today = authed
   .route({
@@ -17,27 +18,23 @@ const today = authed
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let flashcard:
-      | (Awaited<ReturnType<typeof db.query.userFlashcard.findFirst>> & {
-        question: Awaited<ReturnType<typeof db.query.question.findFirst>>;
-      })
-      | undefined = await db.query.userFlashcard.findFirst({
-        where: and(
-          eq(userFlashcard.userId, context.session.user.id),
-          eq(userFlashcard.assignedDate, today),
-        ),
-        with: {
-          question: {
-            with: {
-              answerOptions: true,
-            },
+    let flashcard = await db.query.userFlashcard.findFirst({
+      where: and(
+        eq(userFlashcard.userId, context.session.user.id),
+        eq(userFlashcard.assignedDate, today),
+      ),
+      with: {
+        question: {
+          with: {
+            answerOptions: true,
           },
         },
-      });
+      },
+    });
 
     if (!flashcard) {
       const dateBoundary = new Date(
-        Date.now() - FLASHCARD_CUTOFF_LIMIT * 24 * 3600 * 1000,
+        Date.now() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000,
       );
 
       const availableQuestion = await db.query.question.findFirst({
@@ -85,6 +82,27 @@ const today = authed
     return flashcard;
   });
 
+const saveAnswer = authed
+  .input(type("number"))
+  .handler(async ({ context, input }) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await db
+      .update(userFlashcard)
+      .set({
+        selectedAnswerId: input,
+        answeredAt: new Date(),
+      })
+      .where(
+        and(
+          eq(userFlashcard.userId, context.session.user.id),
+          eq(userFlashcard.assignedDate, today),
+        ),
+      );
+  });
+
 export const flashcardRouter = {
   today,
+  saveAnswer,
 };
