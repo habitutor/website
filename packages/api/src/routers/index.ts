@@ -2,6 +2,7 @@ import type { RouterClient } from "@orpc/server";
 import { pub } from "../index";
 import { practicePackRouter } from "./practice-pack";
 import { type } from "arktype";
+import { flashcardRouter } from "./flashcard";
 
 export const appRouter = {
 	healthCheck: pub
@@ -15,6 +16,7 @@ export const appRouter = {
 			return "OK";
 		}),
 	practicePack: practicePackRouter,
+	flashcard: flashcardRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;
