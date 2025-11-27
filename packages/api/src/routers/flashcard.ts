@@ -35,7 +35,7 @@ const today = authed
 
     if (!flashcard) {
       const dateBoundary = new Date(
-        Date.now() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000,
+        today.getTime() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000,
       );
 
       const recentlyAssignedSubquery = db
