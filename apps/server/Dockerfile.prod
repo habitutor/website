@@ -9,6 +9,7 @@ RUN turbo prune server --docker
 
 FROM base AS builder
 COPY --from=prepare /app/out/json/ .
+COPY --from=prepare /app/out/bun.lock* ./
 RUN bun install --frozen-lockfile
 COPY --from=prepare /app/out/full/ .
 
@@ -24,9 +25,11 @@ RUN bun turbo build --filter=server
 FROM base AS runner
 
 ENV NODE_ENV=production \
-    PORT=80 \
+    PORT=3001 \
     HOSTNAME="0.0.0.0"
 
-EXPOSE 80
+COPY --from=builder /app/apps/server/server ./apps/server/server 
+
+# EXPOSE 80
 
 CMD ["./apps/server/server"]
