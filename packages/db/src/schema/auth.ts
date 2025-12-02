@@ -1,5 +1,5 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { userFlashcard, userFlashcardStreak } from "./flashcard";
 
 export const user = pgTable("user", {
