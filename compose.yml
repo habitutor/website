@@ -2,6 +2,7 @@ name: habitutor
 
 services:
   web:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile.prod
@@ -13,6 +14,7 @@ services:
         condition: service_healthy
 
   server:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./apps/server/Dockerfile.prod

@@ -1,9 +1,9 @@
-FROM oven/bun:1-debian AS base
+FROM oven/bun:1-alpine AS base
 
 WORKDIR /app
 
 FROM base AS prepare
-RUN bun install -g turbo@^2.5.4
+RUN bun install -g turbo@^2.6.1
 COPY . .
 RUN turbo prune web --docker
 
