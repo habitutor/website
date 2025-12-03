@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/__auth/login")({
+export const Route = createFileRoute("/_auth/login")({
 	component: RouteComponent,
 });
 
@@ -18,13 +18,13 @@ function RouteComponent() {
 		<main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
 			<SignInForm />
 		</main>
-	);
+	)
 }
 
 function SignInForm() {
 	const navigate = useNavigate({
 		from: "/",
-	});
+	})
 	const { isPending } = authClient.useSession();
 
 	const form = useForm({
@@ -42,14 +42,14 @@ function SignInForm() {
 					onSuccess: () => {
 						navigate({
 							to: "/dashboard",
-						});
+						})
 						toast.success("Sign in successful");
 					},
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);
 					},
 				},
-			);
+			)
 		},
 		validators: {
 			onSubmit: type({
@@ -57,7 +57,7 @@ function SignInForm() {
 				password: "string",
 			}),
 		},
-	});
+	})
 
 	if (isPending) {
 		return <Loader />;
@@ -160,5 +160,5 @@ function SignInForm() {
 				</Link>
 			</p>
 		</div>
-	);
+	)
 }

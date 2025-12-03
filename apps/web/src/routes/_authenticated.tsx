@@ -3,7 +3,7 @@ import { Container } from "@/components/ui/container";
 import { getUser } from "@/lib/get-user";
 
 export const Route = createFileRoute("/_authenticated")({
-	component: AuthLayout,
+	component: AuthedLayout,
 	beforeLoad: async () => {
 		const session = await getUser();
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated")({
 	},
 });
 
-function AuthLayout() {
+function AuthedLayout() {
 	return (
 		<Container className="pt-20">
 			<Outlet />
