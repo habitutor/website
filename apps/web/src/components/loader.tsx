@@ -1,7 +1,9 @@
+import { AndroidLogo } from "@phosphor-icons/react";
+
 export default function Loader() {
-	return (
-		<div className="flex h-full items-center justify-center pt-8">
-			<i data-feather="loader" />
-		</div>
-	);
+  return (
+    <div className="flex h-full items-center justify-center pt-8">
+      <AndroidLogo className="h-8 w-8 animate-spin text-gray-600" />
+    </div>
+  );
 }

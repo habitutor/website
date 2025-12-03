@@ -9,20 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as _authRegisterRouteImport } from './routes/__auth/register'
+import { Route as _authLoginRouteImport } from './routes/__auth/login'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
 import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
 import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -36,6 +32,16 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const _authRegisterRoute = _authRegisterRouteImport.update({
+  id: '/__auth/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const _authLoginRoute = _authLoginRouteImport.update({
+  id: '/__auth/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedLatihanSoalIndexRoute =
   AuthenticatedLatihanSoalIndexRouteImport.update({
@@ -64,7 +70,8 @@ const AuthenticatedLatihanSoalRiwayatIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/login': typeof _authLoginRoute
+  '/register': typeof _authRegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
@@ -73,7 +80,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/login': typeof _authLoginRoute
+  '/register': typeof _authRegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
@@ -84,7 +92,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/login': typeof LoginRoute
+  '/__auth/login': typeof _authLoginRoute
+  '/__auth/register': typeof _authRegisterRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/register'
     | '/dashboard'
     | '/latihan-soal/$id'
     | '/latihan-soal'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/register'
     | '/dashboard'
     | '/latihan-soal/$id'
     | '/latihan-soal'
@@ -114,7 +125,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/login'
+    | '/__auth/login'
+    | '/__auth/register'
     | '/_authenticated/dashboard'
     | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/latihan-soal/'
@@ -125,18 +137,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  LoginRoute: typeof LoginRoute
+  _authLoginRoute: typeof _authLoginRoute
+  _authRegisterRoute: typeof _authRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -157,6 +163,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/__auth/register': {
+      id: '/__auth/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof _authRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/__auth/login': {
+      id: '/__auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof _authLoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/latihan-soal/': {
       id: '/_authenticated/latihan-soal/'
@@ -214,7 +234,8 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  LoginRoute: LoginRoute,
+  _authLoginRoute: _authLoginRoute,
+  _authRegisterRoute: _authRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
