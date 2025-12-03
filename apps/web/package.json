@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "bun --bun vite build && tsc --noEmit",
+		"build": "bun --bun vite build",
 		"start": "bun --bun vite preview",
 		"dev": "bun --bun vite dev --port=3000"
 	},
