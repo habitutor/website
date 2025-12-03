@@ -38,7 +38,8 @@
 		"db:watch": "turbo -F @habitutor/db db:watch",
 		"db:stop": "turbo -F @habitutor/db db:stop",
 		"db:down": "turbo -F @habitutor/db db:down",
-		"db:seed": "turbo -F @habitutor/db db:seed"
+		"db:seed": "turbo -F @habitutor/db db:seed",
+		"auth:generate": "turbo -F @habitutor/auth auth:generate"
 	},
 	"dependencies": {
 		"better-auth": "^1.4.4",
