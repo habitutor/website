@@ -18,13 +18,13 @@ function RouteComponent() {
 		<main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
 			<SignUpForm />
 		</main>
-	)
+	);
 }
 
 function SignUpForm() {
 	const navigate = useNavigate({
 		from: "/",
-	})
+	});
 	const { isPending } = authClient.useSession();
 
 	const form = useForm({
@@ -44,14 +44,14 @@ function SignUpForm() {
 					onSuccess: () => {
 						navigate({
 							to: "/dashboard",
-						})
+						});
 						toast.success("Sign up successful");
 					},
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);
 					},
 				},
-			)
+			);
 		},
 		validators: {
 			onSubmit: type({
@@ -60,7 +60,7 @@ function SignUpForm() {
 				password: "string >= 8",
 			}),
 		},
-	})
+	});
 
 	if (isPending) {
 		return <Loader />;
@@ -179,5 +179,5 @@ function SignUpForm() {
 				</Link>
 			</p>
 		</div>
-	)
+	);
 }
