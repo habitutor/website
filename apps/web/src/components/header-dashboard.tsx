@@ -1,7 +1,13 @@
-import { Link, useLocation, useRouterState } from "@tanstack/react-router";
-import { Button } from "./ui/button";
+import { Link, useLocation } from "@tanstack/react-router";
+import type { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { authClient } from "@/lib/auth-client";
+import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const links = [
   {
@@ -22,9 +28,12 @@ const links = [
   },
 ] as const;
 
-export default function HeaderDashboard() {
+export function HeaderDashboard({
+  session,
+}: {
+  session: typeof authClient.$Infer.Session | null;
+}) {
   const location = useLocation();
-  const session = authClient.useSession();
 
   return (
     <div className="fixed inset-x-0 top-0 flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
@@ -46,13 +55,20 @@ export default function HeaderDashboard() {
         ))}
       </div>
 
-      <Avatar>
-        <AvatarImage
-          src={session.data?.user.image as string}
-          alt="User Profile Picture"
-        />
-        <AvatarFallback>{session.data?.user.name.charAt(0)}</AvatarFallback>
-      </Avatar>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Avatar>
+            <AvatarImage
+              src={session?.user.image as string}
+              alt="User Profile Picture"
+            />
+            <AvatarFallback>{session?.user.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem variant="destructive">Log Out</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

@@ -10,11 +10,11 @@ export const Container = ({
 	asChild?: boolean;
 	children?: React.ReactNode;
 }) => {
-	const Comp = asChild ? Slot.Slot : "section";
+	const Comp = asChild ? Slot.Slot : "main";
 
 	return (
 		<Comp
-			className={cn("mx-auto w-full max-w-4xl px-4 py-8 md:px-8", className)}
+			className={cn("mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8 md:px-8", className)}
 		>
 			{children}
 		</Comp>

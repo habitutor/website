@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import HeaderDashboard from "@/components/header-dashboard";
+import { HeaderDashboard } from "@/components/header-dashboard";
 import { Container } from "@/components/ui/container";
 import { getUser } from "@/lib/get-user";
 
@@ -19,10 +19,12 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthedLayout() {
+  const context = Route.useRouteContext()
+
   return (
     <>
-      <HeaderDashboard />
-      <Container className="pt-20">
+      <HeaderDashboard session={context.session}  />
+      <Container className="flex flex-col gap-6 pt-28">
         <Outlet />
       </Container>
     </>
