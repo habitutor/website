@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
+import * as subtest from "./schema/subtest";
 
 export const db = drizzle({
 	connection: process.env.DATABASE_URL || "",
@@ -8,5 +9,6 @@ export const db = drizzle({
 	schema: {
 		...practice,
 		...flashcard,
+		...subtest,
 	},
 });

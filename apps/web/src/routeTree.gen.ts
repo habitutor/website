@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
+import { Route as AuthenticatedKelasIndexRouteImport } from './routes/_authenticated/kelas/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
+import { Route as AuthenticatedKelasIdRouteImport } from './routes/_authenticated/kelas/$id'
 import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
 import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
 
@@ -43,12 +45,22 @@ const AuthenticatedLatihanSoalIndexRoute =
     path: '/latihan-soal/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedKelasIndexRoute = AuthenticatedKelasIndexRouteImport.update({
+  id: '/kelas/',
+  path: '/kelas/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedLatihanSoalIdRoute =
   AuthenticatedLatihanSoalIdRouteImport.update({
     id: '/latihan-soal/$id',
     path: '/latihan-soal/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedKelasIdRoute = AuthenticatedKelasIdRouteImport.update({
+  id: '/kelas/$id',
+  path: '/kelas/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedLatihanSoalRiwayatIndexRoute =
   AuthenticatedLatihanSoalRiwayatIndexRouteImport.update({
     id: '/latihan-soal/riwayat/',
@@ -66,7 +78,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/kelas/$id': typeof AuthenticatedKelasIdRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/kelas': typeof AuthenticatedKelasIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -75,7 +89,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/kelas/$id': typeof AuthenticatedKelasIdRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/kelas': typeof AuthenticatedKelasIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -86,7 +102,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/kelas/$id': typeof AuthenticatedKelasIdRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/_authenticated/kelas/': typeof AuthenticatedKelasIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -97,7 +115,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/dashboard'
+    | '/kelas/$id'
     | '/latihan-soal/$id'
+    | '/kelas'
     | '/latihan-soal'
     | '/latihan-soal/riwayat/$id'
     | '/latihan-soal/riwayat'
@@ -106,7 +126,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/dashboard'
+    | '/kelas/$id'
     | '/latihan-soal/$id'
+    | '/kelas'
     | '/latihan-soal'
     | '/latihan-soal/riwayat/$id'
     | '/latihan-soal/riwayat'
@@ -116,7 +138,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/_authenticated/dashboard'
+    | '/_authenticated/kelas/$id'
     | '/_authenticated/latihan-soal/$id'
+    | '/_authenticated/kelas/'
     | '/_authenticated/latihan-soal/'
     | '/_authenticated/latihan-soal/riwayat/$id'
     | '/_authenticated/latihan-soal/riwayat/'
@@ -165,11 +189,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/kelas/': {
+      id: '/_authenticated/kelas/'
+      path: '/kelas'
+      fullPath: '/kelas'
+      preLoaderRoute: typeof AuthenticatedKelasIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/latihan-soal/$id': {
       id: '/_authenticated/latihan-soal/$id'
       path: '/latihan-soal/$id'
       fullPath: '/latihan-soal/$id'
       preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/kelas/$id': {
+      id: '/_authenticated/kelas/$id'
+      path: '/kelas/$id'
+      fullPath: '/kelas/$id'
+      preLoaderRoute: typeof AuthenticatedKelasIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/latihan-soal/riwayat/': {
@@ -191,7 +229,9 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedKelasIdRoute: typeof AuthenticatedKelasIdRoute
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
+  AuthenticatedKelasIndexRoute: typeof AuthenticatedKelasIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
   AuthenticatedLatihanSoalRiwayatIndexRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -199,7 +239,9 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedKelasIdRoute: AuthenticatedKelasIdRoute,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
+  AuthenticatedKelasIndexRoute: AuthenticatedKelasIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
   AuthenticatedLatihanSoalRiwayatIdRoute:
     AuthenticatedLatihanSoalRiwayatIdRoute,
