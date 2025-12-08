@@ -2,6 +2,7 @@ import { ArrowCircleRightIcon } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { LastClasses } from "./-components/last-classes";
 import { UserProgress } from "./-components/user-progress";
+import { DismissableAlert } from "./-components/dismissable-alert";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: RouteComponent,
@@ -45,6 +46,7 @@ function RouteComponent() {
         </div>
       </section>
 
+      <DismissableAlert />
       <UserProgress />
       <LastClasses />
     </>

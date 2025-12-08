@@ -1,7 +1,7 @@
 export const UserProgress = () => {
   return (
     <section>
-      <h2>Progres Kamu!</h2>
+      <h2 className="font-medium">Progres Kamu!</h2>
     </section>
   );
 };
