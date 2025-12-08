@@ -12,7 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTryoutsRouteImport } from './routes/_authenticated/tryouts'
+import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedClassesRouteImport } from './routes/_authenticated/classes'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
@@ -33,9 +36,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTryoutsRoute = AuthenticatedTryoutsRouteImport.update({
+  id: '/tryouts',
+  path: '/tryouts',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedClassesRoute = AuthenticatedClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
@@ -77,7 +95,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/classes': typeof AuthenticatedClassesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/premium': typeof AuthenticatedPremiumRoute
+  '/tryouts': typeof AuthenticatedTryoutsRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -87,7 +108,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/classes': typeof AuthenticatedClassesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/premium': typeof AuthenticatedPremiumRoute
+  '/tryouts': typeof AuthenticatedTryoutsRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -100,7 +124,10 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
+  '/_authenticated/classes': typeof AuthenticatedClassesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/premium': typeof AuthenticatedPremiumRoute
+  '/_authenticated/tryouts': typeof AuthenticatedTryoutsRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -112,7 +139,10 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/classes'
     | '/dashboard'
+    | '/premium'
+    | '/tryouts'
     | '/latihan-soal/$id'
     | '/latihan-soal'
     | '/latihan-soal/riwayat/$id'
@@ -122,7 +152,10 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/classes'
     | '/dashboard'
+    | '/premium'
+    | '/tryouts'
     | '/latihan-soal/$id'
     | '/latihan-soal'
     | '/latihan-soal/riwayat/$id'
@@ -134,7 +167,10 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_auth/login'
     | '/_auth/register'
+    | '/_authenticated/classes'
     | '/_authenticated/dashboard'
+    | '/_authenticated/premium'
+    | '/_authenticated/tryouts'
     | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/latihan-soal/'
     | '/_authenticated/latihan-soal/riwayat/$id'
@@ -170,11 +206,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/tryouts': {
+      id: '/_authenticated/tryouts'
+      path: '/tryouts'
+      fullPath: '/tryouts'
+      preLoaderRoute: typeof AuthenticatedTryoutsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/premium': {
+      id: '/_authenticated/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof AuthenticatedPremiumRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/classes': {
+      id: '/_authenticated/classes'
+      path: '/classes'
+      fullPath: '/classes'
+      preLoaderRoute: typeof AuthenticatedClassesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_auth/register': {
@@ -235,7 +292,10 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedClassesRoute: typeof AuthenticatedClassesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
+  AuthenticatedTryoutsRoute: typeof AuthenticatedTryoutsRoute
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -243,7 +303,10 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedClassesRoute: AuthenticatedClassesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
+  AuthenticatedTryoutsRoute: AuthenticatedTryoutsRoute,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
   AuthenticatedLatihanSoalRiwayatIdRoute:

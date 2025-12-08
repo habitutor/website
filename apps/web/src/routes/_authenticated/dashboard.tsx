@@ -1,8 +1,8 @@
 import { ArrowCircleRightIcon } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
+import { DismissableAlert } from "./-components/dismissable-alert";
 import { LastClasses } from "./-components/last-classes";
 import { UserProgress } from "./-components/user-progress";
-import { DismissableAlert } from "./-components/dismissable-alert";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: RouteComponent,
@@ -24,7 +24,7 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white">
+        <div className="grid grid-cols-2 gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
           <a
             href="https://discord.com"
             rel="noopener norefferer"

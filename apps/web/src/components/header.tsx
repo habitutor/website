@@ -13,9 +13,11 @@ export default function Header() {
       </Link>
       <div className="flex items-center gap-2">
         {session.data?.user ? (
-          <Button>
-            <StudentIcon />
-            <Link to="/dashboard">Dashboard</Link>
+          <Button asChild>
+            <Link to="/dashboard">
+              <StudentIcon />
+              Dashboard
+            </Link>
           </Button>
         ) : (
           <>
