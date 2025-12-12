@@ -12,7 +12,7 @@ function RouteComponent() {
   const { data } = useQuery(orpc.flashcard.streak.queryOptions());
 
   return (
-    <section className="flex flex-col gap-4 rounded-md border border-accent bg-white p-6 shadow-md">
+    <section className="flex flex-col gap-4 rounded-md border bg-white p-6">
       <Button asChild className="w-fit">
         <Link to="/dashboard">
           <ArrowLeftIcon />
@@ -21,13 +21,16 @@ function RouteComponent() {
       </Button>
 
       <div className="flex rounded-md bg-yellow-200">
-        <div className="bg-yellow-500 px-4 py-2 font-bold text-4xl text-white">
+        <div className="min-w-32 rounded-l-md rounded-tr-full bg-yellow-500 px-4 py-2 font-bold text-4xl text-white">
           {data?.streak || "0"}
         </div>
         <p className="my-auto p-4 font-medium text-xl">
-          Streak Flashcard Kamu!{" "}
-          {data && data?.streak > 5 && (
-            <span className="font-normal">Keren!</span>
+          {data && data.streak > 0 ? (
+            <>
+              Streak Flashcard Kamu! <span className="font-normal">Keren!</span>
+            </>
+          ) : (
+            <>Streak kamu mati, main lagi yuk</>
           )}
         </p>
       </div>

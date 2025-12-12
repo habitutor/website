@@ -62,7 +62,9 @@ export function HeaderDashboard({
               key={link.to}
               variant={"navbar"}
               size={"full"}
-              data-active={location.pathname === link.to ? "true" : "false"}
+              data-active={
+                location.pathname.startsWith(link.to) ? "true" : "false"
+              }
               asChild
             >
               <Link to={link.to}>{link.name}</Link>

@@ -1,9 +1,8 @@
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { orpc } from "@/utils/orpc";
 import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { orpc } from "@/utils/orpc";
 
 export const UserProgress = () => {
   return (
