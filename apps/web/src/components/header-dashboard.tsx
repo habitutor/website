@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { SignOut } from "@phosphor-icons/react";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +10,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -47,9 +47,10 @@ export function HeaderDashboard({
   session: typeof authClient.$Infer.Session | null;
 }) {
   const location = useLocation();
+  const [open, setOpen] = useState(false);
 
   return (
-    <LogoutDialog>
+    <>
       <div className="fixed inset-x-0 top-0 flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
         <Link to="/" className="text-primary">
           logo
@@ -83,21 +84,33 @@ export function HeaderDashboard({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => setOpen(true)}
+            >
               <SignOut />
               Log Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </LogoutDialog>
+
+      <LogoutDialog open={open} onOpenChange={setOpen} />
+    </>
   );
 }
 
-const LogoutDialog = ({ children }: { children: React.ReactNode }) => {
+const LogoutDialog = ({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  const navigate = useNavigate();
+
   return (
-    <AlertDialog>
-      <AlertDialogTrigger>{children}</AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
@@ -111,7 +124,7 @@ const LogoutDialog = ({ children }: { children: React.ReactNode }) => {
             <Button
               onClick={async () => {
                 await authClient.signOut().then(() => {
-                  window.location.href = "/";
+                  navigate({ to: "/" });
                 });
               }}
               variant={"destructive"}
