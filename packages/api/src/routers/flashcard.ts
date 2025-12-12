@@ -96,16 +96,31 @@ const get = authed
       with: {
         assignedQuestions: {
           where: eq(userFlashcardQuestionAnswer.assignedDate, new Date(today)),
+          columns: {
+            selectedAnswerId: true,
+          },
           with: {
             question: {
+              columns: {
+                content: true,
+              },
               with: {
-                answerOptions: true,
+                answerOptions: {
+                  columns: {
+                    content: true,
+                  },
+                },
               },
             },
           },
         },
       },
     });
+
+    if (!attempt)
+      throw new ORPCError("NOT_FOUND", {
+        message: "Sesi flashcard tidak ditemukan.",
+      });
 
     return attempt;
   });

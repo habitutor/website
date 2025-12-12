@@ -1,15 +1,27 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
+import { Activity } from "react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/flashcard")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data } = useQuery(orpc.flashcard.streak.queryOptions());
+  const flashcard = useQuery(orpc.flashcard.get.queryOptions());
+
+  return (
+    <Activity mode={flashcard.data ? "visible" : "hidden"}>
+      <StartCard />
+    </Activity>
+  );
+}
+
+const StartCard = () => {
+  const streak = useQuery(orpc.flashcard.streak.queryOptions());
+  const startMutation = useMutation(orpc.flashcard.start.mutationOptions());
 
   return (
     <section className="flex flex-col gap-4 rounded-md border bg-white p-6">
@@ -22,15 +34,15 @@ function RouteComponent() {
 
       <div className="flex rounded-md bg-yellow-200">
         <div className="min-w-32 rounded-l-md rounded-tr-full bg-yellow-500 px-4 py-2 font-bold text-4xl text-white">
-          {data?.streak || "0"}
+          {streak.data?.streak || "0"}
         </div>
         <p className="my-auto p-4 font-medium text-xl">
-          {data && data.streak > 0 ? (
+          {streak.data && streak.data.streak > 0 ? (
             <>
               Streak Flashcard Kamu! <span className="font-normal">Keren!</span>
             </>
           ) : (
-            <>Streak kamu mati, main lagi yuk</>
+            <>Streak kamu mati, main lagi yuk!</>
           )}
         </p>
       </div>
@@ -40,7 +52,15 @@ function RouteComponent() {
         <p>Uji kemampuan harianmu dengan Flashcard selama 10 menit!</p>
       </div>
 
-      <Button className="ml-auto">Mulai Sekarang</Button>
+      <Button
+        onClick={() => {
+          startMutation.mutate({});
+        }}
+        disabled={startMutation.isPending}
+        className="ml-auto"
+      >
+        Mulai Sekarang
+      </Button>
     </section>
   );
-}
+};
