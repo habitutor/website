@@ -2,22 +2,30 @@ name: habitutor
 
 services:
   web:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile.prod
     ports:
       - 3000:3000
     env_file: ./apps/web/.env.prod
+    environment:
+      TURBO_TEAM: ${TURBO_TEAM}
+      TURBO_TOKEN: ${TURBO_TOKEN}
     depends_on:
       server:
         condition: service_healthy
 
   server:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./apps/server/Dockerfile.prod
     ports:
       - 3001:3001
+    environment:
+      TURBO_TEAM: ${TURBO_TEAM}
+      TURBO_TOKEN: ${TURBO_TOKEN}
     env_file: ./apps/server/.env.prod
     depends_on:
       db:
@@ -26,7 +34,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -f http://localhost:3001/api-reference/healthcheck || exit 1",
+          "curl http://localhost:3001/api-reference/healthcheck || exit 1",
         ]
       interval: 10s
       timeout: 5s

@@ -4,6 +4,7 @@ import { pub } from "../index";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
 import { subtestRouter } from "./subtest";
+import { adminPracticePackRouter } from "./admin/practice-pack";
 
 export const appRouter = {
 	healthCheck: pub
@@ -19,6 +20,9 @@ export const appRouter = {
 	practicePack: practicePackRouter,
 	flashcard: flashcardRouter,
 	subtest: subtestRouter,
+	admin: {
+		practicePack: adminPracticePackRouter,
+	},
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

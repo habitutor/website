@@ -1,5 +1,8 @@
 import { db } from "@habitutor/db";
-import { userFlashcard } from "@habitutor/db/schema/flashcard";
+import {
+  userFlashcard,
+  userFlashcardStreak,
+} from "@habitutor/db/schema/flashcard";
 import { question } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
@@ -118,7 +121,39 @@ const saveAnswer = authed
     return { message: "Berhasil menyimpan jawaban flashcard!" };
   });
 
+const streak = authed
+  .route({
+    path: "/flashcard/streak",
+    method: "GET",
+    tags: ["Flashcard"],
+  })
+  .output(
+    type({
+      streak: "number",
+      lastCompletedDate: "string | null",
+    }),
+  )
+  .handler(async ({ context }) => {
+    const [flashcard] = await db
+      .select({
+        streak: userFlashcardStreak.currentStreak,
+        lastCompletedDate: userFlashcardStreak.lastCompletedDate,
+      })
+      .from(userFlashcardStreak)
+      .where(eq(userFlashcardStreak.userId, context.session.user.id))
+      .limit(1);
+
+    if (!flashcard)
+      return {
+        streak: 0,
+        lastCompletedDate: null,
+      };
+
+    return flashcard;
+  });
+
 export const flashcardRouter = {
   today,
   saveAnswer,
+  streak,
 };

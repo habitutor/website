@@ -1,6 +1,6 @@
+import { ArrowRight, Check, Eye, Scroll } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Check, Eye, LogsIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,7 +20,7 @@ function RouteComponent() {
 
 				<Button asChild>
 					<Link to="/latihan-soal/riwayat">
-						<LogsIcon />
+						<Scroll />
 						Lihat Riwayat
 					</Link>
 				</Button>

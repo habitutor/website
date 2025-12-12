@@ -1,7 +1,6 @@
-import { ORPCError, os } from "@orpc/server";
-import type { Context } from "./context";
-
-export const o = os.$context<Context>();
+import { ORPCError } from "@orpc/server";
+import { o } from "./lib/orpc";
+import { requireAdmin } from "./middlewares/rbac";
 
 export const pub = o;
 
@@ -17,3 +16,4 @@ const requireAuth = o.middleware(async ({ context, next }) => {
 });
 
 export const authed = pub.use(requireAuth);
+export const admin = authed.use(requireAdmin);
