@@ -11,6 +11,9 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { ArrowLeft, CheckCircle, Lightbulb, XCircle } from "lucide-react";
 
 export const Route = createFileRoute(
 	"/_authenticated/latihan-soal/riwayat/$id",

@@ -33,37 +33,37 @@ export const userFlashcard = pgTable(
 );
 
 export const userFlashcardStreak = pgTable("user_flashcard_streak", {
-	userId: text("user_id")
-		.primaryKey()
-		.references(() => user.id, { onDelete: "cascade" }),
-	currentStreak: integer("current_streak").notNull().default(0),
-	lastCompletedDate: date("last_completed_date"),
-	lastCheckedDate: date("last_checked_date"),
-	isActive: boolean("is_active").notNull().default(true),
-	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  currentStreak: integer("current_streak").notNull().default(0),
+  lastCompletedDate: date("last_completed_date"),
+  lastCheckedDate: date("last_checked_date"),
+  isActive: boolean("is_active").notNull().default(true),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const userFlashcardRelations = relations(userFlashcard, ({ one }) => ({
-	user: one(user, {
-		fields: [userFlashcard.userId],
-		references: [user.id],
-	}),
-	question: one(question, {
-		fields: [userFlashcard.questionId],
-		references: [question.id],
-	}),
-	selectedAnswer: one(questionAnswerOption, {
-		fields: [userFlashcard.selectedAnswerId],
-		references: [questionAnswerOption.id],
-	}),
+  user: one(user, {
+    fields: [userFlashcard.userId],
+    references: [user.id],
+  }),
+  question: one(question, {
+    fields: [userFlashcard.questionId],
+    references: [question.id],
+  }),
+  selectedAnswer: one(questionAnswerOption, {
+    fields: [userFlashcard.selectedAnswerId],
+    references: [questionAnswerOption.id],
+  }),
 }));
 
 export const userFlashcardStreakRelations = relations(
-	userFlashcardStreak,
-	({ one }) => ({
-		user: one(user, {
-			fields: [userFlashcardStreak.userId],
-			references: [user.id],
-		}),
-	}),
+  userFlashcardStreak,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [userFlashcardStreak.userId],
+      references: [user.id],
+    }),
+  }),
 );
