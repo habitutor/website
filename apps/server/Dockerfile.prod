@@ -1,0 +1,35 @@
+FROM oven/bun:1-alpine AS base
+
+WORKDIR /app
+
+FROM base AS prepare
+RUN bun install -g turbo@^2.6.1
+COPY . .
+RUN turbo prune server --docker
+
+FROM base AS builder
+COPY --from=prepare /app/out/json/ .
+COPY --from=prepare /app/bunfig.toml .
+RUN bun install --frozen-lockfile
+COPY --from=prepare /app/out/full/ .
+
+# Uncomment and use build args to enable remote caching
+ARG TURBO_TEAM
+ENV TURBO_TEAM=$TURBO_TEAM
+
+ARG TURBO_TOKEN
+ENV TURBO_TOKEN=$TURBO_TOKEN
+
+RUN bun turbo build --filter=server
+
+FROM base AS runner
+
+ENV NODE_ENV=production \
+    PORT=3001 \
+    HOSTNAME="0.0.0.0"
+
+COPY --from=builder /app/apps/server/server ./apps/server/server 
+
+# EXPOSE 80
+
+CMD ["./apps/server/server"]

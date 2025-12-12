@@ -5,7 +5,7 @@
 		"build": {
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["dist/**"]
+			"outputs": ["dist/**", ".output/**"]
 		},
 		"lint": {
 			"dependsOn": ["^lint"]
@@ -50,6 +50,9 @@
 			"persistent": true
 		},
 		"db:seed": {
+			"cache": false
+		},
+		"auth:generate": {
 			"cache": false
 		}
 	}

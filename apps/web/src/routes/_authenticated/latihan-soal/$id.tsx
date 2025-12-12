@@ -64,7 +64,7 @@ function RouteComponent() {
 
 	const handleAnswerChange = (questionId: number, answerId: number) => {
 		setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
-		
+
 		if (pack.data?.attemptId) {
 			saveMutation.debouncedMutate({
 				id: id,

@@ -1,5 +1,6 @@
 import { db } from "@habitutor/db";
 import * as schema from "@habitutor/db/schema/auth";
+import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
@@ -8,9 +9,27 @@ export const auth = betterAuth({
 		provider: "pg",
 		schema,
 	}),
+	user: {
+		additionalFields: {
+			role: {
+				type: "string",
+				validator: {
+					input: type('"user" | "admin"'),
+				},
+				defaultValue: "user",
+				input: false,
+			},
+		},
+	},
 	trustedOrigins: [process.env.CORS_ORIGIN || "http://localhost:3000"],
 	emailAndPassword: {
 		enabled: true,
+	},
+	socialProviders: {
+		google: {
+			clientId: process.env.GOOGLE_CLIENT_ID as string,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+		},
 	},
 	session: {
 		cookieCache: {
