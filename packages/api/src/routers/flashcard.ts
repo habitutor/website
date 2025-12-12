@@ -22,7 +22,7 @@ const today = authed
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let flashcard = await db.query.userFlashcard.findFirst({
+    const flashcards = await db.query.userFlashcard.findMany({
       where: and(
         eq(userFlashcard.userId, context.session.user.id),
         eq(userFlashcard.assignedDate, today),
@@ -36,7 +36,9 @@ const today = authed
       },
     });
 
-    if (!flashcard) {
+    const needed = 5 - flashcards.length;
+
+    if (needed > 0) {
       const dateBoundary = new Date(
         today.getTime() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000,
       );
@@ -52,41 +54,46 @@ const today = authed
         )
         .as("recentlyAssigned");
 
-      const availableQuestion = await db.query.question.findFirst({
+      const availableQuestions = await db.query.question.findMany({
         where: not(inArray(question.id, recentlyAssignedSubquery)),
         with: {
           answerOptions: true,
         },
+        limit: needed,
       });
 
-      if (!availableQuestion)
+      if (availableQuestions.length === 0 && flashcards.length === 0) {
+        console.error("No available questions for flashcards today.");
         throw new ORPCError("NOT_FOUND", {
           message: "Gagal menemukan flashcard hari ini.",
           cause: "Gagal menemukan pertanyaan yang tersedia.",
         });
+      }
 
-      const [createdFlashcard] = await db
-        .insert(userFlashcard)
-        .values({
-          userId: context.session.user.id,
-          assignedDate: today,
-          questionId: availableQuestion.id,
-        })
-        .returning();
+      if (availableQuestions.length > 0) {
+        const newFlashcards = await db
+          .insert(userFlashcard)
+          .values(
+            availableQuestions.map((q) => ({
+              userId: context.session.user.id,
+              assignedDate: today,
+              questionId: q.id,
+            })),
+          )
+          .returning();
 
-      if (!createdFlashcard)
-        throw new ORPCError("NOT_FOUND", {
-          message: "Gagal menemukan flashcard hari ini.",
-          cause: "Gagal membuat flashcard baru.",
-        });
-
-      flashcard = {
-        ...createdFlashcard,
-        question: availableQuestion,
-      };
+        flashcards.push(
+          ...newFlashcards.map((f) => ({
+            ...f,
+            question: availableQuestions.find(
+              (question) => question.id === f.questionId,
+            )!,
+          })),
+        );
+      }
     }
 
-    return flashcard;
+    return flashcards;
   });
 
 const saveAnswer = authed
@@ -95,7 +102,12 @@ const saveAnswer = authed
     method: "POST",
     tags: ["Flashcard"],
   })
-  .input(type("number"))
+  .input(
+    type({
+      questionId: "number",
+      answerId: "number",
+    }),
+  )
   .handler(async ({ context, input }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -103,13 +115,14 @@ const saveAnswer = authed
     const [flashcard] = await db
       .update(userFlashcard)
       .set({
-        selectedAnswerId: input,
+        selectedAnswerId: input.answerId,
         answeredAt: new Date(),
       })
       .where(
         and(
           eq(userFlashcard.userId, context.session.user.id),
           eq(userFlashcard.assignedDate, today),
+          eq(userFlashcard.questionId, input.questionId),
         ),
       )
       .returning();
@@ -157,3 +170,4 @@ export const flashcardRouter = {
   saveAnswer,
   streak,
 };
+

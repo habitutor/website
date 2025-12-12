@@ -9,7 +9,7 @@ export const UserProgress = () => {
     <section>
       <h2 className="mb-2 font-medium">Progres Kamu!</h2>
       <div className="grid gap-2 sm:grid-cols-5">
-        <div className="col-span-2 space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <Material />
           <Tryout />
         </div>
@@ -35,10 +35,18 @@ const Material = () => {
 };
 
 const Tryout = () => {
+  const { data, isPending } = useQuery(
+    orpc.practicePack.history.queryOptions(),
+  );
+
   return (
     <div className="flex items-end justify-between gap-4 rounded-md bg-green-200 p-4 text-green-800">
       <div className="space-y-0.5">
-        <h4 className="font-bold text-5xl">0</h4>
+        {!isPending ? (
+          <h4 className="font-bold text-5xl">{data?.packsFinished}</h4>
+        ) : (
+          <Skeleton className="h-12 w-18" />
+        )}
         <p className="font-bold">Materi Dipelajari</p>
       </div>
 
@@ -52,17 +60,20 @@ const Tryout = () => {
 const Flashcard = () => {
   const { data, isPending } = useQuery(orpc.flashcard.streak.queryOptions());
   return (
-    <div className="flex items-end justify-between gap-4 rounded-md bg-purple-900/90 p-4 text-white md:col-span-3">
+    <div className="flex items-end justify-between gap-4 rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
       <div className="space-y-0.5">
         {!isPending ? (
-          <h4 className="font-bold text-6xl">{data?.streak}</h4>
+          <h4 className="font-bold text-5xl sm:text-6xl">{data?.streak}</h4>
         ) : (
-          <Skeleton className="h-8 w-18" />
+          <Skeleton className="h-12 w-18" />
         )}
         <p className="font-bold">Streak Flashcard</p>
       </div>
 
-      <Button size="lg">
+      <Button
+        size="lg"
+        className="max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+      >
         Mainkan Flashcard Sekarang <ArrowRightIcon />
       </Button>
     </div>

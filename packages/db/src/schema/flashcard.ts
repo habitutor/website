@@ -29,7 +29,7 @@ export const userFlashcard = pgTable(
 		// isCorrect: boolean("is_correct"),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 	},
-	(t) => [primaryKey({ columns: [t.userId, t.assignedDate] })],
+	(t) => [primaryKey({ columns: [t.userId, t.assignedDate, t.questionId] })],
 );
 
 export const userFlashcardStreak = pgTable("user_flashcard_streak", {
