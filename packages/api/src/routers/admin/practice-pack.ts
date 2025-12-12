@@ -64,22 +64,19 @@ const updatePack = admin
   })
   .input(
     type({
-      id: "string | number",
+      id: "number",
       title: "string",
       "description?": "string",
     }),
   )
   .handler(async ({ input }) => {
-    const packId =
-      typeof input.id === "string" ? Number.parseInt(input.id) : input.id;
-
     const [pack] = await db
       .update(practicePack)
       .set({
         title: input.title,
         description: input.description,
       })
-      .where(eq(practicePack.id, packId))
+      .where(eq(practicePack.id, input.id))
       .returning();
 
     if (!pack)
@@ -96,14 +93,11 @@ const deletePack = admin
     method: "DELETE",
     tags: ["Admin - Practice Packs"],
   })
-  .input(type({ id: "string | number" }))
+  .input(type({ id: "number" }))
   .handler(async ({ input }) => {
-    const packId =
-      typeof input.id === "string" ? Number.parseInt(input.id) : input.id;
-
     const [pack] = await db
       .delete(practicePack)
-      .where(eq(practicePack.id, packId))
+      .where(eq(practicePack.id, input.id))
       .returning();
 
     if (!pack)
@@ -153,22 +147,19 @@ const updateQuestion = admin
   })
   .input(
     type({
-      id: "string | number",
+      id: "number",
       content: "string",
       discussion: "string",
     }),
   )
   .handler(async ({ input }) => {
-    const questionId =
-      typeof input.id === "string" ? Number.parseInt(input.id) : input.id;
-
     const [q] = await db
       .update(question)
       .set({
         content: input.content,
         discussion: input.discussion,
       })
-      .where(eq(question.id, questionId))
+      .where(eq(question.id, input.id))
       .returning();
 
     if (!q)
@@ -185,14 +176,11 @@ const deleteQuestion = admin
     method: "DELETE",
     tags: ["Admin - Questions"],
   })
-  .input(type({ id: "string | number" }))
+  .input(type({ id: "number" }))
   .handler(async ({ input }) => {
-    const questionId =
-      typeof input.id === "string" ? Number.parseInt(input.id) : input.id;
-
     const [q] = await db
       .delete(question)
-      .where(eq(question.id, questionId))
+      .where(eq(question.id, input.id))
       .returning();
 
     if (!q)
@@ -213,21 +201,16 @@ const addQuestionToPack = admin
   })
   .input(
     type({
-      practicePackId: "string | number",
+      practicePackId: "number",
       questionId: "number",
       order: "number",
     }),
   )
   .handler(async ({ input }) => {
-    const packId =
-      typeof input.practicePackId === "string"
-        ? Number.parseInt(input.practicePackId)
-        : input.practicePackId;
-
     const [pack] = await db
       .select()
       .from(practicePack)
-      .where(eq(practicePack.id, packId))
+      .where(eq(practicePack.id, input.practicePackId))
       .limit(1);
 
     if (!pack)
@@ -249,7 +232,7 @@ const addQuestionToPack = admin
     await db
       .insert(practicePackQuestions)
       .values({
-        practicePackId: packId,
+        practicePackId: input.practicePackId,
         questionId: input.questionId,
         order: input.order,
       })
@@ -266,26 +249,17 @@ const removeQuestionFromPack = admin
   })
   .input(
     type({
-      practicePackId: "string | number",
-      questionId: "string | number",
+      practicePackId: "number",
+      questionId: "number",
     }),
   )
   .handler(async ({ input }) => {
-    const packId =
-      typeof input.practicePackId === "string"
-        ? Number.parseInt(input.practicePackId)
-        : input.practicePackId;
-    const questionId =
-      typeof input.questionId === "string"
-        ? Number.parseInt(input.questionId)
-        : input.questionId;
-
     await db
       .delete(practicePackQuestions)
       .where(
         and(
-          eq(practicePackQuestions.practicePackId, packId),
-          eq(practicePackQuestions.questionId, questionId),
+          eq(practicePackQuestions.practicePackId, input.practicePackId),
+          eq(practicePackQuestions.questionId, input.questionId),
         ),
       );
 
@@ -300,28 +274,19 @@ const updateQuestionOrder = admin
   })
   .input(
     type({
-      practicePackId: "string | number",
-      questionId: "string | number",
+      practicePackId: "number",
+      questionId: "number",
       order: "number",
     }),
   )
   .handler(async ({ input }) => {
-    const packId =
-      typeof input.practicePackId === "string"
-        ? Number.parseInt(input.practicePackId)
-        : input.practicePackId;
-    const questionId =
-      typeof input.questionId === "string"
-        ? Number.parseInt(input.questionId)
-        : input.questionId;
-
     await db
       .update(practicePackQuestions)
       .set({ order: input.order })
       .where(
         and(
-          eq(practicePackQuestions.practicePackId, packId),
-          eq(practicePackQuestions.questionId, questionId),
+          eq(practicePackQuestions.practicePackId, input.practicePackId),
+          eq(practicePackQuestions.questionId, input.questionId),
         ),
       );
 
@@ -338,21 +303,16 @@ const createAnswerOption = admin
   })
   .input(
     type({
-      questionId: "string | number",
+      questionId: "number",
       content: "string",
       isCorrect: "boolean",
     }),
   )
   .handler(async ({ input }) => {
-    const questionId =
-      typeof input.questionId === "string"
-        ? Number.parseInt(input.questionId)
-        : input.questionId;
-
     const [q] = await db
       .select()
       .from(question)
-      .where(eq(question.id, questionId))
+      .where(eq(question.id, input.questionId))
       .limit(1);
 
     if (!q)
@@ -363,7 +323,7 @@ const createAnswerOption = admin
     const [answer] = await db
       .insert(questionAnswerOption)
       .values({
-        questionId: questionId,
+        questionId: input.questionId,
         content: input.content,
         isCorrect: input.isCorrect,
       })
@@ -385,22 +345,19 @@ const updateAnswerOption = admin
   })
   .input(
     type({
-      id: "string | number",
+      id: "number",
       content: "string",
       isCorrect: "boolean",
     }),
   )
   .handler(async ({ input }) => {
-    const answerId =
-      typeof input.id === "string" ? Number.parseInt(input.id) : input.id;
-
     const [answer] = await db
       .update(questionAnswerOption)
       .set({
         content: input.content,
         isCorrect: input.isCorrect,
       })
-      .where(eq(questionAnswerOption.id, answerId))
+      .where(eq(questionAnswerOption.id, input.id))
       .returning();
 
     if (!answer)
@@ -417,14 +374,11 @@ const deleteAnswerOption = admin
     method: "DELETE",
     tags: ["Admin - Answer Options"],
   })
-  .input(type({ id: "string | number" }))
+  .input(type({ id: "number" }))
   .handler(async ({ input }) => {
-    const answerId =
-      typeof input.id === "string" ? Number.parseInt(input.id) : input.id;
-
     const [answer] = await db
       .delete(questionAnswerOption)
-      .where(eq(questionAnswerOption.id, answerId))
+      .where(eq(questionAnswerOption.id, input.id))
       .returning();
 
     if (!answer)
