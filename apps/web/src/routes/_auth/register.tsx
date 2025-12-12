@@ -162,7 +162,7 @@ function SignUpForm() {
                 onChange: ({ value, fieldApi }) => {
                   if (value !== fieldApi.form.getFieldValue("password"))
                     return "Password tidak sama";
-                  return undefuned;
+                  return undefined;
                 },
               }}
             >
@@ -178,8 +178,8 @@ function SignUpForm() {
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
                   {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-red-500">
-                      {error?.message}
+                    <p key={error} className="text-red-500">
+                      {error}
                     </p>
                   ))}
                 </div>

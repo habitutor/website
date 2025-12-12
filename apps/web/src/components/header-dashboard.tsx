@@ -1,15 +1,5 @@
 import { SignOut } from "@phosphor-icons/react";
-import { Link, redirect, useLocation } from "@tanstack/react-router";
-import { authClient } from "@/lib/auth-client";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +11,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { authClient } from "@/lib/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const links = [
   {
