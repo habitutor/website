@@ -12,6 +12,8 @@ import { authed } from "..";
 
 // Cutoff in 30 Days
 const FLASHCARD_REPEAT_CUTOFF_LIMIT = 30;
+// Grace period to allow submitting after deadline
+const GRACE_PERIOD_SECONDS = 5;
 
 const start = authed
   .route({
@@ -132,10 +134,13 @@ const submit = authed
     tags: ["Flashcard"],
   })
   .input(
-    type({
-      questionId: "number",
-      answerId: "number",
-    }),
+    type(
+      {
+        questionId: "number",
+        answerId: "number",
+      },
+      "[]",
+    ),
   )
   .handler(async ({ context, input }) => {
     const today = new Date();
@@ -159,25 +164,48 @@ const submit = authed
       });
     }
 
-    const [flashcard] = await db
-      .update(userFlashcardQuestionAnswer)
-      .set({
-        selectedAnswerId: input.answerId,
-        answeredAt: new Date(),
-      })
-      .where(
-        and(
-          eq(userFlashcardQuestionAnswer.attemptId, latestAttempt.id),
-          eq(userFlashcardQuestionAnswer.assignedDate, today),
-          eq(userFlashcardQuestionAnswer.questionId, input.questionId),
-        ),
-      )
-      .returning();
-
-    if (!flashcard)
-      throw new ORPCError("NOT_FOUND", {
-        message: "Gagal menemukan flashcard hari ini.",
+    // Add a grace period for submitting
+    if (
+      new Date(Date.now() + GRACE_PERIOD_SECONDS * 1000) >
+      latestAttempt.deadline
+    ) {
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        message: "Waktu sesi flashcard telah berakhir.",
       });
+    }
+
+    try {
+      await db.transaction(async (tx) => {
+        await Promise.all(
+          input.map((answer) =>
+            tx
+              .update(userFlashcardQuestionAnswer)
+              .set({
+                selectedAnswerId: answer.answerId,
+                answeredAt: new Date(),
+              })
+              .where(
+                and(
+                  eq(userFlashcardQuestionAnswer.attemptId, latestAttempt.id),
+                  eq(userFlashcardQuestionAnswer.assignedDate, today),
+                  eq(userFlashcardQuestionAnswer.questionId, answer.questionId),
+                ),
+              ),
+          ),
+        );
+
+        await tx
+          .update(userFlashcardAttempt)
+          .set({
+            submittedAt: new Date(),
+          })
+          .where(eq(userFlashcardAttempt.id, latestAttempt.id));
+      });
+    } catch (err) {
+      console.error(err);
+      throw new ORPCError("INTERNAL_SERVER_ERROR");
+    }
+
     return { message: "Berhasil menyimpan jawaban flashcard!" };
   });
 
