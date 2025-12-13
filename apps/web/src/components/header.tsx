@@ -25,7 +25,7 @@ export default function Header() {
               <Link to="/login">Masuk</Link>
             </Button>
             <Button asChild>
-              <Link to="/login">Daftar</Link>
+              <Link to="/register">Daftar</Link>
             </Button>
           </>
         )}

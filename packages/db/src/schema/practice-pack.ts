@@ -76,7 +76,7 @@ export const questionAnswerOption = pgTable("question_answer_option", {
     .notNull()
     .references(() => question.id, { onDelete: "cascade" }),
   content: text().notNull(),
-  isCorrect: boolean("is_correct").default(false),
+  isCorrect: boolean("is_correct").notNull().default(false),
 });
 
 export const questionAnswerOptionRelations = relations(

@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, EyeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -75,9 +75,15 @@ const Flashcard = () => {
         className="max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
         asChild
       >
-        <Link to="/dashboard/flashcard">
-          Mainkan Flashcard Sekarang <ArrowRightIcon />
-        </Link>
+        {data?.status === "submitted" ? (
+          <Link to="/dashboard/flashcard/result">
+            Lihat Hasil <EyeIcon />
+          </Link>
+        ) : (
+          <Link to="/dashboard/flashcard">
+            Mainkan Flashcard Sekarang <ArrowRightIcon />
+          </Link>
+        )}
       </Button>
     </div>
   );

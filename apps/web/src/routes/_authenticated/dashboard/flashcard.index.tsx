@@ -1,30 +1,36 @@
+import { isDefinedError } from "@orpc/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 import { FlashcardCard } from "./-components/flashcard-card";
 
-export const Route = createFileRoute("/_authenticated/dashboard/flashcard")({
+export const Route = createFileRoute("/_authenticated/dashboard/flashcard/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const flashcard = useQuery({
-    ...orpc.flashcard.get.queryOptions(),
-    retry: false,
-  });
+  const navigate = useNavigate();
+  const flashcard = useQuery(
+    orpc.flashcard.get.queryOptions({
+      retry: false,
+    }),
+  );
 
   if (flashcard.isPending) {
     return <Loader />;
   }
 
-  if (flashcard.data) {
-    return <FlashcardCard />;
+  if (flashcard.data?.submittedAt)
+    navigate({ to: "/dashboard/flashcard/result" });
+
+  if (flashcard.isError) {
+    return <StartCard />;
   }
 
-  return <StartCard />;
+  return <FlashcardCard />;
 }
 
 const StartCard = () => {

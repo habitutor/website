@@ -71,7 +71,7 @@ function SignUpForm() {
       <div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-3xl text-primary">
-            Mari
+            Mari{" "}
             <span className="font-bold">Mulai Bersama!</span>
           </h1>
           <p className="text-sm">Bergabung bersama untuk memulai sukses</p>
@@ -177,7 +177,7 @@ function SignUpForm() {
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
                   {field.state.meta.errors.map((error) => (
-                    <p key={error} className="text-red-500">
+                    <p key={error} className="text-red-500 text-xs">
                       {error}
                     </p>
                   ))}

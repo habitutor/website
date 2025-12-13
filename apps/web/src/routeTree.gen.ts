@@ -20,9 +20,10 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
-import { Route as AuthenticatedDashboardFlashcardRouteImport } from './routes/_authenticated/dashboard/flashcard'
 import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
+import { Route as AuthenticatedDashboardFlashcardIndexRouteImport } from './routes/_authenticated/dashboard/flashcard.index'
 import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
+import { Route as AuthenticatedDashboardFlashcardResultRouteImport } from './routes/_authenticated/dashboard/flashcard.result'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -80,22 +81,28 @@ const AuthenticatedLatihanSoalIdRoute =
     path: '/latihan-soal/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedDashboardFlashcardRoute =
-  AuthenticatedDashboardFlashcardRouteImport.update({
-    id: '/dashboard/flashcard',
-    path: '/dashboard/flashcard',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedLatihanSoalRiwayatIndexRoute =
   AuthenticatedLatihanSoalRiwayatIndexRouteImport.update({
     id: '/latihan-soal/riwayat/',
     path: '/latihan-soal/riwayat/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDashboardFlashcardIndexRoute =
+  AuthenticatedDashboardFlashcardIndexRouteImport.update({
+    id: '/dashboard/flashcard/',
+    path: '/dashboard/flashcard/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedLatihanSoalRiwayatIdRoute =
   AuthenticatedLatihanSoalRiwayatIdRouteImport.update({
     id: '/latihan-soal/riwayat/$id',
     path: '/latihan-soal/riwayat/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDashboardFlashcardResultRoute =
+  AuthenticatedDashboardFlashcardResultRouteImport.update({
+    id: '/dashboard/flashcard/result',
+    path: '/dashboard/flashcard/result',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -106,11 +113,12 @@ export interface FileRoutesByFullPath {
   '/classes': typeof AuthenticatedClassesRoute
   '/premium': typeof AuthenticatedPremiumRoute
   '/tryouts': typeof AuthenticatedTryoutsRoute
-  '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 export interface FileRoutesByTo {
@@ -120,11 +128,12 @@ export interface FileRoutesByTo {
   '/classes': typeof AuthenticatedClassesRoute
   '/premium': typeof AuthenticatedPremiumRoute
   '/tryouts': typeof AuthenticatedTryoutsRoute
-  '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 export interface FileRoutesById {
@@ -137,11 +146,12 @@ export interface FileRoutesById {
   '/_authenticated/classes': typeof AuthenticatedClassesRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
   '/_authenticated/tryouts': typeof AuthenticatedTryoutsRoute
-  '/_authenticated/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
+  '/_authenticated/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/_authenticated/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 export interface FileRouteTypes {
@@ -153,11 +163,12 @@ export interface FileRouteTypes {
     | '/classes'
     | '/premium'
     | '/tryouts'
-    | '/dashboard/flashcard'
     | '/latihan-soal/$id'
     | '/dashboard'
     | '/latihan-soal'
+    | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
+    | '/dashboard/flashcard'
     | '/latihan-soal/riwayat'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -167,11 +178,12 @@ export interface FileRouteTypes {
     | '/classes'
     | '/premium'
     | '/tryouts'
-    | '/dashboard/flashcard'
     | '/latihan-soal/$id'
     | '/dashboard'
     | '/latihan-soal'
+    | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
+    | '/dashboard/flashcard'
     | '/latihan-soal/riwayat'
   id:
     | '__root__'
@@ -183,11 +195,12 @@ export interface FileRouteTypes {
     | '/_authenticated/classes'
     | '/_authenticated/premium'
     | '/_authenticated/tryouts'
-    | '/_authenticated/dashboard/flashcard'
     | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/dashboard/'
     | '/_authenticated/latihan-soal/'
+    | '/_authenticated/dashboard/flashcard/result'
     | '/_authenticated/latihan-soal/riwayat/$id'
+    | '/_authenticated/dashboard/flashcard/'
     | '/_authenticated/latihan-soal/riwayat/'
   fileRoutesById: FileRoutesById
 }
@@ -276,13 +289,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/dashboard/flashcard': {
-      id: '/_authenticated/dashboard/flashcard'
-      path: '/dashboard/flashcard'
-      fullPath: '/dashboard/flashcard'
-      preLoaderRoute: typeof AuthenticatedDashboardFlashcardRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/latihan-soal/riwayat/': {
       id: '/_authenticated/latihan-soal/riwayat/'
       path: '/latihan-soal/riwayat'
@@ -290,11 +296,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/dashboard/flashcard/': {
+      id: '/_authenticated/dashboard/flashcard/'
+      path: '/dashboard/flashcard'
+      fullPath: '/dashboard/flashcard'
+      preLoaderRoute: typeof AuthenticatedDashboardFlashcardIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/latihan-soal/riwayat/$id': {
       id: '/_authenticated/latihan-soal/riwayat/$id'
       path: '/latihan-soal/riwayat/$id'
       fullPath: '/latihan-soal/riwayat/$id'
       preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard/flashcard/result': {
+      id: '/_authenticated/dashboard/flashcard/result'
+      path: '/dashboard/flashcard/result'
+      fullPath: '/dashboard/flashcard/result'
+      preLoaderRoute: typeof AuthenticatedDashboardFlashcardResultRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -316,11 +336,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedClassesRoute: typeof AuthenticatedClassesRoute
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
   AuthenticatedTryoutsRoute: typeof AuthenticatedTryoutsRoute
-  AuthenticatedDashboardFlashcardRoute: typeof AuthenticatedDashboardFlashcardRoute
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
+  AuthenticatedDashboardFlashcardResultRoute: typeof AuthenticatedDashboardFlashcardResultRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  AuthenticatedDashboardFlashcardIndexRoute: typeof AuthenticatedDashboardFlashcardIndexRoute
   AuthenticatedLatihanSoalRiwayatIndexRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 
@@ -328,12 +349,15 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedClassesRoute: AuthenticatedClassesRoute,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
   AuthenticatedTryoutsRoute: AuthenticatedTryoutsRoute,
-  AuthenticatedDashboardFlashcardRoute: AuthenticatedDashboardFlashcardRoute,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
+  AuthenticatedDashboardFlashcardResultRoute:
+    AuthenticatedDashboardFlashcardResultRoute,
   AuthenticatedLatihanSoalRiwayatIdRoute:
     AuthenticatedLatihanSoalRiwayatIdRoute,
+  AuthenticatedDashboardFlashcardIndexRoute:
+    AuthenticatedDashboardFlashcardIndexRoute,
   AuthenticatedLatihanSoalRiwayatIndexRoute:
     AuthenticatedLatihanSoalRiwayatIndexRoute,
 }
