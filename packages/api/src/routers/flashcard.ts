@@ -1,13 +1,13 @@
 import { db } from "@habitutor/db";
+import { user } from "@habitutor/db/schema/auth";
 import {
   userFlashcardAttempt,
   userFlashcardQuestionAnswer,
-  userFlashcardStreak,
 } from "@habitutor/db/schema/flashcard";
 import { question } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, gte, inArray, not } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, not, sql } from "drizzle-orm";
 import { authed } from "..";
 
 // Cutoff in 30 Days
@@ -104,11 +104,13 @@ const get = authed
           with: {
             question: {
               columns: {
+                id: true,
                 content: true,
               },
               with: {
                 answerOptions: {
                   columns: {
+                    id: true,
                     content: true,
                   },
                 },
@@ -160,11 +162,11 @@ const submit = authed
 
     if (!latestAttempt) {
       throw new ORPCError("NOT_FOUND", {
-        message: "Gagal menemukan sesi flashcard hari ini.",
+        message: "Kamu belum memulai sesi flashcard hari ini.",
       });
     }
 
-    // Add a grace period for submitting
+    // Grace period for submitting
     if (
       new Date(Date.now() + GRACE_PERIOD_SECONDS * 1000) >
       latestAttempt.deadline
@@ -200,6 +202,13 @@ const submit = authed
             submittedAt: new Date(),
           })
           .where(eq(userFlashcardAttempt.id, latestAttempt.id));
+
+        await tx
+          .update(user)
+          .set({
+            flashcardStreak: sql`${user.flashcardStreak} + 1`,
+          })
+          .where(eq(user.id, context.session.user.id));
       });
     } catch (err) {
       console.error(err);
@@ -218,26 +227,22 @@ const streak = authed
   .output(
     type({
       streak: "number",
-      lastCompletedDate: "string | null",
+      lastCompletedDate: "Date | null",
     }),
   )
   .handler(async ({ context }) => {
-    const [flashcard] = await db
+    const [streak] = await db
       .select({
-        streak: userFlashcardStreak.currentStreak,
-        lastCompletedDate: userFlashcardStreak.lastCompletedDate,
+        streak: user.flashcardStreak,
+        lastCompletedDate: user.lastCompletedFlashcardAt,
       })
-      .from(userFlashcardStreak)
-      .where(eq(userFlashcardStreak.userId, context.session.user.id))
+      .from(user)
+      .where(eq(user.id, context.session.user.id))
       .limit(1);
 
-    if (!flashcard)
-      return {
-        streak: 0,
-        lastCompletedDate: null,
-      };
+    if (!streak) throw new ORPCError("NOT_FOUND");
 
-    return flashcard;
+    return streak;
   });
 
 export const flashcardRouter = {

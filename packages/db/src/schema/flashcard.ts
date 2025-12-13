@@ -1,6 +1,5 @@
 import { relations } from "drizzle-orm";
 import {
-  boolean,
   date,
   integer,
   pgTable,
@@ -42,6 +41,10 @@ export const userFlashcardQuestionAnswerRelations = relations(
       fields: [userFlashcardQuestionAnswer.selectedAnswerId],
       references: [questionAnswerOption.id],
     }),
+    attempt: one(userFlashcardAttempt, {
+      fields: [userFlashcardQuestionAnswer.attemptId],
+      references: [userFlashcardAttempt.id],
+    }),
   }),
 );
 
@@ -50,9 +53,9 @@ export const userFlashcardAttempt = pgTable("user_flashcard_attempt", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  startedAt: timestamp().notNull().defaultNow(),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
   deadline: timestamp().notNull(),
-  submittedAt: timestamp(),
+  submittedAt: timestamp("submitted_at"),
 });
 
 export const userFlashcardAttemptRelations = relations(
@@ -63,26 +66,5 @@ export const userFlashcardAttemptRelations = relations(
       references: [user.id],
     }),
     assignedQuestions: many(userFlashcardQuestionAnswer),
-  }),
-);
-
-export const userFlashcardStreak = pgTable("user_flashcard_streak", {
-  userId: text("user_id")
-    .primaryKey()
-    .references(() => user.id, { onDelete: "cascade" }),
-  currentStreak: integer("current_streak").notNull().default(0),
-  lastCompletedDate: date("last_completed_date"),
-  lastCheckedDate: date("last_checked_date"),
-  isActive: boolean("is_active").notNull().default(true),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-export const userFlashcardStreakRelations = relations(
-  userFlashcardStreak,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [userFlashcardStreak.userId],
-      references: [user.id],
-    }),
   }),
 );
