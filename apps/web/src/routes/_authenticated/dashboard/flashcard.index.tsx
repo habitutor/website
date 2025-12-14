@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
@@ -11,7 +11,6 @@ export const Route = createFileRoute("/_authenticated/dashboard/flashcard/")({
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
   const flashcard = useQuery(
     orpc.flashcard.get.queryOptions({
       retry: false,
@@ -21,9 +20,6 @@ function RouteComponent() {
   if (flashcard.isPending) {
     return <Loader />;
   }
-
-  if (flashcard.data?.status === "submitted")
-    navigate({ to: "/dashboard/flashcard/result" });
 
   if (flashcard.data?.status === "not_started") {
     return <StartCard />;
@@ -35,12 +31,13 @@ function RouteComponent() {
 const StartCard = () => {
   const queryClient = useQueryClient();
   const streak = useQuery(orpc.flashcard.streak.queryOptions());
-  const startMutation = useMutation({
-    ...orpc.flashcard.start.mutationOptions(),
-    onSuccess: () => {
-      queryClient.removeQueries({ queryKey: orpc.flashcard.get.key() });
-    },
-  });
+  const startMutation = useMutation(
+    orpc.flashcard.start.mutationOptions({
+      onSuccess: () => {
+        queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
+      },
+    }),
+  );
 
   return (
     <section className="flex flex-col gap-4 rounded-md border bg-white p-6">

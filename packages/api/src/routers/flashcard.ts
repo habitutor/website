@@ -12,6 +12,7 @@ import { authed } from "..";
 
 // Cutoff in 30 Days
 const FLASHCARD_REPEAT_CUTOFF_LIMIT = 30;
+const FLASHCARD_SESSION_DURATION_MINUTES = 0.2;
 // Grace period to allow submitting after deadline
 const GRACE_PERIOD_SECONDS = 5;
 
@@ -22,7 +23,9 @@ const start = authed
     tags: ["Flashcard"],
   })
   .handler(async ({ context }) => {
-    const deadline = new Date(Date.now() + 10 * 60_000);
+    const deadline = new Date(
+      Date.now() + FLASHCARD_SESSION_DURATION_MINUTES * 60_000,
+    );
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dateBoundary = new Date(
@@ -95,7 +98,6 @@ const get = authed
     tags: ["Flashcard"],
   })
   .handler(async ({ context }) => {
-    const today = new Date().setHours(0, 0, 0, 0);
     let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
     const attempt = await db.query.userFlashcardAttempt.findFirst({
@@ -116,6 +118,7 @@ const get = authed
                   columns: {
                     id: true,
                     content: true,
+                    code: true,
                   },
                 },
               },
@@ -124,8 +127,6 @@ const get = authed
         },
       },
     });
-
-    console.log(attempt);
 
     if (!attempt || attempt.assignedQuestions.length === 0) return { status };
 

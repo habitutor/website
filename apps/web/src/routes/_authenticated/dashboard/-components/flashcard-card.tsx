@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { create } from "zustand";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { orpc } from "@/utils/orpc";
-import { toast } from "sonner";
+import { TimeoutDialog } from "./timeout-dialog";
 
 interface AnswerStore {
   answers: { [key: number]: number };
@@ -28,10 +29,23 @@ export const FlashcardCard = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+  const [timeoutDialogOpen, setTimeoutDialogOpen] = useState(false);
   const [, hours, minutes, seconds] = useCountdown(
     (data?.status !== "not_started" && data?.deadline) || 0,
   );
-  const { answers, saveAnswer } = useAnswerStore();
+  const { saveAnswer } = useAnswerStore();
+
+  useEffect(() => {
+    if (
+      data?.status === "ongoing" &&
+      hours === "00" &&
+      minutes === "00" &&
+      seconds === "00"
+    ) {
+      setTimeoutDialogOpen(true);
+      submitAnswers();
+    }
+  }, [data?.status, hours, minutes, seconds]);
 
   if (data?.status === "submitted")
     navigate({ to: "/dashboard/flashcard/result" });
@@ -50,15 +64,8 @@ export const FlashcardCard = () => {
     });
 
     if (currentPage === data?.assignedQuestions.length) {
-      const mappedAnswers = Object.entries({
-        ...answers,
-        [currentQuestionId]: answerId,
-      }).map(([questionId, answerId]) => ({
-        questionId: Number(questionId),
-        answerId,
-      }));
-
-      submitMutation.mutate(mappedAnswers);
+      saveAnswer({ questionId: currentQuestionId, answerId });
+      submitAnswers();
       queryClient.removeQueries({
         queryKey: orpc.flashcard.streak.key(),
       });
@@ -67,6 +74,18 @@ export const FlashcardCard = () => {
     }
     setCurrentPage(currentPage + 1);
   };
+
+  useAnswerStore;
+  function submitAnswers() {
+    const mappedAnswers = Object.entries(useAnswerStore.getState().answers).map(
+      ([questionId, answerId]) => ({
+        questionId: Number(questionId),
+        answerId,
+      }),
+    );
+
+    submitMutation.mutate(mappedAnswers);
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -86,7 +105,7 @@ export const FlashcardCard = () => {
         </div>
 
         {data?.assignedQuestions[currentPage - 1].question.answerOptions.map(
-          (option, i) => (
+          (option) => (
             <button
               type="button"
               key={option.id}
@@ -94,13 +113,18 @@ export const FlashcardCard = () => {
               className="inline-flex items-center gap-3 rounded-md border border-secondary bg-white p-4 text-start text-foreground transition-colors hover:bg-secondary/20"
             >
               <span className="rounded-xs border border-accent px-2 py-0.5 font-medium text-neutral-500 text-sm">
-                {String.fromCharCode(65 + i)}
+                {option.code}
               </span>
               {option.content}
             </button>
           ),
         )}
       </div>
+
+      <TimeoutDialog
+        open={timeoutDialogOpen}
+        onOpenChange={setTimeoutDialogOpen}
+      />
     </div>
   );
 };
