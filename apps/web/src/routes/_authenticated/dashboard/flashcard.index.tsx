@@ -1,4 +1,3 @@
-import { isDefinedError } from "@orpc/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -23,10 +22,10 @@ function RouteComponent() {
     return <Loader />;
   }
 
-  if (flashcard.data?.submittedAt)
+  if (flashcard.data?.status === "submitted")
     navigate({ to: "/dashboard/flashcard/result" });
 
-  if (flashcard.isError) {
+  if (flashcard.data?.status === "not_started") {
     return <StartCard />;
   }
 
