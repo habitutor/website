@@ -38,7 +38,7 @@ const StartCard = () => {
   const startMutation = useMutation({
     ...orpc.flashcard.start.mutationOptions(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: orpc.flashcard.get.key() });
+      queryClient.removeQueries({ queryKey: orpc.flashcard.get.key() });
     },
   });
 

@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   date,
   integer,
@@ -6,6 +6,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { question, questionAnswerOption } from "./practice-pack";
@@ -48,15 +49,22 @@ export const userFlashcardQuestionAnswerRelations = relations(
   }),
 );
 
-export const userFlashcardAttempt = pgTable("user_flashcard_attempt", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  startedAt: timestamp("started_at").notNull().defaultNow(),
-  deadline: timestamp().notNull(),
-  submittedAt: timestamp("submitted_at"),
-});
+export const userFlashcardAttempt = pgTable(
+  "user_flashcard_attempt",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    date: date("date").notNull().default(sql`CURRENT_DATE`),
+    startedAt: timestamp("started_at").notNull().defaultNow(),
+    deadline: timestamp().notNull(),
+    submittedAt: timestamp("submitted_at"),
+  },
+  (t) => [
+    unique("user_flashcard_attempt_user_id_date_unique").on(t.userId, t.date),
+  ],
+);
 
 export const userFlashcardAttemptRelations = relations(
   userFlashcardAttempt,

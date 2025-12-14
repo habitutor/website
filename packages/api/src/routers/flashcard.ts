@@ -21,28 +21,35 @@ const start = authed
     method: "POST",
     tags: ["Flashcard"],
   })
-  .handler(async ({ context, errors }) => {
+  .handler(async ({ context }) => {
     const deadline = new Date(Date.now() + 10 * 60_000);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const dateBoundary = new Date(
+      today.getTime() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000,
+    );
 
-    try {
-      const [attempt] = await db
+    await db.transaction(async (tx) => {
+      const [attempt] = await tx
         .insert(userFlashcardAttempt)
         .values({
           userId: context.session.user.id,
           startedAt: new Date(),
           deadline: deadline,
         })
+        .onConflictDoNothing()
         .returning();
 
-      if (!attempt) throw errors.NOT_FOUND();
+      if (
+        !attempt ||
+        Date.now() > new Date(attempt?.deadline).getTime() ||
+        attempt?.submittedAt
+      )
+        throw new ORPCError("UNPROCESSABLE_CONTENT", {
+          message: "Kamu sudah memulai sesi flashcard hari ini.",
+        });
 
-      const dateBoundary = new Date(
-        today.getTime() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000,
-      );
-
-      const recentlyAssignedSubquery = db
+      const recentlyAssignedSubquery = tx
         .select({ id: userFlashcardQuestionAnswer.questionId })
         .from(userFlashcardQuestionAnswer)
         .innerJoin(
@@ -56,7 +63,7 @@ const start = authed
           ),
         );
 
-      const availableQuestions = await db.query.question.findMany({
+      const availableQuestions = await tx.query.question.findMany({
         where: not(inArray(question.id, recentlyAssignedSubquery)),
         with: {
           answerOptions: true,
@@ -64,22 +71,19 @@ const start = authed
         limit: 5,
       });
 
-      if (availableQuestions.length > 0) {
-        await db
-          .insert(userFlashcardQuestionAnswer)
-          .values(
-            availableQuestions.map((q) => ({
-              attemptId: attempt?.id,
-              assignedDate: today,
-              questionId: q.id,
-            })),
-          )
-          .returning();
-      }
-    } catch (err) {
-      console.error(err);
-      throw new ORPCError("INTERNAL_SERVER_ERROR");
-    }
+      if (availableQuestions.length < 5)
+        throw new ORPCError("NOT_FOUND", {
+          message: "Gagal menemukan pertanyaan flashcard yang cukup.",
+        });
+
+      await tx.insert(userFlashcardQuestionAnswer).values(
+        availableQuestions.map((q) => ({
+          attemptId: attempt?.id,
+          assignedDate: today,
+          questionId: q.id,
+        })),
+      );
+    });
 
     return "Sukses memulai sesi flashcard!";
   });
@@ -95,10 +99,9 @@ const get = authed
     let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
     const attempt = await db.query.userFlashcardAttempt.findFirst({
-      where: eq(userFlashcardAttempt.userId, context.session.user.id),
+      where: and(eq(userFlashcardAttempt.userId, context.session.user.id)),
       with: {
         assignedQuestions: {
-          where: eq(userFlashcardQuestionAnswer.assignedDate, new Date(today)),
           columns: {
             selectedAnswerId: true,
           },
@@ -122,7 +125,9 @@ const get = authed
       },
     });
 
-    if (!attempt) return { status };
+    console.log(attempt);
+
+    if (!attempt || attempt.assignedQuestions.length === 0) return { status };
 
     status = attempt.submittedAt ? "submitted" : "ongoing";
     return {
