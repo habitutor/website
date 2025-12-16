@@ -11,19 +11,23 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTryoutsRouteImport } from './routes/_authenticated/tryouts'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedClassesRouteImport } from './routes/_authenticated/classes'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
-import { Route as AuthenticatedKelasIndexRouteImport } from './routes/_authenticated/kelas/index'
+import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
+import { Route as AdminSubtestsIndexRouteImport } from './routes/_admin/subtests/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
-import { Route as AuthenticatedKelasIdRouteImport } from './routes/_authenticated/kelas/$id'
+import { Route as AuthenticatedClassesIdRouteImport } from './routes/_authenticated/classes/$id'
+import { Route as AdminSubtestsIdRouteImport } from './routes/_admin/subtests/$id'
 import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
 import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
+import { Route as AuthenticatedClassesContentContentIdRouteImport } from './routes/_authenticated/classes/content/$contentId'
+import { Route as AdminSubtestsContentContentIdRouteImport } from './routes/_admin/subtests/content/$contentId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -31,6 +35,10 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 } as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/_admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -53,11 +61,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedClassesRoute = AuthenticatedClassesRouteImport.update({
-  id: '/classes',
-  path: '/classes',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -74,10 +77,16 @@ const AuthenticatedLatihanSoalIndexRoute =
     path: '/latihan-soal/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedKelasIndexRoute = AuthenticatedKelasIndexRouteImport.update({
-  id: '/kelas/',
-  path: '/kelas/',
-  getParentRoute: () => AuthenticatedRoute,
+const AuthenticatedClassesIndexRoute =
+  AuthenticatedClassesIndexRouteImport.update({
+    id: '/classes/',
+    path: '/classes/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AdminSubtestsIndexRoute = AdminSubtestsIndexRouteImport.update({
+  id: '/subtests/',
+  path: '/subtests/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedLatihanSoalIdRoute =
   AuthenticatedLatihanSoalIdRouteImport.update({
@@ -85,10 +94,15 @@ const AuthenticatedLatihanSoalIdRoute =
     path: '/latihan-soal/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedKelasIdRoute = AuthenticatedKelasIdRouteImport.update({
-  id: '/kelas/$id',
-  path: '/kelas/$id',
+const AuthenticatedClassesIdRoute = AuthenticatedClassesIdRouteImport.update({
+  id: '/classes/$id',
+  path: '/classes/$id',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AdminSubtestsIdRoute = AdminSubtestsIdRouteImport.update({
+  id: '/subtests/$id',
+  path: '/subtests/$id',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedLatihanSoalRiwayatIndexRoute =
   AuthenticatedLatihanSoalRiwayatIndexRouteImport.update({
@@ -102,19 +116,34 @@ const AuthenticatedLatihanSoalRiwayatIdRoute =
     path: '/latihan-soal/riwayat/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedClassesContentContentIdRoute =
+  AuthenticatedClassesContentContentIdRouteImport.update({
+    id: '/classes/content/$contentId',
+    path: '/classes/content/$contentId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AdminSubtestsContentContentIdRoute =
+  AdminSubtestsContentContentIdRouteImport.update({
+    id: '/subtests/content/$contentId',
+    path: '/subtests/content/$contentId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/classes': typeof AuthenticatedClassesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/kelas/$id': typeof AuthenticatedKelasIdRoute
   '/premium': typeof AuthenticatedPremiumRoute
   '/tryouts': typeof AuthenticatedTryoutsRoute
+  '/subtests/$id': typeof AdminSubtestsIdRoute
+  '/classes/$id': typeof AuthenticatedClassesIdRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
-  '/kelas': typeof AuthenticatedKelasIndexRoute
+  '/subtests': typeof AdminSubtestsIndexRoute
+  '/classes': typeof AuthenticatedClassesIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/subtests/content/$contentId': typeof AdminSubtestsContentContentIdRoute
+  '/classes/content/$contentId': typeof AuthenticatedClassesContentContentIdRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
@@ -122,32 +151,39 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/classes': typeof AuthenticatedClassesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/kelas/$id': typeof AuthenticatedKelasIdRoute
   '/premium': typeof AuthenticatedPremiumRoute
   '/tryouts': typeof AuthenticatedTryoutsRoute
+  '/subtests/$id': typeof AdminSubtestsIdRoute
+  '/classes/$id': typeof AuthenticatedClassesIdRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
-  '/kelas': typeof AuthenticatedKelasIndexRoute
+  '/subtests': typeof AdminSubtestsIndexRoute
+  '/classes': typeof AuthenticatedClassesIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/subtests/content/$contentId': typeof AdminSubtestsContentContentIdRoute
+  '/classes/content/$contentId': typeof AuthenticatedClassesContentContentIdRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_admin': typeof AdminRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
-  '/_authenticated/classes': typeof AuthenticatedClassesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/kelas/$id': typeof AuthenticatedKelasIdRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
   '/_authenticated/tryouts': typeof AuthenticatedTryoutsRoute
+  '/_admin/subtests/$id': typeof AdminSubtestsIdRoute
+  '/_authenticated/classes/$id': typeof AuthenticatedClassesIdRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
-  '/_authenticated/kelas/': typeof AuthenticatedKelasIndexRoute
+  '/_admin/subtests/': typeof AdminSubtestsIndexRoute
+  '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
+  '/_admin/subtests/content/$contentId': typeof AdminSubtestsContentContentIdRoute
+  '/_authenticated/classes/content/$contentId': typeof AuthenticatedClassesContentContentIdRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
@@ -157,14 +193,17 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
-    | '/classes'
     | '/dashboard'
-    | '/kelas/$id'
     | '/premium'
     | '/tryouts'
+    | '/subtests/$id'
+    | '/classes/$id'
     | '/latihan-soal/$id'
-    | '/kelas'
+    | '/subtests'
+    | '/classes'
     | '/latihan-soal'
+    | '/subtests/content/$contentId'
+    | '/classes/content/$contentId'
     | '/latihan-soal/riwayat/$id'
     | '/latihan-soal/riwayat'
   fileRoutesByTo: FileRoutesByTo
@@ -172,37 +211,45 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
-    | '/classes'
     | '/dashboard'
-    | '/kelas/$id'
     | '/premium'
     | '/tryouts'
+    | '/subtests/$id'
+    | '/classes/$id'
     | '/latihan-soal/$id'
-    | '/kelas'
+    | '/subtests'
+    | '/classes'
     | '/latihan-soal'
+    | '/subtests/content/$contentId'
+    | '/classes/content/$contentId'
     | '/latihan-soal/riwayat/$id'
     | '/latihan-soal/riwayat'
   id:
     | '__root__'
     | '/'
+    | '/_admin'
     | '/_auth'
     | '/_authenticated'
     | '/_auth/login'
     | '/_auth/register'
-    | '/_authenticated/classes'
     | '/_authenticated/dashboard'
-    | '/_authenticated/kelas/$id'
     | '/_authenticated/premium'
     | '/_authenticated/tryouts'
+    | '/_admin/subtests/$id'
+    | '/_authenticated/classes/$id'
     | '/_authenticated/latihan-soal/$id'
-    | '/_authenticated/kelas/'
+    | '/_admin/subtests/'
+    | '/_authenticated/classes/'
     | '/_authenticated/latihan-soal/'
+    | '/_admin/subtests/content/$contentId'
+    | '/_authenticated/classes/content/$contentId'
     | '/_authenticated/latihan-soal/riwayat/$id'
     | '/_authenticated/latihan-soal/riwayat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
 }
@@ -221,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_admin': {
+      id: '/_admin'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -251,13 +305,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/classes': {
-      id: '/_authenticated/classes'
-      path: '/classes'
-      fullPath: '/classes'
-      preLoaderRoute: typeof AuthenticatedClassesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_auth/register': {
       id: '/_auth/register'
       path: '/register'
@@ -279,12 +326,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/kelas/': {
-      id: '/_authenticated/kelas/'
-      path: '/kelas'
-      fullPath: '/kelas'
-      preLoaderRoute: typeof AuthenticatedKelasIndexRouteImport
+    '/_authenticated/classes/': {
+      id: '/_authenticated/classes/'
+      path: '/classes'
+      fullPath: '/classes'
+      preLoaderRoute: typeof AuthenticatedClassesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_admin/subtests/': {
+      id: '/_admin/subtests/'
+      path: '/subtests'
+      fullPath: '/subtests'
+      preLoaderRoute: typeof AdminSubtestsIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/latihan-soal/$id': {
       id: '/_authenticated/latihan-soal/$id'
@@ -293,12 +347,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/kelas/$id': {
-      id: '/_authenticated/kelas/$id'
-      path: '/kelas/$id'
-      fullPath: '/kelas/$id'
-      preLoaderRoute: typeof AuthenticatedKelasIdRouteImport
+    '/_authenticated/classes/$id': {
+      id: '/_authenticated/classes/$id'
+      path: '/classes/$id'
+      fullPath: '/classes/$id'
+      preLoaderRoute: typeof AuthenticatedClassesIdRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_admin/subtests/$id': {
+      id: '/_admin/subtests/$id'
+      path: '/subtests/$id'
+      fullPath: '/subtests/$id'
+      preLoaderRoute: typeof AdminSubtestsIdRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/latihan-soal/riwayat/': {
       id: '/_authenticated/latihan-soal/riwayat/'
@@ -314,8 +375,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/classes/content/$contentId': {
+      id: '/_authenticated/classes/content/$contentId'
+      path: '/classes/content/$contentId'
+      fullPath: '/classes/content/$contentId'
+      preLoaderRoute: typeof AuthenticatedClassesContentContentIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_admin/subtests/content/$contentId': {
+      id: '/_admin/subtests/content/$contentId'
+      path: '/subtests/content/$contentId'
+      fullPath: '/subtests/content/$contentId'
+      preLoaderRoute: typeof AdminSubtestsContentContentIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminSubtestsIdRoute: typeof AdminSubtestsIdRoute
+  AdminSubtestsIndexRoute: typeof AdminSubtestsIndexRoute
+  AdminSubtestsContentContentIdRoute: typeof AdminSubtestsContentContentIdRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminSubtestsIdRoute: AdminSubtestsIdRoute,
+  AdminSubtestsIndexRoute: AdminSubtestsIndexRoute,
+  AdminSubtestsContentContentIdRoute: AdminSubtestsContentContentIdRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AuthRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
@@ -330,27 +419,28 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedClassesRoute: typeof AuthenticatedClassesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedKelasIdRoute: typeof AuthenticatedKelasIdRoute
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
   AuthenticatedTryoutsRoute: typeof AuthenticatedTryoutsRoute
+  AuthenticatedClassesIdRoute: typeof AuthenticatedClassesIdRoute
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
-  AuthenticatedKelasIndexRoute: typeof AuthenticatedKelasIndexRoute
+  AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
+  AuthenticatedClassesContentContentIdRoute: typeof AuthenticatedClassesContentContentIdRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
   AuthenticatedLatihanSoalRiwayatIndexRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedClassesRoute: AuthenticatedClassesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedKelasIdRoute: AuthenticatedKelasIdRoute,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
   AuthenticatedTryoutsRoute: AuthenticatedTryoutsRoute,
+  AuthenticatedClassesIdRoute: AuthenticatedClassesIdRoute,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
-  AuthenticatedKelasIndexRoute: AuthenticatedKelasIndexRoute,
+  AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
+  AuthenticatedClassesContentContentIdRoute:
+    AuthenticatedClassesContentContentIdRoute,
   AuthenticatedLatihanSoalRiwayatIdRoute:
     AuthenticatedLatihanSoalRiwayatIdRoute,
   AuthenticatedLatihanSoalRiwayatIndexRoute:
@@ -363,6 +453,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
 }

@@ -35,7 +35,6 @@ export const subtestContent = pgTable("subtest_content", {
 	title: text().notNull(),
 	order: integer().default(1),
 	videoUrl: text("video_url"),
-	videoDescription: text("video_description"),
 	notes: text(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });

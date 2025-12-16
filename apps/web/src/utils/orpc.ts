@@ -1,6 +1,6 @@
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
-import { createORPCClient } from "@orpc/client";
+import { createORPCClient, type InferClientBodyOutputs } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { createRouterClient } from "@orpc/server";
@@ -47,5 +47,6 @@ const getORPCClient = createIsomorphicFn()
 	});
 
 export const client: RouterClient<typeof appRouter> = getORPCClient();
+export type BodyOutputs = InferClientBodyOutputs<typeof client>;
 
 export const orpc = createTanstackQueryUtils(client);

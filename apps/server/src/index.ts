@@ -16,9 +16,25 @@ app.use(logger());
 app.use(
 	"/*",
 	cors({
-		origin: [process.env.CORS_ORIGIN || "http://localhost:3000"],
-		allowMethods: ["GET", "POST", "OPTIONS"],
-		allowHeaders: ["Content-Type", "Authorization"],
+		origin: (origin) => {
+			const allowedOrigins = [
+				process.env.CORS_ORIGIN || "http://localhost:3000",
+				"http://localhost:3000",
+				"http://localhost:5173",
+			];
+			// Return the origin if it's allowed, otherwise return undefined to deny
+			if (!origin) return allowedOrigins[0]; // Allow requests with no origin (e.g., same-origin)
+			return allowedOrigins.includes(origin) ? origin : undefined;
+		},
+		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+		allowHeaders: [
+			"Content-Type",
+			"Authorization",
+			"X-Requested-With",
+			"Accept",
+			"Origin",
+		],
+		exposeHeaders: ["Content-Length", "Content-Type"],
 		credentials: true,
 	}),
 );

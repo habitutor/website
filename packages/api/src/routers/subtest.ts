@@ -80,7 +80,6 @@ const find = authed
 				title: subtestContent.title,
 				order: subtestContent.order,
 				videoUrl: subtestContent.videoUrl,
-				videoDescription: subtestContent.videoDescription,
 				notes: subtestContent.notes,
 				videoWatched: userSubtestProgress.videoWatched,
 				notesRead: userSubtestProgress.notesRead,
@@ -125,7 +124,6 @@ const getContent = authed
 				title: subtestContent.title,
 				order: subtestContent.order,
 				videoUrl: subtestContent.videoUrl,
-				videoDescription: subtestContent.videoDescription,
 				notes: subtestContent.notes,
 			})
 			.from(subtestContent)

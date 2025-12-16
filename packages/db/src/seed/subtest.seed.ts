@@ -68,8 +68,6 @@ const SAMPLE_CONTENT = [
 				title: "Materi 1: Pengantar Penalaran Logis",
 				order: 1,
 				videoUrl: "https://www.youtube.com/watch?v=example1",
-				videoDescription:
-					"Video pengantar tentang dasar-dasar penalaran logis dan cara berpikir sistematis.",
 				notes:
 					"# Penalaran Logis\n\nPenalaran logis adalah kemampuan untuk berpikir secara sistematis dan menarik kesimpulan yang valid berdasarkan premis-premis yang diberikan.\n\n## Jenis Penalaran\n1. **Deduktif**: Dari umum ke khusus\n2. **Induktif**: Dari khusus ke umum",
 			},
@@ -78,8 +76,6 @@ const SAMPLE_CONTENT = [
 				title: "Materi 2: Silogisme dan Modus Ponens",
 				order: 2,
 				videoUrl: "https://www.youtube.com/watch?v=example2",
-				videoDescription:
-					"Pembelajaran mendalam tentang silogisme dan modus ponens dalam logika formal.",
 				notes:
 					"# Silogisme\n\nSilogisme adalah bentuk penalaran yang terdiri dari dua premis dan satu kesimpulan.\n\n## Contoh\n- Premis 1: Semua manusia adalah makhluk hidup\n- Premis 2: Budi adalah manusia\n- Kesimpulan: Budi adalah makhluk hidup",
 			},
@@ -88,8 +84,6 @@ const SAMPLE_CONTENT = [
 				title: "Tips & Trick: Cara Cepat Menyelesaikan Soal Logika",
 				order: 3,
 				videoUrl: "https://www.youtube.com/watch?v=example3",
-				videoDescription:
-					"Tips dan trik praktis untuk menyelesaikan soal-soal logika dengan cepat dan tepat.",
 				notes:
 					"# Tips Cepat Soal Logika\n\n1. **Identifikasi jenis soal** - Tentukan apakah silogisme, modus ponens, atau modus tollens\n2. **Gambar diagram Venn** - Untuk soal himpunan\n3. **Gunakan kontrapositif** - Jika p → q, maka ¬q → ¬p\n4. **Eliminasi jawaban salah** - Cari kontradiksi",
 			},
@@ -103,8 +97,6 @@ const SAMPLE_CONTENT = [
 				title: "Materi 1: Dasar-dasar Aljabar",
 				order: 1,
 				videoUrl: "https://www.youtube.com/watch?v=example4",
-				videoDescription:
-					"Materi fundamental aljabar yang sering muncul di UTBK.",
 				notes:
 					"# Aljabar Dasar\n\n## Operasi Aljabar\n- Penjumlahan dan pengurangan suku sejenis\n- Perkalian dan pembagian bentuk aljabar\n- Faktorisasi",
 			},
@@ -113,8 +105,6 @@ const SAMPLE_CONTENT = [
 				title: "Materi 2: Persamaan dan Pertidaksamaan",
 				order: 2,
 				videoUrl: "https://www.youtube.com/watch?v=example5",
-				videoDescription:
-					"Cara menyelesaikan persamaan dan pertidaksamaan linear serta kuadrat.",
 				notes:
 					"# Persamaan dan Pertidaksamaan\n\n## Persamaan Linear\nax + b = 0 → x = -b/a\n\n## Persamaan Kuadrat\nax² + bx + c = 0\n- Rumus ABC: x = (-b ± √(b²-4ac)) / 2a",
 			},
@@ -123,7 +113,6 @@ const SAMPLE_CONTENT = [
 				title: "Tips & Trick: Strategi Cepat Soal Matematika",
 				order: 3,
 				videoUrl: "https://www.youtube.com/watch?v=example6",
-				videoDescription: "Strategi dan shortcut untuk mengerjakan soal matematika UTBK.",
 				notes:
 					"# Tips Matematika UTBK\n\n1. **Substitusi jawaban** - Untuk soal pilihan ganda\n2. **Gunakan angka bulat** - Untuk mengecek rumus\n3. **Perhatikan satuan** - Konversi jika perlu\n4. **Baca soal teliti** - Pahami yang ditanyakan",
 			},
@@ -160,7 +149,6 @@ export async function seedSubtest(db: NodePgDatabase) {
 				title: content.title,
 				order: content.order,
 				videoUrl: content.videoUrl,
-				videoDescription: content.videoDescription,
 				notes: content.notes,
 			});
 			contentCount++;

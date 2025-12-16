@@ -1,10 +1,11 @@
 import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { pub } from "../index";
+import { adminPracticePackRouter } from "./admin/practice-pack";
+import { adminSubtestRouter } from "./admin/subtest";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
 import { subtestRouter } from "./subtest";
-import { adminPracticePackRouter } from "./admin/practice-pack";
 
 export const appRouter = {
 	healthCheck: pub
@@ -22,6 +23,7 @@ export const appRouter = {
 	subtest: subtestRouter,
 	admin: {
 		practicePack: adminPracticePackRouter,
+		subtest: adminSubtestRouter,
 	},
 };
 export type AppRouter = typeof appRouter;

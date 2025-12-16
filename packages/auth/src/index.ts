@@ -18,6 +18,7 @@ export const auth = betterAuth({
 				},
 				defaultValue: "user",
 				input: false,
+				returned: true,
 			},
 		},
 	},
