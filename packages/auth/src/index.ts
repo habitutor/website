@@ -19,6 +19,14 @@ export const auth = betterAuth({
 				defaultValue: "user",
 				input: false,
 			},
+			isPremium: {
+				type: "boolean",
+				validator: {
+					input: type("boolean"),
+				},
+				defaultValue: false,
+				input: false,
+			},
 		},
 	},
 	trustedOrigins: [process.env.CORS_ORIGIN || "http://localhost:3000"],
@@ -27,8 +35,10 @@ export const auth = betterAuth({
 	},
 	socialProviders: {
 		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+			clientId: (process.env.GOOGLE_CLIENT_ID as string)?.trim(),
+			clientSecret: (process.env.GOOGLE_CLIENT_SECRET as string)?.trim(),
+			accessType: "offline",
+			prompt: "select_account consent",
 		},
 	},
 	session: {
@@ -48,8 +58,7 @@ export const auth = betterAuth({
 		...(process.env.NODE_ENV === "production" && {
 			crossSubDomainCookies: {
 				enabled: true,
-				domain: new URL(process.env.CORS_ORIGIN || "http://localhost:3000")
-					.hostname,
+				domain: new URL(process.env.CORS_ORIGIN || "http://localhost:3000").hostname,
 			},
 		}),
 	},

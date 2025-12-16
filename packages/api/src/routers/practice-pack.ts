@@ -1,12 +1,5 @@
 import { db } from "@habitutor/db";
-import {
-	practicePack,
-	practicePackAttempt,
-	practicePackQuestions,
-	practicePackUserAnswer,
-	question,
-	questionAnswerOption,
-} from "@habitutor/db/schema/practice-pack";
+import { practicePack, practicePackAttempt, practicePackQuestions, practicePackUserAnswer, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq } from "drizzle-orm";
@@ -30,13 +23,7 @@ const list = authed
 				completedAt: practicePackAttempt.completedAt,
 			})
 			.from(practicePack)
-			.leftJoin(
-				practicePackAttempt,
-				and(
-					eq(practicePack.id, practicePackAttempt.practicePackId),
-					eq(practicePackAttempt.userId, context.session.user.id),
-				),
-			);
+			.leftJoin(practicePackAttempt, and(eq(practicePack.id, practicePackAttempt.practicePackId), eq(practicePackAttempt.userId, context.session.user.id)));
 
 		if (!attempts)
 			throw new ORPCError("NOT_FOUND", {
@@ -71,32 +58,12 @@ const find = authed
 				userSelectedAnswerId: practicePackUserAnswer.selectedAnswerId,
 			})
 			.from(practicePack)
-			.innerJoin(
-				practicePackAttempt,
-				eq(practicePackAttempt.practicePackId, practicePack.id),
-			)
-			.innerJoin(
-				practicePackQuestions,
-				eq(practicePackQuestions.practicePackId, practicePack.id),
-			)
+			.innerJoin(practicePackAttempt, eq(practicePackAttempt.practicePackId, practicePack.id))
+			.innerJoin(practicePackQuestions, eq(practicePackQuestions.practicePackId, practicePack.id))
 			.innerJoin(question, eq(question.id, practicePackQuestions.questionId))
-			.innerJoin(
-				questionAnswerOption,
-				eq(questionAnswerOption.questionId, question.id),
-			)
-			.leftJoin(
-				practicePackUserAnswer,
-				and(
-					eq(practicePackUserAnswer.questionId, question.id),
-					eq(practicePackUserAnswer.attemptId, practicePackAttempt.id),
-				),
-			)
-			.where(
-				and(
-					eq(practicePack.id, input.id),
-					eq(practicePackAttempt.userId, context.session.user.id),
-				),
-			);
+			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
+			.leftJoin(practicePackUserAnswer, and(eq(practicePackUserAnswer.questionId, question.id), eq(practicePackUserAnswer.attemptId, practicePackAttempt.id)))
+			.where(and(eq(practicePack.id, input.id), eq(practicePackAttempt.userId, context.session.user.id)));
 
 		if (rows.length === 0 || !rows[0])
 			throw new ORPCError("NOT_FOUND", {
@@ -133,9 +100,7 @@ const find = authed
 		}
 
 		// Format and sort the questions based on order
-		pack.questions = Array.from(questionMap.values()).sort(
-			(a, b) => a.order - b.order,
-		);
+		pack.questions = Array.from(questionMap.values()).sort((a, b) => a.order - b.order);
 
 		return pack;
 	});
@@ -195,12 +160,7 @@ const saveAnswer = authed
 				status: practicePackAttempt.status,
 			})
 			.from(practicePackAttempt)
-			.where(
-				and(
-					eq(practicePackAttempt.practicePackId, input.id),
-					eq(practicePackAttempt.userId, context.session.user.id),
-				),
-			)
+			.where(and(eq(practicePackAttempt.practicePackId, input.id), eq(practicePackAttempt.userId, context.session.user.id)))
 			.limit(1);
 
 		if (!currentAttempt)
@@ -215,8 +175,7 @@ const saveAnswer = authed
 
 		if (currentAttempt.status !== "ongoing")
 			throw new ORPCError("UNPROCESSABLE_CONTENT", {
-				message:
-					"Tidak bisa menyimpan jawaban pada latihan soal yang tidak sedang berlangsung",
+				message: "Tidak bisa menyimpan jawaban pada latihan soal yang tidak sedang berlangsung",
 			});
 
 		await db
@@ -227,10 +186,7 @@ const saveAnswer = authed
 				selectedAnswerId: input.selectedAnswerId,
 			})
 			.onConflictDoUpdate({
-				target: [
-					practicePackUserAnswer.attemptId,
-					practicePackUserAnswer.questionId,
-				],
+				target: [practicePackUserAnswer.attemptId, practicePackUserAnswer.questionId],
 				set: { selectedAnswerId: input.selectedAnswerId },
 			});
 
@@ -256,12 +212,7 @@ const submitAttempt = authed
 				completedAt: new Date(),
 				status: "finished",
 			})
-			.where(
-				and(
-					eq(practicePackAttempt.practicePackId, input.id),
-					eq(practicePackAttempt.userId, context.session.user.id),
-				),
-			)
+			.where(and(eq(practicePackAttempt.practicePackId, input.id), eq(practicePackAttempt.userId, context.session.user.id)))
 			.returning();
 
 		if (!attempt)
@@ -293,8 +244,7 @@ const history = authed
 			.orderBy(desc(practicePackAttempt.startedAt));
 
 		return {
-			packsFinished: attempts.filter((pack) => pack.status === "finished")
-				.length,
+			packsFinished: attempts.filter((pack) => pack.status === "finished").length,
 			data: attempts,
 		};
 	});
@@ -328,33 +278,12 @@ const historyByPack = authed
 				completedAt: practicePackAttempt.completedAt,
 			})
 			.from(practicePack)
-			.innerJoin(
-				practicePackAttempt,
-				eq(practicePackAttempt.practicePackId, practicePack.id),
-			)
-			.innerJoin(
-				practicePackQuestions,
-				eq(practicePackQuestions.practicePackId, practicePack.id),
-			)
+			.innerJoin(practicePackAttempt, eq(practicePackAttempt.practicePackId, practicePack.id))
+			.innerJoin(practicePackQuestions, eq(practicePackQuestions.practicePackId, practicePack.id))
 			.innerJoin(question, eq(question.id, practicePackQuestions.questionId))
-			.innerJoin(
-				questionAnswerOption,
-				eq(questionAnswerOption.questionId, question.id),
-			)
-			.leftJoin(
-				practicePackUserAnswer,
-				and(
-					eq(practicePackUserAnswer.questionId, question.id),
-					eq(practicePackUserAnswer.attemptId, practicePackAttempt.id),
-				),
-			)
-			.where(
-				and(
-					eq(practicePack.id, input.id),
-					eq(practicePackAttempt.userId, context.session.user.id),
-					eq(practicePackAttempt.status, "finished"),
-				),
-			);
+			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
+			.leftJoin(practicePackUserAnswer, and(eq(practicePackUserAnswer.questionId, question.id), eq(practicePackUserAnswer.attemptId, practicePackAttempt.id)))
+			.where(and(eq(practicePack.id, input.id), eq(practicePackAttempt.userId, context.session.user.id), eq(practicePackAttempt.status, "finished")));
 
 		if (rows.length === 0 || !rows[0])
 			throw new ORPCError("NOT_FOUND", {
@@ -369,17 +298,11 @@ const historyByPack = authed
 			questions: [] as (Question & { userAnswerIsCorrect: boolean })[],
 		};
 
-		const questionMap = new Map<
-			number,
-			Question & { userAnswerIsCorrect: boolean }
-		>();
+		const questionMap = new Map<number, Question & { userAnswerIsCorrect: boolean }>();
 
 		for (const row of rows) {
 			if (!questionMap.has(row.questionId)) {
-				const userAnswerIsCorrect =
-					row.userSelectedAnswerId !== null &&
-					row.answerIsCorrect === true &&
-					row.userSelectedAnswerId === row.answerId;
+				const userAnswerIsCorrect = row.userSelectedAnswerId !== null && row.answerIsCorrect === true && row.userSelectedAnswerId === row.answerId;
 
 				questionMap.set(row.questionId, {
 					id: row.questionId,
@@ -401,19 +324,13 @@ const historyByPack = authed
 
 			// Update userAnswerIsCorrect if this row shows the user selected the correct answer
 			const question = questionMap.get(row.questionId);
-			if (
-				question &&
-				row.userSelectedAnswerId === row.answerId &&
-				row.answerIsCorrect === true
-			) {
+			if (question && row.userSelectedAnswerId === row.answerId && row.answerIsCorrect === true) {
 				question.userAnswerIsCorrect = true;
 			}
 		}
 
 		// Format and sort the questions based on order
-		pack.questions = Array.from(questionMap.values()).sort(
-			(a, b) => a.order - b.order,
-		);
+		pack.questions = Array.from(questionMap.values()).sort((a, b) => a.order - b.order);
 
 		return pack;
 	});

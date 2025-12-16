@@ -8,21 +8,22 @@
 			"packages/*"
 		],
 		"catalog": {
-			"hono": "^4.10.8",
+			"hono": "^4.11.1",
 			"@orpc/server": "^1.12.2",
 			"@orpc/openapi": "^1.12.2",
 			"@orpc/arktype": "^1.12.2",
-			"better-auth": "^1.4.6",
+			"better-auth": "^1.4.7",
 			"dotenv": "^17.2.2",
 			"drizzle-orm": "^0.45.1",
-			"arktype": "^2.1.28",
+			"arktype": "^2.1.29",
 			"typescript": "^5.8.2",
 			"tsdown": "^0.17.3",
 			"@orpc/client": "^1.12.2"
 		}
 	},
 	"scripts": {
-		"check": "biome check --write .",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
 		"dev": "turbo dev",
 		"build": "turbo build",
 		"build:packages": "turbo build --filter='./packages/*'",

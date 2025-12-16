@@ -5,86 +5,72 @@ import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
 export const UserProgress = () => {
-  return (
-    <section>
-      <h2 className="mb-2 font-medium">Progres Kamu!</h2>
-      <div className="grid gap-2 sm:grid-cols-5">
-        <div className="space-y-2 sm:col-span-2">
-          <Material />
-          <Tryout />
-        </div>
-        <Flashcard />
-      </div>
-    </section>
-  );
+	return (
+		<section>
+			<h2 className="mb-2 font-medium">Progres Kamu!</h2>
+			<div className="grid gap-2 sm:grid-cols-5">
+				<div className="space-y-2 sm:col-span-2">
+					<Material />
+					<Tryout />
+				</div>
+				<Flashcard />
+			</div>
+		</section>
+	);
 };
 
 const Material = () => {
-  return (
-    <div className="flex items-end justify-between gap-4 rounded-md bg-blue-200 p-4 text-primary">
-      <div className="space-y-0.5">
-        <h4 className="font-bold text-4xl sm:text-5xl">0</h4>
-        <p className="font-bold">Materi Dipelajari</p>
-      </div>
+	return (
+		<div className="flex items-end justify-between gap-4 rounded-md bg-blue-200 p-4 text-primary">
+			<div className="space-y-0.5">
+				<h4 className="font-bold text-4xl sm:text-5xl">0</h4>
+				<p className="font-bold">Materi Dipelajari</p>
+			</div>
 
-      <Button size="icon">
-        <ArrowRightIcon />
-      </Button>
-    </div>
-  );
+			<Button size="icon">
+				<ArrowRightIcon />
+			</Button>
+		</div>
+	);
 };
 
 const Tryout = () => {
-  const { data, isPending } = useQuery(
-    orpc.practicePack.history.queryOptions(),
-  );
+	const { data, isPending } = useQuery(orpc.practicePack.history.queryOptions());
 
-  return (
-    <div className="flex items-end justify-between gap-4 rounded-md bg-green-200 p-4 text-green-800">
-      <div className="space-y-0.5">
-        <h4
-          className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}
-        >
-          {!isPending ? data?.packsFinished : "..."}
-        </h4>
-        <p className="font-bold">Tryout Dikerjakan</p>
-      </div>
+	return (
+		<div className="flex items-end justify-between gap-4 rounded-md bg-green-200 p-4 text-green-800">
+			<div className="space-y-0.5">
+				<h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>{!isPending ? data?.packsFinished : "..."}</h4>
+				<p className="font-bold">Tryout Dikerjakan</p>
+			</div>
 
-      <Button size="icon" variant="secondary">
-        <ArrowRightIcon />
-      </Button>
-    </div>
-  );
+			<Button size="icon" variant="secondary">
+				<ArrowRightIcon />
+			</Button>
+		</div>
+	);
 };
 
 const Flashcard = () => {
-  const { data, isPending } = useQuery(orpc.flashcard.streak.queryOptions());
-  return (
-    <div className="flex items-end justify-between gap-4 rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
-      <div className="space-y-0.5">
-        <h4
-          className={`font-bold text-5xl sm:text-6xl ${isPending && "animate-pulse"}`}
-        >
-          {!isPending ? data?.streak : "..."}
-        </h4>
-        <p className="font-bold">Streak Flashcard</p>
-      </div>
+	const { data, isPending } = useQuery(orpc.flashcard.streak.queryOptions());
+	return (
+		<div className="flex items-end justify-between gap-4 rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
+			<div className="space-y-0.5">
+				<h4 className={`font-bold text-5xl sm:text-6xl ${isPending && "animate-pulse"}`}>{!isPending ? data?.streak : "..."}</h4>
+				<p className="font-bold">Streak Flashcard</p>
+			</div>
 
-      <Button
-        size="lg"
-        className="max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
-        asChild
-      >
-        {data?.status === "submitted" ? (
-          <Link to="/dashboard/flashcard/result">
-            Lihat Hasil <EyeIcon />
-          </Link>
-        ) : (
-          <Link to="/dashboard/flashcard">
-            Mainkan Flashcard Sekarang <ArrowRightIcon />
-          </Link>
-        )}
-      </Button>
-    </div>
-  );
+			<Button size="lg" className="max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2" asChild>
+				{data?.status === "submitted" ? (
+					<Link to="/dashboard/flashcard/result">
+						Lihat Hasil <EyeIcon />
+					</Link>
+				) : (
+					<Link to="/dashboard/flashcard">
+						Mainkan Flashcard Sekarang <ArrowRightIcon />
+					</Link>
+				)}
+			</Button>
+		</div>
+	);
 };
