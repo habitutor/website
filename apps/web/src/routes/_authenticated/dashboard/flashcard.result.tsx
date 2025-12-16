@@ -13,14 +13,6 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions());
-  const answerOptionsMap = new Map<number, boolean>();
-  if (data) {
-    for (const assignedQuestion of data.assignedQuestions) {
-      for (const answer of assignedQuestion.question.answerOptions) {
-        answerOptionsMap.set(answer.id, answer.isCorrect);
-      }
-    }
-  }
 
   return (
     <section className="flex flex-col gap-4 border bg-white p-4">
@@ -78,7 +70,7 @@ function RouteComponent() {
         {isPending ? (
           <Skeleton className="h-120 w-full" />
         ) : (
-          data?.assignedQuestions.map((assignedQuestion, index) => {
+          data?.assignedQuestions.map((assignedQuestion) => {
             const correctAnswer = assignedQuestion.question.answerOptions.find(
               (answer) => answer.isCorrect,
             );
@@ -97,7 +89,7 @@ function RouteComponent() {
                       "rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"
                     }
                   >
-                    {String.fromCharCode(65 + index)}
+                    {userAnswer?.code}
                   </span>
                   <p>{userAnswer?.content || "Tidak menjawab"}</p>
                 </div>

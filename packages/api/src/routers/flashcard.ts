@@ -4,7 +4,10 @@ import {
   userFlashcardAttempt,
   userFlashcardQuestionAnswer,
 } from "@habitutor/db/schema/flashcard";
-import { question } from "@habitutor/db/schema/practice-pack";
+import {
+  question,
+  questionAnswerOption,
+} from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, gte, inArray, not, sql } from "drizzle-orm";
@@ -120,6 +123,7 @@ const get = authed
                     content: true,
                     code: true,
                   },
+                  orderBy: (answers, { asc }) => [asc(answers.code)],
                 },
               },
             },
@@ -248,6 +252,7 @@ const streak = authed
   .handler(async ({ context, errors }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     const [streak] = await db
       .select({
         streak: user.flashcardStreak,
@@ -258,6 +263,15 @@ const streak = authed
       .limit(1);
 
     if (!streak) throw errors.NOT_FOUND();
+    if (
+      streak.lastCompletedDate &&
+      today.getTime() - streak.lastCompletedDate.getTime() >
+      2 * 24 * 3600 * 1000
+    )
+      await db
+        .update(user)
+        .set({ flashcardStreak: 0 })
+        .where(eq(user.id, context.session.user.id));
 
     return {
       ...streak,
@@ -292,8 +306,10 @@ const result = authed.handler(async ({ context, errors }) => {
                 columns: {
                   id: true,
                   content: true,
+                  code: true,
                   isCorrect: true,
                 },
+                orderBy: (answers, { asc }) => [asc(answers.code)],
               },
             },
           },

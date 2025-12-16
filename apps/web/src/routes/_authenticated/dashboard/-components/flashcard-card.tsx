@@ -35,6 +35,7 @@ export const FlashcardCard = () => {
   );
   const { saveAnswer } = useAnswerStore();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: function cant be a dependency
   useEffect(() => {
     if (
       data?.status === "ongoing" &&
