@@ -22,12 +22,15 @@ import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
-import { Route as AuthenticatedClassesShortNameRouteImport } from './routes/_authenticated/classes/$shortName'
-import { Route as AuthenticatedAdminClassesRouteImport } from './routes/_authenticated/admin/classes'
 import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
 import { Route as AuthenticatedDashboardFlashcardIndexRouteImport } from './routes/_authenticated/dashboard/flashcard.index'
+import { Route as AuthenticatedClassesShortNameIndexRouteImport } from './routes/_authenticated/classes/$shortName/index'
+import { Route as AuthenticatedAdminClassesIndexRouteImport } from './routes/_authenticated/admin/classes/index'
 import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
 import { Route as AuthenticatedDashboardFlashcardResultRouteImport } from './routes/_authenticated/dashboard/flashcard.result'
+import { Route as AuthenticatedClassesShortNameContentIdRouteImport } from './routes/_authenticated/classes/$shortName/$contentId'
+import { Route as AuthenticatedAdminClassesShortNameIndexRouteImport } from './routes/_authenticated/admin/classes/$shortName/index'
+import { Route as AuthenticatedAdminClassesShortNameContentIdRouteImport } from './routes/_authenticated/admin/classes/$shortName/$contentId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -96,18 +99,6 @@ const AuthenticatedLatihanSoalIdRoute =
     path: '/latihan-soal/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedClassesShortNameRoute =
-  AuthenticatedClassesShortNameRouteImport.update({
-    id: '/classes/$shortName',
-    path: '/classes/$shortName',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedAdminClassesRoute =
-  AuthenticatedAdminClassesRouteImport.update({
-    id: '/classes',
-    path: '/classes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedLatihanSoalRiwayatIndexRoute =
   AuthenticatedLatihanSoalRiwayatIndexRouteImport.update({
     id: '/latihan-soal/riwayat/',
@@ -119,6 +110,18 @@ const AuthenticatedDashboardFlashcardIndexRoute =
     id: '/dashboard/flashcard/',
     path: '/dashboard/flashcard/',
     getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedClassesShortNameIndexRoute =
+  AuthenticatedClassesShortNameIndexRouteImport.update({
+    id: '/classes/$shortName/',
+    path: '/classes/$shortName/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminClassesIndexRoute =
+  AuthenticatedAdminClassesIndexRouteImport.update({
+    id: '/classes/',
+    path: '/classes/',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedLatihanSoalRiwayatIdRoute =
   AuthenticatedLatihanSoalRiwayatIdRouteImport.update({
@@ -132,6 +135,24 @@ const AuthenticatedDashboardFlashcardResultRoute =
     path: '/dashboard/flashcard/result',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedClassesShortNameContentIdRoute =
+  AuthenticatedClassesShortNameContentIdRouteImport.update({
+    id: '/classes/$shortName/$contentId',
+    path: '/classes/$shortName/$contentId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminClassesShortNameIndexRoute =
+  AuthenticatedAdminClassesShortNameIndexRouteImport.update({
+    id: '/classes/$shortName/',
+    path: '/classes/$shortName/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClassesShortNameContentIdRoute =
+  AuthenticatedAdminClassesShortNameContentIdRouteImport.update({
+    id: '/classes/$shortName/$contentId',
+    path: '/classes/$shortName/$contentId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -140,17 +161,20 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/premium': typeof AuthenticatedPremiumRoute
   '/tryouts': typeof AuthenticatedTryoutsRoute
-  '/admin/classes': typeof AuthenticatedAdminClassesRoute
-  '/classes/$shortName': typeof AuthenticatedClassesShortNameRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/admin/classes': typeof AuthenticatedAdminClassesIndexRoute
+  '/classes/$shortName': typeof AuthenticatedClassesShortNameIndexRoute
   '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
+  '/admin/classes/$shortName/$contentId': typeof AuthenticatedAdminClassesShortNameContentIdRoute
+  '/admin/classes/$shortName': typeof AuthenticatedAdminClassesShortNameIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,17 +182,20 @@ export interface FileRoutesByTo {
   '/register': typeof AuthRegisterRoute
   '/premium': typeof AuthenticatedPremiumRoute
   '/tryouts': typeof AuthenticatedTryoutsRoute
-  '/admin/classes': typeof AuthenticatedAdminClassesRoute
-  '/classes/$shortName': typeof AuthenticatedClassesShortNameRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/admin/classes': typeof AuthenticatedAdminClassesIndexRoute
+  '/classes/$shortName': typeof AuthenticatedClassesShortNameIndexRoute
   '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
+  '/admin/classes/$shortName/$contentId': typeof AuthenticatedAdminClassesShortNameContentIdRoute
+  '/admin/classes/$shortName': typeof AuthenticatedAdminClassesShortNameIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -180,17 +207,20 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
   '/_authenticated/tryouts': typeof AuthenticatedTryoutsRoute
-  '/_authenticated/admin/classes': typeof AuthenticatedAdminClassesRoute
-  '/_authenticated/classes/$shortName': typeof AuthenticatedClassesShortNameRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
+  '/_authenticated/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRoute
   '/_authenticated/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  '/_authenticated/admin/classes/': typeof AuthenticatedAdminClassesIndexRoute
+  '/_authenticated/classes/$shortName/': typeof AuthenticatedClassesShortNameIndexRoute
   '/_authenticated/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
+  '/_authenticated/admin/classes/$shortName/$contentId': typeof AuthenticatedAdminClassesShortNameContentIdRoute
+  '/_authenticated/admin/classes/$shortName/': typeof AuthenticatedAdminClassesShortNameIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,17 +231,20 @@ export interface FileRouteTypes {
     | '/admin'
     | '/premium'
     | '/tryouts'
-    | '/admin/classes'
-    | '/classes/$shortName'
     | '/latihan-soal/$id'
     | '/admin/'
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
+    | '/classes/$shortName/$contentId'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
+    | '/admin/classes'
+    | '/classes/$shortName'
     | '/dashboard/flashcard'
     | '/latihan-soal/riwayat'
+    | '/admin/classes/$shortName/$contentId'
+    | '/admin/classes/$shortName'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -219,17 +252,20 @@ export interface FileRouteTypes {
     | '/register'
     | '/premium'
     | '/tryouts'
-    | '/admin/classes'
-    | '/classes/$shortName'
     | '/latihan-soal/$id'
     | '/admin'
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
+    | '/classes/$shortName/$contentId'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
+    | '/admin/classes'
+    | '/classes/$shortName'
     | '/dashboard/flashcard'
     | '/latihan-soal/riwayat'
+    | '/admin/classes/$shortName/$contentId'
+    | '/admin/classes/$shortName'
   id:
     | '__root__'
     | '/'
@@ -240,17 +276,20 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/premium'
     | '/_authenticated/tryouts'
-    | '/_authenticated/admin/classes'
-    | '/_authenticated/classes/$shortName'
     | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/latihan-soal/'
+    | '/_authenticated/classes/$shortName/$contentId'
     | '/_authenticated/dashboard/flashcard/result'
     | '/_authenticated/latihan-soal/riwayat/$id'
+    | '/_authenticated/admin/classes/'
+    | '/_authenticated/classes/$shortName/'
     | '/_authenticated/dashboard/flashcard/'
     | '/_authenticated/latihan-soal/riwayat/'
+    | '/_authenticated/admin/classes/$shortName/$contentId'
+    | '/_authenticated/admin/classes/$shortName/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -352,20 +391,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/classes/$shortName': {
-      id: '/_authenticated/classes/$shortName'
-      path: '/classes/$shortName'
-      fullPath: '/classes/$shortName'
-      preLoaderRoute: typeof AuthenticatedClassesShortNameRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/admin/classes': {
-      id: '/_authenticated/admin/classes'
-      path: '/classes'
-      fullPath: '/admin/classes'
-      preLoaderRoute: typeof AuthenticatedAdminClassesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/latihan-soal/riwayat/': {
       id: '/_authenticated/latihan-soal/riwayat/'
       path: '/latihan-soal/riwayat'
@@ -380,6 +405,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardFlashcardIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/classes/$shortName/': {
+      id: '/_authenticated/classes/$shortName/'
+      path: '/classes/$shortName'
+      fullPath: '/classes/$shortName'
+      preLoaderRoute: typeof AuthenticatedClassesShortNameIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/classes/': {
+      id: '/_authenticated/admin/classes/'
+      path: '/classes'
+      fullPath: '/admin/classes'
+      preLoaderRoute: typeof AuthenticatedAdminClassesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/latihan-soal/riwayat/$id': {
       id: '/_authenticated/latihan-soal/riwayat/$id'
       path: '/latihan-soal/riwayat/$id'
@@ -393,6 +432,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/flashcard/result'
       preLoaderRoute: typeof AuthenticatedDashboardFlashcardResultRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/classes/$shortName/$contentId': {
+      id: '/_authenticated/classes/$shortName/$contentId'
+      path: '/classes/$shortName/$contentId'
+      fullPath: '/classes/$shortName/$contentId'
+      preLoaderRoute: typeof AuthenticatedClassesShortNameContentIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/classes/$shortName/': {
+      id: '/_authenticated/admin/classes/$shortName/'
+      path: '/classes/$shortName'
+      fullPath: '/admin/classes/$shortName'
+      preLoaderRoute: typeof AuthenticatedAdminClassesShortNameIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/classes/$shortName/$contentId': {
+      id: '/_authenticated/admin/classes/$shortName/$contentId'
+      path: '/classes/$shortName/$contentId'
+      fullPath: '/admin/classes/$shortName/$contentId'
+      preLoaderRoute: typeof AuthenticatedAdminClassesShortNameContentIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
   }
 }
@@ -410,13 +470,19 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminClassesRoute: typeof AuthenticatedAdminClassesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminClassesIndexRoute: typeof AuthenticatedAdminClassesIndexRoute
+  AuthenticatedAdminClassesShortNameContentIdRoute: typeof AuthenticatedAdminClassesShortNameContentIdRoute
+  AuthenticatedAdminClassesShortNameIndexRoute: typeof AuthenticatedAdminClassesShortNameIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminClassesRoute: AuthenticatedAdminClassesRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminClassesIndexRoute: AuthenticatedAdminClassesIndexRoute,
+  AuthenticatedAdminClassesShortNameContentIdRoute:
+    AuthenticatedAdminClassesShortNameContentIdRoute,
+  AuthenticatedAdminClassesShortNameIndexRoute:
+    AuthenticatedAdminClassesShortNameIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -426,13 +492,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
   AuthenticatedTryoutsRoute: typeof AuthenticatedTryoutsRoute
-  AuthenticatedClassesShortNameRoute: typeof AuthenticatedClassesShortNameRoute
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
+  AuthenticatedClassesShortNameContentIdRoute: typeof AuthenticatedClassesShortNameContentIdRoute
   AuthenticatedDashboardFlashcardResultRoute: typeof AuthenticatedDashboardFlashcardResultRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
+  AuthenticatedClassesShortNameIndexRoute: typeof AuthenticatedClassesShortNameIndexRoute
   AuthenticatedDashboardFlashcardIndexRoute: typeof AuthenticatedDashboardFlashcardIndexRoute
   AuthenticatedLatihanSoalRiwayatIndexRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
@@ -441,15 +508,18 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
   AuthenticatedTryoutsRoute: AuthenticatedTryoutsRoute,
-  AuthenticatedClassesShortNameRoute: AuthenticatedClassesShortNameRoute,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
+  AuthenticatedClassesShortNameContentIdRoute:
+    AuthenticatedClassesShortNameContentIdRoute,
   AuthenticatedDashboardFlashcardResultRoute:
     AuthenticatedDashboardFlashcardResultRoute,
   AuthenticatedLatihanSoalRiwayatIdRoute:
     AuthenticatedLatihanSoalRiwayatIdRoute,
+  AuthenticatedClassesShortNameIndexRoute:
+    AuthenticatedClassesShortNameIndexRoute,
   AuthenticatedDashboardFlashcardIndexRoute:
     AuthenticatedDashboardFlashcardIndexRoute,
   AuthenticatedLatihanSoalRiwayatIndexRoute:

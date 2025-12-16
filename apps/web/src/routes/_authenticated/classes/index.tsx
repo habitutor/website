@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useLocation } from "@tanstack/react-router";
-import { KelasHeader, SubtestCard } from "@/components/classes";
+import { createFileRoute } from "@tanstack/react-router";
+import { SubtestHeader, SubtestCard } from "@/components/classes";
 import { Container } from "@/components/ui/container";
 import { orpc } from "@/utils/orpc";
 
@@ -10,16 +10,10 @@ export const Route = createFileRoute("/_authenticated/classes/")({
 
 function RouteComponent() {
   const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
-  console.log(subtests);
-  const location = useLocation();
-
-  const routePrefix = location.pathname.startsWith("/classes")
-    ? "/classes"
-    : "/subtests";
 
   return (
     <Container>
-      <KelasHeader path={routePrefix} />
+      <SubtestHeader />
 
       <div className="space-y-4">
         {subtests.isPending && (
@@ -39,7 +33,6 @@ function RouteComponent() {
             <SubtestCard
               key={subtest.id}
               subtest={subtest}
-              path={routePrefix}
             />
           ))}
         </div>
