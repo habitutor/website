@@ -275,6 +275,7 @@ const createAnswerOption = admin
 			questionId: "number",
 			content: "string",
 			isCorrect: "boolean",
+			code: "string",
 		}),
 	)
 	.handler(async ({ input }) => {
@@ -291,6 +292,7 @@ const createAnswerOption = admin
 				questionId: input.questionId,
 				content: input.content,
 				isCorrect: input.isCorrect,
+				code: input.code,
 			})
 			.returning();
 

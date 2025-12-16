@@ -1,6 +1,8 @@
+import { isDefinedError } from "@orpc/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
@@ -35,6 +37,13 @@ const StartCard = () => {
 		orpc.flashcard.start.mutationOptions({
 			onSuccess: () => {
 				queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
+			},
+			onError: (error) => {
+				if (isDefinedError(error) && error.code === "NOT_FOUND") {
+					toast.error("Ups! Kamu sudah mengerjakan semua flashcard yang tersedia!", {
+						description: "Silahkan coba lagi dalam beberapa saat.",
+					});
+				}
 			},
 		}),
 	);
