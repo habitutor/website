@@ -67,7 +67,7 @@ function RouteComponent() {
 						return (
 							<div key={assignedQuestion.selectedAnswerId}>
 								<div className={`flex items-center gap-4 rounded-sm p-4 text-sm ${isCorrect ? "bg-green-200 text-green-500" : "bg-red-200 text-red-500"}`}>
-									<span className={"rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"}>{userAnswer?.code}</span>
+									<span className={"rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"}>{userAnswer?.code || "-"}</span>
 									<p>{userAnswer?.content || "Tidak menjawab"}</p>
 								</div>
 								<div className="mx-4 rounded-b-sm border bg-white px-4 py-2 text-xs">{assignedQuestion.question.discussion}</div>
