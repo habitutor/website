@@ -1,4 +1,5 @@
 import { SignOut } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -14,14 +15,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { useQueryClient } from "@tanstack/react-query";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 const links = [
 	{
@@ -42,11 +36,7 @@ const links = [
 	},
 ] as const;
 
-export function HeaderDashboard({
-	session,
-}: {
-	session: typeof authClient.$Infer.Session | null;
-}) {
+export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
 	const location = useLocation();
 	const [open, setOpen] = useState(false);
 
@@ -59,15 +49,7 @@ export function HeaderDashboard({
 
 				<div className="flex h-full items-center">
 					{links.map((link) => (
-						<Button
-							key={link.to}
-							variant={"navbar"}
-							size={"full"}
-							data-active={
-								location.pathname.startsWith(link.to) ? "true" : "false"
-							}
-							asChild
-						>
+						<Button key={link.to} variant={"navbar"} size={"full"} data-active={location.pathname.startsWith(link.to) ? "true" : "false"} asChild>
 							<Link to={link.to}>{link.name}</Link>
 						</Button>
 					))}
@@ -76,21 +58,13 @@ export function HeaderDashboard({
 				<DropdownMenu>
 					<DropdownMenuTrigger>
 						<Avatar>
-							<AvatarImage
-								src={session?.user.image as string}
-								alt="User Profile Picture"
-							/>
-							<AvatarFallback>
-								{session?.user.name.charAt(0).toUpperCase()}
-							</AvatarFallback>
+							<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
+							<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
 						</Avatar>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
-						<DropdownMenuItem
-							variant="destructive"
-							onSelect={() => setOpen(true)}
-						>
+						<DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
 							<SignOut />
 							Log Out
 						</DropdownMenuItem>
@@ -103,13 +77,7 @@ export function HeaderDashboard({
 	);
 }
 
-const LogoutDialog = ({
-	open,
-	onOpenChange,
-}: {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-}) => {
+const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -118,9 +86,7 @@ const LogoutDialog = ({
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-					<AlertDialogDescription>
-						Kamu akan logout dan harus masuk lagi. Andre tolong rapihin
-					</AlertDialogDescription>
+					<AlertDialogDescription>Kamu akan logout dan harus masuk lagi. Andre tolong rapihin</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Kembali</AlertDialogCancel>

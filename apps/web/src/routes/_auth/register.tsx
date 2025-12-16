@@ -1,6 +1,11 @@
-import { GoogleChromeLogoIcon } from "@phosphor-icons/react";
+import { GoogleChromeLogoIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -25,6 +30,7 @@ function SignUpForm() {
   const navigate = useNavigate({
     from: "/",
   });
+  const location = useLocation();
   const { isPending } = authClient.useSession();
 
   const form = useForm({
@@ -71,8 +77,7 @@ function SignUpForm() {
       <div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-3xl text-primary">
-            Mari{" "}
-            <span className="font-bold">Mulai Bersama!</span>
+            Mari <span className="font-bold">Mulai Bersama!</span>
           </h1>
           <p className="text-sm">Bergabung bersama untuk memulai sukses</p>
         </div>
@@ -199,8 +204,17 @@ function SignUpForm() {
           </form.Subscribe>
         </form>
 
-        <Button variant="outline" className="mt-4 w-full">
-          <GoogleChromeLogoIcon />
+        <Button
+          onClick={() =>
+            authClient.signIn.social({
+              provider: "google",
+              callbackURL: `${location.url}/dashboard`,
+            })
+          }
+          variant="outline"
+          className="mt-4 w-full"
+        >
+          <GoogleLogoIcon />
           Daftar dengan Google
         </Button>
       </div>
