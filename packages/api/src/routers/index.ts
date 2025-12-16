@@ -4,6 +4,8 @@ import { pub } from "../index";
 import { adminPracticePackRouter } from "./admin/practice-pack";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
+import { subtestRouter } from "./subtest";
+import { adminSubtestRouter } from "./admin/subtest";
 
 export const appRouter = {
   healthCheck: pub
@@ -18,8 +20,10 @@ export const appRouter = {
     }),
   practicePack: practicePackRouter,
   flashcard: flashcardRouter,
+  subtest: subtestRouter,
   admin: {
     practicePack: adminPracticePackRouter,
+    subtest: adminSubtestRouter,
   },
 };
 
