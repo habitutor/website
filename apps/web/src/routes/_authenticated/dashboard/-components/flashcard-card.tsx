@@ -1,35 +1,28 @@
+import { isDefinedError } from "@orpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { create } from "zustand";
 import useCountdown from "@/lib/hooks/use-countdown";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { TimeoutDialog } from "./timeout-dialog";
-import { isDefinedError } from "@orpc/client";
-
-interface AnswerStore {
-  answers: { [key: number]: number };
-  saveAnswer: (input: { questionId: number; answerId: number }) => void;
-}
-
-const useAnswerStore = create<AnswerStore>()((set) => ({
-  answers: {},
-  saveAnswer: ({ questionId, answerId }) =>
-    set((state) => ({
-      answers: {
-        ...state.answers,
-        [questionId]: answerId,
-      },
-    })),
-}));
 
 export const FlashcardCard = () => {
   const { data } = useQuery(orpc.flashcard.get.queryOptions());
+  const saveAnswerMutation = useMutation(
+    orpc.flashcard.save.mutationOptions({
+      onError: (error) => {
+        if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT")
+          toast.error("Ups! Kamu sudah melewati batas waktu pengumpulan!");
+      },
+    }),
+  );
   const submitMutation = useMutation(
     orpc.flashcard.submit.mutationOptions({
       onError: (error) => {
-        if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") toast.error("Ups! Kamu sudah melewati batas waktu pengumpulan!");
+        if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT")
+          toast.error("Ups! Kamu sudah melewati batas waktu pengumpulan!");
       },
     }),
   );
@@ -38,57 +31,55 @@ export const FlashcardCard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [timeoutDialogOpen, setTimeoutDialogOpen] = useState(false);
   const [, hours, minutes, seconds] = useCountdown((data?.status !== "not_started" && data?.deadline) || 0);
-  const { saveAnswer } = useAnswerStore();
+  const [disableInteraction, setDisableInteraction] = useState(false);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: function cant be a dependency
+  // useEffect(() => {
+  //   if (data?.status === "ongoing") {
+  //     setCurrentPage(data.assignedQuestions.findIndex((q) => !q.selectedAnswerId));
+  //   }
+  // }, [data]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: dumb biome cant detect functions
   useEffect(() => {
-    if (hours === "00" && minutes === "00" && seconds === "00") {
-      setTimeoutDialogOpen(true);
-      submitAnswers();
-    }
+    if (data?.status === "ongoing" && hours === "00" && minutes === "00" && seconds === "00") handleSubmit();
   }, [data?.status, hours, minutes, seconds]);
 
-  if (data?.status === "submitted") navigate({ to: "/dashboard/flashcard/result" });
-
-  if (data?.status === "not_started") {
-    toast.error("Error: Flashcard belum dimulai");
-    return null;
-  }
+  if (data?.status === "not_started") return null;
 
   const handleAnswerSelect = (answerId: number) => {
-    const currentQuestionId = data!.assignedQuestions[currentPage - 1].question.id;
-    saveAnswer({
-      questionId: currentQuestionId,
+    setDisableInteraction(true);
+    const questionId = data!.assignedQuestions[currentPage - 1].question.id;
+    saveAnswerMutation.mutate({
+      questionId,
       answerId,
     });
 
     if (currentPage === data?.assignedQuestions.length) {
-      saveAnswer({ questionId: currentQuestionId, answerId });
-      submitAnswers();
-      queryClient.removeQueries({
-        queryKey: orpc.flashcard.streak.key(),
-      });
-      navigate({ to: "/dashboard" });
+      handleSubmit();
+      navigate({ to: "/dashboard/flashcard/result" });
       return;
     }
-    setCurrentPage(currentPage + 1);
+    while (saveAnswerMutation.isPending) {
+      // do nothing
+    }
+    setTimeout(() => setCurrentPage(currentPage + 1), 1500);
+    setDisableInteraction(false);
   };
 
-  useAnswerStore;
-  function submitAnswers() {
-    const mappedAnswers = Object.entries(useAnswerStore.getState().answers).map(([questionId, answerId]) => ({
-      questionId: Number(questionId),
-      answerId,
-    }));
-
-    submitMutation.mutate(mappedAnswers);
+  function handleSubmit() {
+    submitMutation.mutate({});
+    queryClient.removeQueries({
+      queryKey: orpc.flashcard.streak.key(),
+    });
   }
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="flex h-full flex-col gap-2 rounded-md border bg-secondary p-4 backdrop-sepia-100">
         <h1 className="font-medium">Flashcard 1</h1>
-        <div className="h-full rounded-sm border border-accent bg-background p-4 text-foreground">{data?.assignedQuestions[currentPage - 1].question.content}</div>
+        <div className="h-full rounded-sm border border-accent bg-background p-4 text-foreground">
+          {data?.assignedQuestions[currentPage - 1].question.content}
+        </div>
       </div>
 
       <div className="flex flex-col gap-4">
@@ -99,17 +90,35 @@ export const FlashcardCard = () => {
           </p>
         </div>
 
-        {data?.assignedQuestions[currentPage - 1].question.answerOptions.map((option) => (
-          <button
-            type="button"
-            key={option.id}
-            onClick={() => handleAnswerSelect(option.id)}
-            className="inline-flex items-center gap-3 rounded-md border border-secondary bg-white p-4 text-start text-foreground transition-colors hover:bg-secondary/20"
-          >
-            <span className="rounded-xs border border-accent px-2 py-0.5 font-medium text-neutral-500 text-sm">{option.code}</span>
-            {option.content}
-          </button>
-        ))}
+        {data?.assignedQuestions[currentPage - 1].question.answerOptions.map((option) => {
+          const isUserAnswer = saveAnswerMutation.data?.userAnswerId === option.id;
+          const isCorrect = saveAnswerMutation.data?.correctAnswerId === option.id;
+          const isWrong = saveAnswerMutation.data?.correctAnswerId !== option.id;
+          return (
+            <button
+              type="button"
+              key={option.id}
+              disabled={saveAnswerMutation.isPending || disableInteraction}
+              onClick={() => handleAnswerSelect(option.id)}
+              className={cn(
+                "inline-flex items-center gap-3 rounded-md border border-secondary bg-white p-4 text-start text-foreground transition-colors hover:bg-secondary/5",
+                isCorrect && "border-green-800 bg-green-200 text-black hover:bg-green-200",
+                isUserAnswer && isWrong && "border-red-500 bg-red-200 text-red-500 hover:bg-red-200",
+              )}
+            >
+              <span
+                className={cn(
+                  "rounded-xs border border-foreground/20 px-2 py-0.5 font-medium text-neutrals-500 text-sm",
+                  isCorrect && "border-green-800 bg-green-500 text-white",
+                  isUserAnswer && isWrong && "border-red-500 bg-red-500 text-white",
+                )}
+              >
+                {option.code}
+              </span>
+              {option.content}
+            </button>
+          );
+        })}
       </div>
 
       <TimeoutDialog open={timeoutDialogOpen} onOpenChange={setTimeoutDialogOpen} />

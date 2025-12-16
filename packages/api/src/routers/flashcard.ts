@@ -1,7 +1,7 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
-import { question } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, gte, inArray, not, sql } from "drizzle-orm";
@@ -9,7 +9,7 @@ import { authed } from "..";
 
 // Cutoff in 30 Days
 const FLASHCARD_REPEAT_CUTOFF_LIMIT = 30;
-const FLASHCARD_SESSION_DURATION_MINUTES = 0.2;
+const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline
 const GRACE_PERIOD_SECONDS = 5;
 
@@ -45,7 +45,12 @@ const start = authed
         .select({ id: userFlashcardQuestionAnswer.questionId })
         .from(userFlashcardQuestionAnswer)
         .innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
-        .where(and(eq(userFlashcardAttempt.userId, context.session.user.id), gte(userFlashcardQuestionAnswer.assignedDate, dateBoundary)));
+        .where(
+          and(
+            eq(userFlashcardAttempt.userId, context.session.user.id),
+            gte(userFlashcardQuestionAnswer.assignedDate, dateBoundary),
+          ),
+        );
 
       const availableQuestions = await tx.query.question.findMany({
         where: not(inArray(question.id, recentlyAssignedSubquery)),
@@ -126,19 +131,9 @@ const submit = authed
     method: "POST",
     tags: ["Flashcard"],
   })
-  .input(
-    type(
-      {
-        questionId: "number",
-        answerId: "number",
-      },
-      "[]",
-    ),
-  )
-  .handler(async ({ context, input, errors }) => {
+  .handler(async ({ context, errors }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     const [latestAttempt] = await db
       .select()
       .from(userFlashcardAttempt)
@@ -150,7 +145,6 @@ const submit = authed
       throw new ORPCError("UNPROCESSABLE_CONTENT", {
         message: "Kamu sudah mengerjakan flashcard hari ini.",
       });
-
     if (!latestAttempt) {
       throw errors.NOT_FOUND({
         message: "Kamu belum memulai sesi flashcard hari ini.",
@@ -164,47 +158,100 @@ const submit = authed
       });
     }
 
-    try {
-      await db.transaction(async (tx) => {
-        await Promise.all(
-          input.map((answer) =>
-            tx
-              .update(userFlashcardQuestionAnswer)
-              .set({
-                selectedAnswerId: answer.answerId,
-                answeredAt: new Date(),
-              })
-              .where(
-                and(
-                  eq(userFlashcardQuestionAnswer.attemptId, latestAttempt.id),
-                  eq(userFlashcardQuestionAnswer.assignedDate, today),
-                  eq(userFlashcardQuestionAnswer.questionId, answer.questionId),
-                ),
-              ),
+    await db.transaction(async (tx) => {
+      await tx
+        .update(userFlashcardAttempt)
+        .set({ submittedAt: new Date() })
+        .where(eq(userFlashcardAttempt.id, latestAttempt.id));
+      await tx
+        .update(user)
+        .set({ flashcardStreak: sql`${user.flashcardStreak} + 1`, lastCompletedFlashcardAt: today })
+        .where(eq(user.id, context.session.user.id));
+    });
+
+    return { message: "Berhasil mengerjakan flashcard hari ini!" };
+  });
+
+const save = authed
+  .route({
+    path: "/flashcard",
+    method: "POST",
+  })
+  .input(
+    type({
+      questionId: "number",
+      answerId: "number",
+    }),
+  )
+  .output(
+    type({
+      isCorrect: "boolean",
+      correctAnswerId: "number",
+      userAnswerId: "number",
+    }),
+  )
+  .handler(async ({ input, context, errors }) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return await db.transaction(async (tx) => {
+      const [attempt] = await tx
+        .select({
+          id: userFlashcardAttempt.id,
+          deadline: userFlashcardAttempt.deadline,
+        })
+        .from(userFlashcardQuestionAnswer)
+        .innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
+        .where(
+          and(
+            eq(userFlashcardQuestionAnswer.questionId, input.questionId),
+            eq(userFlashcardQuestionAnswer.assignedDate, today),
+            eq(userFlashcardAttempt.userId, context.session.user.id),
           ),
         );
 
-        await tx
-          .update(userFlashcardAttempt)
-          .set({
-            submittedAt: new Date(),
-          })
-          .where(eq(userFlashcardAttempt.id, latestAttempt.id));
+      if (!attempt) throw errors.NOT_FOUND();
 
-        await tx
-          .update(user)
-          .set({
-            flashcardStreak: sql`${user.flashcardStreak} + 1`,
-            lastCompletedFlashcardAt: today,
-          })
-          .where(eq(user.id, context.session.user.id));
-      });
-    } catch (err) {
-      console.error(err);
-      throw new ORPCError("INTERNAL_SERVER_ERROR");
-    }
+      if (Date.now() > attempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
+        throw errors.UNPROCESSABLE_CONTENT({
+          message: "Waktu sesi flashcard telah berakhir.",
+        });
+      }
 
-    return { message: "Berhasil menyimpan jawaban flashcard!" };
+      const answers = await tx
+        .select({
+          id: questionAnswerOption.id,
+          isCorrect: questionAnswerOption.isCorrect,
+        })
+        .from(questionAnswerOption)
+        .where(eq(questionAnswerOption.questionId, input.questionId));
+
+      if (!answers || answers.length === 0) {
+        throw errors.NOT_FOUND();
+      }
+      const correctAnswer = answers.find((answer) => answer.isCorrect);
+      const userAnswer = answers.find((answer) => answer.id === input.answerId);
+      if (!correctAnswer || !userAnswer) throw errors.NOT_FOUND();
+
+      await tx
+        .update(userFlashcardQuestionAnswer)
+        .set({
+          selectedAnswerId: input.answerId,
+        })
+        .where(
+          and(
+            eq(userFlashcardQuestionAnswer.questionId, input.questionId),
+            eq(userFlashcardQuestionAnswer.assignedDate, today),
+            eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
+          ),
+        );
+
+      return {
+        isCorrect: userAnswer.isCorrect,
+        correctAnswerId: correctAnswer.id,
+        userAnswerId: userAnswer.id,
+      };
+    });
   });
 
 const streak = authed
@@ -220,27 +267,21 @@ const streak = authed
       status: "'submitted' | 'not_submitted'",
     }),
   )
-  .handler(async ({ context, errors }) => {
+  .handler(async ({ context }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const streak = context.session.user.flashcardStreak || 0;
+    const lastCompletedDate = context.session.user.lastCompletedFlashcardAt as Date | null;
 
-    const [streak] = await db
-      .select({
-        streak: user.flashcardStreak,
-        lastCompletedDate: user.lastCompletedFlashcardAt,
-      })
-      .from(user)
-      .where(eq(user.id, context.session.user.id))
-      .limit(1);
-
-    if (!streak) throw errors.NOT_FOUND();
-    if (streak.lastCompletedDate && today.getTime() - streak.lastCompletedDate.getTime() > 2 * 24 * 3600 * 1000)
+    if (lastCompletedDate && today.getTime() - lastCompletedDate.getTime() > 2 * 24 * 3600 * 1000)
       await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, context.session.user.id));
 
+    console.log(lastCompletedDate, today);
+
     return {
-      ...streak,
-      streak: streak.streak || 0,
-      status: streak.lastCompletedDate?.getTime() === today.getTime() ? "submitted" : "not_submitted",
+      streak,
+      lastCompletedDate,
+      status: lastCompletedDate?.getTime() === today.getTime() ? "submitted" : "not_submitted",
     };
   });
 
@@ -307,6 +348,7 @@ export const flashcardRouter = {
   start,
   get,
   submit,
+  save,
   streak,
   result,
 };

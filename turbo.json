@@ -50,7 +50,12 @@
 			"persistent": true
 		},
 		"db:seed": {
-			"cache": false
+			"cache": false,
+			"persistent": true
+		},
+		"db:reset": {
+			"cache": false,
+			"persistent": true
 		},
 		"auth:generate": {
 			"cache": false

@@ -21,6 +21,7 @@
 		"db:watch": "docker compose up",
 		"db:stop": "docker compose stop",
 		"db:down": "docker compose down",
+		"db:reset": "docker compose down -v && docker compose up -d && sleep 2 && bun db:push && bun db:seed",
 		"db:seed": "bun run src/seed/index.ts"
 	},
 	"devDependencies": {
