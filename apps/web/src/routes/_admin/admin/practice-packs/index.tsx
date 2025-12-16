@@ -129,11 +129,13 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 
 	return (
 		<>
-			<Card className="flex flex-col p-6">
-				<div className="mb-4 flex-1">
-					<h3 className="mb-2 font-semibold text-lg">{pack.title}</h3>
-					<p className="line-clamp-2 text-muted-foreground text-sm">{pack.description || "No description"}</p>
-				</div>
+			<Card className="group flex cursor-pointer flex-col p-6 transition-shadow hover:shadow-md">
+				<a href={`/admin/practice-packs/${pack.id}`} className="flex-1">
+					<div className="mb-4">
+						<h3 className="mb-2 font-semibold text-lg group-hover:text-primary">{pack.title}</h3>
+						<p className="line-clamp-2 text-muted-foreground text-sm">{pack.description || "No description"}</p>
+					</div>
+				</a>
 
 				<div className="flex gap-2">
 					<Button variant="destructive" size="sm" className="flex-1" onClick={() => setDeleteDialogOpen(true)}>
