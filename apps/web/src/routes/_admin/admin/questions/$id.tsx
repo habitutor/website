@@ -1,0 +1,323 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { AdminSidebar } from "@/components/admin/sidebar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft } from "lucide-react";
+import { orpc } from "@/utils/orpc";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "@tanstack/react-form";
+import { type } from "arktype";
+import { toast } from "sonner";
+import Loader from "@/components/loader";
+
+export const Route = createFileRoute("/_admin/admin/questions/$id")({
+	component: QuestionEditPage,
+});
+
+const answerCodes = ["A", "B", "C", "D"] as const;
+
+const formValidator = type({
+	content: "string>0",
+	discussion: "string>0",
+	answers: type({
+		A: { id: "number", content: "string>0", isCorrect: "boolean" },
+		B: { id: "number", content: "string>0", isCorrect: "boolean" },
+		C: { id: "number", content: "string>0", isCorrect: "boolean" },
+		D: { id: "number", content: "string>0", isCorrect: "boolean" },
+	}),
+});
+
+function QuestionEditPage() {
+	const { id } = Route.useParams();
+	const questionId = Number.parseInt(id);
+	const queryClient = useQueryClient();
+
+	const { data: question, isLoading } = useQuery(
+		orpc.admin.practicePack.getQuestionDetail.queryOptions({
+			input: { id: questionId },
+		})
+	);
+
+	const updateQuestionMutation = useMutation(
+		orpc.admin.practicePack.updateQuestion.mutationOptions()
+	);
+
+	const updateAnswerMutation = useMutation(
+		orpc.admin.practicePack.updateAnswerOption.mutationOptions()
+	);
+
+	const form = useForm({
+		defaultValues: {
+			content: question?.content || "",
+			discussion: question?.discussion || "",
+			answers: {
+				A: {
+					id: 0,
+					content: "",
+					isCorrect: false,
+				},
+				B: {
+					id: 0,
+					content: "",
+					isCorrect: false,
+				},
+				C: {
+					id: 0,
+					content: "",
+					isCorrect: false,
+				},
+				D: {
+					id: 0,
+					content: "",
+					isCorrect: false,
+				},
+			},
+		},
+		onSubmit: async ({ value }) => {
+			const validation = formValidator(value);
+			if (validation instanceof type.errors) {
+				toast.error("Please fill all required fields");
+				return;
+			}
+
+			const hasCorrectAnswer = Object.values(value.answers).some((a) => a.isCorrect);
+			if (!hasCorrectAnswer) {
+				toast.error("Please mark at least one answer as correct");
+				return;
+			}
+
+			try {
+				await updateQuestionMutation.mutateAsync({
+					id: questionId,
+					content: value.content,
+					discussion: value.discussion,
+				});
+
+				await Promise.all(
+					answerCodes.map((code) =>
+						updateAnswerMutation.mutateAsync({
+							id: value.answers[code].id,
+							content: value.answers[code].content,
+							isCorrect: value.answers[code].isCorrect,
+						})
+					)
+				);
+
+				toast.success("Question updated successfully");
+				
+				// Invalidate relevant queries
+				queryClient.invalidateQueries(
+					orpc.admin.practicePack.getQuestionDetail.queryOptions({
+						input: { id: questionId },
+					})
+				);
+				queryClient.invalidateQueries(
+					orpc.admin.practicePack.listAllQuestions.queryOptions()
+				);
+				
+				// Redirect back after short delay
+				setTimeout(() => {
+					window.history.back();
+				}, 500);
+			} catch (error) {
+				toast.error("Failed to update question", {
+					description: String(error),
+				});
+			}
+		},
+	});
+
+	if (Number.isNaN(questionId)) {
+		return (
+			<div className="flex min-h-screen">
+				<AdminSidebar />
+				<main className="flex-1 bg-background p-8">
+					<p className="text-destructive">Invalid question ID</p>
+				</main>
+			</div>
+		);
+	}
+
+	if (isLoading) {
+		return (
+			<div className="flex min-h-screen">
+				<AdminSidebar />
+				<main className="flex-1 bg-background p-8">
+					<div className="mx-auto max-w-4xl">
+						<Skeleton className="mb-6 h-10 w-64" />
+						<Skeleton className="h-96 w-full" />
+					</div>
+				</main>
+			</div>
+		);
+	}
+
+	if (!question) {
+		return (
+			<div className="flex min-h-screen">
+				<AdminSidebar />
+				<main className="flex-1 bg-background p-8">
+					<div className="mx-auto max-w-4xl">
+						<div className="mb-6 flex items-center gap-4">
+							<a href="/admin/questions">
+								<Button variant="ghost" size="icon">
+									<ArrowLeft className="size-4" />
+								</Button>
+							</a>
+							<h1 className="font-bold text-3xl">Edit Question</h1>
+						</div>
+						<p className="text-destructive">Question not found</p>
+					</div>
+				</main>
+			</div>
+		);
+	}
+
+	const answersMap = question.answers.reduce(
+		(acc, ans) => {
+			acc[ans.code as keyof typeof acc] = ans;
+			return acc;
+		},
+		{} as Record<(typeof answerCodes)[number], (typeof question.answers)[number]>
+	);
+
+	if (form.state.values.content === "" && question) {
+		form.setFieldValue("content", question.content);
+		form.setFieldValue("discussion", question.discussion);
+		answerCodes.forEach((code) => {
+			const answer = answersMap[code];
+			if (answer) {
+				form.setFieldValue(`answers.${code}.id`, answer.id);
+				form.setFieldValue(`answers.${code}.content`, answer.content);
+				form.setFieldValue(`answers.${code}.isCorrect`, answer.isCorrect);
+			}
+		});
+	}
+
+	const isSubmitting = updateQuestionMutation.isPending || updateAnswerMutation.isPending;
+
+	return (
+		<div className="flex min-h-screen">
+			<AdminSidebar />
+			<main className="flex-1 bg-background p-8">
+				<div className="mx-auto max-w-4xl">
+					<div className="mb-6 flex items-center gap-4">
+						<a href="/admin/questions">
+							<Button variant="ghost" size="icon">
+								<ArrowLeft className="size-4" />
+							</Button>
+						</a>
+						<h1 className="font-bold text-3xl">Edit Question</h1>
+					</div>
+
+					<Card>
+						<CardHeader>
+							<CardTitle>Question Details</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									form.handleSubmit();
+								}}
+								className="space-y-6"
+							>
+								<form.Field name="content">
+									{(field) => (
+										<div>
+											<Label htmlFor="content">Question Content *</Label>
+											<Input
+												id="content"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												placeholder="Enter the question"
+												className="mt-2"
+											/>
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="discussion">
+									{(field) => (
+										<div>
+											<Label htmlFor="discussion">Discussion / Explanation *</Label>
+											<Input
+												id="discussion"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												placeholder="Explain the answer"
+												className="mt-2"
+											/>
+										</div>
+									)}
+								</form.Field>
+
+								<div>
+									<h3 className="mb-4 font-medium">Answer Options *</h3>
+									<div className="space-y-3">
+										{answerCodes.map((code) => (
+											<div key={code} className="flex items-start gap-3">
+												<div className="mt-2 flex items-center gap-2">
+													<span className="font-medium text-sm">{code}.</span>
+													<form.Field name={`answers.${code}.isCorrect`}>
+														{(field) => (
+															<Checkbox
+																checked={field.state.value}
+																onCheckedChange={(checked) => field.handleChange(!!checked)}
+															/>
+														)}
+													</form.Field>
+												</div>
+												<form.Field name={`answers.${code}.content`}>
+													{(field) => (
+														<Input
+															value={field.state.value}
+															onChange={(e) => field.handleChange(e.target.value)}
+															placeholder={`Option ${code}`}
+															className="flex-1"
+														/>
+													)}
+												</form.Field>
+											</div>
+										))}
+									</div>
+									<p className="mt-2 text-muted-foreground text-xs">
+										Check the box to mark as correct answer
+									</p>
+								</div>
+
+								<div className="flex gap-2">
+									<Button type="submit" disabled={isSubmitting} className="flex-1">
+										{isSubmitting ? (
+											<>
+												<Loader />
+												Saving...
+											</>
+										) : (
+											"Save Changes"
+										)}
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() => {
+											window.location.href = "/admin/questions";
+										}}
+									>
+										Cancel
+									</Button>
+								</div>
+							</form>
+						</CardContent>
+					</Card>
+				</div>
+			</main>
+		</div>
+	);
+}

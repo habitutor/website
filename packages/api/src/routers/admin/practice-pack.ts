@@ -105,7 +105,75 @@ const deletePack = admin
 		return { message: "Berhasil menghapus practice pack" };
 	});
 
+const getPackQuestions = admin
+	.route({
+		path: "/admin/practice-packs/{id}/questions",
+		method: "GET",
+		tags: ["Admin - Practice Packs"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		const questions = await db
+			.select({
+				id: question.id,
+				content: question.content,
+				discussion: question.discussion,
+				order: practicePackQuestions.order,
+			})
+			.from(practicePackQuestions)
+			.innerJoin(question, eq(practicePackQuestions.questionId, question.id))
+			.where(eq(practicePackQuestions.practicePackId, input.id))
+			.orderBy(practicePackQuestions.order);
+
+		return questions;
+	});
+
 // QUESTION CRUD
+
+const listAllQuestions = admin
+	.route({
+		path: "/admin/questions",
+		method: "GET",
+		tags: ["Admin - Questions"],
+	})
+	.handler(async () => {
+		const questions = await db
+			.select({
+				id: question.id,
+				content: question.content,
+				discussion: question.discussion,
+			})
+			.from(question);
+
+		return questions;
+	});
+
+const getQuestionDetail = admin
+	.route({
+		path: "/admin/questions/{id}",
+		method: "GET",
+		tags: ["Admin - Questions"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		const [q] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
+
+		if (!q)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Question tidak ditemukan",
+			});
+
+		const answers = await db
+			.select()
+			.from(questionAnswerOption)
+			.where(eq(questionAnswerOption.questionId, input.id))
+			.orderBy(questionAnswerOption.code);
+
+		return {
+			...q,
+			answers,
+		};
+	});
 
 const createQuestion = admin
 	.route({
@@ -378,8 +446,11 @@ export const adminPracticePackRouter = {
 	createPack,
 	updatePack,
 	deletePack,
+	getPackQuestions,
 
 	// Question
+	listAllQuestions,
+	getQuestionDetail,
 	createQuestion,
 	updateQuestion,
 	deleteQuestion,
