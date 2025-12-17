@@ -44,32 +44,33 @@ function PracticePacksListPage() {
 		<div className="flex min-h-screen">
 			<AdminSidebar />
 
-			<main className="ml-64 flex-1 p-8">
-				<div className="mb-8 flex items-center justify-between">
+			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+				<div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<h1 className="font-bold text-3xl">Practice Packs</h1>
+						<h1 className="font-bold text-2xl sm:text-3xl">Practice Packs</h1>
 						<p className="text-muted-foreground">Kelola paket latihan soal</p>
 					</div>
 
 					<Button asChild>
 						<Link to="/admin/practice-packs/create">
-							<Plus />
-							Create New Pack
+							<Plus className="size-4" />
+							<span className="hidden sm:inline">Create New Pack</span>
+							<span className="sm:hidden">Create</span>
 						</Link>
 					</Button>
 				</div>
 
-				<div className="mb-6">
+				<div className="mb-4 sm:mb-6">
 					<Input
 						placeholder="Search practice packs..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className="max-w-md"
+						className="w-full sm:max-w-md"
 					/>
 				</div>
 
 				{isPending && (
-					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{[1, 2, 3].map((i) => (
 							<Card key={i} className="p-6">
 								<Skeleton className="mb-4 h-6 w-3/4" />
@@ -104,7 +105,7 @@ function PracticePacksListPage() {
 					</div>
 				)}
 
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{filteredPacks?.map((pack) => (
 						<PracticePackCard key={pack.id} pack={pack} />
 					))}
@@ -112,32 +113,42 @@ function PracticePacksListPage() {
 
 				{/* Pagination Controls */}
 				{totalPages > 1 && !searchQuery && (
-					<div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-						<Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
-							Previous
+					<div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8 sm:gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={page === 1}
+							onClick={() => setPage(page - 1)}
+							className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+						>
+							<span className="hidden sm:inline">Previous</span>
+							<span className="sm:hidden">Prev</span>
 						</Button>
 
-						<div className="flex flex-wrap items-center justify-center gap-1">
+						<div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1">
 							{page > 3 && (
 								<>
 									<Button
 										variant="outline"
 										size="sm"
 										onClick={() => setPage(1)}
+										className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
 									>
 										1
 									</Button>
-									{page > 4 && <span className="px-2">...</span>}
+									{page > 4 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
 								</>
 							)}
 
 							{Array.from({ length: totalPages }, (_, i) => i + 1)
-								.filter(pageNum => {
-									return pageNum === page || 
-										   pageNum === page - 1 || 
-										   pageNum === page + 1 ||
-										   pageNum === page - 2 ||
-										   pageNum === page + 2;
+								.filter((pageNum) => {
+									return (
+										pageNum === page ||
+										pageNum === page - 1 ||
+										pageNum === page + 1 ||
+										pageNum === page - 2 ||
+										pageNum === page + 2
+									);
 								})
 								.map((pageNum) => (
 									<Button
@@ -145,6 +156,7 @@ function PracticePacksListPage() {
 										variant={pageNum === page ? "default" : "outline"}
 										size="sm"
 										onClick={() => setPage(pageNum)}
+										className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
 									>
 										{pageNum}
 									</Button>
@@ -152,11 +164,12 @@ function PracticePacksListPage() {
 
 							{page < totalPages - 2 && (
 								<>
-									{page < totalPages - 3 && <span className="px-2">...</span>}
+									{page < totalPages - 3 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
 									<Button
 										variant="outline"
 										size="sm"
 										onClick={() => setPage(totalPages)}
+										className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
 									>
 										{totalPages}
 									</Button>
@@ -164,8 +177,15 @@ function PracticePacksListPage() {
 							)}
 						</div>
 
-						<Button variant="outline" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-							Next
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={page === totalPages}
+							onClick={() => setPage(page + 1)}
+							className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+						>
+							<span className="hidden sm:inline">Next</span>
+							<span className="sm:hidden">Next</span>
 						</Button>
 					</div>
 				)}

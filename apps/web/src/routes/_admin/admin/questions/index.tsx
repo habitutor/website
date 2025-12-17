@@ -14,7 +14,14 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Edit, Trash2 } from "lucide-react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Search, Edit, Trash2, Filter } from "lucide-react";
 import { orpc } from "@/utils/orpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -26,31 +33,45 @@ export const Route = createFileRoute("/_admin/admin/questions/")({
 
 function QuestionsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
+	const [filter, setFilter] = useState<"all" | "unused">("all");
+	const [page, setPage] = useState(1);
+	const limit = 5; 
+	const offset = (page - 1) * limit;
 
-	const { data: questions, isLoading } = useQuery(
-		orpc.admin.practicePack.listAllQuestions.queryOptions()
+	const { data, isLoading } = useQuery(
+		orpc.admin.practicePack.listAllQuestions.queryOptions({
+			input: {
+				limit,
+				offset,
+				unusedOnly: filter === "unused",
+			},
+		})
 	);
 
-	const filteredQuestions = questions?.filter((q) =>
+	const questions = data?.data || [];
+	const total = data?.total || 0;
+	const totalPages = Math.ceil(total / limit);
+
+	const filteredQuestions = questions.filter((q) =>
 		q.content.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	return (
 		<div className="flex min-h-screen">
 			<AdminSidebar />
-			<main className="flex-1 bg-background p-8">
+			<main className="flex-1 bg-background p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-6xl">
-					<div className="mb-6 flex items-center justify-between">
+					<div className="mb-4 flex items-center justify-between sm:mb-6">
 						<div>
-							<h1 className="font-bold text-3xl">Questions Bank</h1>
+							<h1 className="font-bold text-2xl sm:text-3xl">Questions Bank</h1>
 							<p className="mt-1 text-muted-foreground text-sm">
 								Manage all questions across practice packs
 							</p>
 						</div>
 					</div>
 
-					<div className="mb-6">
-						<div className="relative">
+					<div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row">
+						<div className="relative flex-1">
 							<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 							<Input
 								placeholder="Search questions..."
@@ -59,6 +80,27 @@ function QuestionsPage() {
 								className="pl-9"
 							/>
 						</div>
+
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="outline" className="w-full sm:w-auto">
+									<Filter className="mr-2 size-4" />
+									<span className="hidden sm:inline">
+										{filter === "all" ? "All Questions" : "Unused Only"}
+									</span>
+									<span className="sm:hidden">{filter === "all" ? "All" : "Unused"}</span>
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuRadioGroup value={filter} onValueChange={(value) => {
+									setFilter(value as "all" | "unused");
+									setPage(1); 
+								}}>
+									<DropdownMenuRadioItem value="all">All Questions</DropdownMenuRadioItem>
+									<DropdownMenuRadioItem value="unused">Unused Only</DropdownMenuRadioItem>
+								</DropdownMenuRadioGroup>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 
 					{isLoading ? (
@@ -84,6 +126,85 @@ function QuestionsPage() {
 							))}
 						</div>
 					)}
+
+					{/* Pagination Controls */}
+					{totalPages > 1 && !searchQuery && (
+						<div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8 sm:gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={page === 1}
+								onClick={() => setPage(page - 1)}
+								className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+							>
+								<span className="hidden sm:inline">Previous</span>
+								<span className="sm:hidden">Prev</span>
+							</Button>
+
+							<div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1">
+								{page > 3 && (
+									<>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => setPage(1)}
+											className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
+										>
+											1
+										</Button>
+										{page > 4 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
+									</>
+								)}
+
+								{Array.from({ length: totalPages }, (_, i) => i + 1)
+									.filter((pageNum) => {
+										return (
+											pageNum === page ||
+											pageNum === page - 1 ||
+											pageNum === page + 1 ||
+											pageNum === page - 2 ||
+											pageNum === page + 2
+										);
+									})
+									.map((pageNum) => (
+										<Button
+											key={pageNum}
+											variant={pageNum === page ? "default" : "outline"}
+											size="sm"
+											onClick={() => setPage(pageNum)}
+											className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
+										>
+											{pageNum}
+										</Button>
+									))}
+
+								{page < totalPages - 2 && (
+									<>
+										{page < totalPages - 3 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => setPage(totalPages)}
+											className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
+										>
+											{totalPages}
+										</Button>
+									</>
+								)}
+							</div>
+
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={page === totalPages}
+								onClick={() => setPage(page + 1)}
+								className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+							>
+								<span className="hidden sm:inline">Next</span>
+								<span className="sm:hidden">Next</span>
+							</Button>
+						</div>
+					)}
 				</div>
 			</main>
 		</div>
@@ -107,9 +228,11 @@ function QuestionCard({
 		orpc.admin.practicePack.deleteQuestion.mutationOptions({
 			onSuccess: () => {
 				toast.success("Question deleted successfully");
-				queryClient.invalidateQueries(
-					orpc.admin.practicePack.listAllQuestions.queryOptions()
-				);
+				queryClient.invalidateQueries({
+					queryKey: orpc.admin.practicePack.listAllQuestions.queryOptions({ 
+						input: { limit: 5, offset: 0 } 
+					}).queryKey.slice(0, -1),
+				});
 				setDeleteDialogOpen(false);
 			},
 			onError: (error) => {
@@ -127,46 +250,48 @@ function QuestionCard({
 	return (
 		<>
 			<Card>
-				<CardHeader>
-					<div className="flex items-start justify-between gap-4">
+				<CardHeader className="p-4 sm:p-6">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 						<div className="flex-1">
-							<CardTitle className="text-lg">{question.content}</CardTitle>
-							<p className="mt-2 line-clamp-2 text-muted-foreground text-sm">
+							<CardTitle className="text-base leading-snug sm:text-lg">{question.content}</CardTitle>
+							<p className="mt-2 line-clamp-2 text-muted-foreground text-xs sm:text-sm">
 								{question.discussion}
 							</p>
 						</div>
 						<div className="flex items-center gap-2">
 							{question.packCount > 0 ? (
-								<span className="whitespace-nowrap rounded-md bg-primary/10 px-3 py-1 font-medium text-primary text-xs">
+								<span className="whitespace-nowrap rounded-md bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3">
 									Used in {question.packCount} pack{question.packCount !== 1 ? "s" : ""}
 								</span>
 							) : (
-								<span className="whitespace-nowrap rounded-md bg-muted px-3 py-1 text-muted-foreground text-xs">
+								<span className="whitespace-nowrap rounded-md bg-muted px-2 py-1 text-muted-foreground text-xs sm:px-3">
 									Unused
 								</span>
 							)}
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 					<div className="flex gap-2">
 						<Button
 							variant="outline"
 							size="sm"
+							className="flex-1 text-xs sm:flex-none sm:text-sm"
 							onClick={() => {
 								window.location.href = `/admin/questions/${question.id}`;
 							}}
 						>
-							<Edit className="mr-2 size-4" />
-							Edit
+							<Edit className="size-3.5 sm:mr-2 sm:size-4" />
+							<span className="hidden sm:inline">Edit</span>
 						</Button>
 						<Button
 							variant="destructive"
 							size="sm"
+							className="flex-1 text-xs sm:flex-none sm:text-sm"
 							onClick={() => setDeleteDialogOpen(true)}
 						>
-							<Trash2 className="mr-2 size-4" />
-							Delete
+							<Trash2 className="size-3.5 sm:mr-2 sm:size-4" />
+							<span className="hidden sm:inline">Delete</span>
 						</Button>
 					</div>
 				</CardContent>

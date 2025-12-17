@@ -13,9 +13,10 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Plus, Search } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
 import { orpc } from "@/utils/orpc";
+import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CreateQuestionForm } from "./-components/create-question-form";
 import { EditPackForm } from "./-components/edit-pack-form";
@@ -43,7 +44,7 @@ function PracticePackDetailPage() {
 		return (
 			<div className="flex min-h-screen">
 				<AdminSidebar />
-				<main className="flex-1 bg-background p-8">
+				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 					<p className="text-destructive">Invalid practice pack ID</p>
 				</main>
 			</div>
@@ -53,29 +54,29 @@ function PracticePackDetailPage() {
 	return (
 		<div className="flex min-h-screen">
 			<AdminSidebar />
-			<main className="flex-1 bg-background p-8">
+			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-6xl">
-					<div className="mb-6 flex items-center gap-4">
+					<div className="mb-4 flex items-center gap-4 sm:mb-6">
 						<Button variant="ghost" size="icon" asChild>
 							<a href="/admin/practice-packs">
 								<ArrowLeft className="size-4" />
 							</a>
 						</Button>
-						<h1 className="font-bold text-3xl">Practice Pack Detail</h1>
+						<h1 className="font-bold text-2xl sm:text-3xl">Practice Pack Detail</h1>
 					</div>
 
-					<div className="space-y-6">
+					<div className="space-y-4 sm:space-y-6">
 						<PackInfoCard packId={packId} />
 
-						<div className="flex items-center justify-between">
-							<h2 className="font-semibold text-2xl">Questions</h2>
-							<div className="flex gap-2">
-								<Button onClick={() => setShowAddExisting(true)} variant="outline">
-									<Search className="mr-2 size-4" />
+						<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+							<h2 className="font-semibold text-xl sm:text-2xl">Questions</h2>
+							<div className="flex flex-col gap-2 sm:flex-row">
+								<Button onClick={() => setShowAddExisting(true)} variant="outline" className="text-xs sm:text-sm">
+									<Search className="mr-2 size-3.5 sm:size-4" />
 									Add Existing
 								</Button>
-								<Button onClick={() => setShowCreateForm(true)}>
-									<Plus className="mr-2 size-4" />
+								<Button onClick={() => setShowCreateForm(true)} className="text-xs sm:text-sm">
+									<Plus className="mr-2 size-3.5 sm:size-4" />
 									Create New Question
 								</Button>
 							</div>
@@ -107,11 +108,13 @@ function PracticePackDetailPage() {
 
 function PackInfoCard({ packId }: { packId: number }) {
 	const [isEditing, setIsEditing] = useState(false);
-	const { data: packs, isLoading } = useQuery(
-		orpc.admin.practicePack.listPacks.queryOptions()
+	const { data: response, isLoading } = useQuery(
+		orpc.admin.practicePack.listPacks.queryOptions({ 
+			input: { limit: 100, offset: 0 } 
+		})
 	);
 	
-	const pack = packs?.find((p: { id: number }) => p.id === packId);
+	const pack = response?.data.find((p) => p.id === packId);
 
 	if (isLoading) {
 		return (
@@ -182,9 +185,44 @@ function PackInfoCard({ packId }: { packId: number }) {
 }
 
 function QuestionsList({ packId }: { packId: number }) {
+	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+	const [gridPage, setGridPage] = useState(0);
+	const GRID_SIZE = 30;
+	
 	const { data: questions, isLoading } = useQuery(
 		orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } })
 	);
+
+	useEffect(() => {
+		if (questions && questions.length > 0) {
+			setCurrentQuestionIndex(0);
+			setGridPage(0);
+		}
+	}, [questions]);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (!questions || questions.length === 0) return;
+			
+			if (e.key === "ArrowLeft" && currentQuestionIndex > 0) {
+				const newIndex = currentQuestionIndex - 1;
+				setCurrentQuestionIndex(newIndex);
+				setGridPage(Math.floor(newIndex / GRID_SIZE));
+			} else if (e.key === "ArrowRight" && currentQuestionIndex < questions.length - 1) {
+				const newIndex = currentQuestionIndex + 1;
+				setCurrentQuestionIndex(newIndex);
+				setGridPage(Math.floor(newIndex / GRID_SIZE));
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [currentQuestionIndex, questions]);
+
+	const handleQuestionClick = (index: number) => {
+		setCurrentQuestionIndex(index);
+		setGridPage(Math.floor(index / GRID_SIZE));
+	};
 
 	if (isLoading) {
 		return (
@@ -216,29 +254,193 @@ function QuestionsList({ packId }: { packId: number }) {
 			</Card>
 		);
 	}
+
+	const currentQuestion = questions[currentQuestionIndex];
+	const totalGridPages = Math.ceil(questions.length / GRID_SIZE);
+	const startIndex = gridPage * GRID_SIZE;
+	const endIndex = Math.min(startIndex + GRID_SIZE, questions.length);
+	const visibleQuestions = questions.slice(startIndex, endIndex);
 	
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Questions in this Pack ({questions.length})</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<div className="space-y-3">
-					{questions.map((q) => (
-						<QuestionCard key={q.id} question={q} packId={packId} />
-					))}
+		<div className="space-y-4">
+			<div className="flex flex-col gap-4 lg:flex-row">
+				<div className="flex-1 lg:order-1">
+					<Card>
+						<CardHeader className="p-4 sm:p-6">
+							<div className="flex items-center justify-between">
+								<CardTitle className="text-lg sm:text-xl">
+									Question {currentQuestionIndex + 1} of {questions.length}
+								</CardTitle>
+								<span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3 sm:text-sm">
+									#{currentQuestion.order || currentQuestionIndex + 1}
+								</span>
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
+							<div>
+								<h4 className="mb-2 font-semibold text-base sm:text-lg">Question:</h4>
+								<p className="text-sm leading-relaxed sm:text-base">{currentQuestion.content}</p>
+							</div>
+
+							<div>
+								<h4 className="mb-2 font-semibold text-base sm:text-lg">Answer Options:</h4>
+								<div className="space-y-2">
+									{currentQuestion.answers?.map((answer) => (
+										<div
+											key={answer.id}
+											className={cn(
+												"flex items-start gap-3 rounded-lg border p-3 sm:p-4",
+												answer.isCorrect && "border-green-500 bg-green-50"
+											)}
+										>
+											<span className={cn(
+												"flex size-6 shrink-0 items-center justify-center rounded-full font-semibold text-xs",
+												answer.isCorrect 
+													? "bg-green-500 text-white" 
+													: "bg-muted text-muted-foreground"
+											)}>
+												{answer.code}
+											</span>
+											<p className="flex-1 text-sm leading-relaxed sm:text-base">
+												{answer.content}
+											</p>
+											{answer.isCorrect && (
+												<span className="shrink-0 rounded bg-green-500 px-2 py-0.5 font-medium text-white text-xs">
+													Correct
+												</span>
+											)}
+										</div>
+									))}
+								</div>
+							</div>
+
+							<div>
+								<h4 className="mb-2 font-semibold text-base sm:text-lg">Discussion:</h4>
+								<p className="text-muted-foreground text-sm leading-relaxed sm:text-base">
+									{currentQuestion.discussion}
+								</p>
+							</div>
+
+							<div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:gap-3">
+								<Button
+									variant="outline"
+									className="w-full text-xs sm:w-auto sm:text-sm"
+									onClick={() => {
+										window.location.href = `/admin/questions/${currentQuestion.id}`;
+									}}
+								>
+									Edit Question
+								</Button>
+								<RemoveQuestionButton 
+									packId={packId} 
+									question={currentQuestion}
+								/>
+							</div>
+
+							<div className="flex items-center justify-between border-t pt-4">
+								<Button
+									variant="outline"
+									size="sm"
+									className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+									onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+									disabled={currentQuestionIndex === 0}
+								>
+									<ChevronLeft className="mr-1 size-3.5 sm:size-4" />
+									<span className="hidden sm:inline">Previous</span>
+									<span className="sm:hidden">Prev</span>
+								</Button>
+								
+								<span className="text-muted-foreground text-xs sm:text-sm">
+									Use ← → arrows
+								</span>
+						
+								<Button
+									variant="outline"
+									size="sm"
+									className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+									onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+									disabled={currentQuestionIndex === questions.length - 1}
+								>
+									<span className="hidden sm:inline">Next</span>
+									<span className="sm:hidden">Next</span>
+									<ChevronRight className="ml-1 size-3.5 sm:size-4" />
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
 				</div>
-			</CardContent>
-		</Card>
+
+				<div className="lg:order-2 lg:w-64">
+					<Card>
+						<CardHeader className="p-4">
+							<div className="flex items-center justify-between">
+								<CardTitle className="text-base sm:text-lg">Navigate</CardTitle>
+								{totalGridPages > 1 && (
+									<span className="text-muted-foreground text-xs">
+										{gridPage + 1}/{totalGridPages}
+									</span>
+								)}
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-3 p-4 pt-0">
+							<div className="grid grid-cols-5 gap-1.5 sm:gap-2 lg:grid-cols-4">
+								{visibleQuestions.map((question, idx) => {
+									const absoluteIndex = startIndex + idx;
+									return (
+										<Button
+											key={question.id}
+											variant={absoluteIndex === currentQuestionIndex ? "default" : "outline"}
+											className={cn(
+												"h-8 w-full p-0 text-xs sm:h-9 sm:text-sm",
+												absoluteIndex === currentQuestionIndex && "font-semibold"
+											)}
+											onClick={() => handleQuestionClick(absoluteIndex)}
+										>
+											{absoluteIndex + 1}
+										</Button>
+									);
+								})}
+							</div>
+							
+							{totalGridPages > 1 && (
+								<div className="flex items-center justify-between border-t pt-3">
+									<Button
+										variant="ghost"
+										size="sm"
+										className="h-7 px-2 text-xs"
+										onClick={() => setGridPage(gridPage - 1)}
+										disabled={gridPage === 0}
+									>
+										<ChevronLeft className="size-3.5" />
+									</Button>
+									<span className="text-muted-foreground text-xs">
+										{startIndex + 1}-{endIndex} of {questions.length}
+									</span>
+									<Button
+										variant="ghost"
+										size="sm"
+										className="h-7 px-2 text-xs"
+										onClick={() => setGridPage(gridPage + 1)}
+										disabled={gridPage === totalGridPages - 1}
+									>
+										<ChevronRight className="size-3.5" />
+									</Button>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				</div>
+			</div>
+		</div>
 	);
 }
 
-function QuestionCard({
-	question,
+function RemoveQuestionButton({
 	packId,
+	question,
 }: {
-	question: { id: number; content: string; discussion: string; order: number | null };
 	packId: number;
+	question: { id: number; content: string; discussion: string; order: number | null };
 }) {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
@@ -266,37 +468,13 @@ function QuestionCard({
 
 	return (
 		<>
-			<div className="flex items-start gap-4 rounded-lg border p-4">
-				<div className="flex-1">
-					<div className="mb-2 flex items-center gap-2">
-						<span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs">
-							#{question.order || 0}
-						</span>
-						<h4 className="font-medium">{question.content}</h4>
-					</div>
-					<p className="line-clamp-2 text-muted-foreground text-sm">
-						{question.discussion}
-					</p>
-				</div>
-				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => {
-							window.location.href = `/admin/questions/${question.id}`;
-						}}
-					>
-						Edit
-					</Button>
-					<Button
-						variant="destructive"
-						size="sm"
-						onClick={() => setDeleteDialogOpen(true)}
-					>
-						Remove
-					</Button>
-				</div>
-			</div>
+			<Button
+				variant="destructive"
+				className="w-full text-xs sm:w-auto sm:text-sm"
+				onClick={() => setDeleteDialogOpen(true)}
+			>
+				Remove from Pack
+			</Button>
 
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
 				<AlertDialogContent>

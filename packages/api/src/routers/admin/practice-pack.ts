@@ -158,7 +158,27 @@ const getPackQuestions = admin
 			.where(eq(practicePackQuestions.practicePackId, input.id))
 			.orderBy(practicePackQuestions.order);
 
-		return questions;
+		const questionsWithAnswers = await Promise.all(
+			questions.map(async (q) => {
+				const answers = await db
+					.select({
+						id: questionAnswerOption.id,
+						code: questionAnswerOption.code,
+						content: questionAnswerOption.content,
+						isCorrect: questionAnswerOption.isCorrect,
+					})
+					.from(questionAnswerOption)
+					.where(eq(questionAnswerOption.questionId, q.id))
+					.orderBy(questionAnswerOption.code);
+
+				return {
+					...q,
+					answers,
+				};
+			}),
+		);
+
+		return questionsWithAnswers;
 	});
 
 // QUESTION CRUD
