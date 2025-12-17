@@ -26,9 +26,19 @@ export const Route = createFileRoute("/_admin/admin/practice-packs/")({
 
 function PracticePacksListPage() {
 	const [searchQuery, setSearchQuery] = useState("");
-	const { data: packs, isPending, isError, error } = useQuery(orpc.admin.practicePack.listPacks.queryOptions());
+	const [page, setPage] = useState(1);
+	const limit = 9; 
+	const offset = (page - 1) * limit;
 
-	const filteredPacks = packs?.filter((pack) => pack.title.toLowerCase().includes(searchQuery.toLowerCase()));
+	const { data, isPending, isError, error } = useQuery(
+		orpc.admin.practicePack.listPacks.queryOptions({ input: { limit, offset } }),
+	);
+
+	const packs = data?.data || [];
+	const total = data?.total || 0;
+	const totalPages = Math.ceil(total / limit);
+
+	const filteredPacks = packs.filter((pack) => pack.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
 	return (
 		<div className="flex min-h-screen">
@@ -99,6 +109,66 @@ function PracticePacksListPage() {
 						<PracticePackCard key={pack.id} pack={pack} />
 					))}
 				</div>
+
+				{/* Pagination Controls */}
+				{totalPages > 1 && !searchQuery && (
+					<div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+						<Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
+							Previous
+						</Button>
+
+						<div className="flex flex-wrap items-center justify-center gap-1">
+							{page > 3 && (
+								<>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setPage(1)}
+									>
+										1
+									</Button>
+									{page > 4 && <span className="px-2">...</span>}
+								</>
+							)}
+
+							{Array.from({ length: totalPages }, (_, i) => i + 1)
+								.filter(pageNum => {
+									return pageNum === page || 
+										   pageNum === page - 1 || 
+										   pageNum === page + 1 ||
+										   pageNum === page - 2 ||
+										   pageNum === page + 2;
+								})
+								.map((pageNum) => (
+									<Button
+										key={pageNum}
+										variant={pageNum === page ? "default" : "outline"}
+										size="sm"
+										onClick={() => setPage(pageNum)}
+									>
+										{pageNum}
+									</Button>
+								))}
+
+							{page < totalPages - 2 && (
+								<>
+									{page < totalPages - 3 && <span className="px-2">...</span>}
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setPage(totalPages)}
+									>
+										{totalPages}
+									</Button>
+								</>
+							)}
+						</div>
+
+						<Button variant="outline" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+							Next
+						</Button>
+					</div>
+				)}
 			</main>
 		</div>
 	);
@@ -112,7 +182,12 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 		orpc.admin.practicePack.deletePack.mutationOptions({
 			onSuccess: () => {
 				toast.success("Practice pack berhasil dihapus");
-				queryClient.invalidateQueries(orpc.admin.practicePack.listPacks.queryOptions());
+				queryClient.invalidateQueries({
+					queryKey: orpc.admin.practicePack.listPacks.queryOptions({ input: { limit: 9, offset: 0 } }).queryKey.slice(
+						0,
+						-1,
+					),
+				});
 				setDeleteDialogOpen(false);
 			},
 			onError: (error) => {

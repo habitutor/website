@@ -30,16 +30,35 @@ const listPacks = admin
 		method: "GET",
 		tags: ["Admin - Practice Packs"],
 	})
-	.handler(async () => {
+	.input(
+		type({
+			"limit?": "number",
+			"offset?": "number",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const limit = input.limit || 20;
+		const offset = input.offset || 0;
+
+		const [totalCount] = await db.select({ count: count() }).from(practicePack);
+
 		const packs = await db
 			.select({
 				id: practicePack.id,
 				title: practicePack.title,
 				description: practicePack.description,
 			})
-			.from(practicePack);
+			.from(practicePack)
+			.limit(limit)
+			.offset(offset)
+			.orderBy(practicePack.id);
 
-		return packs;
+		return {
+			data: packs,
+			total: totalCount?.count || 0,
+			limit,
+			offset,
+		};
 	});
 
 const createPack = admin
@@ -150,8 +169,20 @@ const listAllQuestions = admin
 		method: "GET",
 		tags: ["Admin - Questions"],
 	})
-	.handler(async () => {
-		const questions = await db
+	.input(
+		type({
+			"limit?": "number",
+			"offset?": "number",
+			"unusedOnly?": "boolean",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const limit = input.limit || 20;
+		const offset = input.offset || 0;
+		const unusedOnly = input.unusedOnly || false;
+
+		// Get all questions with pack count
+		const allQuestions = await db
 			.select({
 				id: question.id,
 				content: question.content,
@@ -160,9 +191,22 @@ const listAllQuestions = admin
 			})
 			.from(question)
 			.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
-			.groupBy(question.id);
+			.groupBy(question.id)
+			.orderBy(question.id);
 
-		return questions;
+		// Filter unused if needed
+		const filteredQuestions = unusedOnly ? allQuestions.filter((q) => q.packCount === 0) : allQuestions;
+
+		// Apply pagination
+		const total = filteredQuestions.length;
+		const paginatedQuestions = filteredQuestions.slice(offset, offset + limit);
+
+		return {
+			data: paginatedQuestions,
+			total,
+			limit,
+			offset,
+		};
 	});
 
 const getQuestionDetail = admin
