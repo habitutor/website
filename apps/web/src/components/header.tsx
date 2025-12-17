@@ -1,3 +1,4 @@
+import { StudentIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { authClient } from "@/lib/auth-client";

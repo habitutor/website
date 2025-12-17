@@ -3,7 +3,7 @@ import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
-	component: HomeComponent,
+  component: HomeComponent,
 });
 
 function HomeComponent() {

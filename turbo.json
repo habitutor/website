@@ -59,6 +59,9 @@
 		},
 		"auth:generate": {
 			"cache": false
+		},
+		"auth:generate": {
+			"cache": false
 		}
 	}
 }
