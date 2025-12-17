@@ -7,7 +7,7 @@ import {
 } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { admin } from "../../index";
 
 const listPacks = admin
@@ -142,8 +142,11 @@ const listAllQuestions = admin
 				id: question.id,
 				content: question.content,
 				discussion: question.discussion,
+				packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
 			})
-			.from(question);
+			.from(question)
+			.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+			.groupBy(question.id);
 
 		return questions;
 	});
