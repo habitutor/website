@@ -39,6 +39,7 @@
       "dependencies": {
         "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
         "@habitutor/api": "workspace:*",
+        "@habitutor/auth": "workspace:*",
         "@orpc/client": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/tanstack-query": "^1.12.2",

@@ -1,6 +1,6 @@
 import { ArrowRightIcon, EyeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
@@ -42,7 +42,9 @@ const Tryout = () => {
   return (
     <div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
       <div className="z-10 space-y-0.5">
-        <h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>{!isPending ? data?.packsFinished : "..."}</h4>
+        <h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
+          {!isPending ? data?.packsFinished : "..."}
+        </h4>
         <p className="font-bold">Tryout Dikerjakan</p>
       </div>
 
@@ -56,17 +58,24 @@ const Tryout = () => {
 };
 
 const Flashcard = () => {
-  const { data, isPending } = useQuery(orpc.flashcard.streak.queryOptions());
+  const { session } = useRouteContext({ from: "/_authenticated" });
+  if (!session) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   return (
     <div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
       <div className="z-10 space-y-0.5">
-        <h4 className={`font-bold text-5xl sm:text-6xl ${isPending && "animate-pulse"}`}>{!isPending ? data?.streak : "..."}</h4>
+        <h4 className={"font-bold text-5xl sm:text-6xl"}>{session.user.flashcardStreak}</h4>
         <p className="font-bold">Streak Flashcard</p>
       </div>
 
-      <Button size="lg" className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2" asChild>
-        {data?.status === "submitted" ? (
+      <Button
+        size="lg"
+        className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+        asChild
+      >
+        {session.user.lastCompletedFlashcardAt === today ? (
           <Link to="/dashboard/flashcard/result">
             Lihat Hasil <EyeIcon />
           </Link>
