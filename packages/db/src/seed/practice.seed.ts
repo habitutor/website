@@ -1,13 +1,22 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { practicePack, practicePackAttempt, practicePackQuestions, practicePackUserAnswer, question, questionAnswerOption } from "../schema/practice-pack";
+import {
+	practicePack,
+	practicePackAttempt,
+	practicePackQuestions,
+	practicePackUserAnswer,
+	question,
+	questionAnswerOption,
+} from "../schema/practice-pack";
 
 const SEED_DATA = {
 	packs: [{ title: "Penalaran Umum #1" }, { title: "Penalaran Umum #2" }],
 
 	pack1_mcq: [
 		{
-			content: "Semua siswa yang rajin belajar akan lulus ujian. Budi tidak lulus ujian. Kesimpulan yang tepat adalah...",
-			discussion: "Ini adalah contoh modus tollens. Jika premis 'Semua siswa rajin → lulus' benar, dan faktanya Budi tidak lulus, maka Budi pasti tidak rajin belajar.",
+			content:
+				"Semua siswa yang rajin belajar akan lulus ujian. Budi tidak lulus ujian. Kesimpulan yang tepat adalah...",
+			discussion:
+				"Ini adalah contoh modus tollens. Jika premis 'Semua siswa rajin → lulus' benar, dan faktanya Budi tidak lulus, maka Budi pasti tidak rajin belajar.",
 			answers: [
 				{ content: "Budi tidak rajin belajar", isCorrect: true },
 				{ content: "Budi rajin belajar", isCorrect: false },
@@ -44,7 +53,8 @@ const SEED_DATA = {
 			],
 		},
 		{
-			content: "Semua bunga mawar berwarna merah. Beberapa tanaman di taman adalah bunga mawar. Kesimpulan yang tepat adalah...",
+			content:
+				"Semua bunga mawar berwarna merah. Beberapa tanaman di taman adalah bunga mawar. Kesimpulan yang tepat adalah...",
 			discussion: "Silogisme: Semua mawar merah, beberapa tanaman adalah mawar, maka beberapa tanaman pasti merah.",
 			answers: [
 				{
@@ -71,7 +81,8 @@ const SEED_DATA = {
 	pack2_mcq: [
 		{
 			content: "Tidak ada ikan yang bisa hidup di darat. Hiu adalah ikan. Kesimpulan yang tepat adalah...",
-			discussion: "Silogisme kategorikal: Tidak ada ikan yang hidup di darat, hiu adalah ikan, maka hiu tidak bisa hidup di darat.",
+			discussion:
+				"Silogisme kategorikal: Tidak ada ikan yang hidup di darat, hiu adalah ikan, maka hiu tidak bisa hidup di darat.",
 			answers: [
 				{ content: "Hiu tidak bisa hidup di darat", isCorrect: true },
 				{ content: "Hiu bisa hidup di darat", isCorrect: false },
@@ -81,7 +92,8 @@ const SEED_DATA = {
 		},
 		{
 			content: "Semua dokter adalah sarjana. Beberapa sarjana adalah peneliti. Kesimpulan yang PASTI BENAR adalah...",
-			discussion: "Tidak ada hubungan pasti antara dokter dan peneliti. Hanya diketahui keduanya subset dari sarjana, tapi tidak ada irisan yang pasti.",
+			discussion:
+				"Tidak ada hubungan pasti antara dokter dan peneliti. Hanya diketahui keduanya subset dari sarjana, tapi tidak ada irisan yang pasti.",
 			answers: [
 				{ content: "Tidak dapat disimpulkan dengan pasti", isCorrect: true },
 				{ content: "Semua dokter adalah peneliti", isCorrect: false },
@@ -91,7 +103,8 @@ const SEED_DATA = {
 		},
 		{
 			content: "Jika cuaca cerah, maka Andi pergi ke pantai. Andi pergi ke pantai. Maka...",
-			discussion: "Ini adalah kesalahan logika 'affirming the consequent'. Andi bisa pergi ke pantai karena alasan lain, tidak harus cuaca cerah.",
+			discussion:
+				"Ini adalah kesalahan logika 'affirming the consequent'. Andi bisa pergi ke pantai karena alasan lain, tidak harus cuaca cerah.",
 			answers: [
 				{
 					content: "Tidak dapat disimpulkan tentang cuaca",
@@ -103,7 +116,8 @@ const SEED_DATA = {
 			],
 		},
 		{
-			content: "Urutan yang benar dari yang terbesar ke terkecil: P > Q, R < Q, S > P. Maka urutan yang benar adalah...",
+			content:
+				"Urutan yang benar dari yang terbesar ke terkecil: P > Q, R < Q, S > P. Maka urutan yang benar adalah...",
 			discussion: "S > P (given), P > Q (given), Q > R (dari R < Q). Jadi: S > P > Q > R.",
 			answers: [
 				{ content: "S > P > Q > R", isCorrect: true },
@@ -113,7 +127,8 @@ const SEED_DATA = {
 			],
 		},
 		{
-			content: "Dalam sebuah lomba, A lebih cepat dari B tetapi lebih lambat dari C. D lebih cepat dari C. Siapa yang tercepat?",
+			content:
+				"Dalam sebuah lomba, A lebih cepat dari B tetapi lebih lambat dari C. D lebih cepat dari C. Siapa yang tercepat?",
 			discussion: "D > C > A > B. D paling cepat karena lebih cepat dari C, dan C lebih cepat dari semua yang lain.",
 			answers: [
 				{ content: "D", isCorrect: true },
@@ -145,7 +160,10 @@ export async function seedPractice(db: NodePgDatabase) {
 
 	let order = 1;
 	for (const mcqData of SEED_DATA.pack1_mcq) {
-		const [q] = await db.insert(question).values({ content: mcqData.content, discussion: mcqData.discussion }).returning();
+		const [q] = await db
+			.insert(question)
+			.values({ content: mcqData.content, discussion: mcqData.discussion })
+			.returning();
 
 		if (!q) throw new Error("Failed to create question");
 
@@ -167,7 +185,10 @@ export async function seedPractice(db: NodePgDatabase) {
 
 	order = 1;
 	for (const mcqData of SEED_DATA.pack2_mcq) {
-		const [q] = await db.insert(question).values({ content: mcqData.content, discussion: mcqData.discussion }).returning();
+		const [q] = await db
+			.insert(question)
+			.values({ content: mcqData.content, discussion: mcqData.discussion })
+			.returning();
 
 		if (!q) throw new Error("Failed to create question");
 

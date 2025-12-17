@@ -8,14 +8,14 @@ export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: async () => {
 		const session = await getUser();
 
-    return { session };
-  },
-  loader: ({ context }) => {
-    if (!context.session)
-      throw redirect({
-        to: "/login",
-      });
-  },
+		return { session };
+	},
+	loader: ({ context }) => {
+		if (!context.session)
+			throw redirect({
+				to: "/login",
+			});
+	},
 });
 
 function AuthedLayout() {
