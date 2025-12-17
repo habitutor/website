@@ -23,7 +23,9 @@ export function AddExistingQuestionModal({
 	const queryClient = useQueryClient();
 
 	const { data: allQuestions, isLoading } = useQuery(
-		orpc.admin.practicePack.listAllQuestions.queryOptions()
+		orpc.admin.practicePack.listAllQuestions.queryOptions({
+			input: { limit: 1000, offset: 0 },
+		})
 	);
 
 	const { data: packQuestions } = useQuery(
@@ -50,7 +52,7 @@ export function AddExistingQuestionModal({
 		})
 	);
 
-	const availableQuestions = allQuestions?.filter(
+	const availableQuestions = allQuestions?.data.filter(
 		(q) => !existingQuestionIds.includes(q.id)
 	);
 
