@@ -1,5 +1,12 @@
 import { db } from "@habitutor/db";
-import { practicePack, practicePackAttempt, practicePackQuestions, practicePackUserAnswer, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import {
+	practicePack,
+	practicePackAttempt,
+	practicePackQuestions,
+	practicePackUserAnswer,
+	question,
+	questionAnswerOption,
+} from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq } from "drizzle-orm";
@@ -23,7 +30,13 @@ const list = authed
 				completedAt: practicePackAttempt.completedAt,
 			})
 			.from(practicePack)
-			.leftJoin(practicePackAttempt, and(eq(practicePack.id, practicePackAttempt.practicePackId), eq(practicePackAttempt.userId, context.session.user.id)));
+			.leftJoin(
+				practicePackAttempt,
+				and(
+					eq(practicePack.id, practicePackAttempt.practicePackId),
+					eq(practicePackAttempt.userId, context.session.user.id),
+				),
+			);
 
 		if (!attempts)
 			throw new ORPCError("NOT_FOUND", {
@@ -62,7 +75,13 @@ const find = authed
 			.innerJoin(practicePackQuestions, eq(practicePackQuestions.practicePackId, practicePack.id))
 			.innerJoin(question, eq(question.id, practicePackQuestions.questionId))
 			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
-			.leftJoin(practicePackUserAnswer, and(eq(practicePackUserAnswer.questionId, question.id), eq(practicePackUserAnswer.attemptId, practicePackAttempt.id)))
+			.leftJoin(
+				practicePackUserAnswer,
+				and(
+					eq(practicePackUserAnswer.questionId, question.id),
+					eq(practicePackUserAnswer.attemptId, practicePackAttempt.id),
+				),
+			)
 			.where(and(eq(practicePack.id, input.id), eq(practicePackAttempt.userId, context.session.user.id)));
 
 		if (rows.length === 0 || !rows[0])
@@ -160,7 +179,9 @@ const saveAnswer = authed
 				status: practicePackAttempt.status,
 			})
 			.from(practicePackAttempt)
-			.where(and(eq(practicePackAttempt.practicePackId, input.id), eq(practicePackAttempt.userId, context.session.user.id)))
+			.where(
+				and(eq(practicePackAttempt.practicePackId, input.id), eq(practicePackAttempt.userId, context.session.user.id)),
+			)
 			.limit(1);
 
 		if (!currentAttempt)
@@ -212,7 +233,9 @@ const submitAttempt = authed
 				completedAt: new Date(),
 				status: "finished",
 			})
-			.where(and(eq(practicePackAttempt.practicePackId, input.id), eq(practicePackAttempt.userId, context.session.user.id)))
+			.where(
+				and(eq(practicePackAttempt.practicePackId, input.id), eq(practicePackAttempt.userId, context.session.user.id)),
+			)
 			.returning();
 
 		if (!attempt)
@@ -282,8 +305,20 @@ const historyByPack = authed
 			.innerJoin(practicePackQuestions, eq(practicePackQuestions.practicePackId, practicePack.id))
 			.innerJoin(question, eq(question.id, practicePackQuestions.questionId))
 			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
-			.leftJoin(practicePackUserAnswer, and(eq(practicePackUserAnswer.questionId, question.id), eq(practicePackUserAnswer.attemptId, practicePackAttempt.id)))
-			.where(and(eq(practicePack.id, input.id), eq(practicePackAttempt.userId, context.session.user.id), eq(practicePackAttempt.status, "finished")));
+			.leftJoin(
+				practicePackUserAnswer,
+				and(
+					eq(practicePackUserAnswer.questionId, question.id),
+					eq(practicePackUserAnswer.attemptId, practicePackAttempt.id),
+				),
+			)
+			.where(
+				and(
+					eq(practicePack.id, input.id),
+					eq(practicePackAttempt.userId, context.session.user.id),
+					eq(practicePackAttempt.status, "finished"),
+				),
+			);
 
 		if (rows.length === 0 || !rows[0])
 			throw new ORPCError("NOT_FOUND", {
@@ -302,7 +337,10 @@ const historyByPack = authed
 
 		for (const row of rows) {
 			if (!questionMap.has(row.questionId)) {
-				const userAnswerIsCorrect = row.userSelectedAnswerId !== null && row.answerIsCorrect === true && row.userSelectedAnswerId === row.answerId;
+				const userAnswerIsCorrect =
+					row.userSelectedAnswerId !== null &&
+					row.answerIsCorrect === true &&
+					row.userSelectedAnswerId === row.answerId;
 
 				questionMap.set(row.questionId, {
 					id: row.questionId,

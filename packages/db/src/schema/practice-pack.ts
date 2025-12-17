@@ -9,6 +9,10 @@ export const practicePack = pgTable("practice_pack", {
 	description: text(),
 });
 
+export const practicePackRelations = relations(practicePack, ({ many }) => ({
+	questions: many(practicePackQuestions),
+}));
+
 export const practicePackStatus = pgEnum("practice_pack_status", ["not_started", "ongoing", "finished"]);
 
 export const practicePackAttempt = pgTable(
@@ -42,6 +46,17 @@ export const practicePackQuestions = pgTable(
 	(table) => [primaryKey({ columns: [table.practicePackId, table.questionId] })],
 );
 
+export const practicePackQuestionsRelations = relations(practicePackQuestions, ({ one }) => ({
+	practicePack: one(practicePack, {
+		fields: [practicePackQuestions.practicePackId],
+		references: [practicePack.id],
+	}),
+	question: one(question, {
+		fields: [practicePackQuestions.questionId],
+		references: [question.id],
+	}),
+}));
+
 export const question = pgTable("question", {
 	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
 	content: text("content").notNull(),
@@ -51,6 +66,7 @@ export const question = pgTable("question", {
 export const questionRelations = relations(question, ({ many }) => ({
 	answerOptions: many(questionAnswerOption),
 	userFlashcards: many(userFlashcardQuestionAnswer),
+	practicePacks: many(practicePackQuestions),
 }));
 
 export const questionAnswerOption = pgTable(

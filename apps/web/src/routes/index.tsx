@@ -15,7 +15,10 @@ function HomeComponent() {
 					Ubah Persiapan Ujian Menjadi <span className="text-primary">Investasi Masa Depan</span>
 				</h2>
 
-				<p>Tidak hanya membantumu menaklukkan SNBT, tapi Habitutor juga membentuk growth mindset untuk tantangan masa depan.</p>
+				<p>
+					Tidak hanya membantumu menaklukkan SNBT, tapi Habitutor juga membentuk growth mindset untuk tantangan masa
+					depan.
+				</p>
 
 				<div className="flex items-center justify-center gap-2">
 					<Button asChild>

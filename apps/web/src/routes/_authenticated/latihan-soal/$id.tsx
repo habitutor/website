@@ -110,7 +110,10 @@ function RouteComponent() {
 						</h3>
 						<div className="space-y-2">
 							{q.answers.map((answer) => (
-								<Label key={answer.id} className="flex cursor-pointer items-center gap-2 rounded border p-3 hover:bg-muted">
+								<Label
+									key={answer.id}
+									className="flex cursor-pointer items-center gap-2 rounded border p-3 hover:bg-muted"
+								>
 									<input
 										type="radio"
 										name={`question-${q.id}`}

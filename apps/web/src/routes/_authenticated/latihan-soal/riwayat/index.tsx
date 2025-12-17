@@ -27,7 +27,9 @@ function RouteComponent() {
 
 			{history.isError && <p className="text-red-500">Error: {history.error.message}</p>}
 
-			{history.data && history.data.data.length === 0 && <p className="mt-8 text-muted-foreground">Belum ada riwayat latihan soal</p>}
+			{history.data && history.data.data.length === 0 && (
+				<p className="mt-8 text-muted-foreground">Belum ada riwayat latihan soal</p>
+			)}
 
 			<div className="space-y-4">
 				<p className="font-medium">Jumlah paket kelar: {history.data?.packsFinished}</p>
@@ -68,8 +70,20 @@ function RouteComponent() {
 									)}
 									<div>
 										Status:{" "}
-										<span className={attempt.status === "finished" ? "text-green-600" : attempt.status === "ongoing" ? "text-yellow-600" : "text-gray-600"}>
-											{attempt.status === "finished" ? "Selesai" : attempt.status === "ongoing" ? "Sedang Dikerjakan" : "Belum Dimulai"}
+										<span
+											className={
+												attempt.status === "finished"
+													? "text-green-600"
+													: attempt.status === "ongoing"
+														? "text-yellow-600"
+														: "text-gray-600"
+											}
+										>
+											{attempt.status === "finished"
+												? "Selesai"
+												: attempt.status === "ongoing"
+													? "Sedang Dikerjakan"
+													: "Belum Dimulai"}
 										</span>
 									</div>
 								</div>
