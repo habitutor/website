@@ -110,9 +110,9 @@ function QuestionsPage() {
 							<Skeleton className="h-32 w-full" />
 						</div>
 					) : !filteredQuestions || filteredQuestions.length === 0 ? (
-						<Card>
+						<Card className="rounded-xl shadow-sm">
 							<CardContent className="py-12 text-center">
-								<p className="text-muted-foreground">
+								<p className="text-muted-foreground text-sm">
 									{searchQuery
 										? "No questions found matching your search."
 										: "No questions yet. Create questions from practice packs."}
@@ -249,7 +249,7 @@ function QuestionCard({
 
 	return (
 		<>
-			<Card>
+			<Card className="rounded-xl shadow-sm">
 				<CardHeader className="p-4 sm:p-6">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 						<div className="flex-1">
@@ -260,11 +260,11 @@ function QuestionCard({
 						</div>
 						<div className="flex items-center gap-2">
 							{question.packCount > 0 ? (
-								<span className="whitespace-nowrap rounded-md bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3">
+								<span className="whitespace-nowrap rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3">
 									Used in {question.packCount} pack{question.packCount !== 1 ? "s" : ""}
 								</span>
 							) : (
-								<span className="whitespace-nowrap rounded-md bg-muted px-2 py-1 text-muted-foreground text-xs sm:px-3">
+								<span className="whitespace-nowrap rounded bg-muted px-2 py-1 text-muted-foreground text-xs sm:px-3">
 									Unused
 								</span>
 							)}

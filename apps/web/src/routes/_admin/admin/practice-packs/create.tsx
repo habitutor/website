@@ -76,7 +76,7 @@ function CreatePracticePackPage() {
 					<p className="text-muted-foreground">Buat paket latihan soal baru</p>
 				</div>
 
-				<Card className="w-full p-4 sm:max-w-2xl sm:p-6">
+				<Card className="w-full rounded-xl p-4 shadow-sm sm:max-w-2xl sm:p-6">
 					<form
 						onSubmit={(e) => {
 							e.preventDefault();

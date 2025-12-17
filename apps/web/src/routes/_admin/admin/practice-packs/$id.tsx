@@ -118,11 +118,11 @@ function PackInfoCard({ packId }: { packId: number }) {
 
 	if (isLoading) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Pack Information</CardTitle>
+			<Card className="rounded-xl shadow-sm">
+				<CardHeader className="p-4 sm:p-6">
+					<CardTitle className="text-lg sm:text-xl">Pack Information</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 					<div className="space-y-4">
 						<Skeleton className="h-8 w-2/3" />
 						<Skeleton className="h-20 w-full" />
@@ -134,11 +134,11 @@ function PackInfoCard({ packId }: { packId: number }) {
 
 	if (!pack) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Pack Information</CardTitle>
+			<Card className="rounded-xl shadow-sm">
+				<CardHeader className="p-4 sm:p-6">
+					<CardTitle className="text-lg sm:text-xl">Pack Information</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 					<p className="text-destructive">Practice pack not found</p>
 				</CardContent>
 			</Card>
@@ -147,11 +147,11 @@ function PackInfoCard({ packId }: { packId: number }) {
 
 	if (isEditing) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Edit Pack Information</CardTitle>
+			<Card className="rounded-xl shadow-sm">
+				<CardHeader className="p-4 sm:p-6">
+					<CardTitle className="text-lg sm:text-xl">Edit Pack Information</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 					<EditPackForm
 						pack={pack}
 						onSuccess={() => setIsEditing(false)}
@@ -163,19 +163,19 @@ function PackInfoCard({ packId }: { packId: number }) {
 	}
 	
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Pack Information</CardTitle>
+		<Card className="rounded-xl shadow-sm">
+			<CardHeader className="p-4 sm:p-6">
+				<CardTitle className="text-lg sm:text-xl">Pack Information</CardTitle>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 				<div className="space-y-4">
 					<div>
 						<h3 className="font-semibold text-lg">{pack.title}</h3>
 						{pack.description && (
-							<p className="mt-2 text-muted-foreground">{pack.description}</p>
+							<p className="mt-2 text-muted-foreground text-sm">{pack.description}</p>
 						)}
 					</div>
-					<Button variant="outline" onClick={() => setIsEditing(true)}>
+					<Button variant="outline" onClick={() => setIsEditing(true)} size="sm">
 						Edit Pack Info
 					</Button>
 				</div>
@@ -226,11 +226,11 @@ function QuestionsList({ packId }: { packId: number }) {
 
 	if (isLoading) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Questions in this Pack</CardTitle>
+			<Card className="rounded-xl shadow-sm">
+				<CardHeader className="p-4 sm:p-6">
+					<CardTitle className="text-lg sm:text-xl">Questions in this Pack</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 					<div className="space-y-3">
 						<Skeleton className="h-20 w-full" />
 						<Skeleton className="h-20 w-full" />
@@ -242,11 +242,11 @@ function QuestionsList({ packId }: { packId: number }) {
 
 	if (!questions || questions.length === 0) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Questions in this Pack</CardTitle>
+			<Card className="rounded-xl shadow-sm">
+				<CardHeader className="p-4 sm:p-6">
+					<CardTitle className="text-lg sm:text-xl">Questions in this Pack</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 					<p className="text-muted-foreground text-sm">
 						No questions yet. Create a new question or add an existing one.
 					</p>
@@ -265,7 +265,7 @@ function QuestionsList({ packId }: { packId: number }) {
 		<div className="space-y-4">
 			<div className="flex flex-col gap-4 lg:flex-row">
 				<div className="flex-1 lg:order-1">
-					<Card>
+					<Card className="rounded-xl shadow-sm">
 						<CardHeader className="p-4 sm:p-6">
 							<div className="flex items-center justify-between">
 								<CardTitle className="text-lg sm:text-xl">
@@ -289,14 +289,14 @@ function QuestionsList({ packId }: { packId: number }) {
 										<div
 											key={answer.id}
 											className={cn(
-												"flex items-start gap-3 rounded-lg border p-3 sm:p-4",
-												answer.isCorrect && "border-green-500 bg-green-50"
+												"flex items-start gap-3 rounded-md border p-3 sm:p-4",
+												answer.isCorrect && "border-tertiary bg-tertiary/5"
 											)}
 										>
 											<span className={cn(
 												"flex size-6 shrink-0 items-center justify-center rounded-full font-semibold text-xs",
 												answer.isCorrect 
-													? "bg-green-500 text-white" 
+													? "bg-tertiary text-white" 
 													: "bg-muted text-muted-foreground"
 											)}>
 												{answer.code}
@@ -305,7 +305,7 @@ function QuestionsList({ packId }: { packId: number }) {
 												{answer.content}
 											</p>
 											{answer.isCorrect && (
-												<span className="shrink-0 rounded bg-green-500 px-2 py-0.5 font-medium text-white text-xs">
+												<span className="shrink-0 rounded bg-tertiary px-2 py-0.5 font-medium text-white text-xs">
 													Correct
 												</span>
 											)}
@@ -349,11 +349,6 @@ function QuestionsList({ packId }: { packId: number }) {
 									<span className="hidden sm:inline">Previous</span>
 									<span className="sm:hidden">Prev</span>
 								</Button>
-								
-								<span className="text-muted-foreground text-xs sm:text-sm">
-									Use ← → arrows
-								</span>
-						
 								<Button
 									variant="outline"
 									size="sm"
@@ -371,7 +366,7 @@ function QuestionsList({ packId }: { packId: number }) {
 				</div>
 
 				<div className="lg:order-2 lg:w-64">
-					<Card>
+					<Card className="rounded-xl shadow-sm">
 						<CardHeader className="p-4">
 							<div className="flex items-center justify-between">
 								<CardTitle className="text-base sm:text-lg">Navigate</CardTitle>

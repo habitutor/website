@@ -224,7 +224,7 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 
 	return (
 		<>
-			<Card className="group flex cursor-pointer flex-col p-6 transition-shadow hover:shadow-md">
+			<Card className="group flex cursor-pointer flex-col rounded-xl p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
 				<a href={`/admin/practice-packs/${pack.id}`} className="flex-1">
 					<div className="mb-4">
 						<h3 className="mb-2 font-semibold text-lg group-hover:text-primary">{pack.title}</h3>
@@ -233,9 +233,9 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 				</a>
 
 				<div className="flex gap-2">
-					<Button variant="destructive" size="sm" className="flex-1" onClick={() => setDeleteDialogOpen(true)}>
-						<Trash />
-						Delete
+					<Button variant="destructive" size="sm" className="flex-1 text-xs sm:text-sm" onClick={() => setDeleteDialogOpen(true)}>
+						<Trash className="size-3.5 sm:size-4" />
+						<span className="hidden sm:inline">Delete</span>
 					</Button>
 				</div>
 			</Card>

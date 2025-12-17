@@ -115,9 +115,11 @@ function QuestionEditPage() {
 						input: { id: questionId },
 					})
 				);
-				queryClient.invalidateQueries(
-					orpc.admin.practicePack.listAllQuestions.queryOptions()
-				);
+				queryClient.invalidateQueries({
+					queryKey: orpc.admin.practicePack.listAllQuestions.queryOptions({ 
+						input: { limit: 5, offset: 0 } 
+					}).queryKey.slice(0, -1),
+				});
 				
 				// Redirect back after short delay
 				setTimeout(() => {
@@ -135,7 +137,7 @@ function QuestionEditPage() {
 		return (
 			<div className="flex min-h-screen">
 				<AdminSidebar />
-				<main className="flex-1 bg-background p-8">
+				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 					<p className="text-destructive">Invalid question ID</p>
 				</main>
 			</div>
@@ -146,7 +148,7 @@ function QuestionEditPage() {
 		return (
 			<div className="flex min-h-screen">
 				<AdminSidebar />
-				<main className="flex-1 bg-background p-8">
+				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 					<div className="mx-auto max-w-4xl">
 						<Skeleton className="mb-6 h-10 w-64" />
 						<Skeleton className="h-96 w-full" />
@@ -160,7 +162,7 @@ function QuestionEditPage() {
 		return (
 			<div className="flex min-h-screen">
 				<AdminSidebar />
-				<main className="flex-1 bg-background p-8">
+				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 					<div className="mx-auto max-w-4xl">
 						<div className="mb-6 flex items-center gap-4">
 							<a href="/admin/questions">
@@ -168,7 +170,7 @@ function QuestionEditPage() {
 									<ArrowLeft className="size-4" />
 								</Button>
 							</a>
-							<h1 className="font-bold text-3xl">Edit Question</h1>
+							<h1 className="font-bold text-2xl sm:text-3xl">Edit Question</h1>
 						</div>
 						<p className="text-destructive">Question not found</p>
 					</div>
@@ -203,22 +205,22 @@ function QuestionEditPage() {
 	return (
 		<div className="flex min-h-screen">
 			<AdminSidebar />
-			<main className="flex-1 bg-background p-8">
+			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-4xl">
-					<div className="mb-6 flex items-center gap-4">
+					<div className="mb-4 flex items-center gap-4 sm:mb-6">
 						<a href="/admin/questions">
 							<Button variant="ghost" size="icon">
 								<ArrowLeft className="size-4" />
 							</Button>
 						</a>
-						<h1 className="font-bold text-3xl">Edit Question</h1>
+						<h1 className="font-bold text-2xl sm:text-3xl">Edit Question</h1>
 					</div>
 
-					<Card>
-						<CardHeader>
-							<CardTitle>Question Details</CardTitle>
+					<Card className="rounded-xl shadow-sm">
+						<CardHeader className="p-4 sm:p-6">
+							<CardTitle className="text-lg sm:text-xl">Question Details</CardTitle>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
 							<form
 								onSubmit={(e) => {
 									e.preventDefault();

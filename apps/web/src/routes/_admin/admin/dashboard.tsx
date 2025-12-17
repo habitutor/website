@@ -21,7 +21,7 @@ function AdminDashboard() {
 				</div>
 
 				<div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-					<div className="rounded-lg border bg-white p-4 shadow-sm sm:p-6">
+					<div className="rounded-xl border bg-card p-4 shadow-sm sm:p-6">
 						<h3 className="font-medium text-muted-foreground text-sm">Total Users</h3>
 						{isLoading ? (
 							<Skeleton className="mt-2 h-10 w-20" />
@@ -29,7 +29,7 @@ function AdminDashboard() {
 							<p className="font-bold text-2xl sm:text-3xl">{stats?.totalUsers || 0}</p>
 						)}
 					</div>
-					<div className="rounded-lg border bg-white p-4 shadow-sm sm:p-6">
+					<div className="rounded-xl border bg-card p-4 shadow-sm sm:p-6">
 						<h3 className="font-medium text-muted-foreground text-sm">Practice Packs</h3>
 						{isLoading ? (
 							<Skeleton className="mt-2 h-10 w-20" />
@@ -37,7 +37,7 @@ function AdminDashboard() {
 							<p className="font-bold text-2xl sm:text-3xl">{stats?.totalPracticePacks || 0}</p>
 						)}
 					</div>
-					<div className="rounded-lg border bg-white p-4 shadow-sm sm:p-6">
+					<div className="rounded-xl border bg-card p-4 shadow-sm sm:p-6">
 						<h3 className="font-medium text-muted-foreground text-sm">Total Questions</h3>
 						{isLoading ? (
 							<Skeleton className="mt-2 h-10 w-20" />
