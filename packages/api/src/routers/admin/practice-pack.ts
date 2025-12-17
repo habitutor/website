@@ -1,14 +1,28 @@
 import { db } from "@habitutor/db";
-import {
-	practicePack,
-	practicePackQuestions,
-	question,
-	questionAnswerOption,
-} from "@habitutor/db/schema/practice-pack";
+import { practicePack, practicePackQuestions, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { user } from "@habitutor/db/schema/auth";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, eq, sql } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import { admin } from "../../index";
+
+const getStatistics = admin
+	.route({
+		path: "/admin/statistics",
+		method: "GET",
+		tags: ["Admin - Statistics"],
+	})
+	.handler(async () => {
+		const [totalUsers] = await db.select({ count: count() }).from(user);
+		const [totalPacks] = await db.select({ count: count() }).from(practicePack);
+		const [totalQuestions] = await db.select({ count: count() }).from(question);
+
+		return {
+			totalUsers: totalUsers?.count || 0,
+			totalPracticePacks: totalPacks?.count || 0,
+			totalQuestions: totalQuestions?.count || 0,
+		};
+	});
 
 const listPacks = admin
 	.route({
@@ -444,6 +458,9 @@ const deleteAnswerOption = admin
 // EXPORT
 
 export const adminPracticePackRouter = {
+	// Statistics
+	getStatistics,
+
 	// Practice Pack
 	listPacks,
 	createPack,

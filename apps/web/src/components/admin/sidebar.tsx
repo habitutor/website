@@ -1,4 +1,4 @@
-import { House, Package, Question, SignOut, Users } from "@phosphor-icons/react";
+import { House, Package, Question, SignOut } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -31,11 +31,6 @@ const adminNavLinks = [
         name: "Questions",
         to: "/admin/questions" as const,
         icon: Question,
-    },
-    {
-        name: "Users",
-        to: "/admin/users" as const,
-        icon: Users,
     },
 ];
 
