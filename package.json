@@ -40,6 +40,7 @@
 		"db:stop": "turbo -F @habitutor/db db:stop",
 		"db:down": "turbo -F @habitutor/db db:down",
 		"db:seed": "turbo -F @habitutor/db db:seed",
+		"db:reset": "turbo -F @habitutor/db db:reset",
 		"auth:generate": "turbo -F @habitutor/auth auth:generate"
 	},
 	"dependencies": {

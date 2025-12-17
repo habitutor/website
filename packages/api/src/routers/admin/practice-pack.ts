@@ -1,5 +1,10 @@
 import { db } from "@habitutor/db";
-import { practicePack, practicePackQuestions, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import {
+	practicePack,
+	practicePackQuestions,
+	question,
+	questionAnswerOption,
+} from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { and, eq } from "drizzle-orm";
@@ -235,7 +240,14 @@ const removeQuestionFromPack = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		await db.delete(practicePackQuestions).where(and(eq(practicePackQuestions.practicePackId, input.practicePackId), eq(practicePackQuestions.questionId, input.questionId)));
+		await db
+			.delete(practicePackQuestions)
+			.where(
+				and(
+					eq(practicePackQuestions.practicePackId, input.practicePackId),
+					eq(practicePackQuestions.questionId, input.questionId),
+				),
+			);
 
 		return { message: "Berhasil menghapus question dari practice pack" };
 	});
@@ -257,7 +269,12 @@ const updateQuestionOrder = admin
 		await db
 			.update(practicePackQuestions)
 			.set({ order: input.order })
-			.where(and(eq(practicePackQuestions.practicePackId, input.practicePackId), eq(practicePackQuestions.questionId, input.questionId)));
+			.where(
+				and(
+					eq(practicePackQuestions.practicePackId, input.practicePackId),
+					eq(practicePackQuestions.questionId, input.questionId),
+				),
+			);
 
 		return { message: "Berhasil mengupdate urutan question" };
 	});

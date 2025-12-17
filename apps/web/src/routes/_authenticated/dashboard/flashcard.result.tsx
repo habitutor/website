@@ -25,7 +25,7 @@ function RouteComponent() {
 				<h1 className="relative z-10 my-auto font-normal text-white text-xl">Flashcard</h1>
 			</div>
 
-			<div className="flex gap-2 [&>div]:min-w-46">
+			<div className="flex gap-2 max-sm:flex-col [&>div]:min-w-46">
 				<div className="flex flex-col gap-2 rounded-md border p-4">
 					<p>Hasil</p>
 					<p>
@@ -33,7 +33,9 @@ function RouteComponent() {
 							<Skeleton className="h-10 w-16" />
 						) : (
 							<>
-								<span className="mr-1 font-bold text-4xl text-primary">{((data?.correctAnswersCount || 0) / (data?.questionsCount || 5)) * 100}</span>
+								<span className="mr-1 font-bold text-4xl text-primary">
+									{((data?.correctAnswersCount || 0) / (data?.questionsCount || 5)) * 100}
+								</span>
 								/100
 							</>
 						)}
@@ -47,7 +49,8 @@ function RouteComponent() {
 							<Skeleton className="h-10 w-16" />
 						) : (
 							<>
-								<span className="mr-1 font-bold text-4xl text-primary">{data?.correctAnswersCount}</span>/{data?.questionsCount}
+								<span className="mr-1 font-bold text-4xl text-primary">{data?.correctAnswersCount}</span>/
+								{data?.questionsCount}
 							</>
 						)}
 					</p>
@@ -61,16 +64,24 @@ function RouteComponent() {
 				) : (
 					data?.assignedQuestions.map((assignedQuestion) => {
 						const correctAnswer = assignedQuestion.question.answerOptions.find((answer) => answer.isCorrect);
-						const userAnswer = assignedQuestion.question.answerOptions.find((answer) => answer.id === assignedQuestion.selectedAnswerId);
+						const userAnswer = assignedQuestion.question.answerOptions.find(
+							(answer) => answer.id === assignedQuestion.selectedAnswerId,
+						);
 						const isCorrect = correctAnswer?.id === userAnswer?.id;
 
 						return (
 							<div key={assignedQuestion.selectedAnswerId}>
-								<div className={`flex items-center gap-4 rounded-sm p-4 text-sm ${isCorrect ? "bg-green-200 text-green-500" : "bg-red-200 text-red-500"}`}>
-									<span className={"rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"}>{userAnswer?.code || "-"}</span>
+								<div
+									className={`flex items-center gap-4 rounded-sm p-4 text-sm ${isCorrect ? "bg-green-200 text-green-500" : "bg-red-200 text-red-500"}`}
+								>
+									<span className={"rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"}>
+										{userAnswer?.code || "-"}
+									</span>
 									<p>{userAnswer?.content || "Tidak menjawab"}</p>
 								</div>
-								<div className="mx-4 rounded-b-sm border bg-white px-4 py-2 text-xs">{assignedQuestion.question.discussion}</div>
+								<div className="mx-4 rounded-b-sm border bg-white px-4 py-2 text-xs">
+									{assignedQuestion.question.discussion}
+								</div>
 							</div>
 						);
 					})

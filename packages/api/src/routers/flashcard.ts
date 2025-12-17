@@ -1,312 +1,358 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
-import { question } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, gte, inArray, not, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, not, sql } from "drizzle-orm";
 import { authed } from "..";
 
 // Cutoff in 30 Days
 const FLASHCARD_REPEAT_CUTOFF_LIMIT = 30;
-const FLASHCARD_SESSION_DURATION_MINUTES = 0.2;
+const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline
 const GRACE_PERIOD_SECONDS = 5;
 
 const start = authed
-  .route({
-    path: "/flashcard/start",
-    method: "POST",
-    tags: ["Flashcard"],
-  })
-  .handler(async ({ context, errors }) => {
-    const deadline = new Date(Date.now() + FLASHCARD_SESSION_DURATION_MINUTES * 60_000);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dateBoundary = new Date(today.getTime() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000);
+	.route({
+		path: "/flashcard/start",
+		method: "POST",
+		tags: ["Flashcard"],
+	})
+	.handler(async ({ context, errors }) => {
+		const deadline = new Date(Date.now() + FLASHCARD_SESSION_DURATION_MINUTES * 60_000);
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const dateBoundary = new Date(today.getTime() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000);
 
-    await db.transaction(async (tx) => {
-      const [attempt] = await tx
-        .insert(userFlashcardAttempt)
-        .values({
-          userId: context.session.user.id,
-          startedAt: new Date(),
-          deadline: deadline,
-        })
-        .onConflictDoNothing()
-        .returning();
+		await db.transaction(async (tx) => {
+			const [attempt] = await tx
+				.insert(userFlashcardAttempt)
+				.values({
+					userId: context.session.user.id,
+					startedAt: new Date(),
+					deadline: deadline,
+				})
+				.onConflictDoNothing()
+				.returning();
 
-      if (!attempt || Date.now() > new Date(attempt?.deadline).getTime() || attempt?.submittedAt)
-        throw new ORPCError("UNPROCESSABLE_CONTENT", {
-          message: "Kamu sudah memulai sesi flashcard hari ini.",
-        });
+			if (!attempt || Date.now() > new Date(attempt?.deadline).getTime() || attempt?.submittedAt)
+				throw new ORPCError("UNPROCESSABLE_CONTENT", {
+					message: "Kamu sudah memulai sesi flashcard hari ini.",
+				});
 
-      const recentlyAssignedSubquery = tx
-        .select({ id: userFlashcardQuestionAnswer.questionId })
-        .from(userFlashcardQuestionAnswer)
-        .innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
-        .where(and(eq(userFlashcardAttempt.userId, context.session.user.id), gte(userFlashcardQuestionAnswer.assignedDate, dateBoundary)));
+			const recentlyAssignedSubquery = tx
+				.select({ id: userFlashcardQuestionAnswer.questionId })
+				.from(userFlashcardQuestionAnswer)
+				.innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
+				.where(
+					and(
+						eq(userFlashcardAttempt.userId, context.session.user.id),
+						gte(userFlashcardQuestionAnswer.assignedDate, dateBoundary),
+					),
+				);
 
-      const availableQuestions = await tx.query.question.findMany({
-        where: not(inArray(question.id, recentlyAssignedSubquery)),
-        with: {
-          answerOptions: true,
-        },
-        orderBy: sql`RANDOM()`,
-        limit: 5,
-      });
+			const availableQuestions = await tx.query.question.findMany({
+				where: not(inArray(question.id, recentlyAssignedSubquery)),
+				with: {
+					answerOptions: true,
+				},
+				orderBy: sql`RANDOM()`,
+				limit: 5,
+			});
 
-      if (availableQuestions.length < 5)
-        throw errors.NOT_FOUND({
-          message: "Kamu sudah mengerjakan semua flashcard yang tersedia untuk bulan ini.",
-        });
+			if (availableQuestions.length < 5)
+				throw errors.NOT_FOUND({
+					message: "Kamu sudah mengerjakan semua flashcard yang tersedia untuk bulan ini.",
+				});
 
-      await tx.insert(userFlashcardQuestionAnswer).values(
-        availableQuestions.map((q) => ({
-          attemptId: attempt?.id,
-          assignedDate: today,
-          questionId: q.id,
-        })),
-      );
-    });
+			await tx.insert(userFlashcardQuestionAnswer).values(
+				availableQuestions.map((q) => ({
+					attemptId: attempt?.id,
+					assignedDate: today,
+					questionId: q.id,
+				})),
+			);
+		});
 
-    return "Sukses memulai sesi flashcard!";
-  });
+		return "Sukses memulai sesi flashcard!";
+	});
 
 const get = authed
-  .route({
-    path: "/flashcard",
-    method: "GET",
-    tags: ["Flashcard"],
-  })
-  .handler(async ({ context }) => {
-    let status: "not_started" | "ongoing" | "submitted" = "not_started";
+	.route({
+		path: "/flashcard",
+		method: "GET",
+		tags: ["Flashcard"],
+	})
+	.handler(async ({ context }) => {
+		let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
-    const attempt = await db.query.userFlashcardAttempt.findFirst({
-      where: and(eq(userFlashcardAttempt.userId, context.session.user.id)),
-      with: {
-        assignedQuestions: {
-          columns: {
-            selectedAnswerId: true,
-          },
-          with: {
-            question: {
-              columns: {
-                id: true,
-                content: true,
-              },
-              with: {
-                answerOptions: {
-                  columns: {
-                    id: true,
-                    content: true,
-                    code: true,
-                  },
-                  orderBy: (answers, { asc }) => [asc(answers.code)],
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+		const attempt = await db.query.userFlashcardAttempt.findFirst({
+			where: and(eq(userFlashcardAttempt.date, new Date()), eq(userFlashcardAttempt.userId, context.session.user.id)),
+			with: {
+				assignedQuestions: {
+					columns: {
+						selectedAnswerId: true,
+					},
+					where: isNull(userFlashcardQuestionAnswer.selectedAnswerId),
+					with: {
+						question: {
+							columns: {
+								id: true,
+								content: true,
+							},
+							with: {
+								answerOptions: {
+									columns: {
+										id: true,
+										content: true,
+										code: true,
+									},
+									orderBy: (answers, { asc }) => [asc(answers.code)],
+								},
+							},
+						},
+					},
+				},
+			},
+		});
 
-    if (!attempt || attempt.assignedQuestions.length === 0) return { status };
+		if (!attempt) return { status };
+		status = attempt.submittedAt ? "submitted" : "ongoing";
+		console.log({
+			...attempt,
+			status,
+		});
+		console.log(context.session.user);
 
-    status = attempt.submittedAt ? "submitted" : "ongoing";
-    return {
-      ...attempt,
-      status,
-    };
-  });
+		return {
+			...attempt,
+			status,
+		};
+	});
 
 const submit = authed
-  .route({
-    path: "/flashcard",
-    method: "POST",
-    tags: ["Flashcard"],
-  })
-  .input(
-    type(
-      {
-        questionId: "number",
-        answerId: "number",
-      },
-      "[]",
-    ),
-  )
-  .handler(async ({ context, input, errors }) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+	.route({
+		path: "/flashcard",
+		method: "POST",
+		tags: ["Flashcard"],
+	})
+	.handler(async ({ context, errors }) => {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const [latestAttempt] = await db
+			.select()
+			.from(userFlashcardAttempt)
+			.where(and(eq(userFlashcardAttempt.userId, context.session.user.id), gte(userFlashcardAttempt.startedAt, today)))
+			.orderBy(desc(userFlashcardAttempt.startedAt))
+			.limit(1);
 
-    const [latestAttempt] = await db
-      .select()
-      .from(userFlashcardAttempt)
-      .where(and(eq(userFlashcardAttempt.userId, context.session.user.id), gte(userFlashcardAttempt.startedAt, today)))
-      .orderBy(desc(userFlashcardAttempt.startedAt))
-      .limit(1);
+		if (latestAttempt?.submittedAt)
+			throw new ORPCError("UNPROCESSABLE_CONTENT", {
+				message: "Kamu sudah mengerjakan flashcard hari ini.",
+			});
+		if (!latestAttempt) {
+			throw errors.NOT_FOUND({
+				message: "Kamu belum memulai sesi flashcard hari ini.",
+			});
+		}
 
-    if (latestAttempt?.submittedAt)
-      throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        message: "Kamu sudah mengerjakan flashcard hari ini.",
-      });
+		// Grace period for submitting
+		if (Date.now() > latestAttempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
+			throw errors.UNPROCESSABLE_CONTENT({
+				message: "Waktu sesi flashcard telah berakhir.",
+			});
+		}
 
-    if (!latestAttempt) {
-      throw errors.NOT_FOUND({
-        message: "Kamu belum memulai sesi flashcard hari ini.",
-      });
-    }
+		await db.transaction(async (tx) => {
+			await tx
+				.update(userFlashcardAttempt)
+				.set({ submittedAt: new Date() })
+				.where(eq(userFlashcardAttempt.id, latestAttempt.id));
+			await tx
+				.update(user)
+				.set({ flashcardStreak: sql`${user.flashcardStreak} + 1`, lastCompletedFlashcardAt: new Date() })
+				.where(eq(user.id, context.session.user.id));
+		});
 
-    // Grace period for submitting
-    if (Date.now() > latestAttempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
-      throw errors.UNPROCESSABLE_CONTENT({
-        message: "Waktu sesi flashcard telah berakhir.",
-      });
-    }
+		return { message: "Berhasil mengerjakan flashcard hari ini!" };
+	});
 
-    try {
-      await db.transaction(async (tx) => {
-        await Promise.all(
-          input.map((answer) =>
-            tx
-              .update(userFlashcardQuestionAnswer)
-              .set({
-                selectedAnswerId: answer.answerId,
-                answeredAt: new Date(),
-              })
-              .where(
-                and(
-                  eq(userFlashcardQuestionAnswer.attemptId, latestAttempt.id),
-                  eq(userFlashcardQuestionAnswer.assignedDate, today),
-                  eq(userFlashcardQuestionAnswer.questionId, answer.questionId),
-                ),
-              ),
-          ),
-        );
+const save = authed
+	.route({
+		path: "/flashcard",
+		method: "POST",
+	})
+	.input(
+		type({
+			questionId: "number",
+			answerId: "number",
+		}),
+	)
+	.output(
+		type({
+			isCorrect: "boolean",
+			correctAnswerId: "number",
+			userAnswerId: "number",
+		}),
+	)
+	.handler(async ({ input, context, errors }) => {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
 
-        await tx
-          .update(userFlashcardAttempt)
-          .set({
-            submittedAt: new Date(),
-          })
-          .where(eq(userFlashcardAttempt.id, latestAttempt.id));
+		return await db.transaction(async (tx) => {
+			const [attempt] = await tx
+				.select({
+					id: userFlashcardAttempt.id,
+					deadline: userFlashcardAttempt.deadline,
+				})
+				.from(userFlashcardQuestionAnswer)
+				.innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
+				.where(
+					and(
+						eq(userFlashcardQuestionAnswer.questionId, input.questionId),
+						eq(userFlashcardQuestionAnswer.assignedDate, today),
+						eq(userFlashcardAttempt.userId, context.session.user.id),
+					),
+				);
 
-        await tx
-          .update(user)
-          .set({
-            flashcardStreak: sql`${user.flashcardStreak} + 1`,
-            lastCompletedFlashcardAt: today,
-          })
-          .where(eq(user.id, context.session.user.id));
-      });
-    } catch (err) {
-      console.error(err);
-      throw new ORPCError("INTERNAL_SERVER_ERROR");
-    }
+			if (!attempt) throw errors.NOT_FOUND();
 
-    return { message: "Berhasil menyimpan jawaban flashcard!" };
-  });
+			if (Date.now() > attempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
+				throw errors.UNPROCESSABLE_CONTENT({
+					message: "Waktu sesi flashcard telah berakhir.",
+				});
+			}
+
+			const answers = await tx
+				.select({
+					id: questionAnswerOption.id,
+					isCorrect: questionAnswerOption.isCorrect,
+				})
+				.from(questionAnswerOption)
+				.where(eq(questionAnswerOption.questionId, input.questionId));
+
+			if (!answers || answers.length === 0) {
+				throw errors.NOT_FOUND();
+			}
+			const correctAnswer = answers.find((answer) => answer.isCorrect);
+			const userAnswer = answers.find((answer) => answer.id === input.answerId);
+			if (!correctAnswer || !userAnswer) throw errors.NOT_FOUND();
+
+			await tx
+				.update(userFlashcardQuestionAnswer)
+				.set({
+					selectedAnswerId: input.answerId,
+				})
+				.where(
+					and(
+						eq(userFlashcardQuestionAnswer.questionId, input.questionId),
+						eq(userFlashcardQuestionAnswer.assignedDate, today),
+						eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
+					),
+				);
+
+			return {
+				isCorrect: userAnswer.isCorrect,
+				correctAnswerId: correctAnswer.id,
+				userAnswerId: userAnswer.id,
+			};
+		});
+	});
 
 const streak = authed
-  .route({
-    path: "/flashcard/streak",
-    method: "GET",
-    tags: ["Flashcard"],
-  })
-  .output(
-    type({
-      streak: "number",
-      lastCompletedDate: "Date | null",
-      status: "'submitted' | 'not_submitted'",
-    }),
-  )
-  .handler(async ({ context, errors }) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+	.route({
+		path: "/flashcard/streak",
+		method: "GET",
+		tags: ["Flashcard"],
+	})
+	.output(
+		type({
+			streak: "number",
+			lastCompletedDate: "Date | null",
+			status: "'submitted' | 'not_submitted'",
+		}),
+	)
+	.handler(async ({ context }) => {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const streak = context.session.user.flashcardStreak || 0;
+		const lastCompletedDate = context.session.user.lastCompletedFlashcardAt as Date | null;
 
-    const [streak] = await db
-      .select({
-        streak: user.flashcardStreak,
-        lastCompletedDate: user.lastCompletedFlashcardAt,
-      })
-      .from(user)
-      .where(eq(user.id, context.session.user.id))
-      .limit(1);
+		if (lastCompletedDate && today.getTime() - lastCompletedDate.getTime() > 2 * 24 * 3600 * 1000)
+			await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, context.session.user.id));
 
-    if (!streak) throw errors.NOT_FOUND();
-    if (streak.lastCompletedDate && today.getTime() - streak.lastCompletedDate.getTime() > 2 * 24 * 3600 * 1000)
-      await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, context.session.user.id));
-
-    return {
-      ...streak,
-      streak: streak.streak || 0,
-      status: streak.lastCompletedDate?.getTime() === today.getTime() ? "submitted" : "not_submitted",
-    };
-  });
+		return {
+			streak,
+			lastCompletedDate,
+			status: lastCompletedDate?.getTime() === today.getTime() ? "submitted" : "not_submitted",
+		};
+	});
 
 const result = authed.handler(async ({ context, errors }) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
 
-  const attempt = await db.query.userFlashcardAttempt.findFirst({
-    where: eq(userFlashcardAttempt.userId, context.session.user.id),
-    with: {
-      assignedQuestions: {
-        where: eq(userFlashcardQuestionAnswer.assignedDate, new Date(today)),
-        columns: {
-          selectedAnswerId: true,
-        },
-        with: {
-          question: {
-            columns: {
-              id: true,
-              content: true,
-              discussion: true,
-            },
-            with: {
-              answerOptions: {
-                columns: {
-                  id: true,
-                  content: true,
-                  code: true,
-                  isCorrect: true,
-                },
-                orderBy: (answers, { asc }) => [asc(answers.code)],
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+	const attempt = await db.query.userFlashcardAttempt.findFirst({
+		where: eq(userFlashcardAttempt.userId, context.session.user.id),
+		with: {
+			assignedQuestions: {
+				where: eq(userFlashcardQuestionAnswer.assignedDate, new Date(today)),
+				columns: {
+					selectedAnswerId: true,
+				},
+				with: {
+					question: {
+						columns: {
+							id: true,
+							content: true,
+							discussion: true,
+						},
+						with: {
+							answerOptions: {
+								columns: {
+									id: true,
+									content: true,
+									code: true,
+									isCorrect: true,
+								},
+								orderBy: (answers, { asc }) => [asc(answers.code)],
+							},
+						},
+					},
+				},
+			},
+		},
+	});
 
-  if (!attempt)
-    throw errors.NOT_FOUND({
-      message: "Anda belom mengerjakan flashcard hari ini.",
-    });
+	if (!attempt)
+		throw errors.NOT_FOUND({
+			message: "Anda belom mengerjakan flashcard hari ini.",
+		});
 
-  let correct = 0;
-  for (const assignedQuestion of attempt.assignedQuestions) {
-    const answerMap = new Map<number, boolean>();
-    for (const answerOption of assignedQuestion.question.answerOptions) {
-      answerMap.set(answerOption.id, answerOption.isCorrect);
-    }
+	let correct = 0;
+	for (const assignedQuestion of attempt.assignedQuestions) {
+		const answerMap = new Map<number, boolean>();
+		for (const answerOption of assignedQuestion.question.answerOptions) {
+			answerMap.set(answerOption.id, answerOption.isCorrect);
+		}
 
-    // 0 as fallback ID if user didn't fill in their answer
-    if (answerMap.get(assignedQuestion.selectedAnswerId || 0)) correct++;
-  }
+		// 0 as fallback ID if user didn't fill in their answer
+		if (answerMap.get(assignedQuestion.selectedAnswerId || 0)) correct++;
+	}
 
-  return {
-    ...attempt,
-    correctAnswersCount: correct,
-    questionsCount: attempt.assignedQuestions.length,
-  };
+	return {
+		...attempt,
+		correctAnswersCount: correct,
+		questionsCount: attempt.assignedQuestions.length,
+	};
 });
 
 export const flashcardRouter = {
-  start,
-  get,
-  submit,
-  streak,
-  result,
+	start,
+	get,
+	submit,
+	save,
+	streak,
+	result,
 };

@@ -1,8 +1,9 @@
 import { isDefinedError } from "@orpc/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { create } from "zustand";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
@@ -12,7 +13,17 @@ export const Route = createFileRoute("/_authenticated/dashboard/flashcard/")({
 	component: RouteComponent,
 });
 
+interface PageStore {
+	page: number;
+	next: () => void;
+}
+export const useFlashcardPageStore = create<PageStore>()((set) => ({
+	page: 1,
+	next: () => set((state) => ({ page: state.page + 1 })),
+}));
+
 function RouteComponent() {
+	const navigate = useNavigate();
 	const flashcard = useQuery(
 		orpc.flashcard.get.queryOptions({
 			retry: false,
@@ -27,12 +38,17 @@ function RouteComponent() {
 		return <StartCard />;
 	}
 
+	if (flashcard.data?.status === "submitted") {
+		navigate({ to: "/dashboard/flashcard/result" });
+	}
+
 	return <FlashcardCard />;
 }
 
 const StartCard = () => {
 	const queryClient = useQueryClient();
-	const streak = useQuery(orpc.flashcard.streak.queryOptions());
+	const { session } = useRouteContext({ from: "/_authenticated" });
+	const navigate = useNavigate();
 	const startMutation = useMutation(
 		orpc.flashcard.start.mutationOptions({
 			onSuccess: () => {
@@ -48,6 +64,8 @@ const StartCard = () => {
 		}),
 	);
 
+	if (!session) navigate({ to: "/login" });
+
 	return (
 		<section className="flex flex-col gap-4 rounded-md border bg-white p-6">
 			<Button asChild className="w-fit">
@@ -58,9 +76,11 @@ const StartCard = () => {
 			</Button>
 
 			<div className="flex rounded-md bg-yellow-200">
-				<div className="min-w-32 rounded-l-md rounded-tr-full bg-yellow-500 px-4 py-2 font-bold text-4xl text-white">{streak.data?.streak || "0"}</div>
+				<div className="min-w-32 rounded-l-md rounded-tr-full bg-yellow-500 px-4 py-2 font-bold text-4xl text-white">
+					{session?.user.flashcardStreak || "0"}
+				</div>
 				<p className="my-auto p-4 font-medium text-xl">
-					{streak.data && streak.data.streak > 0 ? (
+					{session?.user.flashcardStreak && session?.user.flashcardStreak > 0 ? (
 						<>
 							Streak Flashcard Kamu! <span className="font-normal">Keren!</span>
 						</>

@@ -85,6 +85,8 @@
 	--color-sidebar-ring: var(--sidebar-ring);
 	--color-neutral: var(--neutral);
 	--color-neutral-foreground: var(--neutral-foreground);
+	--color-discord: #7289da;
+	--color-whatsapp: #25d366;
 }
 
 @layer base {

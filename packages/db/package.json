@@ -21,13 +21,15 @@
 		"db:watch": "docker compose up",
 		"db:stop": "docker compose stop",
 		"db:down": "docker compose down",
+		"db:reset": "docker compose down -v && docker compose up -d && sleep 2 && bun db:push && bun db:seed",
 		"db:seed": "bun run src/seed/index.ts"
 	},
 	"devDependencies": {
-		"drizzle-kit": "^0.31.8",
+		"@habitutor/config": "workspace:*",
 		"@types/pg": "^8.16.0",
-		"tsdown": "catalog:",
-		"@habitutor/config": "workspace:*"
+		"drizzle-kit": "^0.31.8",
+		"drizzle-seed": "^0.3.1",
+		"tsdown": "catalog:"
 	},
 	"peerDependencies": {
 		"typescript": "^5"

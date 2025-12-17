@@ -42,7 +42,7 @@ export const userFlashcardAttempt = pgTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
-		date: date("date").notNull().default(sql`CURRENT_DATE`),
+		date: date("date", { mode: "date" }).notNull().default(sql`CURRENT_DATE`),
 		startedAt: timestamp("started_at").notNull().defaultNow(),
 		deadline: timestamp().notNull(),
 		submittedAt: timestamp("submitted_at"),

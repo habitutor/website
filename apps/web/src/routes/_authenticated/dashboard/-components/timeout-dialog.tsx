@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
 export function TimeoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
@@ -8,7 +16,10 @@ export function TimeoutDialog({ open, onOpenChange }: { open: boolean; onOpenCha
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Yah waktu habis</AlertDialogTitle>
-					<AlertDialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</AlertDialogDescription>
+					<AlertDialogDescription>
+						This action cannot be undone. This will permanently delete your account and remove your data from our
+						servers.
+					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>

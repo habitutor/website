@@ -105,7 +105,11 @@ function RouteComponent() {
 							<h3 className="flex-1 font-medium text-lg">
 								{idx + 1}. {q.content}
 							</h3>
-							{q.userAnswerIsCorrect ? <CheckCircle className="h-6 w-6 text-green-600" /> : <XCircle className="h-6 w-6 text-red-600" />}
+							{q.userAnswerIsCorrect ? (
+								<CheckCircle className="h-6 w-6 text-green-600" />
+							) : (
+								<XCircle className="h-6 w-6 text-red-600" />
+							)}
 						</div>
 						<div className="space-y-2">
 							{q.answers.map((answer) => {
@@ -119,7 +123,14 @@ function RouteComponent() {
 											isCorrectAnswer ? "bg-green-600" : isUserAnswer && "bg-muted text-muted-foreground"
 										}`}
 									>
-										<input type="radio" name={`question-${q.id}`} value={answer.id} checked={isUserAnswer} disabled className="cursor-default" />
+										<input
+											type="radio"
+											name={`question-${q.id}`}
+											value={answer.id}
+											checked={isUserAnswer}
+											disabled
+											className="cursor-default"
+										/>
 										<span className="flex-1">{answer.content}</span>
 										{isCorrectAnswer && <span className="text-green-500 text-xs">Jawaban Benar</span>}
 										{isUserAnswer && !isCorrectAnswer && <span className="text-destructive text-xs">Jawaban Anda</span>}

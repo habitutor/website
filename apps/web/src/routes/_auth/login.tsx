@@ -87,7 +87,14 @@ function SignInForm() {
 							{(field) => (
 								<div className="space-y-2">
 									<Label htmlFor={field.name}>Email</Label>
-									<Input id={field.name} name={field.name} type="email" value={field.state.value} onBlur={field.handleBlur} onChange={(e) => field.handleChange(e.target.value)} />
+									<Input
+										id={field.name}
+										name={field.name}
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
 									{field.state.meta.errors.map((error) => (
 										<p key={error?.message} className="text-red-500">
 											{error?.message}
@@ -143,7 +150,7 @@ function SignInForm() {
 					variant="outline"
 					className="mt-4 w-full"
 				>
-					<GoogleLogoIcon />
+					<GoogleLogoIcon weight="bold" />
 					Masuk dengan Google
 				</Button>
 			</div>

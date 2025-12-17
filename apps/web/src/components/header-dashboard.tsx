@@ -1,10 +1,10 @@
 import { SignOut } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { useState } from "react";
 import {
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -15,7 +15,13 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const links = [
 	{
@@ -43,13 +49,19 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 	return (
 		<>
 			<div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
-				<Link to="/" className="text-primary">
-					logo
+				<Link to="/" className="relative size-12">
+					<Image src="/logo.svg" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
 				</Link>
 
 				<div className="flex h-full items-center">
 					{links.map((link) => (
-						<Button key={link.to} variant={"navbar"} size={"full"} data-active={location.pathname.startsWith(link.to) ? "true" : "false"} asChild>
+						<Button
+							key={link.to}
+							variant={"navbar"}
+							size={"full"}
+							data-active={location.pathname.startsWith(link.to) ? "true" : "false"}
+							asChild
+						>
 							<Link to={link.to}>{link.name}</Link>
 						</Button>
 					))}
@@ -90,19 +102,17 @@ const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Kembali</AlertDialogCancel>
-					<AlertDialogAction asChild>
-						<Button
-							onClick={async () => {
-								await authClient.signOut().then(() => {
-									navigate({ to: "/" });
-								});
-								queryClient.removeQueries();
-							}}
-							variant={"destructive"}
-						>
-							<SignOut /> Keluar
-						</Button>
-					</AlertDialogAction>
+					<Button
+						onClick={async () => {
+							await authClient.signOut().then(() => {
+								navigate({ to: "/" });
+							});
+							queryClient.removeQueries();
+						}}
+						variant={"destructive"}
+					>
+						<SignOut /> Keluar
+					</Button>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

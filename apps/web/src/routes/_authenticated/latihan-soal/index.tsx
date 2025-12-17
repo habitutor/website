@@ -43,7 +43,11 @@ function RouteComponent() {
 	);
 }
 
-const PacketCard = (props: { title: string; packId: number; packStatus: "not_started" | "ongoing" | "finished" | null }) => {
+const PacketCard = (props: {
+	title: string;
+	packId: number;
+	packStatus: "not_started" | "ongoing" | "finished" | null;
+}) => {
 	const navigate = useNavigate();
 	const startMutation = useMutation(
 		orpc.practicePack.startAttempt.mutationOptions({

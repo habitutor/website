@@ -40,16 +40,16 @@ export const DismissableAlert = () => {
 			</div>
 
 			<div className="flex flex-col items-end justify-between gap-4">
-				<Button
+				<button
+					type="button"
 					onClick={() => {
 						setClosed(true);
 						saveToStorage("dismissable-alert-closed", new Date().toISOString());
 					}}
-					variant={"ghost"}
-					size={"icon"}
+					className="opacity-80"
 				>
-					<XIcon strokeWidth={24} />
-				</Button>
+					<XIcon weight="bold" />
+				</button>
 				<Button size={"icon"} asChild>
 					<a href="https://youtube.com" rel="noopener norefferer" target="_blank">
 						<ArrowRightIcon strokeWidth={12} />
