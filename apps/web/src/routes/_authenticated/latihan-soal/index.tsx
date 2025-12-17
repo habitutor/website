@@ -27,26 +27,15 @@ function RouteComponent() {
 			</div>
 
 			<div className="space-y-4">
-				{packs.isPending && (
-					<p className="animate-pulse">Memasak Nasi Custom...</p>
-				)}
+				{packs.isPending && <p className="animate-pulse">Memasak Nasi Custom...</p>}
 
-				{packs.isError && (
-					<p className="text-red-500">Error: {packs.error.message}</p>
-				)}
+				{packs.isError && <p className="text-red-500">Error: {packs.error.message}</p>}
 
-				{packs.data && packs.data.length === 0 && (
-					<p className="text-muted-foreground">No packs yet</p>
-				)}
+				{packs.data && packs.data.length === 0 && <p className="text-muted-foreground">No packs yet</p>}
 
 				<div className="grid grid-cols-3 gap-2">
 					{packs.data?.map((pack) => (
-						<PacketCard
-							key={pack.id}
-							title={pack.title}
-							packId={pack.id}
-							packStatus={pack.status}
-						/>
+						<PacketCard key={pack.id} title={pack.title} packId={pack.id} packStatus={pack.status} />
 					))}
 				</div>
 			</div>
@@ -82,12 +71,7 @@ const PacketCard = (props: {
 			<div className="flex flex-col justify-between gap-4">
 				<h3 className="font-medium text-lg">{props.title}</h3>
 				{props.packStatus === "ongoing" ? (
-					<Button
-						asChild
-						type="button"
-						variant={"secondary"}
-						className="flex-1 hover:cursor-pointer"
-					>
+					<Button asChild type="button" variant={"secondary"} className="flex-1 hover:cursor-pointer">
 						<Link
 							to="/latihan-soal/$id"
 							params={{
@@ -99,12 +83,7 @@ const PacketCard = (props: {
 						</Link>
 					</Button>
 				) : props.packStatus === "finished" ? (
-					<Button
-						type="button"
-						variant={"secondary"}
-						className="flex-1 hover:cursor-pointer"
-						disabled={true}
-					>
+					<Button type="button" variant={"secondary"} className="flex-1 hover:cursor-pointer" disabled={true}>
 						<Check />
 						Sudah Dikerjakan
 					</Button>

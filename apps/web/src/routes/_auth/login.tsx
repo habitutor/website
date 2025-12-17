@@ -1,6 +1,6 @@
-import { GoogleChromeLogoIcon } from "@phosphor-icons/react";
+import { GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -25,6 +25,7 @@ function SignInForm() {
 	const navigate = useNavigate({
 		from: "/",
 	});
+	const location = useLocation();
 	const { isPending } = authClient.useSession();
 
 	const form = useForm({
@@ -43,7 +44,6 @@ function SignInForm() {
 						navigate({
 							to: "/dashboard",
 						});
-						toast.success("Sign in successful");
 					},
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);
@@ -126,29 +126,31 @@ function SignInForm() {
 								</div>
 							)}
 						</form.Field>
-						<Link
-							to="/register"
-							className="ml-auto w-fit text-primary text-xs underline"
-						>
+						<Link to="/register" className="ml-auto w-fit text-primary text-xs underline">
 							Lupa Password?
 						</Link>
 					</div>
 
 					<form.Subscribe>
 						{(state) => (
-							<Button
-								type="submit"
-								className="w-full"
-								disabled={!state.canSubmit || state.isSubmitting}
-							>
+							<Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
 								{state.isSubmitting ? "Memuat..." : "Masuk"}
 							</Button>
 						)}
 					</form.Subscribe>
 				</form>
 
-				<Button variant="outline" className="mt-4 w-full">
-					<GoogleChromeLogoIcon />
+				<Button
+					onClick={() => {
+						authClient.signIn.social({
+							provider: "google",
+							callbackURL: `${location.url}/dashboard`,
+						});
+					}}
+					variant="outline"
+					className="mt-4 w-full"
+				>
+					<GoogleLogoIcon weight="bold" />
 					Masuk dengan Google
 				</Button>
 			</div>

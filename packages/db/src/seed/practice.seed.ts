@@ -25,22 +25,26 @@ const SEED_DATA = {
 			],
 		},
 		{
-			content:
-				"Jika hari ini hujan, maka jalanan akan basah. Jalanan tidak basah. Kesimpulan yang tepat adalah...",
-			discussion:
-				"Modus tollens: Jika hujan → jalanan basah. Jalanan tidak basah, maka tidak hujan.",
+			content: "Jika hari ini hujan, maka jalanan akan basah. Jalanan tidak basah. Kesimpulan yang tepat adalah...",
+			discussion: "Modus tollens: Jika hujan → jalanan basah. Jalanan tidak basah, maka tidak hujan.",
 			answers: [
-				{ content: "Hari ini tidak hujan", isCorrect: true },
-				{ content: "Hari ini hujan", isCorrect: false },
+				{
+					code: "A",
+					content: "Hari ini tidak hujan",
+					isCorrect: true,
+				},
+				{
+					code: "B",
+					content: "Hari ini hujan",
+					isCorrect: false,
+				},
 				{ content: "Jalanan kering", isCorrect: false },
 				{ content: "Akan turun hujan nanti", isCorrect: false },
 			],
 		},
 		{
-			content:
-				"Dalam suatu kelas, setiap siswa yang suka matematika juga suka fisika. Ana suka matematika. Maka...",
-			discussion:
-				"Modus ponens: Jika suka matematika → suka fisika. Ana suka matematika, maka Ana pasti suka fisika.",
+			content: "Dalam suatu kelas, setiap siswa yang suka matematika juga suka fisika. Ana suka matematika. Maka...",
+			discussion: "Modus ponens: Jika suka matematika → suka fisika. Ana suka matematika, maka Ana pasti suka fisika.",
 			answers: [
 				{ content: "Ana pasti suka fisika", isCorrect: true },
 				{ content: "Ana tidak suka fisika", isCorrect: false },
@@ -51,8 +55,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Semua bunga mawar berwarna merah. Beberapa tanaman di taman adalah bunga mawar. Kesimpulan yang tepat adalah...",
-			discussion:
-				"Silogisme: Semua mawar merah, beberapa tanaman adalah mawar, maka beberapa tanaman pasti merah.",
+			discussion: "Silogisme: Semua mawar merah, beberapa tanaman adalah mawar, maka beberapa tanaman pasti merah.",
 			answers: [
 				{
 					content: "Beberapa tanaman di taman berwarna merah",
@@ -77,8 +80,7 @@ const SEED_DATA = {
 
 	pack2_mcq: [
 		{
-			content:
-				"Tidak ada ikan yang bisa hidup di darat. Hiu adalah ikan. Kesimpulan yang tepat adalah...",
+			content: "Tidak ada ikan yang bisa hidup di darat. Hiu adalah ikan. Kesimpulan yang tepat adalah...",
 			discussion:
 				"Silogisme kategorikal: Tidak ada ikan yang hidup di darat, hiu adalah ikan, maka hiu tidak bisa hidup di darat.",
 			answers: [
@@ -89,8 +91,7 @@ const SEED_DATA = {
 			],
 		},
 		{
-			content:
-				"Semua dokter adalah sarjana. Beberapa sarjana adalah peneliti. Kesimpulan yang PASTI BENAR adalah...",
+			content: "Semua dokter adalah sarjana. Beberapa sarjana adalah peneliti. Kesimpulan yang PASTI BENAR adalah...",
 			discussion:
 				"Tidak ada hubungan pasti antara dokter dan peneliti. Hanya diketahui keduanya subset dari sarjana, tapi tidak ada irisan yang pasti.",
 			answers: [
@@ -101,8 +102,7 @@ const SEED_DATA = {
 			],
 		},
 		{
-			content:
-				"Jika cuaca cerah, maka Andi pergi ke pantai. Andi pergi ke pantai. Maka...",
+			content: "Jika cuaca cerah, maka Andi pergi ke pantai. Andi pergi ke pantai. Maka...",
 			discussion:
 				"Ini adalah kesalahan logika 'affirming the consequent'. Andi bisa pergi ke pantai karena alasan lain, tidak harus cuaca cerah.",
 			answers: [
@@ -118,8 +118,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Urutan yang benar dari yang terbesar ke terkecil: P > Q, R < Q, S > P. Maka urutan yang benar adalah...",
-			discussion:
-				"S > P (given), P > Q (given), Q > R (dari R < Q). Jadi: S > P > Q > R.",
+			discussion: "S > P (given), P > Q (given), Q > R (dari R < Q). Jadi: S > P > Q > R.",
 			answers: [
 				{ content: "S > P > Q > R", isCorrect: true },
 				{ content: "P > S > Q > R", isCorrect: false },
@@ -130,8 +129,7 @@ const SEED_DATA = {
 		{
 			content:
 				"Dalam sebuah lomba, A lebih cepat dari B tetapi lebih lambat dari C. D lebih cepat dari C. Siapa yang tercepat?",
-			discussion:
-				"D > C > A > B. D paling cepat karena lebih cepat dari C, dan C lebih cepat dari semua yang lain.",
+			discussion: "D > C > A > B. D paling cepat karena lebih cepat dari C, dan C lebih cepat dari semua yang lain.",
 			answers: [
 				{ content: "D", isCorrect: true },
 				{ content: "C", isCorrect: false },
@@ -152,10 +150,7 @@ export async function clearPractice(db: NodePgDatabase) {
 }
 
 export async function seedPractice(db: NodePgDatabase) {
-	const packs = await db
-		.insert(practicePack)
-		.values(SEED_DATA.packs)
-		.returning();
+	const packs = await db.insert(practicePack).values(SEED_DATA.packs).returning();
 
 	const [pack1, pack2] = packs;
 
@@ -173,10 +168,11 @@ export async function seedPractice(db: NodePgDatabase) {
 		if (!q) throw new Error("Failed to create question");
 
 		await db.insert(questionAnswerOption).values(
-			mcqData.answers.map((ans) => ({
+			mcqData.answers.map((ans, i) => ({
 				questionId: q.id,
 				content: ans.content,
 				isCorrect: ans.isCorrect,
+				code: String.fromCharCode(65 + i), // Assign A, B, C, D, ...
 			})),
 		);
 
@@ -197,10 +193,11 @@ export async function seedPractice(db: NodePgDatabase) {
 		if (!q) throw new Error("Failed to create question");
 
 		await db.insert(questionAnswerOption).values(
-			mcqData.answers.map((ans) => ({
+			mcqData.answers.map((ans, i) => ({
 				questionId: q.id,
 				content: ans.content,
 				isCorrect: ans.isCorrect,
+				code: String.fromCharCode(65 + i), // Assign A, B, C, D, ...
 			})),
 		);
 
@@ -211,8 +208,7 @@ export async function seedPractice(db: NodePgDatabase) {
 		});
 	}
 
-	const totalQuestions =
-		SEED_DATA.pack1_mcq.length + SEED_DATA.pack2_mcq.length;
+	const totalQuestions = SEED_DATA.pack1_mcq.length + SEED_DATA.pack2_mcq.length;
 
 	console.log(`Practice: ${packs.length} packs, ${totalQuestions} questions`);
 }

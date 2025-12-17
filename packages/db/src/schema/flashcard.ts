@@ -1,69 +1,59 @@
-import { relations } from "drizzle-orm";
-import {
-	boolean,
-	date,
-	integer,
-	pgTable,
-	primaryKey,
-	text,
-	timestamp,
-} from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { date, integer, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { question, questionAnswerOption } from "./practice-pack";
 
-export const userFlashcard = pgTable(
-	"user_flashcard",
+export const userFlashcardQuestionAnswer = pgTable(
+	"user_flashcard_question_answer",
 	{
 		assignedDate: date("assigned_date", { mode: "date" }).notNull(),
-		userId: text("user_id")
-			.notNull()
-			.references(() => user.id, { onDelete: "cascade" }),
 		questionId: integer("question_id")
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
+		selectedAnswerId: integer("selected_answer_id").references(() => questionAnswerOption.id, { onDelete: "set null" }),
+		attemptId: integer("attempt_id").references(() => userFlashcardAttempt.id, {
+			onDelete: "set null",
+		}),
 		answeredAt: timestamp("answered_at"),
-		selectedAnswerId: integer("selected_answer_id").references(
-			() => questionAnswerOption.id,
-			{ onDelete: "set null" },
-		),
-		// isCorrect: boolean("is_correct"),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 	},
-	(t) => [primaryKey({ columns: [t.userId, t.assignedDate] })],
+	(t) => [primaryKey({ columns: [t.attemptId, t.assignedDate, t.questionId] })],
 );
 
-export const userFlashcardStreak = pgTable("user_flashcard_streak", {
-  userId: text("user_id")
-    .primaryKey()
-    .references(() => user.id, { onDelete: "cascade" }),
-  currentStreak: integer("current_streak").notNull().default(0),
-  lastCompletedDate: date("last_completed_date"),
-  lastCheckedDate: date("last_checked_date"),
-  isActive: boolean("is_active").notNull().default(true),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-export const userFlashcardRelations = relations(userFlashcard, ({ one }) => ({
-  user: one(user, {
-    fields: [userFlashcard.userId],
-    references: [user.id],
-  }),
-  question: one(question, {
-    fields: [userFlashcard.questionId],
-    references: [question.id],
-  }),
-  selectedAnswer: one(questionAnswerOption, {
-    fields: [userFlashcard.selectedAnswerId],
-    references: [questionAnswerOption.id],
-  }),
+export const userFlashcardQuestionAnswerRelations = relations(userFlashcardQuestionAnswer, ({ one }) => ({
+	question: one(question, {
+		fields: [userFlashcardQuestionAnswer.questionId],
+		references: [question.id],
+	}),
+	selectedAnswer: one(questionAnswerOption, {
+		fields: [userFlashcardQuestionAnswer.selectedAnswerId],
+		references: [questionAnswerOption.id],
+	}),
+	attempt: one(userFlashcardAttempt, {
+		fields: [userFlashcardQuestionAnswer.attemptId],
+		references: [userFlashcardAttempt.id],
+	}),
 }));
 
-export const userFlashcardStreakRelations = relations(
-  userFlashcardStreak,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [userFlashcardStreak.userId],
-      references: [user.id],
-    }),
-  }),
+export const userFlashcardAttempt = pgTable(
+	"user_flashcard_attempt",
+	{
+		id: integer().primaryKey().generatedAlwaysAsIdentity(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		date: date("date", { mode: "date" }).notNull().default(sql`CURRENT_DATE`),
+		startedAt: timestamp("started_at").notNull().defaultNow(),
+		deadline: timestamp().notNull(),
+		submittedAt: timestamp("submitted_at"),
+	},
+	(t) => [unique("user_flashcard_attempt_user_id_date_unique").on(t.userId, t.date)],
 );
+
+export const userFlashcardAttemptRelations = relations(userFlashcardAttempt, ({ one, many }) => ({
+	user: one(user, {
+		fields: [userFlashcardAttempt.userId],
+		references: [user.id],
+	}),
+	assignedQuestions: many(userFlashcardQuestionAnswer),
+}));

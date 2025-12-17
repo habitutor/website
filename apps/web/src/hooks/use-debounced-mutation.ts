@@ -1,17 +1,8 @@
-import type {
-	DefaultError,
-	UseMutationOptions,
-	UseMutationResult,
-} from "@tanstack/react-query";
+import type { DefaultError, UseMutationOptions, UseMutationResult } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 
-export function useDebouncedMutation<
-	TData = unknown,
-	TError = DefaultError,
-	TVariables = void,
-	TContext = unknown,
->(
+export function useDebouncedMutation<TData = unknown, TError = DefaultError, TVariables = void, TContext = unknown>(
 	options: UseMutationOptions<TData, TError, TVariables, TContext>,
 	delay = 1000,
 ): UseMutationResult<TData, TError, TVariables, TContext> & {

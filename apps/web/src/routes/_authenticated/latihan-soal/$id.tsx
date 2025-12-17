@@ -130,11 +130,7 @@ function RouteComponent() {
 				))}
 
 				{pack.data?.questions && pack.data.questions.length > 0 && (
-					<Button
-						onClick={handleSubmit}
-						disabled={submitMutation.isPending}
-						className="w-full"
-					>
+					<Button onClick={handleSubmit} disabled={submitMutation.isPending} className="w-full">
 						{submitMutation.isPending ? "Memasak..." : "Kumpulkan"}
 					</Button>
 				)}

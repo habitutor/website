@@ -28,7 +28,8 @@
 	},
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab"
+		"indentStyle": "tab",
+		"lineWidth": 120
 	},
 	"assist": {
 		"actions": {
@@ -54,6 +55,7 @@
 				}
 			},
 			"style": {
+				"noNonNullAssertion": "off",
 				"noParameterAssign": "error",
 				"useAsConstAssertion": "error",
 				"useDefaultParameterLast": "error",

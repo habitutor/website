@@ -1,12 +1,10 @@
-import { ORPCError } from "@orpc/server";
 import { o } from "./lib/orpc";
 import { requireAdmin } from "./middlewares/rbac";
 
 export const pub = o;
-
-const requireAuth = o.middleware(async ({ context, next }) => {
+const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	if (!context.session?.user) {
-		throw new ORPCError("UNAUTHORIZED");
+		throw errors.UNAUTHORIZED();
 	}
 	return next({
 		context: {

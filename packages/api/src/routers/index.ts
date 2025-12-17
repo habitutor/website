@@ -22,5 +22,6 @@ export const appRouter = {
 		practicePack: adminPracticePackRouter,
 	},
 };
+
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;
