@@ -88,7 +88,7 @@ const get = authed
     let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
     const attempt = await db.query.userFlashcardAttempt.findFirst({
-      where: and(eq(userFlashcardAttempt.userId, context.session.user.id)),
+      where: and(eq(userFlashcardAttempt.date, new Date()), eq(userFlashcardAttempt.userId, context.session.user.id)),
       with: {
         assignedQuestions: {
           columns: {
@@ -275,8 +275,6 @@ const streak = authed
 
     if (lastCompletedDate && today.getTime() - lastCompletedDate.getTime() > 2 * 24 * 3600 * 1000)
       await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, context.session.user.id));
-
-    console.log(lastCompletedDate, today);
 
     return {
       streak,
