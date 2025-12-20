@@ -1,12 +1,17 @@
 import { db } from "@habitutor/db";
-import { question } from "@habitutor/db/schema/practice-pack";
-import { contentItem, contentQuiz, noteMaterial, recentContentView, subtest, userProgress, videoMaterial } from "@habitutor/db/schema/subtest";
+import {
+	contentItem,
+	contentQuiz,
+	noteMaterial,
+	recentContentView,
+	subtest,
+	userProgress,
+	videoMaterial,
+} from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { authed } from "../index";
-
-// ===== PUBLIC ENDPOINTS (User View) =====
 
 /**
  * Get all subtests with basic info
@@ -67,7 +72,10 @@ const listContentByCategory = authed
 			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
 			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
 			.leftJoin(contentQuiz, eq(contentQuiz.contentItemId, contentItem.id))
-			.leftJoin(userProgress, and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)))
+			.leftJoin(
+				userProgress,
+				and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
+			)
 			.where(and(eq(contentItem.subtestId, input.subtestId), eq(contentItem.type, input.category)))
 			.orderBy(contentItem.order)
 			.groupBy(
@@ -84,72 +92,77 @@ const listContentByCategory = authed
 		return items;
 	});
 
-/**
- * Get single content item with all components
- * GET /api/content/{id}
- */
-const findContent = authed
+const getContentById = authed
 	.route({
-		path: "/content/{id}",
+		path: "/content/{contentId}",
 		method: "GET",
 		tags: ["Content"],
 	})
-	.input(type({ id: "number" }))
-	.handler(async ({ input, context }) => {
-		// Get content item
-		const [item] = await db
+	.input(
+		type({
+			contentId: "number",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const [row] = await db
 			.select({
 				id: contentItem.id,
-				subtestId: contentItem.subtestId,
-				type: contentItem.type,
 				title: contentItem.title,
-				order: contentItem.order,
-				createdAt: contentItem.createdAt,
-				updatedAt: contentItem.updatedAt,
+				type: contentItem.type,
+				subtestId: contentItem.subtestId,
+
+				videoId: videoMaterial.id,
+				videoTitle: videoMaterial.title,
+				videoUrl: videoMaterial.videoUrl,
+				videoContent: videoMaterial.content,
+
+				noteId: noteMaterial.id,
+				noteContent: noteMaterial.content,
 			})
 			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
+			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
+			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
+			.where(eq(contentItem.id, input.contentId))
 			.limit(1);
 
-		if (!item)
-			throw new ORPCError("NOT_FOUND", {
-				message: "Konten tidak ditemukan",
-			});
+		if (!row) {
+			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
+		}
 
-		// Get video material
-		const [video] = await db.select().from(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).limit(1);
-
-		// Get note material
-		const [note] = await db.select().from(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).limit(1);
-
-		// Get quiz questions
-		// const quizQuestions = await db
-		// 	.select({
-		// 		questionId: contentQuiz.questionId,
-		// 		order: contentQuiz.order,
-		// 		content: question.content,
-		// 		options: question.options,
-		// 		correctAnswer: question.correctAnswer,
-		// 		explanation: question.explanation,
-		// 	})
-		// 	.from(contentQuiz)
-		// 	.innerJoin(question, eq(question.id, contentQuiz.questionId))
-		// 	.where(eq(contentQuiz.contentItemId, input.id))
-		// 	.orderBy(contentQuiz.order);
-
-		// Get user progress
-		const [progress] = await db
-			.select()
-			.from(userProgress)
-			.where(and(eq(userProgress.contentItemId, input.id), eq(userProgress.userId, context.session.user.id)))
-			.limit(1);
+		const quizQuestions = await db
+			.select({
+				questionId: contentQuiz.questionId,
+				order: contentQuiz.order,
+			})
+			.from(contentQuiz)
+			.where(eq(contentQuiz.contentItemId, input.contentId))
+			.orderBy(contentQuiz.order);
 
 		return {
-			...item,
-			videoMaterial: video || null,
-			noteMaterial: note || null,
-			// quizQuestions: quizQuestions.length > 0 ? quizQuestions : null,
-			progress: progress || null,
+			id: row.id,
+			title: row.title,
+			type: row.type,
+			subtestId: row.subtestId,
+			video: row.videoId
+				? {
+						id: row.videoId,
+						title: row.videoTitle,
+						videoUrl: row.videoUrl,
+						content: row.videoContent,
+					}
+				: null,
+			note: row.noteId
+				? {
+						id: row.noteId,
+						content: row.noteContent,
+					}
+				: null,
+			quiz:
+				quizQuestions.length > 0
+					? {
+							questions: quizQuestions,
+						}
+					: null,
 		};
 	});
 
@@ -167,7 +180,11 @@ const trackView = authed
 	.output(type({ message: "string" }))
 	.handler(async ({ input, context }) => {
 		// Verify content exists
-		const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+		const [item] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
 		if (!item)
 			throw new ORPCError("NOT_FOUND", {
@@ -247,7 +264,11 @@ const updateProgress = authed
 	.output(type({ message: "string" }))
 	.handler(async ({ input, context }) => {
 		// Verify content exists
-		const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+		const [item] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
 		if (!item)
 			throw new ORPCError("NOT_FOUND", {
@@ -289,7 +310,7 @@ const updateProgress = authed
 export const subtestRouter = {
 	listSubtests,
 	listContentByCategory,
-	findContent,
+	getContentById,
 	trackView,
 	getRecentViews,
 	updateProgress,

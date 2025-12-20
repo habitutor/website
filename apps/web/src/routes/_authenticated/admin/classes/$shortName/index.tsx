@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { ClassHeader,ContentList } from "@/components/classes";
+import { ClassHeader, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
 import { orpc } from "@/utils/orpc";
 
@@ -24,21 +24,21 @@ function RouteComponent() {
 			input: { subtestId: matchedClass?.id ?? 0, category: "material" },
 			enabled: Boolean(matchedClass?.id),
 		}),
-	)
+	);
 
 	const tipsContents = useQuery(
 		orpc.subtest.listContentByCategory.queryOptions({
 			input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
 			enabled: Boolean(matchedClass?.id),
 		}),
-	)
+	);
 
 	if (subtests.isPending) {
 		return (
 			<Container className="pt-12">
 				<p className="animate-pulse text-sm">Memuat kelas...</p>
 			</Container>
-		)
+		);
 	}
 
 	if (subtests.isError) {
@@ -46,7 +46,7 @@ function RouteComponent() {
 			<Container className="pt-12">
 				<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
 			</Container>
-		)
+		);
 	}
 	if (!matchedClass) return notFound();
 
@@ -68,6 +68,5 @@ function RouteComponent() {
 				/>
 			</div>
 		</Container>
-	)
+	);
 }
-	

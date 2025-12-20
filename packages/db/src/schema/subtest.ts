@@ -34,8 +34,6 @@ export const contentTypeEnum = pgEnum("content_type", [
   "tips_and_trick",
 ]);
 
-export const videoTypeEnum = pgEnum("video_type", ["upload", "link"]);
-
 /*
   Content Item ( material | tips_and_trick )
 */
@@ -52,7 +50,7 @@ export const contentItem = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (t) => [unique("unique_content_order").on(t.subtestId, t.type, t.order)],
+  (t) => [unique("unique_content_order").on(t.subtestId, t.type, t.order)]
 );
 
 /*
@@ -65,9 +63,7 @@ export const videoMaterial = pgTable("video_material", {
     .unique()
     .references(() => contentItem.id, { onDelete: "cascade" }),
   title: text().notNull(),
-  videoType: videoTypeEnum("video_type").notNull(),
-  videoFilePath: text("video_file_path"), // for uploads
-  videoUrl: text("video_url"), // for external links
+  videoUrl: text("video_url").notNull(), // YouTube URL
   content: jsonb().notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -100,7 +96,7 @@ export const contentQuiz = pgTable(
     { pk: { columns: [t.contentItemId, t.questionId] } },
     // Ensure unique order per content
     unique("unique_quiz_order").on(t.contentItemId, t.order),
-  ],
+  ]
 );
 
 /*
@@ -129,7 +125,7 @@ export const userProgress = pgTable(
     // Index for queries
     index("idx_user_progress_user").on(t.userId),
     index("idx_user_progress_content").on(t.contentItemId),
-  ],
+  ]
 );
 
 /*
@@ -147,7 +143,7 @@ export const recentContentView = pgTable(
       .references(() => contentItem.id, { onDelete: "cascade" }),
     viewedAt: timestamp("viewed_at").notNull().defaultNow(),
   },
-  (t) => [index("idx_recent_view_user_time").on(t.userId, t.viewedAt)],
+  (t) => [index("idx_recent_view_user_time").on(t.userId, t.viewedAt)]
 );
 
 /*
@@ -222,5 +218,5 @@ export const recentContentViewRelations = relations(
       fields: [recentContentView.contentItemId],
       references: [contentItem.id],
     }),
-  }),
+  })
 );
