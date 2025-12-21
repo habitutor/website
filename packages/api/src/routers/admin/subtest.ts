@@ -1,5 +1,5 @@
 import { db } from "@habitutor/db";
-import { contentItem, contentQuiz, noteMaterial, subtest, videoMaterial } from "@habitutor/db/schema/subtest";
+import { contentItem, contentPracticeQuestions, noteMaterial, subtest, videoMaterial } from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq } from "drizzle-orm";
@@ -482,12 +482,12 @@ const deleteNote = authed
 	});
 
 /**
- * Link quiz questions to content (only for Material type)
- * POST /api/admin/content/{id}/quiz
+ * Link practice questions to content (only for Material type)
+ * POST /api/admin/content/{id}/practice-questions
  */
-const linkQuiz = authed
+const linkPracticeQuestions = authed
 	.route({
-		path: "/admin/content/{id}/quiz",
+		path: "/admin/content/{id}/practice-questions",
 		method: "POST",
 		tags: ["Admin - Content"],
 	})
@@ -510,21 +510,21 @@ const linkQuiz = authed
 
 		if (!content)
 			throw new ORPCError("NOT_FOUND", {
-				message: "Konten tidak ditemukan",
+				message: "Content not found",
 			});
 
 		if (content.type === "tips_and_trick") {
 			throw new ORPCError("BAD_REQUEST", {
-				message: "Tips & Trick tidak boleh memiliki quiz",
+				message: "Tips & Trick cannot have practice questions",
 			});
 		}
 
-		// Delete existing quiz links
-		await db.delete(contentQuiz).where(eq(contentQuiz.contentItemId, input.id));
+		// Delete existing practice question links
+		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-		// Insert new quiz links
+		// Insert new practice question links
 		if (input.questionIds.length > 0) {
-			await db.insert(contentQuiz).values(
+			await db.insert(contentPracticeQuestions).values(
 				input.questionIds.map((questionId, index) => ({
 					contentItemId: input.id,
 					questionId,
@@ -533,16 +533,16 @@ const linkQuiz = authed
 			);
 		}
 
-		return { message: "Quiz berhasil ditautkan ke konten" };
+		return { message: "Practice questions successfully linked to content" };
 	});
 
 /**
- * Remove quiz from content
- * DELETE /api/admin/content/{id}/quiz
+ * Remove practice questions from content
+ * DELETE /api/admin/content/{id}/practice-questions
  */
-const unlinkQuiz = authed
+const unlinkPracticeQuestions = authed
 	.route({
-		path: "/admin/content/{id}/quiz",
+		path: "/admin/content/{id}/practice-questions",
 		method: "DELETE",
 		tags: ["Admin - Content"],
 	})
@@ -551,9 +551,9 @@ const unlinkQuiz = authed
 	.handler(async ({ input }) => {
 		// TODO: Add admin authorization check
 
-		await db.delete(contentQuiz).where(eq(contentQuiz.contentItemId, input.id));
+		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-		return { message: "Quiz berhasil dihapus dari konten" };
+		return { message: "Practice questions successfully removed from content" };
 	});
 
 export const adminSubtestRouter = {
@@ -569,6 +569,6 @@ export const adminSubtestRouter = {
 	deleteVideo,
 	upsertNote,
 	deleteNote,
-	linkQuiz,
-	unlinkQuiz,
+	linkPracticeQuestions,
+	unlinkPracticeQuestions,
 };

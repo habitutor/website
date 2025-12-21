@@ -13,10 +13,10 @@ function RouteComponent() {
 
 	// Biar tab sinkron sama URL child-nya
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" | "quiz" = currentPath.endsWith("/notes")
+	const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith("/notes")
 		? "notes"
-		: currentPath.endsWith("/quiz")
-			? "quiz"
+		: currentPath.endsWith("/latihan-soal")
+			? "latihan-soal"
 			: "video"; // default ke video
 
 	const handleTabChange = (value: string) => {
@@ -26,7 +26,7 @@ function RouteComponent() {
 					? "/admin/classes/$shortName/$contentId/video"
 					: value === "notes"
 						? "/admin/classes/$shortName/$contentId/notes"
-						: "/admin/classes/$shortName/$contentId/quiz",
+						: "/admin/classes/$shortName/$contentId/latihan-soal",
 			params: { shortName, contentId },
 		});
 	};
@@ -38,7 +38,7 @@ function RouteComponent() {
 				<TabsList>
 					<TabsTrigger value="video">Video</TabsTrigger>
 					<TabsTrigger value="notes">Catatan</TabsTrigger>
-					<TabsTrigger value="quiz">Quiz</TabsTrigger>
+					<TabsTrigger value="latihan-soal">Latihan Soal</TabsTrigger>
 				</TabsList>
 
 				{/* Konten sebenernya datang dari child routes via <Outlet /> */}

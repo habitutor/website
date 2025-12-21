@@ -3,7 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { orpc } from "@/utils/orpc";
 // import { QuizPlayer } from "@/components/quiz-player";
 
-export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/quiz")({
+export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/latihan-soal")({
 	component: RouteComponent,
 });
 
@@ -17,7 +17,7 @@ function RouteComponent() {
 	);
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat quiz...</p>;
+		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
 	}
 
 	if (content.isError) {
@@ -26,16 +26,16 @@ function RouteComponent() {
 
 	if (!content.data) return notFound();
 
-	const quiz = content.data.quiz;
-	if (!quiz) {
-		return <p className="text-muted-foreground text-sm">Belum ada quiz untuk materi ini.</p>;
+	const practiceQuestions = content.data.practiceQuestions;
+	if (!practiceQuestions) {
+		return <p className="text-muted-foreground text-sm">Belum ada latihan soal untuk materi ini.</p>;
 	}
 
 	return (
 		<div className="space-y-4">
 			<h2 className="font-semibold text-lg">{content.data.title}</h2>
-			{/* <QuizPlayer questions={quiz.questions} /> */}
-			<p className="text-muted-foreground text-sm">(Render quiz di sini)</p>
+			{/* <QuizPlayer questions={practiceQuestions.questions} /> */}
+			<p className="text-muted-foreground text-sm">(Render latihan soal di sini)</p>
 		</div>
 	);
 }
