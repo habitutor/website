@@ -1,29 +1,30 @@
 {
-	"name": "server",
-	"main": "src/index.ts",
-	"type": "module",
-	"scripts": {
-		"check-types": "tsc -b",
-		"build": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
-		"dev": "bun run --hot ./src/index.ts",
-		"start": "./server"
-	},
-	"dependencies": {
-		"hono": "catalog:",
-		"@orpc/server": "catalog:",
-		"@orpc/openapi": "catalog:",
-		"@orpc/arktype": "catalog:",
-		"better-auth": "catalog:",
-		"dotenv": "catalog:",
-		"arktype": "catalog:",
-		"@habitutor/api": "workspace:*",
-		"@habitutor/auth": "workspace:*",
-		"@habitutor/db": "workspace:*"
-	},
-	"devDependencies": {
-		"typescript": "catalog:",
-		"tsdown": "catalog:",
-		"@habitutor/config": "workspace:*",
-		"@types/node": "^24.10.3"
-	}
+  "name": "server",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "check-types": "tsc -b",
+    "build": "bun build --production --minify --sourcemap --bytecode ./src/index.ts --outdir dist",
+    "build:compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+    "dev": "bun run --hot ./src/index.ts",
+    "start": "./server"
+  },
+  "dependencies": {
+    "hono": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/arktype": "catalog:",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "arktype": "catalog:",
+    "@habitutor/api": "workspace:*",
+    "@habitutor/auth": "workspace:*",
+    "@habitutor/db": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "tsdown": "catalog:",
+    "@habitutor/config": "workspace:*",
+    "@types/node": "^24.10.3"
+  }
 }

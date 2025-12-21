@@ -75,7 +75,7 @@ const StartCard = () => {
 				</Link>
 			</Button>
 
-			<div className="flex rounded-md bg-yellow-200">
+			<div className="flex overflow-clip rounded-md bg-yellow-200">
 				<div className="min-w-32 rounded-l-md rounded-tr-full bg-yellow-500 px-4 py-2 font-bold text-4xl text-white">
 					{session?.user.flashcardStreak || "0"}
 				</div>
@@ -90,7 +90,7 @@ const StartCard = () => {
 				</p>
 			</div>
 
-			<div className="flex flex-col gap-2 rounded-xs bg-blue-400 p-6 pt-20 text-white">
+			<div className="flex flex-col gap-2 rounded-md bg-blue-400 p-6 pt-20 text-white">
 				<h1 className="font-bold text-3xl">Flashcard</h1>
 				<p>Uji kemampuan harianmu dengan Flashcard selama 10 menit!</p>
 			</div>
