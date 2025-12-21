@@ -1,7 +1,7 @@
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
 
 export function BackButton({ to }: { to: string }) {
   return (
@@ -9,7 +9,7 @@ export function BackButton({ to }: { to: string }) {
       to={to}
       className={cn(
         buttonVariants({ variant: "lightBlue", size: "sm" }),
-        "gap-2 px-[14px] py-[8px] text-white text-xs shadow-xs"
+        "gap-2 px-3.5 py-2 text-white text-xs shadow-xs",
       )}
     >
       <ArrowLeftIcon size={20} weight="bold" />

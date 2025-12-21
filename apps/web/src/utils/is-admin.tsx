@@ -6,7 +6,7 @@ import { useLocation } from "@tanstack/react-router";
  * @returns true if the pathname starts with "/admin"
  */
 export function isAdminPath(pathname: string): boolean {
-  return pathname.startsWith("/admin");
+	return pathname.startsWith("/admin");
 }
 
 /**
@@ -15,6 +15,6 @@ export function isAdminPath(pathname: string): boolean {
  * @returns true if the current route is an admin route
  */
 export function useIsAdmin(): boolean {
-  const location = useLocation();
-  return isAdminPath(location.pathname);
+	const location = useLocation();
+	return isAdminPath(location.pathname);
 }
