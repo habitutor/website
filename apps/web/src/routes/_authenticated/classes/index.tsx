@@ -28,7 +28,7 @@ function RouteComponent() {
           <p className="text-muted-foreground">No subtests yet</p>
         )}
 
-        <div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
+        <div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
           {subtests.data?.map((subtest) => (
             <SubtestCard key={subtest.id} subtest={subtest} />
           ))}

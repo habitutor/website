@@ -99,29 +99,29 @@ export function SubtestCard({ subtest }: { subtest: SubtestListItem }) {
     <Card
       className={cn(
         backgroundClass,
-        "relative min-h-40 overflow-hidden border-0 p-4 transition-colors lg:min-h-auto"
+        "relative min-h-40 overflow-hidden border-0 p-4 transition-colors"
       )}
     >
       {/* Pattern element */}
       <div
         className={cn(
           patternClass,
-          "absolute right-0 bottom-0 h-[122px] w-[132px]"
+          "absolute right-0 bottom-0 h-[70%] w-auto aspect-square"
         )}
       />
 
       {/* Avatar image */}
-      <div className="absolute right-10 translate-x-1/2 bottom-0 translate-y-1/4 size-[10em]">
+      <div className="absolute right-13 translate-x-1/2 bottom-0 translate-y-1/4 h-[170%] w-auto aspect-square">
         <Image
           src={avatarSrc}
           alt={`${subtest?.name} Avatar`}
-          width={359}
-          height={359}
+          width={356}
+          height={356}
           className="pointer-events-none select-none object-cover object-[50%_50%]"
         />
       </div>
       <div className="flex h-full justify-between">
-        <div className="mt-auto mb-0 flex-1">
+        <div className="mt-auto mb-0 w-1/2">
           <h3 className="text-pretty font-medium">{subtest?.name}</h3>
           <p className="text-sm"># Materi</p>
         </div>

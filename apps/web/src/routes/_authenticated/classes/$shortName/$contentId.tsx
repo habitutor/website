@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { Container } from "@/components/ui/container";
 import { BackButton } from "@/components/back-button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NextButton } from "@/components/next-button";
 
 export const Route = createFileRoute(
