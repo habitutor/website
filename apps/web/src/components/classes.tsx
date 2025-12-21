@@ -156,44 +156,42 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
     subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
 
   return (
-    <div
-      className={cn(
-        backgroundClass,
-        "relative min-h-[200px] overflow-hidden rounded-[10px] h-auto"
-      )}
-    >
-      {/* Pattern element */}
-      <div
-        className={cn(
-          patternClass,
-          "absolute left-[34px] top-[102px] h-[148px] w-[161px]"
-        )}
-      />
-
-      {/* Avatar image */}
-      <div className="absolute left-[-60px] top-[-4px] size-[356px]">
-        <Image
-          src={avatarSrc}
-          alt={`${subtest?.name} Avatar`}
-          width={356}
-          height={356}
-          className="pointer-events-none select-none object-cover object-[50%_50%]"
-        />
-      </div>
-
+    <div className={cn(backgroundClass, "relative rounded-[10px]")}>
       {/* Back button */}
-      <div className="absolute left-[33px] top-[33px]">
+      <div className="ml-[33px] mt-[33px] z-10">
         <BackButton to={isAdmin ? "/admin/classes" : "/classes"} />
       </div>
 
-      {/* Text content */}
-      <div className="absolute left-[263px] top-[94px] w-[306px] flex flex-col items-start">
-        <h1 className="font-bold text-[30px] leading-[45px] text-black whitespace-pre-wrap">
-          {subtest?.name}
-        </h1>
-        <p className="font-normal text-[14px] leading-[21px] text-black">
-          {subtest?.description}
-        </p>
+      <div className="relative flex items-center pt-[33px] overflow-hidden">
+        {/* Left section with pattern and avatar */}
+        <div className="relative shrink-0 w-[240px] self-stretch">
+          {/* Wrapper yang posisinya SAMA dengan pattern */}
+          <div className="absolute left-[34px] bottom-0 h-full aspect-square">
+            {/* Pattern (tidak diubah) */}
+            <div className={cn(patternClass, "h-full w-full")} />
+
+            {/* Avatar centered ke pattern */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[356px]">
+              <Image
+                src={avatarSrc}
+                alt={`${subtest?.name} Avatar`}
+                width={356}
+                height={356}
+                className="pointer-events-none select-none object-cover"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Text content */}
+        <div className="flex flex-col items-start gap-[8px] min-h-[90px] justify-center mr-10 mb-10">
+          <h1 className="font-bold text-[30px] leading-[45px] text-black">
+            {subtest?.name}
+          </h1>
+          <p className="font-normal text-[14px] leading-[21px] text-black">
+            {subtest?.description}
+          </p>
+        </div>
       </div>
     </div>
   );
