@@ -1,15 +1,13 @@
 import {
   createFileRoute,
-  Link,
   Outlet,
   useLocation,
   useNavigate,
 } from "@tanstack/react-router";
 import { Container } from "@/components/ui/container";
+import { BackButton } from "@/components/back-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import di bawah nanti bisa diisi kalau kamu mau fetch detail konten, dll
-// import { useQuery } from "@tanstack/react-query";
-// import { orpc } from "@/utils/orpc";
+import { NextButton } from "@/components/next-button";
 
 export const Route = createFileRoute(
   "/_authenticated/classes/$shortName/$contentId"
@@ -22,14 +20,12 @@ function RouteComponent() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Biar tab sinkron sama URL child-nya
   const currentPath = location.pathname;
-  const _basePath = `/_authenticated/classes/${shortName}/${contentId}`;
   const currentTab: "video" | "notes" | "quiz" = currentPath.endsWith("/notes")
     ? "notes"
     : currentPath.endsWith("/quiz")
     ? "quiz"
-    : "video"; // default ke video
+    : "video";
 
   const handleTabChange = (value: string) => {
     navigate({
@@ -44,34 +40,41 @@ function RouteComponent() {
   };
 
   return (
-    <Container className="space-y-6 pt-6">
-      {/* Di sini kamu bisa taruh header materi kalau sudah punya data */}
-      {/* <ClassMaterialHeader ... /> */}
+    <Container className="bg-white border-x border-neutral-200 pt-28 min-h-screen sm:gap-6">
+      <div className="flex justify-between">
+        <BackButton
+          to={
+            currentTab === "video"
+              ? "/classes/$shortName"
+              : currentTab === "notes"
+              ? "/classes/$shortName/$contentId/video"
+              : "/classes/$shortName/$contentId/notes"
+          }
+          params={
+            currentTab === "video" ? { shortName } : { shortName, contentId }
+          }
+        />
+        {currentTab === "video" && (
+          <NextButton
+            to="/classes/$shortName/$contentId/notes"
+            params={{ shortName, contentId }}
+            className={!location.pathname.includes("/video") ? "hidden" : ""}
+          />
+        )}
+        {currentTab === "notes" && (
+          <NextButton
+            to="/classes/$shortName/$contentId/quiz"
+            params={{ shortName, contentId }}
+            className={!location.pathname.includes("/notes") ? "hidden" : ""}
+          />
+        )}
+      </div>
 
-      {/* Tabs yang terhubung ke nested routes */}
       <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsList>
-          <TabsTrigger value="video">Video</TabsTrigger>
-          <TabsTrigger value="notes">Catatan</TabsTrigger>
-          <TabsTrigger value="quiz">Quiz</TabsTrigger>
-        </TabsList>
-
-        {/* Konten sebenernya datang dari child routes via <Outlet /> */}
-        <TabsContent value={currentTab} className="pt-4">
+        <TabsContent value={currentTab}>
           <Outlet />
         </TabsContent>
       </Tabs>
-
-      {/* Optional: link back ke list materi */}
-      <div className="pt-4">
-        <Link
-          to="/classes/$shortName"
-          params={{ shortName }}
-          className="text-muted-foreground text-sm hover:underline"
-        >
-          ← Kembali ke daftar materi
-        </Link>
-      </div>
     </Container>
   );
 }

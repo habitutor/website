@@ -3,6 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ClassHeader, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
 import { orpc } from "@/utils/orpc";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/")({
   params: {
@@ -56,22 +57,32 @@ function RouteComponent() {
     <Container className="space-y-6">
       <ClassHeader subtest={matchedClass} />
       <div className="space-y-4">
-        <ContentList
-          title="Materi"
-          items={materialContents.data}
-          isLoading={materialContents.isPending}
-          error={
-            materialContents.isError
-              ? materialContents.error.message
-              : undefined
-          }
-        />
-        <ContentList
-          title="Tips & Trick"
-          items={tipsContents.data}
-          isLoading={tipsContents.isPending}
-          error={tipsContents.isError ? tipsContents.error.message : undefined}
-        />
+        <Tabs defaultValue="material">
+          <TabsList>
+            <TabsTrigger value="material">Materi</TabsTrigger>
+            <TabsTrigger value="tips">Tips & Trick</TabsTrigger>
+          </TabsList>
+          <TabsContent value="material">
+            <ContentList
+              items={materialContents.data}
+              isLoading={materialContents.isPending}
+              error={
+                materialContents.isError
+                  ? materialContents.error.message
+                  : undefined
+              }
+            />
+          </TabsContent>
+          <TabsContent value="tips">
+            <ContentList
+              items={tipsContents.data}
+              isLoading={tipsContents.isPending}
+              error={
+                tipsContents.isError ? tipsContents.error.message : undefined
+              }
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </Container>
   );

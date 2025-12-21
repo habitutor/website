@@ -44,15 +44,26 @@ function RouteComponent() {
 
   return (
     <div className="space-y-4">
+      <p>
+        {location.pathname.endsWith("/video")
+          ? "Video Materi"
+          : location.pathname.endsWith("/notes")
+          ? "Catatan Materi"
+          : location.pathname.endsWith("/quiz")
+          ? "Quiz Materi"
+          : ""}
+      </p>
+      
+      <div className="aspect-video w-full">
+        <YouTubePlayer videoId={videoId} />
+      </div>
       <h2 className="font-semibold text-lg">
         {video.title ?? content.data.title}
       </h2>
 
-      {/* <div className="aspect-video w-full rounded-lg bg-muted" /> */}
-      <div className="aspect-video w-full">
-        <YouTubePlayer videoId={videoId} />
-      </div>
+      <hr />
 
+      <h3 className="font-semibold text-lg">Tentang Video</h3>
       <TiptapRenderer content={video.content} />
     </div>
   );

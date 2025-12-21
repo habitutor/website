@@ -16,7 +16,7 @@ export default function YouTubePlayer({ videoId }: { videoId: string }) {
       <YouTube
         videoId={videoId}
         opts={opts}
-        iframeClassName="w-full h-full aspect-video"
+        iframeClassName="w-full h-full aspect-video rounded-xl"
       />
     </div>
   );
