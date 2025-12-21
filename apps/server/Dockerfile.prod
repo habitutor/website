@@ -28,8 +28,8 @@ ENV NODE_ENV=production \
     PORT=3001 \
     HOSTNAME="0.0.0.0"
 
-COPY --from=builder /app/apps/server/server ./apps/server/server 
+COPY --from=builder /app/apps/server/dist ./apps/server/ 
 
 # EXPOSE 80
 
-CMD ["./apps/server/server"]
+CMD ["bun","./apps/server/index.js"]
