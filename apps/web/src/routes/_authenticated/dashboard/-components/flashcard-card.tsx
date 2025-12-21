@@ -1,6 +1,6 @@
 import { isDefinedError } from "@orpc/client";
 import { CheckIcon, XIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
@@ -29,7 +29,6 @@ export const FlashcardCard = () => {
 			},
 		}),
 	);
-	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const { page: currentPage, next: nextPage } = useFlashcardPageStore();
 	const [timeoutDialogOpen, setTimeoutDialogOpen] = useState(false);
@@ -66,9 +65,6 @@ export const FlashcardCard = () => {
 
 	function handleSubmit() {
 		submitMutation.mutate({});
-		queryClient.removeQueries({
-			queryKey: orpc.flashcard.streak.key(),
-		});
 	}
 
 	return (
