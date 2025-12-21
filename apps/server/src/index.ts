@@ -71,7 +71,7 @@ app.use("/*", async (c, next) => {
 });
 
 app.post("/midtrans/webhook", async (c) => {
-  const notificationJson = await c.req.json();
+  await c.req.json();
 
   return c.json({ status: "OK" });
 });
