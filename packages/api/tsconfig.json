@@ -1,6 +1,7 @@
 {
 	"extends": "@habitutor/config/tsconfig.base.json",
 	"compilerOptions": {
+		"strict": true,
 		"declaration": true,
 		"declarationMap": true,
 		"sourceMap": true,

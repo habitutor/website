@@ -260,35 +260,6 @@ const save = authed
 		});
 	});
 
-const streak = authed
-	.route({
-		path: "/flashcard/streak",
-		method: "GET",
-		tags: ["Flashcard"],
-	})
-	.output(
-		type({
-			streak: "number",
-			lastCompletedDate: "Date | null",
-			status: "'submitted' | 'not_submitted'",
-		}),
-	)
-	.handler(async ({ context }) => {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-		const streak = context.session.user.flashcardStreak || 0;
-		const lastCompletedDate = context.session.user.lastCompletedFlashcardAt as Date | null;
-
-		if (lastCompletedDate && today.getTime() - lastCompletedDate.getTime() > 2 * 24 * 3600 * 1000)
-			await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, context.session.user.id));
-
-		return {
-			streak,
-			lastCompletedDate,
-			status: lastCompletedDate?.getTime() === today.getTime() ? "submitted" : "not_submitted",
-		};
-	});
-
 const result = authed.handler(async ({ context, errors }) => {
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
@@ -353,6 +324,5 @@ export const flashcardRouter = {
 	get,
 	submit,
 	save,
-	streak,
 	result,
 };
