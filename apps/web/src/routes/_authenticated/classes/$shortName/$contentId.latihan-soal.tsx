@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound, useLocation } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PracticeQuestionHeader } from "@/components/classes";
 import { orpc } from "@/utils/orpc";
 // import { QuizPlayer } from "@/components/quiz-player";
@@ -12,25 +12,22 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { contentId } = Route.useParams();
-  const location = useLocation();
 
-  const content = useQuery(
-    orpc.subtest.getContentById.queryOptions({
-      input: { contentId: Number(contentId) },
-    })
-  );
+	const content = useQuery(
+		orpc.subtest.getContentById.queryOptions({
+			input: { contentId: Number(contentId) },
+		}),
+	);
 
   if (content.isPending) {
     return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
   }
 
-  if (content.isError) {
-    return (
-      <p className="text-red-500 text-sm">Error: {content.error.message}</p>
-    );
-  }
+	if (content.isError) {
+		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+	}
 
-  if (!content.data) return notFound();
+	if (!content.data) return notFound();
 
   const practiceQuestions = content.data.practiceQuestions;
   // if (!practiceQuestions) {

@@ -16,20 +16,20 @@ COPY --from=prepare /app/out/full/ .
 # Uncomment and use build args to enable remote caching
 ARG TURBO_TEAM
 ENV TURBO_TEAM=$TURBO_TEAM
-
 ARG TURBO_TOKEN
 ENV TURBO_TOKEN=$TURBO_TOKEN
 
 RUN bun turbo build --filter=web
 
 FROM base AS runner
-
+RUN addgroup --system --gid 1001 appgroup && \
+    adduser --system --uid 1001 appuser
 ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME="0.0.0.0"
 
-COPY --from=builder . .
+COPY --from=builder --chown=appuser:appgroup /app/apps/web/dist ./
 
 # EXPOSE 80
 
-CMD ["bun", "./app/apps/web/dist/server/server.js"]
+CMD ["bun", "server/server.js"]

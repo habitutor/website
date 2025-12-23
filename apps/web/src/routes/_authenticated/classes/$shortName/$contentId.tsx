@@ -9,16 +9,14 @@ import { NextButton } from "@/components/next-button";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 
-export const Route = createFileRoute(
-  "/_authenticated/classes/$shortName/$contentId"
-)({
-  component: RouteComponent,
+export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId")({
+	component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { shortName, contentId } = Route.useParams();
-  const navigate = useNavigate();
-  const location = useLocation();
+	const { shortName, contentId } = Route.useParams();
+	const navigate = useNavigate();
+	const location = useLocation();
 
   const currentPath = location.pathname;
   const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith(
@@ -67,11 +65,11 @@ function RouteComponent() {
         )}
       </div>
 
-      <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsContent value={currentTab}>
-          <Outlet />
-        </TabsContent>
-      </Tabs>
-    </Container>
-  );
+			<Tabs value={currentTab} onValueChange={handleTabChange}>
+				<TabsContent value={currentTab}>
+					<Outlet />
+				</TabsContent>
+			</Tabs>
+		</Container>
+	);
 }

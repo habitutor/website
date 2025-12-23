@@ -18,21 +18,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute(
-  "/_authenticated/admin/classes/$shortName/$contentId/notes"
-)({
-  component: RouteComponent,
+export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/$contentId/notes")({
+	component: RouteComponent,
 });
 
 function RouteComponent() {
   const { contentId } = Route.useParams();
   const queryClient = useQueryClient();
 
-  const content = useQuery(
-    orpc.subtest.getContentById.queryOptions({
-      input: { contentId: Number(contentId) },
-    })
-  );
+	const content = useQuery(
+		orpc.subtest.getContentById.queryOptions({
+			input: { contentId: Number(contentId) },
+		}),
+	);
 
   const saveMutation = useMutation(
     orpc.admin.subtest.upsertNote.mutationOptions({
@@ -97,13 +95,11 @@ function RouteComponent() {
     return <p className="animate-pulse text-sm">Memuat catatan...</p>;
   }
 
-  if (content.isError) {
-    return (
-      <p className="text-red-500 text-sm">Error: {content.error.message}</p>
-    );
-  }
+	if (content.isError) {
+		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+	}
 
-  if (!content.data) return notFound();
+	if (!content.data) return notFound();
 
   const hasNote = !!content.data.note;
 

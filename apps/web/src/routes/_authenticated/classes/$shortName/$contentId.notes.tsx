@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound, useLocation } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
 
@@ -9,7 +9,6 @@ export const Route = createFileRoute("/_authenticated/classes/$shortName/$conten
 
 function RouteComponent() {
 	const { contentId } = Route.useParams();
-	const location = useLocation();
 
 	const content = useQuery(
 		orpc.subtest.getContentById.queryOptions({

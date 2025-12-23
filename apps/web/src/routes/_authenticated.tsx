@@ -11,18 +11,18 @@ import { Container } from "@/components/ui/container";
 import { getUser } from "@/lib/get-user";
 
 export const Route = createFileRoute("/_authenticated")({
-  component: AuthedLayout,
-  beforeLoad: async () => {
-    const session = await getUser();
+	component: AuthedLayout,
+	beforeLoad: async () => {
+		const session = await getUser();
 
-    return { session };
-  },
-  loader: ({ context }) => {
-    if (!context.session)
-      throw redirect({
-        to: "/login",
-      });
-  },
+		return { session };
+	},
+	loader: ({ context }) => {
+		if (!context.session)
+			throw redirect({
+				to: "/login",
+			});
+	},
 });
 
 function AuthedLayout() {
@@ -42,9 +42,9 @@ function AuthedLayout() {
 
   const pathname = isPending ? stablePathnameRef.current : location.pathname;
 
-  return (
-    <>
-      <HeaderDashboard session={context.session} />
+	return (
+		<>
+			<HeaderDashboard session={context.session} />
 
       {/^\/classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal)/.test(pathname) ? (
         <Container className="flex flex-col gap-6 py-0">

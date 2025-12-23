@@ -68,48 +68,43 @@ export function SubtestHeader() {
 }
 
 const subtestCardBackground = {
-  pu: "bg-secondary-400",
-  ppu: "bg-tertiary-400",
-  pbm: "bg-fourtiary-300 *:text-white",
-  pk: "bg-primary-200 *:text-white",
-  lbi: "bg-secondary-400",
-  lbing: "bg-tertiary-400",
-  pm: "bg-fourtiary-300 *:text-white",
+	pu: "bg-secondary-400",
+	ppu: "bg-tertiary-400",
+	pbm: "bg-fourtiary-300 *:text-white",
+	pk: "bg-primary-200 *:text-white",
+	lbi: "bg-secondary-400",
+	lbing: "bg-tertiary-400",
+	pm: "bg-fourtiary-300 *:text-white",
 } as const;
 
 const subtestCardPattern = {
-  pu: "bg-secondary-600",
-  ppu: "bg-tertiary-200",
-  pbm: "bg-fourtiary-200",
-  pk: "bg-primary-100",
-  lbi: "bg-secondary-600",
-  lbing: "bg-tertiary-200",
-  pm: "bg-fourtiary-200",
+	pu: "bg-secondary-600",
+	ppu: "bg-tertiary-200",
+	pbm: "bg-fourtiary-200",
+	pk: "bg-primary-100",
+	lbi: "bg-secondary-600",
+	lbing: "bg-tertiary-200",
+	pm: "bg-fourtiary-200",
 } as const;
 
 const subtestCardAvatar = {
-  pu: "/avatar/subtest-pu-avatar.webp",
-  ppu: "/avatar/subtest-ppu-avatar.webp",
-  pbm: "/avatar/subtest-pbm-avatar.webp",
-  pk: "/avatar/subtest-pk-avatar.webp",
-  lbi: "/avatar/subtest-lbi-avatar.webp",
-  lbing: "/avatar/subtest-lbing-avatar.webp",
-  pm: "/avatar/subtest-pm-avatar.webp",
+	pu: "/avatar/subtest-pu-avatar.webp",
+	ppu: "/avatar/subtest-ppu-avatar.webp",
+	pbm: "/avatar/subtest-pbm-avatar.webp",
+	pk: "/avatar/subtest-pk-avatar.webp",
+	lbi: "/avatar/subtest-lbi-avatar.webp",
+	lbing: "/avatar/subtest-lbing-avatar.webp",
+	pm: "/avatar/subtest-pm-avatar.webp",
 } as const;
 
-type SubtestListItem = NonNullable<
-  BodyOutputs["subtest"]["listSubtests"]
->[number];
+type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>[number];
 
 export function SubtestCard({ subtest }: { subtest: SubtestListItem }) {
-  const isAdmin = useIsAdmin();
-  const shortName =
-    subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
-  const backgroundClass =
-    subtestCardBackground[shortName] || "bg-secondary-400";
-  const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
-  const avatarSrc =
-    subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
+	const isAdmin = useIsAdmin();
+	const shortName = subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
+	const backgroundClass = subtestCardBackground[shortName] || "bg-secondary-400";
+	const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
+	const avatarSrc = subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
 
   return (
     <Card
@@ -142,34 +137,24 @@ export function SubtestCard({ subtest }: { subtest: SubtestListItem }) {
           <p className="text-sm"># Materi</p>
         </div>
 
-        <Link
-          to={isAdmin ? "/admin/classes/$shortName" : "/classes/$shortName"}
-          params={{ shortName: subtest?.shortName?.toLowerCase() }}
-          className={cn(
-            buttonVariants({ variant: "lightBlue", size: "icon" }),
-            "z-1 mt-auto mb-0"
-          )}
-        >
-          {isAdmin ? (
-            <PencilSimpleIcon size={18} weight="bold" />
-          ) : (
-            <ArrowRightIcon size={18} weight="bold" />
-          )}
-        </Link>
-      </div>
-    </Card>
-  );
+				<Link
+					to={isAdmin ? "/admin/classes/$shortName" : "/classes/$shortName"}
+					params={{ shortName: subtest?.shortName?.toLowerCase() }}
+					className={cn(buttonVariants({ variant: "lightBlue", size: "icon" }), "z-1 mt-auto mb-0")}
+				>
+					{isAdmin ? <PencilSimpleIcon size={18} weight="bold" /> : <ArrowRightIcon size={18} weight="bold" />}
+				</Link>
+			</div>
+		</Card>
+	);
 }
 
 export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
-  const isAdmin = useIsAdmin();
-  const shortName =
-    subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
-  const backgroundClass =
-    subtestCardBackground[shortName] || "bg-secondary-400";
-  const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
-  const avatarSrc =
-    subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
+	const isAdmin = useIsAdmin();
+	const shortName = subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
+	const backgroundClass = subtestCardBackground[shortName] || "bg-secondary-400";
+	const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
+	const avatarSrc = subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
 
   const forceTextWhite = backgroundClass.includes("text-white");
 
@@ -232,9 +217,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
   );
 }
 
-type ContentListItem = NonNullable<
-  BodyOutputs["subtest"]["listContentByCategory"]
->[number];
+type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
 
 const CONTENT_ACTIONS = [
   {
@@ -288,10 +271,10 @@ function ContentCard({
   const shortNameIndex = isAdmin ? 3 : 2;
   const shortName = location.pathname.split("/")[shortNameIndex];
 
-  const params = {
-    shortName,
-    contentId: item.id.toString(),
-  };
+	const params = {
+		shortName,
+		contentId: item.id.toString(),
+	};
 
   return (
     <Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
@@ -435,7 +418,7 @@ export function ContentList({
         )}
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+			{error && <p className="text-red-500 text-sm">{error}</p>}
 
       {!isLoading && !error && (!items || items.length === 0) && (
         <div className="flex flex-col items-center justify-center gap-2">

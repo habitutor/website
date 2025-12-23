@@ -9,8 +9,7 @@ export function NextButton({ to, className }: { to: string, className?:string })
 			to={to}
 			className={cn(
 				buttonVariants({ variant: "lightBlue", size: "sm" }),
-				"gap-2 px-[14px] py-[8px] text-white text-xs shadow-xs",
-				className,
+				"gap-2 px-3.5 py-2 text-white text-xs shadow-xs",
 			)}
 		>
 			Selanjutnya
