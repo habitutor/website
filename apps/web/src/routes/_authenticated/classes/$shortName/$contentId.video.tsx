@@ -36,15 +36,12 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p>
-				{location.pathname.endsWith("/video")
-					? "Video Materi"
-					: location.pathname.endsWith("/notes")
-						? "Catatan Materi"
-						: location.pathname.endsWith("/quiz")
-							? "Quiz Materi"
-							: ""}
-			</p>
+			<p>Video Materi</p>
+
+			<div className="aspect-video w-full">
+				<YouTubePlayer videoId={videoId} />
+			</div>
+			<h2 className="font-semibold text-lg">{video.title ?? content.data.title}</h2>
 
 			<div className="aspect-video w-full">
 				<YouTubePlayer videoId={videoId} />

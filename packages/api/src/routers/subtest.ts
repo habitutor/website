@@ -1,7 +1,7 @@
 import { db } from "@habitutor/db";
 import {
 	contentItem,
-	contentQuiz,
+	contentPracticeQuestions,
 	noteMaterial,
 	recentContentView,
 	subtest,
@@ -62,16 +62,16 @@ const listContentByCategory = authed
 				order: contentItem.order,
 				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
 				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-				hasQuiz: sql<boolean>`${contentQuiz.contentItemId} IS NOT NULL`,
+				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
 				videoCompleted: userProgress.videoCompleted,
 				noteCompleted: userProgress.noteCompleted,
-				quizCompleted: userProgress.quizCompleted,
+				practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
 				lastViewedAt: userProgress.lastViewedAt,
 			})
 			.from(contentItem)
 			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
 			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.leftJoin(contentQuiz, eq(contentQuiz.contentItemId, contentItem.id))
+			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
 			.leftJoin(
 				userProgress,
 				and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
@@ -82,10 +82,10 @@ const listContentByCategory = authed
 				contentItem.id,
 				videoMaterial.id,
 				noteMaterial.id,
-				contentQuiz.contentItemId,
+				contentPracticeQuestions.contentItemId,
 				userProgress.videoCompleted,
 				userProgress.noteCompleted,
-				userProgress.quizCompleted,
+				userProgress.practiceQuestionsCompleted,
 				userProgress.lastViewedAt,
 			);
 
@@ -129,14 +129,14 @@ const getContentById = authed
 			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
 		}
 
-		const quizQuestions = await db
+		const practiceQuestions = await db
 			.select({
-				questionId: contentQuiz.questionId,
-				order: contentQuiz.order,
+				questionId: contentPracticeQuestions.questionId,
+				order: contentPracticeQuestions.order,
 			})
-			.from(contentQuiz)
-			.where(eq(contentQuiz.contentItemId, input.contentId))
-			.orderBy(contentQuiz.order);
+			.from(contentPracticeQuestions)
+			.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
+			.orderBy(contentPracticeQuestions.order);
 
 		return {
 			id: row.id,
@@ -157,10 +157,10 @@ const getContentById = authed
 						content: row.noteContent,
 					}
 				: null,
-			quiz:
-				quizQuestions.length > 0
+			practiceQuestions:
+				practiceQuestions.length > 0
 					? {
-							questions: quizQuestions,
+							questions: practiceQuestions,
 						}
 					: null,
 		};
@@ -258,7 +258,7 @@ const updateProgress = authed
 			id: "number",
 			videoCompleted: "boolean?",
 			noteCompleted: "boolean?",
-			quizCompleted: "boolean?",
+			practiceQuestionsCompleted: "boolean?",
 		}),
 	)
 	.output(type({ message: "string" }))
@@ -279,7 +279,7 @@ const updateProgress = authed
 		const updateData: {
 			videoCompleted?: boolean;
 			noteCompleted?: boolean;
-			quizCompleted?: boolean;
+			practiceQuestionsCompleted?: boolean;
 			lastViewedAt: Date;
 			updatedAt: Date;
 		} = {
@@ -289,7 +289,8 @@ const updateProgress = authed
 
 		if (input.videoCompleted !== undefined) updateData.videoCompleted = input.videoCompleted;
 		if (input.noteCompleted !== undefined) updateData.noteCompleted = input.noteCompleted;
-		if (input.quizCompleted !== undefined) updateData.quizCompleted = input.quizCompleted;
+		if (input.practiceQuestionsCompleted !== undefined)
+			updateData.practiceQuestionsCompleted = input.practiceQuestionsCompleted;
 
 		// Upsert progress
 		await db

@@ -1,7 +1,34 @@
-import { useQuery } from "@tanstack/react-query";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { type } from "arktype";
+import { useState } from "react";
+import { toast } from "sonner";
 import { ClassHeader, ContentList } from "@/components/classes";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Container } from "@/components/ui/container";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/")({
@@ -13,8 +40,17 @@ export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/"
 	component: RouteComponent,
 });
 
+type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
+
 function RouteComponent() {
 	const { shortName } = Route.useParams();
+	const queryClient = useQueryClient();
+	const [createDialogOpen, setCreateDialogOpen] = useState(false);
+	const [createDialogType, setCreateDialogType] = useState<"material" | "tips_and_trick">("material");
+	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [editingItem, setEditingItem] = useState<ContentListItem | null>(null);
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [deletingItem, setDeletingItem] = useState<ContentListItem | null>(null);
 
 	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 	const matchedClass = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
@@ -32,6 +68,203 @@ function RouteComponent() {
 			enabled: Boolean(matchedClass?.id),
 		}),
 	);
+
+	const createMutation = useMutation(
+		orpc.admin.subtest.createContent.mutationOptions({
+			onSuccess: (data) => {
+				toast.success(data.message);
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
+					}),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+					}),
+				});
+				setCreateDialogOpen(false);
+			},
+			onError: (error) => {
+				toast.error(error.message || "Gagal membuat konten");
+			},
+		}),
+	);
+
+	const updateMutation = useMutation(
+		orpc.admin.subtest.updateContent.mutationOptions({
+			onSuccess: (data) => {
+				toast.success(data.message);
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
+					}),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+					}),
+				});
+				setEditDialogOpen(false);
+				setEditingItem(null);
+			},
+			onError: (error) => {
+				toast.error(error.message || "Gagal memperbarui konten");
+			},
+		}),
+	);
+
+	const deleteMutation = useMutation(
+		orpc.admin.subtest.deleteContent.mutationOptions({
+			onSuccess: (data) => {
+				toast.success(data.message);
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
+					}),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+					}),
+				});
+				setDeleteDialogOpen(false);
+				setDeletingItem(null);
+			},
+			onError: (error) => {
+				toast.error(error.message || "Gagal menghapus konten");
+			},
+		}),
+	);
+
+	const reorderMutation = useMutation(
+		orpc.admin.subtest.reorderContent.mutationOptions({
+			onSuccess: (data) => {
+				toast.success(data.message);
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
+					}),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.listContentByCategory.queryKey({
+						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+					}),
+				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Gagal mengubah urutan konten");
+			},
+		}),
+	);
+
+	const createForm = useForm({
+		defaultValues: {
+			title: "",
+			withNote: true,
+		},
+		onSubmit: async ({ value }) => {
+			if (!matchedClass) return;
+			const items = createDialogType === "material" ? materialContents.data : tipsContents.data;
+			const maxOrder = items && items.length > 0 ? Math.max(...items.map((i) => i.order ?? 0)) : 0;
+
+			// For now we ensure at least one component exists by always requiring a note on creation
+			if (!value.withNote) {
+				toast.error("Konten baru harus memiliki minimal satu komponen. Aktifkan catatan materi.");
+				return;
+			}
+
+			createMutation.mutate({
+				subtestId: matchedClass.id,
+				type: createDialogType,
+				title: value.title,
+				order: maxOrder + 1,
+				note: value.withNote ? { content: {} } : undefined,
+			});
+		},
+		validators: {
+			onSubmit: type({
+				title: "string >= 1",
+			}),
+		},
+	});
+
+	const editForm = useForm({
+		defaultValues: {
+			title: "",
+		},
+		onSubmit: async ({ value }) => {
+			if (!editingItem) return;
+			updateMutation.mutate({
+				id: editingItem.id,
+				title: value.title,
+			});
+		},
+		validators: {
+			onSubmit: type({
+				title: "string >= 1",
+			}),
+		},
+	});
+
+	const handleCreate = (type: "material" | "tips_and_trick") => {
+		setCreateDialogType(type);
+		setCreateDialogOpen(true);
+		createForm.reset();
+	};
+
+	const handleEdit = (item: ContentListItem) => {
+		setEditingItem(item);
+		editForm.setFieldValue("title", item.title);
+		setEditDialogOpen(true);
+	};
+
+	const handleDelete = (item: ContentListItem) => {
+		setDeletingItem(item);
+		setDeleteDialogOpen(true);
+	};
+
+	const handleMoveUp = (item: ContentListItem, category: "material" | "tips_and_trick") => {
+		if (!matchedClass) return;
+		const items = category === "material" ? materialContents.data : tipsContents.data;
+		if (!items) return;
+		const currentIndex = items.findIndex((i) => i.id === item.id);
+		if (currentIndex <= 0) return;
+
+		const prevItem = items[currentIndex - 1];
+		const updatedItems = items.map((i) => {
+			if (i.id === item.id) return { id: i.id, order: prevItem.order ?? currentIndex };
+			if (i.id === prevItem.id) return { id: i.id, order: item.order ?? currentIndex + 1 };
+			return { id: i.id, order: i.order ?? items.indexOf(i) + 1 };
+		});
+
+		reorderMutation.mutate({
+			subtestId: matchedClass.id,
+			type: category,
+			items: updatedItems,
+		});
+	};
+
+	const handleMoveDown = (item: ContentListItem, category: "material" | "tips_and_trick") => {
+		if (!matchedClass) return;
+		const items = category === "material" ? materialContents.data : tipsContents.data;
+		if (!items) return;
+		const currentIndex = items.findIndex((i) => i.id === item.id);
+		if (currentIndex < 0 || currentIndex >= items.length - 1) return;
+
+		const nextItem = items[currentIndex + 1];
+		const updatedItems = items.map((i) => {
+			if (i.id === item.id) return { id: i.id, order: nextItem.order ?? currentIndex + 2 };
+			if (i.id === nextItem.id) return { id: i.id, order: item.order ?? currentIndex + 1 };
+			return { id: i.id, order: i.order ?? items.indexOf(i) + 1 };
+		});
+
+		reorderMutation.mutate({
+			subtestId: matchedClass.id,
+			type: category,
+			items: updatedItems,
+		});
+	};
 
 	if (subtests.isPending) {
 		return (
@@ -59,14 +292,172 @@ function RouteComponent() {
 					items={materialContents.data}
 					isLoading={materialContents.isPending}
 					error={materialContents.isError ? materialContents.error.message : undefined}
+					onCreate={() => handleCreate("material")}
+					onEdit={handleEdit}
+					onDelete={handleDelete}
+					onMoveUp={(item) => handleMoveUp(item, "material")}
+					onMoveDown={(item) => handleMoveDown(item, "material")}
 				/>
 				<ContentList
 					title="Tips & Trick"
 					items={tipsContents.data}
 					isLoading={tipsContents.isPending}
 					error={tipsContents.isError ? tipsContents.error.message : undefined}
+					onCreate={() => handleCreate("tips_and_trick")}
+					onEdit={handleEdit}
+					onDelete={handleDelete}
+					onMoveUp={(item) => handleMoveUp(item, "tips_and_trick")}
+					onMoveDown={(item) => handleMoveDown(item, "tips_and_trick")}
 				/>
 			</div>
+
+			{/* Create Dialog */}
+			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Tambah Konten</DialogTitle>
+						<DialogDescription>
+							Buat konten baru untuk {createDialogType === "material" ? "Materi" : "Tips & Trick"}
+						</DialogDescription>
+					</DialogHeader>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							createForm.handleSubmit();
+						}}
+						className="space-y-4"
+					>
+						<createForm.Field name="title">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Judul</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Masukkan judul konten"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500 text-sm">
+											{error?.message}
+										</p>
+									))}
+								</div>
+							)}
+						</createForm.Field>
+						<createForm.Field name="withNote">
+							{(field) => (
+								<div className="flex items-center gap-2">
+									<Checkbox
+										id={field.name}
+										checked={field.state.value}
+										onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
+									/>
+									<Label htmlFor={field.name} className="font-normal text-sm">
+										Buat catatan materi awal (minimal satu komponen per konten)
+									</Label>
+								</div>
+							)}
+						</createForm.Field>
+						<DialogFooter>
+							<Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>
+								Batal
+							</Button>
+							<createForm.Subscribe>
+								{(state) => (
+									<Button type="submit" disabled={!state.canSubmit || createMutation.isPending}>
+										{createMutation.isPending ? "Menyimpan..." : "Simpan"}
+									</Button>
+								)}
+							</createForm.Subscribe>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+
+			{/* Edit Dialog */}
+			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Edit Konten</DialogTitle>
+						<DialogDescription>Ubah judul konten</DialogDescription>
+					</DialogHeader>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							editForm.handleSubmit();
+						}}
+						className="space-y-4"
+					>
+						<editForm.Field name="title">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Judul</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Masukkan judul konten"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500 text-sm">
+											{error?.message}
+										</p>
+									))}
+								</div>
+							)}
+						</editForm.Field>
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => {
+									setEditDialogOpen(false);
+									setEditingItem(null);
+								}}
+							>
+								Batal
+							</Button>
+							<editForm.Subscribe>
+								{(state) => (
+									<Button type="submit" disabled={!state.canSubmit || updateMutation.isPending}>
+										{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+									</Button>
+								)}
+							</editForm.Subscribe>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+
+			{/* Delete Dialog */}
+			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Hapus Konten?</AlertDialogTitle>
+						<AlertDialogDescription>
+							Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}"? Tindakan ini tidak dapat dibatalkan.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={() => {
+								if (deletingItem) {
+									deleteMutation.mutate({ id: deletingItem.id });
+								}
+							}}
+							disabled={deleteMutation.isPending}
+						>
+							{deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</Container>
 	);
 }

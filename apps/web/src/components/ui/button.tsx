@@ -19,7 +19,7 @@ const buttonVariants = cva(
 				navbar:
 					"bg-inherit text-foreground hover:bg-primary/5 data-[active=true]:border-primary data-[active=true]:border-b-2 data-[active=true]:bg-primary/10",
 				// Light Blue
-				lightBlue: "bg-primary-300 text-white shadow-xs hover:bg-primary-300/80",
+				lightBlue: "bg-primary-300 text-white shadow-xs hover:bg-primary-300",
 			},
 			size: {
 				default: "h-10 px-6 py-2 has-[>svg]:px-4",

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
-// import { TiptapRenderer } from "@/components/tiptap-renderer";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/notes")({
 	component: RouteComponent,
@@ -34,15 +33,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p>
-				{location.pathname.endsWith("/video")
-					? "Video Materi"
-					: location.pathname.endsWith("/notes")
-						? "Catatan Materi"
-						: location.pathname.endsWith("/quiz")
-							? "Quiz Materi"
-							: ""}
-			</p>
+			<p>Catatan Materi</p>
 			<h2 className="font-semibold text-lg">{content.data.title}</h2>
 			<TiptapRenderer content={note.content} />
 		</div>

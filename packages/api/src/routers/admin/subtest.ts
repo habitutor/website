@@ -1,5 +1,11 @@
 import { db } from "@habitutor/db";
-import { contentItem, contentQuiz, noteMaterial, subtest, videoMaterial } from "@habitutor/db/schema/subtest";
+import {
+	contentItem,
+	contentPracticeQuestions,
+	noteMaterial,
+	subtest,
+	videoMaterial,
+} from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq } from "drizzle-orm";
@@ -167,31 +173,144 @@ const createContent = authed
 			type: "'material' | 'tips_and_trick'",
 			title: "string",
 			order: "number",
+			video: "object?",
+			note: "object?",
+			practiceQuestionIds: "number[]?",
 		}),
 	)
-	.output(type({ message: "string", contentId: "number" }))
+	.output(
+		type({
+			message: "string",
+			contentId: "number",
+			createdMaterials: "object",
+		}),
+	)
 	.handler(async ({ input }) => {
 		// TODO: Add admin authorization check
 		// if (!context.session.user.isAdmin) throw ORPCError("FORBIDDEN")
 
-		const [newContent] = await db
-			.insert(contentItem)
-			.values({
-				subtestId: input.subtestId,
-				type: input.type,
-				title: input.title,
-				order: input.order,
-			})
-			.returning();
+		// Validate that at least one material is provided
+		const hasVideo = input.video !== undefined && input.video !== null;
+		const hasNote = input.note !== undefined && input.note !== null;
+		const hasPracticeQuestions =
+			input.practiceQuestionIds !== undefined &&
+			input.practiceQuestionIds !== null &&
+			input.practiceQuestionIds.length > 0;
 
-		if (!newContent)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
-				message: "Gagal membuat konten",
+		if (!hasVideo && !hasNote && !hasPracticeQuestions) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
 			});
+		}
+
+		// Validate that tips_and_trick cannot have practice questions
+		if (input.type === "tips_and_trick" && hasPracticeQuestions) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Tips & Trick tidak boleh memiliki latihan soal",
+			});
+		}
+
+		// Validate video structure if provided
+		if (hasVideo) {
+			if (
+				typeof input.video !== "object" ||
+				!("title" in input.video) ||
+				!("videoUrl" in input.video) ||
+				!("content" in input.video) ||
+				typeof input.video.title !== "string" ||
+				typeof input.video.videoUrl !== "string" ||
+				!input.video.videoUrl.trim()
+			) {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Video harus memiliki title, videoUrl, dan content yang valid",
+				});
+			}
+		}
+
+		// Validate note structure if provided
+		if (hasNote) {
+			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
+				});
+			}
+		}
+
+		// Create content and materials in a transaction
+		const result = await db.transaction(async (tx) => {
+			// Insert content item
+			const [newContent] = await tx
+				.insert(contentItem)
+				.values({
+					subtestId: input.subtestId,
+					type: input.type,
+					title: input.title,
+					order: input.order,
+				})
+				.returning();
+
+			if (!newContent)
+				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+					message: "Gagal membuat konten",
+				});
+
+			const createdMaterials: {
+				video?: number;
+				note?: number;
+				practiceQuestions?: number;
+			} = {};
+
+			// Insert video material if provided
+			if (hasVideo && input.video) {
+				const [video] = await tx
+					.insert(videoMaterial)
+					.values({
+						contentItemId: newContent.id,
+						title: input.video.title,
+						videoUrl: input.video.videoUrl,
+						content: input.video.content,
+					})
+					.returning();
+
+				if (video) createdMaterials.video = video.id;
+			}
+
+			// Insert note material if provided
+			if (hasNote && input.note) {
+				const [note] = await tx
+					.insert(noteMaterial)
+					.values({
+						contentItemId: newContent.id,
+						content: input.note.content,
+					})
+					.returning();
+
+				if (note) createdMaterials.note = note.id;
+			}
+
+			// Insert practice questions if provided (only for material type)
+			if (hasPracticeQuestions && input.practiceQuestionIds && input.type === "material") {
+				await tx.insert(contentPracticeQuestions).values(
+					input.practiceQuestionIds.map((questionId, index) => ({
+						contentItemId: newContent.id,
+						questionId,
+						order: index + 1,
+					})),
+				);
+
+				createdMaterials.practiceQuestions = input.practiceQuestionIds.length;
+			}
+
+			return {
+				contentId: newContent.id,
+				createdMaterials,
+			};
+		});
 
 		return {
 			message: "Konten berhasil dibuat",
-			contentId: newContent.id,
+			contentId: result.contentId,
+			createdMaterials: result.createdMaterials,
 		};
 	});
 
@@ -482,12 +601,12 @@ const deleteNote = authed
 	});
 
 /**
- * Link quiz questions to content (only for Material type)
- * POST /api/admin/content/{id}/quiz
+ * Link practice questions to content (only for Material type)
+ * POST /api/admin/content/{id}/practice-questions
  */
-const linkQuiz = authed
+const linkPracticeQuestions = authed
 	.route({
-		path: "/admin/content/{id}/quiz",
+		path: "/admin/content/{id}/practice-questions",
 		method: "POST",
 		tags: ["Admin - Content"],
 	})
@@ -510,21 +629,21 @@ const linkQuiz = authed
 
 		if (!content)
 			throw new ORPCError("NOT_FOUND", {
-				message: "Konten tidak ditemukan",
+				message: "Content not found",
 			});
 
 		if (content.type === "tips_and_trick") {
 			throw new ORPCError("BAD_REQUEST", {
-				message: "Tips & Trick tidak boleh memiliki quiz",
+				message: "Tips & Trick cannot have practice questions",
 			});
 		}
 
-		// Delete existing quiz links
-		await db.delete(contentQuiz).where(eq(contentQuiz.contentItemId, input.id));
+		// Delete existing practice question links
+		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-		// Insert new quiz links
+		// Insert new practice question links
 		if (input.questionIds.length > 0) {
-			await db.insert(contentQuiz).values(
+			await db.insert(contentPracticeQuestions).values(
 				input.questionIds.map((questionId, index) => ({
 					contentItemId: input.id,
 					questionId,
@@ -533,16 +652,16 @@ const linkQuiz = authed
 			);
 		}
 
-		return { message: "Quiz berhasil ditautkan ke konten" };
+		return { message: "Practice questions successfully linked to content" };
 	});
 
 /**
- * Remove quiz from content
- * DELETE /api/admin/content/{id}/quiz
+ * Remove practice questions from content
+ * DELETE /api/admin/content/{id}/practice-questions
  */
-const unlinkQuiz = authed
+const unlinkPracticeQuestions = authed
 	.route({
-		path: "/admin/content/{id}/quiz",
+		path: "/admin/content/{id}/practice-questions",
 		method: "DELETE",
 		tags: ["Admin - Content"],
 	})
@@ -551,9 +670,9 @@ const unlinkQuiz = authed
 	.handler(async ({ input }) => {
 		// TODO: Add admin authorization check
 
-		await db.delete(contentQuiz).where(eq(contentQuiz.contentItemId, input.id));
+		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-		return { message: "Quiz berhasil dihapus dari konten" };
+		return { message: "Practice questions successfully removed from content" };
 	});
 
 export const adminSubtestRouter = {
@@ -569,6 +688,6 @@ export const adminSubtestRouter = {
 	deleteVideo,
 	upsertNote,
 	deleteNote,
-	linkQuiz,
-	unlinkQuiz,
+	linkPracticeQuestions,
+	unlinkPracticeQuestions,
 };

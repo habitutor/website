@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
 
-export function NextButton({ to }: { to: string }) {
+export function NextButton({ to, className }: { to: string; className?: string }) {
 	return (
 		<Link
 			to={to}

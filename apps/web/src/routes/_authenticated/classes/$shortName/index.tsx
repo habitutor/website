@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ClassHeader, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
 
@@ -36,8 +37,8 @@ function RouteComponent() {
 
 	if (subtests.isPending) {
 		return (
-			<Container className="pt-12">
-				<p className="animate-pulse text-sm">Memuat kelas...</p>
+			<Container className="space-y-6">
+				<Skeleton className="h-70 w-full" />
 			</Container>
 		);
 	}
@@ -52,7 +53,7 @@ function RouteComponent() {
 	if (!matchedClass) return notFound();
 
 	return (
-		<Container className="space-y-6">
+		<Container>
 			<ClassHeader subtest={matchedClass} />
 			<div className="space-y-4">
 				<Tabs defaultValue="material">

@@ -1,13 +1,18 @@
 import {
+	ArrowDownIcon,
 	ArrowRightIcon,
-	BookIcon,
+	ArrowUpIcon,
 	CaretRightIcon,
-	FileTextIcon,
+	ExamIcon,
+	NoteIcon,
 	PencilSimpleIcon,
-	PlayIcon,
+	PlayCircleIcon,
+	PlusIcon,
+	TrashIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
@@ -17,31 +22,36 @@ import { buttonVariants } from "./ui/button";
 
 export function SubtestHeader() {
 	const isAdmin = useIsAdmin();
-	const title = isAdmin ? "Subtest-Subtest UTBK" : "Kelas-Kelas UTBK";
+
+	const title = isAdmin ? "Hi Min, ini Subtest-Subtest UTBK" : "Kelas-Kelas UTBK";
+
 	const description = isAdmin
-		? "Pilih subtest-subtest UTBK yang ingin kamu pelajari"
+		? "Pilih subtest-subtest UTBK yang ingin diubah, dihapus, atau ditambahkan"
 		: "Yuk belajar bersama untuk sukses dalam UTBK!";
 
 	return (
-		<div className="relative min-h-40 overflow-hidden rounded-[10px] bg-tertiary-200">
-			{/* Ellipse background */}
-			<div className="absolute top-[54px] left-[43px] h-[183px] w-[181px] rounded-full bg-tertiary-400" />
+		<div className="relative overflow-hidden rounded-[10px] bg-tertiary-200">
+			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
+				{/* TEXT — mobile top, desktop LEFT */}
+				<div className="relative z-10 max-w-xl">
+					<h1 className="font-bold text-[24px] text-neutral-1000 leading-tight sm:text-[30px]">{title}</h1>
+					<p className="mt-2 text-[14px] text-neutral-1000 leading-[21px]">{description}</p>
+				</div>
 
-			{/* Avatar image */}
-			<div className="absolute top-[-39px] left-[17px] size-[232px]">
-				<Image
-					src={"/avatar/subtest-header-avatar.webp"}
-					alt="Subtest Header Avatar"
-					width={232}
-					height={232}
-					className="pointer-events-none select-none object-cover object-[50%_50%]"
-				/>
-			</div>
+				{/* VISUAL */}
+				<div className="relative -mx-6 h-[110px] overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
+					{/* Ellipse */}
+					<div className="absolute top-10 right-4 bottom-0 size-[180px] rounded-full bg-tertiary-400 sm:top-2" />
 
-			{/* Text content */}
-			<div className="absolute top-[61px] left-[249px] w-[306px] whitespace-pre-wrap">
-				<h1 className="font-bold text-[30px] text-neutral-1000 leading-[45px]">{title}</h1>
-				<p className="font-normal text-[14px] text-neutral-1000 leading-[21px]">{description}</p>
+					{/* Avatar */}
+					<Image
+						src="/avatar/subtest-header-avatar.webp"
+						alt="Subtest Header Avatar"
+						width={260}
+						height={260}
+						className="absolute right-0 size-[210px] -translate-y-10 select-none object-cover sm:bottom-0 sm:translate-y-1/2"
+					/>
+				</div>
 			</div>
 		</div>
 	);
@@ -126,31 +136,45 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 	const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
 	const avatarSrc = subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
 
+	const forceTextWhite = backgroundClass.includes("text-white");
+
 	return (
-		<div className={cn(backgroundClass, "relative h-auto min-h-[200px] overflow-hidden rounded-[10px]")}>
-			{/* Pattern element */}
-			<div className={cn(patternClass, "absolute top-[102px] left-[34px] h-[148px] w-[161px]")} />
-
-			{/* Avatar image */}
-			<div className="absolute top-[-4px] left-[-60px] size-[356px]">
-				<Image
-					src={avatarSrc}
-					alt={`${subtest?.name} Avatar`}
-					width={356}
-					height={356}
-					className="pointer-events-none select-none object-cover object-[50%_50%]"
-				/>
-			</div>
-
+		<div className={cn(backgroundClass, "relative overflow-hidden rounded-[10px]")}>
 			{/* Back button */}
-			<div className="absolute top-[33px] left-[33px]">
+			<div className="z-10 mt-6 ml-6 sm:mt-10 sm:ml-10">
 				<BackButton to={isAdmin ? "/admin/classes" : "/classes"} />
 			</div>
 
-			{/* Text content */}
-			<div className="absolute top-[94px] left-[263px] flex w-[306px] flex-col items-start">
-				<h1 className="whitespace-pre-wrap font-bold text-[30px] text-black leading-[45px]">{subtest?.name}</h1>
-				<p className="font-normal text-[14px] text-black leading-[21px]">{subtest?.description}</p>
+			<div className="grid grid-cols-1 px-6 pt-4 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:pb-10 md:grid-cols-5">
+				{/* TEXT — mobile top, desktop LEFT */}
+				<div className={cn("relative z-10 max-w-xl md:col-span-3", forceTextWhite && "text-white")}>
+					<h1
+						className={cn(
+							"font-bold text-[24px] leading-tight sm:text-[30px]",
+							forceTextWhite ? "text-white" : "text-neutral-1000",
+						)}
+					>
+						{subtest?.name}
+					</h1>
+					<p className={cn("mt-2 text-[14px] leading-[21px]", forceTextWhite ? "text-white/90" : "text-neutral-1000")}>
+						{subtest?.description}
+					</p>
+				</div>
+
+				{/* VISUAL */}
+				<div className="relative -mx-6 h-[110px] overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible md:col-span-2">
+					{/* Ellipse */}
+					<div className={cn(patternClass, "absolute top-10 right-4 bottom-0 size-[180px] rounded-full sm:top-2")} />
+
+					{/* Avatar */}
+					<Image
+						src={avatarSrc}
+						alt={`${subtest?.name} Avatar`}
+						width={260}
+						height={260}
+						className="absolute right-0 left-0 size-[360px] select-none object-cover sm:bottom-0 sm:translate-y-[55%]"
+					/>
+				</div>
 			</div>
 		</div>
 	);
@@ -162,30 +186,48 @@ const CONTENT_ACTIONS = [
 	{
 		key: "video",
 		label: "Video Materi",
-		icon: PlayIcon,
+		icon: PlayCircleIcon,
 		enabled: (i: ContentListItem) => i.hasVideo,
 		className: "bg-primary-300 text-white",
-		width: "w-[185px]",
+		width: "w-fit",
 	},
 	{
 		key: "notes",
 		label: "Catatan Materi",
-		icon: BookIcon,
+		icon: NoteIcon,
 		enabled: (i: ContentListItem) => i.hasNote,
 		className: "bg-secondary-300 text-neutral-1000",
-		width: "w-[194px]",
+		width: "w-fit",
 	},
 	{
-		key: "quiz",
-		label: "Quiz",
-		icon: FileTextIcon,
-		enabled: (i: ContentListItem) => i.hasQuiz,
+		key: "latihan-soal",
+		label: "Latihan Soal",
+		icon: ExamIcon,
+		enabled: (i: ContentListItem) => i.hasPracticeQuestions,
 		className: "bg-tertiary-200 text-neutral-1000",
-		width: "w-[194px]",
+		width: "w-fit",
 	},
 ] as const;
 
-function ContentCard({ item, index }: { item: ContentListItem; index: number }) {
+function ContentCard({
+	item,
+	index,
+	onEdit,
+	onDelete,
+	onMoveUp,
+	onMoveDown,
+	canMoveUp,
+	canMoveDown,
+}: {
+	item: ContentListItem;
+	index: number;
+	onEdit?: () => void;
+	onDelete?: () => void;
+	onMoveUp?: () => void;
+	onMoveDown?: () => void;
+	canMoveUp?: boolean;
+	canMoveDown?: boolean;
+}) {
 	const isAdmin = useIsAdmin();
 	const location = useLocation();
 	const basePath = isAdmin ? "/admin/classes" : "/classes";
@@ -198,24 +240,72 @@ function ContentCard({ item, index }: { item: ContentListItem; index: number }) 
 	};
 
 	return (
-		<Card className="relative min-h-[137px] overflow-hidden rounded-[10px] border border-neutral-200 p-0">
-			{/* Numbered badge */}
-			<div className="absolute top-[25px] left-[22px] flex h-[28px] w-[32.356px] items-center justify-center rounded-[3.111px] border border-neutral-200">
-				<p className="font-medium text-[12.444px] text-primary-300 leading-[18.667px]">{index + 1}</p>
+		<Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
+			{/* Header */}
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				{/* Left: badge + title */}
+				<div className="flex items-start gap-3">
+					<div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border border-neutral-200">
+						<p className="font-medium text-[12px] text-primary-300">{index + 1}</p>
+					</div>
+
+					<p className="font-medium text-[18px] text-neutral-1000 sm:text-[20px]">{item.title}</p>
+				</div>
+
+				{/* Right: label + admin actions */}
+				<div className="flex items-center gap-2 sm:flex-col sm:items-end">
+					{isAdmin && (onEdit || onDelete || onMoveUp || onMoveDown) && (
+						<div className="flex items-center gap-1">
+							{onMoveUp && (
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className="h-7 w-7"
+									onClick={onMoveUp}
+									disabled={!canMoveUp}
+								>
+									<ArrowUpIcon size={14} />
+								</Button>
+							)}
+
+							{onMoveDown && (
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className="h-7 w-7"
+									onClick={onMoveDown}
+									disabled={!canMoveDown}
+								>
+									<ArrowDownIcon size={14} />
+								</Button>
+							)}
+
+							{onEdit && (
+								<Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
+									<PencilSimpleIcon size={14} />
+								</Button>
+							)}
+
+							{onDelete && (
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className="h-7 w-7 text-destructive hover:text-destructive"
+									onClick={onDelete}
+								>
+									<TrashIcon size={14} />
+								</Button>
+							)}
+						</div>
+					)}
+				</div>
 			</div>
 
-			{/* Title */}
-			<div className="absolute top-[25px] left-[74px]">
-				<p className="font-medium text-[20px] text-neutral-1000 leading-[30px]">{item.title}</p>
-			</div>
-
-			{/* Subtest label */}
-			<div className="absolute top-[19px] right-[22px] flex w-[134px] flex-col items-end">
-				<p className="text-right font-normal text-[14px] text-primary-200 leading-[21px]">Subtest</p>
-			</div>
-
-			{/* Action buttons */}
-			<div className="absolute top-[73px] left-[22px] flex items-center gap-[19px]">
+			{/* Actions */}
+			<div className="flex gap-3 overflow-x-auto">
 				{CONTENT_ACTIONS.map(
 					({ key, label, icon: Icon, enabled, className, width }) =>
 						enabled(item) && (
@@ -224,14 +314,15 @@ function ContentCard({ item, index }: { item: ContentListItem; index: number }) 
 								to={`${basePath}/$shortName/$contentId/${key}`}
 								params={params}
 								className={cn(
-									"relative flex h-[44px] items-center gap-[10px] rounded-[5px] pr-[10px] pl-[18px] transition-opacity hover:opacity-90",
+									"flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
+									"w-full sm:w-auto",
 									className,
 									width,
 								)}
 							>
-								<Icon size={18} weight="regular" />
-								<p className="shrink-0 font-normal text-[14px] leading-[21px]">{label}</p>
-								<CaretRightIcon size={24} weight="regular" className="ml-auto" />
+								<Icon size={18} weight="bold" />
+								<span className="whitespace-nowrap font-medium text-[14px]">{label}</span>
+								<CaretRightIcon size={18} className="ml-auto" weight="bold" />
 							</Link>
 						),
 				)}
@@ -241,30 +332,81 @@ function ContentCard({ item, index }: { item: ContentListItem; index: number }) 
 }
 
 export function ContentList({
+	title,
 	items,
 	isLoading,
 	error,
+	onCreate,
+	onEdit,
+	onDelete,
+	onMoveUp,
+	onMoveDown,
 }: {
+	title?: string;
 	items?: ContentListItem[];
 	isLoading?: boolean;
 	error?: string;
+	onCreate?: () => void;
+	onEdit?: (item: ContentListItem) => void;
+	onDelete?: (item: ContentListItem) => void;
+	onMoveUp?: (item: ContentListItem) => void;
+	onMoveDown?: (item: ContentListItem) => void;
 }) {
+	const isAdmin = useIsAdmin();
+
 	return (
 		<div className="space-y-2">
 			<div className="flex items-center justify-between">
-				{isLoading && <p className="text-muted-foreground text-xs">Memuat...</p>}
+				{title && <h3 className="font-semibold text-lg">{title}</h3>}
+				{isAdmin && onCreate && (
+					<Button type="button" variant="outline" size="sm" onClick={onCreate}>
+						<PlusIcon size={16} className="mr-2" />
+						Tambah Konten
+					</Button>
+				)}
+				{isLoading && !title && <p className="text-muted-foreground text-xs">Memuat...</p>}
 			</div>
 
 			{error && <p className="text-red-500 text-sm">{error}</p>}
 
 			{!isLoading && !error && (!items || items.length === 0) && (
-				<p className="text-muted-foreground text-sm">Belum ada konten.</p>
+				<div className="flex flex-col items-center justify-center gap-2">
+					<Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} className="" />
+					<p>Tunggu kontennya diracik dulu ya!</p>
+				</div>
 			)}
 
 			<div className="space-y-2">
 				{items?.map((item, index) => (
-					<ContentCard key={item.id} item={item} index={index} />
+					<ContentCard
+						key={item.id}
+						item={item}
+						index={index}
+						onEdit={onEdit ? () => onEdit(item) : undefined}
+						onDelete={onDelete ? () => onDelete(item) : undefined}
+						onMoveUp={onMoveUp ? () => onMoveUp(item) : undefined}
+						onMoveDown={onMoveDown ? () => onMoveDown(item) : undefined}
+						canMoveUp={index > 0}
+						canMoveDown={items && index < items.length - 1}
+					/>
 				))}
+			</div>
+		</div>
+	);
+}
+
+export function PracticeQuestionHeader() {
+	return (
+		<div className="relative overflow-hidden bg-tertiary-200">
+			{/* Ellipse background (dekoratif): center vertically, stick to the right, with some overflow */}
+			<div
+				className="absolute top-1/2 right-[-50px] size-[181px] -translate-y-1/2 rounded-full bg-tertiary-400"
+				style={{ zIndex: 0 }}
+			/>
+
+			{/* Main content (penentu height) */}
+			<div className="relative flex items-center gap-6 px-6 py-4" style={{ zIndex: 1 }}>
+				<h1 className="font-medium text-neutral-1000 text-xl">Latihan Soal!</h1>
 			</div>
 		</div>
 	);

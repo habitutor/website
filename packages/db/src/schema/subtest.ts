@@ -67,8 +67,8 @@ export const noteMaterial = pgTable("note_material", {
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const contentQuiz = pgTable(
-	"content_quiz",
+export const contentPracticeQuestions = pgTable(
+	"content_practice_questions",
 	{
 		contentItemId: integer("content_item_id")
 			.notNull()
@@ -82,7 +82,7 @@ export const contentQuiz = pgTable(
 		// Composite primary key
 		{ pk: { columns: [t.contentItemId, t.questionId] } },
 		// Ensure unique order per content
-		unique("unique_quiz_order").on(t.contentItemId, t.order),
+		unique("unique_practice_questions_order").on(t.contentItemId, t.order),
 	],
 );
 
@@ -101,7 +101,7 @@ export const userProgress = pgTable(
 			.references(() => contentItem.id, { onDelete: "cascade" }),
 		videoCompleted: boolean("video_completed").notNull().default(false),
 		noteCompleted: boolean("note_completed").notNull().default(false),
-		quizCompleted: boolean("quiz_completed").notNull().default(false),
+		practiceQuestionsCompleted: boolean("practice_questions_completed").notNull().default(false),
 		lastViewedAt: timestamp("last_viewed_at").notNull().defaultNow(),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 		updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -153,7 +153,7 @@ export const contentItemRelations = relations(contentItem, ({ one, many }) => ({
 		fields: [contentItem.id],
 		references: [noteMaterial.contentItemId],
 	}),
-	quizQuestions: many(contentQuiz),
+	practiceQuestions: many(contentPracticeQuestions),
 	userProgress: many(userProgress),
 	recentViews: many(recentContentView),
 }));
@@ -172,13 +172,13 @@ export const noteMaterialRelations = relations(noteMaterial, ({ one }) => ({
 	}),
 }));
 
-export const contentQuizRelations = relations(contentQuiz, ({ one }) => ({
+export const contentPracticeQuestionsRelations = relations(contentPracticeQuestions, ({ one }) => ({
 	contentItem: one(contentItem, {
-		fields: [contentQuiz.contentItemId],
+		fields: [contentPracticeQuestions.contentItemId],
 		references: [contentItem.id],
 	}),
 	question: one(question, {
-		fields: [contentQuiz.questionId],
+		fields: [contentPracticeQuestions.questionId],
 		references: [question.id],
 	}),
 }));

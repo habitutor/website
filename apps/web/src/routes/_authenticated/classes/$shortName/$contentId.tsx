@@ -14,20 +14,20 @@ function RouteComponent() {
 	const location = useLocation();
 
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" | "quiz" = currentPath.endsWith("/notes")
+	const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith("/notes")
 		? "notes"
-		: currentPath.endsWith("/quiz")
-			? "quiz"
+		: currentPath.endsWith("/latihan-soal")
+			? "latihan-soal"
 			: "video";
 
 	const handleTabChange = (value: string) => {
 		navigate({
 			to:
 				value === "video"
-					? "/classes/$shortName/$contentId/video"
+					? `/classes/${shortName}/${contentId}/video`
 					: value === "notes"
-						? "/classes/$shortName/$contentId/notes"
-						: "/classes/$shortName/$contentId/quiz",
+						? `/classes/${shortName}/${contentId}/notes`
+						: `/classes/${shortName}/${contentId}/latihan-soal`,
 			params: { shortName, contentId },
 		});
 	};
@@ -38,24 +38,21 @@ function RouteComponent() {
 				<BackButton
 					to={
 						currentTab === "video"
-							? "/classes/$shortName"
+							? `/classes/${shortName}`
 							: currentTab === "notes"
-								? "/classes/$shortName/$contentId/video"
-								: "/classes/$shortName/$contentId/notes"
+								? `/classes/${shortName}/${contentId}/video`
+								: `/classes/${shortName}/${contentId}/notes`
 					}
-					params={currentTab === "video" ? { shortName } : { shortName, contentId }}
 				/>
 				{currentTab === "video" && (
 					<NextButton
-						to="/classes/$shortName/$contentId/notes"
-						params={{ shortName, contentId }}
+						to={`/classes/${shortName}/${contentId}/notes`}
 						className={!location.pathname.includes("/video") ? "hidden" : ""}
 					/>
 				)}
 				{currentTab === "notes" && (
 					<NextButton
-						to="/classes/$shortName/$contentId/quiz"
-						params={{ shortName, contentId }}
+						to={`/classes/${shortName}/${contentId}/latihan-soal`}
 						className={!location.pathname.includes("/notes") ? "hidden" : ""}
 					/>
 				)}
