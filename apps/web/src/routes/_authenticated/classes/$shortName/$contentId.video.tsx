@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_authenticated/classes/$shortName/$conten
 });
 
 function RouteComponent() {
-  const { contentId } = Route.useParams();
+	const { contentId } = Route.useParams();
 
 	const content = useQuery(
 		orpc.subtest.getContentById.queryOptions({
@@ -34,16 +34,14 @@ function RouteComponent() {
 
 	const videoId = video.videoUrl?.split("v=")[1] ?? "";
 
-  return (
-    <div className="space-y-4">
-      <p>Video Materi</p>
+	return (
+		<div className="space-y-4">
+			<p>Video Materi</p>
 
-      <div className="aspect-video w-full">
-        <YouTubePlayer videoId={videoId} />
-      </div>
-      <h2 className="font-semibold text-lg">
-        {video.title ?? content.data.title}
-      </h2>
+			<div className="aspect-video w-full">
+				<YouTubePlayer videoId={videoId} />
+			</div>
+			<h2 className="font-semibold text-lg">{video.title ?? content.data.title}</h2>
 
 			<div className="aspect-video w-full">
 				<YouTubePlayer videoId={videoId} />

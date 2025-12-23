@@ -1,23 +1,10 @@
+import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { useForm } from "@tanstack/react-form";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ClassHeader, ContentList } from "@/components/classes";
-import { Container } from "@/components/ui/container";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -28,8 +15,21 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { orpc } from "@/utils/orpc";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Container } from "@/components/ui/container";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { BodyOutputs } from "@/utils/orpc";
+import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/")({
 	params: {
@@ -40,9 +40,7 @@ export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/"
 	component: RouteComponent,
 });
 
-type ContentListItem = NonNullable<
-	BodyOutputs["subtest"]["listContentByCategory"]
->[number];
+type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
 
 function RouteComponent() {
 	const { shortName } = Route.useParams();
@@ -357,26 +355,19 @@ function RouteComponent() {
 										checked={field.state.value}
 										onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
 									/>
-									<Label htmlFor={field.name} className="text-sm font-normal">
+									<Label htmlFor={field.name} className="font-normal text-sm">
 										Buat catatan materi awal (minimal satu komponen per konten)
 									</Label>
 								</div>
 							)}
 						</createForm.Field>
 						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setCreateDialogOpen(false)}
-							>
+							<Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>
 								Batal
 							</Button>
 							<createForm.Subscribe>
 								{(state) => (
-									<Button
-										type="submit"
-										disabled={!state.canSubmit || createMutation.isPending}
-									>
+									<Button type="submit" disabled={!state.canSubmit || createMutation.isPending}>
 										{createMutation.isPending ? "Menyimpan..." : "Simpan"}
 									</Button>
 								)}
@@ -433,10 +424,7 @@ function RouteComponent() {
 							</Button>
 							<editForm.Subscribe>
 								{(state) => (
-									<Button
-										type="submit"
-										disabled={!state.canSubmit || updateMutation.isPending}
-									>
+									<Button type="submit" disabled={!state.canSubmit || updateMutation.isPending}>
 										{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
 									</Button>
 								)}
@@ -452,8 +440,7 @@ function RouteComponent() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Hapus Konten?</AlertDialogTitle>
 						<AlertDialogDescription>
-							Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}"? Tindakan ini tidak dapat
-							dibatalkan.
+							Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}"? Tindakan ini tidak dapat dibatalkan.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

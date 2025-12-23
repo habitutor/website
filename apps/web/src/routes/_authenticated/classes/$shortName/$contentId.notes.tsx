@@ -33,9 +33,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p>
-				Catatan Materi
-			</p>
+			<p>Catatan Materi</p>
 			<h2 className="font-semibold text-lg">{content.data.title}</h2>
 			<TiptapRenderer content={note.content} />
 		</div>

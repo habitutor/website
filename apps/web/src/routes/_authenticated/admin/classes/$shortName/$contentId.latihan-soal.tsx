@@ -2,12 +2,22 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { orpc } from "@/utils/orpc";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/$contentId/latihan-soal")({
 	component: RouteComponent,
@@ -40,7 +50,7 @@ function RouteComponent() {
 		content.data?.practiceQuestions && "questions" in content.data.practiceQuestions
 			? (content.data.practiceQuestions.questions as Array<{ questionId: number }>).map((q) => q.questionId)
 			: [];
-	
+
 	if (selectedQuestionIds.length === 0 && existingQuestionIds.length > 0) {
 		setSelectedQuestionIds(existingQuestionIds);
 	}
@@ -125,41 +135,47 @@ function RouteComponent() {
 					</select>
 				</div>
 
-				{packQuestions.data && packQuestions.data.questions && packQuestions.data.questions.length > 0 && (
+				{packQuestions.data?.questions && packQuestions.data.questions.length > 0 && (
 					<div className="space-y-4">
 						<Label>Pilih Soal (dipilih: {selectedQuestionIds.length})</Label>
 						<div className="max-h-[500px] space-y-2 overflow-y-auto">
-							{packQuestions.data.questions.map((question: { id: number; content: string; answers: Array<{ id: number; content: string; isCorrect: boolean }> }) => (
-								<Card key={question.id} className="p-4">
-									<div className="flex items-start gap-3">
-										<Checkbox
-											checked={selectedQuestionIds.includes(question.id)}
-											onCheckedChange={() => handleQuestionToggle(question.id)}
-										/>
-										<div className="flex-1">
-											<p className="font-medium">{question.content}</p>
-											{question.answers && question.answers.length > 0 && (
-												<div className="mt-2 space-y-1">
-													{question.answers.map((answer: { id: number; content: string; isCorrect: boolean }) => (
-														<p
-															key={answer.id}
-															className={`text-sm ${answer.isCorrect ? "font-semibold text-green-600" : "text-muted-foreground"}`}
-														>
-															{answer.isCorrect ? "✓ " : "  "}
-															{answer.content}
-														</p>
-													))}
-												</div>
-											)}
+							{packQuestions.data.questions.map(
+								(question: {
+									id: number;
+									content: string;
+									answers: Array<{ id: number; content: string; isCorrect: boolean }>;
+								}) => (
+									<Card key={question.id} className="p-4">
+										<div className="flex items-start gap-3">
+											<Checkbox
+												checked={selectedQuestionIds.includes(question.id)}
+												onCheckedChange={() => handleQuestionToggle(question.id)}
+											/>
+											<div className="flex-1">
+												<p className="font-medium">{question.content}</p>
+												{question.answers && question.answers.length > 0 && (
+													<div className="mt-2 space-y-1">
+														{question.answers.map((answer: { id: number; content: string; isCorrect: boolean }) => (
+															<p
+																key={answer.id}
+																className={`text-sm ${answer.isCorrect ? "font-semibold text-green-600" : "text-muted-foreground"}`}
+															>
+																{answer.isCorrect ? "✓ " : "  "}
+																{answer.content}
+															</p>
+														))}
+													</div>
+												)}
+											</div>
 										</div>
-									</div>
-								</Card>
-							))}
+									</Card>
+								),
+							)}
 						</div>
 					</div>
 				)}
 
-				{packQuestions.isPending && <p className="text-sm text-muted-foreground">Memuat soal...</p>}
+				{packQuestions.isPending && <p className="text-muted-foreground text-sm">Memuat soal...</p>}
 
 				<div className="flex gap-4">
 					<Button

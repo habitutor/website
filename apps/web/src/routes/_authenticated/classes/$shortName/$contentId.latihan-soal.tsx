@@ -4,14 +4,12 @@ import { PracticeQuestionHeader } from "@/components/classes";
 import { orpc } from "@/utils/orpc";
 // import { QuizPlayer } from "@/components/quiz-player";
 
-export const Route = createFileRoute(
-  "/_authenticated/classes/$shortName/$contentId/latihan-soal"
-)({
-  component: RouteComponent,
+export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/latihan-soal")({
+	component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { contentId } = Route.useParams();
+	const { contentId } = Route.useParams();
 
 	const content = useQuery(
 		orpc.subtest.getContentById.queryOptions({
@@ -19,9 +17,9 @@ function RouteComponent() {
 		}),
 	);
 
-  if (content.isPending) {
-    return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
-  }
+	if (content.isPending) {
+		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
+	}
 
 	if (content.isError) {
 		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
@@ -29,27 +27,23 @@ function RouteComponent() {
 
 	if (!content.data) return notFound();
 
-  const practiceQuestions = content.data.practiceQuestions;
-  // if (!practiceQuestions) {
-  //   return (
-  //     <p className="text-muted-foreground text-sm">
-  //       Belum ada latihan soal untuk materi ini.
-  //     </p>
-  //   );
-  // }
+	const _practiceQuestions = content.data.practiceQuestions;
+	// if (!practiceQuestions) {
+	//   return (
+	//     <p className="text-muted-foreground text-sm">
+	//       Belum ada latihan soal untuk materi ini.
+	//     </p>
+	//   );
+	// }
 
-  return (
-    <div className="space-y-4">
-      <p>
-        Latihan Soal
-      </p>
-      <PracticeQuestionHeader />
+	return (
+		<div className="space-y-4">
+			<p>Latihan Soal</p>
+			<PracticeQuestionHeader />
 
-      <h2 className="font-semibold text-lg">{content.data.title}</h2>
-      {/* <QuizPlayer questions={practiceQuestions.questions} /> */}
-      <p className="text-muted-foreground text-sm">
-        (Render latihan soal di sini)
-      </p>
-    </div>
-  );
+			<h2 className="font-semibold text-lg">{content.data.title}</h2>
+			{/* <QuizPlayer questions={practiceQuestions.questions} /> */}
+			<p className="text-muted-foreground text-sm">(Render latihan soal di sini)</p>
+		</div>
+	);
 }
