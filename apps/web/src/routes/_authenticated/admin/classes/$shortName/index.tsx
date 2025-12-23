@@ -9,6 +9,7 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -162,16 +163,25 @@ function RouteComponent() {
 	const createForm = useForm({
 		defaultValues: {
 			title: "",
+			withNote: true,
 		},
 		onSubmit: async ({ value }) => {
 			if (!matchedClass) return;
 			const items = createDialogType === "material" ? materialContents.data : tipsContents.data;
 			const maxOrder = items && items.length > 0 ? Math.max(...items.map((i) => i.order ?? 0)) : 0;
+
+			// For now we ensure at least one component exists by always requiring a note on creation
+			if (!value.withNote) {
+				toast.error("Konten baru harus memiliki minimal satu komponen. Aktifkan catatan materi.");
+				return;
+			}
+
 			createMutation.mutate({
 				subtestId: matchedClass.id,
 				type: createDialogType,
 				title: value.title,
 				order: maxOrder + 1,
+				note: value.withNote ? { content: {} } : undefined,
 			});
 		},
 		validators: {
@@ -336,6 +346,20 @@ function RouteComponent() {
 											{error?.message}
 										</p>
 									))}
+								</div>
+							)}
+						</createForm.Field>
+						<createForm.Field name="withNote">
+							{(field) => (
+								<div className="flex items-center gap-2">
+									<Checkbox
+										id={field.name}
+										checked={field.state.value}
+										onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
+									/>
+									<Label htmlFor={field.name} className="text-sm font-normal">
+										Buat catatan materi awal (minimal satu komponen per konten)
+									</Label>
 								</div>
 							)}
 						</createForm.Field>

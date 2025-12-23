@@ -1,19 +1,19 @@
 import {
+  ArrowDownIcon,
   ArrowRightIcon,
+  ArrowUpIcon,
   BookIcon,
   CaretRightIcon,
   FileTextIcon,
   PencilSimpleIcon,
   PlayIcon,
-  TrashIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
   PlusIcon,
+  TrashIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import type { BodyOutputs } from "@/utils/orpc";
@@ -438,6 +438,39 @@ export function ContentList({
             canMoveDown={items && index < items.length - 1}
           />
         ))}
+      </div>
+    </div>
+  );
+}
+
+export function PracticeQuestionHeader() {
+  return (
+    <div className="relative overflow-hidden rounded-[10px] bg-tertiary-200">
+      {/* Ellipse background (dekoratif) */}
+      <div className="absolute bottom-0 left-0 h-[183px] w-[181px] bg-tertiary-400" />
+
+      {/* Main content (penentu height) */}
+      <div className="relative flex items-center gap-6 px-6 py-8">
+        {/* Avatar */}
+        <div className="shrink-0">
+          <Image
+            src="/avatar/subtest-header-avatar.webp"
+            alt="Subtest Header Avatar"
+            width={180}
+            height={180}
+            className="pointer-events-none select-none object-cover"
+          />
+        </div>
+
+        {/* Text */}
+        <div>
+          <h1 className="font-bold text-[30px] text-neutral-1000 leading-[45px]">
+            Waktunya Latihan Soal!
+          </h1>
+          <p className="mt-1 text-[14px] text-neutral-1000 leading-[21px]">
+            Uji Pengetahuanmu dengan Latihan Soal di bawah!
+          </p>
+        </div>
       </div>
     </div>
   );
