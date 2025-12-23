@@ -4,11 +4,15 @@ import {
   ArrowUpIcon,
   BookIcon,
   CaretRightIcon,
+  ExamIcon,
   FileTextIcon,
+  NoteIcon,
   PencilSimpleIcon,
+  PlayCircleIcon,
   PlayIcon,
   PlusIcon,
   TrashIcon,
+  VideoIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -167,42 +171,61 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
   const avatarSrc =
     subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
 
+  const forceTextWhite = backgroundClass.includes("text-white");
+
   return (
-    <div className={cn(backgroundClass, "relative rounded-[10px]")}>
+    <div
+      className={cn(backgroundClass, "relative overflow-hidden rounded-[10px]")}
+    >
       {/* Back button */}
-      <div className="z-10 mt-[33px] ml-[33px]">
+      <div className="z-10 mt-6 ml-6 sm:mt-10 sm:ml-10">
         <BackButton to={isAdmin ? "/admin/classes" : "/classes"} />
       </div>
 
-      <div className="relative flex items-center overflow-hidden pt-[33px]">
-        {/* Left section with pattern and avatar */}
-        <div className="relative w-[240px] shrink-0 self-stretch">
-          {/* Wrapper yang posisinya SAMA dengan pattern */}
-          <div className="absolute bottom-0 left-[34px] aspect-square h-full">
-            {/* Pattern (tidak diubah) */}
-            <div className={cn(patternClass, "h-full w-full")} />
-
-            {/* Avatar centered ke pattern */}
-            <div className="absolute top-1/2 left-1/2 size-[356px] -translate-x-1/2 -translate-y-1/2">
-              <Image
-                src={avatarSrc}
-                alt={`${subtest?.name} Avatar`}
-                width={356}
-                height={356}
-                className="pointer-events-none select-none object-cover"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Text content */}
-        <div className="mr-10 mb-10 flex min-h-[90px] flex-col items-start justify-center gap-[8px]">
-          <h1 className="font-bold text-[30px] text-black leading-[45px]">
+      <div className="grid grid-cols-1 px-6 pt-4 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:pb-10 md:grid-cols-5">
+        {/* TEXT — mobile top, desktop LEFT */}
+        <div
+          className={cn(
+            "relative z-10 max-w-xl md:col-span-3",
+            forceTextWhite && "text-white"
+          )}
+        >
+          <h1
+            className={cn(
+              "font-bold text-[24px] leading-tight sm:text-[30px]",
+              forceTextWhite ? "text-white" : "text-neutral-1000"
+            )}
+          >
             {subtest?.name}
           </h1>
-          <p className="font-normal text-[14px] text-black leading-[21px]">
+          <p
+            className={cn(
+              "mt-2 text-[14px] leading-[21px]",
+              forceTextWhite ? "text-white/90" : "text-neutral-1000"
+            )}
+          >
             {subtest?.description}
           </p>
+        </div>
+
+        {/* VISUAL */}
+        <div className="relative -mx-6 h-[110px] overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible md:col-span-2">
+          {/* Ellipse */}
+          <div
+            className={cn(
+              patternClass,
+              "absolute top-10 right-4 bottom-0 size-[180px] rounded-full sm:top-2"
+            )}
+          />
+
+          {/* Avatar */}
+          <Image
+            src={avatarSrc}
+            alt={`${subtest?.name} Avatar`}
+            width={260}
+            height={260}
+            className="absolute right-0 left-0 size-[360px] select-none object-cover sm:bottom-0 sm:translate-y-[55%]"
+          />
         </div>
       </div>
     </div>
@@ -217,7 +240,7 @@ const CONTENT_ACTIONS = [
   {
     key: "video",
     label: "Video Materi",
-    icon: PlayIcon,
+    icon: PlayCircleIcon,
     enabled: (i: ContentListItem) => i.hasVideo,
     className: "bg-primary-300 text-white",
     width: "w-fit",
@@ -225,7 +248,7 @@ const CONTENT_ACTIONS = [
   {
     key: "notes",
     label: "Catatan Materi",
-    icon: BookIcon,
+    icon: NoteIcon,
     enabled: (i: ContentListItem) => i.hasNote,
     className: "bg-secondary-300 text-neutral-1000",
     width: "w-fit",
@@ -233,7 +256,7 @@ const CONTENT_ACTIONS = [
   {
     key: "latihan-soal",
     label: "Latihan Soal",
-    icon: FileTextIcon,
+    icon: ExamIcon,
     enabled: (i: ContentListItem) => i.hasPracticeQuestions,
     className: "bg-tertiary-200 text-neutral-1000",
     width: "w-fit",
@@ -355,15 +378,17 @@ function ContentCard({
                 to={`${basePath}/$shortName/$contentId/${key}`}
                 params={params}
                 className={cn(
-                  "flex h-[44px] items-center gap-2 rounded-[5px] px-4 transition-opacity hover:opacity-90",
+                  "flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
                   "w-full sm:w-auto",
                   className,
                   width
                 )}
               >
-                <Icon size={18} />
-                <span className="whitespace-nowrap text-[14px]">{label}</span>
-                <CaretRightIcon size={20} className="ml-auto" />
+                <Icon size={18} weight="bold" />
+                <span className="whitespace-nowrap font-medium text-[14px]">
+                  {label}
+                </span>
+                <CaretRightIcon size={18} className="ml-auto" weight="bold" />
               </Link>
             )
         )}
@@ -417,10 +442,11 @@ export function ContentList({
           <Image
             src="/avatar/confused-avatar.webp"
             alt="Empty State"
-            width={100}
-            height={100}
+            width={150}
+            height={150}
+            className=""
           />
-          <p className="text-muted-foreground text-sm">Belum ada konten.</p>
+          <p>Tunggu kontennya diracik dulu ya!</p>
         </div>
       )}
 
@@ -445,32 +471,20 @@ export function ContentList({
 
 export function PracticeQuestionHeader() {
   return (
-    <div className="relative overflow-hidden rounded-[10px] bg-tertiary-200">
-      {/* Ellipse background (dekoratif) */}
-      <div className="absolute bottom-0 left-0 h-[183px] w-[181px] bg-tertiary-400" />
+    <div className="relative overflow-hidden bg-tertiary-200">
+      {/* Ellipse background (dekoratif): center vertically, stick to the right, with some overflow */}
+      <div
+        className="absolute top-1/2 right-[-50px] size-[181px] -translate-y-1/2 rounded-full bg-tertiary-400"
+        style={{ zIndex: 0 }}
+      />
 
       {/* Main content (penentu height) */}
-      <div className="relative flex items-center gap-6 px-6 py-8">
-        {/* Avatar */}
-        <div className="shrink-0">
-          <Image
-            src="/avatar/subtest-header-avatar.webp"
-            alt="Subtest Header Avatar"
-            width={180}
-            height={180}
-            className="pointer-events-none select-none object-cover"
-          />
-        </div>
-
-        {/* Text */}
-        <div>
-          <h1 className="font-bold text-[30px] text-neutral-1000 leading-[45px]">
-            Waktunya Latihan Soal!
-          </h1>
-          <p className="mt-1 text-[14px] text-neutral-1000 leading-[21px]">
-            Uji Pengetahuanmu dengan Latihan Soal di bawah!
-          </p>
-        </div>
+      <div
+        className="relative flex items-center gap-6 px-6 py-4"
+        style={{ zIndex: 1 }}
+      >
+        <h1 className="font-medium text-neutral-1000 text-xl">Latihan Soal!</h1>
+        
       </div>
     </div>
   );

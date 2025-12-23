@@ -33,10 +33,10 @@ function RouteComponent() {
     navigate({
       to:
         value === "video"
-          ? "/classes/$shortName/$contentId/video"
+          ? `/classes/${shortName}/${contentId}/video`
           : value === "notes"
-          ? "/classes/$shortName/$contentId/notes"
-          : "/classes/$shortName/$contentId/latihan-soal",
+          ? `/classes/${shortName}/${contentId}/notes`
+          : `/classes/${shortName}/${contentId}/latihan-soal`,
       params: { shortName, contentId },
     });
   };
@@ -47,26 +47,21 @@ function RouteComponent() {
         <BackButton
           to={
             currentTab === "video"
-              ? "/classes/$shortName"
+              ? `/classes/${shortName}`
               : currentTab === "notes"
-              ? "/classes/$shortName/$contentId/video"
-              : "/classes/$shortName/$contentId/notes"
-          }
-          params={
-            currentTab === "video" ? { shortName } : { shortName, contentId }
+              ? `/classes/${shortName}/${contentId}/video`
+              : `/classes/${shortName}/${contentId}/notes`
           }
         />
         {currentTab === "video" && (
           <NextButton
-            to="/classes/$shortName/$contentId/notes"
-            params={{ shortName, contentId }}
+            to={`/classes/${shortName}/${contentId}/notes`}
             className={!location.pathname.includes("/video") ? "hidden" : ""}
           />
         )}
         {currentTab === "notes" && (
           <NextButton
-            to="/classes/$shortName/$contentId/latihan-soal"
-            params={{ shortName, contentId }}
+            to={`/classes/${shortName}/${contentId}/latihan-soal`}
             className={!location.pathname.includes("/notes") ? "hidden" : ""}
           />
         )}

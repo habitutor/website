@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ClassHeader, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/")({
   params: {
@@ -55,7 +55,7 @@ function RouteComponent() {
   if (!matchedClass) return notFound();
 
   return (
-    <Container className="space-y-6">
+    <Container>
       <ClassHeader subtest={matchedClass} />
       <div className="space-y-4">
         <Tabs defaultValue="material">
