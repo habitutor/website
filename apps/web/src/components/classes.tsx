@@ -22,35 +22,42 @@ import { buttonVariants } from "./ui/button";
 
 export function SubtestHeader() {
   const isAdmin = useIsAdmin();
-  const title = isAdmin ? "Subtest-Subtest UTBK" : "Kelas-Kelas UTBK";
+
+  const title = isAdmin
+    ? "Hi Min, ini Subtest-Subtest UTBK"
+    : "Kelas-Kelas UTBK";
+
   const description = isAdmin
-    ? "Pilih subtest-subtest UTBK yang ingin kamu pelajari"
+    ? "Pilih subtest-subtest UTBK yang ingin diubah, dihapus, atau ditambahkan"
     : "Yuk belajar bersama untuk sukses dalam UTBK!";
 
   return (
-    <div className="relative min-h-40 overflow-hidden rounded-[10px] bg-tertiary-200">
-      {/* Ellipse background */}
-      <div className="absolute top-[54px] left-[43px] h-[183px] w-[181px] rounded-full bg-tertiary-400" />
+    <div className="relative overflow-hidden rounded-[10px] bg-tertiary-200">
+      <div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
+        {/* TEXT — mobile top, desktop LEFT */}
+        <div className="relative z-10 max-w-xl">
+          <h1 className="font-bold text-[24px] text-neutral-1000 leading-tight sm:text-[30px]">
+            {title}
+          </h1>
+          <p className="mt-2 text-[14px] text-neutral-1000 leading-[21px]">
+            {description}
+          </p>
+        </div>
 
-      {/* Avatar image */}
-      <div className="absolute top-[-39px] left-[17px] size-[232px]">
-        <Image
-          src={"/avatar/subtest-header-avatar.webp"}
-          alt="Subtest Header Avatar"
-          width={232}
-          height={232}
-          className="pointer-events-none select-none object-cover object-[50%_50%]"
-        />
-      </div>
+        {/* VISUAL */}
+        <div className="relative -mx-6 h-[110px] overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
+          {/* Ellipse */}
+          <div className="absolute top-10 right-4 bottom-0 size-[180px] rounded-full bg-tertiary-400 sm:top-2" />
 
-      {/* Text content */}
-      <div className="absolute top-[61px] left-[249px] w-[306px] whitespace-pre-wrap">
-        <h1 className="font-bold text-[30px] text-neutral-1000 leading-[45px]">
-          {title}
-        </h1>
-        <p className="font-normal text-[14px] text-neutral-1000 leading-[21px]">
-          {description}
-        </p>
+          {/* Avatar */}
+          <Image
+            src="/avatar/subtest-header-avatar.webp"
+            alt="Subtest Header Avatar"
+            width={260}
+            height={260}
+            className="absolute right-0 size-[210px] -translate-y-10 select-none object-cover sm:bottom-0 sm:translate-y-1/2"
+          />
+        </div>
       </div>
     </div>
   );
@@ -213,7 +220,7 @@ const CONTENT_ACTIONS = [
     icon: PlayIcon,
     enabled: (i: ContentListItem) => i.hasVideo,
     className: "bg-primary-300 text-white",
-    width: "w-[185px]",
+    width: "w-fit",
   },
   {
     key: "notes",
@@ -221,7 +228,7 @@ const CONTENT_ACTIONS = [
     icon: BookIcon,
     enabled: (i: ContentListItem) => i.hasNote,
     className: "bg-secondary-300 text-neutral-1000",
-    width: "w-[194px]",
+    width: "w-fit",
   },
   {
     key: "latihan-soal",
@@ -229,7 +236,7 @@ const CONTENT_ACTIONS = [
     icon: FileTextIcon,
     enabled: (i: ContentListItem) => i.hasPracticeQuestions,
     className: "bg-tertiary-200 text-neutral-1000",
-    width: "w-[194px]",
+    width: "w-fit",
   },
 ] as const;
 
@@ -264,84 +271,82 @@ function ContentCard({
   };
 
   return (
-    <Card className="relative min-h-[137px] overflow-hidden rounded-[10px] border border-neutral-200 p-0">
-      {/* Numbered badge */}
-      <div className="absolute top-[25px] left-[22px] flex h-[28px] w-[32.356px] items-center justify-center rounded-[3.111px] border border-neutral-200">
-        <p className="font-medium text-[12.444px] text-primary-300 leading-[18.667px]">
-          {index + 1}
-        </p>
-      </div>
-
-      {/* Title */}
-      <div className="absolute top-[25px] left-[74px]">
-        <p className="font-medium text-[20px] text-neutral-1000 leading-[30px]">
-          {item.title}
-        </p>
-      </div>
-
-      {/* Subtest label and admin actions */}
-      <div className="absolute top-[19px] right-[22px] flex w-[134px] flex-col items-end gap-2">
-        <p className="text-right font-normal text-[14px] text-primary-200 leading-[21px]">
-          Subtest
-        </p>
-        {isAdmin && (onEdit || onDelete || onMoveUp || onMoveDown) && (
-          <div className="flex items-center gap-1">
-            {onMoveUp && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={onMoveUp}
-                disabled={!canMoveUp}
-                title="Pindah ke atas"
-              >
-                <ArrowUpIcon size={14} />
-              </Button>
-            )}
-            {onMoveDown && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={onMoveDown}
-                disabled={!canMoveDown}
-                title="Pindah ke bawah"
-              >
-                <ArrowDownIcon size={14} />
-              </Button>
-            )}
-            {onEdit && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={onEdit}
-                title="Edit"
-              >
-                <PencilSimpleIcon size={14} />
-              </Button>
-            )}
-            {onDelete && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive hover:text-destructive"
-                onClick={onDelete}
-                title="Hapus"
-              >
-                <TrashIcon size={14} />
-              </Button>
-            )}
+    <Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        {/* Left: badge + title */}
+        <div className="flex items-start gap-3">
+          <div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border border-neutral-200">
+            <p className="font-medium text-[12px] text-primary-300">
+              {index + 1}
+            </p>
           </div>
-        )}
+
+          <p className="font-medium text-[18px] text-neutral-1000 sm:text-[20px]">
+            {item.title}
+          </p>
+        </div>
+
+        {/* Right: label + admin actions */}
+        <div className="flex items-center gap-2 sm:flex-col sm:items-end">
+          {isAdmin && (onEdit || onDelete || onMoveUp || onMoveDown) && (
+            <div className="flex items-center gap-1">
+              {onMoveUp && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={onMoveUp}
+                  disabled={!canMoveUp}
+                >
+                  <ArrowUpIcon size={14} />
+                </Button>
+              )}
+
+              {onMoveDown && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={onMoveDown}
+                  disabled={!canMoveDown}
+                >
+                  <ArrowDownIcon size={14} />
+                </Button>
+              )}
+
+              {onEdit && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={onEdit}
+                >
+                  <PencilSimpleIcon size={14} />
+                </Button>
+              )}
+
+              {onDelete && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  onClick={onDelete}
+                >
+                  <TrashIcon size={14} />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="absolute top-[73px] left-[22px] flex items-center gap-[19px]">
+      {/* Actions */}
+      <div className="flex gap-3 overflow-x-auto">
         {CONTENT_ACTIONS.map(
           ({ key, label, icon: Icon, enabled, className, width }) =>
             enabled(item) && (
@@ -350,20 +355,15 @@ function ContentCard({
                 to={`${basePath}/$shortName/$contentId/${key}`}
                 params={params}
                 className={cn(
-                  "relative flex h-[44px] items-center gap-[10px] rounded-[5px] pr-[10px] pl-[18px] transition-opacity hover:opacity-90",
+                  "flex h-[44px] items-center gap-2 rounded-[5px] px-4 transition-opacity hover:opacity-90",
+                  "w-full sm:w-auto",
                   className,
                   width
                 )}
               >
-                <Icon size={18} weight="regular" />
-                <p className="shrink-0 font-normal text-[14px] leading-[21px]">
-                  {label}
-                </p>
-                <CaretRightIcon
-                  size={24}
-                  weight="regular"
-                  className="ml-auto"
-                />
+                <Icon size={18} />
+                <span className="whitespace-nowrap text-[14px]">{label}</span>
+                <CaretRightIcon size={20} className="ml-auto" />
               </Link>
             )
         )}

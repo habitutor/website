@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { SubtestCard, SubtestHeader } from "@/components/classes";
 import { Container } from "@/components/ui/container";
-import { orpc } from "@/utils/orpc";
 import { Skeleton } from "@/components/ui/skeleton";
+import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/")({
   component: RouteComponent,
@@ -13,7 +13,7 @@ function RouteComponent() {
   const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 
   return (
-    <Container>
+    <Container className="p-0">
       <SubtestHeader />
 
       <div>
