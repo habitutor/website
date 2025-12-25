@@ -12,7 +12,8 @@
 	},
 	"type": "module",
 	"scripts": {
-		"build": "tsdown"
+		"build": "tsdown",
+		"check-types": "bunx @typescript/native-preview@latest --noEmit"
 	},
 	"devDependencies": {
 		"tsdown": "catalog:",

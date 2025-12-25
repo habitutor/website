@@ -2,8 +2,10 @@ import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { pub } from "../index";
 import { adminPracticePackRouter } from "./admin/practice-pack";
+import { adminSubtestRouter } from "./admin/subtest";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
+import { subtestRouter } from "./subtest";
 
 export const appRouter = {
 	healthCheck: pub
@@ -12,14 +14,16 @@ export const appRouter = {
 			method: "GET",
 			tags: ["Uncategorized"],
 		})
-		.output(type("string"))
+		.output(type({ message: "string" }))
 		.handler(() => {
-			return "OK";
+			return { message: "OK" };
 		}),
 	practicePack: practicePackRouter,
 	flashcard: flashcardRouter,
+	subtest: subtestRouter,
 	admin: {
 		practicePack: adminPracticePackRouter,
+		subtest: adminSubtestRouter,
 	},
 };
 
