@@ -1,13 +1,9 @@
-import { createContext } from "@habitutor/api/context";
-import { appRouter } from "@habitutor/api/routers/index";
 import { createORPCClient, type InferClientBodyOutputs, isDefinedError } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { StandardRPCJsonSerializer } from "@orpc/client/standard";
 import type { RouterClient } from "@orpc/server";
-import { createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
-import { createIsomorphicFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 const serializer = new StandardRPCJsonSerializer();
@@ -34,7 +30,7 @@ export const queryClient = new QueryClient({
 				const [json, meta] = serializer.serialize(queryKey);
 				return JSON.stringify({ json, meta });
 			},
-			staleTime: 60 * 1000, // > 0 to prevent immediate refetching on mount
+			staleTime: 60 * 1000,
 		},
 		dehydrate: {
 			serializeData(data) {
@@ -50,29 +46,18 @@ export const queryClient = new QueryClient({
 	},
 });
 
-const getORPCClient = createIsomorphicFn()
-	.server(() =>
-		createRouterClient(appRouter, {
-			context: async ({ req }) => {
-				return createContext({ context: req });
-			},
-		}),
-	)
-	.client((): RouterClient<typeof appRouter> => {
-		const link = new RPCLink({
-			url: `${import.meta.env.VITE_SERVER_URL}/rpc`,
-			fetch(url, options) {
-				return fetch(url, {
-					...options,
-					credentials: "include",
-				});
-			},
-		});
-
-		return createORPCClient(link);
+const client: RouterClient = (() => {
+	const link = new RPCLink({
+		url: `${import.meta.env.VITE_SERVER_URL}/rpc`,
+		fetch(url, options) {
+			return fetch(url, {
+				...options,
+				credentials: "include",
+			});
+		},
 	});
-
-export const client: RouterClient<typeof appRouter> = getORPCClient();
+	return createORPCClient(link);
+})();
 
 export type BodyOutputs = InferClientBodyOutputs<typeof client>;
 

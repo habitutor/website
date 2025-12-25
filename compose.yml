@@ -5,7 +5,7 @@ services:
     platform: linux/amd64
     build:
       context: .
-      dockerfile: ./apps/web/Dockerfile.prod
+      dockerfile: ./apps/web/Dockerfile
     ports:
       - 3000:3000
     env_file: ./apps/web/.env.prod
@@ -21,7 +21,7 @@ services:
     platform: linux/amd64
     build:
       context: .
-      dockerfile: ./apps/server/Dockerfile.prod
+      dockerfile: ./apps/server/Dockerfile
     ports:
       - 3001:3001
     environment:
