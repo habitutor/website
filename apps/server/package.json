@@ -7,7 +7,7 @@
 		"build:compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
 		"dev": "bun run --hot ./src/index.ts",
 		"start": "bun ./dist/index.js",
-		"check-types": "tsgo --noEmit"
+		"check-types": "bunx @typescript/native-preview@latest --noEmit"
 	},
 	"dependencies": {
 		"hono": "catalog:",

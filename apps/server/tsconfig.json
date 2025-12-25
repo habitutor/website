@@ -4,6 +4,7 @@
 		"lib": ["ESNext", "DOM"],
 		"composite": true,
 		"outDir": "dist",
+		"strictNullChecks": true,
 		"paths": {
 			"@/*": ["./src/*"],
 			"*": ["./*"]

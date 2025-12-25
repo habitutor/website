@@ -5,7 +5,8 @@
 	"scripts": {
 		"dev": "bun --bun vite dev --port=3000",
 		"build": "bun --bun vite build",
-		"start": "bun --bun .output/server/index.mjs --port=3000"
+		"start": "bun --bun .output/server/index.mjs --port=3000",
+		"check-types": "bunx @typescript/native-preview@latest --noEmit"
 	},
 	"dependencies": {
 		"@floating-ui/react": "^0.27.16",
