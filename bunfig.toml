@@ -1,4 +1,3 @@
 [install]
 linker = "isolated"
 auto = "auto"
-saveTextLockfile = false
