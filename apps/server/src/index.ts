@@ -80,7 +80,4 @@ app.get("/", (c) => {
 	return c.text("OK");
 });
 
-export default {
-	port: process.env.PORT || 3001,
-	fetch: app.fetch,
-};
+export default app;
