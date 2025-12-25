@@ -3,6 +3,10 @@ FROM oven/bun:1-alpine AS base
 FROM base AS pruner
 WORKDIR /usr/src/app
 RUN bun install -g turbo@^2.7.2
+COPY package.json bun.lock turbo.json ./
+COPY apps/web/package.json ./apps/web/
+COPY packages/*/package.json ./packages/*/
+RUN bun install --frozen-lockfile
 COPY . .
 RUN turbo prune web
 
