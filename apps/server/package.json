@@ -3,8 +3,8 @@
 	"main": "src/index.ts",
 	"type": "module",
 	"scripts": {
-		"build": "bun build --production --minify --sourcemap --bytecode ./src/index.ts --outdir dist",
-		"build:compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+		"build": "bun build --target=bun --minify --sourcemap --bytecode ./src/index.ts --outdir ./dist",
+		"compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
 		"dev": "bun run --hot ./src/index.ts",
 		"start": "bun ./dist/index.js",
 		"check-types": "bunx @typescript/native-preview@latest --noEmit"

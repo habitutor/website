@@ -1,21 +1,25 @@
 FROM oven/bun:1-alpine AS base
-
-FROM base AS pruner
-WORKDIR /usr/src/app
 RUN bun install -g turbo@^2.7.2
+
+FROM base AS installer
+WORKDIR /usr/src/app
+
 COPY package.json bun.lock turbo.json ./
 COPY apps/server/package.json ./apps/server/
-COPY packages/*/package.json ./packages/*/
-RUN bun install --frozen-lockfile
-COPY . .
-RUN turbo prune server
+COPY packages/api/package.json ./packages/api/
+COPY packages/auth/package.json ./packages/auth/
+COPY packages/config/package.json ./packages/config/
+COPY packages/db/package.json ./packages/db/
+
+RUN bun install
 
 FROM base AS builder
 WORKDIR /usr/src/app
 
-COPY --from=pruner /usr/src/app/out/ .
-RUN bun install --frozen-lockfile
-RUN bun turbo build --filter=server
+COPY --from=installer /usr/src/app/ .
+COPY . .
+RUN turbo prune server
+RUN turbo build --filter=server
 
 FROM base AS runner
 WORKDIR /usr/src/app
