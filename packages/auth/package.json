@@ -13,7 +13,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
-		"auth:generate": "bunx @better-auth/cli@latest generate --output ../db/src/schema/auth.ts --config ./src/index.ts --yes"
+		"auth:generate": "bunx @better-auth/cli@latest generate --output ../db/src/schema/auth.ts --config ./src/index.ts --yes",
+		"check-types": "tsgo --noEmit"
 	},
 	"devDependencies": {
 		"tsdown": "catalog:",

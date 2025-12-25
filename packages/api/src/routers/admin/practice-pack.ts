@@ -370,6 +370,80 @@ const deleteAnswerOption = admin
 		return { message: "Berhasil menghapus answer option" };
 	});
 
+/**
+ * Get all questions in a practice pack (for admin use, no attempt required)
+ * GET /api/admin/practice-packs/{id}/questions
+ */
+const getPackQuestions = admin
+	.route({
+		path: "/admin/practice-packs/{id}/questions",
+		method: "GET",
+		tags: ["Admin - Practice Packs"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		const rows = await db
+			.select({
+				questionId: practicePackQuestions.questionId,
+				questionOrder: practicePackQuestions.order,
+				questionContent: question.content,
+				questionDiscussion: question.discussion,
+				answerId: questionAnswerOption.id,
+				answerContent: questionAnswerOption.content,
+				answerIsCorrect: questionAnswerOption.isCorrect,
+			})
+			.from(practicePack)
+			.innerJoin(practicePackQuestions, eq(practicePackQuestions.practicePackId, practicePack.id))
+			.innerJoin(question, eq(question.id, practicePackQuestions.questionId))
+			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
+			.where(eq(practicePack.id, input.id));
+
+		if (rows.length === 0) {
+			// Check if pack exists
+			const [pack] = await db.select().from(practicePack).where(eq(practicePack.id, input.id)).limit(1);
+			if (!pack) {
+				throw new ORPCError("NOT_FOUND", {
+					message: "Practice pack not found",
+				});
+			}
+			return { questions: [] };
+		}
+
+		const questionMap = new Map<
+			number,
+			{
+				id: number;
+				order: number;
+				content: string;
+				discussion: string;
+				answers: Array<{ id: number; content: string; isCorrect: boolean }>;
+			}
+		>();
+
+		for (const row of rows) {
+			if (!questionMap.has(row.questionId)) {
+				questionMap.set(row.questionId, {
+					id: row.questionId,
+					order: row.questionOrder ?? 1,
+					content: row.questionContent,
+					discussion: row.questionDiscussion,
+					answers: [],
+				});
+			}
+
+			questionMap.get(row.questionId)?.answers.push({
+				id: row.answerId,
+				content: row.answerContent,
+				isCorrect: row.answerIsCorrect ?? false,
+			});
+		}
+
+		// Format and sort the questions based on order
+		const questions = Array.from(questionMap.values()).sort((a, b) => a.order - b.order);
+
+		return { questions };
+	});
+
 // EXPORT
 
 export const adminPracticePackRouter = {
@@ -393,4 +467,7 @@ export const adminPracticePackRouter = {
 	createAnswerOption,
 	updateAnswerOption,
 	deleteAnswerOption,
+
+	// Get Pack Questions
+	getPackQuestions,
 };

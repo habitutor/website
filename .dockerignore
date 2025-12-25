@@ -7,11 +7,16 @@ dist
 .next
 .turbo
 **/dist
+**/output
+**/out
 **/.next
 **/.turbo
 
 # Development
 .git
+.github
+.claude
+.gemini
 .vscode
 .idea
 
@@ -30,7 +35,8 @@ yarn-error.log*
 
 # Docker files
 Dockerfile*
-docker-compose*.yml
+docker-compose*
+compose*
 .dockerignore
 
 # Misc

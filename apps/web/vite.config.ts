@@ -9,6 +9,5 @@ export default defineConfig({
 	server: {
 		port: Number(process.env.PORT || 3000),
 	},
-	plugins: [tsconfigPaths(), tailwindcss(), tanstackStart(), nitro(), viteReact()],
-	nitro: {},
+	plugins: [tsconfigPaths(), tailwindcss(), tanstackStart(), nitro({ preset: "bun" }), viteReact()],
 });
