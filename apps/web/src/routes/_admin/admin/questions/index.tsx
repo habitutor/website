@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +24,7 @@ import {
 import { Search, Edit, Trash2, Filter } from "lucide-react";
 import { orpc } from "@/utils/orpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/questions/")({
@@ -33,10 +33,21 @@ export const Route = createFileRoute("/_admin/admin/questions/")({
 
 function QuestionsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
+	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const [filter, setFilter] = useState<"all" | "unused">("all");
 	const [page, setPage] = useState(1);
 	const limit = 5; 
 	const offset = (page - 1) * limit;
+
+	// Debounce search query
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setDebouncedSearch(searchQuery);
+			setPage(1); // Reset to page 1 when search changes
+		}, 300);
+
+		return () => clearTimeout(timer);
+	}, [searchQuery]);
 
 	const { data, isLoading } = useQuery(
 		orpc.admin.practicePack.listAllQuestions.queryOptions({
@@ -44,6 +55,7 @@ function QuestionsPage() {
 				limit,
 				offset,
 				unusedOnly: filter === "unused",
+				search: debouncedSearch,
 			},
 		})
 	);
@@ -51,10 +63,6 @@ function QuestionsPage() {
 	const questions = data?.data || [];
 	const total = data?.total || 0;
 	const totalPages = Math.ceil(total / limit);
-
-	const filteredQuestions = questions.filter((q) =>
-		q.content.toLowerCase().includes(searchQuery.toLowerCase())
-	);
 
 	return (
 		<div className="flex min-h-screen">
@@ -109,7 +117,7 @@ function QuestionsPage() {
 							<Skeleton className="h-32 w-full" />
 							<Skeleton className="h-32 w-full" />
 						</div>
-					) : !filteredQuestions || filteredQuestions.length === 0 ? (
+					) : !questions || questions.length === 0 ? (
 						<Card className="rounded-xl shadow-sm">
 							<CardContent className="py-12 text-center">
 								<p className="text-muted-foreground text-sm">
@@ -121,14 +129,14 @@ function QuestionsPage() {
 						</Card>
 					) : (
 						<div className="space-y-4">
-							{filteredQuestions.map((question) => (
+							{questions.map((question) => (
 								<QuestionCard key={question.id} question={question} />
 							))}
 						</div>
 					)}
 
 					{/* Pagination Controls */}
-					{totalPages > 1 && !searchQuery && (
+					{totalPages > 1 && (
 						<div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8 sm:gap-2">
 							<Button
 								variant="outline"
@@ -223,15 +231,14 @@ function QuestionCard({
 }) {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 
 	const deleteMutation = useMutation(
 		orpc.admin.practicePack.deleteQuestion.mutationOptions({
 			onSuccess: () => {
 				toast.success("Question deleted successfully");
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.listAllQuestions.queryOptions({ 
-						input: { limit: 5, offset: 0 } 
-					}).queryKey.slice(0, -1),
+					predicate: (query) => query.queryKey[0] === orpc.admin.practicePack.listAllQuestions.queryKey({ input: { limit: 0, offset: 0 } })[0],
 				});
 				setDeleteDialogOpen(false);
 			},
@@ -278,7 +285,10 @@ function QuestionCard({
 							size="sm"
 							className="flex-1 text-xs sm:flex-none sm:text-sm"
 							onClick={() => {
-								window.location.href = `/admin/questions/${question.id}`;
+								navigate({ 
+									to: "/admin/questions/$id", 
+									params: { id: question.id.toString() } 
+								});
 							}}
 						>
 							<Edit className="size-3.5 sm:mr-2 sm:size-4" />

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +35,7 @@ function QuestionEditPage() {
 	const { id } = Route.useParams();
 	const questionId = Number.parseInt(id);
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 
 	const { data: question, isLoading } = useQuery(
 		orpc.admin.practicePack.getQuestionDetail.queryOptions({
@@ -109,21 +110,17 @@ function QuestionEditPage() {
 
 				toast.success("Question updated successfully");
 				
-				// Invalidate relevant queries
 				queryClient.invalidateQueries(
 					orpc.admin.practicePack.getQuestionDetail.queryOptions({
 						input: { id: questionId },
 					})
 				);
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.listAllQuestions.queryOptions({ 
-						input: { limit: 5, offset: 0 } 
-					}).queryKey.slice(0, -1),
+					predicate: (query) => query.queryKey[0] === orpc.admin.practicePack.listAllQuestions.queryKey({ input: { limit: 0, offset: 0 } })[0],
 				});
 				
-				// Redirect back after short delay
 				setTimeout(() => {
-					window.history.back();
+					navigate({ to: "/admin/questions" });
 				}, 500);
 			} catch (error) {
 				toast.error("Failed to update question", {

@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	AlertDialog,
@@ -34,11 +35,11 @@ function PracticePackDetailPage() {
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [showAddExisting, setShowAddExisting] = useState(false);
 
-	const { data: questions } = useQuery(
+	const { data } = useQuery(
 		orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } })
 	);
 
-	const existingQuestionIds = questions?.map((q) => q.id) || [];
+	const existingQuestionIds = data?.questions?.map((q) => q.id) || [];
 
 	if (Number.isNaN(packId)) {
 		return (
@@ -108,13 +109,11 @@ function PracticePackDetailPage() {
 
 function PackInfoCard({ packId }: { packId: number }) {
 	const [isEditing, setIsEditing] = useState(false);
-	const { data: response, isLoading } = useQuery(
-		orpc.admin.practicePack.listPacks.queryOptions({ 
-			input: { limit: 100, offset: 0 } 
+	const { data: pack, isLoading } = useQuery(
+		orpc.admin.practicePack.getPack.queryOptions({ 
+			input: { id: packId } 
 		})
 	);
-	
-	const pack = response?.data.find((p) => p.id === packId);
 
 	if (isLoading) {
 		return (
@@ -187,11 +186,22 @@ function PackInfoCard({ packId }: { packId: number }) {
 function QuestionsList({ packId }: { packId: number }) {
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 	const [gridPage, setGridPage] = useState(0);
+	const [searchQuery, setSearchQuery] = useState("");
 	const GRID_SIZE = 30;
+	const navigate = useNavigate();
 	
-	const { data: questions, isLoading } = useQuery(
+	const { data, isLoading } = useQuery(
 		orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } })
 	);
+
+	const allQuestions = data?.questions || [];
+	
+	// Filter questions based on search query
+	const questions = searchQuery
+		? allQuestions.filter((q) =>
+				q.content.toLowerCase().includes(searchQuery.toLowerCase())
+		  )
+		: allQuestions;
 
 	useEffect(() => {
 		if (questions && questions.length > 0) {
@@ -247,9 +257,26 @@ function QuestionsList({ packId }: { packId: number }) {
 					<CardTitle className="text-lg sm:text-xl">Questions in this Pack</CardTitle>
 				</CardHeader>
 				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-					<p className="text-muted-foreground text-sm">
-						No questions yet. Create a new question or add an existing one.
-					</p>
+					{allQuestions.length === 0 ? (
+						<p className="text-muted-foreground text-sm">
+							No questions yet. Create a new question or add an existing one.
+						</p>
+					) : (
+						<div className="space-y-4">
+							<div className="relative">
+								<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+								<Input
+									placeholder="Search questions..."
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+									className="pl-9"
+								/>
+							</div>
+							<p className="text-muted-foreground text-sm">
+								No questions found matching "{searchQuery}".
+							</p>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 		);
@@ -263,6 +290,19 @@ function QuestionsList({ packId }: { packId: number }) {
 	
 	return (
 		<div className="space-y-4">
+			{/* Search Input */}
+			{allQuestions.length > 0 && (
+				<div className="relative">
+					<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+					<Input
+						placeholder="Search questions..."
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className="pl-9"
+					/>
+				</div>
+			)}
+
 			<div className="flex flex-col gap-4 lg:flex-row">
 				<div className="flex-1 lg:order-1">
 					<Card className="rounded-xl shadow-sm">
@@ -326,7 +366,10 @@ function QuestionsList({ packId }: { packId: number }) {
 									variant="outline"
 									className="w-full text-xs sm:w-auto sm:text-sm"
 									onClick={() => {
-										window.location.href = `/admin/questions/${currentQuestion.id}`;
+										navigate({ 
+											to: "/admin/questions/$id", 
+											params: { id: currentQuestion.id.toString() } 
+										});
 									}}
 								>
 									Edit Question

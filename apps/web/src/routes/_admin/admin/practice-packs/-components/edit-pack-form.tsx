@@ -30,7 +30,12 @@ export function EditPackForm({ pack, onSuccess, onCancel }: EditPackFormProps) {
 		orpc.admin.practicePack.updatePack.mutationOptions({
 			onSuccess: () => {
 				toast.success("Practice pack updated successfully");
-				queryClient.invalidateQueries(orpc.admin.practicePack.listPacks.queryOptions({ input: { limit: 9, offset: 0 } }));
+				queryClient.invalidateQueries({
+					predicate: (query) => query.queryKey[0] === orpc.admin.practicePack.listPacks.queryKey({ input: { limit: 0, offset: 0 } })[0],
+				});
+				queryClient.invalidateQueries(
+					orpc.admin.practicePack.getPack.queryOptions({ input: { id: pack.id } })
+				);
 				onSuccess?.();
 			},
 			onError: (error) => {

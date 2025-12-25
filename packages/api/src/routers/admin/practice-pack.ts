@@ -3,7 +3,7 @@ import { practicePack, practicePackQuestions, question, questionAnswerOption } f
 import { user } from "@habitutor/db/schema/auth";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, count, eq, ilike, sql } from "drizzle-orm";
 import { admin } from "../../index";
 
 const getStatistics = admin
@@ -59,6 +59,32 @@ const listPacks = admin
 			limit,
 			offset,
 		};
+	});
+
+const getPack = admin
+	.route({
+		path: "/admin/practice-packs/{id}",
+		method: "GET",
+		tags: ["Admin - Practice Packs"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		const [pack] = await db
+			.select({
+				id: practicePack.id,
+				title: practicePack.title,
+				description: practicePack.description,
+			})
+			.from(practicePack)
+			.where(eq(practicePack.id, input.id))
+			.limit(1);
+
+		if (!pack)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Practice pack tidak ditemukan",
+			});
+
+		return pack;
 	});
 
 const createPack = admin
@@ -151,35 +177,92 @@ const listAllQuestions = admin
 			"limit?": "number",
 			"offset?": "number",
 			"unusedOnly?": "boolean",
+			"search?": "string",
 		}),
 	)
 	.handler(async ({ input }) => {
 		const limit = input.limit || 20;
 		const offset = input.offset || 0;
 		const unusedOnly = input.unusedOnly || false;
+		const search = input.search || "";
 
-		// Get all questions with pack count
-		const allQuestions = await db
-			.select({
-				id: question.id,
-				content: question.content,
-				discussion: question.discussion,
-				packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
-			})
-			.from(question)
-			.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
-			.groupBy(question.id)
-			.orderBy(question.id);
+		// Build base SELECT for data query
+		const selectFields = {
+			id: question.id,
+			content: question.content,
+			discussion: question.discussion,
+			packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
+		};
 
-		// Filter unused if needed
-		const filteredQuestions = unusedOnly ? allQuestions.filter((q) => q.packCount === 0) : allQuestions;
+		// Build data query with conditional WHERE clause
+		const dataQueryBuilder = search
+			? db
+				.select(selectFields)
+				.from(question)
+				.where(ilike(question.content, `%${search}%`))
+				.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+				.groupBy(question.id)
+			: db
+				.select(selectFields)
+				.from(question)
+				.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+				.groupBy(question.id);
 
-		// Apply pagination
-		const total = filteredQuestions.length;
-		const paginatedQuestions = filteredQuestions.slice(offset, offset + limit);
+		// Apply HAVING filter and pagination
+		const dataQuery = unusedOnly 
+			? dataQueryBuilder
+				.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+				.orderBy(question.id)
+				.limit(limit)
+				.offset(offset)
+			: dataQueryBuilder
+				.orderBy(question.id)
+				.limit(limit)
+				.offset(offset);
+
+		// Build count query with same filters
+		const baseCountQuery = search
+			? db
+				.select({ id: question.id })
+				.from(question)
+				.where(ilike(question.content, `%${search}%`))
+			: db
+				.select({ id: question.id })
+				.from(question);
+
+		const countQuery = unusedOnly
+			? db
+				.select({ count: sql<number>`cast(count(*) as integer)` })
+				.from(
+					(search
+						? db
+							.select({ id: question.id })
+							.from(question)
+							.where(ilike(question.content, `%${search}%`))
+							.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+							.groupBy(question.id)
+							.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+						: db
+							.select({ id: question.id })
+							.from(question)
+							.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+							.groupBy(question.id)
+							.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+					).as('sq')
+				)
+			: db
+				.select({ count: sql<number>`cast(count(*) as integer)` })
+				.from(baseCountQuery.as('sq'));
+
+		const [data, [countResult]] = await Promise.all([
+			dataQuery,
+			countQuery,
+		]);
+
+		const total = countResult?.count || 0;
 
 		return {
-			data: paginatedQuestions,
+			data,
 			total,
 			limit,
 			offset,
@@ -194,22 +277,23 @@ const getQuestionDetail = admin
 	})
 	.input(type({ id: "number" }))
 	.handler(async ({ input }) => {
-		const [q] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
+		const q = await db.query.question.findFirst({
+			where: eq(question.id, input.id),
+			with: {
+				answerOptions: {
+					orderBy: (answerOptions, { asc }) => [asc(answerOptions.code)],
+				},
+			},
+		});
 
 		if (!q)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Question tidak ditemukan",
 			});
 
-		const answers = await db
-			.select()
-			.from(questionAnswerOption)
-			.where(eq(questionAnswerOption.questionId, input.id))
-			.orderBy(questionAnswerOption.code);
-
 		return {
 			...q,
-			answers,
+			answers: q.answerOptions,
 		};
 	});
 
@@ -496,6 +580,7 @@ const getPackQuestions = admin
 				questionDiscussion: question.discussion,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
+				answerCode: questionAnswerOption.code,
 				answerIsCorrect: questionAnswerOption.isCorrect,
 			})
 			.from(practicePack)
@@ -522,7 +607,7 @@ const getPackQuestions = admin
 				order: number;
 				content: string;
 				discussion: string;
-				answers: Array<{ id: number; content: string; isCorrect: boolean }>;
+				answers: Array<{ id: number; content: string; code: string; isCorrect: boolean }>;
 			}
 		>();
 
@@ -540,12 +625,18 @@ const getPackQuestions = admin
 			questionMap.get(row.questionId)?.answers.push({
 				id: row.answerId,
 				content: row.answerContent,
+				code: row.answerCode,
 				isCorrect: row.answerIsCorrect ?? false,
 			});
 		}
 
 		// Format and sort the questions based on order
-		const questions = Array.from(questionMap.values()).sort((a, b) => a.order - b.order);
+		const questions = Array.from(questionMap.values())
+			.map(q => ({
+				...q,
+				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code))
+			}))
+			.sort((a, b) => a.order - b.order);
 
 		return { questions };
 	});
@@ -558,6 +649,7 @@ export const adminPracticePackRouter = {
 
 	// Practice Pack
 	listPacks,
+	getPack,
 	createPack,
 	updatePack,
 	deletePack,
