@@ -173,8 +173,8 @@ const createContent = authed
 			type: "'material' | 'tips_and_trick'",
 			title: "string",
 			order: "number",
-			video: "object?",
-			note: "object?",
+			video: "unknown?",
+			note: "unknown?",
 			practiceQuestionIds: "number[]?",
 		}),
 	)
@@ -214,6 +214,7 @@ const createContent = authed
 		if (hasVideo) {
 			if (
 				typeof input.video !== "object" ||
+				input.video === null ||
 				!("title" in input.video) ||
 				!("videoUrl" in input.video) ||
 				!("content" in input.video) ||
@@ -229,7 +230,12 @@ const createContent = authed
 
 		// Validate note structure if provided
 		if (hasNote) {
-			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
+			if (
+				typeof input.note !== "object" ||
+				input.note === null ||
+				!("content" in input.note) ||
+				typeof input.note.content !== "object"
+			) {
 				throw new ORPCError("BAD_REQUEST", {
 					message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
 				});
@@ -262,13 +268,14 @@ const createContent = authed
 
 			// Insert video material if provided
 			if (hasVideo && input.video) {
+				const videoData = input.video as { title: string; videoUrl: string; content: unknown };
 				const [video] = await tx
 					.insert(videoMaterial)
 					.values({
 						contentItemId: newContent.id,
-						title: input.video.title,
-						videoUrl: input.video.videoUrl,
-						content: input.video.content,
+						title: videoData.title,
+						videoUrl: videoData.videoUrl,
+						content: videoData.content,
 					})
 					.returning();
 
@@ -277,11 +284,12 @@ const createContent = authed
 
 			// Insert note material if provided
 			if (hasNote && input.note) {
+				const noteData = input.note as { content: object };
 				const [note] = await tx
 					.insert(noteMaterial)
 					.values({
 						contentItemId: newContent.id,
-						content: input.note.content,
+						content: noteData.content,
 					})
 					.returning();
 

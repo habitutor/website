@@ -14,9 +14,9 @@ export const appRouter = {
 			method: "GET",
 			tags: ["Uncategorized"],
 		})
-		.output(type("string"))
+		.output(type({ message: "string" }))
 		.handler(() => {
-			return "OK";
+			return { message: "OK" };
 		}),
 	practicePack: practicePackRouter,
 	flashcard: flashcardRouter,
