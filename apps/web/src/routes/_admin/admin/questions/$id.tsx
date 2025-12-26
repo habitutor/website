@@ -55,8 +55,8 @@ function QuestionEditPage() {
 
 	const form = useForm({
 		defaultValues: {
-			content: question?.content || "",
-			discussion: question?.discussion || "",
+			content: "",
+			discussion: "",
 			answers: {
 				A: {
 					id: 0,
@@ -156,6 +156,8 @@ function QuestionEditPage() {
 
 			setInitializedQuestionId(question.id);
 		}
+		// form object is stable from useForm and intentionally omitted to prevent unnecessary re-runs
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [question, initializedQuestionId]);
 
 	if (Number.isNaN(questionId)) {
