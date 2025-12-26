@@ -40,10 +40,15 @@ function SignInForm() {
 					password: value.password,
 				},
 				{
-					onSuccess: () => {
-						navigate({
-							to: "/dashboard",
-						});
+					onSuccess: async () => {
+						const session = await authClient.getSession();
+						const user = session.data?.user as { role?: string } | undefined;
+
+						if (user?.role === "admin") {
+							navigate({ to: "/admin/dashboard" });
+						} else {
+							navigate({ to: "/dashboard" });
+						}
 					},
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);
