@@ -132,6 +132,11 @@ function QuestionEditPage() {
 		},
 	});
 
+	// Reset initialization state when navigating to a different question
+	useEffect(() => {
+		setInitializedQuestionId(null);
+	}, [questionId]);
+
 	// Initialize form values when question data is loaded
 	useEffect(() => {
 		if (question && question.id !== initializedQuestionId) {
