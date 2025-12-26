@@ -13,6 +13,7 @@ import { useForm } from "@tanstack/react-form";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_admin/admin/questions/$id")({
 	component: QuestionEditPage,
@@ -36,6 +37,7 @@ function QuestionEditPage() {
 	const questionId = Number.parseInt(id);
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
+	const [initializedQuestionId, setInitializedQuestionId] = useState<number | null>(null);
 
 	const { data: question, isLoading } = useQuery(
 		orpc.admin.practicePack.getQuestionDetail.queryOptions({
@@ -49,8 +51,8 @@ function QuestionEditPage() {
 
 	const form = useForm({
 		defaultValues: {
-			content: question?.content || "",
-			discussion: question?.discussion || "",
+			content: "",
+			discussion: "",
 			answers: {
 				A: {
 					id: 0,
@@ -128,6 +130,40 @@ function QuestionEditPage() {
 		},
 	});
 
+	// Reset initialization state when navigating to a different question
+	useEffect(() => {
+		setInitializedQuestionId(null);
+	}, [questionId]);
+
+	// Initialize form values when question data is loaded
+	useEffect(() => {
+		if (question && question.id !== initializedQuestionId) {
+			const answersMap = question.answers.reduce(
+				(acc, ans) => {
+					acc[ans.code as keyof typeof acc] = ans;
+					return acc;
+				},
+				{} as Record<(typeof answerCodes)[number], (typeof question.answers)[number]>
+			);
+
+			form.setFieldValue("content", question.content);
+			form.setFieldValue("discussion", question.discussion);
+			answerCodes.forEach((code) => {
+				const answer = answersMap[code];
+				if (answer) {
+					form.setFieldValue(`answers.${code}.id`, answer.id);
+					form.setFieldValue(`answers.${code}.content`, answer.content);
+					form.setFieldValue(`answers.${code}.isCorrect`, answer.isCorrect);
+				}
+			});
+
+			setInitializedQuestionId(question.id);
+		}
+		// The form object from useForm is a stable reference and doesn't change between renders.
+		// Including it in the dependency array would not provide any benefit and is intentionally omitted.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [question, initializedQuestionId]);
+
 	if (Number.isNaN(questionId)) {
 		return (
 			<div className="flex min-h-screen">
@@ -172,27 +208,6 @@ function QuestionEditPage() {
 				</main>
 			</div>
 		);
-	}
-
-	const answersMap = question.answers.reduce(
-		(acc, ans) => {
-			acc[ans.code as keyof typeof acc] = ans;
-			return acc;
-		},
-		{} as Record<(typeof answerCodes)[number], (typeof question.answers)[number]>,
-	);
-
-	if (form.state.values.content === "") {
-		form.setFieldValue("content", question.content);
-		form.setFieldValue("discussion", question.discussion);
-		answerCodes.forEach((code) => {
-			const answer = answersMap[code];
-			if (answer) {
-				form.setFieldValue(`answers.${code}.id`, answer.id);
-				form.setFieldValue(`answers.${code}.content`, answer.content);
-				form.setFieldValue(`answers.${code}.isCorrect`, answer.isCorrect);
-			}
-		});
 	}
 
 	const isSubmitting = updateQuestionMutation.isPending || updateAnswerMutation.isPending;
