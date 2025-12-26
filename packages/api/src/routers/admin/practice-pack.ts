@@ -1,14 +1,28 @@
 import { db } from "@habitutor/db";
-import {
-	practicePack,
-	practicePackQuestions,
-	question,
-	questionAnswerOption,
-} from "@habitutor/db/schema/practice-pack";
+import { practicePack, practicePackQuestions, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { user } from "@habitutor/db/schema/auth";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, ilike, sql } from "drizzle-orm";
 import { admin } from "../../index";
+
+const getStatistics = admin
+	.route({
+		path: "/admin/statistics",
+		method: "GET",
+		tags: ["Admin - Statistics"],
+	})
+	.handler(async () => {
+		const [totalUsers] = await db.select({ count: count() }).from(user);
+		const [totalPacks] = await db.select({ count: count() }).from(practicePack);
+		const [totalQuestions] = await db.select({ count: count() }).from(question);
+
+		return {
+			totalUsers: totalUsers?.count || 0,
+			totalPracticePacks: totalPacks?.count || 0,
+			totalQuestions: totalQuestions?.count || 0,
+		};
+	});
 
 const listPacks = admin
 	.route({
@@ -16,16 +30,61 @@ const listPacks = admin
 		method: "GET",
 		tags: ["Admin - Practice Packs"],
 	})
-	.handler(async () => {
+	.input(
+		type({
+			"limit?": "number",
+			"offset?": "number",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const limit = input.limit || 20;
+		const offset = input.offset || 0;
+
+		const [totalCount] = await db.select({ count: count() }).from(practicePack);
+
 		const packs = await db
 			.select({
 				id: practicePack.id,
 				title: practicePack.title,
 				description: practicePack.description,
 			})
-			.from(practicePack);
+			.from(practicePack)
+			.limit(limit)
+			.offset(offset)
+			.orderBy(practicePack.id);
 
-		return packs;
+		return {
+			data: packs,
+			total: totalCount?.count || 0,
+			limit,
+			offset,
+		};
+	});
+
+const getPack = admin
+	.route({
+		path: "/admin/practice-packs/{id}",
+		method: "GET",
+		tags: ["Admin - Practice Packs"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		const [pack] = await db
+			.select({
+				id: practicePack.id,
+				title: practicePack.title,
+				description: practicePack.description,
+			})
+			.from(practicePack)
+			.where(eq(practicePack.id, input.id))
+			.limit(1);
+
+		if (!pack)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Practice pack tidak ditemukan",
+			});
+
+		return pack;
 	});
 
 const createPack = admin
@@ -106,6 +165,137 @@ const deletePack = admin
 	});
 
 // QUESTION CRUD
+
+const listAllQuestions = admin
+	.route({
+		path: "/admin/questions",
+		method: "GET",
+		tags: ["Admin - Questions"],
+	})
+	.input(
+		type({
+			"limit?": "number",
+			"offset?": "number",
+			"unusedOnly?": "boolean",
+			"search?": "string",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const limit = input.limit || 20;
+		const offset = input.offset || 0;
+		const unusedOnly = input.unusedOnly || false;
+		const search = input.search || "";
+
+		// Build base SELECT for data query
+		const selectFields = {
+			id: question.id,
+			content: question.content,
+			discussion: question.discussion,
+			packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
+		};
+
+		// Build data query with conditional WHERE clause
+		const dataQueryBuilder = search
+			? db
+				.select(selectFields)
+				.from(question)
+				.where(ilike(question.content, `%${search}%`))
+				.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+				.groupBy(question.id)
+			: db
+				.select(selectFields)
+				.from(question)
+				.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+				.groupBy(question.id);
+
+		// Apply HAVING filter and pagination
+		const dataQuery = unusedOnly 
+			? dataQueryBuilder
+				.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+				.orderBy(question.id)
+				.limit(limit)
+				.offset(offset)
+			: dataQueryBuilder
+				.orderBy(question.id)
+				.limit(limit)
+				.offset(offset);
+
+		// Build count query with same filters
+		const baseCountQuery = search
+			? db
+				.select({ id: question.id })
+				.from(question)
+				.where(ilike(question.content, `%${search}%`))
+			: db
+				.select({ id: question.id })
+				.from(question);
+
+		const countQuery = unusedOnly
+			? db
+				.select({ count: sql<number>`cast(count(*) as integer)` })
+				.from(
+					(search
+						? db
+							.select({ id: question.id })
+							.from(question)
+							.where(ilike(question.content, `%${search}%`))
+							.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+							.groupBy(question.id)
+							.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+						: db
+							.select({ id: question.id })
+							.from(question)
+							.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+							.groupBy(question.id)
+							.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+					).as('sq')
+				)
+			: db
+				.select({ count: sql<number>`cast(count(*) as integer)` })
+				.from(baseCountQuery.as('sq'));
+
+		const [data, [countResult]] = await Promise.all([
+			dataQuery,
+			countQuery,
+		]);
+
+		const total = countResult?.count || 0;
+
+		return {
+			data,
+			total,
+			limit,
+			offset,
+		};
+	});
+
+const getQuestionDetail = admin
+	.route({
+		path: "/admin/questions/{id}",
+		method: "GET",
+		tags: ["Admin - Questions"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		const q = await db.query.question.findFirst({
+			where: eq(question.id, input.id),
+			with: {
+				answerOptions: {
+					orderBy: (answerOptions, { asc }) => [asc(answerOptions.code)],
+				},
+			},
+		});
+
+		if (!q)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Question tidak ditemukan",
+			});
+
+		return {
+			...q,
+			answers: q.answerOptions,
+		};
+	});
 
 const createQuestion = admin
 	.route({
@@ -390,6 +580,7 @@ const getPackQuestions = admin
 				questionDiscussion: question.discussion,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
+				answerCode: questionAnswerOption.code,
 				answerIsCorrect: questionAnswerOption.isCorrect,
 			})
 			.from(practicePack)
@@ -416,7 +607,7 @@ const getPackQuestions = admin
 				order: number;
 				content: string;
 				discussion: string;
-				answers: Array<{ id: number; content: string; isCorrect: boolean }>;
+				answers: Array<{ id: number; content: string; code: string; isCorrect: boolean }>;
 			}
 		>();
 
@@ -434,12 +625,18 @@ const getPackQuestions = admin
 			questionMap.get(row.questionId)?.answers.push({
 				id: row.answerId,
 				content: row.answerContent,
+				code: row.answerCode,
 				isCorrect: row.answerIsCorrect ?? false,
 			});
 		}
 
 		// Format and sort the questions based on order
-		const questions = Array.from(questionMap.values()).sort((a, b) => a.order - b.order);
+		const questions = Array.from(questionMap.values())
+			.map(q => ({
+				...q,
+				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code))
+			}))
+			.sort((a, b) => a.order - b.order);
 
 		return { questions };
 	});
@@ -447,13 +644,19 @@ const getPackQuestions = admin
 // EXPORT
 
 export const adminPracticePackRouter = {
+	// Statistics
+	getStatistics,
+
 	// Practice Pack
 	listPacks,
+	getPack,
 	createPack,
 	updatePack,
 	deletePack,
 
 	// Question
+	listAllQuestions,
+	getQuestionDetail,
 	createQuestion,
 	updateQuestion,
 	deleteQuestion,
