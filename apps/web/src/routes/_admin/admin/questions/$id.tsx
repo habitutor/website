@@ -161,7 +161,8 @@ function QuestionEditPage() {
 
 			setInitializedQuestionId(question.id);
 		}
-		// form object is stable from useForm and intentionally omitted to prevent unnecessary re-runs
+		// The form object from useForm is a stable reference and doesn't change between renders.
+		// Including it in the dependency array would not provide any benefit and is intentionally omitted.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [question, initializedQuestionId]);
 
