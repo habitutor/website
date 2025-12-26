@@ -37,7 +37,7 @@ function QuestionEditPage() {
 	const questionId = Number.parseInt(id);
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
-	const [isFormInitialized, setIsFormInitialized] = useState(false);
+	const [initializedQuestionId, setInitializedQuestionId] = useState<number | null>(null);
 
 	const { data: question, isLoading } = useQuery(
 		orpc.admin.practicePack.getQuestionDetail.queryOptions({
@@ -134,7 +134,7 @@ function QuestionEditPage() {
 
 	// Initialize form values when question data is loaded
 	useEffect(() => {
-		if (question && !isFormInitialized) {
+		if (question && question.id !== initializedQuestionId) {
 			const answersMap = question.answers.reduce(
 				(acc, ans) => {
 					acc[ans.code as keyof typeof acc] = ans;
@@ -154,9 +154,9 @@ function QuestionEditPage() {
 				}
 			});
 
-			setIsFormInitialized(true);
+			setInitializedQuestionId(question.id);
 		}
-	}, [question, isFormInitialized, form]);
+	}, [question, initializedQuestionId]);
 
 	if (Number.isNaN(questionId)) {
 		return (
