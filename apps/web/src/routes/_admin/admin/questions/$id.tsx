@@ -184,7 +184,7 @@ function QuestionEditPage() {
 		{} as Record<(typeof answerCodes)[number], (typeof question.answers)[number]>
 	);
 
-	if (form.state.values.content === "" && question) {
+	if (form.state.values.content === "") {
 		form.setFieldValue("content", question.content);
 		form.setFieldValue("discussion", question.discussion);
 		answerCodes.forEach((code) => {
