@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, X } from "lucide-react";
+import { MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -25,13 +25,13 @@ export function AddExistingQuestionModal({
 	const { data: allQuestions, isLoading } = useQuery(
 		orpc.admin.practicePack.listAllQuestions.queryOptions({
 			input: { limit: 1000, offset: 0 },
-		})
+		}),
 	);
 
 	const { data: packQuestions } = useQuery(
 		orpc.admin.practicePack.getPackQuestions.queryOptions({
 			input: { id: practicePackId },
-		})
+		}),
 	);
 
 	const addMutation = useMutation(
@@ -41,7 +41,7 @@ export function AddExistingQuestionModal({
 				queryClient.invalidateQueries(
 					orpc.admin.practicePack.getPackQuestions.queryOptions({
 						input: { id: practicePackId },
-					})
+					}),
 				);
 			},
 			onError: (error) => {
@@ -49,15 +49,13 @@ export function AddExistingQuestionModal({
 					description: String(error),
 				});
 			},
-		})
+		}),
 	);
 
-	const availableQuestions = allQuestions?.data.filter(
-		(q) => !existingQuestionIds.includes(q.id)
-	);
+	const availableQuestions = allQuestions?.data.filter((q) => !existingQuestionIds.includes(q.id));
 
 	const filteredQuestions = availableQuestions?.filter((q) =>
-		q.content.toLowerCase().includes(searchQuery.toLowerCase())
+		q.content.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
 
 	const handleAddQuestion = (questionId: number) => {
@@ -84,7 +82,7 @@ export function AddExistingQuestionModal({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div className="relative">
-					<Search className="absolute top-3 left-3 size-4 text-muted-foreground" />
+					<MagnifyingGlass className="absolute top-3 left-3 size-4 text-muted-foreground" />
 					<Input
 						placeholder="Search questions..."
 						value={searchQuery}
@@ -102,21 +100,12 @@ export function AddExistingQuestionModal({
 						</>
 					) : filteredQuestions && filteredQuestions.length > 0 ? (
 						filteredQuestions.map((q) => (
-							<div
-								key={q.id}
-								className="flex items-start gap-3 rounded-lg border p-4"
-							>
+							<div key={q.id} className="flex items-start gap-3 rounded-lg border p-4">
 								<div className="flex-1">
 									<p className="font-medium">{q.content}</p>
-									<p className="line-clamp-1 text-muted-foreground text-sm">
-										{q.discussion}
-									</p>
+									<p className="line-clamp-1 text-muted-foreground text-sm">{q.discussion}</p>
 								</div>
-								<Button
-									size="sm"
-									onClick={() => handleAddQuestion(q.id)}
-									disabled={addMutation.isPending}
-								>
+								<Button size="sm" onClick={() => handleAddQuestion(q.id)} disabled={addMutation.isPending}>
 									Add
 								</Button>
 							</div>

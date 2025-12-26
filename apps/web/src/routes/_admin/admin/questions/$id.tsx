@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { orpc } from "@/utils/orpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
@@ -42,16 +42,12 @@ function QuestionEditPage() {
 	const { data: question, isLoading } = useQuery(
 		orpc.admin.practicePack.getQuestionDetail.queryOptions({
 			input: { id: questionId },
-		})
+		}),
 	);
 
-	const updateQuestionMutation = useMutation(
-		orpc.admin.practicePack.updateQuestion.mutationOptions()
-	);
+	const updateQuestionMutation = useMutation(orpc.admin.practicePack.updateQuestion.mutationOptions());
 
-	const updateAnswerMutation = useMutation(
-		orpc.admin.practicePack.updateAnswerOption.mutationOptions()
-	);
+	const updateAnswerMutation = useMutation(orpc.admin.practicePack.updateAnswerOption.mutationOptions());
 
 	const form = useForm({
 		defaultValues: {
@@ -106,21 +102,23 @@ function QuestionEditPage() {
 							id: value.answers[code].id,
 							content: value.answers[code].content,
 							isCorrect: value.answers[code].isCorrect,
-						})
-					)
+						}),
+					),
 				);
 
 				toast.success("Question updated successfully");
-				
+
 				queryClient.invalidateQueries(
 					orpc.admin.practicePack.getQuestionDetail.queryOptions({
 						input: { id: questionId },
-					})
+					}),
 				);
 				queryClient.invalidateQueries({
-					predicate: (query) => query.queryKey[0] === orpc.admin.practicePack.listAllQuestions.queryKey({ input: { limit: 0, offset: 0 } })[0],
+					predicate: (query) =>
+						query.queryKey[0] ===
+						orpc.admin.practicePack.listAllQuestions.queryKey({ input: { limit: 0, offset: 0 } })[0],
 				});
-				
+
 				setTimeout(() => {
 					navigate({ to: "/admin/questions" });
 				}, 500);
@@ -301,9 +299,7 @@ function QuestionEditPage() {
 											</div>
 										))}
 									</div>
-									<p className="mt-2 text-muted-foreground text-xs">
-										Check the box to mark as correct answer
-									</p>
+									<p className="mt-2 text-muted-foreground text-xs">Check the box to mark as correct answer</p>
 								</div>
 
 								<div className="flex gap-2">

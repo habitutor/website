@@ -14,7 +14,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, MagnifyingGlass, CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import { orpc } from "@/utils/orpc";
 import { cn } from "@/lib/utils";
@@ -35,9 +35,7 @@ function PracticePackDetailPage() {
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [showAddExisting, setShowAddExisting] = useState(false);
 
-	const { data } = useQuery(
-		orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } })
-	);
+	const { data } = useQuery(orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } }));
 
 	const existingQuestionIds = data?.questions?.map((q) => q.id) || [];
 
@@ -73,7 +71,7 @@ function PracticePackDetailPage() {
 							<h2 className="font-semibold text-xl sm:text-2xl">Questions</h2>
 							<div className="flex flex-col gap-2 sm:flex-row">
 								<Button onClick={() => setShowAddExisting(true)} variant="outline" className="text-xs sm:text-sm">
-									<Search className="mr-2 size-3.5 sm:size-4" />
+									<MagnifyingGlass className="mr-2 size-3.5 sm:size-4" />
 									Add Existing
 								</Button>
 								<Button onClick={() => setShowCreateForm(true)} className="text-xs sm:text-sm">
@@ -110,9 +108,9 @@ function PracticePackDetailPage() {
 function PackInfoCard({ packId }: { packId: number }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const { data: pack, isLoading } = useQuery(
-		orpc.admin.practicePack.getPack.queryOptions({ 
-			input: { id: packId } 
-		})
+		orpc.admin.practicePack.getPack.queryOptions({
+			input: { id: packId },
+		}),
 	);
 
 	if (isLoading) {
@@ -151,16 +149,12 @@ function PackInfoCard({ packId }: { packId: number }) {
 					<CardTitle className="text-lg sm:text-xl">Edit Pack Information</CardTitle>
 				</CardHeader>
 				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-					<EditPackForm
-						pack={pack}
-						onSuccess={() => setIsEditing(false)}
-						onCancel={() => setIsEditing(false)}
-					/>
+					<EditPackForm pack={pack} onSuccess={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
 				</CardContent>
 			</Card>
 		);
 	}
-	
+
 	return (
 		<Card className="rounded-xl shadow-sm">
 			<CardHeader className="p-4 sm:p-6">
@@ -170,9 +164,7 @@ function PackInfoCard({ packId }: { packId: number }) {
 				<div className="space-y-4">
 					<div>
 						<h3 className="font-semibold text-lg">{pack.title}</h3>
-						{pack.description && (
-							<p className="mt-2 text-muted-foreground text-sm">{pack.description}</p>
-						)}
+						{pack.description && <p className="mt-2 text-muted-foreground text-sm">{pack.description}</p>}
 					</div>
 					<Button variant="outline" onClick={() => setIsEditing(true)} size="sm">
 						Edit Pack Info
@@ -189,18 +181,16 @@ function QuestionsList({ packId }: { packId: number }) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const GRID_SIZE = 30;
 	const navigate = useNavigate();
-	
+
 	const { data, isLoading } = useQuery(
-		orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } })
+		orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } }),
 	);
 
 	const allQuestions = data?.questions || [];
-	
+
 	// Filter questions based on search query
 	const questions = searchQuery
-		? allQuestions.filter((q) =>
-				q.content.toLowerCase().includes(searchQuery.toLowerCase())
-		  )
+		? allQuestions.filter((q) => q.content.toLowerCase().includes(searchQuery.toLowerCase()))
 		: allQuestions;
 
 	useEffect(() => {
@@ -213,7 +203,7 @@ function QuestionsList({ packId }: { packId: number }) {
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (!questions || questions.length === 0) return;
-			
+
 			if (e.key === "ArrowLeft" && currentQuestionIndex > 0) {
 				const newIndex = currentQuestionIndex - 1;
 				setCurrentQuestionIndex(newIndex);
@@ -264,7 +254,7 @@ function QuestionsList({ packId }: { packId: number }) {
 					) : (
 						<div className="space-y-4">
 							<div className="relative">
-								<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+								<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 								<Input
 									placeholder="Search questions..."
 									value={searchQuery}
@@ -272,9 +262,7 @@ function QuestionsList({ packId }: { packId: number }) {
 									className="pl-9"
 								/>
 							</div>
-							<p className="text-muted-foreground text-sm">
-								No questions found matching "{searchQuery}".
-							</p>
+							<p className="text-muted-foreground text-sm">No questions found matching "{searchQuery}".</p>
 						</div>
 					)}
 				</CardContent>
@@ -287,13 +275,13 @@ function QuestionsList({ packId }: { packId: number }) {
 	const startIndex = gridPage * GRID_SIZE;
 	const endIndex = Math.min(startIndex + GRID_SIZE, questions.length);
 	const visibleQuestions = questions.slice(startIndex, endIndex);
-	
+
 	return (
 		<div className="space-y-4">
 			{/* Search Input */}
 			{allQuestions.length > 0 && (
 				<div className="relative">
-					<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+					<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						placeholder="Search questions..."
 						value={searchQuery}
@@ -330,20 +318,18 @@ function QuestionsList({ packId }: { packId: number }) {
 											key={answer.id}
 											className={cn(
 												"flex items-start gap-3 rounded-md border p-3 sm:p-4",
-												answer.isCorrect && "border-tertiary bg-tertiary/5"
+												answer.isCorrect && "border-tertiary bg-tertiary/5",
 											)}
 										>
-											<span className={cn(
-												"flex size-6 shrink-0 items-center justify-center rounded-full font-semibold text-xs",
-												answer.isCorrect 
-													? "bg-tertiary text-white" 
-													: "bg-muted text-muted-foreground"
-											)}>
+											<span
+												className={cn(
+													"flex size-6 shrink-0 items-center justify-center rounded-full font-semibold text-xs",
+													answer.isCorrect ? "bg-tertiary text-white" : "bg-muted text-muted-foreground",
+												)}
+											>
 												{answer.code}
 											</span>
-											<p className="flex-1 text-sm leading-relaxed sm:text-base">
-												{answer.content}
-											</p>
+											<p className="flex-1 text-sm leading-relaxed sm:text-base">{answer.content}</p>
 											{answer.isCorrect && (
 												<span className="shrink-0 rounded bg-tertiary px-2 py-0.5 font-medium text-white text-xs">
 													Correct
@@ -366,18 +352,15 @@ function QuestionsList({ packId }: { packId: number }) {
 									variant="outline"
 									className="w-full text-xs sm:w-auto sm:text-sm"
 									onClick={() => {
-										navigate({ 
-											to: "/admin/questions/$id", 
-											params: { id: currentQuestion.id.toString() } 
+										navigate({
+											to: "/admin/questions/$id",
+											params: { id: currentQuestion.id.toString() },
 										});
 									}}
 								>
 									Edit Question
 								</Button>
-								<RemoveQuestionButton 
-									packId={packId} 
-									question={currentQuestion}
-								/>
+								<RemoveQuestionButton packId={packId} question={currentQuestion} />
 							</div>
 
 							<div className="flex items-center justify-between border-t pt-4">
@@ -388,7 +371,7 @@ function QuestionsList({ packId }: { packId: number }) {
 									onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
 									disabled={currentQuestionIndex === 0}
 								>
-									<ChevronLeft className="mr-1 size-3.5 sm:size-4" />
+									<CaretLeft className="mr-1 size-3.5 sm:size-4" />
 									<span className="hidden sm:inline">Previous</span>
 									<span className="sm:hidden">Prev</span>
 								</Button>
@@ -401,7 +384,7 @@ function QuestionsList({ packId }: { packId: number }) {
 								>
 									<span className="hidden sm:inline">Next</span>
 									<span className="sm:hidden">Next</span>
-									<ChevronRight className="ml-1 size-3.5 sm:size-4" />
+									<CaretRight className="ml-1 size-3.5 sm:size-4" />
 								</Button>
 							</div>
 						</CardContent>
@@ -430,7 +413,7 @@ function QuestionsList({ packId }: { packId: number }) {
 											variant={absoluteIndex === currentQuestionIndex ? "default" : "outline"}
 											className={cn(
 												"h-8 w-full p-0 text-xs sm:h-9 sm:text-sm",
-												absoluteIndex === currentQuestionIndex && "font-semibold"
+												absoluteIndex === currentQuestionIndex && "font-semibold",
 											)}
 											onClick={() => handleQuestionClick(absoluteIndex)}
 										>
@@ -439,7 +422,7 @@ function QuestionsList({ packId }: { packId: number }) {
 									);
 								})}
 							</div>
-							
+
 							{totalGridPages > 1 && (
 								<div className="flex items-center justify-between border-t pt-3">
 									<Button
@@ -449,7 +432,7 @@ function QuestionsList({ packId }: { packId: number }) {
 										onClick={() => setGridPage(gridPage - 1)}
 										disabled={gridPage === 0}
 									>
-										<ChevronLeft className="size-3.5" />
+										<CaretLeft className="size-3.5" />
 									</Button>
 									<span className="text-muted-foreground text-xs">
 										{startIndex + 1}-{endIndex} of {questions.length}
@@ -461,7 +444,7 @@ function QuestionsList({ packId }: { packId: number }) {
 										onClick={() => setGridPage(gridPage + 1)}
 										disabled={gridPage === totalGridPages - 1}
 									>
-										<ChevronRight className="size-3.5" />
+										<CaretRight className="size-3.5" />
 									</Button>
 								</div>
 							)}
@@ -487,9 +470,7 @@ function RemoveQuestionButton({
 		orpc.admin.practicePack.removeQuestionFromPack.mutationOptions({
 			onSuccess: () => {
 				toast.success("Question removed from pack");
-				queryClient.invalidateQueries(
-					orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } })
-				);
+				queryClient.invalidateQueries(orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } }));
 				setDeleteDialogOpen(false);
 			},
 			onError: (error) => {
@@ -497,7 +478,7 @@ function RemoveQuestionButton({
 					description: String(error),
 				});
 			},
-		})
+		}),
 	);
 
 	const handleRemove = () => {

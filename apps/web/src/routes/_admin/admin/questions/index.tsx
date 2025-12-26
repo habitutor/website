@@ -21,7 +21,7 @@ import {
 	DropdownMenuRadioItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Edit, Trash2, Filter } from "lucide-react";
+import { MagnifyingGlass, PencilSimple, Trash, Funnel } from "@phosphor-icons/react";
 import { orpc } from "@/utils/orpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -36,7 +36,7 @@ function QuestionsPage() {
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const [filter, setFilter] = useState<"all" | "unused">("all");
 	const [page, setPage] = useState(1);
-	const limit = 5; 
+	const limit = 5;
 	const offset = (page - 1) * limit;
 
 	// Debounce search query
@@ -57,7 +57,7 @@ function QuestionsPage() {
 				unusedOnly: filter === "unused",
 				search: debouncedSearch,
 			},
-		})
+		}),
 	);
 
 	const questions = data?.data || [];
@@ -72,15 +72,13 @@ function QuestionsPage() {
 					<div className="mb-4 flex items-center justify-between sm:mb-6">
 						<div>
 							<h1 className="font-bold text-2xl sm:text-3xl">Questions Bank</h1>
-							<p className="mt-1 text-muted-foreground text-sm">
-								Manage all questions across practice packs
-							</p>
+							<p className="mt-1 text-muted-foreground text-sm">Manage all questions across practice packs</p>
 						</div>
 					</div>
 
 					<div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row">
 						<div className="relative flex-1">
-							<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+							<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 							<Input
 								placeholder="Search questions..."
 								value={searchQuery}
@@ -92,18 +90,19 @@ function QuestionsPage() {
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="outline" className="w-full sm:w-auto">
-									<Filter className="mr-2 size-4" />
-									<span className="hidden sm:inline">
-										{filter === "all" ? "All Questions" : "Unused Only"}
-									</span>
+									<Funnel className="mr-2 size-4" />
+									<span className="hidden sm:inline">{filter === "all" ? "All Questions" : "Unused Only"}</span>
 									<span className="sm:hidden">{filter === "all" ? "All" : "Unused"}</span>
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
-								<DropdownMenuRadioGroup value={filter} onValueChange={(value) => {
-									setFilter(value as "all" | "unused");
-									setPage(1); 
-								}}>
+								<DropdownMenuRadioGroup
+									value={filter}
+									onValueChange={(value) => {
+										setFilter(value as "all" | "unused");
+										setPage(1);
+									}}
+								>
 									<DropdownMenuRadioItem value="all">All Questions</DropdownMenuRadioItem>
 									<DropdownMenuRadioItem value="unused">Unused Only</DropdownMenuRadioItem>
 								</DropdownMenuRadioGroup>
@@ -238,7 +237,9 @@ function QuestionCard({
 			onSuccess: () => {
 				toast.success("Question deleted successfully");
 				queryClient.invalidateQueries({
-					predicate: (query) => query.queryKey[0] === orpc.admin.practicePack.listAllQuestions.queryKey({ input: { limit: 0, offset: 0 } })[0],
+					predicate: (query) =>
+						query.queryKey[0] ===
+						orpc.admin.practicePack.listAllQuestions.queryKey({ input: { limit: 0, offset: 0 } })[0],
 				});
 				setDeleteDialogOpen(false);
 			},
@@ -247,7 +248,7 @@ function QuestionCard({
 					description: String(error),
 				});
 			},
-		})
+		}),
 	);
 
 	const handleDelete = () => {
@@ -261,9 +262,7 @@ function QuestionCard({
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 						<div className="flex-1">
 							<CardTitle className="text-base leading-snug sm:text-lg">{question.content}</CardTitle>
-							<p className="mt-2 line-clamp-2 text-muted-foreground text-xs sm:text-sm">
-								{question.discussion}
-							</p>
+							<p className="mt-2 line-clamp-2 text-muted-foreground text-xs sm:text-sm">{question.discussion}</p>
 						</div>
 						<div className="flex items-center gap-2">
 							{question.packCount > 0 ? (
@@ -285,13 +284,13 @@ function QuestionCard({
 							size="sm"
 							className="flex-1 text-xs sm:flex-none sm:text-sm"
 							onClick={() => {
-								navigate({ 
-									to: "/admin/questions/$id", 
-									params: { id: question.id.toString() } 
+								navigate({
+									to: "/admin/questions/$id",
+									params: { id: question.id.toString() },
 								});
 							}}
 						>
-							<Edit className="size-3.5 sm:mr-2 sm:size-4" />
+							<PencilSimple className="size-3.5 sm:mr-2 sm:size-4" />
 							<span className="hidden sm:inline">Edit</span>
 						</Button>
 						<Button
@@ -300,7 +299,7 @@ function QuestionCard({
 							className="flex-1 text-xs sm:flex-none sm:text-sm"
 							onClick={() => setDeleteDialogOpen(true)}
 						>
-							<Trash2 className="size-3.5 sm:mr-2 sm:size-4" />
+							<Trash className="size-3.5 sm:mr-2 sm:size-4" />
 							<span className="hidden sm:inline">Delete</span>
 						</Button>
 					</div>
@@ -318,8 +317,7 @@ function QuestionCard({
 									<span className="font-semibold">
 										{question.packCount} practice pack{question.packCount !== 1 ? "s" : ""}
 									</span>
-									. Deleting it will remove it from all packs. This action cannot be
-									undone.
+									. Deleting it will remove it from all packs. This action cannot be undone.
 								</>
 							) : (
 								"This will permanently delete this question. This action cannot be undone."
