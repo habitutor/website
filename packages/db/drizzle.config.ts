@@ -1,11 +1,14 @@
 import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
+console.log("DATABASE_URL env var exists:", !!process.env.DATABASE_URL);
+
 if (!process.env.DATABASE_URL) {
+	console.log("Loading from .env...");
 	dotenv.config({
 		path: "../../apps/server/.env",
-		quiet: true,
 	});
+	console.log("DATABASE_URL after .env load:", !!process.env.DATABASE_URL);
 }
 
 if (!process.env.DATABASE_URL) {
