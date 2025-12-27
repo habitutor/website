@@ -14,6 +14,10 @@ COPY packages/db/package.json ./packages/db/
 RUN bun install
 
 FROM base AS builder
+ARG TURBO_TEAM
+ARG TURBO_TOKEN
+ENV TURBO_TEAM=${TURBO_TEAM}
+ENV TURBO_TOKEN=${TURBO_TOKEN}
 WORKDIR /usr/src/app
 
 COPY --from=installer /usr/src/app/ .
