@@ -33,7 +33,8 @@ jobs:
             echo "DATABASE_URL secret exists"
           fi
 
-      - name: "Apply migrations"
+      - name: "Apply migrations (direct drizzle-kit)"
+        working-directory: ./packages/db
         env:
           DATABASE_URL: "${{ secrets.DATABASE_URL }}"
-        run: bun db:migrate
+        run: drizzle-kit migrate
