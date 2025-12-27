@@ -3,6 +3,10 @@ import * as schema from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { emailOTP } from "better-auth/plugins";
+import { Resend } from "resend";
+
+export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -78,4 +82,21 @@ export const auth = betterAuth({
 			},
 		}),
 	},
+	plugins: [
+		emailOTP({
+			async sendVerificationOTP({ email, otp, type }) {
+				if (type === "forget-password")
+					await resend.emails.send({
+						to: email,
+						subject: "Reset password anda",
+						template: {
+							id: "reset-your-password",
+							variables: {
+								OTP: otp,
+							},
+						},
+					});
+			},
+		}),
+	],
 });

@@ -1,19 +1,19 @@
+import { ArrowLeft } from "@phosphor-icons/react";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { type } from "arktype";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { AdminSidebar } from "@/components/admin/sidebar";
+import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft } from "@phosphor-icons/react";
 import { orpc } from "@/utils/orpc";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "@tanstack/react-form";
-import { type } from "arktype";
-import { toast } from "sonner";
-import Loader from "@/components/loader";
-import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_admin/admin/questions/$id")({
 	component: QuestionEditPage,
@@ -34,7 +34,7 @@ const formValidator = type({
 
 function QuestionEditPage() {
 	const { id } = Route.useParams();
-	const questionId = Number.parseInt(id);
+	const questionId = Number.parseInt(id, 10);
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [initializedQuestionId, setInitializedQuestionId] = useState<number | null>(null);
@@ -133,7 +133,7 @@ function QuestionEditPage() {
 	// Reset initialization state when navigating to a different question
 	useEffect(() => {
 		setInitializedQuestionId(null);
-	}, [questionId]);
+	}, []);
 
 	// Initialize form values when question data is loaded
 	useEffect(() => {
@@ -143,7 +143,7 @@ function QuestionEditPage() {
 					acc[ans.code as keyof typeof acc] = ans;
 					return acc;
 				},
-				{} as Record<(typeof answerCodes)[number], (typeof question.answers)[number]>
+				{} as Record<(typeof answerCodes)[number], (typeof question.answers)[number]>,
 			);
 
 			form.setFieldValue("content", question.content);
@@ -162,7 +162,7 @@ function QuestionEditPage() {
 		// The form object from useForm is a stable reference and doesn't change between renders.
 		// Including it in the dependency array would not provide any benefit and is intentionally omitted.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [question, initializedQuestionId]);
+	}, [question, initializedQuestionId, form.setFieldValue]);
 
 	if (Number.isNaN(questionId)) {
 		return (

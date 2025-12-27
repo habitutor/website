@@ -131,7 +131,7 @@ function SignInForm() {
 								</div>
 							)}
 						</form.Field>
-						<Link to="/register" className="ml-auto w-fit text-primary text-xs underline">
+						<Link to="/reset-password" className="ml-auto w-fit text-primary text-xs underline">
 							Lupa Password?
 						</Link>
 					</div>

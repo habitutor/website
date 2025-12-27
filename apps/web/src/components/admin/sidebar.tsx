@@ -109,15 +109,15 @@ export function AdminSidebar() {
 							setLogoutDialogOpen(true);
 						}}
 					>
-                        <SignOut className="size-5" />
-                        Logout
-                    </Button>
-                </div>
-            </aside>
+						<SignOut className="size-5" />
+						Logout
+					</Button>
+				</div>
+			</aside>
 
-            <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
-        </>
-    );
+			<LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+		</>
+	);
 }
 
 function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
