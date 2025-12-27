@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { orpc } from "@/utils/orpc";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { orpc } from "@/utils/orpc";
 
 const answerCodes = ["A", "B", "C", "D"] as const;
 
@@ -29,24 +29,14 @@ const formValidator = type({
 	}),
 });
 
-export function CreateQuestionForm({
-	practicePackId,
-	onSuccess,
-	onCancel,
-}: CreateQuestionFormProps) {
+export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: CreateQuestionFormProps) {
 	const queryClient = useQueryClient();
 
-	const createQuestionMutation = useMutation(
-		orpc.admin.practicePack.createQuestion.mutationOptions(),
-	);
+	const createQuestionMutation = useMutation(orpc.admin.practicePack.createQuestion.mutationOptions());
 
-	const createAnswerMutation = useMutation(
-		orpc.admin.practicePack.createAnswerOption.mutationOptions(),
-	);
+	const createAnswerMutation = useMutation(orpc.admin.practicePack.createAnswerOption.mutationOptions());
 
-	const addToPackMutation = useMutation(
-		orpc.admin.practicePack.addQuestionToPack.mutationOptions(),
-	);
+	const addToPackMutation = useMutation(orpc.admin.practicePack.addQuestionToPack.mutationOptions());
 
 	const form = useForm({
 		defaultValues: {
@@ -97,7 +87,7 @@ export function CreateQuestionForm({
 
 				toast.success("Question created successfully");
 				queryClient.invalidateQueries(
-					orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: practicePackId } })
+					orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: practicePackId } }),
 				);
 				form.reset();
 				onSuccess?.();
@@ -110,9 +100,7 @@ export function CreateQuestionForm({
 	});
 
 	const isSubmitting =
-		createQuestionMutation.isPending ||
-		createAnswerMutation.isPending ||
-		addToPackMutation.isPending;
+		createQuestionMutation.isPending || createAnswerMutation.isPending || addToPackMutation.isPending;
 
 	return (
 		<Card>
@@ -188,9 +176,7 @@ export function CreateQuestionForm({
 								</div>
 							))}
 						</div>
-						<p className="mt-2 text-muted-foreground text-xs">
-							Check the box to mark as correct answer
-						</p>
+						<p className="mt-2 text-muted-foreground text-xs">Check the box to mark as correct answer</p>
 					</div>
 
 					<div className="flex gap-2">

@@ -1,14 +1,14 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { practicePack, question, questionAnswerOption, practicePackQuestions } from "../schema/practice-pack";
+import { practicePack, practicePackQuestions, question, questionAnswerOption } from "../schema/practice-pack";
 
 export async function clearPractice(db: NodePgDatabase) {
 	console.log("Clearing practice data...");
-	
+
 	await db.delete(practicePackQuestions);
 	await db.delete(questionAnswerOption);
 	await db.delete(question);
 	await db.delete(practicePack);
-	
+
 	console.log("Practice data cleared");
 }
 
@@ -58,7 +58,7 @@ export async function seedPractice(db: NodePgDatabase) {
 
 	for (let packIndex = 0; packIndex < 10; packIndex++) {
 		const subject = subjects[packIndex];
-		
+
 		const [pack] = await db
 			.insert(practicePack)
 			.values({
@@ -78,7 +78,7 @@ export async function seedPractice(db: NodePgDatabase) {
 			if (!template) {
 				throw new Error("Template not found");
 			}
-			
+
 			const questionNum = questionIndex + 1;
 
 			const [createdQuestion] = await db
@@ -99,7 +99,7 @@ export async function seedPractice(db: NodePgDatabase) {
 				if (!optionContent) {
 					throw new Error(`Option ${i} not found in template`);
 				}
-				
+
 				await db.insert(questionAnswerOption).values({
 					code: answerCodes[i] as string,
 					questionId: createdQuestion.id,

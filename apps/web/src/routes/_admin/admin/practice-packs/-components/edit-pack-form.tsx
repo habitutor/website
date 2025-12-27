@@ -1,12 +1,12 @@
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type } from "arktype";
+import { toast } from "sonner";
+import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "@tanstack/react-form";
-import { type } from "arktype";
-import { toast } from "sonner";
-import Loader from "@/components/loader";
 
 interface EditPackFormProps {
 	pack: {
@@ -31,11 +31,10 @@ export function EditPackForm({ pack, onSuccess, onCancel }: EditPackFormProps) {
 			onSuccess: () => {
 				toast.success("Practice pack updated successfully");
 				queryClient.invalidateQueries({
-					predicate: (query) => query.queryKey[0] === orpc.admin.practicePack.listPacks.queryKey({ input: { limit: 0, offset: 0 } })[0],
+					predicate: (query) =>
+						query.queryKey[0] === orpc.admin.practicePack.listPacks.queryKey({ input: { limit: 0, offset: 0 } })[0],
 				});
-				queryClient.invalidateQueries(
-					orpc.admin.practicePack.getPack.queryOptions({ input: { id: pack.id } })
-				);
+				queryClient.invalidateQueries(orpc.admin.practicePack.getPack.queryOptions({ input: { id: pack.id } }));
 				onSuccess?.();
 			},
 			onError: (error) => {
@@ -43,7 +42,7 @@ export function EditPackForm({ pack, onSuccess, onCancel }: EditPackFormProps) {
 					description: String(error),
 				});
 			},
-		})
+		}),
 	);
 
 	const form = useForm({

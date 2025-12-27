@@ -1,6 +1,11 @@
 import { db } from "@habitutor/db";
-import { practicePack, practicePackQuestions, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { user } from "@habitutor/db/schema/auth";
+import {
+	practicePack,
+	practicePackQuestions,
+	question,
+	questionAnswerOption,
+} from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { and, count, eq, ilike, sql } from "drizzle-orm";
@@ -197,67 +202,55 @@ const listAllQuestions = admin
 		// Build data query with conditional WHERE clause
 		const dataQueryBuilder = search
 			? db
-				.select(selectFields)
-				.from(question)
-				.where(ilike(question.content, `%${search}%`))
-				.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
-				.groupBy(question.id)
+					.select(selectFields)
+					.from(question)
+					.where(ilike(question.content, `%${search}%`))
+					.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+					.groupBy(question.id)
 			: db
-				.select(selectFields)
-				.from(question)
-				.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
-				.groupBy(question.id);
+					.select(selectFields)
+					.from(question)
+					.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+					.groupBy(question.id);
 
 		// Apply HAVING filter and pagination
-		const dataQuery = unusedOnly 
+		const dataQuery = unusedOnly
 			? dataQueryBuilder
-				.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
-				.orderBy(question.id)
-				.limit(limit)
-				.offset(offset)
-			: dataQueryBuilder
-				.orderBy(question.id)
-				.limit(limit)
-				.offset(offset);
+					.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+					.orderBy(question.id)
+					.limit(limit)
+					.offset(offset)
+			: dataQueryBuilder.orderBy(question.id).limit(limit).offset(offset);
 
 		// Build count query with same filters
 		const baseCountQuery = search
 			? db
-				.select({ id: question.id })
-				.from(question)
-				.where(ilike(question.content, `%${search}%`))
-			: db
-				.select({ id: question.id })
-				.from(question);
+					.select({ id: question.id })
+					.from(question)
+					.where(ilike(question.content, `%${search}%`))
+			: db.select({ id: question.id }).from(question);
 
 		const countQuery = unusedOnly
-			? db
-				.select({ count: sql<number>`cast(count(*) as integer)` })
-				.from(
+			? db.select({ count: sql<number>`cast(count(*) as integer)` }).from(
 					(search
 						? db
-							.select({ id: question.id })
-							.from(question)
-							.where(ilike(question.content, `%${search}%`))
-							.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
-							.groupBy(question.id)
-							.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+								.select({ id: question.id })
+								.from(question)
+								.where(ilike(question.content, `%${search}%`))
+								.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+								.groupBy(question.id)
+								.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
 						: db
-							.select({ id: question.id })
-							.from(question)
-							.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
-							.groupBy(question.id)
-							.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
-					).as('sq')
+								.select({ id: question.id })
+								.from(question)
+								.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+								.groupBy(question.id)
+								.having(sql`count(${practicePackQuestions.practicePackId}) = 0`)
+					).as("sq"),
 				)
-			: db
-				.select({ count: sql<number>`cast(count(*) as integer)` })
-				.from(baseCountQuery.as('sq'));
+			: db.select({ count: sql<number>`cast(count(*) as integer)` }).from(baseCountQuery.as("sq"));
 
-		const [data, [countResult]] = await Promise.all([
-			dataQuery,
-			countQuery,
-		]);
+		const [data, [countResult]] = await Promise.all([dataQuery, countQuery]);
 
 		const total = countResult?.count || 0;
 
@@ -632,9 +625,9 @@ const getPackQuestions = admin
 
 		// Format and sort the questions based on order
 		const questions = Array.from(questionMap.values())
-			.map(q => ({
+			.map((q) => ({
 				...q,
-				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code))
+				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
 			}))
 			.sort((a, b) => a.order - b.order);
 

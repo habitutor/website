@@ -24,9 +24,10 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
+		"@habitutor/db": "workspace:*",
+		"arktype": "catalog:",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
-		"arktype": "catalog:",
-		"@habitutor/db": "workspace:*"
+		"resend": "^6.6.0"
 	}
 }

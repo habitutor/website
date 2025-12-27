@@ -1,9 +1,9 @@
+import { ArrowLeft, CaretLeft, CaretRight, MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { AdminSidebar } from "@/components/admin/sidebar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,15 +14,15 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Plus, MagnifyingGlass, CaretLeft, CaretRight } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
-import { orpc } from "@/utils/orpc";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { orpc } from "@/utils/orpc";
+import { AddExistingQuestionModal } from "./-components/add-existing-modal";
 import { CreateQuestionForm } from "./-components/create-question-form";
 import { EditPackForm } from "./-components/edit-pack-form";
-import { AddExistingQuestionModal } from "./-components/add-existing-modal";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/practice-packs/$id")({
 	component: PracticePackDetailPage,
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_admin/admin/practice-packs/$id")({
 
 function PracticePackDetailPage() {
 	const { id } = Route.useParams();
-	const packId = Number.parseInt(id);
+	const packId = Number.parseInt(id, 10);
 
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [showAddExisting, setShowAddExisting] = useState(false);

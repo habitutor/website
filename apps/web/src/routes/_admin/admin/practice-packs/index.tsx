@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_admin/admin/practice-packs/")({
 function PracticePacksListPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [page, setPage] = useState(1);
-	const limit = 9; 
+	const limit = 9;
 	const offset = (page - 1) * limit;
 
 	const { data, isPending, isError, error } = useQuery(
@@ -203,7 +203,8 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 			onSuccess: () => {
 				toast.success("Practice pack berhasil dihapus");
 				queryClient.invalidateQueries({
-					predicate: (query) => query.queryKey[0] === orpc.admin.practicePack.listPacks.queryKey({ input: { limit: 0, offset: 0 } })[0],
+					predicate: (query) =>
+						query.queryKey[0] === orpc.admin.practicePack.listPacks.queryKey({ input: { limit: 0, offset: 0 } })[0],
 				});
 				setDeleteDialogOpen(false);
 			},
@@ -230,7 +231,12 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 				</a>
 
 				<div className="flex gap-2">
-					<Button variant="destructive" size="sm" className="flex-1 text-xs sm:text-sm" onClick={() => setDeleteDialogOpen(true)}>
+					<Button
+						variant="destructive"
+						size="sm"
+						className="flex-1 text-xs sm:text-sm"
+						onClick={() => setDeleteDialogOpen(true)}
+					>
 						<Trash className="size-3.5 sm:size-4" />
 						<span className="hidden sm:inline">Delete</span>
 					</Button>
@@ -242,7 +248,8 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete Practice Pack?</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete "{pack.title}"? This action cannot be undone and will remove all associated questions.
+							Are you sure you want to delete "{pack.title}"? This action cannot be undone and will remove all
+							associated questions.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
