@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Header from "@/components/header";
 import { CallToAction } from "./-home/call-to-action";
+import Footer from "./-home/footer";
 import { Hero } from "./-home/hero";
 import { Pricing } from "./-home/pricing";
 
 export const Route = createFileRoute("/")({
-	component: HomeComponent,
+  component: HomeComponent,
 });
 
 function HomeComponent() {
-	return (
-		<>
-			<Header />
-			<Hero />
-			<Pricing />
-			<CallToAction />
-		</>
-	);
+  return (
+    <>
+      <Header />
+      <Hero />
+      <Pricing />
+      <CallToAction />
+      <Footer />
+    </>
+  );
 }
