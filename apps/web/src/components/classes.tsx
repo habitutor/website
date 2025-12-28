@@ -545,7 +545,7 @@ export function PracticeQuestion({
   return (
     <div className="space-y-4">
       {/* Soal */}
-      <div className="flex flex-col space-y-4 rounded-md border border-neutral-200 p-4">
+      <div className="flex flex-col rounded-md border border-neutral-200 p-4">
         <div className="flex space-x-4">
           <div className="w-fit rounded-sm border border-neutral-200 px-4 py-2">
             Soal

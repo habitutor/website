@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PracticeQuestion, PracticeQuestionHeader } from "@/components/classes";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
-// import { QuizPlayer } from "@/components/quiz-player";
 
 export const Route = createFileRoute(
   "/_authenticated/classes/$shortName/$contentId/latihan-soal"
@@ -31,35 +31,61 @@ function RouteComponent() {
 
   if (!content.data) return notFound();
 
-  // const _practiceQuestions = content.data.practiceQuestions;
-  // if (!practiceQuestions) {
-  //   return (
-  //     <p className="text-muted-foreground text-sm">
-  //       Belum ada latihan soal untuk materi ini.
-  //     </p>
-  //   );
-  // }
+  const practiceQuestions = content.data.practiceQuestions;
+  if (!practiceQuestions) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        Belum ada latihan soal untuk materi ini.
+      </p>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <p>Latihan Soal</p>
       <PracticeQuestionHeader content={content.data.title} />
 
-      <PracticeQuestion
-        questionNumber={1}
-        totalQuestions={5}
-        question={
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            quos.
-          </p>
-        }
-        answer={
-          <p>
-            lipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
-          </p>
-        }
-      />
+      {Array.isArray(practiceQuestions?.questions) &&
+      practiceQuestions.questions.length > 0 ? (
+        practiceQuestions.questions.map((q, idx) => (
+          <PracticeQuestion
+            key={q.questionId}
+            questionNumber={idx + 1}
+            totalQuestions={practiceQuestions.questions.length}
+            question={<TiptapRenderer className="mt-4" content={q.question} />}
+            answer={
+              <div className="space-y-3">
+                {q.answers && q.answers.length > 0 && (
+                  <div className="space-y-2">
+                    {q.answers.map((answer) => (
+                      <p
+                        key={answer.id}
+                        className={
+                          answer.isCorrect
+                            ? "font-semibold text-green-600 text-sm"
+                            : "text-muted-foreground text-sm"
+                        }
+                      >
+                        {answer.code}. {answer.content}
+                        {answer.isCorrect && " ✓"}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {q.discussion && (
+                  <div className="mt-3 border-neutral-200 border-t pt-3">
+                    <p className="mb-1 font-medium text-sm">Pembahasan:</p>
+                    <p content={q.discussion} />
+                  </div>
+                )}
+              </div>
+            }
+          />
+        ))
+      ) : (
+        <p className="text-muted-foreground text-sm">
+          Belum ada latihan soal untuk materi ini.
+        </p>
+      )}
     </div>
   );
 }

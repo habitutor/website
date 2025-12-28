@@ -1,12 +1,16 @@
 import { db } from "@habitutor/db";
 import {
-	contentItem,
-	contentPracticeQuestions,
-	noteMaterial,
-	recentContentView,
-	subtest,
-	userProgress,
-	videoMaterial,
+  question,
+  questionAnswerOption,
+} from "@habitutor/db/schema/practice-pack";
+import {
+  contentItem,
+  contentPracticeQuestions,
+  noteMaterial,
+  recentContentView,
+  subtest,
+  userProgress,
+  videoMaterial,
 } from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
@@ -18,299 +22,372 @@ import { authed } from "../index";
  * GET /api/subtests
  */
 const listSubtests = authed
-	.route({
-		path: "/subtests",
-		method: "GET",
-		tags: ["Content"],
-	})
-	.handler(async () => {
-		const subtests = await db
-			.select({
-				id: subtest.id,
-				name: subtest.name,
-				shortName: subtest.shortName,
-				description: subtest.description,
-				order: subtest.order,
-			})
-			.from(subtest)
-			.orderBy(subtest.order);
+  .route({
+    path: "/subtests",
+    method: "GET",
+    tags: ["Content"],
+  })
+  .handler(async () => {
+    const subtests = await db
+      .select({
+        id: subtest.id,
+        name: subtest.name,
+        shortName: subtest.shortName,
+        description: subtest.description,
+        order: subtest.order,
+      })
+      .from(subtest)
+      .orderBy(subtest.order);
 
-		return subtests;
-	});
+    return subtests;
+  });
 
 /**
  * Get content items by subtest and category
  * GET /api/subtests/{subtestId}/content/{category}
  */
 const listContentByCategory = authed
-	.route({
-		path: "/subtests/{subtestId}/content/{category}",
-		method: "GET",
-		tags: ["Content"],
-	})
-	.input(
-		type({
-			subtestId: "number",
-			category: "'material' | 'tips_and_trick'",
-		}),
-	)
-	.handler(async ({ input, context }) => {
-		const items = await db
-			.select({
-				id: contentItem.id,
-				title: contentItem.title,
-				order: contentItem.order,
-				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
-				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
-				videoCompleted: userProgress.videoCompleted,
-				noteCompleted: userProgress.noteCompleted,
-				practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
-				lastViewedAt: userProgress.lastViewedAt,
-			})
-			.from(contentItem)
-			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
-			.leftJoin(
-				userProgress,
-				and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
-			)
-			.where(and(eq(contentItem.subtestId, input.subtestId), eq(contentItem.type, input.category)))
-			.orderBy(contentItem.order)
-			.groupBy(
-				contentItem.id,
-				videoMaterial.id,
-				noteMaterial.id,
-				contentPracticeQuestions.contentItemId,
-				userProgress.videoCompleted,
-				userProgress.noteCompleted,
-				userProgress.practiceQuestionsCompleted,
-				userProgress.lastViewedAt,
-			);
+  .route({
+    path: "/subtests/{subtestId}/content/{category}",
+    method: "GET",
+    tags: ["Content"],
+  })
+  .input(
+    type({
+      subtestId: "number",
+      category: "'material' | 'tips_and_trick'",
+    })
+  )
+  .handler(async ({ input, context }) => {
+    const items = await db
+      .select({
+        id: contentItem.id,
+        title: contentItem.title,
+        order: contentItem.order,
+        hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
+        hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
+        hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
+        videoCompleted: userProgress.videoCompleted,
+        noteCompleted: userProgress.noteCompleted,
+        practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
+        lastViewedAt: userProgress.lastViewedAt,
+      })
+      .from(contentItem)
+      .leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
+      .leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
+      .leftJoin(
+        contentPracticeQuestions,
+        eq(contentPracticeQuestions.contentItemId, contentItem.id)
+      )
+      .leftJoin(
+        userProgress,
+        and(
+          eq(userProgress.contentItemId, contentItem.id),
+          eq(userProgress.userId, context.session.user.id)
+        )
+      )
+      .where(
+        and(
+          eq(contentItem.subtestId, input.subtestId),
+          eq(contentItem.type, input.category)
+        )
+      )
+      .orderBy(contentItem.order)
+      .groupBy(
+        contentItem.id,
+        videoMaterial.id,
+        noteMaterial.id,
+        contentPracticeQuestions.contentItemId,
+        userProgress.videoCompleted,
+        userProgress.noteCompleted,
+        userProgress.practiceQuestionsCompleted,
+        userProgress.lastViewedAt
+      );
 
-		return items;
-	});
+    return items;
+  });
 
 const getContentById = authed
-	.route({
-		path: "/content/{contentId}",
-		method: "GET",
-		tags: ["Content"],
-	})
-	.input(
-		type({
-			contentId: "number",
-		}),
-	)
-	.handler(async ({ input }) => {
-		const [row] = await db
-			.select({
-				id: contentItem.id,
-				title: contentItem.title,
-				type: contentItem.type,
-				subtestId: contentItem.subtestId,
+  .route({
+    path: "/content/{contentId}",
+    method: "GET",
+    tags: ["Content"],
+  })
+  .input(
+    type({
+      contentId: "number",
+    })
+  )
+  .handler(async ({ input }) => {
+    const [row] = await db
+      .select({
+        id: contentItem.id,
+        title: contentItem.title,
+        type: contentItem.type,
+        subtestId: contentItem.subtestId,
 
-				videoId: videoMaterial.id,
-				videoUrl: videoMaterial.videoUrl,
-				videoContent: videoMaterial.content,
+        videoId: videoMaterial.id,
+        videoUrl: videoMaterial.videoUrl,
+        videoContent: videoMaterial.content,
 
-				noteId: noteMaterial.id,
-				noteContent: noteMaterial.content,
-			})
-			.from(contentItem)
-			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.where(eq(contentItem.id, input.contentId))
-			.limit(1);
+        noteId: noteMaterial.id,
+        noteContent: noteMaterial.content,
+      })
+      .from(contentItem)
+      .leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
+      .leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
+      .where(eq(contentItem.id, input.contentId))
+      .limit(1);
 
-		if (!row) {
-			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
-		}
+    if (!row) {
+      throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
+    }
 
-		const practiceQuestions = await db
-			.select({
-				questionId: contentPracticeQuestions.questionId,
-				order: contentPracticeQuestions.order,
-			})
-			.from(contentPracticeQuestions)
-			.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
-			.orderBy(contentPracticeQuestions.order);
+    // Get practice questions with full question and answer data
+    const practiceQuestionsRows = await db
+      .select({
+        questionId: contentPracticeQuestions.questionId,
+        order: contentPracticeQuestions.order,
+        questionContent: question.content,
+        questionDiscussion: question.discussion,
+        answerId: questionAnswerOption.id,
+        answerContent: questionAnswerOption.content,
+        answerCode: questionAnswerOption.code,
+        answerIsCorrect: questionAnswerOption.isCorrect,
+      })
+      .from(contentPracticeQuestions)
+      .innerJoin(question, eq(question.id, contentPracticeQuestions.questionId))
+      .innerJoin(
+        questionAnswerOption,
+        eq(questionAnswerOption.questionId, question.id)
+      )
+      .where(eq(contentPracticeQuestions.contentItemId, input.contentId))
+      .orderBy(contentPracticeQuestions.order, questionAnswerOption.code);
 
-		return {
-			id: row.id,
-			title: row.title,
-			type: row.type,
-			subtestId: row.subtestId,
-			video: row.videoId
-				? {
-						id: row.videoId,
-						videoUrl: row.videoUrl,
-						content: row.videoContent,
-					}
-				: null,
-			note: row.noteId
-				? {
-						id: row.noteId,
-						content: row.noteContent,
-					}
-				: null,
-			practiceQuestions:
-				practiceQuestions.length > 0
-					? {
-							questions: practiceQuestions,
-						}
-					: null,
-		};
-	});
+    // Group questions and their answers
+    const questionMap = new Map<
+      number,
+      {
+        questionId: number;
+        order: number;
+        question: string;
+        discussion: string;
+        answers: Array<{
+          id: number;
+          content: string;
+          code: string;
+          isCorrect: boolean;
+        }>;
+      }
+    >();
+
+    for (const row of practiceQuestionsRows) {
+      if (!questionMap.has(row.questionId)) {
+        questionMap.set(row.questionId, {
+          questionId: row.questionId,
+          order: row.order,
+          question: row.questionContent,
+          discussion: row.questionDiscussion,
+          answers: [],
+        });
+      }
+      questionMap.get(row.questionId)?.answers.push({
+        id: row.answerId,
+        content: row.answerContent,
+        code: row.answerCode,
+        isCorrect: row.answerIsCorrect,
+      });
+    }
+
+    // Sort questions by order and answers by code
+    const questions = Array.from(questionMap.values())
+      .map((q) => ({
+        ...q,
+        answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
+      }))
+      .sort((a, b) => a.order - b.order);
+
+    return {
+      id: row.id,
+      title: row.title,
+      type: row.type,
+      subtestId: row.subtestId,
+      video: row.videoId
+        ? {
+            id: row.videoId,
+            videoUrl: row.videoUrl,
+            content: row.videoContent,
+          }
+        : null,
+      note: row.noteId
+        ? {
+            id: row.noteId,
+            content: row.noteContent,
+          }
+        : null,
+      practiceQuestions:
+        questions.length > 0
+          ? {
+              questions,
+            }
+          : null,
+    };
+  });
 
 /**
  * Track content view (for recent views)
  * POST /api/content/{id}/view
  */
 const trackView = authed
-	.route({
-		path: "/content/{id}/view",
-		method: "POST",
-		tags: ["Content"],
-	})
-	.input(type({ id: "number" }))
-	.output(type({ message: "string" }))
-	.handler(async ({ input, context }) => {
-		// Verify content exists
-		const [item] = await db
-			.select({ id: contentItem.id })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
+  .route({
+    path: "/content/{id}/view",
+    method: "POST",
+    tags: ["Content"],
+  })
+  .input(type({ id: "number" }))
+  .output(type({ message: "string" }))
+  .handler(async ({ input, context }) => {
+    // Verify content exists
+    const [item] = await db
+      .select({ id: contentItem.id })
+      .from(contentItem)
+      .where(eq(contentItem.id, input.id))
+      .limit(1);
 
-		if (!item)
-			throw new ORPCError("NOT_FOUND", {
-				message: "Konten tidak ditemukan",
-			});
+    if (!item)
+      throw new ORPCError("NOT_FOUND", {
+        message: "Konten tidak ditemukan",
+      });
 
-		// Insert new view
-		await db.insert(recentContentView).values({
-			userId: context.session.user.id,
-			contentItemId: input.id,
-		});
+    // Insert new view
+    await db.insert(recentContentView).values({
+      userId: context.session.user.id,
+      contentItemId: input.id,
+    });
 
-		// Keep only last 5 views
-		const allViews = await db
-			.select({ id: recentContentView.id })
-			.from(recentContentView)
-			.where(eq(recentContentView.userId, context.session.user.id))
-			.orderBy(desc(recentContentView.viewedAt));
+    // Keep only last 5 views
+    const allViews = await db
+      .select({ id: recentContentView.id })
+      .from(recentContentView)
+      .where(eq(recentContentView.userId, context.session.user.id))
+      .orderBy(desc(recentContentView.viewedAt));
 
-		if (allViews.length > 5) {
-			const toDelete = allViews.slice(5).map((v) => v.id);
-			await db.delete(recentContentView).where(inArray(recentContentView.id, toDelete));
-		}
+    if (allViews.length > 5) {
+      const toDelete = allViews.slice(5).map((v) => v.id);
+      await db
+        .delete(recentContentView)
+        .where(inArray(recentContentView.id, toDelete));
+    }
 
-		return { message: "Berhasil mencatat aktivitas" };
-	});
+    return { message: "Berhasil mencatat aktivitas" };
+  });
 
 /**
  * Get recent 5 content views for dashboard
  * GET /api/content/recent
  */
 const getRecentViews = authed
-	.route({
-		path: "/content/recent",
-		method: "GET",
-		tags: ["Content"],
-	})
-	.handler(async ({ context }) => {
-		const views = await db
-			.select({
-				viewedAt: recentContentView.viewedAt,
-				contentId: contentItem.id,
-				contentTitle: contentItem.title,
-				contentType: contentItem.type,
-				subtestId: subtest.id,
-				subtestName: subtest.name,
-				subtestShortName: subtest.shortName,
-			})
-			.from(recentContentView)
-			.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))
-			.innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
-			.where(eq(recentContentView.userId, context.session.user.id))
-			.orderBy(desc(recentContentView.viewedAt))
-			.limit(5);
+  .route({
+    path: "/content/recent",
+    method: "GET",
+    tags: ["Content"],
+  })
+  .handler(async ({ context }) => {
+    const views = await db
+      .select({
+        viewedAt: recentContentView.viewedAt,
+        contentId: contentItem.id,
+        contentTitle: contentItem.title,
+        contentType: contentItem.type,
+        subtestId: subtest.id,
+        subtestName: subtest.name,
+        subtestShortName: subtest.shortName,
+      })
+      .from(recentContentView)
+      .innerJoin(
+        contentItem,
+        eq(contentItem.id, recentContentView.contentItemId)
+      )
+      .innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
+      .where(eq(recentContentView.userId, context.session.user.id))
+      .orderBy(desc(recentContentView.viewedAt))
+      .limit(5);
 
-		return views;
-	});
+    return views;
+  });
 
 /**
  * Update user progress
  * PATCH /api/content/{id}/progress
  */
 const updateProgress = authed
-	.route({
-		path: "/content/{id}/progress",
-		method: "PATCH",
-		tags: ["Content"],
-	})
-	.input(
-		type({
-			id: "number",
-			videoCompleted: "boolean?",
-			noteCompleted: "boolean?",
-			practiceQuestionsCompleted: "boolean?",
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input, context }) => {
-		// Verify content exists
-		const [item] = await db
-			.select({ id: contentItem.id })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
+  .route({
+    path: "/content/{id}/progress",
+    method: "PATCH",
+    tags: ["Content"],
+  })
+  .input(
+    type({
+      id: "number",
+      videoCompleted: "boolean?",
+      noteCompleted: "boolean?",
+      practiceQuestionsCompleted: "boolean?",
+    })
+  )
+  .output(type({ message: "string" }))
+  .handler(async ({ input, context }) => {
+    // Verify content exists
+    const [item] = await db
+      .select({ id: contentItem.id })
+      .from(contentItem)
+      .where(eq(contentItem.id, input.id))
+      .limit(1);
 
-		if (!item)
-			throw new ORPCError("NOT_FOUND", {
-				message: "Konten tidak ditemukan",
-			});
+    if (!item)
+      throw new ORPCError("NOT_FOUND", {
+        message: "Konten tidak ditemukan",
+      });
 
-		// Prepare update data
-		const updateData: {
-			videoCompleted?: boolean;
-			noteCompleted?: boolean;
-			practiceQuestionsCompleted?: boolean;
-			lastViewedAt: Date;
-			updatedAt: Date;
-		} = {
-			lastViewedAt: new Date(),
-			updatedAt: new Date(),
-		};
+    // Prepare update data
+    const updateData: {
+      videoCompleted?: boolean;
+      noteCompleted?: boolean;
+      practiceQuestionsCompleted?: boolean;
+      lastViewedAt: Date;
+      updatedAt: Date;
+    } = {
+      lastViewedAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-		if (input.videoCompleted !== undefined) updateData.videoCompleted = input.videoCompleted;
-		if (input.noteCompleted !== undefined) updateData.noteCompleted = input.noteCompleted;
-		if (input.practiceQuestionsCompleted !== undefined)
-			updateData.practiceQuestionsCompleted = input.practiceQuestionsCompleted;
+    if (input.videoCompleted !== undefined)
+      updateData.videoCompleted = input.videoCompleted;
+    if (input.noteCompleted !== undefined)
+      updateData.noteCompleted = input.noteCompleted;
+    if (input.practiceQuestionsCompleted !== undefined)
+      updateData.practiceQuestionsCompleted = input.practiceQuestionsCompleted;
 
-		// Upsert progress
-		await db
-			.insert(userProgress)
-			.values({
-				userId: context.session.user.id,
-				contentItemId: input.id,
-				...updateData,
-			})
-			.onConflictDoUpdate({
-				target: [userProgress.userId, userProgress.contentItemId],
-				set: updateData,
-			});
+    // Upsert progress
+    await db
+      .insert(userProgress)
+      .values({
+        userId: context.session.user.id,
+        contentItemId: input.id,
+        ...updateData,
+      })
+      .onConflictDoUpdate({
+        target: [userProgress.userId, userProgress.contentItemId],
+        set: updateData,
+      });
 
-		return { message: "Progress berhasil disimpan" };
-	});
+    return { message: "Progress berhasil disimpan" };
+  });
 
 export const subtestRouter = {
-	listSubtests,
-	listContentByCategory,
-	getContentById,
-	trackView,
-	getRecentViews,
-	updateProgress,
+  listSubtests,
+  listContentByCategory,
+  getContentById,
+  trackView,
+  getRecentViews,
+  updateProgress,
 };
