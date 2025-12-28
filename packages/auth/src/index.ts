@@ -91,7 +91,7 @@ export const auth = betterAuth({
 		...(process.env.NODE_ENV === "production" && {
 			crossSubDomainCookies: {
 				enabled: true,
-				domain: new URL(process.env.CORS_ORIGIN || "http://localhost:3000").hostname,
+				domain: new URL(process.env.CORS_ORIGIN || "https://habitutor-web.vercel.app").hostname,
 			},
 		}),
 	},
