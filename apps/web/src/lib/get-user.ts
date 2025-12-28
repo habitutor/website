@@ -8,7 +8,6 @@ export const getUser = createServerFn().handler(async () => {
       headers: getRequestHeaders(),
     },
   });
-  console.log("ENV", import.meta.env.VITE_SERVER_URL);
 
   return data;
 });
