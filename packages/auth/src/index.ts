@@ -84,15 +84,13 @@ export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL,
 	advanced: {
 		defaultCookieAttributes: {
-			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-			secure: process.env.NODE_ENV === "production",
+			sameSite: "none",
+			secure: true,
 			httpOnly: true,
 		},
-		...(process.env.NODE_ENV === "production" && {
-			crossSubDomainCookies: {
-				enabled: true,
-				domain: new URL(process.env.CORS_ORIGIN || "https://habitutor-web.vercel.app").hostname,
-			},
-		}),
+		crossSubDomainCookies: {
+			enabled: true,
+			domain: new URL(process.env.CORS_ORIGIN || "https://habitutor.id").hostname,
+		},
 	},
 });
