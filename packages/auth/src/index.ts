@@ -88,9 +88,5 @@ export const auth = betterAuth({
 			secure: true,
 			httpOnly: true,
 		},
-		crossSubDomainCookies: {
-			enabled: true,
-			domain: new URL(process.env.CORS_ORIGIN || "https://habitutor.id").hostname,
-		},
 	},
 });
