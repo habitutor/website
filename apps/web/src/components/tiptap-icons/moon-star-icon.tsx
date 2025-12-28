@@ -13,6 +13,7 @@ export const MoonStarIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Moon Star</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

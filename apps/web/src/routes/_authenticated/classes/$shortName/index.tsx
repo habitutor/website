@@ -53,7 +53,7 @@ function RouteComponent() {
 	if (!matchedClass) return notFound();
 
 	return (
-		<Container>
+		<>
 			<ClassHeader subtest={matchedClass} />
 			<div className="space-y-4">
 				<Tabs defaultValue="material">
@@ -77,6 +77,6 @@ function RouteComponent() {
 					</TabsContent>
 				</Tabs>
 			</div>
-		</Container>
+		</>
 	);
 }

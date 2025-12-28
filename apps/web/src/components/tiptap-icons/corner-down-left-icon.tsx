@@ -13,6 +13,7 @@ export const CornerDownLeftIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Corner Down Left</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

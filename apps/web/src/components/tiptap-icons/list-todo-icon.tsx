@@ -13,6 +13,7 @@ export const ListTodoIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Todo List</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

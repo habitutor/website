@@ -13,6 +13,7 @@ export const BoldIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Bold</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

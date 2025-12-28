@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { SubtestCard, SubtestHeader } from "@/components/classes";
-import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
@@ -13,16 +12,15 @@ function RouteComponent() {
 	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 
 	return (
-		<Container className="p-0">
+		<>
 			<SubtestHeader />
 
 			<div>
 				{subtests.isPending && (
 					<div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-						<Skeleton className="h-40 w-full" />
-						<Skeleton className="h-40 w-full" />
-						<Skeleton className="h-40 w-full" />
-						<Skeleton className="h-40 w-full" />
+						{Array.from({ length: 9 }).map((_, i) => (
+							<Skeleton key={i.toString()} className="h-40 w-full" />
+						))}
 					</div>
 				)}
 
@@ -38,6 +36,6 @@ function RouteComponent() {
 					</div>
 				)}
 			</div>
-		</Container>
+		</>
 	);
 }

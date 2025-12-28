@@ -80,7 +80,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 				setCreateDialogOpen(false);
@@ -102,7 +105,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 				setEditDialogOpen(false);
@@ -125,7 +131,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 				setDeleteDialogOpen(false);
@@ -148,7 +157,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 			},
@@ -284,7 +296,7 @@ function RouteComponent() {
 	if (!matchedClass) return notFound();
 
 	return (
-		<Container className="space-y-6">
+		<>
 			<ClassHeader subtest={matchedClass} />
 			<div className="space-y-4">
 				<ContentList
@@ -458,6 +470,6 @@ function RouteComponent() {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</Container>
+		</>
 	);
 }
