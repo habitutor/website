@@ -3,10 +3,9 @@ import * as schema from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { emailOTP } from "better-auth/plugins";
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+export const resend = new Resend(process.env.RESEND_API_KEY as string);
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -49,9 +48,23 @@ export const auth = betterAuth({
 			},
 		},
 	},
-	trustedOrigins: [process.env.CORS_ORIGIN || "http://localhost:3000"],
+	trustedOrigins: [process.env.CORS_ORIGIN || "http://localhost:3000", "http://localhost:3000"],
 	emailAndPassword: {
 		enabled: true,
+		sendResetPassword: async ({ user, url }) => {
+			await resend.emails.send({
+				from: "Habitutor <ithabitutor@gmail.com>",
+				to: user.email,
+				subject: "Reset password Habitutor.id",
+				html: `<strong>klik ini bos: ${url}</strong>`,
+				// template: {
+				// 	id: "reset-your-password",
+				// 	variables: {
+				// 		url,
+				// 	},
+				// },
+			});
+		},
 	},
 	socialProviders: {
 		google: {
@@ -82,21 +95,4 @@ export const auth = betterAuth({
 			},
 		}),
 	},
-	plugins: [
-		emailOTP({
-			async sendVerificationOTP({ email, otp, type }) {
-				if (type === "forget-password")
-					await resend.emails.send({
-						to: email,
-						subject: "Reset password anda",
-						template: {
-							id: "reset-your-password",
-							variables: {
-								OTP: otp,
-							},
-						},
-					});
-			},
-		}),
-	],
 });
