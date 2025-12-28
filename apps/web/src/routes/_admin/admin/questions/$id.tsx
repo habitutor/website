@@ -5,7 +5,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AdminSidebar } from "@/components/admin/sidebar";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -166,33 +165,25 @@ function QuestionEditPage() {
 
 	if (Number.isNaN(questionId)) {
 		return (
-			<div className="flex min-h-screen">
-				<AdminSidebar />
 				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 					<p className="text-destructive">Invalid question ID</p>
 				</main>
-			</div>
 		);
 	}
 
 	if (isLoading) {
 		return (
-			<div className="flex min-h-screen">
-				<AdminSidebar />
 				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 					<div className="mx-auto max-w-4xl">
 						<Skeleton className="mb-6 h-10 w-64" />
 						<Skeleton className="h-96 w-full" />
 					</div>
 				</main>
-			</div>
 		);
 	}
 
 	if (!question) {
 		return (
-			<div className="flex min-h-screen">
-				<AdminSidebar />
 				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 					<div className="mx-auto max-w-4xl">
 						<div className="mb-6 flex items-center gap-4">
@@ -206,15 +197,12 @@ function QuestionEditPage() {
 						<p className="text-destructive">Question not found</p>
 					</div>
 				</main>
-			</div>
 		);
 	}
 
 	const isSubmitting = updateQuestionMutation.isPending || updateAnswerMutation.isPending;
 
 	return (
-		<div className="flex min-h-screen">
-			<AdminSidebar />
 			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-4xl">
 					<div className="mb-4 flex items-center gap-4 sm:mb-6">
@@ -326,8 +314,7 @@ function QuestionEditPage() {
 							</form>
 						</CardContent>
 					</Card>
-				</div>
-			</main>
-		</div>
+			</div>
+		</main>
 	);
 }

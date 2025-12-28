@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { toast } from "sonner";
-import { AdminSidebar } from "@/components/admin/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -57,9 +56,6 @@ function CreatePracticePackPage() {
 	});
 
 	return (
-		<div className="flex min-h-screen">
-			<AdminSidebar />
-
 			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 				<div className="mb-6 sm:mb-8">
 					<Button variant="ghost" size="sm" className="mb-4" asChild>
@@ -149,6 +145,5 @@ function CreatePracticePackPage() {
 					</form>
 				</Card>
 			</main>
-		</div>
 	);
 }

@@ -3,13 +3,13 @@ import { useMemo } from "react";
 import { useUnmount } from "@/hooks/use-unmount";
 
 interface ThrottleSettings {
-	leading?: boolean | undefined;
-	trailing?: boolean | undefined;
+  leading?: boolean | undefined;
+  trailing?: boolean | undefined;
 }
 
 const defaultOptions: ThrottleSettings = {
-	leading: false,
-	trailing: true,
+  leading: false,
+  trailing: true,
 };
 
 /**
@@ -20,27 +20,29 @@ const defaultOptions: ThrottleSettings = {
  * @param dependencies The dependencies to watch for changes
  * @param options The throttle options
  */
-export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
-	fn: T,
-	wait = 250,
-	dependencies: React.DependencyList = [],
-	options: ThrottleSettings = defaultOptions,
+
+// biome-ignore lint/suspicious/noExplicitAny: any is used to allow any function to be throttled
+export function useThrottledCallback<T extends (...args: any[]) => any>(
+  fn: T,
+  wait = 250,
+  dependencies: React.DependencyList = [],
+  options: ThrottleSettings = defaultOptions
 ): {
-	(this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T>;
-	cancel: () => void;
-	flush: () => void;
+  (this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T>;
+  cancel: () => void;
+  flush: () => void;
 } {
-	const handler = useMemo(
-		() => throttle<T>(fn, wait, options),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[...dependencies, fn, options, wait],
-	);
+  const handler = useMemo(
+    () => throttle<T>(fn, wait, options),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dependencies
+  );
 
-	useUnmount(() => {
-		handler.cancel();
-	});
+  useUnmount(() => {
+    handler.cancel();
+  });
 
-	return handler;
+  return handler;
 }
 
 export default useThrottledCallback;

@@ -351,12 +351,10 @@ export function LastContentViewedCard({
 	item,
 	index,
 	shortName: shortNameProp,
-	subtestName,
 }: {
 	item: LastContentViewedItem;
 	index: number;
 	shortName?: string;
-	subtestName?: string;
 }) {
 	const isAdmin = useIsAdmin();
 	const location = useLocation();
@@ -385,7 +383,7 @@ export function LastContentViewedCard({
 
 				{/* Right: label + admin actions */}
 				<div className="flex items-center gap-2 sm:flex-col sm:items-end">
-					{subtestName && <span className="text-muted-foreground text-xs">{subtestName}</span>}
+					{shortName && <span className="text-muted-foreground text-xs">{shortName}</span>}
 				</div>
 			</div>
 

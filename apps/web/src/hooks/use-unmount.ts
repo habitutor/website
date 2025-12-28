@@ -5,16 +5,18 @@ import { useEffect, useRef } from "react";
  *
  * @param callback Function to be called on component unmount
  */
-export const useUnmount = (callback: () => void) => {
-	const ref = useRef(callback);
-	ref.current = callback;
 
-	useEffect(
-		() => () => {
-			ref.current();
-		},
-		[],
-	);
+// biome-ignore lint/suspicious/noExplicitAny: any is used to allow any function to be called on unmount
+export const useUnmount = (callback: (...args: Array<any>) => any) => {
+  const ref = useRef(callback);
+  ref.current = callback;
+
+  useEffect(
+    () => () => {
+      ref.current();
+    },
+    []
+  );
 };
 
 export default useUnmount;
