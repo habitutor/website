@@ -9,13 +9,13 @@ import {
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq } from "drizzle-orm";
-import { authed } from "../..";
+import { admin } from "../..";
 
 /**
  * Create new subtest (class)
  * POST /api/admin/subtests
  */
-const createSubtest = authed
+const createSubtest = admin
 	.route({
 		path: "/admin/subtests",
 		method: "POST",
@@ -31,8 +31,6 @@ const createSubtest = authed
 	)
 	.output(type({ message: "string", id: "number" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const [created] = await db
 			.insert(subtest)
 			.values({
@@ -58,7 +56,7 @@ const createSubtest = authed
  * Update subtest (class)
  * PATCH /api/admin/subtests/{id}
  */
-const updateSubtest = authed
+const updateSubtest = admin
 	.route({
 		path: "/admin/subtests/{id}",
 		method: "PATCH",
@@ -75,8 +73,6 @@ const updateSubtest = authed
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const updateData: {
 			name?: string;
 			shortName?: string;
@@ -106,7 +102,7 @@ const updateSubtest = authed
  * Delete subtest (class)
  * DELETE /api/admin/subtests/{id}
  */
-const deleteSubtest = authed
+const deleteSubtest = admin
 	.route({
 		path: "/admin/subtests/{id}",
 		method: "DELETE",
@@ -115,8 +111,6 @@ const deleteSubtest = authed
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const [deletedRow] = await db.delete(subtest).where(eq(subtest.id, input.id)).returning();
 
 		if (!deletedRow)
@@ -131,7 +125,7 @@ const deleteSubtest = authed
  * Reorder subtests (classes)
  * PATCH /api/admin/subtests/reorder
  */
-const reorderSubtests = authed
+const reorderSubtests = admin
 	.route({
 		path: "/admin/subtests/reorder",
 		method: "PATCH",
@@ -144,8 +138,6 @@ const reorderSubtests = authed
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const items = input.items as { id: number; order: number }[];
 
 		await db.transaction(async (tx) => {
@@ -161,7 +153,7 @@ const reorderSubtests = authed
  * Create new content item
  * POST /api/admin/content
  */
-const createContent = authed
+const createContent = admin
 	.route({
 		path: "/admin/content",
 		method: "POST",
@@ -173,8 +165,8 @@ const createContent = authed
 			type: "'material' | 'tips_and_trick'",
 			title: "string",
 			order: "number",
-			video: "unknown?",
-			note: "unknown?",
+			video: "object?",
+			note: "object?",
 			practiceQuestionIds: "number[]?",
 		}),
 	)
@@ -186,10 +178,6 @@ const createContent = authed
 		}),
 	)
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-		// if (!context.session.user.isAdmin) throw ORPCError("FORBIDDEN")
-
-		// Validate that at least one material is provided
 		const hasVideo = input.video !== undefined && input.video !== null;
 		const hasNote = input.note !== undefined && input.note !== null;
 		const hasPracticeQuestions =
@@ -214,7 +202,6 @@ const createContent = authed
 		if (hasVideo) {
 			if (
 				typeof input.video !== "object" ||
-				input.video === null ||
 				!("title" in input.video) ||
 				!("videoUrl" in input.video) ||
 				!("content" in input.video) ||
@@ -230,12 +217,7 @@ const createContent = authed
 
 		// Validate note structure if provided
 		if (hasNote) {
-			if (
-				typeof input.note !== "object" ||
-				input.note === null ||
-				!("content" in input.note) ||
-				typeof input.note.content !== "object"
-			) {
+			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
 				throw new ORPCError("BAD_REQUEST", {
 					message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
 				});
@@ -268,14 +250,12 @@ const createContent = authed
 
 			// Insert video material if provided
 			if (hasVideo && input.video) {
-				const videoData = input.video as { title: string; videoUrl: string; content: unknown };
 				const [video] = await tx
 					.insert(videoMaterial)
 					.values({
 						contentItemId: newContent.id,
-						title: videoData.title,
-						videoUrl: videoData.videoUrl,
-						content: videoData.content,
+						videoUrl: (input.video as { videoUrl: string }).videoUrl,
+						content: (input.video as { content: object }).content,
 					})
 					.returning();
 
@@ -284,12 +264,11 @@ const createContent = authed
 
 			// Insert note material if provided
 			if (hasNote && input.note) {
-				const noteData = input.note as { content: object };
 				const [note] = await tx
 					.insert(noteMaterial)
 					.values({
 						contentItemId: newContent.id,
-						content: noteData.content,
+						content: (input.note as { content: object }).content,
 					})
 					.returning();
 
@@ -299,7 +278,7 @@ const createContent = authed
 			// Insert practice questions if provided (only for material type)
 			if (hasPracticeQuestions && input.practiceQuestionIds && input.type === "material") {
 				await tx.insert(contentPracticeQuestions).values(
-					input.practiceQuestionIds.map((questionId, index) => ({
+					input.practiceQuestionIds.map((questionId: number, index: number) => ({
 						contentItemId: newContent.id,
 						questionId,
 						order: index + 1,
@@ -326,7 +305,7 @@ const createContent = authed
  * Update content item
  * PATCH /api/admin/content/{id}
  */
-const updateContent = authed
+const updateContent = admin
 	.route({
 		path: "/admin/content/{id}",
 		method: "PATCH",
@@ -341,8 +320,6 @@ const updateContent = authed
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const updateData: { title?: string; order?: number; updatedAt: Date } = {
 			updatedAt: new Date(),
 		};
@@ -364,7 +341,7 @@ const updateContent = authed
  * Delete content item
  * DELETE /api/admin/content/{id}
  */
-const deleteContent = authed
+const deleteContent = admin
 	.route({
 		path: "/admin/content/{id}",
 		method: "DELETE",
@@ -373,8 +350,6 @@ const deleteContent = authed
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
 
 		if (!deleted)
@@ -389,7 +364,7 @@ const deleteContent = authed
  * Reorder content items
  * PATCH /api/admin/content/reorder
  */
-const reorderContent = authed
+const reorderContent = admin
 	.route({
 		path: "/admin/content/reorder",
 		method: "PATCH",
@@ -404,8 +379,6 @@ const reorderContent = authed
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const items = input.items as { id: number; order: number }[];
 
 		// Use transaction for atomic updates
@@ -431,7 +404,7 @@ const reorderContent = authed
  * Add/Update video material
  * POST /api/admin/content/{id}/video
  */
-const upsertVideo = authed
+const upsertVideo = admin
 	.route({
 		path: "/admin/content/{id}/video",
 		method: "POST",
@@ -440,15 +413,12 @@ const upsertVideo = authed
 	.input(
 		type({
 			id: "number",
-			title: "string",
 			videoUrl: "string",
 			content: "object",
 		}),
 	)
 	.output(type({ message: "string", videoId: "number" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		// Validate video URL
 		if (!input.videoUrl) {
 			throw new ORPCError("BAD_REQUEST", {
@@ -473,14 +443,12 @@ const upsertVideo = authed
 			.insert(videoMaterial)
 			.values({
 				contentItemId: input.id,
-				title: input.title,
 				videoUrl: input.videoUrl,
 				content: input.content,
 			})
 			.onConflictDoUpdate({
 				target: videoMaterial.contentItemId,
 				set: {
-					title: input.title,
 					videoUrl: input.videoUrl,
 					content: input.content,
 					updatedAt: new Date(),
@@ -493,17 +461,14 @@ const upsertVideo = authed
 				message: "Gagal menyimpan video material",
 			});
 
-		return {
-			message: "Video material berhasil disimpan",
-			videoId: video.id,
-		};
+		return { message: "Video material berhasil disimpan", videoId: video.id };
 	});
 
 /**
  * Delete video material
  * DELETE /api/admin/content/{id}/video
  */
-const deleteVideo = authed
+const deleteVideo = admin
 	.route({
 		path: "/admin/content/{id}/video",
 		method: "DELETE",
@@ -512,8 +477,6 @@ const deleteVideo = authed
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
 
 		if (!deleted)
@@ -528,7 +491,7 @@ const deleteVideo = authed
  * Add/Update note material
  * POST /api/admin/content/{id}/note
  */
-const upsertNote = authed
+const upsertNote = admin
 	.route({
 		path: "/admin/content/{id}/note",
 		method: "POST",
@@ -542,8 +505,6 @@ const upsertNote = authed
 	)
 	.output(type({ message: "string", noteId: "number" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -587,7 +548,7 @@ const upsertNote = authed
  * Delete note material
  * DELETE /api/admin/content/{id}/note
  */
-const deleteNote = authed
+const deleteNote = admin
 	.route({
 		path: "/admin/content/{id}/note",
 		method: "DELETE",
@@ -596,8 +557,6 @@ const deleteNote = authed
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
 
 		if (!deleted)
@@ -612,7 +571,7 @@ const deleteNote = authed
  * Link practice questions to content (only for Material type)
  * POST /api/admin/content/{id}/practice-questions
  */
-const linkPracticeQuestions = authed
+const linkPracticeQuestions = admin
 	.route({
 		path: "/admin/content/{id}/practice-questions",
 		method: "POST",
@@ -626,8 +585,6 @@ const linkPracticeQuestions = authed
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		// Check if content exists and is Material type
 		const [content] = await db
 			.select({ id: contentItem.id, type: contentItem.type })
@@ -652,7 +609,7 @@ const linkPracticeQuestions = authed
 		// Insert new practice question links
 		if (input.questionIds.length > 0) {
 			await db.insert(contentPracticeQuestions).values(
-				input.questionIds.map((questionId, index) => ({
+				input.questionIds.map((questionId: number, index: number) => ({
 					contentItemId: input.id,
 					questionId,
 					order: index + 1,
@@ -660,14 +617,14 @@ const linkPracticeQuestions = authed
 			);
 		}
 
-		return { message: "Practice questions successfully linked to content" };
+		return { message: "Latihan soal berhasil dihubungkan ke konten" };
 	});
 
 /**
  * Remove practice questions from content
  * DELETE /api/admin/content/{id}/practice-questions
  */
-const unlinkPracticeQuestions = authed
+const unlinkPracticeQuestions = admin
 	.route({
 		path: "/admin/content/{id}/practice-questions",
 		method: "DELETE",
@@ -676,11 +633,9 @@ const unlinkPracticeQuestions = authed
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// TODO: Add admin authorization check
-
 		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-		return { message: "Practice questions successfully removed from content" };
+		return { message: "Latihan soal berhasil dihapus dari konten" };
 	});
 
 export const adminSubtestRouter = {

@@ -112,7 +112,6 @@ const getContentById = authed
 				subtestId: contentItem.subtestId,
 
 				videoId: videoMaterial.id,
-				videoTitle: videoMaterial.title,
 				videoUrl: videoMaterial.videoUrl,
 				videoContent: videoMaterial.content,
 
@@ -146,7 +145,6 @@ const getContentById = authed
 			video: row.videoId
 				? {
 						id: row.videoId,
-						title: row.videoTitle,
 						videoUrl: row.videoUrl,
 						content: row.videoContent,
 					}

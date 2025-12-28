@@ -43,11 +43,6 @@ function RouteComponent() {
 			</div>
 			<h2 className="font-semibold text-lg">{video.title ?? content.data.title}</h2>
 
-			<div className="aspect-video w-full">
-				<YouTubePlayer videoId={videoId} />
-			</div>
-			<h2 className="font-semibold text-lg">{video.title ?? content.data.title}</h2>
-
 			<hr />
 
 			<h3 className="font-semibold text-lg">Tentang Video</h3>

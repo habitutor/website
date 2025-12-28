@@ -49,7 +49,6 @@ export const videoMaterial = pgTable("video_material", {
 		.notNull()
 		.unique()
 		.references(() => contentItem.id, { onDelete: "cascade" }),
-	title: text().notNull(),
 	videoUrl: text("video_url").notNull(), // YouTube URL
 	content: jsonb().notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
