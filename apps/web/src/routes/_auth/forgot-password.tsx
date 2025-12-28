@@ -1,54 +1,50 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { type } from "arktype";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { authClient } from "@/lib/auth-client";
 
 const resetPasswordSearchSchema = type({
 	email: "string.email?",
 });
 
-export const Route = createFileRoute("/_auth/reset-password")({
+export const Route = createFileRoute("/_auth/forgot-password")({
 	component: RouteComponent,
 	validateSearch: resetPasswordSearchSchema,
 });
 
 function RouteComponent() {
 	const navigate = useNavigate();
-	const search = useSearch({ from: "/_auth/reset-password" });
+	const search = useSearch({ from: "/_auth/forgot-password" });
+	const [hasSubmitted, setHasSubmitted] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
 			email: search.email || "",
-			otp: "",
 		},
 		onSubmit: async ({ value }) => {
-			await authClient.emailOtp.verifyOtp(
-				{
-					email: value.email,
-					type: "forget-password",
-					otp: value.otp,
-				},
-				{
-					onSuccess: async () => {
-						toast.success("Password berhasil direset");
-						navigate({ to: "/login" });
-					},
-					onError: (err: unknown) => {
-						console.error(err);
-						toast.error("Kode OTP tidak valid");
-					},
-				},
-			);
+			setIsSubmitting(true);
+			const { error } = await authClient.requestPasswordReset({
+				email: value.email,
+			});
+
+			if (error) {
+				console.error(error);
+				toast.error(error.message || "Terjadi kesalahan. Silakan coba lagi.");
+			} else {
+				toast.success("Email berhasil dikirim. Silakan periksa inbox Anda.");
+				setHasSubmitted(true);
+			}
+			setIsSubmitting(false);
 		},
 		validators: {
 			onSubmit: type({
 				email: "string.email",
-				otp: "string == 6",
 			}),
 		},
 	});
@@ -58,10 +54,7 @@ function RouteComponent() {
 			<div className="w-full max-w-md">
 				<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
 					<div className="flex flex-col items-center gap-2 text-center">
-						<h1 className="text-3xl text-primary">
-							<span className="font-bold">Reset Password</span>
-						</h1>
-						<p className="text-sm">Masukkan kode OTP yang dikirim ke email Anda</p>
+						<h1 className="font-bold text-3xl text-primary">Lupa Password</h1>
 					</div>
 
 					<form
@@ -94,45 +87,18 @@ function RouteComponent() {
 							}}
 						</form.Field>
 
-						<div className="space-y-2">
-							<label htmlFor="otp-input" className="font-medium text-sm">
-								Kode OTP
-							</label>
-							<div className="flex justify-center">
-								<form.Field name="otp">
-									{(field) => (
-										<InputOTP
-											id="otp-input"
-											maxLength={6}
-											value={field.state.value}
-											onChange={(value) => field.handleChange(value)}
-										>
-											<InputOTPGroup>
-												<InputOTPSlot index={0} />
-												<InputOTPSlot index={1} />
-												<InputOTPSlot index={2} />
-												<InputOTPSlot index={3} />
-												<InputOTPSlot index={4} />
-												<InputOTPSlot index={5} />
-											</InputOTPGroup>
-										</InputOTP>
-									)}
-								</form.Field>
-							</div>
-						</div>
-
 						<form.Subscribe>
 							{(state) => (
-								<Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-									{state.isSubmitting ? "Memuat..." : "Verifikasi OTP"}
+								<Button
+									type="submit"
+									className="w-full"
+									disabled={!state.canSubmit || state.isSubmitting || isSubmitting || hasSubmitted}
+								>
+									{state.isSubmitting || isSubmitting ? "Memuat..." : hasSubmitted ? "Cek email" : "Kirim"}
 								</Button>
 							)}
 						</form.Subscribe>
 					</form>
-
-					<Button variant="link" onClick={() => navigate({ to: "/forgot-password" })} className="mt-4 w-full">
-						Kirim Ulang Kode OTP
-					</Button>
 				</div>
 
 				<p className="mt-4 text-center text-sm">
