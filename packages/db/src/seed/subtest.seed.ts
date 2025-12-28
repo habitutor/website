@@ -68,9 +68,12 @@ const SAMPLE_CONTENT = [
   {
     subtestShortName: "PU",
     contents: [
+      /* =========================
+         MATERIAL – LONG CONTENT
+      ========================== */
       {
         type: "material" as const,
-        title: "Pengantar Penalaran Logis",
+        title: "Pendalaman Penalaran Logis dan Pola Berpikir",
         order: 1,
         video: {
           videoUrl: "https://www.youtube.com/watch?v=sqoOzGMqCQU",
@@ -79,75 +82,322 @@ const SAMPLE_CONTENT = [
             version: 1,
             content: [
               {
+                type: "heading",
+                attrs: { level: 2 },
+                content: [{ type: "text", text: "Apa itu Penalaran Logis?" }],
+              },
+              {
                 type: "paragraph",
                 content: [
                   {
                     type: "text",
-                    text: "Penalaran logis membantu menarik kesimpulan yang valid.",
+                    text: "Penalaran logis adalah kemampuan untuk menarik kesimpulan yang benar berdasarkan informasi atau premis yang tersedia. Kemampuan ini menjadi fondasi utama dalam menyelesaikan berbagai soal kemampuan kognitif, khususnya pada subtest Penalaran Umum.",
+                  },
+                ],
+              },
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    marks: [{ type: "bold" }],
+                    text: "Dalam konteks ujian, ",
+                  },
+                  {
+                    type: "text",
+                    text: "penalaran logis tidak menguji hafalan, melainkan cara berpikir dan konsistensi logika seseorang.",
+                  },
+                ],
+              },
+
+              {
+                type: "heading",
+                attrs: { level: 3 },
+                content: [{ type: "text", text: "Jenis-Jenis Penalaran" }],
+              },
+
+              {
+                type: "bulletList",
+                content: [
+                  {
+                    type: "listItem",
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [
+                          {
+                            type: "text",
+                            marks: [{ type: "bold" }],
+                            text: "Deduktif: ",
+                          },
+                          {
+                            type: "text",
+                            text: "menarik kesimpulan spesifik dari pernyataan umum. Contoh: Semua manusia fana → Andi manusia → Andi fana.",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    type: "listItem",
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [
+                          {
+                            type: "text",
+                            marks: [{ type: "bold" }],
+                            text: "Induktif: ",
+                          },
+                          {
+                            type: "text",
+                            text: "menyimpulkan pola umum dari beberapa contoh khusus. Jenis ini sering muncul dalam soal deret dan analogi.",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    type: "listItem",
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [
+                          {
+                            type: "text",
+                            marks: [{ type: "bold" }],
+                            text: "Abduktif: ",
+                          },
+                          {
+                            type: "text",
+                            text: "menentukan penjelasan paling masuk akal dari suatu fenomena, meskipun tidak selalu pasti benar.",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+
+              {
+                type: "heading",
+                attrs: { level: 3 },
+                content: [{ type: "text", text: "Kesalahan Umum Peserta" }],
+              },
+
+              {
+                type: "orderedList",
+                attrs: { order: 1 },
+                content: [
+                  {
+                    type: "listItem",
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [
+                          {
+                            type: "text",
+                            text: "Terlalu cepat menyimpulkan tanpa memeriksa semua premis.",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    type: "listItem",
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [
+                          {
+                            type: "text",
+                            text: "Terjebak asumsi pribadi yang tidak tertulis di soal.",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    type: "listItem",
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [
+                          {
+                            type: "text",
+                            text: "Tidak membedakan antara kondisi yang perlu dan yang cukup.",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+
+              {
+                type: "blockquote",
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Dalam penalaran logis, yang terpenting bukan seberapa cepat kamu menjawab, tetapi seberapa konsisten alur berpikirmu.",
+                      },
+                    ],
+                  },
+                ],
+              },
+
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    marks: [{ type: "italic" }],
+                    text: "Catatan: Biasakan membaca ulang semua premis sebelum menentukan jawaban.",
                   },
                 ],
               },
             ],
           },
         },
+
         notes: {
           type: "doc",
           version: 1,
           content: [
             {
+              type: "heading",
+              attrs: { level: 3 },
+              content: [{ type: "text", text: "Ringkasan Materi" }],
+            },
+            {
               type: "paragraph",
               content: [
                 {
                   type: "text",
-                  text: "Penalaran logis membantu menarik kesimpulan yang valid.",
+                  text: "Penalaran logis menguji konsistensi berpikir, bukan kecepatan. Fokus utama adalah memahami premis, menghindari asumsi tambahan, dan mengevaluasi validitas kesimpulan.",
+                },
+              ],
+            },
+            {
+              type: "bulletList",
+              content: [
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        { type: "text", text: "Baca premis satu per satu." },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          text: "Jangan menambahkan informasi eksternal.",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        { type: "text", text: "Gunakan eliminasi jawaban." },
+                      ],
+                    },
+                  ],
                 },
               ],
             },
           ],
         },
       },
+
+      /* =========================
+         TIPS & TRICK – LONG
+      ========================== */
       {
         type: "tips_and_trick" as const,
-        title: "Tips Cepat Menjawab Soal Logika",
-        order: 2,
+        title: "Framework Cepat Menyelesaikan Soal Logika",
+        order: 1,
         notes: {
           type: "doc",
           version: 1,
           content: [
             {
-              type: "paragraph",
+              type: "heading",
+              attrs: { level: 3 },
+              content: [{ type: "text", text: "Framework 3 Langkah" }],
+            },
+            {
+              type: "orderedList",
               content: [
                 {
-                  type: "text",
-                  text: "Gunakan eliminasi opsi dan fokus pada pola.",
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          marks: [{ type: "bold" }],
+                          text: "Identifikasi Premis",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          marks: [{ type: "bold" }],
+                          text: "Uji Konsistensi Logika",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          marks: [{ type: "bold" }],
+                          text: "Eliminasi Jawaban Lemah",
+                        },
+                      ],
+                    },
+                  ],
                 },
               ],
             },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    subtestShortName: "PM",
-    contents: [
-      {
-        type: "material" as const,
-        title: "Dasar Penalaran Matematika",
-        order: 1,
-        video: {
-          videoUrl: "https://www.youtube.com/watch?v=example123",
-        },
-        notes: {
-          type: "doc",
-          version: 1,
-          content: [
             {
               type: "paragraph",
               content: [
                 {
                   type: "text",
-                  text: "Fokus pada hubungan antar angka dan operasi.",
+                  text: "Jika sebuah jawaban hanya benar ketika kamu menambahkan asumsi baru, maka jawaban tersebut hampir pasti salah.",
                 },
               ],
             },
