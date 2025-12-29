@@ -214,9 +214,7 @@ const Carousel: React.FC<CarouselProps> = ({
   };
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center bg-neutral-100 ${className}`}
-    >
+    <div className={`flex flex-col items-center justify-center ${className}`}>
       {/* Main carousel container */}
       <div className="relative flex h-54 w-full max-w-280 items-center justify-center overflow-visible">
         {/* Navigasi kiri-kanan untuk xl ke atas */}
