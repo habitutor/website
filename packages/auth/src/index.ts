@@ -53,7 +53,11 @@ export const auth = betterAuth({
 			},
 		},
 	},
-	trustedOrigins: [process.env.CORS_ORIGIN || "https://habitutor.devino.me", "http://localhost:3000"],
+	trustedOrigins: [
+		process.env.CORS_ORIGIN || "https://habitutor.devino.me",
+		"http://localhost:3000",
+		"https://api.habitutor.devino.me",
+	],
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url }) => {

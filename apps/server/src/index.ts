@@ -20,6 +20,7 @@ app.use(
 			process.env.CORS_ORIGIN || "http://localhost:3000",
 			"http://localhost:3000",
 			"https://habitutor.devino.me",
+			"https://api.habitutor.devino.me",
 		],
 		allowMethods: ["GET", "POST", "OPTIONS"],
 		allowHeaders: ["Content-Type", "Authorization"],

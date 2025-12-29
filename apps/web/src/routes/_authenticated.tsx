@@ -5,20 +5,20 @@ import { Container } from "@/components/ui/container";
 import { getUser } from "@/lib/get-user";
 
 export const Route = createFileRoute("/_authenticated")({
-  component: AuthedLayout,
-  beforeLoad: async () => {
-    const session = await getUser();
+	component: AuthedLayout,
+	beforeLoad: async () => {
+		const session = await getUser();
 
-    return { session };
-  },
-  loader: ({ context }) => {
-    if (!context.session)
-      throw redirect({
-        to: "/login",
-      });
+		return { session };
+	},
+	loader: ({ context }) => {
+		if (!context.session)
+			throw redirect({
+				to: "/login",
+			});
 
-    console.log("Authenticated Loader: ", context.session);
-  },
+		console.log("Authenticated Loader: ", context.session);
+	},
 });
 
 function AuthedLayout() {
