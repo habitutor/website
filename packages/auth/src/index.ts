@@ -80,8 +80,7 @@ export const auth = betterAuth({
 	},
 	session: {
 		cookieCache: {
-			enabled: true,
-			maxAge: 60,
+			enabled: false,
 		},
 	},
 	secret: process.env.BETTER_AUTH_SECRET,
@@ -91,7 +90,7 @@ export const auth = betterAuth({
 			sameSite: "lax",
 			secure: true,
 			httpOnly: true,
-			domain: process.env.NODE_ENV === "production" ? ".devino.me" : undefined,
+			domain: process.env.NODE_ENV === "production" ? ".habitutor.devino.me" : undefined,
 		},
 	},
 });
