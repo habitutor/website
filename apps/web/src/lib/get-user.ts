@@ -15,6 +15,8 @@ export const getUser = createServerFn().handler(async () => {
     },
   });
 
+  console.log("🔄️ Headers:", headers)
+  console.log("🔄️ Cookies:", headers.cookie)
   console.log("🔥 getUser full response:", response);
   console.log("🔥 getUser session data:", response.data);
   console.log("🔥 getUser error:", response.error);
