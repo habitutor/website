@@ -5,15 +5,18 @@ import { createAuthClient } from "better-auth/react";
 const getBaseUrl = () => {
 	// 1. Browser Environment
 	if (typeof window !== "undefined") {
-		return import.meta.env.VITE_API_URL || "https://habitutor-server.devino.me";
+		return import.meta.env.VITE_API_URL || "https://api.habitutor.devino.me";
 	}
 
 	// 2. Server Environment
-	return process.env.VITE_API_URL || import.meta.env.VITE_API_URL || "https://habitutor-server.devino.me";
+	return process.env.VITE_API_URL || import.meta.env.VITE_API_URL || "https://api.habitutor.devino.me";
 };
 
 export const authClient = createAuthClient({
 	baseURL: getBaseUrl(),
+	fetchOptions: {
+		credentials: "include",
+	},
 	plugins: [inferAdditionalFields<typeof auth>()],
 });
 
