@@ -6,6 +6,9 @@ import { Button } from "./ui/button";
 export default function Header() {
 	const session = authClient.useSession();
 
+	console.log("Session data:", session.data);
+	console.log("Session error:", session.error);
+
 	return (
 		<div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
 			<Link to="/" className="relative size-12 text-primary">
