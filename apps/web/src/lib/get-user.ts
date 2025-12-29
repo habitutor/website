@@ -5,8 +5,8 @@ import { authClient } from "./auth-client";
 export const getUser = createServerFn().handler(async () => {
   const headers = getRequestHeaders();
   const headersToForward = {
-    cookie: headers.cookie || "",
-    "user-agent": headers["user-agent"],
+    cookie: headers.get("cookie") || "",
+    "user-agent": headers.get("user-agent"),
   };
 
   const response = await authClient.getSession({
@@ -15,8 +15,7 @@ export const getUser = createServerFn().handler(async () => {
     },
   });
 
-  console.log("🔄️ Headers:", headers)
-  console.log("🔄️ Cookies:", headers.cookie)
+  console.log("🔄️ Real Headers:", Object.fromEntries(headers.entries()));  console.log("🔄️ Cookies:", headers.cookie)
   console.log("🔥 getUser full response:", response);
   console.log("🔥 getUser session data:", response.data);
   console.log("🔥 getUser error:", response.error);
