@@ -1,9 +1,8 @@
 import {
-  ArrowDownIcon,
   ArrowRightIcon,
-  ArrowUpIcon,
   CaretRightIcon,
   CheckCircleIcon,
+  DotsSixVerticalIcon,
   ExamIcon,
   EyeIcon,
   EyeSlashIcon,
@@ -29,6 +28,7 @@ import { useIsAdmin } from "@/utils/is-admin";
 import type { BodyOutputs } from "@/utils/orpc";
 import { BackButton } from "./back-button";
 import { buttonVariants } from "./ui/button";
+import { Reorder, useDragControls } from "motion/react";
 
 export function SubtestHeader() {
   const isAdmin = useIsAdmin();
@@ -302,26 +302,54 @@ const CONTENT_ACTIONS = [
   },
 ] as const;
 
-function ContentCard({
+function ReorderableContentCard({
   item,
   index,
   onEdit,
   onDelete,
-  onMoveUp,
-  onMoveDown,
-  canMoveUp,
-  canMoveDown,
   completed,
 }: {
   item: ContentListItem;
   index: number;
   onEdit?: () => void;
   onDelete?: () => void;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
-  canMoveUp?: boolean;
-  canMoveDown?: boolean;
   completed?: boolean;
+}) {
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={dragControls}
+      className="relative"
+    >
+      <ContentCard
+        item={item}
+        index={index}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        completed={completed}
+        dragControls={dragControls}
+      />
+    </Reorder.Item>
+  );
+}
+
+function ContentCard({
+  item,
+  index,
+  onEdit,
+  onDelete,
+  completed,
+  dragControls,
+}: {
+  item: ContentListItem;
+  index: number;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  completed?: boolean;
+  dragControls?: ReturnType<typeof useDragControls>;
 }) {
   const isAdmin = useIsAdmin();
   const location = useLocation();
@@ -350,11 +378,23 @@ function ContentCard({
           />
         </div>
       )}
-
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        {/* Left: badge + title */}
-        <div className="flex items-start gap-3">
+        {/* Left: drag handle + badge + title */}
+        <div className="flex items-start gap-2 sm:gap-3">
+          {/* Drag Handle - only for admin */}
+          {isAdmin && dragControls && (
+            <div
+              className="cursor-grab active:cursor-grabbing touch-none p-1 -ml-1"
+              onPointerDown={(e) => dragControls.start(e)}
+            >
+              <DotsSixVerticalIcon
+                className="size-4 sm:size-5 text-neutral-400"
+                weight="bold"
+              />
+            </div>
+          )}
+
           <div className="flex min-w-7 sm:min-w-8 lg:min-w-9 h-5 sm:h-6 lg:h-7 shrink-0 px-1.5 items-center justify-center rounded border border-neutral-200 bg-white">
             <p className="font-medium text-[10px] sm:text-xs lg:text-sm text-primary-300 whitespace-nowrap">
               {index + 1}
@@ -366,45 +406,19 @@ function ContentCard({
           </p>
         </div>
 
-        {/* Right: label + admin actions */}
+        {/* Right: admin actions (tanpa move up/down) */}
         <div className="flex items-center gap-2 sm:flex-col sm:items-end">
-          {isAdmin && (onEdit || onDelete || onMoveUp || onMoveDown) && (
+          {isAdmin && (onEdit || onDelete) && (
             <div className="flex items-center gap-1">
-              {onMoveUp && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={onMoveUp}
-                  disabled={!canMoveUp}
-                >
-                  <ArrowUpIcon size={14} />
-                </Button>
-              )}
-
-              {onMoveDown && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={onMoveDown}
-                  disabled={!canMoveDown}
-                >
-                  <ArrowDownIcon size={14} />
-                </Button>
-              )}
-
               {onEdit && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={onEdit}
                 >
-                  <PencilSimpleIcon size={14} />
+                  <PencilSimpleIcon className="size-3 sm:size-3.5" />
                 </Button>
               )}
 
@@ -413,10 +427,10 @@ function ContentCard({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  className="h-6 w-6 sm:h-7 sm:w-7 text-destructive hover:text-destructive"
                   onClick={onDelete}
                 >
-                  <TrashIcon size={14} />
+                  <TrashIcon className="size-3 sm:size-3.5" />
                 </Button>
               )}
             </div>
@@ -544,8 +558,7 @@ export function ContentList({
   onCreate,
   onEdit,
   onDelete,
-  onMoveUp,
-  onMoveDown,
+  onReorder,
 }: {
   title?: string;
   items?: ContentListItem[];
@@ -554,8 +567,7 @@ export function ContentList({
   onCreate?: () => void;
   onEdit?: (item: ContentListItem) => void;
   onDelete?: (item: ContentListItem) => void;
-  onMoveUp?: (item: ContentListItem) => void;
-  onMoveDown?: (item: ContentListItem) => void;
+  onReorder?: (newItems: ContentListItem[]) => void;
 }) {
   const isAdmin = useIsAdmin();
 
@@ -588,28 +600,45 @@ export function ContentList({
             alt="Empty State"
             width={150}
             height={150}
-            className=""
           />
           <p>Tunggu kontennya diracik dulu ya!</p>
         </div>
       )}
 
-      <div className="space-y-2">
-        {items?.map((item, index) => (
-          <ContentCard
-            key={item.id}
-            item={item}
-            index={index}
-            completed={isContentCompleted(item)}
-            onEdit={onEdit ? () => onEdit(item) : undefined}
-            onDelete={onDelete ? () => onDelete(item) : undefined}
-            onMoveUp={onMoveUp ? () => onMoveUp(item) : undefined}
-            onMoveDown={onMoveDown ? () => onMoveDown(item) : undefined}
-            canMoveUp={index > 0}
-            canMoveDown={items && index < items.length - 1}
-          />
+      {items &&
+        items.length > 0 &&
+        (isAdmin && onReorder ? (
+          <Reorder.Group
+            as="div"
+            axis="y"
+            values={items}
+            onReorder={onReorder}
+            className="space-y-2"
+          >
+            {items.map((item, index) => (
+              <ReorderableContentCard
+                key={item.id}
+                item={item}
+                index={index}
+                onEdit={onEdit ? () => onEdit(item) : undefined}
+                onDelete={onDelete ? () => onDelete(item) : undefined}
+              />
+            ))}
+          </Reorder.Group>
+        ) : (
+          <div className="space-y-2">
+            {items.map((item, index) => (
+              <ContentCard
+                key={item.id}
+                item={item}
+                index={index}
+                completed={isContentCompleted(item)}
+                onEdit={onEdit ? () => onEdit(item) : undefined}
+                onDelete={onDelete ? () => onDelete(item) : undefined}
+              />
+            ))}
+          </div>
         ))}
-      </div>
     </div>
   );
 }

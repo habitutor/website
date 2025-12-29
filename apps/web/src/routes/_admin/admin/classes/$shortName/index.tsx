@@ -253,52 +253,17 @@ function RouteComponent() {
     setDeleteDialogOpen(true);
   };
 
-  const handleMoveUp = (
-    item: ContentListItem,
+  const handleReorder = (
+    newItems: ContentListItem[],
     category: "material" | "tips_and_trick",
   ) => {
     if (!matchedClass) return;
-    const items =
-      category === "material" ? materialContents.data : tipsContents.data;
-    if (!items) return;
-    const currentIndex = items.findIndex((i) => i.id === item.id);
-    if (currentIndex <= 0) return;
 
-    const prevItem = items[currentIndex - 1];
-    const updatedItems = items.map((i) => {
-      if (i.id === item.id)
-        return { id: i.id, order: prevItem.order ?? currentIndex };
-      if (i.id === prevItem.id)
-        return { id: i.id, order: item.order ?? currentIndex + 1 };
-      return { id: i.id, order: i.order ?? items.indexOf(i) + 1 };
-    });
-
-    reorderMutation.mutate({
-      subtestId: matchedClass.id,
-      type: category,
-      items: updatedItems,
-    });
-  };
-
-  const handleMoveDown = (
-    item: ContentListItem,
-    category: "material" | "tips_and_trick",
-  ) => {
-    if (!matchedClass) return;
-    const items =
-      category === "material" ? materialContents.data : tipsContents.data;
-    if (!items) return;
-    const currentIndex = items.findIndex((i) => i.id === item.id);
-    if (currentIndex < 0 || currentIndex >= items.length - 1) return;
-
-    const nextItem = items[currentIndex + 1];
-    const updatedItems = items.map((i) => {
-      if (i.id === item.id)
-        return { id: i.id, order: nextItem.order ?? currentIndex + 2 };
-      if (i.id === nextItem.id)
-        return { id: i.id, order: item.order ?? currentIndex + 1 };
-      return { id: i.id, order: i.order ?? items.indexOf(i) + 1 };
-    });
+    // Map new order based on array index
+    const updatedItems = newItems.map((item, index) => ({
+      id: item.id,
+      order: index + 1,
+    }));
 
     reorderMutation.mutate({
       subtestId: matchedClass.id,
@@ -352,8 +317,7 @@ function RouteComponent() {
               onCreate={() => handleCreate("material")}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onMoveUp={(item) => handleMoveUp(item, "material")}
-              onMoveDown={(item) => handleMoveDown(item, "material")}
+              onReorder={(newItems) => handleReorder(newItems, "material")}
             />
           </TabsContent>
           <TabsContent value="tips_and_trick">
@@ -367,8 +331,9 @@ function RouteComponent() {
               onCreate={() => handleCreate("tips_and_trick")}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onMoveUp={(item) => handleMoveUp(item, "tips_and_trick")}
-              onMoveDown={(item) => handleMoveDown(item, "tips_and_trick")}
+              onReorder={(newItems) =>
+                handleReorder(newItems, "tips_and_trick")
+              }
             />
           </TabsContent>
         </Tabs>
