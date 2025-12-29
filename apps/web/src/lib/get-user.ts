@@ -3,13 +3,17 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { authClient } from "./auth-client";
 
 export const getUser = createServerFn().handler(async () => {
-	const { data } = await authClient.getSession({
+	const response = await authClient.getSession({
 		fetchOptions: {
 			headers: getRequestHeaders(),
 		},
 	});
 
-	return data;
+	console.log("🔥 getUser full response:", response);
+	console.log("🔥 getUser session data:", response.data);
+	console.log("🔥 getUser error:", response.error);
+
+	return response.data;
 });
 
 export async function isAuthenticated() {
