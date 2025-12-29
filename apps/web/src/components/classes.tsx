@@ -337,15 +337,15 @@ function ContentCard({
   return (
     <Card
       className={cn(
-        "rounded-[10px] border border-neutral-200 p-2 sm:p-4 lg:p-5 relative",
-        completed && "bg-tertiary-100",
+        "relative rounded-[10px] border border-neutral-200 p-2 sm:p-4 lg:p-5",
+        !isAdmin && completed && "bg-tertiary-100 border-tertiary-300",
       )}
     >
       {/* Completed indicator */}
-      {completed && (
+      {!isAdmin && completed && (
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
           <CheckCircleIcon
-            className="size-5 sm:size-6 text-fourtiary-300"
+            className="size-5 sm:size-6 text-tertiary-500"
             weight="fill"
           />
         </div>
@@ -564,8 +564,13 @@ export function ContentList({
       <div className="flex items-center justify-between">
         {title && <h3 className="font-semibold text-lg">{title}</h3>}
         {isAdmin && onCreate && (
-          <Button type="button" variant="outline" size="sm" onClick={onCreate}>
-            <PlusIcon size={16} className="mr-2" />
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={onCreate}
+          >
+            <PlusIcon size={16} className="mr-2" weight="bold" />
             Tambah Konten
           </Button>
         )}
