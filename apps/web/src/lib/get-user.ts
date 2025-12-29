@@ -3,23 +3,29 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { authClient } from "./auth-client";
 
 export const getUser = createServerFn().handler(async () => {
-	const response = await authClient.getSession({
-		fetchOptions: {
-			headers: getRequestHeaders(),
-		},
-	});
+  const headers = getRequestHeaders();
+  const headersToForward = {
+    cookie: headers.cookie || "",
+    "user-agent": headers["user-agent"],
+  };
 
-	console.log("🔥 getUser full response:", response);
-	console.log("🔥 getUser session data:", response.data);
-	console.log("🔥 getUser error:", response.error);
+  const response = await authClient.getSession({
+    fetchOptions: {
+      headers: headersToForward,
+    },
+  });
 
-	return response.data;
+  console.log("🔥 getUser full response:", response);
+  console.log("🔥 getUser session data:", response.data);
+  console.log("🔥 getUser error:", response.error);
+
+  return response.data;
 });
 
 export async function isAuthenticated() {
-	const user = await authClient.getSession();
+  const user = await authClient.getSession();
 
-	if (user) return true;
+  if (user) return true;
 
-	return false;
+  return false;
 }
