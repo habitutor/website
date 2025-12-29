@@ -5,17 +5,17 @@ export const Route = createFileRoute("/_auth")({
   beforeLoad: async () => {
     const session = await getUser();
 
-    return { session };
-  },
-  loader: ({ context }) => {
-    if (context.session)
-      throw redirect({
-        to: "/dashboard",
-      });
+		return { session };
+	},
+	loader: ({ context }) => {
+		if (context.session)
+			throw redirect({
+				to: "/dashboard",
+			});
 
-    console.log("Before Load: ", context.session);
-  },
-  component: AuthLayout,
+		console.log("Before Load: ", context.session);
+	},
+	component: AuthLayout,
 });
 
 function AuthLayout() {
