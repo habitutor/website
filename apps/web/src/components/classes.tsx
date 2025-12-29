@@ -15,7 +15,7 @@ import {
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -570,6 +570,36 @@ export function ContentList({
   onReorder?: (newItems: ContentListItem[]) => void;
 }) {
   const isAdmin = useIsAdmin();
+  const [localItems, setLocalItems] = useState<ContentListItem[]>([]);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (items) {
+      setLocalItems(items);
+    }
+  }, [items]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
+  const handleReorder = (newItems: ContentListItem[]) => {
+    setLocalItems(newItems);
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      if (onReorder) {
+        onReorder(newItems);
+      }
+    }, 800);
+  };
 
   return (
     <div className="space-y-2">
@@ -593,7 +623,7 @@ export function ContentList({
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
-      {!isLoading && !error && (!items || items.length === 0) && (
+      {!isLoading && !error && (!localItems || localItems.length === 0) && (
         <div className="flex flex-col items-center justify-center gap-2">
           <Image
             src="/avatar/confused-avatar.webp"
@@ -605,17 +635,17 @@ export function ContentList({
         </div>
       )}
 
-      {items &&
-        items.length > 0 &&
+      {localItems &&
+        localItems.length > 0 &&
         (isAdmin && onReorder ? (
           <Reorder.Group
             as="div"
             axis="y"
-            values={items}
-            onReorder={onReorder}
+            values={localItems}
+            onReorder={handleReorder}
             className="space-y-2"
           >
-            {items.map((item, index) => (
+            {localItems.map((item, index) => (
               <ReorderableContentCard
                 key={item.id}
                 item={item}
@@ -627,7 +657,7 @@ export function ContentList({
           </Reorder.Group>
         ) : (
           <div className="space-y-2">
-            {items.map((item, index) => (
+            {localItems.map((item, index) => (
               <ContentCard
                 key={item.id}
                 item={item}
