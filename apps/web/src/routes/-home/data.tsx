@@ -7,6 +7,32 @@ import {
 } from "@phosphor-icons/react";
 
 export const DATA = {
+  testimone: [
+    {
+      id: 1,
+      name: "John Doe",
+      title: "CEO",
+      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    },
+    {
+      id: 2,
+      name: "Jane Doe",
+      title: "CTO",
+      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    },
+    {
+      id: 3,
+      name: "Jane Doe",
+      title: "COO",
+      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    },
+    {
+      id: 4,
+      name: "Jane Doe",
+      title: "COO",
+      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    },
+  ],
   pricing: {
     title: "Investasi Belajar yang Bikin Kamu Bertumbuh",
     subtitle: "Mulai gratis. Upgrade kalau mau kebiasaan yang lebih kuat.",
