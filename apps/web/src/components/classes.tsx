@@ -357,7 +357,7 @@ function ContentCard({
         <div className="flex items-start gap-3">
           <div className="flex min-w-7 sm:min-w-8 lg:min-w-9 h-5 sm:h-6 lg:h-7 shrink-0 px-1.5 items-center justify-center rounded border border-neutral-200 bg-white">
             <p className="font-medium text-[10px] sm:text-xs lg:text-sm text-primary-300 whitespace-nowrap">
-              {index + 22}
+              {index + 1}
             </p>
           </div>
 
