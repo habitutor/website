@@ -52,15 +52,15 @@ export const queryClient = new QueryClient({
 });
 
 const client: RouterClient<typeof appRouter> = createORPCClient(
-  new RPCLink({
-    url: `${import.meta.env.VITE_SERVER_URL}/rpc`,
-    fetch(url, options) {
-      return fetch(url, {
-        ...options,
-        credentials: "include",
-      });
-    },
-  }),
+	new RPCLink({
+		url: `${import.meta.env.VITE_SERVER_URL}/rpc`,
+		fetch(url, options) {
+			return fetch(url, {
+				...options,
+				credentials: "include",
+			});
+		},
+	}),
 );
 
 export type BodyOutputs = InferClientBodyOutputs<typeof client>;
