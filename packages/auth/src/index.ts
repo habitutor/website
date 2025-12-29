@@ -88,10 +88,10 @@ export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL,
 	advanced: {
 		defaultCookieAttributes: {
-			sameSite: "none",
+			sameSite: "lax",
 			secure: true,
 			httpOnly: true,
-			domain: process.env.NODE_ENV === "production" ? "devino.me" : undefined,
+			domain: process.env.NODE_ENV === "production" ? ".devino.me" : undefined,
 		},
 	},
 });
