@@ -1,4 +1,10 @@
-import { InstagramLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react";
+import {
+  DiscordLogoIcon,
+  InstagramLogoIcon,
+  TiktokLogoIcon,
+  TwitterLogoIcon,
+  YoutubeLogoIcon,
+} from "@phosphor-icons/react";
 
 export const DATA = {
   pricing: {
@@ -39,6 +45,21 @@ export const DATA = {
         label: "Twitter",
         icon: TwitterLogoIcon,
         url: "https://www.twitter.com/habitutor",
+      },
+      {
+        label: "Discord",
+        icon: DiscordLogoIcon,
+        url: "https://discord.gg/habitutor",
+      },
+      {
+        label: "TikTok",
+        icon: TiktokLogoIcon,
+        url: "https://www.tiktok.com/@habitutor",
+      },
+      {
+        label: "YouTube",
+        icon: YoutubeLogoIcon,
+        url: "https://www.youtube.com/@habitutor",
       },
     ],
   },
