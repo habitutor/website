@@ -194,6 +194,7 @@ const CloudUploadIcon: React.FC = () => (
 	<svg
 		width="24"
 		height="24"
+		aria-hidden="true"
 		viewBox="0 0 24 24"
 		className="tiptap-image-upload-icon"
 		fill="currentColor"
@@ -212,6 +213,7 @@ const CloudUploadIcon: React.FC = () => (
 
 const FileIcon: React.FC = () => (
 	<svg
+		aria-hidden="true"
 		width="43"
 		height="57"
 		viewBox="0 0 43 57"
@@ -231,6 +233,7 @@ const FileIcon: React.FC = () => (
 
 const FileCornerIcon: React.FC = () => (
 	<svg
+		aria-hidden="true"
 		width="10"
 		height="10"
 		className="tiptap-image-upload-dropzone-rect-secondary"
@@ -301,6 +304,7 @@ const ImageUploadDragArea: React.FC<ImageUploadDragAreaProps> = ({ onFile, child
 
 	return (
 		<div
+			aria-hidden="true"
 			className={`tiptap-image-upload-drag-area ${isDragActive ? "drag-active" : ""} ${isDragOver ? "drag-over" : ""}`}
 			onDragEnter={handleDragEnter}
 			onDragLeave={handleDragLeave}

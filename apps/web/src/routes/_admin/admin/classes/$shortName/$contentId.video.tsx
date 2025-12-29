@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/$contentId/video")({
+export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/video")({
 	component: RouteComponent,
 });
 
@@ -73,21 +73,18 @@ function RouteComponent() {
 
 	const form = useForm({
 		defaultValues: {
-			title: "",
 			videoUrl: "",
 			content: {} as object,
 		},
 		onSubmit: async ({ value }) => {
 			saveMutation.mutate({
 				id: Number(contentId),
-				title: value.title,
 				videoUrl: value.videoUrl,
 				content: value.content,
 			});
 		},
 		validators: {
 			onSubmit: type({
-				title: "string >= 1",
 				videoUrl: "string >= 1",
 				content: "object",
 			}),
@@ -96,9 +93,6 @@ function RouteComponent() {
 
 	// Update form when content loads
 	if (content.data?.video) {
-		if (form.state.values.title !== content.data.video.title) {
-			form.setFieldValue("title", content.data.video.title || "");
-		}
 		if (form.state.values.videoUrl !== content.data.video.videoUrl) {
 			form.setFieldValue("videoUrl", content.data.video.videoUrl || "");
 		}
@@ -130,26 +124,6 @@ function RouteComponent() {
 				}}
 				className="space-y-4"
 			>
-				<form.Field name="title">
-					{(field) => (
-						<div className="space-y-2">
-							<Label htmlFor={field.name}>Judul Video</Label>
-							<Input
-								id={field.name}
-								name={field.name}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-							/>
-							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-sm">
-									{error?.message}
-								</p>
-							))}
-						</div>
-					)}
-				</form.Field>
-
 				<form.Field name="videoUrl">
 					{(field) => (
 						<div className="space-y-2">
@@ -158,7 +132,7 @@ function RouteComponent() {
 								id={field.name}
 								name={field.name}
 								type="url"
-								value={field.state.value}
+								value={field.state.value as string}
 								onBlur={field.handleBlur}
 								onChange={(e) => field.handleChange(e.target.value)}
 								placeholder="https://www.youtube.com/watch?v=..."

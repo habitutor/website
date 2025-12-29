@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AdminSidebar } from "@/components/admin/sidebar";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -65,156 +64,153 @@ function QuestionsPage() {
 	const totalPages = Math.ceil(total / limit);
 
 	return (
-		<div className="flex min-h-screen">
-			<AdminSidebar />
-			<main className="flex-1 bg-background p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
-				<div className="mx-auto max-w-6xl">
-					<div className="mb-4 flex items-center justify-between sm:mb-6">
-						<div>
-							<h1 className="font-bold text-2xl sm:text-3xl">Questions Bank</h1>
-							<p className="mt-1 text-muted-foreground text-sm">Manage all questions across practice packs</p>
-						</div>
+		<main className="flex-1 bg-background p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+			<div className="mx-auto max-w-6xl">
+				<div className="mb-4 flex items-center justify-between sm:mb-6">
+					<div>
+						<h1 className="font-bold text-2xl sm:text-3xl">Questions Bank</h1>
+						<p className="mt-1 text-muted-foreground text-sm">Manage all questions across practice packs</p>
 					</div>
-
-					<div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row">
-						<div className="relative flex-1">
-							<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-							<Input
-								placeholder="Search questions..."
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-								className="pl-9"
-							/>
-						</div>
-
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="outline" className="w-full sm:w-auto">
-									<Funnel className="mr-2 size-4" />
-									<span className="hidden sm:inline">{filter === "all" ? "All Questions" : "Unused Only"}</span>
-									<span className="sm:hidden">{filter === "all" ? "All" : "Unused"}</span>
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuRadioGroup
-									value={filter}
-									onValueChange={(value) => {
-										setFilter(value as "all" | "unused");
-										setPage(1);
-									}}
-								>
-									<DropdownMenuRadioItem value="all">All Questions</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="unused">Unused Only</DropdownMenuRadioItem>
-								</DropdownMenuRadioGroup>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-
-					{isLoading ? (
-						<div className="space-y-4">
-							<Skeleton className="h-32 w-full" />
-							<Skeleton className="h-32 w-full" />
-							<Skeleton className="h-32 w-full" />
-						</div>
-					) : !questions || questions.length === 0 ? (
-						<Card className="rounded-xl shadow-sm">
-							<CardContent className="py-12 text-center">
-								<p className="text-muted-foreground text-sm">
-									{searchQuery
-										? "No questions found matching your search."
-										: "No questions yet. Create questions from practice packs."}
-								</p>
-							</CardContent>
-						</Card>
-					) : (
-						<div className="space-y-4">
-							{questions.map((question) => (
-								<QuestionCard key={question.id} question={question} />
-							))}
-						</div>
-					)}
-
-					{/* Pagination Controls */}
-					{totalPages > 1 && (
-						<div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8 sm:gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={page === 1}
-								onClick={() => setPage(page - 1)}
-								className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
-							>
-								<span className="hidden sm:inline">Previous</span>
-								<span className="sm:hidden">Prev</span>
-							</Button>
-
-							<div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1">
-								{page > 3 && (
-									<>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => setPage(1)}
-											className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
-										>
-											1
-										</Button>
-										{page > 4 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
-									</>
-								)}
-
-								{Array.from({ length: totalPages }, (_, i) => i + 1)
-									.filter((pageNum) => {
-										return (
-											pageNum === page ||
-											pageNum === page - 1 ||
-											pageNum === page + 1 ||
-											pageNum === page - 2 ||
-											pageNum === page + 2
-										);
-									})
-									.map((pageNum) => (
-										<Button
-											key={pageNum}
-											variant={pageNum === page ? "default" : "outline"}
-											size="sm"
-											onClick={() => setPage(pageNum)}
-											className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
-										>
-											{pageNum}
-										</Button>
-									))}
-
-								{page < totalPages - 2 && (
-									<>
-										{page < totalPages - 3 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => setPage(totalPages)}
-											className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
-										>
-											{totalPages}
-										</Button>
-									</>
-								)}
-							</div>
-
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={page === totalPages}
-								onClick={() => setPage(page + 1)}
-								className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
-							>
-								<span className="hidden sm:inline">Next</span>
-								<span className="sm:hidden">Next</span>
-							</Button>
-						</div>
-					)}
 				</div>
-			</main>
-		</div>
+
+				<div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row">
+					<div className="relative flex-1">
+						<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+						<Input
+							placeholder="Search questions..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className="pl-9"
+						/>
+					</div>
+
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline" className="w-full sm:w-auto">
+								<Funnel className="mr-2 size-4" />
+								<span className="hidden sm:inline">{filter === "all" ? "All Questions" : "Unused Only"}</span>
+								<span className="sm:hidden">{filter === "all" ? "All" : "Unused"}</span>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuRadioGroup
+								value={filter}
+								onValueChange={(value) => {
+									setFilter(value as "all" | "unused");
+									setPage(1);
+								}}
+							>
+								<DropdownMenuRadioItem value="all">All Questions</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="unused">Unused Only</DropdownMenuRadioItem>
+							</DropdownMenuRadioGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+
+				{isLoading ? (
+					<div className="space-y-4">
+						<Skeleton className="h-32 w-full" />
+						<Skeleton className="h-32 w-full" />
+						<Skeleton className="h-32 w-full" />
+					</div>
+				) : !questions || questions.length === 0 ? (
+					<Card className="rounded-xl shadow-sm">
+						<CardContent className="py-12 text-center">
+							<p className="text-muted-foreground text-sm">
+								{searchQuery
+									? "No questions found matching your search."
+									: "No questions yet. Create questions from practice packs."}
+							</p>
+						</CardContent>
+					</Card>
+				) : (
+					<div className="space-y-4">
+						{questions.map((question) => (
+							<QuestionCard key={question.id} question={question} />
+						))}
+					</div>
+				)}
+
+				{/* Pagination Controls */}
+				{totalPages > 1 && (
+					<div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8 sm:gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={page === 1}
+							onClick={() => setPage(page - 1)}
+							className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+						>
+							<span className="hidden sm:inline">Previous</span>
+							<span className="sm:hidden">Prev</span>
+						</Button>
+
+						<div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1">
+							{page > 3 && (
+								<>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setPage(1)}
+										className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
+									>
+										1
+									</Button>
+									{page > 4 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
+								</>
+							)}
+
+							{Array.from({ length: totalPages }, (_, i) => i + 1)
+								.filter((pageNum) => {
+									return (
+										pageNum === page ||
+										pageNum === page - 1 ||
+										pageNum === page + 1 ||
+										pageNum === page - 2 ||
+										pageNum === page + 2
+									);
+								})
+								.map((pageNum) => (
+									<Button
+										key={pageNum}
+										variant={pageNum === page ? "default" : "outline"}
+										size="sm"
+										onClick={() => setPage(pageNum)}
+										className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
+									>
+										{pageNum}
+									</Button>
+								))}
+
+							{page < totalPages - 2 && (
+								<>
+									{page < totalPages - 3 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setPage(totalPages)}
+										className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
+									>
+										{totalPages}
+									</Button>
+								</>
+							)}
+						</div>
+
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={page === totalPages}
+							onClick={() => setPage(page + 1)}
+							className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+						>
+							<span className="hidden sm:inline">Next</span>
+							<span className="sm:hidden">Next</span>
+						</Button>
+					</div>
+				)}
+			</div>
+		</main>
 	);
 }
 
@@ -239,7 +235,9 @@ function QuestionCard({
 				queryClient.invalidateQueries({
 					predicate: (query) =>
 						query.queryKey[0] ===
-						orpc.admin.practicePack.listAllQuestions.queryKey({ input: { limit: 0, offset: 0 } })[0],
+						orpc.admin.practicePack.listAllQuestions.queryKey({
+							input: { limit: 0, offset: 0 },
+						})[0],
 				});
 				setDeleteDialogOpen(false);
 			},
@@ -267,7 +265,8 @@ function QuestionCard({
 						<div className="flex items-center gap-2">
 							{question.packCount > 0 ? (
 								<span className="whitespace-nowrap rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3">
-									Used in {question.packCount} pack{question.packCount !== 1 ? "s" : ""}
+									Used in {question.packCount} pack
+									{question.packCount !== 1 ? "s" : ""}
 								</span>
 							) : (
 								<span className="whitespace-nowrap rounded bg-muted px-2 py-1 text-muted-foreground text-xs sm:px-3">
@@ -315,7 +314,8 @@ function QuestionCard({
 								<>
 									This question is currently used in{" "}
 									<span className="font-semibold">
-										{question.packCount} practice pack{question.packCount !== 1 ? "s" : ""}
+										{question.packCount} practice pack
+										{question.packCount !== 1 ? "s" : ""}
 									</span>
 									. Deleting it will remove it from all packs. This action cannot be undone.
 								</>

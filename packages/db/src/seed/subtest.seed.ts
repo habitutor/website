@@ -1,10 +1,6 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { contentItem, noteMaterial, recentContentView, subtest, userProgress, videoMaterial } from "../schema/subtest";
 
-/* =========================
-   MASTER DATA
-========================= */
-
 const SUBTEST_DATA = [
 	{
 		name: "Kemampuan Penalaran Umum",
@@ -56,7 +52,7 @@ const SAMPLE_CONTENT = [
 		contents: [
 			{
 				type: "material" as const,
-				title: "Pengantar Penalaran Logis",
+				title: "Pendalaman Penalaran Logis dan Pola Berpikir",
 				order: 1,
 				video: {
 					videoUrl: "https://www.youtube.com/watch?v=sqoOzGMqCQU",
@@ -65,11 +61,112 @@ const SAMPLE_CONTENT = [
 						version: 1,
 						content: [
 							{
+								type: "heading",
+								attrs: { level: 2 },
+								content: [{ type: "text", text: "Pendahuluan" }],
+							},
+							{
 								type: "paragraph",
 								content: [
 									{
 										type: "text",
-										text: "Penalaran logis membantu menarik kesimpulan yang valid.",
+										text: "Penalaran logis merupakan fondasi utama dalam menyelesaikan soal kognitif.",
+									},
+								],
+							},
+
+							{
+								type: "heading",
+								attrs: { level: 3 },
+								content: [{ type: "text", text: "Definisi Premis" }],
+							},
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Premis adalah pernyataan yang diasumsikan benar.",
+									},
+								],
+							},
+
+							{
+								type: "bulletList",
+								content: [
+									{
+										type: "listItem",
+										content: [
+											{
+												type: "paragraph",
+												content: [{ type: "text", text: "Premis eksplisit" }],
+											},
+										],
+									},
+									{
+										type: "listItem",
+										content: [
+											{
+												type: "paragraph",
+												content: [{ type: "text", text: "Premis implisit" }],
+											},
+										],
+									},
+								],
+							},
+
+							{
+								type: "codeBlock",
+								attrs: { language: "text" },
+								content: [
+									{
+										type: "text",
+										text: "Jika A maka B\nA\nMaka B",
+									},
+								],
+							},
+
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Paragraf panjang 1 untuk testing scroll.",
+									},
+								],
+							},
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Paragraf panjang 2 untuk testing scroll.",
+									},
+								],
+							},
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Paragraf panjang 3 untuk testing scroll.",
+									},
+								],
+							},
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Paragraf panjang 4 untuk testing scroll.",
+									},
+								],
+							},
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Paragraf panjang 5 untuk testing scroll.",
 									},
 								],
 							},
@@ -85,7 +182,7 @@ const SAMPLE_CONTENT = [
 							content: [
 								{
 									type: "text",
-									text: "Penalaran logis membantu menarik kesimpulan yang valid.",
+									text: "Fokus pada premis dan hindari asumsi tambahan.",
 								},
 							],
 						},
@@ -94,18 +191,41 @@ const SAMPLE_CONTENT = [
 			},
 			{
 				type: "tips_and_trick" as const,
-				title: "Tips Cepat Menjawab Soal Logika",
-				order: 2,
+				title: "Framework Cepat Soal Logika",
+				order: 1,
 				notes: {
 					type: "doc",
 					version: 1,
 					content: [
 						{
-							type: "paragraph",
+							type: "orderedList",
 							content: [
 								{
-									type: "text",
-									text: "Gunakan eliminasi opsi dan fokus pada pola.",
+									type: "listItem",
+									content: [
+										{
+											type: "paragraph",
+											content: [{ type: "text", text: "Identifikasi premis" }],
+										},
+									],
+								},
+								{
+									type: "listItem",
+									content: [
+										{
+											type: "paragraph",
+											content: [{ type: "text", text: "Uji konsistensi" }],
+										},
+									],
+								},
+								{
+									type: "listItem",
+									content: [
+										{
+											type: "paragraph",
+											content: [{ type: "text", text: "Eliminasi opsi lemah" }],
+										},
+									],
 								},
 							],
 						},
@@ -114,15 +234,200 @@ const SAMPLE_CONTENT = [
 			},
 		],
 	},
+
 	{
-		subtestShortName: "PM",
+		subtestShortName: "PPU",
 		contents: [
 			{
 				type: "material" as const,
-				title: "Dasar Penalaran Matematika",
+				title: "Memahami Informasi Faktual dan Opini",
 				order: 1,
 				video: {
-					videoUrl: "https://www.youtube.com/watch?v=example123",
+					videoUrl: "https://www.youtube.com/watch?v=ppu1",
+					content: {
+						type: "doc",
+						version: 1,
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "PPU menguji pemahaman terhadap fakta, opini, dan hubungan sebab-akibat.",
+									},
+								],
+							},
+							{
+								type: "bulletList",
+								content: [
+									{
+										type: "listItem",
+										content: [
+											{
+												type: "paragraph",
+												content: [{ type: "text", text: "Fakta dapat diverifikasi" }],
+											},
+										],
+									},
+									{
+										type: "listItem",
+										content: [
+											{
+												type: "paragraph",
+												content: [{ type: "text", text: "Opini bersifat subjektif" }],
+											},
+										],
+									},
+								],
+							},
+						],
+					},
+				},
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [{ type: "text", text: "Selalu cek konteks pernyataan." }],
+						},
+					],
+				},
+			},
+			{
+				type: "tips_and_trick" as const,
+				title: "Cara Cepat Bedakan Fakta & Opini",
+				order: 1,
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [
+								{
+									type: "text",
+									text: "Cari kata nilai seperti ‘menurut’, ‘seharusnya’.",
+								},
+							],
+						},
+					],
+				},
+			},
+		],
+	},
+
+	{
+		subtestShortName: "PBM",
+		contents: [
+			{
+				type: "material" as const,
+				title: "Menentukan Ide Pokok dan Kalimat Utama",
+				order: 1,
+				video: {
+					videoUrl: "https://www.youtube.com/watch?v=pbm1",
+					content: {
+						type: "doc",
+						version: 1,
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Ide pokok adalah gagasan utama yang menaungi seluruh paragraf.",
+									},
+								],
+							},
+							{
+								type: "blockquote",
+								content: [
+									{
+										type: "paragraph",
+										content: [
+											{
+												type: "text",
+												text: "Biasanya terletak di awal atau akhir paragraf.",
+											},
+										],
+									},
+								],
+							},
+						],
+					},
+				},
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [{ type: "text", text: "Jangan tertipu contoh atau detail." }],
+						},
+					],
+				},
+			},
+			{
+				type: "tips_and_trick" as const,
+				title: "Kesalahan Umum Menentukan Ide Pokok",
+				order: 1,
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "bulletList",
+							content: [
+								{
+									type: "listItem",
+									content: [
+										{
+											type: "paragraph",
+											content: [{ type: "text", text: "Memilih kalimat contoh" }],
+										},
+									],
+								},
+								{
+									type: "listItem",
+									content: [
+										{
+											type: "paragraph",
+											content: [{ type: "text", text: "Memilih data pendukung" }],
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			},
+		],
+	},
+
+	{
+		subtestShortName: "PK",
+		contents: [
+			{
+				type: "material" as const,
+				title: "Operasi Hitung Dasar dan Estimasi",
+				order: 1,
+				video: {
+					videoUrl: "https://www.youtube.com/watch?v=pk1",
+					content: {
+						type: "doc",
+						version: 1,
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "PK menguji ketelitian dalam operasi hitung dan estimasi numerik.",
+									},
+								],
+							},
+						],
+					},
 				},
 				notes: {
 					type: "doc",
@@ -133,9 +438,201 @@ const SAMPLE_CONTENT = [
 							content: [
 								{
 									type: "text",
-									text: "Fokus pada hubungan antar angka dan operasi.",
+									text: "Gunakan pembulatan untuk estimasi cepat.",
 								},
 							],
+						},
+					],
+				},
+			},
+			{
+				type: "tips_and_trick" as const,
+				title: "Hitung Cepat Tanpa Kalkulator",
+				order: 1,
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [
+								{
+									type: "text",
+									text: "Sederhanakan angka sebelum menghitung.",
+								},
+							],
+						},
+					],
+				},
+			},
+		],
+	},
+
+	{
+		subtestShortName: "LBI",
+		contents: [
+			{
+				type: "material" as const,
+				title: "Menganalisis Teks Argumentatif",
+				order: 1,
+				video: {
+					videoUrl: "https://www.youtube.com/watch?v=lbi1",
+					content: {
+						type: "doc",
+						version: 1,
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "Teks argumentatif menyajikan pendapat yang didukung alasan dan data.",
+									},
+								],
+							},
+						],
+					},
+				},
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [
+								{
+									type: "text",
+									text: "Identifikasi klaim dan alasan pendukung.",
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				type: "tips_and_trick" as const,
+				title: "Cara Membaca Kritis",
+				order: 1,
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [{ type: "text", text: "Periksa bias dan konsistensi argumen." }],
+						},
+					],
+				},
+			},
+		],
+	},
+
+	{
+		subtestShortName: "LBing",
+		contents: [
+			{
+				type: "material" as const,
+				title: "Reading Comprehension Strategy",
+				order: 1,
+				video: {
+					videoUrl: "https://www.youtube.com/watch?v=lb1",
+					content: {
+						type: "doc",
+						version: 1,
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "English reading comprehension focuses on context and inference.",
+									},
+								],
+							},
+						],
+					},
+				},
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [{ type: "text", text: "Pay attention to transition words." }],
+						},
+					],
+				},
+			},
+			{
+				type: "tips_and_trick" as const,
+				title: "Skimming & Scanning",
+				order: 1,
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [
+								{
+									type: "text",
+									text: "Read first and last sentence of paragraphs.",
+								},
+							],
+						},
+					],
+				},
+			},
+		],
+	},
+
+	{
+		subtestShortName: "PM",
+		contents: [
+			{
+				type: "material" as const,
+				title: "Pola dan Relasi Bilangan",
+				order: 1,
+				video: {
+					videoUrl: "https://www.youtube.com/watch?v=pm1",
+					content: {
+						type: "doc",
+						version: 1,
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "PM menguji kemampuan menemukan pola dan relasi numerik.",
+									},
+								],
+							},
+						],
+					},
+				},
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [{ type: "text", text: "Perhatikan selisih dan rasio." }],
+						},
+					],
+				},
+			},
+			{
+				type: "tips_and_trick" as const,
+				title: "Strategi Soal Deret",
+				order: 1,
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [{ type: "text", text: "Tuliskan deret secara eksplisit." }],
 						},
 					],
 				},
@@ -144,114 +641,105 @@ const SAMPLE_CONTENT = [
 	},
 ];
 
-/* =========================
-   CLEAR
-========================= */
-
 export async function clearSubtest(db: NodePgDatabase) {
-	await db.delete(userProgress);
-	await db.delete(recentContentView);
-	await db.delete(videoMaterial);
-	await db.delete(noteMaterial);
-	await db.delete(contentItem);
-	await db.delete(subtest);
+	try {
+		await db.delete(userProgress);
+	} catch {
+		console.log("user_progress table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(recentContentView);
+	} catch {
+		console.log("recent_content_view table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(videoMaterial);
+	} catch {
+		console.log("video_material table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(noteMaterial);
+	} catch {
+		console.log("note_material table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(contentItem);
+	} catch {
+		console.log("content_item table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(subtest);
+	} catch {
+		console.log("subtest table not found, skipping clear");
+	}
 }
 
-/* =========================
-   SEED
-========================= */
-
 export async function seedSubtest(db: NodePgDatabase) {
-	/* ---------- SUBTEST ---------- */
-	const insertedSubtests = await db.insert(subtest).values(SUBTEST_DATA).returning({
-		id: subtest.id,
-		shortName: subtest.shortName,
-	});
+	await db.transaction(async (tx) => {
+		const insertedSubtests = await tx.insert(subtest).values(SUBTEST_DATA).returning({
+			id: subtest.id,
+			shortName: subtest.shortName,
+		});
 
-	console.log(`✔ Subtest: ${insertedSubtests.length} created`);
+		console.log(`Subtest: ${insertedSubtests.length} created`);
 
-	const contentItemIds: number[] = [];
+		const contentItemIds: number[] = [];
 
-	for (const sample of SAMPLE_CONTENT) {
-		const targetSubtest = insertedSubtests.find((s) => s.shortName === sample.subtestShortName);
-		if (!targetSubtest) continue;
+		for (const sample of SAMPLE_CONTENT) {
+			const targetSubtest = insertedSubtests.find((s) => s.shortName === sample.subtestShortName);
+			if (!targetSubtest) continue;
 
-		for (const content of sample.contents) {
-			/* ---------- CONTENT ITEM ---------- */
-			const [row] = await db
-				.insert(contentItem)
-				.values({
-					subtestId: targetSubtest.id,
-					type: content.type,
-					title: content.title,
-					order: content.order,
-				})
-				.returning({ id: contentItem.id });
+			for (const content of sample.contents) {
+				const [row] = await tx
+					.insert(contentItem)
+					.values({
+						subtestId: targetSubtest.id,
+						type: content.type,
+						title: content.title,
+						order: content.order,
+					})
+					.returning({ id: contentItem.id });
 
-			if (!row) throw new Error("Failed to insert content item");
+				if (!row) throw new Error("Failed to insert content item");
 
-			const contentItemId = row.id;
-			contentItemIds.push(contentItemId);
+				const contentItemId = row.id;
+				contentItemIds.push(contentItemId);
 
-			/* ---------- VIDEO ---------- */
-			if (content.video) {
-				await db.insert(videoMaterial).values({
-					contentItemId,
-					title: content.title,
-					videoUrl: content.video.videoUrl,
-					content:
+				if (content.video) {
+					const videoContent =
 						"content" in content.video && content.video.content
 							? content.video.content
 							: {
-									source: "youtube",
-								},
-				});
-			}
+									type: "doc",
+									version: 1,
+									content: [],
+								};
 
-			/* ---------- NOTES ---------- */
-			if (content.notes) {
-				await db.insert(noteMaterial).values({
-					contentItemId,
-					content: content.notes,
-				});
+					const serializedContent = JSON.parse(JSON.stringify(videoContent));
+
+					await tx.insert(videoMaterial).values({
+						contentItemId,
+						videoUrl: content.video.videoUrl,
+						content: serializedContent,
+					});
+				}
+
+				if (content.notes) {
+					const serializedNotes = JSON.parse(JSON.stringify(content.notes));
+
+					await tx.insert(noteMaterial).values({
+						contentItemId,
+						content: serializedNotes,
+					});
+				}
 			}
 		}
-	}
 
-	console.log("✔ Content items created");
-
-	/* =========================
-     USER PROGRESS (OPTIONAL)
-  ========================= */
-
-	// const SAMPLE_USERS = ["user_1", "user_2"];
-
-	// for (const userId of SAMPLE_USERS) {
-	// 	for (const contentItemId of contentItemIds) {
-	// 		await db.insert(userProgress).values({
-	// 			userId,
-	// 			contentItemId,
-	// 			videoCompleted: false,
-	// 			noteCompleted: false,
-	// 			quizCompleted: false,
-	// 		});
-	// 	}
-	// }
-
-	// console.log("✔ User progress seeded");
-
-	/* =========================
-     RECENT CONTENT VIEW (OPTIONAL)
-  ========================= */
-
-	// for (const userId of SAMPLE_USERS) {
-	// 	for (const contentItemId of contentItemIds.slice(0, 3)) {
-	// 		await db.insert(recentContentView).values({
-	// 			userId,
-	// 			contentItemId,
-	// 		});
-	// 	}
-	// }
-
-	// console.log("✔ Recent content view seeded");
+		console.log("Content items created");
+	});
 }

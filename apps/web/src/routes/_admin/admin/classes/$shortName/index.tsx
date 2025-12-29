@@ -31,7 +31,7 @@ import { Label } from "@/components/ui/label";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/")({
+export const Route = createFileRoute("/_admin/admin/classes/$shortName/")({
 	params: {
 		parse: (raw) => ({
 			shortName: raw.shortName?.toLowerCase(),
@@ -80,7 +80,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 				setCreateDialogOpen(false);
@@ -102,7 +105,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 				setEditDialogOpen(false);
@@ -125,7 +131,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 				setDeleteDialogOpen(false);
@@ -148,7 +157,10 @@ function RouteComponent() {
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+						input: {
+							subtestId: matchedClass?.id ?? 0,
+							category: "tips_and_trick",
+						},
 					}),
 				});
 			},
@@ -268,23 +280,27 @@ function RouteComponent() {
 
 	if (subtests.isPending) {
 		return (
-			<Container className="pt-12">
-				<p className="animate-pulse text-sm">Memuat kelas...</p>
-			</Container>
+			<div className="mx-auto max-w-6xl">
+				<Container className="pt-12">
+					<p className="animate-pulse text-sm">Memuat kelas...</p>
+				</Container>
+			</div>
 		);
 	}
 
 	if (subtests.isError) {
 		return (
-			<Container className="pt-12">
-				<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
-			</Container>
+			<div className="mx-auto max-w-6xl">
+				<Container className="pt-12">
+					<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
+				</Container>
+			</div>
 		);
 	}
 	if (!matchedClass) return notFound();
 
 	return (
-		<Container className="space-y-6">
+		<Container className="py-0">
 			<ClassHeader subtest={matchedClass} />
 			<div className="space-y-4">
 				<ContentList

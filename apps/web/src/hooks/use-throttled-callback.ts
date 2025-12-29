@@ -20,7 +20,8 @@ const defaultOptions: ThrottleSettings = {
  * @param dependencies The dependencies to watch for changes
  * @param options The throttle options
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+// biome-ignore lint/suspicious/noExplicitAny: any is used to allow any function to be throttled
 export function useThrottledCallback<T extends (...args: any[]) => any>(
 	fn: T,
 	wait = 250,
@@ -33,7 +34,7 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
 } {
 	const handler = useMemo(
 		() => throttle<T>(fn, wait, options),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: gatau anjir
 		dependencies,
 	);
 

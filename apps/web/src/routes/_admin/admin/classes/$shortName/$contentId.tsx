@@ -1,8 +1,12 @@
-import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { BackButton } from "@/components/back-button";
 import { Container } from "@/components/ui/container";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_authenticated/admin/classes/$shortName/$contentId")({
+export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId")({
 	component: RouteComponent,
 });
 
@@ -10,6 +14,12 @@ function RouteComponent() {
 	const { shortName, contentId } = Route.useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
+
+	const content = useQuery(
+		orpc.subtest.getContentById.queryOptions({
+			input: { contentId: Number(contentId) },
+		}),
+	);
 
 	// Biar tab sinkron sama URL child-nya
 	const currentPath = location.pathname;
@@ -31,9 +41,21 @@ function RouteComponent() {
 		});
 	};
 
+	const displayTitle = content.data?.title || contentId;
+
 	return (
-		<Container className="space-y-6 pt-6">
-			{/* Tabs yang terhubung ke nested routes */}
+		<Container>
+			<div className="w-fit">
+				<BackButton to={"/admin/classes"} />
+				{content.isPending ? (
+					<Skeleton className="h-10 w-full" />
+				) : content.isError ? (
+					<h1 className="mt-3 font-bold text-red-500 text-xl">Error: {content.error.message}</h1>
+				) : (
+					<h1 className="mt-3 font-bold text-xl">{displayTitle}</h1>
+				)}
+			</div>
+
 			<Tabs value={currentTab} onValueChange={handleTabChange}>
 				<TabsList>
 					<TabsTrigger value="video">Video</TabsTrigger>
@@ -41,22 +63,10 @@ function RouteComponent() {
 					<TabsTrigger value="latihan-soal">Latihan Soal</TabsTrigger>
 				</TabsList>
 
-				{/* Konten sebenernya datang dari child routes via <Outlet /> */}
 				<TabsContent value={currentTab} className="pt-4">
 					<Outlet />
 				</TabsContent>
 			</Tabs>
-
-			{/* Optional: link back ke list materi */}
-			<div className="pt-4">
-				<Link
-					to="/admin/classes/$shortName"
-					params={{ shortName }}
-					className="text-muted-foreground text-sm hover:underline"
-				>
-					← Kembali ke daftar materi
-				</Link>
-			</div>
 		</Container>
 	);
 }

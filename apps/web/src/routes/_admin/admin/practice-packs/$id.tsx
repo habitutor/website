@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AdminSidebar } from "@/components/admin/sidebar";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -35,73 +34,71 @@ function PracticePackDetailPage() {
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [showAddExisting, setShowAddExisting] = useState(false);
 
-	const { data } = useQuery(orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } }));
+	const { data } = useQuery(
+		orpc.admin.practicePack.getPackQuestions.queryOptions({
+			input: { id: packId },
+		}),
+	);
 
 	const existingQuestionIds = data?.questions?.map((q) => q.id) || [];
 
 	if (Number.isNaN(packId)) {
 		return (
-			<div className="flex min-h-screen">
-				<AdminSidebar />
-				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
-					<p className="text-destructive">Invalid practice pack ID</p>
-				</main>
-			</div>
+			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+				<p className="text-destructive">Invalid practice pack ID</p>
+			</main>
 		);
 	}
 
 	return (
-		<div className="flex min-h-screen">
-			<AdminSidebar />
-			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
-				<div className="mx-auto max-w-6xl">
-					<div className="mb-4 flex items-center gap-4 sm:mb-6">
-						<Button variant="ghost" size="icon" asChild>
-							<a href="/admin/practice-packs">
-								<ArrowLeft className="size-4" />
-							</a>
-						</Button>
-						<h1 className="font-bold text-2xl sm:text-3xl">Practice Pack Detail</h1>
-					</div>
-
-					<div className="space-y-4 sm:space-y-6">
-						<PackInfoCard packId={packId} />
-
-						<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-							<h2 className="font-semibold text-xl sm:text-2xl">Questions</h2>
-							<div className="flex flex-col gap-2 sm:flex-row">
-								<Button onClick={() => setShowAddExisting(true)} variant="outline" className="text-xs sm:text-sm">
-									<MagnifyingGlass className="mr-2 size-3.5 sm:size-4" />
-									Add Existing
-								</Button>
-								<Button onClick={() => setShowCreateForm(true)} className="text-xs sm:text-sm">
-									<Plus className="mr-2 size-3.5 sm:size-4" />
-									Create New Question
-								</Button>
-							</div>
-						</div>
-
-						{showAddExisting && (
-							<AddExistingQuestionModal
-								practicePackId={packId}
-								existingQuestionIds={existingQuestionIds}
-								onClose={() => setShowAddExisting(false)}
-							/>
-						)}
-
-						{showCreateForm && (
-							<CreateQuestionForm
-								practicePackId={packId}
-								onSuccess={() => setShowCreateForm(false)}
-								onCancel={() => setShowCreateForm(false)}
-							/>
-						)}
-
-						<QuestionsList packId={packId} />
-					</div>
+		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+			<div className="mx-auto max-w-6xl">
+				<div className="mb-4 flex items-center gap-4 sm:mb-6">
+					<Button variant="ghost" size="icon" asChild>
+						<a href="/admin/practice-packs">
+							<ArrowLeft className="size-4" />
+						</a>
+					</Button>
+					<h1 className="font-bold text-2xl sm:text-3xl">Practice Pack Detail</h1>
 				</div>
-			</main>
-		</div>
+
+				<div className="space-y-4 sm:space-y-6">
+					<PackInfoCard packId={packId} />
+
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<h2 className="font-semibold text-xl sm:text-2xl">Questions</h2>
+						<div className="flex flex-col gap-2 sm:flex-row">
+							<Button onClick={() => setShowAddExisting(true)} variant="outline" className="text-xs sm:text-sm">
+								<MagnifyingGlass className="mr-2 size-3.5 sm:size-4" />
+								Add Existing
+							</Button>
+							<Button onClick={() => setShowCreateForm(true)} className="text-xs sm:text-sm">
+								<Plus className="mr-2 size-3.5 sm:size-4" />
+								Create New Question
+							</Button>
+						</div>
+					</div>
+
+					{showAddExisting && (
+						<AddExistingQuestionModal
+							practicePackId={packId}
+							existingQuestionIds={existingQuestionIds}
+							onClose={() => setShowAddExisting(false)}
+						/>
+					)}
+
+					{showCreateForm && (
+						<CreateQuestionForm
+							practicePackId={packId}
+							onSuccess={() => setShowCreateForm(false)}
+							onCancel={() => setShowCreateForm(false)}
+						/>
+					)}
+
+					<QuestionsList packId={packId} />
+				</div>
+			</div>
+		</main>
 	);
 }
 
@@ -183,7 +180,9 @@ function QuestionsList({ packId }: { packId: number }) {
 	const navigate = useNavigate();
 
 	const { data, isLoading } = useQuery(
-		orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } }),
+		orpc.admin.practicePack.getPackQuestions.queryOptions({
+			input: { id: packId },
+		}),
 	);
 
 	const allQuestions = data?.questions || [];
@@ -461,7 +460,12 @@ function RemoveQuestionButton({
 	question,
 }: {
 	packId: number;
-	question: { id: number; content: string; discussion: string; order: number | null };
+	question: {
+		id: number;
+		content: string;
+		discussion: string;
+		order: number | null;
+	};
 }) {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
@@ -470,7 +474,11 @@ function RemoveQuestionButton({
 		orpc.admin.practicePack.removeQuestionFromPack.mutationOptions({
 			onSuccess: () => {
 				toast.success("Question removed from pack");
-				queryClient.invalidateQueries(orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: packId } }));
+				queryClient.invalidateQueries(
+					orpc.admin.practicePack.getPackQuestions.queryOptions({
+						input: { id: packId },
+					}),
+				);
 				setDeleteDialogOpen(false);
 			},
 			onError: (error) => {

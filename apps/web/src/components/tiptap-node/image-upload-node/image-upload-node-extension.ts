@@ -46,7 +46,7 @@ export interface ImageUploadNodeOptions {
 	 * @default {}
 	 * @example { class: 'foo' }
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// biome-ignore lint/suspicious/noExplicitAny: HTMLAttributes can contain any valid HTML attribute
 	HTMLAttributes: Record<string, any>;
 }
 

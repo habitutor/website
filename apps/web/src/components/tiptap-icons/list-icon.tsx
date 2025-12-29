@@ -13,6 +13,7 @@ export const ListIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Bullet List</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

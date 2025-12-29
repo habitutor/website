@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import YouTubePlayer from "@/components/youtube-player";
 import { orpc } from "@/utils/orpc";
@@ -10,12 +11,34 @@ export const Route = createFileRoute("/_authenticated/classes/$shortName/$conten
 
 function RouteComponent() {
 	const { contentId } = Route.useParams();
+	const queryClient = useQueryClient();
 
 	const content = useQuery(
 		orpc.subtest.getContentById.queryOptions({
 			input: { contentId: Number(contentId) },
 		}),
 	);
+
+	const updateProgressMutation = useMutation(
+		orpc.subtest.updateProgress.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.subtest.getProgressStats.key(),
+				});
+			},
+		}),
+	);
+
+	// Update progress when video is viewed
+	useEffect(() => {
+		if (content.data?.video) {
+			updateProgressMutation.mutate({
+				id: Number(contentId),
+				videoCompleted: true,
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [content.data?.video, contentId, updateProgressMutation.mutate]);
 
 	if (content.isPending) {
 		return <p className="animate-pulse text-sm">Memuat video...</p>;
@@ -41,12 +64,6 @@ function RouteComponent() {
 			<div className="aspect-video w-full">
 				<YouTubePlayer videoId={videoId} />
 			</div>
-			<h2 className="font-semibold text-lg">{video.title ?? content.data.title}</h2>
-
-			<div className="aspect-video w-full">
-				<YouTubePlayer videoId={videoId} />
-			</div>
-			<h2 className="font-semibold text-lg">{video.title ?? content.data.title}</h2>
 
 			<hr />
 

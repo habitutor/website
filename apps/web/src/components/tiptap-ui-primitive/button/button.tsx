@@ -23,7 +23,7 @@ export const ShortcutDisplay: React.FC<{ shortcuts: string[] }> = ({ shortcuts }
 	return (
 		<div>
 			{shortcuts.map((key, index) => (
-				<Fragment key={index}>
+				<Fragment key={`${key}-${index.toString()}`}>
 					{index > 0 && <kbd>+</kbd>}
 					<kbd>{key}</kbd>
 				</Fragment>
@@ -61,21 +61,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export const ButtonGroup = forwardRef<
-	HTMLDivElement,
-	React.ComponentProps<"div"> & {
+	HTMLFieldSetElement,
+	React.ComponentProps<"fieldset"> & {
 		orientation?: "horizontal" | "vertical";
 	}
 >(({ className, children, orientation = "vertical", ...props }, ref) => {
 	return (
-		<div
-			ref={ref}
-			className={cn("tiptap-button-group", className)}
-			data-orientation={orientation}
-			role="group"
-			{...props}
-		>
+		<fieldset ref={ref} className={cn("tiptap-button-group", className)} data-orientation={orientation} {...props}>
 			{children}
-		</div>
+		</fieldset>
 	);
 });
 ButtonGroup.displayName = "ButtonGroup";

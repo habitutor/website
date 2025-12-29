@@ -5,7 +5,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AdminSidebar } from "@/components/admin/sidebar";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -166,58 +165,28 @@ function QuestionEditPage() {
 
 	if (Number.isNaN(questionId)) {
 		return (
-			<div className="flex min-h-screen">
-				<AdminSidebar />
-				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
-					<p className="text-destructive">Invalid question ID</p>
-				</main>
-			</div>
+			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+				<p className="text-destructive">Invalid question ID</p>
+			</main>
 		);
 	}
 
 	if (isLoading) {
 		return (
-			<div className="flex min-h-screen">
-				<AdminSidebar />
-				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
-					<div className="mx-auto max-w-4xl">
-						<Skeleton className="mb-6 h-10 w-64" />
-						<Skeleton className="h-96 w-full" />
-					</div>
-				</main>
-			</div>
+			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+				<div className="mx-auto max-w-4xl">
+					<Skeleton className="mb-6 h-10 w-64" />
+					<Skeleton className="h-96 w-full" />
+				</div>
+			</main>
 		);
 	}
 
 	if (!question) {
 		return (
-			<div className="flex min-h-screen">
-				<AdminSidebar />
-				<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
-					<div className="mx-auto max-w-4xl">
-						<div className="mb-6 flex items-center gap-4">
-							<a href="/admin/questions">
-								<Button variant="ghost" size="icon">
-									<ArrowLeft className="size-4" />
-								</Button>
-							</a>
-							<h1 className="font-bold text-2xl sm:text-3xl">Edit Question</h1>
-						</div>
-						<p className="text-destructive">Question not found</p>
-					</div>
-				</main>
-			</div>
-		);
-	}
-
-	const isSubmitting = updateQuestionMutation.isPending || updateAnswerMutation.isPending;
-
-	return (
-		<div className="flex min-h-screen">
-			<AdminSidebar />
 			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-4xl">
-					<div className="mb-4 flex items-center gap-4 sm:mb-6">
+					<div className="mb-6 flex items-center gap-4">
 						<a href="/admin/questions">
 							<Button variant="ghost" size="icon">
 								<ArrowLeft className="size-4" />
@@ -225,109 +194,127 @@ function QuestionEditPage() {
 						</a>
 						<h1 className="font-bold text-2xl sm:text-3xl">Edit Question</h1>
 					</div>
+					<p className="text-destructive">Question not found</p>
+				</div>
+			</main>
+		);
+	}
 
-					<Card className="rounded-xl shadow-sm">
-						<CardHeader className="p-4 sm:p-6">
-							<CardTitle className="text-lg sm:text-xl">Question Details</CardTitle>
-						</CardHeader>
-						<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									form.handleSubmit();
-								}}
-								className="space-y-6"
-							>
-								<form.Field name="content">
-									{(field) => (
-										<div>
-											<Label htmlFor="content">Question Content *</Label>
-											<Input
-												id="content"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												placeholder="Enter the question"
-												className="mt-2"
-											/>
-										</div>
-									)}
-								</form.Field>
+	const isSubmitting = updateQuestionMutation.isPending || updateAnswerMutation.isPending;
 
-								<form.Field name="discussion">
-									{(field) => (
-										<div>
-											<Label htmlFor="discussion">Discussion / Explanation *</Label>
-											<Input
-												id="discussion"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												placeholder="Explain the answer"
-												className="mt-2"
-											/>
-										</div>
-									)}
-								</form.Field>
+	return (
+		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+			<div className="mx-auto max-w-4xl">
+				<div className="mb-4 flex items-center gap-4 sm:mb-6">
+					<a href="/admin/questions">
+						<Button variant="ghost" size="icon">
+							<ArrowLeft className="size-4" />
+						</Button>
+					</a>
+					<h1 className="font-bold text-2xl sm:text-3xl">Edit Question</h1>
+				</div>
 
-								<div>
-									<h3 className="mb-4 font-medium">Answer Options *</h3>
-									<div className="space-y-3">
-										{answerCodes.map((code) => (
-											<div key={code} className="flex items-start gap-3">
-												<div className="mt-2 flex items-center gap-2">
-													<span className="font-medium text-sm">{code}.</span>
-													<form.Field name={`answers.${code}.isCorrect`}>
-														{(field) => (
-															<Checkbox
-																checked={field.state.value}
-																onCheckedChange={(checked) => field.handleChange(!!checked)}
-															/>
-														)}
-													</form.Field>
-												</div>
-												<form.Field name={`answers.${code}.content`}>
+				<Card className="rounded-xl shadow-sm">
+					<CardHeader className="p-4 sm:p-6">
+						<CardTitle className="text-lg sm:text-xl">Question Details</CardTitle>
+					</CardHeader>
+					<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								form.handleSubmit();
+							}}
+							className="space-y-6"
+						>
+							<form.Field name="content">
+								{(field) => (
+									<div>
+										<Label htmlFor="content">Question Content *</Label>
+										<Input
+											id="content"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											placeholder="Enter the question"
+											className="mt-2"
+										/>
+									</div>
+								)}
+							</form.Field>
+
+							<form.Field name="discussion">
+								{(field) => (
+									<div>
+										<Label htmlFor="discussion">Discussion / Explanation *</Label>
+										<Input
+											id="discussion"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											placeholder="Explain the answer"
+											className="mt-2"
+										/>
+									</div>
+								)}
+							</form.Field>
+
+							<div>
+								<h3 className="mb-4 font-medium">Answer Options *</h3>
+								<div className="space-y-3">
+									{answerCodes.map((code) => (
+										<div key={code} className="flex items-start gap-3">
+											<div className="mt-2 flex items-center gap-2">
+												<span className="font-medium text-sm">{code}.</span>
+												<form.Field name={`answers.${code}.isCorrect`}>
 													{(field) => (
-														<Input
-															value={field.state.value}
-															onChange={(e) => field.handleChange(e.target.value)}
-															placeholder={`Option ${code}`}
-															className="flex-1"
+														<Checkbox
+															checked={field.state.value}
+															onCheckedChange={(checked) => field.handleChange(!!checked)}
 														/>
 													)}
 												</form.Field>
 											</div>
-										))}
-									</div>
-									<p className="mt-2 text-muted-foreground text-xs">Check the box to mark as correct answer</p>
+											<form.Field name={`answers.${code}.content`}>
+												{(field) => (
+													<Input
+														value={field.state.value}
+														onChange={(e) => field.handleChange(e.target.value)}
+														placeholder={`Option ${code}`}
+														className="flex-1"
+													/>
+												)}
+											</form.Field>
+										</div>
+									))}
 								</div>
+								<p className="mt-2 text-muted-foreground text-xs">Check the box to mark as correct answer</p>
+							</div>
 
-								<div className="flex gap-2">
-									<Button type="submit" disabled={isSubmitting} className="flex-1">
-										{isSubmitting ? (
-											<>
-												<Loader />
-												Saving...
-											</>
-										) : (
-											"Save Changes"
-										)}
-									</Button>
-									<Button
-										type="button"
-										variant="outline"
-										onClick={() => {
-											window.location.href = "/admin/questions";
-										}}
-									>
-										Cancel
-									</Button>
-								</div>
-							</form>
-						</CardContent>
-					</Card>
-				</div>
-			</main>
-		</div>
+							<div className="flex gap-2">
+								<Button type="submit" disabled={isSubmitting} className="flex-1">
+									{isSubmitting ? (
+										<>
+											<Loader />
+											Saving...
+										</>
+									) : (
+										"Save Changes"
+									)}
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => {
+										window.location.href = "/admin/questions";
+									}}
+								>
+									Cancel
+								</Button>
+							</div>
+						</form>
+					</CardContent>
+				</Card>
+			</div>
+		</main>
 	);
 }

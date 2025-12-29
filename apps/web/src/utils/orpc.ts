@@ -10,45 +10,45 @@ import { toast } from "sonner";
 const serializer = new StandardRPCJsonSerializer();
 
 export const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: (error) => {
-      if (isDefinedError(error))
-        toast.error(`${error}`, {
-          action: {
-            label: "Retry",
-            onClick: () => {
-              queryClient.invalidateQueries();
-            },
-          },
-        });
-      else
-        toast.error("An unexpected error occurred", {
-          description: error.message,
-        });
-    },
-  }),
-  defaultOptions: {
-    queries: {
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      queryKeyHashFn(queryKey) {
-        const [json, meta] = serializer.serialize(queryKey);
-        return JSON.stringify({ json, meta });
-      },
-      staleTime: 60 * 1000,
-    },
-    dehydrate: {
-      serializeData(data) {
-        const [json, meta] = serializer.serialize(data);
-        return { json, meta };
-      },
-    },
-    hydrate: {
-      deserializeData(data) {
-        return serializer.deserialize(data.json, data.meta);
-      },
-    },
-  },
+	queryCache: new QueryCache({
+		onError: (error) => {
+			if (isDefinedError(error))
+				toast.error(`${error}`, {
+					action: {
+						label: "Retry",
+						onClick: () => {
+							queryClient.invalidateQueries();
+						},
+					},
+				});
+			else
+				toast.error("An unexpected error occurred", {
+					description: error.message,
+				});
+		},
+	}),
+	defaultOptions: {
+		queries: {
+			retry: 3,
+			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+			queryKeyHashFn(queryKey) {
+				const [json, meta] = serializer.serialize(queryKey);
+				return JSON.stringify({ json, meta });
+			},
+			staleTime: 60 * 1000,
+		},
+		dehydrate: {
+			serializeData(data) {
+				const [json, meta] = serializer.serialize(data);
+				return { json, meta };
+			},
+		},
+		hydrate: {
+			deserializeData(data) {
+				return serializer.deserialize(data.json, data.meta);
+			},
+		},
+	},
 });
 
 const client: RouterClient<typeof appRouter> = createORPCClient(

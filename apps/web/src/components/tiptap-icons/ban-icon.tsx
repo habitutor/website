@@ -13,6 +13,7 @@ export const BanIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Ban</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

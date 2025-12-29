@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function CallToAction() {
 	return (
-		<div className="container mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 py-2 pt-40 text-center">
+		<div className="container mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 py-2 pt-40 pb-26 text-center">
 			<h2 className="font-bold font-sans text-5xl">
 				Kamu Punya <span className="text-primary-300">Potensi</span>,<br />
 				Kami Punya <span className="text-primary-300">Strateginya</span>!

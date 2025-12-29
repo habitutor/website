@@ -1,4 +1,5 @@
 import { db } from "@habitutor/db";
+import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import {
 	contentItem,
 	contentPracticeQuestions,
@@ -112,7 +113,6 @@ const getContentById = authed
 				subtestId: contentItem.subtestId,
 
 				videoId: videoMaterial.id,
-				videoTitle: videoMaterial.title,
 				videoUrl: videoMaterial.videoUrl,
 				videoContent: videoMaterial.content,
 
@@ -129,14 +129,66 @@ const getContentById = authed
 			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
 		}
 
-		const practiceQuestions = await db
+		// Get practice questions with full question and answer data
+		const practiceQuestionsRows = await db
 			.select({
 				questionId: contentPracticeQuestions.questionId,
 				order: contentPracticeQuestions.order,
+				questionContent: question.content,
+				questionDiscussion: question.discussion,
+				answerId: questionAnswerOption.id,
+				answerContent: questionAnswerOption.content,
+				answerCode: questionAnswerOption.code,
+				answerIsCorrect: questionAnswerOption.isCorrect,
 			})
 			.from(contentPracticeQuestions)
+			.innerJoin(question, eq(question.id, contentPracticeQuestions.questionId))
+			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
 			.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
-			.orderBy(contentPracticeQuestions.order);
+			.orderBy(contentPracticeQuestions.order, questionAnswerOption.code);
+
+		// Group questions and their answers
+		const questionMap = new Map<
+			number,
+			{
+				questionId: number;
+				order: number;
+				question: string;
+				discussion: string;
+				answers: Array<{
+					id: number;
+					content: string;
+					code: string;
+					isCorrect: boolean;
+				}>;
+			}
+		>();
+
+		for (const row of practiceQuestionsRows) {
+			if (!questionMap.has(row.questionId)) {
+				questionMap.set(row.questionId, {
+					questionId: row.questionId,
+					order: row.order,
+					question: row.questionContent,
+					discussion: row.questionDiscussion,
+					answers: [],
+				});
+			}
+			questionMap.get(row.questionId)?.answers.push({
+				id: row.answerId,
+				content: row.answerContent,
+				code: row.answerCode,
+				isCorrect: row.answerIsCorrect,
+			});
+		}
+
+		// Sort questions by order and answers by code
+		const questions = Array.from(questionMap.values())
+			.map((q) => ({
+				...q,
+				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
+			}))
+			.sort((a, b) => a.order - b.order);
 
 		return {
 			id: row.id,
@@ -146,7 +198,6 @@ const getContentById = authed
 			video: row.videoId
 				? {
 						id: row.videoId,
-						title: row.videoTitle,
 						videoUrl: row.videoUrl,
 						content: row.videoContent,
 					}
@@ -158,9 +209,9 @@ const getContentById = authed
 					}
 				: null,
 			practiceQuestions:
-				practiceQuestions.length > 0
+				questions.length > 0
 					? {
-							questions: practiceQuestions,
+							questions,
 						}
 					: null,
 		};
@@ -191,23 +242,52 @@ const trackView = authed
 				message: "Konten tidak ditemukan",
 			});
 
-		// Insert new view
-		await db.insert(recentContentView).values({
-			userId: context.session.user.id,
-			contentItemId: input.id,
+		await db.transaction(async (tx) => {
+			await tx
+				.delete(recentContentView)
+				.where(
+					and(eq(recentContentView.userId, context.session.user.id), eq(recentContentView.contentItemId, input.id)),
+				);
+
+			await tx.insert(recentContentView).values({
+				userId: context.session.user.id,
+				contentItemId: input.id,
+			});
+
+			const allViews = await tx
+				.select({
+					id: recentContentView.id,
+					contentItemId: recentContentView.contentItemId,
+					viewedAt: recentContentView.viewedAt,
+				})
+				.from(recentContentView)
+				.where(eq(recentContentView.userId, context.session.user.id))
+				.orderBy(desc(recentContentView.viewedAt));
+
+			const contentMap = new Map<number, (typeof allViews)[0]>();
+			const duplicateIds: number[] = [];
+
+			for (const view of allViews) {
+				if (contentMap.has(view.contentItemId)) {
+					duplicateIds.push(view.id);
+				} else {
+					contentMap.set(view.contentItemId, view);
+				}
+			}
+
+			if (duplicateIds.length > 0) {
+				await tx.delete(recentContentView).where(inArray(recentContentView.id, duplicateIds));
+			}
+
+			const uniqueViews = Array.from(contentMap.values())
+				.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime())
+				.slice(5);
+
+			if (uniqueViews.length > 0) {
+				const idsToDelete = uniqueViews.map((v) => v.id);
+				await tx.delete(recentContentView).where(inArray(recentContentView.id, idsToDelete));
+			}
 		});
-
-		// Keep only last 5 views
-		const allViews = await db
-			.select({ id: recentContentView.id })
-			.from(recentContentView)
-			.where(eq(recentContentView.userId, context.session.user.id))
-			.orderBy(desc(recentContentView.viewedAt));
-
-		if (allViews.length > 5) {
-			const toDelete = allViews.slice(5).map((v) => v.id);
-			await db.delete(recentContentView).where(inArray(recentContentView.id, toDelete));
-		}
 
 		return { message: "Berhasil mencatat aktivitas" };
 	});
@@ -223,6 +303,37 @@ const getRecentViews = authed
 		tags: ["Content"],
 	})
 	.handler(async ({ context }) => {
+		const allViewsForCleanup = await db
+			.select({
+				id: recentContentView.id,
+				contentItemId: recentContentView.contentItemId,
+				viewedAt: recentContentView.viewedAt,
+			})
+			.from(recentContentView)
+			.where(eq(recentContentView.userId, context.session.user.id))
+			.orderBy(desc(recentContentView.viewedAt));
+
+		const contentMap = new Map<number, (typeof allViewsForCleanup)[0]>();
+		const duplicateIds: number[] = [];
+
+		for (const view of allViewsForCleanup) {
+			if (contentMap.has(view.contentItemId)) {
+				duplicateIds.push(view.id);
+			} else {
+				contentMap.set(view.contentItemId, view);
+			}
+		}
+
+		if (duplicateIds.length > 0) {
+			await db.delete(recentContentView).where(inArray(recentContentView.id, duplicateIds));
+		}
+
+		const uniqueContentIds = Array.from(contentMap.values()).map((v) => v.contentItemId);
+
+		if (uniqueContentIds.length === 0) {
+			return [];
+		}
+
 		const views = await db
 			.select({
 				viewedAt: recentContentView.viewedAt,
@@ -232,15 +343,46 @@ const getRecentViews = authed
 				subtestId: subtest.id,
 				subtestName: subtest.name,
 				subtestShortName: subtest.shortName,
+				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
+				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
+				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
 			})
 			.from(recentContentView)
 			.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))
 			.innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
-			.where(eq(recentContentView.userId, context.session.user.id))
-			.orderBy(desc(recentContentView.viewedAt))
-			.limit(5);
+			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
+			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
+			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
+			.where(and(eq(recentContentView.userId, context.session.user.id), inArray(contentItem.id, uniqueContentIds)))
+			.groupBy(
+				recentContentView.viewedAt,
+				contentItem.id,
+				contentItem.title,
+				contentItem.type,
+				subtest.id,
+				subtest.name,
+				subtest.shortName,
+				videoMaterial.id,
+				noteMaterial.id,
+				contentPracticeQuestions.contentItemId,
+			)
+			.orderBy(desc(recentContentView.viewedAt));
 
-		return views;
+		const finalMap = new Map<number, (typeof views)[0]>();
+		for (const view of views) {
+			if (!finalMap.has(view.contentId)) {
+				finalMap.set(view.contentId, view);
+			} else {
+				const existing = finalMap.get(view.contentId)!;
+				if (new Date(view.viewedAt).getTime() > new Date(existing.viewedAt).getTime()) {
+					finalMap.set(view.contentId, view);
+				}
+			}
+		}
+
+		return Array.from(finalMap.values())
+			.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime())
+			.slice(0, 5);
 	});
 
 /**
@@ -263,7 +405,6 @@ const updateProgress = authed
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input, context }) => {
-		// Verify content exists
 		const [item] = await db
 			.select({ id: contentItem.id })
 			.from(contentItem)
@@ -275,7 +416,6 @@ const updateProgress = authed
 				message: "Konten tidak ditemukan",
 			});
 
-		// Prepare update data
 		const updateData: {
 			videoCompleted?: boolean;
 			noteCompleted?: boolean;
@@ -292,7 +432,6 @@ const updateProgress = authed
 		if (input.practiceQuestionsCompleted !== undefined)
 			updateData.practiceQuestionsCompleted = input.practiceQuestionsCompleted;
 
-		// Upsert progress
 		await db
 			.insert(userProgress)
 			.values({
@@ -308,6 +447,29 @@ const updateProgress = authed
 		return { message: "Progress berhasil disimpan" };
 	});
 
+/**
+ * Get user progress statistics
+ * GET /api/content/progress/stats
+ */
+const getProgressStats = authed
+	.route({
+		path: "/content/progress/stats",
+		method: "GET",
+		tags: ["Content"],
+	})
+	.handler(async ({ context }) => {
+		const [stats] = await db
+			.select({
+				materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,
+			})
+			.from(userProgress)
+			.where(eq(userProgress.userId, context.session.user.id));
+
+		return {
+			materialsCompleted: Number(stats?.materialsCompleted ?? 0),
+		};
+	});
+
 export const subtestRouter = {
 	listSubtests,
 	listContentByCategory,
@@ -315,4 +477,5 @@ export const subtestRouter = {
 	trackView,
 	getRecentViews,
 	updateProgress,
+	getProgressStats,
 };

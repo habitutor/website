@@ -1,4 +1,4 @@
-import { House, List, Package, Question, SignOut, X } from "@phosphor-icons/react";
+import { BooksIcon, House, List, Package, Question, SignOut, UserSwitchIcon, X } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -31,6 +31,11 @@ const adminNavLinks = [
 		name: "Questions",
 		to: "/admin/questions" as const,
 		icon: Question,
+	},
+	{
+		name: "Classes",
+		to: "/admin/classes" as const,
+		icon: BooksIcon,
 	},
 ];
 
@@ -98,6 +103,18 @@ export function AdminSidebar() {
 							</Button>
 						);
 					})}
+					<Button
+						variant="ghost"
+						size="default"
+						onClick={() => setMobileMenuOpen(false)}
+						asChild
+						className="mt-auto mb-0 justify-start"
+					>
+						<a href="/dashboard">
+							<UserSwitchIcon className="size-5" />
+							User Dashboard
+						</a>
+					</Button>
 				</nav>
 
 				<div className="border-t p-4">

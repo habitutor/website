@@ -13,6 +13,7 @@ export const SubscriptIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Subscript</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

@@ -46,7 +46,7 @@ function StarterCard({ data }: { data: typeof DATA.pricing.starter }) {
 
 function PremiumCard({ data }: { data: typeof DATA.pricing.premium }) {
 	return (
-		<div className="relative rounded-2xl bg-blue-700 p-6 text-white shadow-sm">
+		<div className="rounded-2xl bg-blue-700 p-6 text-white shadow-sm">
 			<h3 className="font-medium text-sm">{data.label}</h3>
 			<p className="font-bold text-2xl text-yellow-300">
 				{data.price}

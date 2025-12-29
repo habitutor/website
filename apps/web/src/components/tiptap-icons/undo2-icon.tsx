@@ -13,6 +13,7 @@ export const Undo2Icon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Undo</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

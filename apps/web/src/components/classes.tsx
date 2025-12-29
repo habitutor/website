@@ -4,6 +4,8 @@ import {
 	ArrowUpIcon,
 	CaretRightIcon,
 	ExamIcon,
+	EyeIcon,
+	EyeSlashIcon,
 	NoteIcon,
 	PencilSimpleIcon,
 	PlayCircleIcon,
@@ -12,8 +14,11 @@ import {
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import * as m from "motion/react-m";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import type { BodyOutputs } from "@/utils/orpc";
@@ -172,7 +177,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 						alt={`${subtest?.name} Avatar`}
 						width={260}
 						height={260}
-						className="absolute right-0 left-0 size-[360px] select-none object-cover sm:bottom-0 sm:translate-y-[55%]"
+						className="absolute right-0 left-0 size-[360px] select-none object-cover sm:bottom-0 sm:translate-x-1/6 sm:translate-y-[55%]"
 					/>
 				</div>
 			</div>
@@ -182,12 +187,18 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 
 type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
 
+type ContentActionItem = {
+	hasVideo: boolean;
+	hasNote: boolean;
+	hasPracticeQuestions: boolean;
+};
+
 const CONTENT_ACTIONS = [
 	{
 		key: "video",
 		label: "Video Materi",
 		icon: PlayCircleIcon,
-		enabled: (i: ContentListItem) => i.hasVideo,
+		enabled: (i: ContentActionItem) => i.hasVideo,
 		className: "bg-primary-300 text-white",
 		width: "w-fit",
 	},
@@ -195,7 +206,7 @@ const CONTENT_ACTIONS = [
 		key: "notes",
 		label: "Catatan Materi",
 		icon: NoteIcon,
-		enabled: (i: ContentListItem) => i.hasNote,
+		enabled: (i: ContentActionItem) => i.hasNote,
 		className: "bg-secondary-300 text-neutral-1000",
 		width: "w-fit",
 	},
@@ -203,7 +214,7 @@ const CONTENT_ACTIONS = [
 		key: "latihan-soal",
 		label: "Latihan Soal",
 		icon: ExamIcon,
-		enabled: (i: ContentListItem) => i.hasPracticeQuestions,
+		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
 		className: "bg-tertiary-200 text-neutral-1000",
 		width: "w-fit",
 	},
@@ -331,6 +342,78 @@ function ContentCard({
 	);
 }
 
+type LastContentViewedItem = ContentActionItem & {
+	id: number;
+	title: string;
+};
+
+export function LastContentViewedCard({
+	item,
+	index,
+	shortName: shortNameProp,
+}: {
+	item: LastContentViewedItem;
+	index: number;
+	shortName?: string;
+}) {
+	const isAdmin = useIsAdmin();
+	const location = useLocation();
+	const basePath = isAdmin ? "/admin/classes" : "/classes";
+	const shortNameIndex = isAdmin ? 3 : 2;
+	const shortNameFromPath = location.pathname.split("/")[shortNameIndex];
+	const shortName = shortNameProp || shortNameFromPath;
+
+	const params = {
+		shortName: shortName.toLowerCase(),
+		contentId: item.id.toString(),
+	};
+
+	return (
+		<Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
+			{/* Header */}
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				{/* Left: badge + title */}
+				<div className="flex items-start gap-3">
+					<div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border border-neutral-200">
+						<p className="font-medium text-[12px] text-primary-300">{index + 1}</p>
+					</div>
+
+					<p className="font-medium text-[18px] text-neutral-1000 sm:text-[20px]">{item.title}</p>
+				</div>
+
+				{/* Right: label + admin actions */}
+				<div className="flex items-center gap-2 sm:flex-col sm:items-end">
+					{shortName && <span className="text-muted-foreground text-xs">{shortName}</span>}
+				</div>
+			</div>
+
+			{/* Actions */}
+			<div className="flex gap-3 overflow-x-auto">
+				{CONTENT_ACTIONS.map(
+					({ key, label, icon: Icon, enabled, className, width }) =>
+						enabled(item) && (
+							<Link
+								key={key}
+								to={`${basePath}/$shortName/$contentId/${key}`}
+								params={params}
+								className={cn(
+									"flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
+									"w-full sm:w-auto",
+									className,
+									width,
+								)}
+							>
+								<Icon size={18} weight="bold" />
+								<span className="whitespace-nowrap font-medium text-[14px]">{label}</span>
+								<CaretRightIcon size={18} className="ml-auto" weight="bold" />
+							</Link>
+						),
+				)}
+			</div>
+		</Card>
+	);
+}
+
 export function ContentList({
 	title,
 	items,
@@ -395,7 +478,7 @@ export function ContentList({
 	);
 }
 
-export function PracticeQuestionHeader() {
+export function PracticeQuestionHeader({ content }: { content: string }) {
 	return (
 		<div className="relative overflow-hidden bg-tertiary-200">
 			{/* Ellipse background (dekoratif): center vertically, stick to the right, with some overflow */}
@@ -406,8 +489,73 @@ export function PracticeQuestionHeader() {
 
 			{/* Main content (penentu height) */}
 			<div className="relative flex items-center gap-6 px-6 py-4" style={{ zIndex: 1 }}>
-				<h1 className="font-medium text-neutral-1000 text-xl">Latihan Soal!</h1>
+				<h1 className="font-medium text-neutral-1000 text-xl">{content}</h1>
 			</div>
+		</div>
+	);
+}
+
+export function AnswerCollapsible({
+	children,
+	title = "Jawaban",
+	defaultOpen = false,
+}: {
+	children: React.ReactNode;
+	title?: string;
+	defaultOpen?: boolean;
+}) {
+	const [isOpen, setIsOpen] = useState(defaultOpen);
+
+	return (
+		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
+			<CollapsibleTrigger className="group flex items-center gap-2 transition-opacity hover:opacity-80">
+				<p className="font-medium">{title}</p>
+				{isOpen ? <EyeIcon className="size-4" /> : <EyeSlashIcon className="size-4" />}
+			</CollapsibleTrigger>
+			<CollapsibleContent className="mt-2 overflow-hidden">
+				<m.div
+					initial={{ opacity: 0, y: -10 }}
+					animate={isOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
+					exit={{ opacity: 0, y: -10 }}
+					transition={{ duration: 0.3, ease: "easeInOut" }}
+				>
+					{children}
+				</m.div>
+			</CollapsibleContent>
+		</Collapsible>
+	);
+}
+
+export function PracticeQuestion({
+	questionNumber,
+	totalQuestions,
+	question,
+	answer,
+	answerTitle = "Jawaban",
+}: {
+	questionNumber: number;
+	totalQuestions: number;
+	question: React.ReactNode;
+	answer: React.ReactNode;
+	answerTitle?: string;
+}) {
+	return (
+		<div className="space-y-4">
+			{/* Soal */}
+			<div className="flex flex-col rounded-md border border-neutral-200 p-4">
+				<div className="flex space-x-4">
+					<div className="w-fit rounded-sm border border-neutral-200 px-4 py-2">Soal</div>
+					<div className="w-fit rounded-sm border border-neutral-200 px-4 py-2">
+						{questionNumber}/{totalQuestions}
+					</div>
+				</div>
+				<div>{question}</div>
+			</div>
+
+			{/* Jawaban */}
+			<AnswerCollapsible title={answerTitle}>
+				<div className="text-muted-foreground text-sm">{answer}</div>
+			</AnswerCollapsible>
 		</div>
 	);
 }

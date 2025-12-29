@@ -13,6 +13,7 @@ export const AlignJustifyIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Align Justify</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

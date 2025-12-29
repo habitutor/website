@@ -13,6 +13,7 @@ export const CodeBlockIcon = memo(({ className, ...props }: SvgProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
+			<title>Code Block</title>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

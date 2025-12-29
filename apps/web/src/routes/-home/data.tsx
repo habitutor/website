@@ -1,3 +1,5 @@
+import { InstagramLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react";
+
 export const DATA = {
 	pricing: {
 		title: "Investasi Belajar yang Bikin Kamu Bertumbuh",
@@ -20,5 +22,19 @@ export const DATA = {
 			],
 			cta: "Langganan Sekarang",
 		},
+	},
+	footer: {
+		socials: [
+			{
+				label: "Instagram",
+				icon: InstagramLogoIcon,
+				url: "https://www.instagram.com/habitutor",
+			},
+			{
+				label: "Twitter",
+				icon: TwitterLogoIcon,
+				url: "https://www.twitter.com/habitutor",
+			},
+		],
 	},
 } as const;

@@ -48,7 +48,11 @@ export const auth = betterAuth({
 			},
 		},
 	},
-	trustedOrigins: [process.env.CORS_ORIGIN || "http://localhost:3000", "http://localhost:3000"],
+	trustedOrigins: [
+		process.env.CORS_ORIGIN || "http://localhost:3000",
+		"http://localhost:3000",
+		"https://habitutor.devino.me",
+	],
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url }) => {
@@ -87,10 +91,7 @@ export const auth = betterAuth({
 			sameSite: "none",
 			secure: true,
 			httpOnly: true,
-		},
-		crossSubDomainCookies: {
-			enabled: true,
-			domain: new URL(process.env.CORS_ORIGIN || "https://habitutor.id").hostname,
+			domain: process.env.NODE_ENV === "production" ? "devino.me" : undefined,
 		},
 	},
 });

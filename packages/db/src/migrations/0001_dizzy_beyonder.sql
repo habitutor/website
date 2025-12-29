@@ -1,0 +1,1 @@
+ALTER TABLE "video_material" DROP COLUMN "title";

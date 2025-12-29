@@ -20,15 +20,21 @@ export const UserProgress = () => {
 };
 
 const Material = () => {
+	const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
+
 	return (
 		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
 			<div className="z-10 space-y-0.5">
-				<h4 className="font-bold text-4xl sm:text-5xl">0</h4>
+				<h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
+					{!isPending ? (data?.materialsCompleted ?? 0) : "..."}
+				</h4>
 				<p className="font-bold">Materi Dipelajari</p>
 			</div>
 
-			<Button size="icon" className="z-10">
-				<ArrowRightIcon weight="bold" />
+			<Button size="icon" className="z-10" asChild>
+				<Link to="/classes">
+					<ArrowRightIcon weight="bold" />
+				</Link>
 			</Button>
 
 			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-blue-300" />
