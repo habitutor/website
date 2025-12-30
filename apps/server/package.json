@@ -10,16 +10,17 @@
 		"check-types": "bunx @typescript/native-preview@latest --noEmit"
 	},
 	"dependencies": {
-		"hono": "catalog:",
-		"@orpc/server": "catalog:",
-		"@orpc/openapi": "catalog:",
-		"@orpc/arktype": "catalog:",
-		"better-auth": "catalog:",
-		"dotenv": "catalog:",
-		"arktype": "catalog:",
 		"@habitutor/api": "workspace:*",
 		"@habitutor/auth": "workspace:*",
-		"@habitutor/db": "workspace:*"
+		"@habitutor/db": "workspace:*",
+		"@orpc/arktype": "catalog:",
+		"@orpc/openapi": "catalog:",
+		"@orpc/server": "catalog:",
+		"arktype": "catalog:",
+		"better-auth": "catalog:",
+		"dotenv": "catalog:",
+		"hono": "catalog:",
+		"midtrans-client": "catalog:"
 	},
 	"devDependencies": {
 		"typescript": "catalog:",

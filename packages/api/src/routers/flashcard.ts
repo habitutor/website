@@ -58,7 +58,7 @@ const start = authed
 					answerOptions: true,
 				},
 				orderBy: sql`RANDOM()`,
-				limit: 5,
+				limit: 20,
 			});
 
 			if (availableQuestions.length < 5)
@@ -119,11 +119,6 @@ const get = authed
 
 		if (!attempt) return { status };
 		status = attempt.submittedAt ? "submitted" : "ongoing";
-		console.log({
-			...attempt,
-			status,
-		});
-		console.log(context.session.user);
 
 		return {
 			...attempt,

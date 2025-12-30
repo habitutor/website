@@ -6,6 +6,7 @@ import { adminSubtestRouter } from "./admin/subtest";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
 import { subtestRouter } from "./subtest";
+import { transactionRouter } from "./transaction";
 
 export const appRouter = {
 	healthCheck: pub
@@ -25,6 +26,7 @@ export const appRouter = {
 		practicePack: adminPracticePackRouter,
 		subtest: adminSubtestRouter,
 	},
+	transaction: transactionRouter,
 };
 
 export type AppRouter = typeof appRouter;

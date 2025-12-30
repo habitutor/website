@@ -85,20 +85,23 @@ export const auth = betterAuth({
 	},
 	session: {
 		cookieCache: {
-			enabled: false,
+			enabled: true,
+			maxAge: 60,
 		},
 	},
 	secret: process.env.BETTER_AUTH_SECRET,
 	baseURL: process.env.BETTER_AUTH_URL,
 	advanced: {
 		defaultCookieAttributes: {
-			sameSite: "none",
-			secure: true,
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+			secure: process.env.NODE_ENV === "production",
 			httpOnly: true,
 		},
-		crossSubDomainCookies: {
-			enabled: true,
-			domain: cleanDomain(process.env.CORS_ORIGIN),
-		},
+		...(process.env.NODE_ENV === "production" && {
+			crossSubDomainCookies: {
+				enabled: true,
+				domain: cleanDomain(process.env.CORS_ORIGIN),
+			},
+		}),
 	},
 });

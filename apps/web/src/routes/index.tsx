@@ -9,20 +9,20 @@ import { Statistics } from "./-home/statistics";
 import Testimone from "./-home/testimone";
 
 export const Route = createFileRoute("/")({
-  component: HomeComponent,
+	component: HomeComponent,
 });
 
 function HomeComponent() {
-  return (
-    <>
-      <Header />
-      <Hero />
-      <Statistics />
-      <Testimone />
-      <Features />
-      <Pricing />
-      <CallToAction />
-      <Footer />
-    </>
-  );
+	return (
+		<>
+			<Header />
+			<Hero />
+			<Statistics />
+			<Testimone />
+			<Features />
+			<Pricing />
+			<CallToAction />
+			<Footer />
+		</>
+	);
 }
