@@ -20,5 +20,19 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	});
 });
 
+const requirePremium = o.middleware(({ context, next, errors }) => {
+	if (!context.session?.user.isPremium)
+		throw errors.FORBIDDEN({
+			message: "Akun premium dibutuhkan untuk mengakses resource ini.",
+		});
+
+	return next({
+		context: {
+			session: context.session,
+		},
+	});
+});
+
 export const authed = pub.use(requireAuth);
+export const premium = authed.use(requirePremium);
 export const admin = authed.use(requireAdmin);
