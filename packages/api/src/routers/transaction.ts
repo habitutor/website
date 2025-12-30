@@ -1,6 +1,12 @@
+import { db } from "@habitutor/db";
+import { user } from "@habitutor/db/schema/auth";
+import { transaction } from "@habitutor/db/schema/transaction";
 import { type } from "arktype";
+import { eq } from "drizzle-orm";
 import { Snap } from "midtrans-client";
-import { authed } from "..";
+import { authed, pub } from "..";
+
+const PREMIUM_PRICE = 15_000;
 
 const snap = new Snap({
 	isProduction: false,
@@ -8,9 +14,9 @@ const snap = new Snap({
 	clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
 });
 
-const create = authed
+const premium = authed
 	.route({
-		path: "/transactions",
+		path: "/transactions/premium",
 		method: "POST",
 		tags: ["Payment"],
 	})
@@ -22,10 +28,27 @@ const create = authed
 		}),
 	)
 	.handler(async ({ input, context }) => {
+		const grossAmount = String(PREMIUM_PRICE);
+		const orderId = String(input);
+		await db
+			.insert(transaction)
+			.values({
+				grossAmount: grossAmount,
+				userId: context.session.user.id,
+				type: "premium",
+				orderId: orderId,
+			})
+			.returning();
+
 		const params = {
 			transaction_details: {
 				order_id: String(input),
-				gross_amount: 1,
+				gross_amount: grossAmount,
+			},
+			item_details: {
+				price: PREMIUM_PRICE,
+				quantity: 1,
+				name: "Premium Access",
 			},
 			customer_details: {
 				first_name: context.session.user.name,
@@ -34,14 +57,92 @@ const create = authed
 			credit_card: { secure: true },
 		};
 
-		const transaction = await snap.createTransaction(params);
+		const snapTransaction = await snap.createTransaction(params);
+		console.log(snapTransaction);
 
 		return {
-			token: transaction.token,
-			redirectUrl: transaction.redirect_url,
+			token: snapTransaction.token,
+			redirectUrl: snapTransaction.redirect_url,
 		};
 	});
 
+const notification = pub
+	.route({
+		path: "/transactions/notification",
+		method: "POST",
+		tags: ["Payment"],
+	})
+	.input(type({} as Record<string, unknown>))
+	.handler(async ({ input }) => {
+		const statusResponse = await snap.transaction.notification(input);
+		const orderId = statusResponse.order_id;
+		const transactionStatus = statusResponse.transaction_status;
+		const fraudStatus = statusResponse.fraud_status;
+
+		console.log(
+			`Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`,
+		);
+
+		const existingTransaction = await db.select().from(transaction).where(eq(transaction.orderId, orderId)).limit(1);
+
+		if (existingTransaction.length === 0) {
+			console.error(`Transaction not found for order ID: ${orderId}`);
+			return { status: "not_found" };
+		}
+
+		const tx = existingTransaction[0]!;
+
+		if (tx.paidAt) {
+			console.log(`Transaction ${orderId} already processed`);
+			return { status: "already_processed" };
+		}
+
+		if (transactionStatus === "capture") {
+			if (fraudStatus === "accept") {
+				await db.transaction(async (trx) => {
+					await trx
+						.update(transaction)
+						.set({
+							status: "success",
+							paidAt: new Date(),
+						})
+						.where(eq(transaction.orderId, orderId));
+
+					await trx.update(user).set({ isPremium: true }).where(eq(user.id, tx.userId));
+				});
+			}
+		} else if (transactionStatus === "settlement") {
+			await db.transaction(async (trx) => {
+				await trx
+					.update(transaction)
+					.set({
+						status: "success",
+						paidAt: new Date(),
+					})
+					.where(eq(transaction.orderId, orderId));
+
+				await trx.update(user).set({ isPremium: true }).where(eq(user.id, tx.userId));
+			});
+		} else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
+			await db
+				.update(transaction)
+				.set({
+					status: "failed",
+				})
+				.where(eq(transaction.orderId, orderId));
+		} else if (transactionStatus === "pending") {
+			await db
+				.update(transaction)
+				.set({
+					status: "pending",
+				})
+				.where(eq(transaction.orderId, orderId));
+		}
+
+		return { status: "ok" };
+	});
+
 export const transactionRouter = {
-	create,
+	premium,
+	notification,
 };
