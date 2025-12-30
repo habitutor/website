@@ -1,6 +1,7 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { transaction } from "@habitutor/db/schema/transaction";
+import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { eq } from "drizzle-orm";
 import { Snap } from "midtrans-client";
@@ -28,12 +29,12 @@ const premium = authed
 		}),
 	)
 	.handler(async ({ input, context }) => {
-		const grossAmount = String(PREMIUM_PRICE);
+		const grossAmount = PREMIUM_PRICE;
 		const orderId = String(input);
 		await db
 			.insert(transaction)
 			.values({
-				grossAmount: grossAmount,
+				grossAmount: String(grossAmount),
 				userId: context.session.user.id,
 				type: "premium",
 				orderId: orderId,
@@ -58,7 +59,6 @@ const premium = authed
 		};
 
 		const snapTransaction = await snap.createTransaction(params);
-		console.log(snapTransaction);
 
 		return {
 			token: snapTransaction.token,
@@ -142,7 +142,31 @@ const notification = pub
 		return { status: "ok" };
 	});
 
+const getStatus = authed
+	.route({
+		path: "/transactions/status",
+		method: "GET",
+		tags: ["Payment"],
+	})
+	.input(type({ orderId: "string" }))
+	.handler(async ({ input }) => {
+		const tx = await db.select().from(transaction).where(eq(transaction.orderId, input.orderId)).limit(1);
+
+		if (!tx.length) {
+			throw new ORPCError("NOT_FOUND", {
+				message: "Transaction not found",
+			});
+		}
+
+		const row = tx[0]!;
+		return {
+			status: row.status,
+			paidAt: row.paidAt,
+		};
+	});
+
 export const transactionRouter = {
 	premium,
 	notification,
+	getStatus,
 };

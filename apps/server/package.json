@@ -7,12 +7,11 @@
 		"compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
 		"dev": "bun run --hot --port=3001 ./src/index.ts ",
 		"start": "bun ./dist/index.js",
-		"check-types": "bunx @typescript/native-preview@latest --noEmit"
+		"check-types": "bunx tsgo --noEmit"
 	},
 	"dependencies": {
 		"@habitutor/api": "workspace:*",
 		"@habitutor/auth": "workspace:*",
-		"@habitutor/db": "workspace:*",
 		"@orpc/arktype": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
