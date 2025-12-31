@@ -64,10 +64,9 @@ function RouteComponent() {
 	const [token, setToken] = useState<string | undefined>();
 
 	useEffect(() => {
-		const midtransScriptUrl =
-			import.meta.env.NODE_ENV === "production"
-				? "https://app.midtrans.com/snap/snap.js"
-				: "https://app.sandbox.midtrans.com/snap/snap.js";
+		const midtransScriptUrl = import.meta.env.PROD
+			? "https://app.midtrans.com/snap/snap.js"
+			: "https://app.sandbox.midtrans.com/snap/snap.js";
 		const scriptTag = document.createElement("script");
 		scriptTag.src = midtransScriptUrl;
 		const myMidtransClientKey = (process.env.MIDTRANS_CLIENT_KEY ?? import.meta.env.MIDTRANS_CLIENT_KEY) || "";
