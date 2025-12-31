@@ -7,11 +7,6 @@ import { Resend } from "resend";
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");
 
-const cleanDomain = (url?: string) => {
-	if (!url) return "habitutor.devino.me";
-	return url.replace(/^https?:\/\//, "").replace(/^www\./, "");
-};
-
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
@@ -63,9 +58,9 @@ export const auth = betterAuth({
 		},
 	},
 	trustedOrigins: [
-		process.env.CORS_ORIGIN || "https://habitutor.devino.me",
+		process.env.CORS_ORIGIN || "https://habitutor.id",
 		"http://localhost:3000",
-		"https://api.habitutor.devino.me",
+		"https://api.habitutor.id",
 	],
 	emailAndPassword: {
 		enabled: true,
@@ -109,7 +104,7 @@ export const auth = betterAuth({
 		...(process.env.NODE_ENV === "production" && {
 			crossSubDomainCookies: {
 				enabled: true,
-				domain: cleanDomain(process.env.CORS_ORIGIN),
+				domain: new URL(process.env.CORS_ORIGIN || "https://habitutor.id").hostname,
 			},
 		}),
 	},

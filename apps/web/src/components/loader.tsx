@@ -1,9 +1,33 @@
-import { CircleNotchIcon } from "@phosphor-icons/react";
+import { useMemo } from "react";
+
+const LOADING_TEXTS = [
+	"Sharpening pencils...",
+	"Brewing coffee for the brain cells...",
+	"Summoning the knowledge spirits...",
+	"Loading wisdom...",
+	"Organizing the library...",
+];
 
 export default function Loader() {
+	const text = useMemo(() => {
+		return LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)];
+	}, []);
+
 	return (
-		<div className="flex h-full items-center justify-center pt-8">
-			<CircleNotchIcon className="h-9 w-8 animate-spin text-gray-600" />
+		<div className="flex h-full w-full flex-col items-center justify-center gap-4 p-8">
+			<div className="flex items-center gap-2">
+				{[
+					{ color: "bg-primary", delay: "delay-0" },
+					{ color: "bg-secondary", delay: "delay-150" },
+					{ color: "bg-tertiary", delay: "delay-300" },
+				].map((dot, index) => (
+					<div
+						key={index}
+						className={`h-3.5 w-3.5 animate-bounce rounded-full ${dot.color} ${dot.delay}`}
+					/>
+				))}
+			</div>
+			<p className="text-muted-foreground animate-pulse text-sm font-medium">{text}</p>
 		</div>
 	);
 }

@@ -35,7 +35,7 @@ export function Features() {
 										src="/images/dashboard-page.webp"
 										alt="Habitutor Dashboard"
 										width={800}
-										aspectRatio={4 / 3}
+										height={600}
 										layout="constrained"
 										className="h-auto w-full rounded-lg border border-[#D2D2D2] md:w-lg"
 									/>
@@ -53,7 +53,7 @@ export function Features() {
 									src="/images/kelas-page.webp"
 									alt="Habitutor Kelas"
 									width={800}
-									aspectRatio={4 / 3}
+									height={600}
 									layout="constrained"
 									className="h-auto w-full rounded-lg border border-[#D2D2D2] md:w-lg"
 								/>

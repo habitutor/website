@@ -55,7 +55,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
 		const updateGap = () => {
 			const width = window.innerWidth;
-			let newGap = gap;
+			let newGap: number;
 
 			if (width < 640) {
 				// sm
@@ -213,7 +213,7 @@ const Carousel: React.FC<CarouselProps> = ({
 							type="button"
 							onClick={prevSlide}
 							disabled={isTransitioning}
-							className="absolute top-1/2 z-30 hidden -translate-x-49.5 -translate-y-1/2 rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 shadow transition-all duration-300 hover:scale-110 hover:bg-neutral-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 lg:flex xl:-translate-x-53.75"
+							className="absolute top-1/2 z-30 hidden -translate-x-49.5 -translate-y-1/2 rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 shadow transition-all duration-300 ease-out hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 lg:flex xl:-translate-x-53.75"
 						>
 							<ArrowLeftIcon size={24} />
 						</button>
@@ -221,7 +221,7 @@ const Carousel: React.FC<CarouselProps> = ({
 							type="button"
 							onClick={nextSlide}
 							disabled={isTransitioning}
-							className="absolute top-1/2 z-30 hidden translate-x-49.5 -translate-y-1/2 rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 shadow transition-all duration-300 hover:scale-110 hover:bg-neutral-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 lg:flex xl:translate-x-53.75"
+							className="absolute top-1/2 z-30 hidden translate-x-49.5 -translate-y-1/2 rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 shadow transition-all duration-300 ease-out hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 lg:flex xl:translate-x-53.75"
 						>
 							<ArrowRightIcon size={24} />
 						</button>
@@ -262,7 +262,7 @@ const Carousel: React.FC<CarouselProps> = ({
 							type="button"
 							onClick={prevSlide}
 							disabled={isTransitioning}
-							className="rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 transition-all duration-300 hover:scale-110 hover:bg-neutral-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+							className="z-30 rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 transition-all duration-300 hover:scale-110 hover:bg-neutral-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 						>
 							<ArrowLeftIcon size={24} />
 						</button>
@@ -271,7 +271,7 @@ const Carousel: React.FC<CarouselProps> = ({
 							type="button"
 							onClick={nextSlide}
 							disabled={isTransitioning}
-							className="rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 transition-all duration-300 hover:scale-110 hover:bg-neutral-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+							className="z-30 rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 transition-all duration-300 hover:scale-110 hover:bg-neutral-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 						>
 							<ArrowRightIcon size={24} />
 						</button>

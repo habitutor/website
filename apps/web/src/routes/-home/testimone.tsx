@@ -5,7 +5,7 @@ export default function Testimone() {
 	return (
 		<section className="overflow-x-clip">
 			<div className="container relative mx-auto my-20 flex w-full max-w-4xl flex-col overflow-visible px-4">
-				<main className="flex flex-col gap-y-32 rounded-2xl border border-neutral-200 bg-neutral-100 py-8">
+				<main className="flex flex-col gap-y-32 rounded-2xl border border-neutral-200 bg-neutral-100 px-4 py-8">
 					<div className="mb-4 text-center">
 						<h2 className="font-bold text-2xl">
 							Ruang Aman untuk <span className="text-primary-300">Bertanya & Tumbuh</span>
