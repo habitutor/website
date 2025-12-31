@@ -13,11 +13,12 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "bunx @typescript/native-preview@latest --noEmit"
+		"check-types": "bunx tsgo --noEmit"
 	},
 	"devDependencies": {
-		"tsdown": "catalog:",
-		"@habitutor/config": "workspace:*"
+		"@habitutor/config": "workspace:*",
+		"@types/midtrans-client": "^1.4.0",
+		"tsdown": "catalog:"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
@@ -31,6 +32,7 @@
 		"hono": "catalog:",
 		"dotenv": "catalog:",
 		"arktype": "catalog:",
+		"midtrans-client": "catalog:",
 		"@habitutor/auth": "workspace:*",
 		"@habitutor/db": "workspace:*"
 	}

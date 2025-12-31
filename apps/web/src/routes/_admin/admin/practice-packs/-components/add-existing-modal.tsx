@@ -59,7 +59,7 @@ export function AddExistingQuestionModal({
 	);
 
 	const handleAddQuestion = (questionId: number) => {
-		const nextOrder = (packQuestions?.length || 0) + 1;
+		const nextOrder = (packQuestions?.questions.length || 0) + 1;
 		addMutation.mutate({
 			practicePackId,
 			questionId,

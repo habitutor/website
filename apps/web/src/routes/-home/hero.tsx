@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { Button } from "@/components/ui/button";
 
 export function Hero() {
@@ -15,25 +16,25 @@ export function Hero() {
 						depan.
 					</p>
 
-					<div className="flex w-full items-center justify-center gap-2">
-						<Button asChild size="sm" className="flex-1 sm:w-auto sm:flex-initial">
+					<div className="grid w-full grid-cols-2 items-center justify-center gap-2 *:max-sm:text-xs sm:flex">
+						<Button asChild size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
 							<Link to="/login">Mulai Belajar Sekarang</Link>
 						</Button>
-						<Button variant="outline" size="sm" className="flex-1 sm:w-auto sm:flex-initial">
+						<Button variant="outline" size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
 							<Link to="/dashboard">Cara Kerjanya</Link>
 						</Button>
 					</div>
 				</div>
 			</div>
 
-			{/* <div className="relative mt-10 w-full pb-8 md:mt-0 md:min-h-0 md:flex-1 md:pb-0">
+			<div className="relative mt-10 w-full pb-8 md:mt-0 md:min-h-0 md:flex-1 md:pb-0">
 				<Image
 					src="/images/hero-image.webp"
 					alt="Hero Illustration"
 					layout="fullWidth"
 					className="h-auto max-h-72 w-full object-cover sm:max-h-80 md:h-full md:max-h-full md:rounded-2xl md:object-contain md:px-4"
 				/>
-			</div> */}
+			</div>
 		</section>
 	);
 }

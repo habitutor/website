@@ -96,6 +96,7 @@ function SignUpForm() {
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
+										autoFocus
 									/>
 									{field.state.meta.errors.map((error) => (
 										<p key={error?.message} className="text-red-500">

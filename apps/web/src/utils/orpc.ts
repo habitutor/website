@@ -8,9 +8,11 @@ import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 function getApiUrl() {
-  return (process.env.VITE_SERVER_URL ?? import.meta.env.VITE_SERVER_URL ?? process.env.NODE_ENV === "production")
-    ? "https://api.habitutor.devino.me"
-    : "http://localhost:3001";
+	return (
+		process.env.VITE_SERVER_URL ??
+		import.meta.env.VITE_SERVER_URL ??
+		(process.env.NODE_ENV === "production" ? "https://api.habitutor.devino.me" : "http://localhost:3001")
+	);
 }
 
 const serializer = new StandardRPCJsonSerializer();
@@ -57,15 +59,15 @@ export const queryClient = new QueryClient({
 });
 
 const client: RouterClient<typeof appRouter> = createORPCClient(
-  new RPCLink({
-    url: `${getApiUrl()}/rpc`,
-    fetch(url, options) {
-      return fetch(url, {
-        ...options,
-        credentials: "include",
-      });
-    },
-  }),
+	new RPCLink({
+		url: `${getApiUrl()}/rpc`,
+		fetch(url, options) {
+			return fetch(url, {
+				...options,
+				credentials: "include",
+			});
+		},
+	}),
 );
 
 export type BodyOutputs = InferClientBodyOutputs<typeof client>;

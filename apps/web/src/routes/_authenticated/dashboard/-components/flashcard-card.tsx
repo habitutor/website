@@ -43,28 +43,32 @@ export const FlashcardCard = () => {
 	// to satisfy typescript, this has been handled in parent component
 	if (data?.status === "not_started") return null;
 
-	const handleAnswerSelect = (answerId: number) => {
+	const handleAnswerSelect = async (answerId: number) => {
 		setDisableInteraction(true);
 		const questionId = data!.assignedQuestions[currentPage - 1].question.id;
-		saveAnswerMutation.mutate({
-			questionId,
-			answerId,
-		});
+		try {
+			await saveAnswerMutation.mutateAsync({
+				questionId,
+				answerId,
+			});
 
-		if (currentPage === data?.assignedQuestions.length) {
-			handleSubmit();
-			navigate({ to: "/dashboard/flashcard/result" });
-			return;
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+
+			if (currentPage === data?.assignedQuestions.length) {
+				handleSubmit();
+			} else {
+				nextPage();
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setDisableInteraction(false);
 		}
-		while (saveAnswerMutation.isPending) {
-			// do nothing
-		}
-		setTimeout(() => nextPage(), 1500);
-		setDisableInteraction(false);
 	};
 
 	function handleSubmit() {
 		submitMutation.mutate({});
+		navigate({ to: "/dashboard/flashcard/result" });
 	}
 
 	return (
@@ -94,38 +98,63 @@ export const FlashcardCard = () => {
 					const isUserAnswer = saveAnswerMutation.data?.userAnswerId === option.id;
 					const isCorrect = saveAnswerMutation.data?.correctAnswerId === option.id;
 					const isWrong = saveAnswerMutation.data?.correctAnswerId !== option.id;
+
+					// --- DEFINE COLORS FOR MOTION ---
+					// You can use Hex, RGB, or HSL here.
+					// Adjust these default values to match your 'secondary' variable if needed.
+					let backgroundColor = "#ffffff";
+					let borderColor = "#e5e7eb"; // gray-200 equivalent
+					let textColor = "#000000";
+
+					if (isCorrect) {
+						backgroundColor = "rgba(187, 247, 208, 0.6)"; // green-200/60
+						borderColor = "#166534"; // green-800
+					} else if (isUserAnswer && isWrong) {
+						backgroundColor = "rgba(254, 202, 202, 0.2)"; // red-200/20
+						borderColor = "#ef4444"; // red-500
+						textColor = "#ef4444";
+					}
+
 					return (
-						<button
+						<m.button
 							type="button"
 							key={option.id}
 							disabled={saveAnswerMutation.isPending || disableInteraction}
 							onClick={() => handleAnswerSelect(option.id)}
+							// --- MOTION ANIMATION PROP ---
+							// This forces the color change even if the element is disabled
+							animate={{ backgroundColor, borderColor, color: textColor }}
+							transition={{ duration: 0.3 }}
 							className={cn(
-								"inline-flex items-center gap-3 rounded-md border border-secondary bg-white p-4 text-start text-foreground transition-colors hover:bg-secondary/5",
-								isCorrect && "border-green-800 bg-green-200 text-black hover:bg-green-200",
-								isUserAnswer && isWrong && "border-red-500 bg-red-200 text-red-500 hover:bg-red-200",
+								"inline-flex items-center gap-3 rounded-md border p-4 text-start transition-opacity",
+								// Only apply hover effect if NO result is showing yet
+								!saveAnswerMutation.data && "hover:bg-secondary/5",
 							)}
 						>
 							<span
 								className={cn(
-									"rounded-xs border border-foreground/20 px-2 py-0.5 font-medium text-neutrals-500 text-sm",
+									"rounded-xs border border-foreground/20 px-2 py-0.5 font-medium text-neutrals-500 text-sm transition-colors duration-300",
 									isCorrect && "border-green-800 bg-green-500 text-white",
 									isUserAnswer && isWrong && "border-red-500 bg-red-500 text-white",
 								)}
 							>
 								{option.code}
 							</span>
+
 							{option.content}
-							<span
-								className={cn(
-									"ml-auto opacity-0 transition-opacity duration-200",
-									isCorrect && "text-green-800 opacity-100",
-									isUserAnswer && isWrong && "text-red-500 opacity-100",
-								)}
+
+							{/* Animated Icon */}
+							<m.span
+								initial={{ opacity: 0, scale: 0.5 }}
+								animate={{
+									opacity: isCorrect || (isUserAnswer && isWrong) ? 1 : 0,
+									scale: isCorrect || (isUserAnswer && isWrong) ? 1 : 0.5,
+								}}
+								className={cn("ml-auto", isCorrect && "text-green-800", isUserAnswer && isWrong && "text-red-500")}
 							>
-								{isCorrect ? <CheckIcon weight="bold" /> : isUserAnswer && isWrong ? <XIcon /> : " "}
-							</span>
-						</button>
+								{isCorrect ? <CheckIcon weight="bold" /> : isUserAnswer && isWrong ? <XIcon /> : null}
+							</m.span>
+						</m.button>
 					);
 				})}
 			</div>

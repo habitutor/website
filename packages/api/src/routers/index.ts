@@ -5,7 +5,9 @@ import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminSubtestRouter } from "./admin/subtest";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
+import { socialRouter } from "./social";
 import { subtestRouter } from "./subtest";
+import { transactionRouter } from "./transaction";
 
 export const appRouter = {
 	healthCheck: pub
@@ -18,6 +20,7 @@ export const appRouter = {
 		.handler(() => {
 			return { message: "OK" };
 		}),
+	social: socialRouter,
 	practicePack: practicePackRouter,
 	flashcard: flashcardRouter,
 	subtest: subtestRouter,
@@ -25,6 +28,7 @@ export const appRouter = {
 		practicePack: adminPracticePackRouter,
 		subtest: adminSubtestRouter,
 	},
+	transaction: transactionRouter,
 };
 
 export type AppRouter = typeof appRouter;

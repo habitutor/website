@@ -1,6 +1,18 @@
 import { ArrowCircleRightIcon } from "@phosphor-icons/react";
-import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { orpc } from "@/utils/orpc";
 import { DismissableAlert } from "../-components/dismissable-alert";
 import { LastClasses } from "../-components/last-classes";
 import { UserProgress } from "../-components/user-progress";
@@ -11,6 +23,15 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
+	const { data, error } = useQuery(orpc.social.queryOptions());
+	const [showDialog, setShowDialog] = useState(false);
+
+	const handleSocialClick = (e: React.MouseEvent) => {
+		if (!data || error) {
+			e.preventDefault();
+			setShowDialog(true);
+		}
+	};
 
 	return (
 		<>
@@ -27,9 +48,10 @@ function RouteComponent() {
 
 				<div className="grid grid-cols-2 gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
 					<a
-						href="https://discord.com"
-						rel="noopener norefferer"
-						target="_blank"
+						href={data?.discord || "#"}
+						rel={data?.discord ? "noopener noreferrer" : undefined}
+						target={data?.discord ? "_blank" : undefined}
+						onClick={handleSocialClick}
 						className="group relative overflow-clip bg-discord hover:bg-discord/80"
 					>
 						<p className="z-10">Join Discord</p>
@@ -42,9 +64,10 @@ function RouteComponent() {
 						/>
 					</a>
 					<a
-						href="https://whatsapp.com"
-						rel="noopener norefferer"
-						target="_blank"
+						href={data?.whatsapp || "#"}
+						rel={data?.whatsapp ? "noopener noreferrer" : undefined}
+						target={data?.whatsapp ? "_blank" : undefined}
+						onClick={handleSocialClick}
 						className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
 					>
 						<p className="z-10">Join Whatsapp</p>
@@ -58,6 +81,23 @@ function RouteComponent() {
 					</a>
 				</div>
 			</section>
+
+			<Dialog open={showDialog} onOpenChange={setShowDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Ups, belum premium!</DialogTitle>
+						<DialogDescription>Untuk bergabung bersama grup discord dan whatsapp, kamu perlu Premium</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setShowDialog(false)}>
+							Cancel
+						</Button>
+						<Link to="/premium">
+							<Button>Continue</Button>
+						</Link>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 
 			<DismissableAlert />
 			<UserProgress />

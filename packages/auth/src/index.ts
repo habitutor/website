@@ -5,7 +5,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY as string);
+export const resend = new Resend(process.env.RESEND_API_KEY || "");
 
 const cleanDomain = (url?: string) => {
 	if (!url) return "habitutor.devino.me";
@@ -51,6 +51,15 @@ export const auth = betterAuth({
 				defaultValue: null,
 				input: false,
 			},
+			premiumExpiresAt: {
+				type: "date",
+				validator: {
+					input: type("Date"),
+				},
+				required: false,
+				defaultValue: null,
+				input: false,
+			},
 		},
 	},
 	trustedOrigins: [
@@ -85,20 +94,23 @@ export const auth = betterAuth({
 	},
 	session: {
 		cookieCache: {
-			enabled: false,
+			enabled: true,
+			maxAge: 60,
 		},
 	},
 	secret: process.env.BETTER_AUTH_SECRET,
 	baseURL: process.env.BETTER_AUTH_URL,
 	advanced: {
 		defaultCookieAttributes: {
-			sameSite: "none",
-			secure: true,
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+			secure: process.env.NODE_ENV === "production",
 			httpOnly: true,
 		},
-		crossSubDomainCookies: {
-			enabled: true,
-			domain: cleanDomain(process.env.CORS_ORIGIN),
-		},
+		...(process.env.NODE_ENV === "production" && {
+			crossSubDomainCookies: {
+				enabled: true,
+				domain: cleanDomain(process.env.CORS_ORIGIN),
+			},
+		}),
 	},
 });

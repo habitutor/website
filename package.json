@@ -17,6 +17,7 @@
 			"drizzle-orm": "^0.45.1",
 			"arktype": "^2.1.29",
 			"typescript": "^5.8.2",
+			"midtrans-client": "^1.4.3",
 			"tsdown": "^0.18.3",
 			"@orpc/client": "^1.12.2"
 		}
