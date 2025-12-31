@@ -98,7 +98,7 @@ export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL,
 	advanced: {
 		defaultCookieAttributes: {
-			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+			sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
 			secure: process.env.NODE_ENV === "production",
 			httpOnly: true,
 			domain: process.env.NODE_ENV === "production" ? ".habitutor.id" : undefined,
