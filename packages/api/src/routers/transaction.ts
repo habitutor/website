@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { transaction } from "@habitutor/db/schema/transaction";
@@ -7,7 +8,7 @@ import { eq } from "drizzle-orm";
 import { Snap } from "midtrans-client";
 import { authed, pub } from "..";
 
-const PREMIUM_PRICE = 15_000;
+const PREMIUM_PRICE = 100_000;
 
 const snap = new Snap({
 	isProduction: false,
@@ -21,29 +22,26 @@ const premium = authed
 		method: "POST",
 		tags: ["Payment"],
 	})
-	.input(type("number"))
 	.output(
 		type({
 			token: "string",
 			redirectUrl: "string",
 		}),
 	)
-	.handler(async ({ input, context }) => {
+	.handler(async ({ context }) => {
 		const grossAmount = PREMIUM_PRICE;
-		const orderId = String(input);
-		await db
+		const [createdTransaction] = await db
 			.insert(transaction)
 			.values({
 				grossAmount: String(grossAmount),
 				userId: context.session.user.id,
 				type: "premium",
-				orderId: orderId,
 			})
 			.returning();
 
 		const params = {
 			transaction_details: {
-				order_id: String(input),
+				order_id: String(createdTransaction?.id),
 				gross_amount: grossAmount,
 			},
 			item_details: {
@@ -70,10 +68,29 @@ const notification = pub
 	.route({
 		path: "/transactions/notification",
 		method: "POST",
-		tags: ["Payment"],
+		tags: ["Payment", "Webhook"],
 	})
 	.input(type({} as Record<string, unknown>))
 	.handler(async ({ input }) => {
+		const { signature_key, order_id, status_code, gross_amount } = input as {
+			signature_key: string;
+			order_id: string;
+			status_code: string;
+			gross_amount: string;
+		};
+
+		const serverKey = process.env.MIDTRANS_SERVER_KEY || "";
+		const expectedSignature = createHash("sha512")
+			.update(order_id + status_code + gross_amount + serverKey)
+			.digest("hex");
+
+		if (signature_key !== expectedSignature) {
+			console.error("Invalid webhook signature");
+			throw new ORPCError("UNAUTHORIZED", {
+				message: "Invalid signature",
+			});
+		}
+
 		const statusResponse = await snap.transaction.notification(input);
 		const orderId = statusResponse.order_id;
 		const transactionStatus = statusResponse.transaction_status;
@@ -83,14 +100,14 @@ const notification = pub
 			`Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`,
 		);
 
-		const existingTransaction = await db.select().from(transaction).where(eq(transaction.orderId, orderId)).limit(1);
+		const [existingTransaction] = await db.select().from(transaction).where(eq(transaction.id, orderId)).limit(1);
 
-		if (existingTransaction.length === 0) {
+		if (!existingTransaction) {
 			console.error(`Transaction not found for order ID: ${orderId}`);
 			return { status: "not_found" };
 		}
 
-		const tx = existingTransaction[0]!;
+		const tx = existingTransaction;
 
 		if (tx.paidAt) {
 			console.log(`Transaction ${orderId} already processed`);
@@ -106,9 +123,9 @@ const notification = pub
 							status: "success",
 							paidAt: new Date(),
 						})
-						.where(eq(transaction.orderId, orderId));
+						.where(eq(transaction.id, orderId));
 
-					await trx.update(user).set({ isPremium: true }).where(eq(user.id, tx.userId));
+					await trx.update(user).set({ isPremium: true }).where(eq(user.id, tx.userId!));
 				});
 			}
 		} else if (transactionStatus === "settlement") {
@@ -119,9 +136,9 @@ const notification = pub
 						status: "success",
 						paidAt: new Date(),
 					})
-					.where(eq(transaction.orderId, orderId));
+					.where(eq(transaction.id, orderId));
 
-				await trx.update(user).set({ isPremium: true }).where(eq(user.id, tx.userId));
+				await trx.update(user).set({ isPremium: true, premiumExpiresAt: new Date() }).where(eq(user.id, tx.userId!));
 			});
 		} else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
 			await db
@@ -129,14 +146,14 @@ const notification = pub
 				.set({
 					status: "failed",
 				})
-				.where(eq(transaction.orderId, orderId));
+				.where(eq(transaction.id, orderId));
 		} else if (transactionStatus === "pending") {
 			await db
 				.update(transaction)
 				.set({
 					status: "pending",
 				})
-				.where(eq(transaction.orderId, orderId));
+				.where(eq(transaction.id, orderId));
 		}
 
 		return { status: "ok" };
@@ -150,7 +167,7 @@ const getStatus = authed
 	})
 	.input(type({ orderId: "string" }))
 	.handler(async ({ input }) => {
-		const tx = await db.select().from(transaction).where(eq(transaction.orderId, input.orderId)).limit(1);
+		const tx = await db.select().from(transaction).where(eq(transaction.id, input.orderId)).limit(1);
 
 		if (!tx.length) {
 			throw new ORPCError("NOT_FOUND", {

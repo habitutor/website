@@ -7,13 +7,11 @@ const statusEnum = pgEnum("status", ["pending", "success", "failed"]);
 
 export const transaction = pgTable("transaction", {
 	id: uuid().defaultRandom().primaryKey(),
-	userId: text("user_id")
-		.references(() => user.id, { onDelete: "set null" })
-		.notNull(),
+	userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
 	grossAmount: decimal("gross_amount"),
 	type: typeEnum().notNull(),
 	status: statusEnum("status").notNull().default("pending"),
 	// productId: integer("product_id").references(() => product.id),
 	paidAt: timestamp("paid_at"),
-	orderId: text("order_id"),
+	orderedAt: timestamp("ordered_at").defaultNow(),
 });

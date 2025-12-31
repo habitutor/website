@@ -23,11 +23,11 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
-	const { data } = useQuery(orpc.social.queryOptions());
+	const { data, error } = useQuery(orpc.social.queryOptions());
 	const [showDialog, setShowDialog] = useState(false);
 
 	const handleSocialClick = (e: React.MouseEvent) => {
-		if (!data) {
+		if (!data || error) {
 			e.preventDefault();
 			setShowDialog(true);
 		}

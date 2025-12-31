@@ -40,7 +40,9 @@ function RouteComponent() {
 	const [token, setToken] = useState<string | undefined>();
 
 	useEffect(() => {
-		const midtransScriptUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
+		const midtransScriptUrl =
+			(process.env.MIDTRANS_SCRIPT_URL ?? import.meta.env.MIDTRANS_SCRIPT_URL) ||
+			"https://app.sandbox.midtrans.com/snap/snap.js";
 		const scriptTag = document.createElement("script");
 		scriptTag.src = midtransScriptUrl;
 		const myMidtransClientKey = (process.env.MIDTRANS_CLIENT_KEY ?? import.meta.env.MIDTRANS_CLIENT_KEY) || "";
@@ -97,17 +99,16 @@ function RouteComponent() {
 
 					<div className="text-center">
 						<p className="mb-4 font-bold text-4xl text-white">
-							Rp 15.000
-							<span className="ml-2 font-normal text-lg text-white/80">/ sekali bayar</span>
+							Rp 100.000
+							<span className="ml-2 font-normal text-lg text-white/80">/ bulan</span>
 						</p>
 						<Button
 							size="lg"
 							className="w-full md:w-auto"
 							disabled={transactionMutation.isPending}
 							onClick={async () => {
-								const orderId = Date.now();
 								transactionMutation
-									.mutateAsync(orderId)
+									.mutateAsync({})
 									.then((data) => {
 										setToken(data.token);
 									})

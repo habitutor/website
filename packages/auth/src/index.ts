@@ -5,7 +5,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY as string);
+export const resend = new Resend(process.env.RESEND_API_KEY || "");
 
 const cleanDomain = (url?: string) => {
 	if (!url) return "habitutor.devino.me";
@@ -44,6 +44,14 @@ export const auth = betterAuth({
 				input: false,
 			},
 			lastCompletedFlashcardAt: {
+				type: "date",
+				validator: {
+					input: type("Date"),
+				},
+				defaultValue: null,
+				input: false,
+			},
+			premiumExpiresAt: {
 				type: "date",
 				validator: {
 					input: type("Date"),
