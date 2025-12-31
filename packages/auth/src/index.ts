@@ -58,9 +58,9 @@ export const auth = betterAuth({
 		},
 	},
 	trustedOrigins: [
-		process.env.CORS_ORIGIN || "https://habitutor.devino.me",
+		process.env.CORS_ORIGIN || "https://habitutor.id",
 		"http://localhost:3000",
-		"https://api.habitutor.devino.me",
+		"https://api.habitutor.id",
 	],
 	emailAndPassword: {
 		enabled: true,

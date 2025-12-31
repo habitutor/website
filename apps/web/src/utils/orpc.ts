@@ -11,7 +11,7 @@ function getApiUrl() {
 	return (
 		process.env.VITE_SERVER_URL ??
 		import.meta.env.VITE_SERVER_URL ??
-		(process.env.NODE_ENV === "production" ? "https://api.habitutor.devino.me" : "http://localhost:3001")
+		(process.env.NODE_ENV === "production" ? "https://api.habitutor.id" : "http://localhost:3001")
 	);
 }
 

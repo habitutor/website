@@ -6,13 +6,13 @@ const getBaseUrl = () => {
 	// 1. Browser Environment
 	if (typeof window !== "undefined") {
 		return import.meta.env.VITE_API_URL || process.env.NODE_ENV === "production"
-			? "https://api.habitutor.devino.me"
+			? "https://api.habitutor.id"
 			: "http://localhost:3001";
 	}
 
 	// 2. Server Environment
 	return process.env.VITE_API_URL || import.meta.env.VITE_API_URL || process.env.NODE_ENV === "production"
-		? "https://api.habitutor.devino.me"
+		? "https://api.habitutor.id"
 		: "http://localhost:3001";
 };
 
