@@ -58,8 +58,9 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [
-    process.env.CORS_ORIGIN || "https://habitutor.id",
-    "http://localhost:3000",
+    process.env.CORS_ORIGIN || "http://localhost:3000",
+    "https://habitutor.id",
+    "https://www.habitutor.id",
     "https://api.habitutor.id",
   ],
   emailAndPassword: {
@@ -97,9 +98,10 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   advanced: {
     defaultCookieAttributes: {
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
+      domain: ".habitutor.id",
     },
     ...(process.env.NODE_ENV === "production" && {
       crossSubDomainCookies: {
