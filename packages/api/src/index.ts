@@ -1,5 +1,6 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
+import { eq } from "drizzle-orm";
 import { o } from "./lib/orpc";
 import { requireAdmin } from "./middlewares/rbac";
 
@@ -13,14 +14,14 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
 		context.session.user.lastCompletedFlashcardAt &&
 		Date.now() - context.session.user.lastCompletedFlashcardAt.getTime() >= 2 * 24 * 3600 * 1000
 	) {
-		await db.update(user).set({ flashcardStreak: 0 });
+		await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, context.session.user.id));
 	}
 	if (
 		context.session.user.isPremium &&
 		context.session.user.premiumExpiresAt &&
 		context.session.user.premiumExpiresAt.getTime() < Date.now()
 	) {
-		await db.update(user).set({ isPremium: false });
+		await db.update(user).set({ isPremium: false }).where(eq(user.id, context.session.user.id));
 	}
 
 	return next({

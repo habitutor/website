@@ -38,7 +38,7 @@ const premium = authed
       .values({
         grossAmount: String(grossAmount),
         userId: context.session.user.id,
-        type: "premium",
+        transactionType: "premium",
       })
       .returning();
 
@@ -47,16 +47,23 @@ const premium = authed
         order_id: String(createdTransaction?.id),
         gross_amount: grossAmount,
       },
-      item_details: {
-        price: PREMIUM_PRICE,
-        quantity: 1,
-        name: "Premium Access",
-      },
+      item_details: [
+        {
+          price: PREMIUM_PRICE,
+          quantity: 1,
+          name: "Premium Access",
+        },
+      ],
       customer_details: {
         first_name: context.session.user.name,
         email: context.session.user.email,
       },
       credit_card: { secure: true },
+      callbacks: {
+        finish: `${process.env.CORS_ORIGIN}/premium/finish`,
+        error: `${process.env.CORS_ORIGIN}/premium/error`,
+        pending: `${process.env.CORS_ORIGIN}/premium/unfinish`,
+      },
     };
 
     const snapTransaction = await snap.createTransaction(params);
