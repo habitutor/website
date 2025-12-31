@@ -20,7 +20,7 @@ const premium = authed
   .route({
     path: "/transactions/premium",
     method: "POST",
-    tags: ["Payment"],
+    tags: ["Payment", "Premium"],
   })
   .output(
     type({
