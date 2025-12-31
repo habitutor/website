@@ -14,7 +14,7 @@ export default function Loader() {
 	}, []);
 
 	return (
-		<div className="flex h-full w-full flex-col items-center justify-center gap-4 p-8">
+		<div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-8">
 			<div className="flex items-center gap-2">
 				{[
 					{ color: "bg-primary", delay: "delay-0" },

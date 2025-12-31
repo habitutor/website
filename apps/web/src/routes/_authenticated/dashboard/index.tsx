@@ -13,7 +13,6 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { orpc } from "@/utils/orpc";
-import { DismissableAlert } from "../-components/dismissable-alert";
 import { LastClasses } from "../-components/last-classes";
 import { UserProgress } from "../-components/user-progress";
 
@@ -26,8 +25,8 @@ function RouteComponent() {
 	const { data, error } = useQuery(orpc.social.queryOptions());
 	const [showDialog, setShowDialog] = useState(false);
 
-	const handleSocialClick = (e: React.MouseEvent) => {
-		if (!data || error) {
+	const handleSocialClick = (e: React.MouseEvent, socialLink?: string) => {
+		if (!socialLink || error) {
 			e.preventDefault();
 			setShowDialog(true);
 		}
@@ -51,7 +50,7 @@ function RouteComponent() {
 						href={data?.discord || "#"}
 						rel={data?.discord ? "noopener noreferrer" : undefined}
 						target={data?.discord ? "_blank" : undefined}
-						onClick={handleSocialClick}
+						onClick={(e) => handleSocialClick(e, data?.discord)}
 						className="group relative overflow-clip bg-discord hover:bg-discord/80"
 					>
 						<p className="z-10">Join Discord</p>
@@ -67,7 +66,7 @@ function RouteComponent() {
 						href={data?.whatsapp || "#"}
 						rel={data?.whatsapp ? "noopener noreferrer" : undefined}
 						target={data?.whatsapp ? "_blank" : undefined}
-						onClick={handleSocialClick}
+						onClick={(e) => handleSocialClick(e, data?.whatsapp)}
 						className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
 					>
 						<p className="z-10">Join Whatsapp</p>
@@ -99,7 +98,7 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 
-			<DismissableAlert />
+			{/** <DismissableAlert />*/}
 			<UserProgress />
 			<LastClasses />
 		</>
