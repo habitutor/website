@@ -15,6 +15,8 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
 		Date.now() - context.session.user.lastCompletedFlashcardAt.getTime() >= 2 * 24 * 3600 * 1000
 	) {
 		await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, context.session.user.id));
+		// Update session context to reflect database changes
+		context.session.user.flashcardStreak = 0;
 	}
 	if (
 		context.session.user.isPremium &&
@@ -22,6 +24,8 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
 		context.session.user.premiumExpiresAt.getTime() < Date.now()
 	) {
 		await db.update(user).set({ isPremium: false }).where(eq(user.id, context.session.user.id));
+		// Update session context to reflect database changes
+		context.session.user.isPremium = false;
 	}
 
 	return next({
