@@ -1,4 +1,4 @@
-import { SignOut, SpinnerIcon } from "@phosphor-icons/react";
+import { List, SignOut, SpinnerIcon, X } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -41,6 +41,7 @@ const links = [
 export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
 	const location = useLocation();
 	const [open, setOpen] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	return (
 		<>
@@ -49,7 +50,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					<Image src="/logo.svg" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
 				</Link>
 
-				<div className="flex h-full items-center">
+				<div className="hidden h-full items-center md:flex">
 					{links.map((link) => (
 						<Button
 							key={link.to}
@@ -63,22 +64,80 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					))}
 				</div>
 
-				<DropdownMenu>
-					<DropdownMenuTrigger>
-						<Avatar>
-							<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
-							<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
-						</Avatar>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
-						<DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
-							<SignOut />
-							Log Out
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="hidden md:block">
+					<DropdownMenu>
+						<DropdownMenuTrigger>
+							<Avatar>
+								<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
+								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
+							</Avatar>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
+							<DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
+								<SignOut />
+								Log Out
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+
+				<Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
+					<List className="size-6" />
+				</Button>
 			</div>
+
+			{mobileMenuOpen && (
+				<div className="fixed inset-0 z-50 flex flex-col bg-white p-6 md:hidden">
+					<div className="flex items-center justify-between">
+						<Link to="/" className="relative size-12" onClick={() => setMobileMenuOpen(false)}>
+							<Image
+								src="/logo.svg"
+								alt="Habitutor Logo"
+								layout="fullWidth"
+								className="pointer-events-none select-none"
+							/>
+						</Link>
+						<Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+							<X className="size-6" />
+						</Button>
+					</div>
+
+					<div className="mt-8 flex flex-col gap-4">
+						{links.map((link) => (
+							<Link
+								key={link.to}
+								to={link.to}
+								className="rounded-md px-4 py-3 font-medium text-lg hover:bg-accent"
+								onClick={() => setMobileMenuOpen(false)}
+							>
+								{link.name}
+							</Link>
+						))}
+					</div>
+
+					<div className="mt-auto">
+						<div className="mb-4 flex items-center gap-3 px-4">
+							<Avatar>
+								<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
+								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
+							</Avatar>
+							<span className="font-medium">{session?.user.name}</span>
+						</div>
+						<Button
+							variant="destructive"
+							className="w-full justify-start"
+							onClick={() => {
+								setMobileMenuOpen(false);
+								setOpen(true);
+							}}
+						>
+							<SignOut className="mr-2" />
+							Log Out
+						</Button>
+					</div>
+				</div>
+			)}
 
 			<LogoutDialog open={open} onOpenChange={setOpen} />
 		</>
