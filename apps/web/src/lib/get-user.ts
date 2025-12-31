@@ -8,6 +8,9 @@ export const getUser = createServerFn().handler(async () => {
     cookie: headers.get("cookie") || "",
     "user-agent": headers.get("user-agent"),
   };
+  console.log("Original headers:", Object.fromEntries(headers.entries()));
+  console.log("Cookie:", headers.get("cookie"));
+  console.log("Forwarding headers:", headersToForward);
 
   const response = await authClient.getSession({
     fetchOptions: {
@@ -15,6 +18,7 @@ export const getUser = createServerFn().handler(async () => {
     },
   });
 
+  console.log("Session response", response);
   return response.data;
 });
 
