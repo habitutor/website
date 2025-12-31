@@ -13,7 +13,6 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedTryoutsRouteImport } from './routes/_authenticated/tryouts'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
@@ -65,11 +64,6 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedTryoutsRoute = AuthenticatedTryoutsRouteImport.update({
-  id: '/tryouts',
-  path: '/tryouts',
-  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   id: '/premium',
@@ -274,7 +268,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/tryouts': typeof AuthenticatedTryoutsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
@@ -311,7 +304,6 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/tryouts': typeof AuthenticatedTryoutsRoute
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
@@ -353,7 +345,6 @@ export interface FileRoutesById {
   '/_auth/register': typeof AuthRegisterRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/_authenticated/tryouts': typeof AuthenticatedTryoutsRoute
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
@@ -392,7 +383,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/premium'
-    | '/tryouts'
     | '/admin/dashboard'
     | '/latihan-soal/$id'
     | '/classes'
@@ -429,7 +419,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/premium'
-    | '/tryouts'
     | '/admin/dashboard'
     | '/latihan-soal/$id'
     | '/classes'
@@ -470,7 +459,6 @@ export interface FileRouteTypes {
     | '/_auth/register'
     | '/_authenticated/admin'
     | '/_authenticated/premium'
-    | '/_authenticated/tryouts'
     | '/_admin/admin/dashboard'
     | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/classes/'
@@ -537,13 +525,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/tryouts': {
-      id: '/_authenticated/tryouts'
-      path: '/tryouts'
-      fullPath: '/tryouts'
-      preLoaderRoute: typeof AuthenticatedTryoutsRouteImport
-      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/premium': {
       id: '/_authenticated/premium'
@@ -901,7 +882,6 @@ const AuthenticatedClassesShortNameContentIdRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRouteWithChildren
-  AuthenticatedTryoutsRoute: typeof AuthenticatedTryoutsRoute
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -917,7 +897,6 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRouteWithChildren,
-  AuthenticatedTryoutsRoute: AuthenticatedTryoutsRoute,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,

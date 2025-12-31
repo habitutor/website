@@ -60,9 +60,9 @@ const premium = authed
 			},
 			credit_card: { secure: true },
 			callbacks: {
-				finish: `${process.env.CORS_ORIGIN}/premium/finish`,
-				error: `${process.env.CORS_ORIGIN}/premium/error`,
-				pending: `${process.env.CORS_ORIGIN}/premium/unfinish`,
+				finish: `${process.env.CORS_ORIGIN}/premium/payment/finish`,
+				error: `${process.env.CORS_ORIGIN}/premium/payment/error`,
+				pending: `${process.env.CORS_ORIGIN}/premium/payment/unfinish`,
 			},
 		};
 
