@@ -23,6 +23,20 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	) {
 		await db.update(user).set({ isPremium: false }).where(eq(user.id, context.session.user.id));
 	}
+	if (context.session.user.premiumExpiresAt.getTime() < Date.now()) await db.update(user).set({ isPremium: false });
+
+	return next({
+		context: {
+			session: context.session,
+		},
+	});
+});
+
+const requirePremium = o.middleware(({ context, next, errors }) => {
+	if (!context.session?.user.isPremium)
+		throw errors.FORBIDDEN({
+			message: "Akun premium dibutuhkan untuk mengakses resource ini.",
+		});
 
 	return next({
 		context: {
