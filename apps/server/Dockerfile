@@ -30,7 +30,8 @@ WORKDIR /usr/src/app
 
 ENV NODE_ENV=production \
     PORT=3001 \
-    HOSTNAME="0.0.0.0"
+    HOSTNAME="0.0.0.0" \
+    BETTER_AUTH_URL=https://api.habitutor.id
 COPY --from=builder /usr/src/app/apps/server/dist/ .
 
 EXPOSE 3001

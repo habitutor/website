@@ -20,14 +20,14 @@ export default function Loader() {
 					{ color: "bg-primary", delay: "delay-0" },
 					{ color: "bg-secondary", delay: "delay-150" },
 					{ color: "bg-tertiary", delay: "delay-300" },
-				].map((dot, index) => (
+				].map((dot) => (
 					<div
-						key={index}
+						key={dot.color + dot.delay}
 						className={`h-3.5 w-3.5 animate-bounce rounded-full ${dot.color} ${dot.delay}`}
 					/>
 				))}
 			</div>
-			<p className="text-muted-foreground animate-pulse text-sm font-medium">{text}</p>
+			<p className="animate-pulse font-medium text-muted-foreground text-sm">{text}</p>
 		</div>
 	);
 }
