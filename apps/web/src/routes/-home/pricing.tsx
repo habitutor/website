@@ -45,7 +45,7 @@ function StarterCard({ data }: { data: typeof DATA.pricing.starter }) {
 				</ul>
 
 				<div className="-mt-8 flex justify-end">
-					<Link to="/" className={cn(buttonVariants({ size: "sm", variant: "outline" }), "")}>
+					<Link to="/dashboard" className={cn(buttonVariants({ size: "sm", variant: "outline" }), "")}>
 						{data.cta}
 						<ArrowRightIcon size={16} />
 					</Link>
@@ -81,7 +81,7 @@ function PremiumCard({ data }: { data: typeof DATA.pricing.premium }) {
 				</ul>
 
 				<div className="-mt-8 flex justify-end">
-					<Link to="/" className={cn(buttonVariants({ size: "sm", variant: "default" }), "")}>
+					<Link to="/premium" className={cn(buttonVariants({ size: "sm", variant: "default" }), "")}>
 						{data.cta}
 						<ArrowRightIcon size={16} />
 					</Link>

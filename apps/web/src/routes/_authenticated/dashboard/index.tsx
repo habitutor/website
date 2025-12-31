@@ -50,7 +50,7 @@ function RouteComponent() {
 						href={data?.discord || "#"}
 						rel={data?.discord ? "noopener noreferrer" : undefined}
 						target={data?.discord ? "_blank" : undefined}
-						onClick={(e) => handleSocialClick(e, data?.discord)}
+						onClick={(e) => handleSocialClick(e, data?.discord ?? undefined)}
 						className="group relative overflow-clip bg-discord hover:bg-discord/80"
 					>
 						<p className="z-10">Join Discord</p>
@@ -66,7 +66,7 @@ function RouteComponent() {
 						href={data?.whatsapp || "#"}
 						rel={data?.whatsapp ? "noopener noreferrer" : undefined}
 						target={data?.whatsapp ? "_blank" : undefined}
-						onClick={(e) => handleSocialClick(e, data?.whatsapp)}
+						onClick={(e) => handleSocialClick(e, data?.whatsapp ?? undefined)}
 						className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
 					>
 						<p className="z-10">Join Whatsapp</p>
