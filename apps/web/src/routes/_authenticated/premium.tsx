@@ -80,8 +80,17 @@ function RouteComponent() {
 						</div>
 						<h1 className="mb-2 font-bold text-3xl text-white">Premium Access</h1>
 						<p className="text-sm text-white/90">
-							Hai, <strong>{session?.user.name.split(" ")[0]}</strong>! Tingkatkan peluangmu lolos SNBT dengan akses
-							penuh ke semua materi.
+							{session?.user.isPremium ? (
+								<>
+									Hai, <strong>{session?.user.name.split(" ")[0]}</strong>! Kamu sudah memiliki akses premium. Nikmati
+									semua materi dan fitur eksklusif.
+								</>
+							) : (
+								<>
+									Hai, <strong>{session?.user.name.split(" ")[0]}</strong>! Tingkatkan peluangmu lolos SNBT dengan akses
+									penuh ke semua materi.
+								</>
+							)}
 						</p>
 					</div>
 
@@ -105,7 +114,7 @@ function RouteComponent() {
 						<Button
 							size="lg"
 							className="w-full md:w-auto"
-							disabled={transactionMutation.isPending}
+							disabled={transactionMutation.isPending || session?.user.isPremium}
 							onClick={async () => {
 								transactionMutation
 									.mutateAsync({})
@@ -117,7 +126,9 @@ function RouteComponent() {
 									});
 							}}
 						>
-							{transactionMutation.isPending ? (
+							{session?.user.isPremium ? (
+								<>Kamu sudah Premium!</>
+							) : transactionMutation.isPending ? (
 								<>Memproses...</>
 							) : (
 								<>

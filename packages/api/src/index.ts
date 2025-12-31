@@ -10,11 +10,18 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	// Reset user data based on expiry
 	if (
 		context.session.user.flashcardStreak > 0 &&
+		context.session.user.lastCompletedFlashcardAt &&
 		Date.now() - context.session.user.lastCompletedFlashcardAt.getTime() >= 2 * 24 * 3600 * 1000
 	) {
 		await db.update(user).set({ flashcardStreak: 0 });
 	}
-	if (context.session.user.premiumExpiresAt.getTime() < Date.now()) await db.update(user).set({ isPremium: false });
+	if (
+		context.session.user.isPremium &&
+		context.session.user.premiumExpiresAt &&
+		context.session.user.premiumExpiresAt.getTime() < Date.now()
+	) {
+		await db.update(user).set({ isPremium: false });
+	}
 
 	return next({
 		context: {

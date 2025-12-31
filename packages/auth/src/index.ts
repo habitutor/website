@@ -7,110 +7,105 @@ import { Resend } from "resend";
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");
 
-const cleanDomain = (url?: string) => {
-	if (!url) return "habitutor.devino.me";
-	return url.replace(/^https?:\/\//, "").replace(/^www\./, "");
-};
-
 export const auth = betterAuth({
-	database: drizzleAdapter(db, {
-		provider: "pg",
-		schema,
-	}),
-	user: {
-		additionalFields: {
-			role: {
-				type: "string",
-				validator: {
-					input: type('"user" | "admin"'),
-				},
-				defaultValue: "user",
-				input: false,
-			},
-			isPremium: {
-				type: "boolean",
-				validator: {
-					input: type("boolean"),
-				},
-				defaultValue: false,
-				input: false,
-			},
-			flashcardStreak: {
-				type: "number",
-				validator: {
-					input: type("number"),
-				},
-				defaultValue: 0,
-				input: false,
-			},
-			lastCompletedFlashcardAt: {
-				type: "date",
-				validator: {
-					input: type("Date"),
-				},
-				defaultValue: null,
-				input: false,
-			},
-			premiumExpiresAt: {
-				type: "date",
-				validator: {
-					input: type("Date"),
-				},
-				required: false,
-				defaultValue: null,
-				input: false,
-			},
-		},
-	},
-	trustedOrigins: [
-		process.env.CORS_ORIGIN || "https://habitutor.devino.me",
-		"http://localhost:3000",
-		"https://api.habitutor.devino.me",
-	],
-	emailAndPassword: {
-		enabled: true,
-		sendResetPassword: async ({ user, url }) => {
-			await resend.emails.send({
-				from: "Habitutor <ithabitutor@gmail.com>",
-				to: user.email,
-				subject: "Reset password Habitutor.id",
-				html: `<strong>klik ini bos: ${url}</strong>`,
-				// template: {
-				// 	id: "reset-your-password",
-				// 	variables: {
-				// 		url,
-				// 	},
-				// },
-			});
-		},
-	},
-	socialProviders: {
-		google: {
-			clientId: (process.env.GOOGLE_CLIENT_ID as string)?.trim(),
-			clientSecret: (process.env.GOOGLE_CLIENT_SECRET as string)?.trim(),
-			accessType: "offline",
-			prompt: "select_account consent",
-		},
-	},
-	session: {
-		cookieCache: {
-			enabled: true,
-			maxAge: 60,
-		},
-	},
-	secret: process.env.BETTER_AUTH_SECRET,
-	baseURL: process.env.BETTER_AUTH_URL,
-	advanced: {
-		defaultCookieAttributes: {
-			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-			secure: process.env.NODE_ENV === "production",
-			httpOnly: true,
-		},
-		...(process.env.NODE_ENV === "production" && {
-			crossSubDomainCookies: {
-				enabled: true,
-				domain: cleanDomain(process.env.CORS_ORIGIN),
-			},
-		}),
-	},
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema,
+  }),
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        validator: {
+          input: type('"user" | "admin"'),
+        },
+        defaultValue: "user",
+        input: false,
+      },
+      isPremium: {
+        type: "boolean",
+        validator: {
+          input: type("boolean"),
+        },
+        defaultValue: false,
+        input: false,
+      },
+      flashcardStreak: {
+        type: "number",
+        validator: {
+          input: type("number"),
+        },
+        defaultValue: 0,
+        input: false,
+      },
+      lastCompletedFlashcardAt: {
+        type: "date",
+        validator: {
+          input: type("Date"),
+        },
+        defaultValue: null,
+        input: false,
+      },
+      premiumExpiresAt: {
+        type: "date",
+        validator: {
+          input: type("Date"),
+        },
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
+    },
+  },
+  trustedOrigins: [
+    process.env.CORS_ORIGIN || "https://habitutor.devino.me",
+    "http://localhost:3000",
+    "https://api.habitutor.devino.me",
+  ],
+  emailAndPassword: {
+    enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      await resend.emails.send({
+        from: "Habitutor <ithabitutor@gmail.com>",
+        to: user.email,
+        subject: "Reset password Habitutor.id",
+        html: `<strong>klik ini bos: ${url}</strong>`,
+        // template: {
+        // 	id: "reset-your-password",
+        // 	variables: {
+        // 		url,
+        // 	},
+        // },
+      });
+    },
+  },
+  socialProviders: {
+    google: {
+      clientId: (process.env.GOOGLE_CLIENT_ID as string)?.trim(),
+      clientSecret: (process.env.GOOGLE_CLIENT_SECRET as string)?.trim(),
+      accessType: "offline",
+      prompt: "select_account consent",
+    },
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60,
+    },
+  },
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+    },
+    ...(process.env.NODE_ENV === "production" && {
+      crossSubDomainCookies: {
+        enabled: true,
+        domain: new URL(process.env.CORS_ORIGIN || "http://localhost:3001").hostname,
+      },
+    }),
+  },
 });

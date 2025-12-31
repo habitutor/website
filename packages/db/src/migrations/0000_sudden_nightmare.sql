@@ -1,5 +1,7 @@
 CREATE TYPE "public"."practice_pack_status" AS ENUM('not_started', 'ongoing', 'finished');--> statement-breakpoint
 CREATE TYPE "public"."content_type" AS ENUM('material', 'tips_and_trick');--> statement-breakpoint
+CREATE TYPE "public"."transaction_status_enum" AS ENUM('pending', 'success', 'failed');--> statement-breakpoint
+CREATE TYPE "public"."transaction_type_enum" AS ENUM('premium', 'product');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -40,6 +42,7 @@ CREATE TABLE "user" (
 	"is_premium" boolean DEFAULT false,
 	"flashcard_streak" integer DEFAULT 0,
 	"last_completed_flashcard_at" timestamp,
+	"premium_expires_at" timestamp,
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
@@ -178,12 +181,21 @@ CREATE TABLE "user_progress" (
 CREATE TABLE "video_material" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "video_material_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"content_item_id" integer NOT NULL,
-	"title" text NOT NULL,
 	"video_url" text NOT NULL,
 	"content" jsonb NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "video_material_content_item_id_unique" UNIQUE("content_item_id")
+);
+--> statement-breakpoint
+CREATE TABLE "transaction" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text,
+	"gross_amount" numeric,
+	"transaction_type" "transaction_type_enum" NOT NULL,
+	"status" "transaction_status_enum" DEFAULT 'pending' NOT NULL,
+	"paid_at" timestamp,
+	"ordered_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -209,6 +221,7 @@ ALTER TABLE "recent_content_view" ADD CONSTRAINT "recent_content_view_content_it
 ALTER TABLE "user_progress" ADD CONSTRAINT "user_progress_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_progress" ADD CONSTRAINT "user_progress_content_item_id_content_item_id_fk" FOREIGN KEY ("content_item_id") REFERENCES "public"."content_item"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "video_material" ADD CONSTRAINT "video_material_content_item_id_content_item_id_fk" FOREIGN KEY ("content_item_id") REFERENCES "public"."content_item"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "transaction" ADD CONSTRAINT "transaction_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "account_userId_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "session_userId_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");--> statement-breakpoint
