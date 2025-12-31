@@ -63,7 +63,7 @@ function RouteComponent() {
 						/>
 					</a>
 					<a
-						href={data?.whatsapp || undefined}
+						href={data?.whatsapp || "#"}
 						rel={data?.whatsapp ? "noopener noreferrer" : undefined}
 						target={data?.whatsapp ? "_blank" : undefined}
 						onClick={(e) => handleSocialClick(e, data?.whatsapp)}
