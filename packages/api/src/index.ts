@@ -14,7 +14,7 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	) {
 		await db.update(user).set({ flashcardStreak: 0 });
 	}
-	if (context.session.user.premiumExpiresAt.getTime() > Date.now()) await db.update(user).set({ isPremium: false });
+	if (context.session.user.premiumExpiresAt.getTime() < Date.now()) await db.update(user).set({ isPremium: false });
 
 	return next({
 		context: {

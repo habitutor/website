@@ -56,6 +56,7 @@ export const auth = betterAuth({
 				validator: {
 					input: type("Date"),
 				},
+				required: false,
 				defaultValue: null,
 				input: false,
 			},

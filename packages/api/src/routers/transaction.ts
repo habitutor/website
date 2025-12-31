@@ -138,7 +138,10 @@ const notification = pub
 					})
 					.where(eq(transaction.id, orderId));
 
-				await trx.update(user).set({ isPremium: true, premiumExpiresAt: new Date() }).where(eq(user.id, tx.userId!));
+				const expireDate = new Date();
+				expireDate.setDate(expireDate.getDate() + 30);
+
+				await trx.update(user).set({ isPremium: true, premiumExpiresAt: expireDate }).where(eq(user.id, tx.userId!));
 			});
 		} else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
 			await db

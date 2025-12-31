@@ -56,7 +56,6 @@ export const FlashcardCard = () => {
 
 			if (currentPage === data?.assignedQuestions.length) {
 				handleSubmit();
-				navigate({ to: "/dashboard/flashcard/result" });
 			} else {
 				nextPage();
 			}
