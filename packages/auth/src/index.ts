@@ -104,7 +104,7 @@ export const auth = betterAuth({
     ...(process.env.NODE_ENV === "production" && {
       crossSubDomainCookies: {
         enabled: true,
-        domain: new URL(process.env.CORS_ORIGIN || "https://habitutor.id").hostname,
+        domain: "habitutor.id",
       },
     }),
   },
