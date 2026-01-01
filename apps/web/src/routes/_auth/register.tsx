@@ -1,4 +1,4 @@
-import { GoogleLogoIcon } from "@phosphor-icons/react";
+import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -15,7 +15,17 @@ export const Route = createFileRoute("/_auth/register")({
 
 function RouteComponent() {
 	return (
-		<main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
+		<main className="relative flex min-h-screen w-full flex-col items-center justify-center pt-24">
+			<Button
+				asChild
+				variant="outline"
+				className="absolute top-4 left-4 border border-primary/50 bg-white text-primary hover:bg-primary/10"
+			>
+				<Link to="/">
+					<ArrowLeft />
+					Kembali
+				</Link>
+			</Button>
 			<SignUpForm />
 		</main>
 	);
