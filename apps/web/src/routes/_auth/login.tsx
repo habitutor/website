@@ -8,6 +8,7 @@ import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/_auth/login")({
@@ -84,94 +85,101 @@ function SignInForm() {
 		<div className="w-full max-w-md">
 			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
 			<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
-				<div className="flex flex-col items-center gap-2 text-center">          <h1 className="text-3xl text-primary">
-            <span className="font-bold">Selamat Datang </span>
-            Kembali
-          </h1>
-          <p className="text-sm">Masuk kembali untuk memulai belajar lagi!</p>
-        </div>
+				<div className="flex flex-col items-center gap-2 text-center">
+					<h1 className="text-3xl text-primary">
+						<span className="font-bold">Selamat Datang </span>
+						Kembali
+					</h1>
+					<p className="text-sm">Masuk kembali untuk memulai belajar lagi!</p>
+				</div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
-          className="mt-8 space-y-4"
-        >
-          <div>
-            <form.Field name="email">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Email</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="email"
-                    autoFocus
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-red-500 text-xs">
-                      {error?.message}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </form.Field>
-          </div>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
+					}}
+					className="mt-8 space-y-4"
+				>
+					<div>
+						<form.Field name="email">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Email</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="email"
+										autoFocus
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500 text-xs">
+											{error?.message}
+										</p>
+									))}
+								</div>
+							)}
+						</form.Field>
+					</div>
 
-          <div>
-            <form.Field name="password">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Password</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-red-500 text-xs">
-                      {error?.message}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </form.Field>
-            <Link to="/forgot-password" className="ml-auto w-fit text-primary text-xs underline">
-              Lupa Password?
-            </Link>
-          </div>
+					<div>
+						<form.Field name="password">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Password</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="password"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500 text-xs">
+											{error?.message}
+										</p>
+									))}
+								</div>
+							)}
+						</form.Field>
+						<Link to="/forgot-password" className="ml-auto w-fit text-primary text-xs underline">
+							Lupa Password?
+						</Link>
+					</div>
 
-          <form.Subscribe>
-            {(state) => (
-              <Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-                {state.isSubmitting ? "Memuat..." : "Masuk"}
-              </Button>
-            )}
-          </form.Subscribe>
-        </form>
+					<form.Subscribe>
+						{(state) => (
+							<Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
+								{state.isSubmitting ? "Memuat..." : "Masuk"}
+							</Button>
+						)}
+					</form.Subscribe>
+				</form>
 
-        <Button
-          onClick={() => {
-            authClient.signIn.social({
-              provider: "google",
-              callbackURL: `${location.url}/dashboard`,
-            });
-          }}
-          variant="outline"
-          className="mt-4 w-full hover:cursor-pointer"
-        >
-          <GoogleLogoIcon weight="bold" />
-          Masuk dengan Google
-        </Button>
-      </div>
+				<div className="flex items-center gap-4 py-4">
+					<Separator className="flex-1" />
+					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
+					<Separator className="flex-1" />
+				</div>
+
+				<Button
+					onClick={() => {
+						authClient.signIn.social({
+							provider: "google",
+							callbackURL: `${location.url}/dashboard`,
+						});
+					}}
+					variant="outline"
+					className="mt-0 w-full hover:cursor-pointer"
+				>
+					<GoogleLogoIcon weight="bold" />
+					Masuk dengan Google
+				</Button>
+			</div>
 
       <p className="mt-4 text-center text-sm">
         Belum punya akun?{" "}

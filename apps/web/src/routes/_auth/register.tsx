@@ -8,6 +8,7 @@ import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/_auth/register")({
@@ -208,6 +209,12 @@ function SignUpForm() {
 					</form.Subscribe>
 				</form>
 
+				<div className="flex items-center gap-4 py-4">
+					<Separator className="flex-1" />
+					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
+					<Separator className="flex-1" />
+				</div>
+
 				<Button
 					onClick={() =>
 						authClient.signIn.social({
@@ -216,7 +223,7 @@ function SignUpForm() {
 						})
 					}
 					variant="outline"
-					className="mt-4 w-full hover:cursor-pointer"
+					className="mt-0 w-full hover:cursor-pointer"
 				>
 					<GoogleLogoIcon weight="bold" />
 					Daftar dengan Google
