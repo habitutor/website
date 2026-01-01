@@ -1,4 +1,4 @@
-export function generateResetPasswordEmail(userName: string, url: string, token: string): string {
+export function generateResetPasswordEmail(userName: string, url: string, _token: string): string {
 	return `
           <div style="font-family: sans-serif; line-height: 1.5; color: #333;">
             <h2>Halo ${userName},</h2>

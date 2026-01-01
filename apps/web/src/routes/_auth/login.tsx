@@ -181,12 +181,12 @@ function SignInForm() {
 				</Button>
 			</div>
 
-      <p className="mt-4 text-center text-sm">
-        Belum punya akun?{" "}
-        <Link to="/register" className="font-bold text-primary">
-          Daftar Sekarang
-        </Link>
-      </p>
-    </div>
-  );
+			<p className="mt-4 text-center text-sm">
+				Belum punya akun?{" "}
+				<Link to="/register" className="font-bold text-primary">
+					Daftar Sekarang
+				</Link>
+			</p>
+		</div>
+	);
 }
