@@ -54,7 +54,7 @@ function RouteComponent() {
 	});
 
 	return (
-		<main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
+		<main className="flex min-h-screen w-full flex-col items-center pt-24">
 			<div className="w-full max-w-md">
 				<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
 				<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
