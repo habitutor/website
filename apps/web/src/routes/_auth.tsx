@@ -17,5 +17,9 @@ export const Route = createFileRoute("/_auth")({
 });
 
 function AuthLayout() {
-	return <Outlet />;
+	return (
+		<div className="mx-auto w-full max-w-3xl">
+			<Outlet />
+		</div>
+	);
 }

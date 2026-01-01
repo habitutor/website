@@ -4,6 +4,7 @@ import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
+import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");
 
@@ -65,19 +66,17 @@ export const auth = betterAuth({
 	],
 	emailAndPassword: {
 		enabled: true,
-		sendResetPassword: async ({ user, url }) => {
-			await resend.emails.send({
-				from: "Habitutor <ithabitutor@gmail.com>",
-				to: user.email,
-				subject: "Reset password Habitutor.id",
-				html: `<strong>klik ini bos: ${url}</strong>`,
-				// template: {
-				// 	id: "reset-your-password",
-				// 	variables: {
-				// 		url,
-				// 	},
-				// },
-			});
+		sendResetPassword: async ({ user, url, token }) => {
+			resend.emails
+				.send({
+					from: "Habitutor <noreply@habitutor.id>",
+					to: user.email,
+					subject: "Pesan Otomatis: Permintaan Pengaturan Ulang Kata Sandi",
+					html: generateResetPasswordEmail(user.name, url, token),
+				})
+				.catch((error) => {
+					console.error("Failed to send password reset email:", error);
+				});
 		},
 	},
 	socialProviders: {
@@ -91,17 +90,16 @@ export const auth = betterAuth({
 	session: {
 		cookieCache: {
 			enabled: true,
-			maxAge: 60,
+			maxAge: 5 * 60,
 		},
 	},
 	secret: process.env.BETTER_AUTH_SECRET,
 	baseURL: process.env.BETTER_AUTH_URL,
 	advanced: {
 		defaultCookieAttributes: {
-			sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+			sameSite: "Lax",
 			secure: process.env.NODE_ENV === "production",
 			httpOnly: true,
-			domain: process.env.NODE_ENV === "production" ? ".habitutor.id" : undefined,
 		},
 		...(process.env.NODE_ENV === "production" && {
 			crossSubDomainCookies: {

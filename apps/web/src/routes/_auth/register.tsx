@@ -1,12 +1,14 @@
-import { GoogleLogoIcon } from "@phosphor-icons/react";
+import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/_auth/register")({
@@ -15,7 +17,17 @@ export const Route = createFileRoute("/_auth/register")({
 
 function RouteComponent() {
 	return (
-		<main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
+		<main className="relative flex min-h-screen w-full flex-col items-center pt-24">
+			<Button
+				asChild
+				variant="outline"
+				className="absolute top-4 left-4 border border-primary/50 bg-white text-primary hover:bg-primary/10"
+			>
+				<Link to="/">
+					<ArrowLeft />
+					Kembali
+				</Link>
+			</Button>
 			<SignUpForm />
 		</main>
 	);
@@ -69,6 +81,7 @@ function SignUpForm() {
 
 	return (
 		<div className="w-full max-w-md">
+			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
 			<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
 					<h1 className="text-3xl text-primary">
@@ -196,6 +209,12 @@ function SignUpForm() {
 					</form.Subscribe>
 				</form>
 
+				<div className="flex items-center gap-4 py-4">
+					<Separator className="flex-1" />
+					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
+					<Separator className="flex-1" />
+				</div>
+
 				<Button
 					onClick={() =>
 						authClient.signIn.social({
@@ -204,7 +223,7 @@ function SignUpForm() {
 						})
 					}
 					variant="outline"
-					className="mt-4 w-full hover:cursor-pointer"
+					className="mt-0 w-full hover:cursor-pointer"
 				>
 					<GoogleLogoIcon weight="bold" />
 					Daftar dengan Google

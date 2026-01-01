@@ -1,6 +1,5 @@
-import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
@@ -8,60 +7,49 @@ import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/_auth/login")({
+export const Route = createFileRoute("/_auth/reset-password")({
 	component: RouteComponent,
+	validateSearch: (search: Record<string, unknown>) => {
+		return {
+			token: search.token as string,
+		};
+	},
 });
 
 function RouteComponent() {
 	return (
-		<main className="relative flex min-h-screen w-full flex-col items-center pt-24">
-			<Button
-				asChild
-				variant="outline"
-				className="absolute top-4 left-4 border border-primary/50 bg-white text-primary hover:bg-primary/10"
-			>
-				<Link to="/">
-					<ArrowLeft />
-					Kembali
-				</Link>
-			</Button>
-			<SignInForm />
+		<main className="flex min-h-screen w-full flex-col items-center pt-24">
+			<ResetPasswordForm />
 		</main>
 	);
 }
 
-function SignInForm() {
-	const navigate = useNavigate({
-		from: "/",
-	});
-	const location = useLocation();
+function ResetPasswordForm() {
+	const navigate = useNavigate();
+	const search = Route.useSearch();
 	const { isPending } = authClient.useSession();
 
 	const form = useForm({
 		defaultValues: {
-			email: "",
-			password: "",
+			newPassword: "",
+			confirmPassword: "",
 		},
 		onSubmit: async ({ value }) => {
-			await authClient.signIn.email(
+			if (value.newPassword !== value.confirmPassword) {
+				toast.error("Password tidak sama");
+				return;
+			}
+			await authClient.resetPassword(
 				{
-					email: value.email,
-					password: value.password,
-					rememberMe: true,
+					newPassword: value.newPassword,
+					token: search.token,
 				},
 				{
-					onSuccess: async () => {
-						const session = await authClient.getSession();
-						const user = session.data?.user as { role?: string } | undefined;
-
-						if (user?.role === "admin") {
-							navigate({ to: "/admin/dashboard" });
-						} else {
-							navigate({ to: "/dashboard" });
-						}
+					onSuccess: () => {
+						toast.success("Password berhasil diubah");
+						navigate({ to: "/login" });
 					},
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);
@@ -71,8 +59,8 @@ function SignInForm() {
 		},
 		validators: {
 			onSubmit: type({
-				email: "string.email",
-				password: "string",
+				newPassword: "string >= 8",
+				confirmPassword: "string >= 8",
 			}),
 		},
 	});
@@ -86,11 +74,12 @@ function SignInForm() {
 			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
 			<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
+					{" "}
 					<h1 className="text-3xl text-primary">
-						<span className="font-bold">Selamat Datang </span>
-						Kembali
+						<span className="font-bold">Reset </span>
+						Password
 					</h1>
-					<p className="text-sm">Masuk kembali untuk memulai belajar lagi!</p>
+					<p className="text-sm">Masukkan password baru anda</p>
 				</div>
 
 				<form
@@ -102,14 +91,14 @@ function SignInForm() {
 					className="mt-8 space-y-4"
 				>
 					<div>
-						<form.Field name="email">
+						<form.Field name="newPassword">
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor={field.name}>Email</Label>
+									<Label htmlFor={field.name}>Password Baru</Label>
 									<Input
 										id={field.name}
 										name={field.name}
-										type="email"
+										type="password"
 										autoFocus
 										value={field.state.value}
 										onBlur={field.handleBlur}
@@ -126,10 +115,10 @@ function SignInForm() {
 					</div>
 
 					<div>
-						<form.Field name="password">
+						<form.Field name="confirmPassword">
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor={field.name}>Password</Label>
+									<Label htmlFor={field.name}>Konfirmasi Password</Label>
 									<Input
 										id={field.name}
 										name={field.name}
@@ -146,45 +135,22 @@ function SignInForm() {
 								</div>
 							)}
 						</form.Field>
-						<Link to="/forgot-password" className="ml-auto w-fit text-primary text-xs underline">
-							Lupa Password?
-						</Link>
 					</div>
 
 					<form.Subscribe>
 						{(state) => (
 							<Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-								{state.isSubmitting ? "Memuat..." : "Masuk"}
+								{state.isSubmitting ? "Memuat..." : "Ubah Password"}
 							</Button>
 						)}
 					</form.Subscribe>
 				</form>
-
-				<div className="flex items-center gap-4 py-4">
-					<Separator className="flex-1" />
-					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
-					<Separator className="flex-1" />
-				</div>
-
-				<Button
-					onClick={() => {
-						authClient.signIn.social({
-							provider: "google",
-							callbackURL: `${location.url}/dashboard`,
-						});
-					}}
-					variant="outline"
-					className="mt-0 w-full hover:cursor-pointer"
-				>
-					<GoogleLogoIcon weight="bold" />
-					Masuk dengan Google
-				</Button>
 			</div>
 
 			<p className="mt-4 text-center text-sm">
-				Belum punya akun?{" "}
-				<Link to="/register" className="font-bold text-primary">
-					Daftar Sekarang
+				Sudah punya akun?{" "}
+				<Link to="/login" className="font-bold text-primary">
+					Masuk
 				</Link>
 			</p>
 		</div>
