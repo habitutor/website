@@ -1,6 +1,11 @@
 FROM oven/bun:1-alpine AS base
 RUN bun install -g turbo@^2.7.2
 
+FROM base AS configs
+ENV NODE_ENV=production \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0"
+
 FROM base AS installer
 WORKDIR /usr/src/app
 
@@ -11,9 +16,9 @@ COPY packages/auth/package.json ./packages/auth/
 COPY packages/config/package.json ./packages/config/
 COPY packages/db/package.json ./packages/db/
 
-RUN bun install 
+RUN bun install
 
-FROM base AS builder
+FROM configs AS builder
 ARG TURBO_TEAM
 ARG TURBO_TOKEN
 ENV TURBO_TEAM=${TURBO_TEAM}
@@ -25,12 +30,7 @@ COPY . .
 RUN turbo prune web
 RUN turbo build --filter=web
 
-FROM base AS runner
-WORKDIR /usr/src/app
-
-ENV NODE_ENV=production \
-    PORT=3000 \
-    HOSTNAME="0.0.0.0"
+FROM configs AS runner
 COPY --from=builder /usr/src/app/apps/web/.output/ .
 
 EXPOSE 3000
