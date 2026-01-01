@@ -1,6 +1,7 @@
 import { CheckCircle } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useLocation, useNavigate, useSearch } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,53 +12,53 @@ import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 
 const resetPasswordSearchSchema = type({
-  email: "string.email?",
+	email: "string.email?",
 });
 
 export const Route = createFileRoute("/_auth/forgot-password")({
-  component: RouteComponent,
-  validateSearch: resetPasswordSearchSchema,
+	component: RouteComponent,
+	validateSearch: resetPasswordSearchSchema,
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const search = useSearch({ from: "/_auth/forgot-password" });
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+	const navigate = useNavigate();
+	const location = useLocation();
+	const search = useSearch({ from: "/_auth/forgot-password" });
+	const [hasSubmitted, setHasSubmitted] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm({
-    defaultValues: {
-      email: search.email || "",
-    },
-    onSubmit: async ({ value }) => {
-      setIsSubmitting(true);
-      const { error } = await authClient.requestPasswordReset({
-        email: value.email,
-        redirectTo: `${location.url.origin}/reset-password`,
-      });
+	const form = useForm({
+		defaultValues: {
+			email: search.email || "",
+		},
+		onSubmit: async ({ value }) => {
+			setIsSubmitting(true);
+			const { error } = await authClient.requestPasswordReset({
+				email: value.email,
+				redirectTo: `${location.url.origin}/reset-password`,
+			});
 
-      if (error) {
-        console.error(error);
-        toast.error(error.message || "Terjadi kesalahan. Silakan coba lagi.");
-      } else {
-        setHasSubmitted(true);
-      }
-      setIsSubmitting(false);
-    },
-    validators: {
-      onSubmit: type({
-        email: "string.email",
-      }),
-    },
-  });
+			if (error) {
+				console.error(error);
+				toast.error(error.message || "Terjadi kesalahan. Silakan coba lagi.");
+			} else {
+				setHasSubmitted(true);
+			}
+			setIsSubmitting(false);
+		},
+		validators: {
+			onSubmit: type({
+				email: "string.email",
+			}),
+		},
+	});
 
-  return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
-      <div className="w-full max-w-md">
-        <div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="font-bold text-3xl text-primary">Lupa Password</h1>
+	return (
+		<main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
+			<div className="w-full max-w-md">
+				<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
+				<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
+					<div className="flex flex-col items-center gap-2 text-center">            <h1 className="font-bold text-3xl text-primary">Lupa Password</h1>
           </div>
 
           {hasSubmitted ? (

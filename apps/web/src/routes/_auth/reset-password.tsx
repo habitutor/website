@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -9,70 +10,70 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/_auth/reset-password")({
-  component: RouteComponent,
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      token: search.token as string,
-    };
-  },
+	component: RouteComponent,
+	validateSearch: (search: Record<string, unknown>) => {
+		return {
+			token: search.token as string,
+		};
+	},
 });
 
 function RouteComponent() {
-  return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
-      <ResetPasswordForm />
-    </main>
-  );
+	return (
+		<main className="flex min-h-screen w-full flex-col items-center justify-center pt-24">
+			<ResetPasswordForm />
+		</main>
+	);
 }
 
 function ResetPasswordForm() {
-  const navigate = useNavigate();
-  const search = Route.useSearch();
-  const { isPending } = authClient.useSession();
+	const navigate = useNavigate();
+	const search = Route.useSearch();
+	const { isPending } = authClient.useSession();
 
-  const form = useForm({
-    defaultValues: {
-      newPassword: "",
-      confirmPassword: "",
-    },
-    onSubmit: async ({ value }) => {
-      if (value.newPassword !== value.confirmPassword) {
-        toast.error("Password tidak sama");
-        return;
-      }
-      await authClient.resetPassword(
-        {
-          newPassword: value.newPassword,
-          token: search.token,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Password berhasil diubah");
-            navigate({ to: "/login" });
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
-    },
-    validators: {
-      onSubmit: type({
-        newPassword: "string >= 8",
-        confirmPassword: "string >= 8",
-      }),
-    },
-  });
+	const form = useForm({
+		defaultValues: {
+			newPassword: "",
+			confirmPassword: "",
+		},
+		onSubmit: async ({ value }) => {
+			if (value.newPassword !== value.confirmPassword) {
+				toast.error("Password tidak sama");
+				return;
+			}
+			await authClient.resetPassword(
+				{
+					newPassword: value.newPassword,
+					token: search.token,
+				},
+				{
+					onSuccess: () => {
+						toast.success("Password berhasil diubah");
+						navigate({ to: "/login" });
+					},
+					onError: (error) => {
+						toast.error(error.error.message || error.error.statusText);
+					},
+				},
+			);
+		},
+		validators: {
+			onSubmit: type({
+				newPassword: "string >= 8",
+				confirmPassword: "string >= 8",
+			}),
+		},
+	});
 
-  if (isPending) {
-    return <Loader />;
-  }
+	if (isPending) {
+		return <Loader />;
+	}
 
-  return (
-    <div className="w-full max-w-md">
-      <div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-3xl text-primary">
+	return (
+		<div className="w-full max-w-md">
+			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
+			<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
+				<div className="flex flex-col items-center gap-2 text-center">          <h1 className="text-3xl text-primary">
             <span className="font-bold">Reset </span>
             Password
           </h1>

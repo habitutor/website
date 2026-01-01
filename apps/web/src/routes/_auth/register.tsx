@@ -1,6 +1,7 @@
 import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -79,6 +80,7 @@ function SignUpForm() {
 
 	return (
 		<div className="w-full max-w-md">
+			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
 			<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
 					<h1 className="text-3xl text-primary">

@@ -1,6 +1,7 @@
 import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -31,58 +32,59 @@ function RouteComponent() {
 	);
 }
 
-function SignInForm() {  const navigate = useNavigate({
-    from: "/",
-  });
-  const location = useLocation();
-  const { isPending } = authClient.useSession();
+function SignInForm() {
+	const navigate = useNavigate({
+		from: "/",
+	});
+	const location = useLocation();
+	const { isPending } = authClient.useSession();
 
-  const form = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    onSubmit: async ({ value }) => {
-      await authClient.signIn.email(
-        {
-          email: value.email,
-          password: value.password,
-          rememberMe: true,
-        },
-        {
-          onSuccess: async () => {
-            const session = await authClient.getSession();
-            const user = session.data?.user as { role?: string } | undefined;
+	const form = useForm({
+		defaultValues: {
+			email: "",
+			password: "",
+		},
+		onSubmit: async ({ value }) => {
+			await authClient.signIn.email(
+				{
+					email: value.email,
+					password: value.password,
+					rememberMe: true,
+				},
+				{
+					onSuccess: async () => {
+						const session = await authClient.getSession();
+						const user = session.data?.user as { role?: string } | undefined;
 
-            if (user?.role === "admin") {
-              navigate({ to: "/admin/dashboard" });
-            } else {
-              navigate({ to: "/dashboard" });
-            }
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
-    },
-    validators: {
-      onSubmit: type({
-        email: "string.email",
-        password: "string",
-      }),
-    },
-  });
+						if (user?.role === "admin") {
+							navigate({ to: "/admin/dashboard" });
+						} else {
+							navigate({ to: "/dashboard" });
+						}
+					},
+					onError: (error) => {
+						toast.error(error.error.message || error.error.statusText);
+					},
+				},
+			);
+		},
+		validators: {
+			onSubmit: type({
+				email: "string.email",
+				password: "string",
+			}),
+		},
+	});
 
-  if (isPending) {
-    return <Loader />;
-  }
+	if (isPending) {
+		return <Loader />;
+	}
 
-  return (
-    <div className="w-full max-w-md">
-      <div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-3xl text-primary">
+	return (
+		<div className="w-full max-w-md">
+			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
+			<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
+				<div className="flex flex-col items-center gap-2 text-center">          <h1 className="text-3xl text-primary">
             <span className="font-bold">Selamat Datang </span>
             Kembali
           </h1>
