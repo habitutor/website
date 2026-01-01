@@ -1,6 +1,12 @@
 FROM oven/bun:1-alpine AS base
 RUN bun install -g turbo@^2.7.2
 
+FROM base AS configs
+ENV NODE_ENV=production \
+    PORT=3001 \
+    HOSTNAME="0.0.0.0" \
+    BETTER_AUTH_URL=https://api.habitutor.id
+
 FROM base AS installer
 WORKDIR /usr/src/app
 
@@ -13,7 +19,7 @@ COPY packages/db/package.json ./packages/db/
 
 RUN bun install
 
-FROM base AS builder
+FROM configs AS builder
 ARG TURBO_TEAM
 ARG TURBO_TOKEN
 ENV TURBO_TEAM=${TURBO_TEAM}
@@ -25,13 +31,7 @@ COPY . .
 RUN turbo prune server
 RUN turbo build --filter=server
 
-FROM base AS runner
-WORKDIR /usr/src/app
-
-ENV NODE_ENV=production \
-    PORT=3001 \
-    HOSTNAME="0.0.0.0" \
-    BETTER_AUTH_URL=https://api.habitutor.id
+FROM configs AS runner
 COPY --from=builder /usr/src/app/apps/server/dist/ .
 
 EXPOSE 3001
