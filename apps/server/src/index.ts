@@ -71,6 +71,7 @@ app.use("/*", async (c, next) => {
 	if (apiResult.matched) {
 		return c.newResponse(apiResult.response.body, apiResult.response);
 	}
+	console.log("NODE_ENV:", process.env.NODE_ENV)
 
 	await next();
 });
