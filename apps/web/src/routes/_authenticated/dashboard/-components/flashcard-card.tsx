@@ -44,8 +44,11 @@ export const FlashcardCard = () => {
 	if (data?.status === "not_started") return null;
 
 	const handleAnswerSelect = async (answerId: number) => {
+		if (!data || data.assignedQuestions.length === 0) return;
+		const questionData = data.assignedQuestions[currentPage - 1];
+		if (!questionData) return;
 		setDisableInteraction(true);
-		const questionId = data!.assignedQuestions[currentPage - 1].question.id;
+		const questionId = questionData.question.id;
 		try {
 			await saveAnswerMutation.mutateAsync({
 				questionId,

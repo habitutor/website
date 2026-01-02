@@ -3,12 +3,15 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
+import type { Session } from "@/lib/auth-client";
 import { MotionProvider } from "@/lib/motion";
 import type { orpc } from "@/utils/orpc";
 import appCss from "../index.css?url";
+
 export interface RouterAppContext {
 	orpc: typeof orpc;
 	queryClient: QueryClient;
+	session: Session | null;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({

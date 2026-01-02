@@ -245,10 +245,10 @@ const Carousel: React.FC<CarouselProps> = ({
 								if (actualIndex >= 0 && actualIndex < items.length && actualIndex !== currentIndex - 1) {
 									goToSlide(actualIndex);
 								}
-								onItemClick?.(item, actualIndex);
+								onItemClick?.(item!, actualIndex);
 							}}
 						>
-							{renderCard ? renderCard(item, index, index === currentIndex) : defaultRenderCard(item)}
+							{renderCard ? renderCard(item!, index, index === currentIndex) : defaultRenderCard(item)}
 						</button>
 					))}
 				</div>
