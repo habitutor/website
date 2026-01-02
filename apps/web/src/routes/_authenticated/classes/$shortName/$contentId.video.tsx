@@ -75,7 +75,7 @@ function RouteComponent() {
 			<div className="aspect-video w-full">
 				<YouTubePlayer videoId={videoId} />
 			</div>
-			
+
 			<h2 className="font-bold text-2xl">{content.data.title}</h2>
 			<hr />
 

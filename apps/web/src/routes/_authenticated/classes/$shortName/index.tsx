@@ -57,37 +57,36 @@ function RouteComponent() {
 	if (!matchedClass) return notFound();
 
 	return (
-		
-			<div className="space-y-4">
+		<div className="space-y-4">
 			<ClassHeader subtest={matchedClass} />
-				<Tabs defaultValue="material">
-					<TabsList>
-						<TabsTrigger value="material">Materi</TabsTrigger>
-						<TabsTrigger value="tips">Tips & Trick</TabsTrigger>
-					</TabsList>
-					<TabsContent value="material">
-						<ContentList
-							items={materialContents.data}
-							isLoading={materialContents.isPending}
-							error={materialContents.isError ? materialContents.error.message : undefined}
-							userIsPremium={userIsPremium}
-							userRole={userRole}
-							subtestOrder={matchedClass.order}
-							shortName={shortName}
-						/>
-					</TabsContent>
-					<TabsContent value="tips">
-						<ContentList
-							items={tipsContents.data}
-							isLoading={tipsContents.isPending}
-							error={tipsContents.isError ? tipsContents.error.message : undefined}
-							userIsPremium={userIsPremium}
-							userRole={userRole}
-							subtestOrder={matchedClass.order}
-							shortName={shortName}
-						/>
-					</TabsContent>
-				</Tabs>
-			</div>
+			<Tabs defaultValue="material">
+				<TabsList>
+					<TabsTrigger value="material">Materi</TabsTrigger>
+					<TabsTrigger value="tips">Tips & Trick</TabsTrigger>
+				</TabsList>
+				<TabsContent value="material">
+					<ContentList
+						items={materialContents.data}
+						isLoading={materialContents.isPending}
+						error={materialContents.isError ? materialContents.error.message : undefined}
+						userIsPremium={userIsPremium}
+						userRole={userRole}
+						subtestOrder={matchedClass.order}
+						shortName={shortName}
+					/>
+				</TabsContent>
+				<TabsContent value="tips">
+					<ContentList
+						items={tipsContents.data}
+						isLoading={tipsContents.isPending}
+						error={tipsContents.isError ? tipsContents.error.message : undefined}
+						userIsPremium={userIsPremium}
+						userRole={userRole}
+						subtestOrder={matchedClass.order}
+						shortName={shortName}
+					/>
+				</TabsContent>
+			</Tabs>
+		</div>
 	);
 }

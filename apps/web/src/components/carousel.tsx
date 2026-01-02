@@ -232,7 +232,7 @@ const Carousel: React.FC<CarouselProps> = ({
 				<div className="relative flex items-center justify-center">
 					{extendedItems.map((item, index) => (
 						<button
-							key={`${item.id}-${index}`}
+							key={`${item?.id}-${index}`}
 							type="button"
 							className="absolute cursor-pointer"
 							style={{
@@ -248,7 +248,9 @@ const Carousel: React.FC<CarouselProps> = ({
 								onItemClick?.(item!, actualIndex);
 							}}
 						>
-							{renderCard ? renderCard(item!, index, index === currentIndex) : defaultRenderCard(item)}
+							{renderCard
+								? renderCard(item as CarouselItem, index, index === currentIndex)
+								: defaultRenderCard(item as CarouselItem)}
 						</button>
 					))}
 				</div>

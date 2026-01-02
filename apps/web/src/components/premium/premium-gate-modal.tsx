@@ -48,7 +48,6 @@ export function PremiumGateModal({ isOpen, onClose, contentType, previewContent 
 							</CardDescription>
 						</CardHeader>
 
-
 						<CardFooter className="flex justify-end gap-2 pt-2">
 							<Link to="/classes" className={cn(buttonVariants({ variant: "outline" }), "flex-1")}>
 								Kembali
