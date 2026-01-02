@@ -70,12 +70,13 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p>Video Materi</p>
+			<p className="font-semibold text-base text-primary-300">Video Materi</p>
 
 			<div className="aspect-video w-full">
 				<YouTubePlayer videoId={videoId} />
 			</div>
-
+			
+			<h2 className="font-bold text-2xl">{content.data.title}</h2>
 			<hr />
 
 			<h3 className="font-semibold text-lg">Tentang Video</h3>

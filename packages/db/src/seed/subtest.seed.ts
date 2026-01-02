@@ -192,7 +192,7 @@ const SAMPLE_CONTENT = [
 			{
 				type: "tips_and_trick" as const,
 				title: "Framework Cepat Soal Logika",
-				order: 1,
+				order: 2,
 				notes: {
 					type: "doc",
 					version: 1,
@@ -226,6 +226,82 @@ const SAMPLE_CONTENT = [
 											content: [{ type: "text", text: "Eliminasi opsi lemah" }],
 										},
 									],
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				type: "material" as const,
+				title: "Memahami Informasi Faktual dan Opini",
+				order: 3,
+				video: {
+					videoUrl: "https://www.youtube.com/watch?v=ppu1",
+					content: {
+						type: "doc",
+						version: 1,
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{
+										type: "text",
+										text: "PPU menguji pemahaman terhadap fakta, opini, dan hubungan sebab-akibat.",
+									},
+								],
+							},
+							{
+								type: "bulletList",
+								content: [
+									{
+										type: "listItem",
+										content: [
+											{
+												type: "paragraph",
+												content: [{ type: "text", text: "Fakta dapat diverifikasi" }],
+											},
+										],
+									},
+									{
+										type: "listItem",
+										content: [
+											{
+												type: "paragraph",
+												content: [{ type: "text", text: "Opini bersifat subjektif" }],
+											},
+										],
+									},
+								],
+							},
+						],
+					},
+				},
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [{ type: "text", text: "Selalu cek konteks pernyataan." }],
+						},
+					],
+				},
+			},
+			{
+				type: "tips_and_trick" as const,
+				title: "Cara Cepat Bedakan Fakta & Opini",
+				order: 4,
+				notes: {
+					type: "doc",
+					version: 1,
+					content: [
+						{
+							type: "paragraph",
+							content: [
+								{
+									type: "text",
+									text: "Cari kata nilai seperti ‘menurut’, ‘seharusnya’.",
 								},
 							],
 						},

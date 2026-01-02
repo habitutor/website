@@ -4,6 +4,7 @@ import { ClassHeader, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/")({
@@ -17,6 +18,9 @@ export const Route = createFileRoute("/_authenticated/classes/$shortName/")({
 
 function RouteComponent() {
 	const { shortName } = Route.useParams();
+	const session = authClient.useSession();
+	const userIsPremium = session.data?.user?.isPremium ?? false;
+	const userRole = session.data?.user?.role;
 
 	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 	const matchedClass = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
@@ -53,9 +57,9 @@ function RouteComponent() {
 	if (!matchedClass) return notFound();
 
 	return (
-		<>
-			<ClassHeader subtest={matchedClass} />
+		
 			<div className="space-y-4">
+			<ClassHeader subtest={matchedClass} />
 				<Tabs defaultValue="material">
 					<TabsList>
 						<TabsTrigger value="material">Materi</TabsTrigger>
@@ -66,6 +70,10 @@ function RouteComponent() {
 							items={materialContents.data}
 							isLoading={materialContents.isPending}
 							error={materialContents.isError ? materialContents.error.message : undefined}
+							userIsPremium={userIsPremium}
+							userRole={userRole}
+							subtestOrder={matchedClass.order}
+							shortName={shortName}
 						/>
 					</TabsContent>
 					<TabsContent value="tips">
@@ -73,10 +81,13 @@ function RouteComponent() {
 							items={tipsContents.data}
 							isLoading={tipsContents.isPending}
 							error={tipsContents.isError ? tipsContents.error.message : undefined}
+							userIsPremium={userIsPremium}
+							userRole={userRole}
+							subtestOrder={matchedClass.order}
+							shortName={shortName}
 						/>
 					</TabsContent>
 				</Tabs>
 			</div>
-		</>
 	);
 }

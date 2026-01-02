@@ -56,8 +56,12 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p>Catatan Materi</p>
-			<h2 className="font-semibold text-lg">{content.data.title}</h2>
+			<p className="font-semibold text-base text-primary-300">Catatan Materi</p>
+
+			<h2 className="font-bold text-2xl">{content.data.title}</h2>
+
+			<hr />
+
 			<TiptapRenderer content={note.content} />
 		</div>
 	);

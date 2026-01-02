@@ -52,12 +52,24 @@ function RouteComponent() {
 
 	const practiceQuestions = content.data.practiceQuestions;
 	if (!practiceQuestions) {
-		return <p className="text-muted-foreground text-sm">Belum ada latihan soal untuk materi ini.</p>;
+		return (
+			<div className="space-y-4">
+				<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
+
+				<PracticeQuestionHeader content={content.data.title} />
+
+				<hr />
+			</div>
+		);
 	}
 
 	return (
 		<div className="space-y-4">
+			<p className="font-semibold text-base text-primary-300">Latihan Soal Materi</p>
+
 			<PracticeQuestionHeader content={content.data.title} />
+
+			<hr />
 
 			{Array.isArray(practiceQuestions?.questions) && practiceQuestions.questions.length > 0 ? (
 				practiceQuestions.questions.map((q, idx) => (

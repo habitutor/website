@@ -2,6 +2,7 @@ import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { eq } from "drizzle-orm";
 import { o } from "./lib/orpc";
+import { rateLimit } from "./middlewares/rate-limit";
 import { requireAdmin } from "./middlewares/rbac";
 
 export const pub = o;
@@ -59,3 +60,4 @@ const requirePremium = o.middleware(({ context, next, errors }) => {
 export const authed = pub.use(requireAuth);
 export const premium = authed.use(requirePremium);
 export const admin = authed.use(requireAdmin);
+export const authedRateLimited = authed.use(rateLimit);

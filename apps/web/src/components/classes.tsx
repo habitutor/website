@@ -6,6 +6,8 @@ import {
 	ExamIcon,
 	EyeIcon,
 	EyeSlashIcon,
+	LockIcon,
+	LockKeyIcon,
 	NoteIcon,
 	PencilSimpleIcon,
 	PlayCircleIcon,
@@ -20,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { canAccessContent, isSubtestPremium } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import type { BodyOutputs } from "@/utils/orpc";
@@ -95,15 +98,41 @@ const subtestCardAvatar = {
 
 type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>[number];
 
-export function SubtestCard({ subtest }: { subtest: SubtestListItem }) {
+export function SubtestCard({
+	subtest,
+	userIsPremium,
+	userRole,
+}: {
+	subtest: SubtestListItem;
+	userIsPremium?: boolean;
+	userRole?: string;
+}) {
 	const isAdmin = useIsAdmin();
 	const shortName = subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
 	const backgroundClass = subtestCardBackground[shortName] || "bg-secondary-400";
 	const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
 	const avatarSrc = subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
+	// Use subtest.order to determine if premium (order > 1 means premium)
+	const isPremiumSubtest = isSubtestPremium(subtest?.order ?? 1, userRole, userIsPremium);
+	const isLocked = !isAdmin && isPremiumSubtest;
 
 	return (
 		<Card className={cn(backgroundClass, "relative min-h-40 overflow-hidden border-0 p-4 transition-colors")}>
+			{/* Lock overlay for premium content */}
+			{isLocked && (
+				<>
+					{/* Dark overlay */}
+					<div className="absolute inset-0 z-5 bg-black/40" />
+					{/* Lock badge */}
+					<div className="absolute top-4 left-4 z-10">
+						<div className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
+							<LockKeyIcon size={16} className="text-white" weight="fill" />
+							<span className="font-semibold text-white text-xs">Premium dulu yuk!</span>
+						</div>
+					</div>
+				</>
+			)}
+
 			{/* Pattern element */}
 			<div className={cn(patternClass, "absolute right-0 bottom-0 aspect-square h-[70%] w-auto")} />
 
@@ -123,13 +152,25 @@ export function SubtestCard({ subtest }: { subtest: SubtestListItem }) {
 					<p className="text-sm"># Materi</p>
 				</div>
 
-				<Link
-					to={isAdmin ? "/admin/classes/$shortName" : "/classes/$shortName"}
-					params={{ shortName: subtest?.shortName?.toLowerCase() }}
-					className={cn(buttonVariants({ variant: "lightBlue", size: "icon" }), "z-1 mt-auto mb-0")}
-				>
-					{isAdmin ? <PencilSimpleIcon size={18} weight="bold" /> : <ArrowRightIcon size={18} weight="bold" />}
-				</Link>
+				{isLocked ? (
+					// Disabled button for locked subtests
+					<div
+						className={cn(
+							buttonVariants({ variant: "lightBlue", size: "icon" }),
+							"z-10 mt-auto mb-0 cursor-not-allowed opacity-50",
+						)}
+					>
+						<LockIcon size={18} weight="bold" />
+					</div>
+				) : (
+					<Link
+						to={isAdmin ? "/admin/classes/$shortName" : "/classes/$shortName"}
+						params={{ shortName: subtest?.shortName?.toLowerCase() }}
+						className={cn(buttonVariants({ variant: "lightBlue", size: "icon" }), "z-10 mt-auto mb-0")}
+					>
+						{isAdmin ? <PencilSimpleIcon size={18} weight="bold" /> : <ArrowRightIcon size={18} weight="bold" />}
+					</Link>
+				)}
 			</div>
 		</Card>
 	);
@@ -284,6 +325,10 @@ function ContentCard({
 	onDelete,
 	completed,
 	dragControls,
+	userIsPremium,
+	userRole,
+	shortName,
+	subtestOrder,
 }: {
 	item: ContentListItem;
 	index: number;
@@ -291,31 +336,56 @@ function ContentCard({
 	onDelete?: () => void;
 	completed?: boolean;
 	dragControls?: ReturnType<typeof useDragControls>;
+	userIsPremium?: boolean;
+	userRole?: string;
+	shortName?: string;
+	subtestOrder?: number;
 }) {
 	const isAdmin = useIsAdmin();
 	const location = useLocation();
 	const basePath = isAdmin ? "/admin/classes" : "/classes";
 	const shortNameIndex = isAdmin ? 3 : 2;
-	const shortName = location.pathname.split("/")[shortNameIndex];
+	const subtestShortName = shortName || location.pathname.split("/")[shortNameIndex] || "";
+	// Use canAccessContent to determine if this content is premium locked
+	// item.order is the content order (1-based), subtestOrder is the subtest order
+	const isPremiumContent =
+		!isAdmin && !canAccessContent(userIsPremium ?? false, userRole, subtestOrder ?? 1, item.order);
 
 	const params = {
-		shortName,
+		shortName: subtestShortName,
 		contentId: item.id.toString(),
 	};
 
 	return (
 		<Card
 			className={cn(
-				"relative rounded-[10px] border border-neutral-200 p-2 sm:p-4 lg:p-5",
+				"relative gap-1 rounded-[10px] border border-neutral-200 p-3 sm:gap-6 sm:p-4 lg:p-5",
 				!isAdmin && completed && "border-tertiary-300 bg-tertiary-100",
+				isPremiumContent && "overflow-hidden",
 			)}
 		>
+			{/* Premium lock overlay */}
+			{isPremiumContent && (
+				<>
+					{/* Dark overlay */}
+					<div className="pointer-events-none absolute inset-0 z-10 bg-black/50" />
+					{/* Lock badge */}
+					<div className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">
+						<div className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 backdrop-blur-sm">
+							<LockIcon className="size-4 text-white" weight="fill" />
+							<span className="font-semibold text-white text-xs">Premium</span>
+						</div>
+					</div>
+				</>
+			)}
+
 			{/* Completed indicator */}
-			{!isAdmin && completed && (
+			{!isAdmin && completed && !isPremiumContent && (
 				<div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-					<CheckCircleIcon className="size-5 text-tertiary-500 sm:size-6" weight="fill" />
+					<CheckCircleIcon className="size-5 text-fourtiary-300 sm:size-6" weight="fill" />
 				</div>
 			)}
+
 			{/* Header */}
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				{/* Left: drag handle + badge + title */}
@@ -365,7 +435,7 @@ function ContentCard({
 				</div>
 			</div>
 
-			{/* Actions */}
+			{/* Actions - Links still work but will be caught by route guard */}
 			<div className="flex gap-2 overflow-x-auto sm:gap-3">
 				{CONTENT_ACTIONS.map(
 					({ key, label, icon: Icon, enabled, className, width }) =>
@@ -379,6 +449,7 @@ function ContentCard({
 									"w-full sm:w-auto",
 									className,
 									width,
+									isPremiumContent && "pointer-events-none opacity-60",
 								)}
 							>
 								<Icon className="size-4 sm:size-[18px]" weight="bold" />
@@ -410,7 +481,7 @@ export function LastContentViewedCard({
 	const location = useLocation();
 	const basePath = isAdmin ? "/admin/classes" : "/classes";
 	const shortNameIndex = isAdmin ? 3 : 2;
-	const shortNameFromPath = location.pathname.split("/")[shortNameIndex];
+	const shortNameFromPath = location.pathname.split("/")[shortNameIndex] || "";
 	const shortName = shortNameProp || shortNameFromPath;
 
 	const params = {
@@ -473,6 +544,10 @@ export function ContentList({
 	onEdit,
 	onDelete,
 	onReorder,
+	userIsPremium,
+	userRole,
+	shortName,
+	subtestOrder,
 }: {
 	title?: string;
 	items?: ContentListItem[];
@@ -482,6 +557,10 @@ export function ContentList({
 	onEdit?: (item: ContentListItem) => void;
 	onDelete?: (item: ContentListItem) => void;
 	onReorder?: (newItems: ContentListItem[]) => void;
+	userIsPremium?: boolean;
+	userRole?: string;
+	shortName?: string;
+	subtestOrder?: number;
 }) {
 	const isAdmin = useIsAdmin();
 	const [localItems, setLocalItems] = useState<ContentListItem[]>([]);
@@ -561,6 +640,10 @@ export function ContentList({
 								completed={isContentCompleted(item)}
 								onEdit={onEdit ? () => onEdit(item) : undefined}
 								onDelete={onDelete ? () => onDelete(item) : undefined}
+								userIsPremium={userIsPremium}
+								userRole={userRole}
+								shortName={shortName}
+								subtestOrder={subtestOrder}
 							/>
 						))}
 					</div>
