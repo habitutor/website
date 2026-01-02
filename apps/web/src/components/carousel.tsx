@@ -84,11 +84,14 @@ const Carousel: React.FC<CarouselProps> = ({
 	}, [gap, responsiveGap]);
 
 	// Create extended array for infinite scroll effect
-	const extendedItems = [
-		items[items.length - 1], // Last item at beginning
-		...items,
-		items[0], // First item at end
-	];
+	const extendedItems =
+		items.length > 0
+			? [
+					items[items.length - 1], // Last item at beginning
+					...items,
+					items[0], // First item at end
+				]
+			: [];
 
 	const nextSlide = () => {
 		if (isTransitioning) return;
@@ -230,29 +233,30 @@ const Carousel: React.FC<CarouselProps> = ({
 
 				{/* Cards */}
 				<div className="relative flex items-center justify-center">
-					{extendedItems.map((item, index) => (
-						<button
-							key={`${item?.id}-${index}`}
-							type="button"
-							className="absolute cursor-pointer"
-							style={{
-								width: cardWidth,
-								height: cardHeight,
-								...getCardStyle(index),
-							}}
-							onClick={() => {
-								const actualIndex = index - 1; // Account for extended array
-								if (actualIndex >= 0 && actualIndex < items.length && actualIndex !== currentIndex - 1) {
-									goToSlide(actualIndex);
-								}
-								onItemClick?.(item!, actualIndex);
-							}}
-						>
-							{renderCard
-								? renderCard(item as CarouselItem, index, index === currentIndex)
-								: defaultRenderCard(item as CarouselItem)}
-						</button>
-					))}
+					{extendedItems.map((item, index) => {
+						if (!item) return null;
+						return (
+							<button
+								key={`${item.id}-${index}`}
+								type="button"
+								className="absolute cursor-pointer"
+								style={{
+									width: cardWidth,
+									height: cardHeight,
+									...getCardStyle(index),
+								}}
+								onClick={() => {
+									const actualIndex = index - 1; // Account for extended array
+									if (actualIndex >= 0 && actualIndex < items.length && actualIndex !== currentIndex - 1) {
+										goToSlide(actualIndex);
+									}
+									onItemClick?.(item, actualIndex);
+								}}
+							>
+								{renderCard ? renderCard(item, index, index === currentIndex) : defaultRenderCard(item)}
+							</button>
+						);
+					})}
 				</div>
 			</div>
 
