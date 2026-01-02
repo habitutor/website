@@ -58,7 +58,7 @@ const start = authed
 					answerOptions: true,
 				},
 				orderBy: sql`RANDOM()`,
-				limit: 20,
+				limit: 5,
 			});
 
 			if (availableQuestions.length < 5)

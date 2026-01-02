@@ -1,4 +1,4 @@
-import { List, SignOut, SpinnerIcon, X } from "@phosphor-icons/react";
+import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -44,8 +44,18 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	return (
-		<>
-			<div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
+		<header className="fixed inset-x-0 top-0 z-50">
+			{!session?.user.isPremium && (
+				<div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
+					Dapatkan Semua Fitur dan Akses
+					<Button variant="default" size={"sm"} asChild>
+						<Link to="/premium">
+							Premium Sekarang <ArrowRightIcon />
+						</Link>
+					</Button>
+				</div>
+			)}
+			<div className="flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
 				<Link to="/" className="relative size-12">
 					<Image src="/logo.svg" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
 				</Link>
@@ -75,7 +85,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 						<DropdownMenuContent align="end">
 							<DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
 							<DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
-								<SignOut />
+								<SignOutIcon />
 								Log Out
 							</DropdownMenuItem>
 						</DropdownMenuContent>
@@ -83,7 +93,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 				</div>
 
 				<Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-					<List className="size-6" />
+					<ListIcon className="size-6" />
 				</Button>
 			</div>
 
@@ -99,7 +109,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 							/>
 						</Link>
 						<Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-							<X className="size-6" />
+							<XIcon className="size-6" />
 						</Button>
 					</div>
 
@@ -132,7 +142,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 								setOpen(true);
 							}}
 						>
-							<SignOut className="mr-2" />
+							<SignOutIcon className="mr-2" />
 							Log Out
 						</Button>
 					</div>
@@ -140,7 +150,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 			)}
 
 			<LogoutDialog open={open} onOpenChange={setOpen} />
-		</>
+		</header>
 	);
 }
 
@@ -177,7 +187,7 @@ const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
 							</>
 						) : (
 							<>
-								<SignOut /> Keluar
+								<SignOutIcon /> Keluar
 							</>
 						)}
 					</Button>

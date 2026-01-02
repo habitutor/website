@@ -2,19 +2,22 @@ import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "
 import { useEffect, useRef } from "react";
 import { HeaderDashboard } from "@/components/header-dashboard";
 import { Container } from "@/components/ui/container";
-import { getUser } from "@/lib/get-user";
+import { $getSession } from "@/lib/get-user";
 
 export const Route = createFileRoute("/_authenticated")({
 	component: AuthedLayout,
-	beforeLoad: async () => {
-		const session = await getUser();
+	beforeLoad: async ({ context }) => {
+		const { session } = await $getSession(context.queryClient);
 
 		return { session };
 	},
-	loader: ({ context }) => {
+	loader: ({ location, context }) => {
 		if (!context.session)
 			throw redirect({
 				to: "/login",
+				search: {
+					redirect: location.href,
+				},
 			});
 	},
 });
@@ -45,7 +48,7 @@ function AuthedLayout() {
 					<Outlet />
 				</Container>
 			) : (
-				<Container className="flex flex-col gap-6 pt-28">
+				<Container className="flex flex-col gap-6 pt-40">
 					<Outlet />
 				</Container>
 			)}

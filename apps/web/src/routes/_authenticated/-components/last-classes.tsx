@@ -1,9 +1,8 @@
-import { EmptyIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { LastContentViewedCard } from "@/components/classes";
 import { Button } from "@/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { orpc } from "@/utils/orpc";
 
 export const LastClasses = () => {
@@ -25,24 +24,15 @@ export const LastClasses = () => {
 		return (
 			<section>
 				<h2 className="font-medium">Kelas terakhirmu</h2>
-				<Empty>
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<EmptyIcon />
-						</EmptyMedia>
-						<EmptyTitle>Belum ada riwayat</EmptyTitle>
-						<EmptyDescription>
-							Kamu belum membuka kelas. Buka kelas untuk memulai perjuangan masuk PTN-mu!
-						</EmptyDescription>
-					</EmptyHeader>
-					<EmptyContent>
-						<div className="flex gap-2">
-							<Button variant="outline" asChild>
-								<Link to="/classes">Lihat kelas</Link>
-							</Button>
-						</div>
-					</EmptyContent>
-				</Empty>
+				<div className="flex flex-col items-center justify-center space-y-6 py-8">
+					<img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
+					<p className="font-bold text-2xl text-black">Kamu belum melihat kelas apapun</p>
+					<Button asChild>
+						<Link to="/classes">
+							Kelas Sekarang <ArrowRightIcon className="" />
+						</Link>
+					</Button>
+				</div>
 			</section>
 		);
 	}

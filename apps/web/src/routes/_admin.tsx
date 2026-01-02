@@ -1,21 +1,27 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { getUser } from "@/lib/get-user";
+import { $getSession } from "@/lib/get-user";
 
 export const Route = createFileRoute("/_admin")({
-	beforeLoad: async () => {
-		const session = await getUser();
+	beforeLoad: async ({ context }) => {
+		const { session } = await $getSession(context.queryClient);
 
 		return { session };
 	},
-	loader: ({ context }) => {
-		if (!context.session) {
-			throw redirect({ to: "/login" });
-		}
-
-		const user = context.session.user as { role?: string };
-		if (user.role !== "admin") {
-			throw redirect({ to: "/dashboard" });
-		}
+	loader: ({ location, context }) => {
+		if (!context.session)
+			throw redirect({
+				to: "/login",
+				search: {
+					redirect: location.href,
+				},
+			});
+		if (context.session.user.role !== "admin")
+			throw redirect({
+				to: "/dashboard",
+				search: {
+					redirect: location.href,
+				},
+			});
 	},
 	component: AdminLayout,
 });
