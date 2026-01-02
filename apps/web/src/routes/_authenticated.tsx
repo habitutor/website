@@ -6,7 +6,8 @@ import { $getSession } from "@/lib/get-user";
 
 export const Route = createFileRoute("/_authenticated")({
 	component: AuthedLayout,
-	beforeLoad: async ({ context }) => {
+	beforeLoad: async ({ context, preload }) => {
+		if (preload) return;
 		const { session } = await $getSession(context.queryClient);
 
 		return { session };
