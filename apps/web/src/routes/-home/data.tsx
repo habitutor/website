@@ -10,27 +10,27 @@ export const DATA = {
 	testimone: [
 		{
 			id: 1,
-			name: "John Doe",
-			title: "CEO",
-			desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+			name: "Nadia Putri",
+			title: "Siswa SMA",
+			desc: "Habitutor bantu aku lebih teratur belajar UTBK. Fitur flashcard harian dan penjelasan materi bikin makin paham dan nggak gampang lupa!",
 		},
 		{
 			id: 2,
-			name: "Jane Doe",
-			title: "CTO",
-			desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+			name: "Rafi Pratama",
+			title: "Peserta Gap Year",
+			desc: "Dulu aku bingung mulai belajar dari mana. Setelah pakai Habitutor, kemajuan belajarku jadi lebih terarah. Analisis tryoutnya jujur ngebantu banget!",
 		},
 		{
 			id: 3,
-			name: "Jane Doe",
-			title: "COO",
-			desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+			name: "Siti Hanifah",
+			title: "Calon Mahasiswa",
+			desc: "Materi premium-nya lengkap dan gampang diakses. Aku bisa tanya-tanya juga di komunitasnya, makin semangat belajar bareng teman seperjuangan.",
 		},
 		{
 			id: 4,
-			name: "Jane Doe",
-			title: "COO",
-			desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+			name: "Angga Wijaya",
+			title: "Pengguna Setia",
+			desc: "Aplikasi belajar online paling worth it buat persiapan UTBK. Progresku setiap hari kelihatan jelas, bikin makin rajin belajar!",
 		},
 	],
 	pricing: {
@@ -62,26 +62,26 @@ export const DATA = {
 				icon: InstagramLogoIcon,
 				url: "https://www.instagram.com/habitutor",
 			},
-			{
-				label: "Twitter",
-				icon: TwitterLogoIcon,
-				url: "https://www.twitter.com/habitutor",
-			},
-			{
-				label: "Discord",
-				icon: DiscordLogoIcon,
-				url: "https://discord.gg/habitutor",
-			},
+			// {
+			// 	label: "Twitter",
+			// 	icon: TwitterLogoIcon,
+			// 	url: "https://www.twitter.com/habitutor",
+			// },
+			// {
+			// 	label: "Discord",
+			// 	icon: DiscordLogoIcon,
+			// 	url: "https://discord.gg/habitutor",
+			// },
 			{
 				label: "TikTok",
 				icon: TiktokLogoIcon,
 				url: "https://www.tiktok.com/@habitutor",
 			},
-			{
-				label: "YouTube",
-				icon: YoutubeLogoIcon,
-				url: "https://www.youtube.com/@habitutor",
-			},
+			// {
+			// 	label: "YouTube",
+			// 	icon: YoutubeLogoIcon,
+			// 	url: "https://www.youtube.com/@habitutor",
+			// },
 		],
 	},
 } as const;
