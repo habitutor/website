@@ -4,7 +4,7 @@ import { $getSession } from "@/lib/get-user";
 export const Route = createFileRoute("/_auth")({
 	beforeLoad: async ({ context, preload }) => {
 		if (preload) return;
-		const session = await $getSession(context.queryClient);
+		const { session } = await $getSession(context.queryClient);
 
 		return { session };
 	},
