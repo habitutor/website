@@ -2,7 +2,7 @@ import {
 	ArrowRightIcon,
 	CaretRightIcon,
 	CheckCircleIcon,
-	DotsSixVerticalIcon,
+	DotsNineIcon,
 	ExamIcon,
 	EyeIcon,
 	EyeSlashIcon,
@@ -148,8 +148,8 @@ export function SubtestCard({
 			</div>
 			<div className="flex h-full justify-between">
 				<div className="mt-auto mb-0 w-1/2">
-					<h3 className="text-pretty font-medium">{subtest?.name}</h3>
-					<p className="text-sm"># Materi</p>
+					<h3 className="text-pretty font-semibold">{subtest?.name}</h3>
+					<p className="font-light text-sm"> {subtest?.totalContent} Konten</p>
 				</div>
 
 				{isLocked ? (
@@ -209,9 +209,9 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 				</div>
 
 				{/* VISUAL */}
-				<div className="relative -mx-6 h-[110px] overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible md:col-span-2">
+				<div className="relative -mx-6 h-32.5 overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible md:col-span-2">
 					{/* Ellipse */}
-					<div className={cn(patternClass, "absolute top-10 right-4 bottom-0 size-[180px] rounded-full sm:top-2")} />
+					<div className={cn(patternClass, "absolute top-15 right-4 bottom-0 size-45 rounded-full sm:top-2")} />
 
 					{/* Avatar */}
 					<Image
@@ -219,7 +219,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 						alt={`${subtest?.name} Avatar`}
 						width={260}
 						height={260}
-						className="absolute right-0 left-0 size-[360px] select-none object-cover sm:bottom-0 sm:translate-x-1/6 sm:translate-y-[55%]"
+						className="absolute right-0 size-70 translate-x-1/8 -translate-y-15 select-none object-cover sm:bottom-0 sm:left-0 sm:size-90 sm:translate-x-1/6 sm:translate-y-1/2 sm:translate-y-[55%] sm:object-cover"
 					/>
 				</div>
 			</div>
@@ -396,7 +396,7 @@ function ContentCard({
 							className="-ml-1 cursor-grab touch-none p-1 active:cursor-grabbing"
 							onPointerDown={(e) => dragControls.start(e)}
 						>
-							<DotsSixVerticalIcon className="size-4 text-neutral-400 sm:size-5" weight="bold" />
+							<DotsNineIcon className="size-4 text-neutral-400 sm:size-5" weight="bold" />
 						</div>
 					)}
 
@@ -415,7 +415,7 @@ function ContentCard({
 						<div className="flex items-center gap-1">
 							{onEdit && (
 								<Button type="button" variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7" onClick={onEdit}>
-									<PencilSimpleIcon className="size-3 sm:size-3.5" />
+									<PencilSimpleIcon className="size-3 sm:size-3.5 lg:size-5" />
 								</Button>
 							)}
 
@@ -427,7 +427,7 @@ function ContentCard({
 									className="h-6 w-6 text-destructive hover:text-destructive sm:h-7 sm:w-7"
 									onClick={onDelete}
 								>
-									<TrashIcon className="size-3 sm:size-3.5" />
+									<TrashIcon className="size-3 sm:size-3.5 lg:size-5" />
 								</Button>
 							)}
 						</div>

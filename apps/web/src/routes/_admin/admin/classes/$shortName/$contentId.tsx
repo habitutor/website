@@ -46,7 +46,7 @@ function RouteComponent() {
 	return (
 		<Container>
 			<div className="w-fit">
-				<BackButton to={"/admin/classes"} />
+				<BackButton to={"/admin/classes/$shortName"} />
 				{content.isPending ? (
 					<Skeleton className="h-10 w-full" />
 				) : content.isError ? (

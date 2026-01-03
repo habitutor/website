@@ -1,10 +1,4 @@
-import {
-	DiscordLogoIcon,
-	InstagramLogoIcon,
-	TiktokLogoIcon,
-	TwitterLogoIcon,
-	YoutubeLogoIcon,
-} from "@phosphor-icons/react";
+import { InstagramLogoIcon, TiktokLogoIcon } from "@phosphor-icons/react";
 
 export const DATA = {
 	testimone: [

@@ -33,8 +33,11 @@ const listSubtests = authed
 				shortName: subtest.shortName,
 				description: subtest.description,
 				order: subtest.order,
+				totalContent: sql<number>`COUNT(${contentItem.id})`,
 			})
 			.from(subtest)
+			.leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
+			.groupBy(subtest.id, subtest.name, subtest.shortName, subtest.description, subtest.order)
 			.orderBy(subtest.order);
 
 		return subtests;

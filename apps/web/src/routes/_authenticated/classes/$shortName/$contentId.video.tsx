@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { useEffect, useRef } from "react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import YouTubePlayer from "@/components/youtube-player";
@@ -63,7 +64,20 @@ function RouteComponent() {
 
 	const video = content.data.video;
 	if (!video) {
-		return <p className="text-muted-foreground text-sm">Belum ada video untuk materi ini.</p>;
+		return (
+			<div className="space-y-4">
+				<p className="font-semibold text-base text-primary-300">Video Materi</p>
+
+				<div className="flex flex-col items-center justify-center gap-2 text-pretty text-center">
+					<Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
+					<p>
+						Ups, kontennya belum tersedia,
+						<br />
+						Tunggu kontennya diracik dulu ya!
+					</p>
+				</div>
+			</div>
+		);
 	}
 
 	const videoId = video.videoUrl?.split("v=")[1] ?? "";

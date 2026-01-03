@@ -187,7 +187,7 @@ const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
 							</>
 						) : (
 							<>
-								<SignOutIcon /> Keluar
+								<SignOutIcon weight="bold" /> Keluar
 							</>
 						)}
 					</Button>

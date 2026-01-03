@@ -115,7 +115,46 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-6">
-			<h2 className="font-semibold text-lg">Edit Video Materi</h2>
+			<div className="flex justify-between gap-4">
+				<h2 className="font-semibold text-lg">Edit Video Materi</h2>
+				<div className="flex gap-4">
+					<form.Subscribe>
+						{(state) => (
+							<Button type="submit" disabled={!state.canSubmit || saveMutation.isPending} size="sm">
+								{saveMutation.isPending ? "Menyimpan..." : "Simpan Video"}
+							</Button>
+						)}
+					</form.Subscribe>
+
+					{hasVideo && (
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
+									Hapus Video
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Hapus Video?</AlertDialogTitle>
+									<AlertDialogDescription>
+										Apakah Anda yakin ingin menghapus video ini? Tindakan ini tidak dapat dibatalkan.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={() => {
+											deleteMutation.mutate({ id: Number(contentId) });
+										}}
+									>
+										Hapus
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					)}
+				</div>
+			</div>
 
 			<form
 				onSubmit={(e) => {
@@ -165,44 +204,6 @@ function RouteComponent() {
 						</div>
 					)}
 				</form.Field>
-
-				<div className="flex gap-4">
-					<form.Subscribe>
-						{(state) => (
-							<Button type="submit" disabled={!state.canSubmit || saveMutation.isPending}>
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan Video"}
-							</Button>
-						)}
-					</form.Subscribe>
-
-					{hasVideo && (
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending}>
-									Hapus Video
-								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Video?</AlertDialogTitle>
-									<AlertDialogDescription>
-										Apakah Anda yakin ingin menghapus video ini? Tindakan ini tidak dapat dibatalkan.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={() => {
-											deleteMutation.mutate({ id: Number(contentId) });
-										}}
-									>
-										Hapus
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					)}
-				</div>
 			</form>
 		</div>
 	);
