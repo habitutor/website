@@ -1,14 +1,13 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
-import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, gte, inArray, isNull, not, sql } from "drizzle-orm";
-import { authed } from "..";
+import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
+import { authed, premium } from "..";
 
 // Cutoff in 30 Days
-const FLASHCARD_REPEAT_CUTOFF_LIMIT = 30;
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline
 const GRACE_PERIOD_SECONDS = 5;
@@ -22,10 +21,27 @@ const start = authed
 	.handler(async ({ context, errors }) => {
 		const deadline = new Date(Date.now() + FLASHCARD_SESSION_DURATION_MINUTES * 60_000);
 		const today = new Date();
+		const isPremium = context.session.user.isPremium;
 		today.setHours(0, 0, 0, 0);
-		const dateBoundary = new Date(today.getTime() - FLASHCARD_REPEAT_CUTOFF_LIMIT * 24 * 3600 * 1000);
 
-		await db.transaction(async (tx) => {
+		return await db.transaction(async (tx) => {
+			const [latestAttempt] = await tx
+				.select()
+				.from(userFlashcardAttempt)
+				.where(eq(userFlashcardAttempt.userId, context.session.user.id))
+				.orderBy(desc(userFlashcardAttempt.startedAt))
+				.limit(1);
+
+			if (latestAttempt && !isPremium && latestAttempt?.startedAt.getTime() >= today.getTime())
+				throw errors.UNPROCESSABLE_CONTENT({
+					message: "Kamu sudah memulai sesi flashcard hari ini.",
+				});
+
+			if (latestAttempt && isPremium && !latestAttempt.submittedAt)
+				throw errors.UNPROCESSABLE_CONTENT({
+					message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
+				});
+
 			const [attempt] = await tx
 				.insert(userFlashcardAttempt)
 				.values({
@@ -33,27 +49,9 @@ const start = authed
 					startedAt: new Date(),
 					deadline: deadline,
 				})
-				.onConflictDoNothing()
 				.returning();
 
-			if (!attempt || Date.now() > new Date(attempt?.deadline).getTime() || attempt?.submittedAt)
-				throw new ORPCError("UNPROCESSABLE_CONTENT", {
-					message: "Kamu sudah memulai sesi flashcard hari ini.",
-				});
-
-			const recentlyAssignedSubquery = tx
-				.select({ id: userFlashcardQuestionAnswer.questionId })
-				.from(userFlashcardQuestionAnswer)
-				.innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
-				.where(
-					and(
-						eq(userFlashcardAttempt.userId, context.session.user.id),
-						gte(userFlashcardQuestionAnswer.assignedDate, dateBoundary),
-					),
-				);
-
 			const availableQuestions = await tx.query.question.findMany({
-				where: not(inArray(question.id, recentlyAssignedSubquery)),
 				with: {
 					answerOptions: true,
 				},
@@ -63,7 +61,7 @@ const start = authed
 
 			if (availableQuestions.length < 5)
 				throw errors.NOT_FOUND({
-					message: "Kamu sudah mengerjakan semua flashcard yang tersedia untuk bulan ini.",
+					message: "Kamu sudah mengerjakan semua flashcard yang tersedia untuk sekarang. Silahkan coba lagi nanti.",
 				});
 
 			await tx.insert(userFlashcardQuestionAnswer).values(
@@ -73,9 +71,9 @@ const start = authed
 					questionId: q.id,
 				})),
 			);
-		});
 
-		return "Sukses memulai sesi flashcard!";
+			return "Sukses memulai sesi flashcard!";
+		});
 	});
 
 const get = authed
@@ -87,41 +85,45 @@ const get = authed
 	.handler(async ({ context }) => {
 		let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
-		const attempt = await db.query.userFlashcardAttempt.findFirst({
-			where: and(eq(userFlashcardAttempt.date, new Date()), eq(userFlashcardAttempt.userId, context.session.user.id)),
+		const [attempt] = await db
+			.select()
+			.from(userFlashcardAttempt)
+			.where(eq(userFlashcardAttempt.userId, context.session.user.id))
+			.orderBy(desc(userFlashcardAttempt.startedAt))
+			.limit(1);
+
+		if (!attempt) return { status };
+
+		const assignedQuestions = await db.query.userFlashcardQuestionAnswer.findMany({
+			where: and(
+				eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
+				isNull(userFlashcardQuestionAnswer.selectedAnswerId),
+			),
 			with: {
-				assignedQuestions: {
+				question: {
 					columns: {
-						selectedAnswerId: true,
+						id: true,
+						content: true,
 					},
-					where: isNull(userFlashcardQuestionAnswer.selectedAnswerId),
 					with: {
-						question: {
+						answerOptions: {
 							columns: {
 								id: true,
 								content: true,
+								code: true,
 							},
-							with: {
-								answerOptions: {
-									columns: {
-										id: true,
-										content: true,
-										code: true,
-									},
-									orderBy: (answers, { asc }) => [asc(answers.code)],
-								},
-							},
+							orderBy: (answers, { asc }) => [asc(answers.code)],
 						},
 					},
 				},
 			},
 		});
 
-		if (!attempt) return { status };
 		status = attempt.submittedAt ? "submitted" : "ongoing";
 
 		return {
 			...attempt,
+			assignedQuestions,
 			status,
 		};
 	});
@@ -135,6 +137,8 @@ const submit = authed
 	.handler(async ({ context, errors }) => {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
+		const isPremium = context.session.user.isPremium;
+
 		const [latestAttempt] = await db
 			.select()
 			.from(userFlashcardAttempt)
@@ -142,7 +146,7 @@ const submit = authed
 			.orderBy(desc(userFlashcardAttempt.startedAt))
 			.limit(1);
 
-		if (latestAttempt?.submittedAt)
+		if (!isPremium && latestAttempt?.submittedAt)
 			throw new ORPCError("UNPROCESSABLE_CONTENT", {
 				message: "Kamu sudah mengerjakan flashcard hari ini.",
 			});
@@ -210,7 +214,9 @@ const save = authed
 						eq(userFlashcardQuestionAnswer.assignedDate, today),
 						eq(userFlashcardAttempt.userId, context.session.user.id),
 					),
-				);
+				)
+				.orderBy(desc(userFlashcardAttempt.startedAt))
+				.limit(1);
 
 			if (!attempt) throw errors.NOT_FOUND();
 
@@ -263,48 +269,47 @@ const result = authed
 		tags: ["Flashcard"],
 	})
 	.handler(async ({ context, errors }) => {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-
-		const attempt = await db.query.userFlashcardAttempt.findFirst({
-			where: eq(userFlashcardAttempt.userId, context.session.user.id),
-			with: {
-				assignedQuestions: {
-					where: eq(userFlashcardQuestionAnswer.assignedDate, new Date(today)),
-					columns: {
-						selectedAnswerId: true,
-					},
-					with: {
-						question: {
-							columns: {
-								id: true,
-								content: true,
-								discussion: true,
-							},
-							with: {
-								answerOptions: {
-									columns: {
-										id: true,
-										content: true,
-										code: true,
-										isCorrect: true,
-									},
-									orderBy: (answers, { asc }) => [asc(answers.code)],
-								},
-							},
-						},
-					},
-				},
-			},
-		});
+		const [attempt] = await db
+			.select()
+			.from(userFlashcardAttempt)
+			.where(eq(userFlashcardAttempt.userId, context.session.user.id))
+			.orderBy(desc(userFlashcardAttempt.startedAt))
+			.limit(1);
 
 		if (!attempt)
 			throw errors.NOT_FOUND({
 				message: "Anda belom mengerjakan flashcard hari ini.",
 			});
 
+		const assignedQuestions = await db.query.userFlashcardQuestionAnswer.findMany({
+			where: eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
+			columns: {
+				selectedAnswerId: true,
+			},
+			with: {
+				question: {
+					columns: {
+						id: true,
+						content: true,
+						discussion: true,
+					},
+					with: {
+						answerOptions: {
+							columns: {
+								id: true,
+								content: true,
+								code: true,
+								isCorrect: true,
+							},
+							orderBy: (answers, { asc }) => [asc(answers.code)],
+						},
+					},
+				},
+			},
+		});
+
 		let correct = 0;
-		for (const assignedQuestion of attempt.assignedQuestions) {
+		for (const assignedQuestion of assignedQuestions) {
 			const answerMap = new Map<number, boolean>();
 			for (const answerOption of assignedQuestion.question.answerOptions) {
 				answerMap.set(answerOption.id, answerOption.isCorrect);
@@ -316,9 +321,30 @@ const result = authed
 
 		return {
 			...attempt,
+			assignedQuestions,
 			correctAnswersCount: correct,
-			questionsCount: attempt.assignedQuestions.length,
+			questionsCount: assignedQuestions.length,
 		};
+	});
+
+const history = premium
+	.route({
+		path: "/flashcard/history",
+		method: "GET",
+		tags: ["Flashcard"],
+	})
+	.handler(async ({ context }) => {
+		const attempts = await db
+			.select()
+			.from(userFlashcardAttempt)
+			.where(eq(userFlashcardAttempt.userId, context.session.user.id))
+			.orderBy(desc(userFlashcardAttempt.startedAt))
+			.limit(50);
+
+		return attempts.map((attempt) => ({
+			startedAt: attempt.startedAt,
+			submittedAt: attempt.submittedAt,
+		}));
 	});
 
 export const flashcardRouter = {
@@ -327,4 +353,5 @@ export const flashcardRouter = {
 	submit,
 	save,
 	result,
+	history,
 };
