@@ -10,12 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { createMeta } from "@/lib/seo-utils";
 
 const resetPasswordSearchSchema = type({
 	email: "string.email?",
 });
 
 export const Route = createFileRoute("/_auth/forgot-password")({
+	head: () => ({
+		meta: createMeta({
+			title: "Lupa Password",
+			description: "Lupa password akun Habitutor? Reset password kamu melalui email yang terdaftar.",
+		}),
+	}),
 	component: RouteComponent,
 	validateSearch: resetPasswordSearchSchema,
 });

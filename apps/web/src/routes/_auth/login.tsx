@@ -11,8 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
+import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/_auth/login")({
+	head: () => ({
+		meta: createMeta({
+			title: "Masuk",
+			description: "Masuk ke akun Habitutor untuk memulai persiapan SNBT/UTBK kamu.",
+		}),
+	}),
 	component: RouteComponent,
 });
 

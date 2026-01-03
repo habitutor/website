@@ -3,8 +3,14 @@ import { useEffect, useRef } from "react";
 import { HeaderDashboard } from "@/components/header-dashboard";
 import { Container } from "@/components/ui/container";
 import { $getSession } from "@/lib/get-user";
+import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/_authenticated")({
+	head: () => ({
+		meta: createMeta({
+			noIndex: true,
+		}),
+	}),
 	component: AuthedLayout,
 	beforeLoad: async ({ context, preload }) => {
 		if (preload) return;

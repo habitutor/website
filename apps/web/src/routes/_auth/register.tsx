@@ -10,8 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
+import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/_auth/register")({
+	head: () => ({
+		meta: createMeta({
+			title: "Daftar",
+			description: "Buat akun baru di Habitutor dan mulai persiapan SNBT/UTBK kamu sekarang.",
+		}),
+	}),
 	component: RouteComponent,
 });
 
