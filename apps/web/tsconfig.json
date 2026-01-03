@@ -15,6 +15,7 @@
 		"noEmit": true,
 		"skipLibCheck": true,
 		"strict": true,
+		"strictNullChecks": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
@@ -23,11 +24,5 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": ["node_modules", "dist", "build", ".turbo", "coverage"],
-	"watchOptions": {
-		"watchFile": "useFsEvents",
-		"watchDirectory": "useFsEvents",
-		"synchronousWatchDirectory": true,
-		"excludeDirectories": ["node_modules", "dist", "build", ".turbo", "coverage"]
-	}
+	"exclude": ["node_modules", "dist", "build", ".turbo", "coverage"]
 }

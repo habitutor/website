@@ -2,12 +2,10 @@ import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
 import { questionAnswerOption } from "@habitutor/db/schema/practice-pack";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { authed, premium } from "..";
 
-// Cutoff in 30 Days
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline
 const GRACE_PERIOD_SECONDS = 5;
@@ -32,12 +30,17 @@ const start = authed
 				.orderBy(desc(userFlashcardAttempt.startedAt))
 				.limit(1);
 
-			if (latestAttempt && !isPremium && latestAttempt?.startedAt.getTime() >= today.getTime())
+			if (latestAttempt && !isPremium && latestAttempt.startedAt.getTime() >= today.getTime())
 				throw errors.UNPROCESSABLE_CONTENT({
 					message: "Kamu sudah memulai sesi flashcard hari ini.",
 				});
 
-			if (latestAttempt && isPremium && !latestAttempt.submittedAt)
+			if (
+				latestAttempt &&
+				isPremium &&
+				!latestAttempt.submittedAt &&
+				latestAttempt.startedAt.getTime() >= today.getTime()
+			)
 				throw errors.UNPROCESSABLE_CONTENT({
 					message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
 				});
@@ -137,7 +140,9 @@ const submit = authed
 	.handler(async ({ context, errors }) => {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
-		const isPremium = context.session.user.isPremium;
+		const hasDoneToday =
+			context.session.user.lastCompletedFlashcardAt &&
+			context.session.user.lastCompletedFlashcardAt.getTime() >= today.getTime();
 
 		const [latestAttempt] = await db
 			.select()
@@ -146,13 +151,15 @@ const submit = authed
 			.orderBy(desc(userFlashcardAttempt.startedAt))
 			.limit(1);
 
-		if (!isPremium && latestAttempt?.submittedAt)
-			throw new ORPCError("UNPROCESSABLE_CONTENT", {
-				message: "Kamu sudah mengerjakan flashcard hari ini.",
-			});
 		if (!latestAttempt) {
 			throw errors.NOT_FOUND({
 				message: "Kamu belum memulai sesi flashcard hari ini.",
+			});
+		}
+
+		if (latestAttempt.submittedAt) {
+			throw errors.UNPROCESSABLE_CONTENT({
+				message: "Kamu sudah mengerjakan flashcard terbaru yang tersedia.",
 			});
 		}
 
@@ -168,10 +175,11 @@ const submit = authed
 				.update(userFlashcardAttempt)
 				.set({ submittedAt: new Date() })
 				.where(eq(userFlashcardAttempt.id, latestAttempt.id));
-			await tx
-				.update(user)
-				.set({ flashcardStreak: sql`${user.flashcardStreak} + 1`, lastCompletedFlashcardAt: new Date() })
-				.where(eq(user.id, context.session.user.id));
+			if (!hasDoneToday)
+				await tx
+					.update(user)
+					.set({ flashcardStreak: sql`${user.flashcardStreak} + 1`, lastCompletedFlashcardAt: new Date() })
+					.where(eq(user.id, context.session.user.id));
 		});
 
 		return { message: "Berhasil mengerjakan flashcard hari ini!" };
@@ -268,11 +276,21 @@ const result = authed
 		method: "GET",
 		tags: ["Flashcard"],
 	})
-	.handler(async ({ context, errors }) => {
+	.input(
+		type({
+			"id?": "number",
+		}),
+	)
+	.handler(async ({ context, errors, input }) => {
 		const [attempt] = await db
 			.select()
 			.from(userFlashcardAttempt)
-			.where(eq(userFlashcardAttempt.userId, context.session.user.id))
+			.where(
+				and(
+					eq(userFlashcardAttempt.userId, context.session.user.id),
+					input.id ? eq(userFlashcardAttempt.id, input.id) : undefined,
+				),
+			)
 			.orderBy(desc(userFlashcardAttempt.startedAt))
 			.limit(1);
 
@@ -342,6 +360,7 @@ const history = premium
 			.limit(50);
 
 		return attempts.map((attempt) => ({
+			id: attempt.id,
 			startedAt: attempt.startedAt,
 			submittedAt: attempt.submittedAt,
 		}));

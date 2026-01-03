@@ -5,104 +5,102 @@ import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
 export const UserProgress = () => {
-	return (
-		<section className="">
-			<h2 className="mb-2 font-medium">Progres Kamu!</h2>
-			<div className="grid gap-2 sm:grid-cols-5">
-				<div className="space-y-2 sm:col-span-2">
-					<Material />
-					<Tryout />
-				</div>
-				<Flashcard />
-			</div>
-		</section>
-	);
+  return (
+    <section className="">
+      <h2 className="mb-2 font-medium">Progres Kamu!</h2>
+      <div className="grid gap-2 sm:grid-cols-5">
+        <div className="space-y-2 sm:col-span-2">
+          <Material />
+          <Tryout />
+        </div>
+        <Flashcard />
+      </div>
+    </section>
+  );
 };
 
 const Material = () => {
-	const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
+  const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
 
-	return (
-		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
-			<div className="z-10 space-y-0.5">
-				<h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
-					{!isPending ? (data?.materialsCompleted ?? 0) : "..."}
-				</h4>
-				<p className="font-bold">Materi Dipelajari</p>
-			</div>
+  return (
+    <div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
+      <div className="z-10 space-y-0.5">
+        <h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
+          {!isPending ? (data?.materialsCompleted ?? 0) : "..."}
+        </h4>
+        <p className="font-bold">Materi Dipelajari</p>
+      </div>
 
-			<Button size="icon" className="z-10" asChild>
-				<Link to="/classes">
-					<ArrowRightIcon weight="bold" />
-				</Link>
-			</Button>
+      <Button size="icon" className="z-10" asChild>
+        <Link to="/classes">
+          <ArrowRightIcon weight="bold" />
+        </Link>
+      </Button>
 
-			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-blue-300" />
-		</div>
-	);
+      <div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-blue-300" />
+    </div>
+  );
 };
 
 const Tryout = () => {
-	return (
-		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
-			<div className="z-10 space-y-0.5">
-				<h4 className={"font-bold text-4xl sm:text-5xl"}>Gaperlu Lagi</h4>
-				<p className="font-bold">Tryout Dikerjakan</p>
-			</div>
+  return (
+    <div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
+      <div className="z-10 space-y-0.5">
+        <h2 className="font-bold text-2xl">Kerjakan Tryout</h2>
+      </div>
 
-			<Button asChild size="icon" variant="secondary" className="z-10">
-				<a href="https://youtube.com">
-					<ArrowRightIcon />
-				</a>
-			</Button>
+      <Button asChild size="icon" variant="secondary" className="z-10">
+        <a href="https://youtube.com">
+          <ArrowRightIcon />
+        </a>
+      </Button>
 
-			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />
-		</div>
-	);
+      <div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />
+    </div>
+  );
 };
 
 const Flashcard = () => {
-	const { session } = useRouteContext({ from: "/_authenticated" });
-	if (!session) return null;
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
-	console.log(today, session.user.lastCompletedFlashcardAt);
+  const { session } = useRouteContext({ from: "/_authenticated" });
+  if (!session) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-	return (
-		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
-			<div className="z-10 space-y-0.5">
-				<h4 className={"font-bold text-5xl sm:text-6xl"}>{session.user.flashcardStreak}</h4>
-				<p className="font-bold">Streak Flashcard</p>
-			</div>
+  return (
+    <div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
+      <div className="z-10 space-y-0.5">
+        <h4 className={"font-bold text-5xl sm:text-6xl"}>{session.user.flashcardStreak}</h4>
+        <p className="font-bold">Streak Flashcard</p>
+      </div>
 
-			<Button
-				size="lg"
-				className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
-				asChild
-			>
-				{session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() ? (
-					<Link to="/dashboard/flashcard/result">
-						Lihat Hasil <EyeIcon />
-					</Link>
-				) : (
-					<Link to="/dashboard/flashcard">
-						Mainkan Flashcard Sekarang <ArrowRightIcon />
-					</Link>
-				)}
-			</Button>
-			{session.user.isPremium && session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() && (
-				<Button
-					size="lg"
-					className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
-					asChild
-				>
-					<Link to="/dashboard/flashcard">
-						Main Lagi <ArrowRightIcon />
-					</Link>
-				</Button>
-			)}
+      <Button
+        size="lg"
+        className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+        asChild
+      >
+        {session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() ? (
+          <Link to="/dashboard/flashcard/result">
+            Lihat Hasil <EyeIcon />
+          </Link>
+        ) : (
+          <Link to="/dashboard/flashcard">
+            Mainkan Flashcard Sekarang <ArrowRightIcon />
+          </Link>
+        )}
+      </Button>
+      {session.user.isPremium && session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() && (
+        <Button
+          size="lg"
+          className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+          asChild
+        >
+          <Link to="/dashboard/flashcard">
+            Main Lagi <ArrowRightIcon />
+          </Link>
+        </Button>
+      )}
 
-			<div className="absolute -bottom-[20%] -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10" />
-		</div>
-	);
+      <div className="absolute -bottom-[20%] -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10" />
+    </div>
+  );
 };

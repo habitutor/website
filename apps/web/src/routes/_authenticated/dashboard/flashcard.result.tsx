@@ -1,6 +1,8 @@
+import { isDefinedError } from "@orpc/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
@@ -10,15 +12,40 @@ export const Route = createFileRoute("/_authenticated/dashboard/flashcard/result
 });
 
 function RouteComponent() {
-	const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions());
+	const queryClient = useQueryClient();
+	const navigate = useNavigate();
+	const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions({ input: {} }));
+
+	const startMutation = useMutation(
+		orpc.flashcard.start.mutationOptions({
+			onSuccess: () => {
+				queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
+				navigate({ to: "/dashboard/flashcard" });
+			},
+			onError: (error) => {
+				if (isDefinedError(error) && error.code === "NOT_FOUND") {
+					toast.error("Ups! Kamu sudah mengerjakan semua flashcard yang tersedia!", {
+						description: "Silahkan coba lagi dalam beberapa saat.",
+					});
+				} else if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") {
+					toast.error(error.message);
+				}
+			},
+		}),
+	);
 
 	return (
 		<section className="flex flex-col gap-4 border bg-white p-4">
-			<Button className="w-fit" asChild>
-				<Link to="/dashboard">
-					<ArrowLeftIcon /> Kembali
-				</Link>
-			</Button>
+			<div className="flex gap-2">
+				<Button className="w-fit" asChild>
+					<Link to="/dashboard">
+						<ArrowLeftIcon /> Kembali
+					</Link>
+				</Button>
+				<Button className="w-fit" onClick={() => startMutation.mutate({})} disabled={startMutation.isPending}>
+					{startMutation.isPending ? "Memulai..." : "Main Lagi"}
+				</Button>
+			</div>
 
 			<div className="relative flex items-end overflow-clip bg-green-700 p-4">
 				<div className="pointer-events-none absolute top-1/2 -right-30 z-0 size-60 -translate-y-1/2 rounded-full bg-green-500" />
