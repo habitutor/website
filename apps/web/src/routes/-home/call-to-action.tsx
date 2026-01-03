@@ -12,15 +12,17 @@ export function CallToAction() {
 			{/* Right Avatar & Decorations */}
 			<div className="absolute right-0 bottom-0">
 				<div className="relative">
-					<img src="/avatar/footer-right.webp" alt="" className="w-[200px] xl:w-[280px]" />
+					<img src="/avatar/footer-right.webp" alt="" className="relative z-10 w-[200px] xl:w-[280px]" />
 
 					{/* Decorative Circles (Buletan) */}
-					<div className="absolute -top-10 -right-4 flex items-center justify-center">
+					{/* <div className="absolute -top-10 -right-4 flex items-center justify-center">
 						<div className="size-[91px] rounded-full bg-[#76E8AC]" />
 					</div>
 					<div className="absolute -top-4 right-16 flex items-center justify-center">
 						<div className="size-[35px] rounded-full bg-[#FFDB43]" />
-					</div>
+					</div> */}
+					<div className="absolute -bottom-10 -right-20 z-0 size-40 rounded-full bg-tertiary-100 md:size-80" />
+
 				</div>
 			</div>
 

@@ -27,7 +27,6 @@ function HomeComponent() {
 			<Header />
 			<Hero />
 			<Statistics />
-			<Testimone />
 			<Features />
 			<Pricing />
 			<CallToAction />
