@@ -102,32 +102,12 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-6">
-			<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
-
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
-				className="space-y-4"
-			>
-				<form.Field name="content">
-					{(field) => (
-						<div className="space-y-2">
-							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
-							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-sm">
-									{error?.message}
-								</p>
-							))}
-						</div>
-					)}
-				</form.Field>
-
+			<div className="flex items-center justify-between">
+				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
 				<div className="flex gap-4">
 					<form.Subscribe>
 						{(state) => (
-							<Button type="submit" disabled={!state.canSubmit || saveMutation.isPending}>
+							<Button type="submit" disabled={!state.canSubmit || saveMutation.isPending} size="sm">
 								{saveMutation.isPending ? "Menyimpan..." : "Simpan Catatan"}
 							</Button>
 						)}
@@ -136,7 +116,7 @@ function RouteComponent() {
 					{hasNote && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending}>
+								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
 									Hapus Catatan
 								</Button>
 							</AlertDialogTrigger>
@@ -161,6 +141,27 @@ function RouteComponent() {
 						</AlertDialog>
 					)}
 				</div>
+			</div>
+
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					form.handleSubmit();
+				}}
+				className="space-y-4"
+			>
+				<form.Field name="content">
+					{(field) => (
+						<div className="space-y-2">
+							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+							{field.state.meta.errors.map((error) => (
+								<p key={error?.message} className="text-red-500 text-sm">
+									{error?.message}
+								</p>
+							))}
+						</div>
+					)}
+				</form.Field>
 			</form>
 		</div>
 	);

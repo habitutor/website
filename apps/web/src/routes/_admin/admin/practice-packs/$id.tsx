@@ -1,4 +1,4 @@
-import { ArrowLeft, CaretLeft, CaretRight, MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { ArrowLeftIcon, CaretLeftIcon, CaretRightIcon, MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -56,7 +56,7 @@ function PracticePackDetailPage() {
 				<div className="mb-4 flex items-center gap-4 sm:mb-6">
 					<Button variant="ghost" size="icon" asChild>
 						<a href="/admin/practice-packs">
-							<ArrowLeft className="size-4" />
+							<ArrowLeftIcon className="size-4" />
 						</a>
 					</Button>
 					<h1 className="font-bold text-2xl sm:text-3xl">Practice Pack Detail</h1>
@@ -69,11 +69,11 @@ function PracticePackDetailPage() {
 						<h2 className="font-semibold text-xl sm:text-2xl">Questions</h2>
 						<div className="flex flex-col gap-2 sm:flex-row">
 							<Button onClick={() => setShowAddExisting(true)} variant="outline" className="text-xs sm:text-sm">
-								<MagnifyingGlass className="mr-2 size-3.5 sm:size-4" />
+								<MagnifyingGlassIcon className="mr-2 size-3.5 sm:size-4" />
 								Add Existing
 							</Button>
 							<Button onClick={() => setShowCreateForm(true)} className="text-xs sm:text-sm">
-								<Plus className="mr-2 size-3.5 sm:size-4" />
+								<PlusIcon className="mr-2 size-3.5 sm:size-4" />
 								Create New Question
 							</Button>
 						</div>
@@ -253,7 +253,7 @@ function QuestionsList({ packId }: { packId: number }) {
 					) : (
 						<div className="space-y-4">
 							<div className="relative">
-								<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+								<MagnifyingGlassIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 								<Input
 									placeholder="Search questions..."
 									value={searchQuery}
@@ -275,12 +275,14 @@ function QuestionsList({ packId }: { packId: number }) {
 	const endIndex = Math.min(startIndex + GRID_SIZE, questions.length);
 	const visibleQuestions = questions.slice(startIndex, endIndex);
 
+	if (!currentQuestion) return null;
+
 	return (
 		<div className="space-y-4">
 			{/* Search Input */}
 			{allQuestions.length > 0 && (
 				<div className="relative">
-					<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+					<MagnifyingGlassIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						placeholder="Search questions..."
 						value={searchQuery}
@@ -299,20 +301,20 @@ function QuestionsList({ packId }: { packId: number }) {
 									Question {currentQuestionIndex + 1} of {questions.length}
 								</CardTitle>
 								<span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3 sm:text-sm">
-									#{currentQuestion.order || currentQuestionIndex + 1}
+									#{currentQuestion?.order || currentQuestionIndex + 1}
 								</span>
 							</div>
 						</CardHeader>
 						<CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
 							<div>
 								<h4 className="mb-2 font-semibold text-base sm:text-lg">Question:</h4>
-								<p className="text-sm leading-relaxed sm:text-base">{currentQuestion.content}</p>
+								<p className="text-sm leading-relaxed sm:text-base">{currentQuestion?.content}</p>
 							</div>
 
 							<div>
 								<h4 className="mb-2 font-semibold text-base sm:text-lg">Answer Options:</h4>
 								<div className="space-y-2">
-									{currentQuestion.answers?.map((answer) => (
+									{currentQuestion?.answers?.map((answer) => (
 										<div
 											key={answer.id}
 											className={cn(
@@ -342,7 +344,7 @@ function QuestionsList({ packId }: { packId: number }) {
 							<div>
 								<h4 className="mb-2 font-semibold text-base sm:text-lg">Discussion:</h4>
 								<p className="text-muted-foreground text-sm leading-relaxed sm:text-base">
-									{currentQuestion.discussion}
+									{currentQuestion?.discussion}
 								</p>
 							</div>
 
@@ -370,7 +372,7 @@ function QuestionsList({ packId }: { packId: number }) {
 									onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
 									disabled={currentQuestionIndex === 0}
 								>
-									<CaretLeft className="mr-1 size-3.5 sm:size-4" />
+									<CaretLeftIcon className="mr-1 size-3.5 sm:size-4" />
 									<span className="hidden sm:inline">Previous</span>
 									<span className="sm:hidden">Prev</span>
 								</Button>
@@ -383,7 +385,7 @@ function QuestionsList({ packId }: { packId: number }) {
 								>
 									<span className="hidden sm:inline">Next</span>
 									<span className="sm:hidden">Next</span>
-									<CaretRight className="ml-1 size-3.5 sm:size-4" />
+									<CaretRightIcon className="ml-1 size-3.5 sm:size-4" />
 								</Button>
 							</div>
 						</CardContent>
@@ -431,7 +433,7 @@ function QuestionsList({ packId }: { packId: number }) {
 										onClick={() => setGridPage(gridPage - 1)}
 										disabled={gridPage === 0}
 									>
-										<CaretLeft className="size-3.5" />
+										<CaretLeftIcon className="size-3.5" />
 									</Button>
 									<span className="text-muted-foreground text-xs">
 										{startIndex + 1}-{endIndex} of {questions.length}
@@ -443,7 +445,7 @@ function QuestionsList({ packId }: { packId: number }) {
 										onClick={() => setGridPage(gridPage + 1)}
 										disabled={gridPage === totalGridPages - 1}
 									>
-										<CaretRight className="size-3.5" />
+										<CaretRightIcon className="size-3.5" />
 									</Button>
 								</div>
 							)}

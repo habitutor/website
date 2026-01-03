@@ -43,19 +43,17 @@ const Material = () => {
 };
 
 const Tryout = () => {
-	const { data, isPending } = useQuery(orpc.practicePack.history.queryOptions());
-
 	return (
 		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
 			<div className="z-10 space-y-0.5">
-				<h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
-					{!isPending ? data?.packsFinished : "..."}
-				</h4>
+				<h4 className={"font-bold text-4xl sm:text-5xl"}>Gaperlu Lagi</h4>
 				<p className="font-bold">Tryout Dikerjakan</p>
 			</div>
 
-			<Button size="icon" variant="secondary" className="z-10">
-				<ArrowRightIcon />
+			<Button asChild size="icon" variant="secondary" className="z-10">
+				<a href="https://youtube.com">
+					<ArrowRightIcon />
+				</a>
 			</Button>
 
 			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />
@@ -68,6 +66,7 @@ const Flashcard = () => {
 	if (!session) return null;
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
+	console.log(today, session.user.lastCompletedFlashcardAt);
 
 	return (
 		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
@@ -81,7 +80,7 @@ const Flashcard = () => {
 				className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
 				asChild
 			>
-				{session.user.lastCompletedFlashcardAt === today ? (
+				{session.user.lastCompletedFlashcardAt.getTime() >= today.getTime() ? (
 					<Link to="/dashboard/flashcard/result">
 						Lihat Hasil <EyeIcon />
 					</Link>
@@ -91,6 +90,15 @@ const Flashcard = () => {
 					</Link>
 				)}
 			</Button>
+			{session.user.isPremium && session.user.lastCompletedFlashcardAt.getTime() >= today.getTime() && (
+				<Button
+					size="lg"
+					className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+					asChild
+				>
+					Main Lagi
+				</Button>
+			)}
 
 			<div className="absolute -bottom-[20%] -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10" />
 		</div>

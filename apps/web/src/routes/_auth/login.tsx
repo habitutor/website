@@ -1,5 +1,6 @@
 import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
@@ -10,8 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
+import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/_auth/login")({
+	head: () => ({
+		meta: createMeta({
+			title: "Masuk",
+			description: "Masuk ke akun Habitutor untuk memulai persiapan SNBT/UTBK kamu.",
+		}),
+	}),
 	component: RouteComponent,
 });
 
@@ -38,6 +46,7 @@ function SignInForm() {
 		from: "/",
 	});
 	const location = useLocation();
+	const queryClient = useQueryClient();
 	const { isPending } = authClient.useSession();
 
 	const form = useForm({
@@ -54,6 +63,8 @@ function SignInForm() {
 				},
 				{
 					onSuccess: async () => {
+						await queryClient.invalidateQueries({ queryKey: ["auth", "getSession"] });
+
 						const session = await authClient.getSession();
 						const user = session.data?.user as { role?: string } | undefined;
 

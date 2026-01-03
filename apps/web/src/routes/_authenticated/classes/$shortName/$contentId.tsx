@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BackButton } from "@/components/back-button";
 import { NextButton } from "@/components/next-button";
+import { PremiumGateModal } from "@/components/premium/premium-gate-modal";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
@@ -16,14 +17,34 @@ function RouteComponent() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryClient = useQueryClient();
+	const [showPremiumModal, setShowPremiumModal] = useState(false);
 
-	const content = useQuery(
-		orpc.subtest.getContentById.queryOptions({
+	const content = useQuery({
+		...orpc.subtest.getContentById.queryOptions({
 			input: { contentId: Number(contentId) },
 		}),
-	);
+		// Don't retry on 403 FORBIDDEN - user doesn't have access
+		retry: (failureCount, error) => {
+			// Don't retry if it's a forbidden/premium error
+			if (error?.message?.includes("premium") || error?.message?.includes("FORBIDDEN")) {
+				return false;
+			}
+			// Default retry behavior for other errors (max 3 retries)
+			return failureCount < 3;
+		},
+	});
 
 	const trackViewMutation = useMutation(orpc.subtest.trackView.mutationOptions());
+
+	// Check if error is FORBIDDEN (premium content)
+	const isForbiddenError = content.isError && content.error?.message?.includes("premium");
+
+	// Show premium modal when accessing premium content
+	useEffect(() => {
+		if (isForbiddenError) {
+			setShowPremiumModal(true);
+		}
+	}, [isForbiddenError]);
 
 	// Track view when content is viewed
 	// Always track to update viewedAt timestamp, even if already tracked in this session
@@ -52,6 +73,21 @@ function RouteComponent() {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [content.data, contentId, queryClient.invalidateQueries, trackViewMutation.mutate]);
+
+	// Handle premium modal close - redirect back to class list
+	const handlePremiumModalClose = () => {
+		setShowPremiumModal(false);
+		navigate({ to: `/classes/${shortName}` });
+	};
+
+	// Show premium modal for forbidden content
+	if (isForbiddenError) {
+		return (
+			<Container className="min-h-screen border-neutral-200 border-x bg-white pt-28 sm:gap-6">
+				<PremiumGateModal isOpen={showPremiumModal} onClose={handlePremiumModalClose} contentType="content" />
+			</Container>
+		);
+	}
 
 	const currentPath = location.pathname;
 	const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith("/notes")

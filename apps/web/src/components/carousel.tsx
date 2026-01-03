@@ -84,11 +84,14 @@ const Carousel: React.FC<CarouselProps> = ({
 	}, [gap, responsiveGap]);
 
 	// Create extended array for infinite scroll effect
-	const extendedItems = [
-		items[items.length - 1], // Last item at beginning
-		...items,
-		items[0], // First item at end
-	];
+	const extendedItems =
+		items.length > 0
+			? [
+					items[items.length - 1], // Last item at beginning
+					...items,
+					items[0], // First item at end
+				]
+			: [];
 
 	const nextSlide = () => {
 		if (isTransitioning) return;
@@ -190,11 +193,11 @@ const Carousel: React.FC<CarouselProps> = ({
 			<div
 				className={`flex aspect-video w-full flex-col overflow-hidden rounded-[20px] border border-neutral-200 shadow-sm transition ${bgColor}`}
 			>
-				<div className="flex flex-1 flex-col items-start justify-between p-4">
-					<p className="font-regular">{item.desc}</p>
+				<div className="flex flex-1 flex-col justify-between text-pretty p-4 text-left">
+					<p className="font-light text-sm">{item.desc}</p>
 					<div>
-						<h3 className="font-medium text-xl">{item.name}</h3>
-						<p className="text-sm">{item.title}</p>
+						<h3 className="font-medium text-lg">{item.name}</h3>
+						<p className="font-light text-sm">{item.title}</p>
 					</div>
 				</div>
 			</div>
@@ -230,27 +233,30 @@ const Carousel: React.FC<CarouselProps> = ({
 
 				{/* Cards */}
 				<div className="relative flex items-center justify-center">
-					{extendedItems.map((item, index) => (
-						<button
-							key={`${item.id}-${index}`}
-							type="button"
-							className="absolute cursor-pointer"
-							style={{
-								width: cardWidth,
-								height: cardHeight,
-								...getCardStyle(index),
-							}}
-							onClick={() => {
-								const actualIndex = index - 1; // Account for extended array
-								if (actualIndex >= 0 && actualIndex < items.length && actualIndex !== currentIndex - 1) {
-									goToSlide(actualIndex);
-								}
-								onItemClick?.(item!, actualIndex);
-							}}
-						>
-							{renderCard ? renderCard(item!, index, index === currentIndex) : defaultRenderCard(item)}
-						</button>
-					))}
+					{extendedItems.map((item, index) => {
+						if (!item) return null;
+						return (
+							<button
+								key={`${item.id}-${index}`}
+								type="button"
+								className="absolute cursor-pointer"
+								style={{
+									width: cardWidth,
+									height: cardHeight,
+									...getCardStyle(index),
+								}}
+								onClick={() => {
+									const actualIndex = index - 1; // Account for extended array
+									if (actualIndex >= 0 && actualIndex < items.length && actualIndex !== currentIndex - 1) {
+										goToSlide(actualIndex);
+									}
+									onItemClick?.(item, actualIndex);
+								}}
+							>
+								{renderCard ? renderCard(item, index, index === currentIndex) : defaultRenderCard(item)}
+							</button>
+						);
+					})}
 				</div>
 			</div>
 

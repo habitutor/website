@@ -12,7 +12,8 @@ import {
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import { authed } from "../index";
+import { authed, authedRateLimited } from "../index";
+import { canAccessContent } from "../lib/content-access";
 
 /**
  * Get all subtests with basic info
@@ -32,8 +33,11 @@ const listSubtests = authed
 				shortName: subtest.shortName,
 				description: subtest.description,
 				order: subtest.order,
+				totalContent: sql<number>`COUNT(${contentItem.id})`,
 			})
 			.from(subtest)
+			.leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
+			.groupBy(subtest.id, subtest.name, subtest.shortName, subtest.description, subtest.order)
 			.orderBy(subtest.order);
 
 		return subtests;
@@ -41,9 +45,11 @@ const listSubtests = authed
 
 /**
  * Get content items by subtest and category
+ * Returns ALL content items with metadata (no content detail)
+ * Frontend will show lock overlay for premium content
  * GET /api/subtests/{subtestId}/content/{category}
  */
-const listContentByCategory = authed
+const listContentByCategory = authedRateLimited
 	.route({
 		path: "/subtests/{subtestId}/content/{category}",
 		method: "GET",
@@ -56,6 +62,18 @@ const listContentByCategory = authed
 		}),
 	)
 	.handler(async ({ input, context }) => {
+		// Get subtest order to include in response for frontend access control
+		const [targetSubtest] = await db
+			.select({ order: subtest.order })
+			.from(subtest)
+			.where(eq(subtest.id, input.subtestId))
+			.limit(1);
+
+		if (!targetSubtest) {
+			throw new ORPCError("NOT_FOUND", { message: "Subtest tidak ditemukan" });
+		}
+
+		// Return ALL content items - frontend will handle lock overlay display
 		const items = await db
 			.select({
 				id: contentItem.id,
@@ -93,7 +111,7 @@ const listContentByCategory = authed
 		return items;
 	});
 
-const getContentById = authed
+const getContentById = authedRateLimited
 	.route({
 		path: "/content/{contentId}",
 		method: "GET",
@@ -104,13 +122,15 @@ const getContentById = authed
 			contentId: "number",
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		const [row] = await db
 			.select({
 				id: contentItem.id,
 				title: contentItem.title,
 				type: contentItem.type,
+				order: contentItem.order,
 				subtestId: contentItem.subtestId,
+				subtestOrder: subtest.order,
 
 				videoId: videoMaterial.id,
 				videoUrl: videoMaterial.videoUrl,
@@ -120,6 +140,7 @@ const getContentById = authed
 				noteContent: noteMaterial.content,
 			})
 			.from(contentItem)
+			.innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
 			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
 			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
 			.where(eq(contentItem.id, input.contentId))
@@ -127,6 +148,17 @@ const getContentById = authed
 
 		if (!row) {
 			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
+		}
+
+		const hasAccess = canAccessContent(
+			context.session.user.isPremium,
+			context.session.user.role,
+			row.subtestOrder,
+			row.order,
+		);
+
+		if (!hasAccess) {
+			throw new ORPCError("FORBIDDEN", { message: "Konten ini memerlukan akun premium" });
 		}
 
 		// Get practice questions with full question and answer data
@@ -296,7 +328,7 @@ const trackView = authed
  * Get recent 5 content views for dashboard
  * GET /api/content/recent
  */
-const getRecentViews = authed
+const getRecentViews = authedRateLimited
 	.route({
 		path: "/content/recent",
 		method: "GET",

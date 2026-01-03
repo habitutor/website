@@ -85,7 +85,7 @@ export const FlashcardCard = () => {
 			<div className="flex h-full flex-col gap-2 rounded-md border bg-secondary p-4 backdrop-sepia-100">
 				<h1 className="font-medium">Flashcard {currentPage}</h1>
 				<div className="h-full rounded-sm border border-accent bg-background p-4 text-foreground">
-					{data?.assignedQuestions[currentPage - 1].question.content}
+					{data?.assignedQuestions[currentPage - 1]?.question.content}
 				</div>
 			</div>
 
@@ -97,7 +97,7 @@ export const FlashcardCard = () => {
 					</p>
 				</div>
 
-				{data?.assignedQuestions[currentPage - 1].question.answerOptions.map((option) => {
+				{data?.assignedQuestions[currentPage - 1]?.question.answerOptions.map((option) => {
 					const isUserAnswer = saveAnswerMutation.data?.userAnswerId === option.id;
 					const isCorrect = saveAnswerMutation.data?.correctAnswerId === option.id;
 					const isWrong = saveAnswerMutation.data?.correctAnswerId !== option.id;

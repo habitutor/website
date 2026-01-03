@@ -5,6 +5,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import type { Session } from "@/lib/auth-client";
 import { MotionProvider } from "@/lib/motion";
+import { createMeta } from "@/lib/seo-utils";
 import type { orpc } from "@/utils/orpc";
 import appCss from "../index.css?url";
 
@@ -25,13 +26,44 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Habitutor",
+				name: "theme-color",
+				content: "#fdc10e",
 			},
+			{
+				name: "msapplication-TileColor",
+				content: "#fdc10e",
+			},
+			...createMeta(),
 		],
 		links: [
 			{
 				rel: "stylesheet",
 				href: appCss,
+			},
+			{
+				rel: "icon",
+				type: "image/x-icon",
+				href: "/favicon.ico",
+			},
+			{
+				rel: "icon",
+				type: "image/png",
+				sizes: "96x96",
+				href: "/favicon-96x96.png",
+			},
+			{
+				rel: "icon",
+				type: "image/svg+xml",
+				href: "/favicon.svg",
+			},
+			{
+				rel: "apple-touch-icon",
+				sizes: "180x180",
+				href: "/apple-touch-icon.png",
+			},
+			{
+				rel: "manifest",
+				href: "/site.webmanifest",
 			},
 		],
 	}),
@@ -41,7 +73,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootDocument() {
 	return (
-		<html lang="en">
+		<html lang="id">
 			<head>
 				<HeadContent />
 			</head>

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { useEffect } from "react";
 import { PracticeQuestion, PracticeQuestionHeader } from "@/components/classes";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
@@ -52,12 +53,33 @@ function RouteComponent() {
 
 	const practiceQuestions = content.data.practiceQuestions;
 	if (!practiceQuestions) {
-		return <p className="text-muted-foreground text-sm">Belum ada latihan soal untuk materi ini.</p>;
+		return (
+			<div className="space-y-4">
+				<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
+
+				<PracticeQuestionHeader content={content.data.title} />
+
+				<hr />
+
+				<div className="flex flex-col items-center justify-center gap-2 text-pretty text-center">
+					<Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
+					<p>
+						Ups, kontennya belum tersedia,
+						<br />
+						Tunggu kontennya diracik dulu ya!
+					</p>
+				</div>
+			</div>
+		);
 	}
 
 	return (
 		<div className="space-y-4">
+			<p className="font-semibold text-base text-primary-300">Latihan Soal Materi</p>
+
 			<PracticeQuestionHeader content={content.data.title} />
+
+			<hr />
 
 			{Array.isArray(practiceQuestions?.questions) && practiceQuestions.questions.length > 0 ? (
 				practiceQuestions.questions.map((q, idx) => (

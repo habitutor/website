@@ -35,7 +35,7 @@ export default function Footer() {
 						))}
 					</div>
 					<div className="flex items-center gap-2 text-sm md:text-base">
-						Built Together With{" "}
+						Dibangun bersama{" "}
 						<a
 							href="https://www.instagram.com/omahti_ugm"
 							className="flex items-center gap-2 hover:opacity-80"

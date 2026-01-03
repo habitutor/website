@@ -14,7 +14,6 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -71,10 +70,10 @@ const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   path: '/premium',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthenticatedRoute,
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -269,7 +268,7 @@ const AdminAdminClassesShortNameContentIdLatihanSoalRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AdminAdminRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
@@ -306,7 +305,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AdminAdminRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
@@ -352,7 +351,6 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
@@ -469,7 +467,6 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_auth/reset-password'
-    | '/_authenticated/admin'
     | '/_authenticated/premium'
     | '/_admin/admin/dashboard'
     | '/_authenticated/latihan-soal/$id'
@@ -545,12 +542,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPremiumRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/_auth/reset-password': {
+      id: '/_auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/reset-password': {
       id: '/_auth/reset-password'
@@ -901,7 +898,6 @@ const AuthenticatedClassesShortNameContentIdRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRouteWithChildren
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
@@ -916,7 +912,6 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRouteWithChildren,
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,

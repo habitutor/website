@@ -7,4 +7,5 @@ export const o = os.$context<Context>().errors({
 	UNPROCESSABLE_CONTENT: { message: "Permintaan anda tidak dapat diproses." },
 	INTERNAL_SERVER_ERROR: { message: "Terjadi kesalahan pada sisi kami, silahkan coba lagi." },
 	FORBIDDEN: { message: "Anda tidak memiliki hak akses ke resource ini." },
+	TOO_MANY_REQUESTS: { message: "Terlalu banyak permintaan. Silakan coba lagi nanti." },
 });
