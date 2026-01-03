@@ -80,7 +80,7 @@ const Flashcard = () => {
 				className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
 				asChild
 			>
-				{session.user.lastCompletedFlashcardAt.getTime() >= today.getTime() ? (
+				{session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() ? (
 					<Link to="/dashboard/flashcard/result">
 						Lihat Hasil <EyeIcon />
 					</Link>
@@ -90,13 +90,15 @@ const Flashcard = () => {
 					</Link>
 				)}
 			</Button>
-			{session.user.isPremium && session.user.lastCompletedFlashcardAt.getTime() >= today.getTime() && (
+			{session.user.isPremium && session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() && (
 				<Button
 					size="lg"
 					className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
 					asChild
 				>
-					Main Lagi
+					<Link to="/dashboard/flashcard">
+						Main Lagi <ArrowRightIcon />
+					</Link>
 				</Button>
 			)}
 

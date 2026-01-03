@@ -27,14 +27,13 @@ export function Hero() {
 				</div>
 			</div>
 
-			<div className="relative mt-10 w-full pb-8 md:mt-0 md:min-h-0 md:flex-1 md:pb-0">
-				<Image
-					src="/images/hero-image.webp"
-					alt="Hero Illustration"
-					layout="fullWidth"
-					className="h-auto max-h-72 w-full object-cover sm:max-h-80 md:h-full md:max-h-full md:rounded-2xl md:object-contain md:px-4"
-				/>
-			</div>
+			<Image
+				src="/images/hero-image.webp"
+				alt="Hero Illustration"
+				layout="fullWidth"
+				aspectRatio={16 / 9}
+				className=""
+			/>
 		</section>
 	);
 }
