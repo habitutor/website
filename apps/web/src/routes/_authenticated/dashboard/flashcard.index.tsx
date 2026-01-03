@@ -2,10 +2,19 @@ import { isDefinedError } from "@orpc/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate, useRouteContext } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
 import { create } from "zustand";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { orpc } from "@/utils/orpc";
 import { FlashcardCard } from "./-components/flashcard-card";
 
@@ -23,6 +32,7 @@ export const useFlashcardPageStore = create<PageStore>()((set) => ({
 }));
 
 function RouteComponent() {
+	const { session } = useRouteContext({ from: "/_authenticated" });
 	const navigate = useNavigate();
 	const flashcard = useQuery(
 		orpc.flashcard.get.queryOptions({
@@ -30,12 +40,34 @@ function RouteComponent() {
 		}),
 	);
 
+	const [showPremiumDialog, setShowPremiumDialog] = useState(!session?.user.isPremium);
+
 	if (flashcard.isPending) {
 		return <Loader />;
 	}
 
 	if (flashcard.data?.status === "not_started") {
-		return <StartCard />;
+		return (
+			<>
+				<StartCard />
+				<Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>Fitur Terbatas!</DialogTitle>
+							<DialogDescription>Dengan premium, kamu bisa bermain flashcard sepuasnya tanpa batas!</DialogDescription>
+						</DialogHeader>
+						<DialogFooter>
+							<Button variant="outline" onClick={() => setShowPremiumDialog(false)}>
+								Mungkin Nanti
+							</Button>
+							<Button asChild>
+								<Link to="/premium">Beli Premium</Link>
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			</>
+		);
 	}
 
 	if (flashcard.data?.status === "submitted") {

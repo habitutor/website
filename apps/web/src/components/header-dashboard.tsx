@@ -45,7 +45,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 
 	return (
 		<header className="fixed inset-x-0 top-0 z-50">
-			{!session?.user.isPremium && (
+			{!session?.user.isPremium && !location.pathname.startsWith("/classes/") && (
 				<div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
 					Dapatkan Semua Fitur dan Akses
 					<Button variant="default" size={"sm"} asChild>
@@ -171,10 +171,9 @@ const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
 					<Button
 						onClick={async () => {
 							setPending(true);
-							await authClient.signOut().then(() => {
-								navigate({ to: "/" });
-							});
+							await authClient.signOut();
 							queryClient.removeQueries();
+							navigate({ to: "/" });
 							setPending(false);
 						}}
 						disabled={pending}

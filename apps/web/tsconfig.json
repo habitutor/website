@@ -8,6 +8,9 @@
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
 		"types": ["vite/client"],
 		"moduleResolution": "bundler",
+		"incremental": true,
+		"tsBuildInfoFile": ".tsbuildinfo",
+		"assumeChangesOnlyAffectDirectDependencies": true,
 		"allowImportingTsExtensions": true,
 		"noEmit": true,
 		"skipLibCheck": true,
@@ -20,5 +23,11 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": ["node_modules", "dist", "build"]
+	"exclude": ["node_modules", "dist", "build", ".turbo", "coverage"],
+	"watchOptions": {
+		"watchFile": "useFsEvents",
+		"watchDirectory": "useFsEvents",
+		"synchronousWatchDirectory": true,
+		"excludeDirectories": ["node_modules", "dist", "build", ".turbo", "coverage"]
+	}
 }
