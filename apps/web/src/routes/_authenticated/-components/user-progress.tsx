@@ -96,7 +96,9 @@ const Flashcard = () => {
 					className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
 					asChild
 				>
-					Main Lagi
+					<Link to="/dashboard/flashcard">
+						Main Lagi <ArrowRightIcon />
+					</Link>
 				</Button>
 			)}
 
