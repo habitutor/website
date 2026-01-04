@@ -1,27 +1,4 @@
-import { SparkleIcon } from "@phosphor-icons/react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Container } from "@/components/ui/container";
-
-export const Route = createFileRoute("/_authenticated/premium")({
-	component: RouteComponent,
-});
-
-function RouteComponent() {
-	return (
-		<Container className="flex min-h-[calc(100vh-200px)] flex-col items-center justify-center space-y-4 text-center">
-			<div className="rounded-full bg-primary-100 p-6 text-primary-500">
-				<SparkleIcon size={64} weight="fill" />
-			</div>
-			<h1 className="font-bold text-3xl text-neutral-1000 sm:text-4xl">Premium Segera Hadir!</h1>
-			<p className="max-w-md text-lg text-neutral-600">
-				Kami sedang menyiapkan fitur eksklusif untuk membantumu mencapai target belajarmu. Pantau terus ya!
-			</p>
-		</Container>
-	);
-}
-
-/*
-import { ArrowRightIcon, InfinityIcon, SparkleIcon, SpinnerIcon, StarIcon } from "@phosphor-icons/react";
+import { InfinityIcon, SparkleIcon, SpinnerIcon, StarIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -144,7 +121,7 @@ function RouteComponent() {
 						<Button
 							size="lg"
 							className="mt-6 w-full hover:cursor-pointer"
-							disabled={transactionMutation.isPending || isPremium}
+							disabled={true}
 							onClick={async () => {
 								if (isPremium) return;
 								transactionMutation
@@ -165,15 +142,12 @@ function RouteComponent() {
 									Memproses...
 								</>
 							) : (
-								<>
-									Aktifkan Sekarang
-									<ArrowRightIcon size={20} weight="bold" />
-								</>
+								<>Segera Hadir</>
 							)}
 						</Button>
 
 						<div className="relative z-10 mt-6 space-y-2">
-							<p className="text-center text-neutral-400 text-xs">Pembayaran aman dengan Midtrans</p>
+							<p className="text-center text-neutral-400 text-xs">Segera tersedia</p>
 						</div>
 					</Card>
 				</div>
@@ -200,4 +174,3 @@ function RouteComponent() {
 		</Container>
 	);
 }
-*/

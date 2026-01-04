@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
 	DropdownMenu,
@@ -74,9 +75,14 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					))}
 				</div>
 
-				<div className="hidden md:block">
+				<div className="hidden md:flex md:items-center md:gap-4">
 					<DropdownMenu>
-						<DropdownMenuTrigger>
+						<DropdownMenuTrigger className="flex items-center gap-2">
+							{session?.user.isPremium && (
+								<Badge variant="secondary" className="bg-primary text-primary-foreground">
+									Premium
+								</Badge>
+							)}
 							<Avatar>
 								<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
 								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
@@ -98,7 +104,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 			</div>
 
 			{mobileMenuOpen && (
-				<div className="fixed inset-0 z-50 flex flex-col bg-white p-6 md:hidden">
+				<div className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white p-6 shadow-lg md:hidden">
 					<div className="flex items-center justify-between">
 						<Link to="/" className="relative size-12" onClick={() => setMobileMenuOpen(false)}>
 							<Image
@@ -126,13 +132,18 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 						))}
 					</div>
 
-					<div className="mt-auto">
+					<div className="mt-12">
 						<div className="mb-4 flex items-center gap-3 px-4">
 							<Avatar>
 								<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
 								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
 							</Avatar>
 							<span className="font-medium">{session?.user.name}</span>
+							{session?.user.isPremium && (
+								<Badge variant="default" className="bg-primary text-primary-foreground">
+									Premium
+								</Badge>
+							)}
 						</div>
 						<Button
 							variant="destructive"
