@@ -175,7 +175,7 @@ const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-					<AlertDialogDescription>Kamu akan logout dan harus masuk lagi. Andre tolong rapihin</AlertDialogDescription>
+					<AlertDialogDescription>Kamu akan dikeluarkan dan harus login kembali.</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Kembali</AlertDialogCancel>
