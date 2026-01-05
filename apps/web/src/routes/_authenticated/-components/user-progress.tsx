@@ -46,8 +46,7 @@ const Tryout = () => {
 	return (
 		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
 			<div className="z-10 space-y-0.5">
-				<h4 className={"font-bold text-4xl sm:text-5xl"}>Gaperlu Lagi</h4>
-				<p className="font-bold">Tryout Dikerjakan</p>
+				<h2 className="font-bold text-2xl">Kerjakan Tryout</h2>
 			</div>
 
 			<Button asChild size="icon" variant="secondary" className="z-10">
@@ -66,7 +65,6 @@ const Flashcard = () => {
 	if (!session) return null;
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
-	console.log(today, session.user.lastCompletedFlashcardAt);
 
 	return (
 		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">

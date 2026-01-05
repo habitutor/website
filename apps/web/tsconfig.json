@@ -23,11 +23,5 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": ["node_modules", "dist", "build", ".turbo", "coverage"],
-	"watchOptions": {
-		"watchFile": "useFsEvents",
-		"watchDirectory": "useFsEvents",
-		"synchronousWatchDirectory": true,
-		"excludeDirectories": ["node_modules", "dist", "build", ".turbo", "coverage"]
-	}
+	"exclude": ["node_modules", "dist", "build", ".turbo", "coverage"]
 }

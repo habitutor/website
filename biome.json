@@ -25,6 +25,7 @@
 			"!**/.alchemy",
 			"!**/.svelte-kit",
 			"!**/worker-configuration.d.ts",
+			"!**/migrations",
 			"!**/.source"
 		]
 	},
