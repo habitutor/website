@@ -7,7 +7,6 @@ import Footer from "./-home/footer";
 import { Hero } from "./-home/hero";
 import { Pricing } from "./-home/pricing";
 import { Statistics } from "./-home/statistics";
-import Testimone from "./-home/testimone";
 
 export const Route = createFileRoute("/")({
 	head: () => ({

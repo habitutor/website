@@ -21,8 +21,7 @@ export function CallToAction() {
 					<div className="absolute -top-4 right-16 flex items-center justify-center">
 						<div className="size-[35px] rounded-full bg-[#FFDB43]" />
 					</div> */}
-					<div className="absolute -bottom-10 -right-20 z-0 size-40 rounded-full bg-tertiary-100 md:size-80" />
-
+					<div className="absolute -right-20 -bottom-10 z-0 size-40 rounded-full bg-tertiary-100 md:size-80" />
 				</div>
 			</div>
 
