@@ -46,676 +46,676 @@ const SUBTEST_DATA = [
 	},
 ];
 
-const SAMPLE_CONTENT = [
-	{
-		subtestShortName: "PU",
-		contents: [
-			{
-				type: "material" as const,
-				title: "Pendalaman Penalaran Logis dan Pola Berpikir",
-				order: 1,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=sqoOzGMqCQU",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "heading",
-								attrs: { level: 2 },
-								content: [{ type: "text", text: "Pendahuluan" }],
-							},
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Penalaran logis merupakan fondasi utama dalam menyelesaikan soal kognitif.",
-									},
-								],
-							},
+// const SAMPLE_CONTENT = [
+// 	{
+// 		subtestShortName: "PU",
+// 		contents: [
+// 			{
+// 				type: "material" as const,
+// 				title: "Pendalaman Penalaran Logis dan Pola Berpikir",
+// 				order: 1,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=sqoOzGMqCQU",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "heading",
+// 								attrs: { level: 2 },
+// 								content: [{ type: "text", text: "Pendahuluan" }],
+// 							},
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Penalaran logis merupakan fondasi utama dalam menyelesaikan soal kognitif.",
+// 									},
+// 								],
+// 							},
 
-							{
-								type: "heading",
-								attrs: { level: 3 },
-								content: [{ type: "text", text: "Definisi Premis" }],
-							},
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Premis adalah pernyataan yang diasumsikan benar.",
-									},
-								],
-							},
+// 							{
+// 								type: "heading",
+// 								attrs: { level: 3 },
+// 								content: [{ type: "text", text: "Definisi Premis" }],
+// 							},
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Premis adalah pernyataan yang diasumsikan benar.",
+// 									},
+// 								],
+// 							},
 
-							{
-								type: "bulletList",
-								content: [
-									{
-										type: "listItem",
-										content: [
-											{
-												type: "paragraph",
-												content: [{ type: "text", text: "Premis eksplisit" }],
-											},
-										],
-									},
-									{
-										type: "listItem",
-										content: [
-											{
-												type: "paragraph",
-												content: [{ type: "text", text: "Premis implisit" }],
-											},
-										],
-									},
-								],
-							},
+// 							{
+// 								type: "bulletList",
+// 								content: [
+// 									{
+// 										type: "listItem",
+// 										content: [
+// 											{
+// 												type: "paragraph",
+// 												content: [{ type: "text", text: "Premis eksplisit" }],
+// 											},
+// 										],
+// 									},
+// 									{
+// 										type: "listItem",
+// 										content: [
+// 											{
+// 												type: "paragraph",
+// 												content: [{ type: "text", text: "Premis implisit" }],
+// 											},
+// 										],
+// 									},
+// 								],
+// 							},
 
-							{
-								type: "codeBlock",
-								attrs: { language: "text" },
-								content: [
-									{
-										type: "text",
-										text: "Jika A maka B\nA\nMaka B",
-									},
-								],
-							},
+// 							{
+// 								type: "codeBlock",
+// 								attrs: { language: "text" },
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Jika A maka B\nA\nMaka B",
+// 									},
+// 								],
+// 							},
 
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Paragraf panjang 1 untuk testing scroll.",
-									},
-								],
-							},
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Paragraf panjang 2 untuk testing scroll.",
-									},
-								],
-							},
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Paragraf panjang 3 untuk testing scroll.",
-									},
-								],
-							},
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Paragraf panjang 4 untuk testing scroll.",
-									},
-								],
-							},
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Paragraf panjang 5 untuk testing scroll.",
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [
-								{
-									type: "text",
-									text: "Fokus pada premis dan hindari asumsi tambahan.",
-								},
-							],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Framework Cepat Soal Logika",
-				order: 2,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "orderedList",
-							content: [
-								{
-									type: "listItem",
-									content: [
-										{
-											type: "paragraph",
-											content: [{ type: "text", text: "Identifikasi premis" }],
-										},
-									],
-								},
-								{
-									type: "listItem",
-									content: [
-										{
-											type: "paragraph",
-											content: [{ type: "text", text: "Uji konsistensi" }],
-										},
-									],
-								},
-								{
-									type: "listItem",
-									content: [
-										{
-											type: "paragraph",
-											content: [{ type: "text", text: "Eliminasi opsi lemah" }],
-										},
-									],
-								},
-							],
-						},
-					],
-				},
-			},
-			{
-				type: "material" as const,
-				title: "Memahami Informasi Faktual dan Opini",
-				order: 3,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=ppu1",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "PPU menguji pemahaman terhadap fakta, opini, dan hubungan sebab-akibat.",
-									},
-								],
-							},
-							{
-								type: "bulletList",
-								content: [
-									{
-										type: "listItem",
-										content: [
-											{
-												type: "paragraph",
-												content: [{ type: "text", text: "Fakta dapat diverifikasi" }],
-											},
-										],
-									},
-									{
-										type: "listItem",
-										content: [
-											{
-												type: "paragraph",
-												content: [{ type: "text", text: "Opini bersifat subjektif" }],
-											},
-										],
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [{ type: "text", text: "Selalu cek konteks pernyataan." }],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Cara Cepat Bedakan Fakta & Opini",
-				order: 4,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [
-								{
-									type: "text",
-									text: "Cari kata nilai seperti ‘menurut’, ‘seharusnya’.",
-								},
-							],
-						},
-					],
-				},
-			},
-		],
-	},
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Paragraf panjang 1 untuk testing scroll.",
+// 									},
+// 								],
+// 							},
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Paragraf panjang 2 untuk testing scroll.",
+// 									},
+// 								],
+// 							},
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Paragraf panjang 3 untuk testing scroll.",
+// 									},
+// 								],
+// 							},
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Paragraf panjang 4 untuk testing scroll.",
+// 									},
+// 								],
+// 							},
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Paragraf panjang 5 untuk testing scroll.",
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [
+// 								{
+// 									type: "text",
+// 									text: "Fokus pada premis dan hindari asumsi tambahan.",
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Framework Cepat Soal Logika",
+// 				order: 2,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "orderedList",
+// 							content: [
+// 								{
+// 									type: "listItem",
+// 									content: [
+// 										{
+// 											type: "paragraph",
+// 											content: [{ type: "text", text: "Identifikasi premis" }],
+// 										},
+// 									],
+// 								},
+// 								{
+// 									type: "listItem",
+// 									content: [
+// 										{
+// 											type: "paragraph",
+// 											content: [{ type: "text", text: "Uji konsistensi" }],
+// 										},
+// 									],
+// 								},
+// 								{
+// 									type: "listItem",
+// 									content: [
+// 										{
+// 											type: "paragraph",
+// 											content: [{ type: "text", text: "Eliminasi opsi lemah" }],
+// 										},
+// 									],
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "material" as const,
+// 				title: "Memahami Informasi Faktual dan Opini",
+// 				order: 3,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=ppu1",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "PPU menguji pemahaman terhadap fakta, opini, dan hubungan sebab-akibat.",
+// 									},
+// 								],
+// 							},
+// 							{
+// 								type: "bulletList",
+// 								content: [
+// 									{
+// 										type: "listItem",
+// 										content: [
+// 											{
+// 												type: "paragraph",
+// 												content: [{ type: "text", text: "Fakta dapat diverifikasi" }],
+// 											},
+// 										],
+// 									},
+// 									{
+// 										type: "listItem",
+// 										content: [
+// 											{
+// 												type: "paragraph",
+// 												content: [{ type: "text", text: "Opini bersifat subjektif" }],
+// 											},
+// 										],
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [{ type: "text", text: "Selalu cek konteks pernyataan." }],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Cara Cepat Bedakan Fakta & Opini",
+// 				order: 4,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [
+// 								{
+// 									type: "text",
+// 									text: "Cari kata nilai seperti ‘menurut’, ‘seharusnya’.",
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 		],
+// 	},
 
-	{
-		subtestShortName: "PPU",
-		contents: [
-			{
-				type: "material" as const,
-				title: "Memahami Informasi Faktual dan Opini",
-				order: 1,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=ppu1",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "PPU menguji pemahaman terhadap fakta, opini, dan hubungan sebab-akibat.",
-									},
-								],
-							},
-							{
-								type: "bulletList",
-								content: [
-									{
-										type: "listItem",
-										content: [
-											{
-												type: "paragraph",
-												content: [{ type: "text", text: "Fakta dapat diverifikasi" }],
-											},
-										],
-									},
-									{
-										type: "listItem",
-										content: [
-											{
-												type: "paragraph",
-												content: [{ type: "text", text: "Opini bersifat subjektif" }],
-											},
-										],
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [{ type: "text", text: "Selalu cek konteks pernyataan." }],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Cara Cepat Bedakan Fakta & Opini",
-				order: 1,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [
-								{
-									type: "text",
-									text: "Cari kata nilai seperti ‘menurut’, ‘seharusnya’.",
-								},
-							],
-						},
-					],
-				},
-			},
-		],
-	},
+// 	{
+// 		subtestShortName: "PPU",
+// 		contents: [
+// 			{
+// 				type: "material" as const,
+// 				title: "Memahami Informasi Faktual dan Opini",
+// 				order: 1,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=ppu1",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "PPU menguji pemahaman terhadap fakta, opini, dan hubungan sebab-akibat.",
+// 									},
+// 								],
+// 							},
+// 							{
+// 								type: "bulletList",
+// 								content: [
+// 									{
+// 										type: "listItem",
+// 										content: [
+// 											{
+// 												type: "paragraph",
+// 												content: [{ type: "text", text: "Fakta dapat diverifikasi" }],
+// 											},
+// 										],
+// 									},
+// 									{
+// 										type: "listItem",
+// 										content: [
+// 											{
+// 												type: "paragraph",
+// 												content: [{ type: "text", text: "Opini bersifat subjektif" }],
+// 											},
+// 										],
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [{ type: "text", text: "Selalu cek konteks pernyataan." }],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Cara Cepat Bedakan Fakta & Opini",
+// 				order: 1,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [
+// 								{
+// 									type: "text",
+// 									text: "Cari kata nilai seperti ‘menurut’, ‘seharusnya’.",
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 		],
+// 	},
 
-	{
-		subtestShortName: "PBM",
-		contents: [
-			{
-				type: "material" as const,
-				title: "Menentukan Ide Pokok dan Kalimat Utama",
-				order: 1,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=pbm1",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Ide pokok adalah gagasan utama yang menaungi seluruh paragraf.",
-									},
-								],
-							},
-							{
-								type: "blockquote",
-								content: [
-									{
-										type: "paragraph",
-										content: [
-											{
-												type: "text",
-												text: "Biasanya terletak di awal atau akhir paragraf.",
-											},
-										],
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [{ type: "text", text: "Jangan tertipu contoh atau detail." }],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Kesalahan Umum Menentukan Ide Pokok",
-				order: 1,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "bulletList",
-							content: [
-								{
-									type: "listItem",
-									content: [
-										{
-											type: "paragraph",
-											content: [{ type: "text", text: "Memilih kalimat contoh" }],
-										},
-									],
-								},
-								{
-									type: "listItem",
-									content: [
-										{
-											type: "paragraph",
-											content: [{ type: "text", text: "Memilih data pendukung" }],
-										},
-									],
-								},
-							],
-						},
-					],
-				},
-			},
-		],
-	},
+// 	{
+// 		subtestShortName: "PBM",
+// 		contents: [
+// 			{
+// 				type: "material" as const,
+// 				title: "Menentukan Ide Pokok dan Kalimat Utama",
+// 				order: 1,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=pbm1",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Ide pokok adalah gagasan utama yang menaungi seluruh paragraf.",
+// 									},
+// 								],
+// 							},
+// 							{
+// 								type: "blockquote",
+// 								content: [
+// 									{
+// 										type: "paragraph",
+// 										content: [
+// 											{
+// 												type: "text",
+// 												text: "Biasanya terletak di awal atau akhir paragraf.",
+// 											},
+// 										],
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [{ type: "text", text: "Jangan tertipu contoh atau detail." }],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Kesalahan Umum Menentukan Ide Pokok",
+// 				order: 1,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "bulletList",
+// 							content: [
+// 								{
+// 									type: "listItem",
+// 									content: [
+// 										{
+// 											type: "paragraph",
+// 											content: [{ type: "text", text: "Memilih kalimat contoh" }],
+// 										},
+// 									],
+// 								},
+// 								{
+// 									type: "listItem",
+// 									content: [
+// 										{
+// 											type: "paragraph",
+// 											content: [{ type: "text", text: "Memilih data pendukung" }],
+// 										},
+// 									],
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 		],
+// 	},
 
-	{
-		subtestShortName: "PK",
-		contents: [
-			{
-				type: "material" as const,
-				title: "Operasi Hitung Dasar dan Estimasi",
-				order: 1,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=pk1",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "PK menguji ketelitian dalam operasi hitung dan estimasi numerik.",
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [
-								{
-									type: "text",
-									text: "Gunakan pembulatan untuk estimasi cepat.",
-								},
-							],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Hitung Cepat Tanpa Kalkulator",
-				order: 1,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [
-								{
-									type: "text",
-									text: "Sederhanakan angka sebelum menghitung.",
-								},
-							],
-						},
-					],
-				},
-			},
-		],
-	},
+// 	{
+// 		subtestShortName: "PK",
+// 		contents: [
+// 			{
+// 				type: "material" as const,
+// 				title: "Operasi Hitung Dasar dan Estimasi",
+// 				order: 1,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=pk1",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "PK menguji ketelitian dalam operasi hitung dan estimasi numerik.",
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [
+// 								{
+// 									type: "text",
+// 									text: "Gunakan pembulatan untuk estimasi cepat.",
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Hitung Cepat Tanpa Kalkulator",
+// 				order: 1,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [
+// 								{
+// 									type: "text",
+// 									text: "Sederhanakan angka sebelum menghitung.",
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 		],
+// 	},
 
-	{
-		subtestShortName: "LBI",
-		contents: [
-			{
-				type: "material" as const,
-				title: "Menganalisis Teks Argumentatif",
-				order: 1,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=lbi1",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "Teks argumentatif menyajikan pendapat yang didukung alasan dan data.",
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [
-								{
-									type: "text",
-									text: "Identifikasi klaim dan alasan pendukung.",
-								},
-							],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Cara Membaca Kritis",
-				order: 1,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [{ type: "text", text: "Periksa bias dan konsistensi argumen." }],
-						},
-					],
-				},
-			},
-		],
-	},
+// 	{
+// 		subtestShortName: "LBI",
+// 		contents: [
+// 			{
+// 				type: "material" as const,
+// 				title: "Menganalisis Teks Argumentatif",
+// 				order: 1,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=lbi1",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "Teks argumentatif menyajikan pendapat yang didukung alasan dan data.",
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [
+// 								{
+// 									type: "text",
+// 									text: "Identifikasi klaim dan alasan pendukung.",
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Cara Membaca Kritis",
+// 				order: 1,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [{ type: "text", text: "Periksa bias dan konsistensi argumen." }],
+// 						},
+// 					],
+// 				},
+// 			},
+// 		],
+// 	},
 
-	{
-		subtestShortName: "LBing",
-		contents: [
-			{
-				type: "material" as const,
-				title: "Reading Comprehension Strategy",
-				order: 1,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=lb1",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "English reading comprehension focuses on context and inference.",
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [{ type: "text", text: "Pay attention to transition words." }],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Skimming & Scanning",
-				order: 1,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [
-								{
-									type: "text",
-									text: "Read first and last sentence of paragraphs.",
-								},
-							],
-						},
-					],
-				},
-			},
-		],
-	},
+// 	{
+// 		subtestShortName: "LBing",
+// 		contents: [
+// 			{
+// 				type: "material" as const,
+// 				title: "Reading Comprehension Strategy",
+// 				order: 1,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=lb1",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "English reading comprehension focuses on context and inference.",
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [{ type: "text", text: "Pay attention to transition words." }],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Skimming & Scanning",
+// 				order: 1,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [
+// 								{
+// 									type: "text",
+// 									text: "Read first and last sentence of paragraphs.",
+// 								},
+// 							],
+// 						},
+// 					],
+// 				},
+// 			},
+// 		],
+// 	},
 
-	{
-		subtestShortName: "PM",
-		contents: [
-			{
-				type: "material" as const,
-				title: "Pola dan Relasi Bilangan",
-				order: 1,
-				video: {
-					videoUrl: "https://www.youtube.com/watch?v=pm1",
-					content: {
-						type: "doc",
-						version: 1,
-						content: [
-							{
-								type: "paragraph",
-								content: [
-									{
-										type: "text",
-										text: "PM menguji kemampuan menemukan pola dan relasi numerik.",
-									},
-								],
-							},
-						],
-					},
-				},
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [{ type: "text", text: "Perhatikan selisih dan rasio." }],
-						},
-					],
-				},
-			},
-			{
-				type: "tips_and_trick" as const,
-				title: "Strategi Soal Deret",
-				order: 1,
-				notes: {
-					type: "doc",
-					version: 1,
-					content: [
-						{
-							type: "paragraph",
-							content: [{ type: "text", text: "Tuliskan deret secara eksplisit." }],
-						},
-					],
-				},
-			},
-		],
-	},
-];
+// 	{
+// 		subtestShortName: "PM",
+// 		contents: [
+// 			{
+// 				type: "material" as const,
+// 				title: "Pola dan Relasi Bilangan",
+// 				order: 1,
+// 				video: {
+// 					videoUrl: "https://www.youtube.com/watch?v=pm1",
+// 					content: {
+// 						type: "doc",
+// 						version: 1,
+// 						content: [
+// 							{
+// 								type: "paragraph",
+// 								content: [
+// 									{
+// 										type: "text",
+// 										text: "PM menguji kemampuan menemukan pola dan relasi numerik.",
+// 									},
+// 								],
+// 							},
+// 						],
+// 					},
+// 				},
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [{ type: "text", text: "Perhatikan selisih dan rasio." }],
+// 						},
+// 					],
+// 				},
+// 			},
+// 			{
+// 				type: "tips_and_trick" as const,
+// 				title: "Strategi Soal Deret",
+// 				order: 1,
+// 				notes: {
+// 					type: "doc",
+// 					version: 1,
+// 					content: [
+// 						{
+// 							type: "paragraph",
+// 							content: [{ type: "text", text: "Tuliskan deret secara eksplisit." }],
+// 						},
+// 					],
+// 				},
+// 			},
+// 		],
+// 	},
+// ];
 
 export async function clearSubtest(db: NodePgDatabase) {
 	try {

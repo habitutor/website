@@ -4,7 +4,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ClassHeader, ContentList } from "@/components/classes";
+import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SearchInput } from "@/components/ui/search-input";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
@@ -43,6 +43,12 @@ export const Route = createFileRoute("/_admin/admin/classes/$shortName/")({
 
 type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
 
+type Search = {
+	q?: string;
+	category?: "material" | "tips_and_trick" | undefined;
+	page?: number;
+};
+
 function RouteComponent() {
 	const { shortName } = Route.useParams();
 	const queryClient = useQueryClient();
@@ -53,19 +59,58 @@ function RouteComponent() {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [deletingItem, setDeletingItem] = useState<ContentListItem | null>(null);
 
+	const searchParams = Route.useSearch();
+	const searchQuery = (searchParams as Search).q ?? "";
+	const activeFilter: "all" | "material" | "tips_and_trick" = (searchParams as Search).category ?? "all";
+	const page = (searchParams as Search).page ?? 0;
+
+	const navigate = Route.useNavigate();
+	const updateSearch = (updates: Partial<Search>) => {
+		const newSearch: Partial<Search> = {};
+
+		if (updates.q !== undefined) {
+			newSearch.q = updates.q || undefined;
+		}
+		if (updates.category !== undefined) {
+			newSearch.category = updates.category || undefined;
+		}
+		if (updates.page !== undefined) {
+			newSearch.page = updates.page;
+		}
+
+		if (
+			(updates.q !== undefined && updates.q !== (searchParams as Search).q) ||
+			(updates.category !== undefined && updates.category !== (searchParams as Search).category)
+		) {
+			newSearch.page = 0;
+		}
+
+		// Remove undefined values to avoid ?category=undefined in URL
+		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
+
+		navigate({ search: cleanSearch });
+	};
+
 	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 	const matchedClass = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
 
-	const materialContents = useQuery(
+	const contents = useQuery(
 		orpc.subtest.listContentByCategory.queryOptions({
-			input: { subtestId: matchedClass?.id ?? 0, category: "material" },
-			enabled: Boolean(matchedClass?.id),
-		}),
-	);
-
-	const tipsContents = useQuery(
-		orpc.subtest.listContentByCategory.queryOptions({
-			input: { subtestId: matchedClass?.id ?? 0, category: "tips_and_trick" },
+			input: Object.fromEntries(
+				Object.entries({
+					subtestId: matchedClass?.id ?? 0,
+					category: activeFilter === "all" ? undefined : (activeFilter as "material" | "tips_and_trick"),
+					search: searchQuery || undefined,
+					limit: 20,
+					offset: page * 20,
+				}).filter(([, value]) => value !== undefined),
+			) as {
+				subtestId: number;
+				category?: "material" | "tips_and_trick";
+				search?: string;
+				limit: number;
+				offset: number;
+			},
 			enabled: Boolean(matchedClass?.id),
 		}),
 	);
@@ -75,17 +120,9 @@ function RouteComponent() {
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
-					}),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: {
-							subtestId: matchedClass?.id ?? 0,
-							category: "tips_and_trick",
-						},
-					}),
+					predicate: (query) => {
+						return query.queryKey[0] === "subtest.listContentByCategory";
+					},
 				});
 				setCreateDialogOpen(false);
 			},
@@ -100,17 +137,9 @@ function RouteComponent() {
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
-					}),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: {
-							subtestId: matchedClass?.id ?? 0,
-							category: "tips_and_trick",
-						},
-					}),
+					predicate: (query) => {
+						return query.queryKey[0] === "subtest.listContentByCategory";
+					},
 				});
 				setEditDialogOpen(false);
 				setEditingItem(null);
@@ -126,17 +155,9 @@ function RouteComponent() {
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
-					}),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: {
-							subtestId: matchedClass?.id ?? 0,
-							category: "tips_and_trick",
-						},
-					}),
+					predicate: (query) => {
+						return query.queryKey[0] === "subtest.listContentByCategory";
+					},
 				});
 				setDeleteDialogOpen(false);
 				setDeletingItem(null);
@@ -152,17 +173,9 @@ function RouteComponent() {
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: { subtestId: matchedClass?.id ?? 0, category: "material" },
-					}),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.queryKey({
-						input: {
-							subtestId: matchedClass?.id ?? 0,
-							category: "tips_and_trick",
-						},
-					}),
+					predicate: (query) => {
+						return query.queryKey[0] === "subtest.listContentByCategory";
+					},
 				});
 			},
 			onError: (error) => {
@@ -178,10 +191,9 @@ function RouteComponent() {
 		},
 		onSubmit: async ({ value }) => {
 			if (!matchedClass) return;
-			const items = createDialogType === "material" ? materialContents.data : tipsContents.data;
+			const items = contents.data;
 			const maxOrder = items && items.length > 0 ? Math.max(...items.map((i) => i.order ?? 0)) : 0;
 
-			// For now we ensure at least one component exists by always requiring a note on creation
 			if (!value.withNote) {
 				toast.error("Konten baru harus memiliki minimal satu komponen. Aktifkan catatan materi.");
 				return;
@@ -237,10 +249,11 @@ function RouteComponent() {
 		setDeleteDialogOpen(true);
 	};
 
-	const handleReorder = (newItems: ContentListItem[], category: "material" | "tips_and_trick") => {
+	const handleReorder = (newItems: ContentListItem[]) => {
 		if (!matchedClass) return;
 
-		// Map new order based on array index
+		const category = activeFilter === "all" ? "material" : activeFilter;
+
 		const updatedItems = newItems.map((item, index) => ({
 			id: item.id,
 			order: index + 1,
@@ -277,187 +290,186 @@ function RouteComponent() {
 	return (
 		<Container className="py-0">
 			<ClassHeader subtest={matchedClass} />
-			<div className="space-y-4">
-				<Tabs defaultValue="material">
-					<TabsList>
-						<TabsTrigger value="material">Materi</TabsTrigger>
-						<TabsTrigger value="tips_and_trick">Tips & Trick</TabsTrigger>
-					</TabsList>
-					<TabsContent value="material">
-						<ContentList
-							title="Materi"
-							items={materialContents.data}
-							isLoading={materialContents.isPending}
-							error={materialContents.isError ? materialContents.error.message : undefined}
-							onCreate={() => handleCreate("material")}
-							onEdit={handleEdit}
-							onDelete={handleDelete}
-							onReorder={(newItems) => handleReorder(newItems, "material")}
-						/>
-					</TabsContent>
-					<TabsContent value="tips_and_trick">
-						<ContentList
-							title="Tips & Trick"
-							items={tipsContents.data}
-							isLoading={tipsContents.isPending}
-							error={tipsContents.isError ? tipsContents.error.message : undefined}
-							onCreate={() => handleCreate("tips_and_trick")}
-							onEdit={handleEdit}
-							onDelete={handleDelete}
-							onReorder={(newItems) => handleReorder(newItems, "tips_and_trick")}
-						/>
-					</TabsContent>
-				</Tabs>
-
-				{/* Create Dialog */}
-				<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>Tambah Konten</DialogTitle>
-							<DialogDescription>
-								Buat konten baru untuk {createDialogType === "material" ? "Materi" : "Tips & Trick"}
-							</DialogDescription>
-						</DialogHeader>
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								createForm.handleSubmit();
-							}}
-							className="space-y-4"
-						>
-							<createForm.Field name="title">
-								{(field) => (
-									<div className="space-y-2">
-										<Label htmlFor={field.name}>Judul</Label>
-										<Input
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Masukkan judul konten"
-										/>
-										{field.state.meta.errors.map((error) => (
-											<p key={error?.message} className="text-red-500 text-sm">
-												{error?.message}
-											</p>
-										))}
-									</div>
-								)}
-							</createForm.Field>
-							<createForm.Field name="withNote">
-								{(field) => (
-									<div className="flex items-center gap-2">
-										<Checkbox
-											id={field.name}
-											checked={field.state.value}
-											onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
-										/>
-										<Label htmlFor={field.name} className="font-normal text-sm">
-											Buat catatan materi awal (minimal satu komponen per konten)
-										</Label>
-									</div>
-								)}
-							</createForm.Field>
-							<DialogFooter>
-								<Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>
-									Batal
-								</Button>
-								<createForm.Subscribe>
-									{(state) => (
-										<Button type="submit" disabled={!state.canSubmit || createMutation.isPending}>
-											{createMutation.isPending ? "Menyimpan..." : "Simpan"}
-										</Button>
-									)}
-								</createForm.Subscribe>
-							</DialogFooter>
-						</form>
-					</DialogContent>
-				</Dialog>
-
-				{/* Edit Dialog */}
-				<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>Edit Konten</DialogTitle>
-							<DialogDescription>Ubah judul konten</DialogDescription>
-						</DialogHeader>
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								editForm.handleSubmit();
-							}}
-							className="space-y-4"
-						>
-							<editForm.Field name="title">
-								{(field) => (
-									<div className="space-y-2">
-										<Label htmlFor={field.name}>Judul</Label>
-										<Input
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Masukkan judul konten"
-										/>
-										{field.state.meta.errors.map((error) => (
-											<p key={error?.message} className="text-red-500 text-sm">
-												{error?.message}
-											</p>
-										))}
-									</div>
-								)}
-							</editForm.Field>
-							<DialogFooter>
-								<Button
-									type="button"
-									variant="outline"
-									onClick={() => {
-										setEditDialogOpen(false);
-										setEditingItem(null);
-									}}
-								>
-									Batal
-								</Button>
-								<editForm.Subscribe>
-									{(state) => (
-										<Button type="submit" disabled={!state.canSubmit || updateMutation.isPending}>
-											{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
-										</Button>
-									)}
-								</editForm.Subscribe>
-							</DialogFooter>
-						</form>
-					</DialogContent>
-				</Dialog>
-
-				{/* Delete Dialog */}
-				<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>Hapus Konten?</AlertDialogTitle>
-							<AlertDialogDescription>
-								Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}
-								"? Tindakan ini tidak dapat dibatalkan.
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={() => {
-									if (deletingItem) {
-										deleteMutation.mutate({ id: deletingItem.id });
-									}
-								}}
-								disabled={deleteMutation.isPending}
-							>
-								{deleteMutation.isPending ? "Menghapus..." : "Hapus"}
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
+			<div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<div className="w-full flex-1 sm:max-w-md">
+						<SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />
+					</div>
+					<ContentFilters
+						activeFilter={activeFilter}
+						onChange={(category) =>
+							updateSearch({ category: category === "all" ? undefined : (category as "material" | "tips_and_trick") })
+						}
+					/>
+				</div>
 			</div>
+
+			<div className="space-y-4">
+				<ContentList
+					items={contents.data}
+					isLoading={contents.isPending}
+					error={contents.isError ? contents.error.message : undefined}
+					searchQuery={searchQuery}
+					showCount={Boolean(searchQuery)}
+					hasMore={contents.data?.length === 20}
+					onLoadMore={() => updateSearch({ page: page + 1 })}
+					onCreate={() =>
+						handleCreate(activeFilter === "all" ? "material" : (activeFilter as "material" | "tips_and_trick"))
+					}
+					onEdit={handleEdit}
+					onDelete={handleDelete}
+					onReorder={handleReorder}
+				/>
+			</div>
+
+			{/* Create Dialog */}
+			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Tambah Konten</DialogTitle>
+						<DialogDescription>
+							Buat konten baru untuk {createDialogType === "material" ? "Materi" : "Tips & Trick"}
+						</DialogDescription>
+					</DialogHeader>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							createForm.handleSubmit();
+						}}
+						className="space-y-4"
+					>
+						<createForm.Field name="title">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Judul</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Masukkan judul konten"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500 text-sm">
+											{error?.message}
+										</p>
+									))}
+								</div>
+							)}
+						</createForm.Field>
+						<createForm.Field name="withNote">
+							{(field) => (
+								<div className="flex items-center gap-2">
+									<Checkbox
+										id={field.name}
+										checked={field.state.value}
+										onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
+									/>
+									<Label htmlFor={field.name} className="font-normal text-sm">
+										Buat catatan materi awal (minimal satu komponen per konten)
+									</Label>
+								</div>
+							)}
+						</createForm.Field>
+						<DialogFooter>
+							<Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>
+								Batal
+							</Button>
+							<createForm.Subscribe>
+								{(state) => (
+									<Button type="submit" disabled={!state.canSubmit || createMutation.isPending}>
+										{createMutation.isPending ? "Menyimpan..." : "Simpan"}
+									</Button>
+								)}
+							</createForm.Subscribe>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+
+			{/* Edit Dialog */}
+			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Edit Konten</DialogTitle>
+						<DialogDescription>Ubah judul konten</DialogDescription>
+					</DialogHeader>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							editForm.handleSubmit();
+						}}
+						className="space-y-4"
+					>
+						<editForm.Field name="title">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Judul</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Masukkan judul konten"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500 text-sm">
+											{error?.message}
+										</p>
+									))}
+								</div>
+							)}
+						</editForm.Field>
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => {
+									setEditDialogOpen(false);
+									setEditingItem(null);
+								}}
+							>
+								Batal
+							</Button>
+							<editForm.Subscribe>
+								{(state) => (
+									<Button type="submit" disabled={!state.canSubmit || updateMutation.isPending}>
+										{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+									</Button>
+								)}
+							</editForm.Subscribe>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+
+			{/* Delete Dialog */}
+			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Hapus Konten?</AlertDialogTitle>
+						<AlertDialogDescription>
+							Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}
+							"? Tindakan ini tidak dapat dibatalkan.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={() => {
+								if (deletingItem) {
+									deleteMutation.mutate({ id: deletingItem.id });
+								}
+							}}
+							disabled={deleteMutation.isPending}
+						>
+							{deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</Container>
 	);
 }
