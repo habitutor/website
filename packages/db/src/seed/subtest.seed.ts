@@ -764,58 +764,58 @@ export async function seedSubtest(db: NodePgDatabase) {
 
 		console.log(`Subtest: ${insertedSubtests.length} created`);
 
-		const contentItemIds: number[] = [];
+		// const contentItemIds: number[] = [];
 
-		for (const sample of SAMPLE_CONTENT) {
-			const targetSubtest = insertedSubtests.find((s) => s.shortName === sample.subtestShortName);
-			if (!targetSubtest) continue;
+		// for (const sample of SAMPLE_CONTENT) {
+		// 	const targetSubtest = insertedSubtests.find((s) => s.shortName === sample.subtestShortName);
+		// 	if (!targetSubtest) continue;
 
-			for (const content of sample.contents) {
-				const [row] = await tx
-					.insert(contentItem)
-					.values({
-						subtestId: targetSubtest.id,
-						type: content.type,
-						title: content.title,
-						order: content.order,
-					})
-					.returning({ id: contentItem.id });
+		// 	for (const content of sample.contents) {
+		// 		const [row] = await tx
+		// 			.insert(contentItem)
+		// 			.values({
+		// 				subtestId: targetSubtest.id,
+		// 				type: content.type,
+		// 				title: content.title,
+		// 				order: content.order,
+		// 			})
+		// 			.returning({ id: contentItem.id });
 
-				if (!row) throw new Error("Failed to insert content item");
+		// 		if (!row) throw new Error("Failed to insert content item");
 
-				const contentItemId = row.id;
-				contentItemIds.push(contentItemId);
+		// 		const contentItemId = row.id;
+		// 		contentItemIds.push(contentItemId);
 
-				if (content.video) {
-					const videoContent =
-						"content" in content.video && content.video.content
-							? content.video.content
-							: {
-									type: "doc",
-									version: 1,
-									content: [],
-								};
+		// 		if (content.video) {
+		// 			const videoContent =
+		// 				"content" in content.video && content.video.content
+		// 					? content.video.content
+		// 					: {
+		// 							type: "doc",
+		// 							version: 1,
+		// 							content: [],
+		// 						};
 
-					const serializedContent = JSON.parse(JSON.stringify(videoContent));
+		// 			const serializedContent = JSON.parse(JSON.stringify(videoContent));
 
-					await tx.insert(videoMaterial).values({
-						contentItemId,
-						videoUrl: content.video.videoUrl,
-						content: serializedContent,
-					});
-				}
+		// 			await tx.insert(videoMaterial).values({
+		// 				contentItemId,
+		// 				videoUrl: content.video.videoUrl,
+		// 				content: serializedContent,
+		// 			});
+		// 		}
 
-				if (content.notes) {
-					const serializedNotes = JSON.parse(JSON.stringify(content.notes));
+		// 		if (content.notes) {
+		// 			const serializedNotes = JSON.parse(JSON.stringify(content.notes));
 
-					await tx.insert(noteMaterial).values({
-						contentItemId,
-						content: serializedNotes,
-					});
-				}
-			}
-		}
+		// 			await tx.insert(noteMaterial).values({
+		// 				contentItemId,
+		// 				content: serializedNotes,
+		// 			});
+		// 		}
+		// 	}
+		// }
 
-		console.log("Content items created");
+		// console.log("Content items created");
 	});
 }
