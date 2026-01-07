@@ -2,7 +2,6 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { clearPractice, seedPractice } from "./practice.seed";
 import { clearSubtest, seedSubtest } from "./subtest.seed";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
