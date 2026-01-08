@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { bounce } from "@/lib/animation-variants";
 
 export function CallToAction() {
 	return (
@@ -78,12 +79,7 @@ export function CallToAction() {
 					kamu miliki.
 				</motion.p>
 
-				<motion.div
-					className="flex items-center justify-center gap-2"
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3, delay: 0.2 }}
-				>
+				<motion.div variants={bounce} whileHover="whileHover">
 					<Button asChild className="relative">
 						<Link to="/login">Mulai Perjalananmu</Link>
 					</Button>

@@ -48,11 +48,11 @@ export function Hero() {
 								<Link to="/login">Mulai Belajar Sekarang</Link>
 							</motion.div>
 						</Button>
-						<Button variant="outline" size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
-							<motion.div variants={bounce} whileHover="whileHover">
+						<motion.div variants={bounce} whileHover="whileHover">
+							<Button variant="outline" size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
 								<Link to="/dashboard">Cara Kerjanya</Link>
-							</motion.div>
-						</Button>
+							</Button>
+						</motion.div>
 					</motion.div>
 				</div>
 			</div>
