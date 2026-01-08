@@ -76,6 +76,7 @@ function RootDocument() {
 		<html lang="id">
 			<head>
 				<HeadContent />
+				<meta name="google-site-verification" content="ZkAuVBNm-RdzlikU-7NR9WHgzplwakbRHIhwqwySNXg" />
 			</head>
 			<body className="min-h-screen">
 				<MotionProvider>
