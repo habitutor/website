@@ -1,5 +1,6 @@
 import { Image } from "@unpic/react";
 import { motion } from "motion/react";
+import { MotionPulse } from "@/components/motion";
 import { useAnimatedCounter } from "@/hooks/use-animations";
 
 function StatCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -15,26 +16,33 @@ function StatCounter({ value, suffix = "" }: { value: number; suffix?: string })
 
 export function Statistics() {
 	return (
-		<section className="overflow-x-hidden bg-background py-12">
+		<section className="overflow-x-hidden bg-background py-16">
 			<div className="container mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
 				<div className="relative">
-					<motion.div
-						className="absolute -top-12 -left-16 z-0 size-20 rounded-full bg-yellow-100 md:size-28"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.1, duration: 0.3 }}
-					/>
-					<motion.div
-						className="absolute -right-35 -bottom-50 z-0 size-56 rounded-full bg-tertiary-100 md:size-64"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.2, duration: 0.3 }}
-					/>
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-12 -left-16 z-0 size-20 rounded-full bg-yellow-100 md:size-28"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.1, duration: 0.3 }}
+						/>
+					</MotionPulse>
+					<MotionPulse>
+						<motion.div
+							className="absolute -right-35 -bottom-50 z-0 size-56 rounded-full bg-tertiary-100 md:size-64"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.2, duration: 0.3 }}
+						/>
+					</MotionPulse>
 
 					<motion.div
 						className="relative overflow-hidden rounded-2xl bg-neutral-100 p-8 pb-40 shadow-sm md:pb-8 md:pl-56"
 						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
 						transition={{ delay: 0.2, duration: 0.3 }}
 					>
 						<div className="absolute -bottom-24 -left-24 z-0">
@@ -79,26 +87,30 @@ export function Statistics() {
 				</div>
 
 				<div className="relative w-full">
-					<motion.div
-						className="absolute -top-24 -right-10 z-20 md:-top-28 md:-right-20"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.3, duration: 0.3 }}
-					>
-						<Image
-							src="/decorations/acorn.webp"
-							alt=""
-							layout="constrained"
-							width={200}
-							height={200}
-							className="h-auto w-24 md:w-32"
-						/>
-					</motion.div>
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-24 -right-10 z-20 md:-top-28 md:-right-20"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.3, duration: 0.3 }}
+						>
+							<Image
+								src="/decorations/acorn.webp"
+								alt=""
+								layout="constrained"
+								width={200}
+								height={200}
+								className="h-auto w-24 md:w-32"
+							/>
+						</motion.div>
+					</MotionPulse>
 
 					<motion.div
 						className="relative overflow-hidden rounded-2xl bg-primary-300 p-6 pb-12 text-white md:p-8 md:pr-80 md:pb-16"
 						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
 						transition={{ delay: 0.3, duration: 0.3 }}
 					>
 						<div className="absolute -right-8 -bottom-12 hidden md:block">

@@ -6,6 +6,7 @@ import {
 	fadeInLeft,
 	fadeInRight,
 	fadeInUp,
+	pulse,
 	scaleIn,
 	staggerChild,
 	staggerContainer,
@@ -128,7 +129,7 @@ export function MotionBounce({ children, className = "", ...props }: HTMLMotionP
 
 export function MotionPulse({ children, className = "", ...props }: HTMLMotionProps<"div">) {
 	return (
-		<motion.div initial={{ scale: 0.98 }} animate={{ scale: 1 }} className={className} {...props}>
+		<motion.div variants={pulse} animate="animate" className={className} {...props}>
 			{children}
 		</motion.div>
 	);

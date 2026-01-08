@@ -1,51 +1,67 @@
 import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import Carousel from "@/components/carousel";
+import { MotionPulse } from "@/components/motion";
 import { DATA } from "./data";
 
 export function Features() {
 	return (
-		<section className="overflow-x-hidden bg-background py-12">
+		<section className="overflow-x-hidden bg-background py-16">
 			<div className="container mx-auto flex w-full max-w-4xl flex-col gap-20 px-4">
 				<div className="relative w-full">
-					<motion.div
-						className="absolute -top-20 -left-14 z-20 md:-top-24 md:-left-16"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.1, duration: 0.3 }}
-					>
-						<Image
-							src="/decorations/graduation-cap.webp"
-							alt=""
-							layout="constrained"
-							width={400}
-							height={400}
-							className="h-auto w-36 md:w-40"
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-20 -left-14 z-20 md:-top-24 md:-left-16"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.1, duration: 0.3 }}
+						>
+							<Image
+								src="/decorations/graduation-cap.webp"
+								alt=""
+								layout="constrained"
+								width={400}
+								height={400}
+								className="h-auto w-36 md:w-40"
+							/>
+						</motion.div>
+					</MotionPulse>
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-12 -left-30 z-0 size-40 rounded-full bg-primary-100 md:size-46"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.2, duration: 0.3 }}
 						/>
-					</motion.div>
-					<motion.div
-						className="absolute -top-12 -left-30 z-0 size-40 rounded-full bg-primary-100 md:size-46"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.2, duration: 0.3 }}
-					/>
-					<motion.div
-						className="absolute -top-0 -right-16 z-0"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.3, duration: 0.3 }}
-					>
-						<Image
-							src="/decorations/green-yellow-double-circle.webp"
-							alt=""
-							layout="constrained"
-							width={120}
-							height={120}
-							className="h-auto w-20 md:w-28"
-						/>
-					</motion.div>
+					</MotionPulse>
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-0 -right-16 z-0"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.3, duration: 0.3 }}
+						>
+							<Image
+								src="/decorations/green-yellow-double-circle.webp"
+								alt=""
+								layout="constrained"
+								width={120}
+								height={120}
+								className="h-auto w-20 md:w-28"
+							/>
+						</motion.div>
+					</MotionPulse>
 
-					<div className="relative overflow-hidden rounded-2xl bg-neutral-100 shadow-sm">
+					<motion.div
+						className="relative overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
+						initial={{ opacity: 0, y: 20 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.3 }}
+					>
 						<div className="flex flex-col p-8 md:grid md:min-h-96 md:grid-cols-[30%_70%]">
 							<div className="absolute top-38 -left-40 z-0 size-100 rounded-full bg-tertiary-100 sm:top-30 md:top-50 md:left-60 md:size-54" />
 
@@ -79,54 +95,70 @@ export function Features() {
 								</div>
 							</motion.div>
 						</div>
-					</div>
+					</motion.div>
 				</div>
 
 				{/* Testimone Section */}
 				<div className="container relative mx-auto flex w-full max-w-4xl flex-col overflow-visible px-4">
-					<motion.div
-						className="absolute -right-50 z-2 size-75 translate-y-1/2 rounded-full bg-primary-100"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.4, duration: 0.3 }}
-					/>
+					<MotionPulse>
+						<motion.div
+							className="absolute -right-50 z-2 size-75 translate-y-1/2 rounded-full bg-primary-100"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.4, duration: 0.3 }}
+						/>
+					</MotionPulse>
 
-					<motion.div
-						className="absolute top-10 -left-30 z-2 size-45 rounded-full bg-fourtiary-100"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.5, duration: 0.3 }}
-					/>
+					<MotionPulse>
+						<motion.div
+							className="absolute top-10 -left-30 z-2 size-45 rounded-full bg-fourtiary-100"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.5, duration: 0.3 }}
+						/>
+					</MotionPulse>
 
-					<motion.div
-						className="absolute top-10 -left-40 z-2 size-11 rounded-full bg-yellow-100"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.6, duration: 0.3 }}
-					/>
+					<MotionPulse>
+						<motion.div
+							className="absolute top-10 -left-40 z-2 size-11 rounded-full bg-yellow-100"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.6, duration: 0.3 }}
+						/>
+					</MotionPulse>
 
-					<motion.div
-						className="absolute -top-3 -left-50 z-2 w-62.5 translate-y-1/2 sm:w-75"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.7, duration: 0.3 }}
-					>
-						<Image src="/decorations/book.webp" alt="Buku Wan***t" width={300} height={150} className="h-auto" />
-					</motion.div>
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-3 -left-50 z-2 w-62.5 translate-y-1/2 sm:w-75"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.7, duration: 0.3 }}
+						>
+							<Image src="/decorations/book.webp" alt="Buku Wan***t" width={300} height={150} className="h-auto" />
+						</motion.div>
+					</MotionPulse>
 
-					<motion.div
-						className="absolute -top-3 -right-25 z-4 w-62.5 -translate-y-1/2 lg:-right-35 lg:translate-y-1/2"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.8, duration: 0.3 }}
-					>
-						<Image src="/decorations/pencil.webp" alt="Pensil 2B" width={300} height={150} className="h-auto" />
-					</motion.div>
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-3 -right-25 z-4 w-62.5 -translate-y-1/2 lg:-right-35 lg:translate-y-1/2"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.8, duration: 0.3 }}
+						>
+							<Image src="/decorations/pencil.webp" alt="Pensil 2B" width={300} height={150} className="h-auto" />
+						</motion.div>
+					</MotionPulse>
 
 					<motion.div
 						className="relative z-3 flex flex-col gap-y-32 rounded-2xl border border-neutral-200 bg-neutral-100 px-4 py-8"
 						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
 						transition={{ delay: 0.5, duration: 0.3 }}
 					>
 						<div className="mb-4 text-center">
@@ -157,29 +189,41 @@ export function Features() {
 				</div>
 
 				<div className="relative">
-					<motion.div
-						className="absolute -bottom-12 -left-30 z-0 size-40 rounded-full bg-tertiary-100 md:size-46"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.9, duration: 0.3 }}
-					/>
-
-					<div className="relative overflow-hidden rounded-2xl bg-neutral-100 shadow-sm">
+					<MotionPulse>
 						<motion.div
-							className="absolute top-40 -right-20 z-0 md:top-50 md:-right-10"
+							className="absolute -bottom-12 -left-30 z-0 size-40 rounded-full bg-tertiary-100 md:size-46"
 							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 1, duration: 0.3 }}
-						>
-							<Image
-								src="/decorations/green-yellow-2-circle.webp"
-								alt=""
-								layout="constrained"
-								width={120}
-								height={120}
-								className="h-auto w-100 md:w-60"
-							/>
-						</motion.div>
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.9, duration: 0.3 }}
+						/>
+					</MotionPulse>
+
+					<motion.div
+						className="relative overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
+						initial={{ opacity: 0, y: 20 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.3 }}
+					>
+						<MotionPulse>
+							<motion.div
+								className="absolute top-40 -right-20 z-0 md:top-50 md:-right-10"
+								initial={{ opacity: 0 }}
+								whileInView={{ opacity: 1 }}
+								viewport={{ once: true }}
+								transition={{ delay: 1, duration: 0.3 }}
+							>
+								<Image
+									src="/decorations/green-yellow-2-circle.webp"
+									alt=""
+									layout="constrained"
+									width={120}
+									height={120}
+									className="h-auto w-100 md:w-60"
+								/>
+							</motion.div>
+						</MotionPulse>
 
 						<div className="flex flex-col p-8 md:grid md:min-h-96 md:grid-cols-[70%_30%]">
 							<motion.div
@@ -222,7 +266,7 @@ export function Features() {
 								</p>
 							</div>
 						</div>
-					</div>
+					</motion.div>
 				</div>
 			</div>
 		</section>

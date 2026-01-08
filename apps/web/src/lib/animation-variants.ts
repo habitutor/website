@@ -92,10 +92,11 @@ export const bounce: Variants = {
 
 export const pulse: Variants = {
 	animate: {
-		scale: [1, 1.02, 1],
+		scale: [1, 1.05, 1],
 		transition: {
-			duration: 2,
+			duration: 5,
 			ease: "easeInOut",
+			repeat: Number.POSITIVE_INFINITY,
 		},
 	},
 };
