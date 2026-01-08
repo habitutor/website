@@ -16,10 +16,10 @@ function RouteComponent() {
 	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 
 	return (
-		<>
+		<div className="mt-4 sm:-mt-3">
 			<SubtestHeader />
 
-			<hr className="-my-3 sm:my-0" />
+			<hr className="my-3 sm:my-4" />
 
 			<div>
 				{subtests.isPending && (
@@ -42,6 +42,6 @@ function RouteComponent() {
 					</div>
 				)}
 			</div>
-		</>
+		</div>
 	);
 }

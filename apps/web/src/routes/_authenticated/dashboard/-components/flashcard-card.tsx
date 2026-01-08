@@ -1,6 +1,6 @@
 import { isDefinedError } from "@orpc/client";
 import { CheckIcon, XIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import { TimeoutDialog } from "./timeout-dialog";
 
 export const FlashcardCard = () => {
 	const { data } = useQuery(orpc.flashcard.get.queryOptions());
+	const queryClient = useQueryClient();
 	const saveAnswerMutation = useMutation(
 		orpc.flashcard.save.mutationOptions({
 			onError: (error) => {
@@ -71,6 +72,7 @@ export const FlashcardCard = () => {
 
 	function handleSubmit() {
 		submitMutation.mutate({});
+		queryClient.removeQueries({ queryKey: ["auth", "getSession", "flashcard"] });
 		navigate({ to: "/dashboard/flashcard/result" });
 	}
 

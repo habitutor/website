@@ -11,9 +11,16 @@ import {
 } from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { authed, authedRateLimited } from "../index";
 import { canAccessContent } from "../lib/content-access";
+
+/**
+ * Escape SQL LIKE pattern special characters to prevent unexpected query behavior
+ */
+function escapeLikePattern(value: string): string {
+	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
+}
 
 /**
  * Get all subtests with basic info
@@ -51,18 +58,20 @@ const listSubtests = authed
  */
 const listContentByCategory = authedRateLimited
 	.route({
-		path: "/subtests/{subtestId}/content/{category}",
+		path: "/subtests/{subtestId}/content",
 		method: "GET",
 		tags: ["Content"],
 	})
 	.input(
 		type({
 			subtestId: "number",
-			category: "'material' | 'tips_and_trick'",
+			category: type("'material' | 'tips_and_trick'").optional(),
+			search: type("string").optional(),
+			limit: type("number >= 1").optional(),
+			offset: type("number >= 0").optional(),
 		}),
 	)
 	.handler(async ({ input, context }) => {
-		// Get subtest order to include in response for frontend access control
 		const [targetSubtest] = await db
 			.select({ order: subtest.order })
 			.from(subtest)
@@ -73,7 +82,14 @@ const listContentByCategory = authedRateLimited
 			throw new ORPCError("NOT_FOUND", { message: "Subtest tidak ditemukan" });
 		}
 
-		// Return ALL content items - frontend will handle lock overlay display
+	const conditions = [eq(contentItem.subtestId, input.subtestId)];
+	if (input.category) {
+		conditions.push(eq(contentItem.type, input.category));
+	}
+	if (input.search) {
+		conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
+	}
+
 		const items = await db
 			.select({
 				id: contentItem.id,
@@ -95,8 +111,10 @@ const listContentByCategory = authedRateLimited
 				userProgress,
 				and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
 			)
-			.where(and(eq(contentItem.subtestId, input.subtestId), eq(contentItem.type, input.category)))
+			.where(and(...conditions))
 			.orderBy(contentItem.order)
+			.limit(input.limit ?? 20)
+			.offset(input.offset ?? 0)
 			.groupBy(
 				contentItem.id,
 				videoMaterial.id,

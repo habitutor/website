@@ -1,6 +1,7 @@
 import { ArrowRightIcon, MedalIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { motion } from "motion/react";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
@@ -26,7 +27,13 @@ export function Pricing() {
 
 function StarterCard({ data }: { data: typeof DATA.pricing.starter }) {
 	return (
-		<div className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white p-6 shadow-sm">
+		<motion.div
+			initial={{ opacity: 0, x: -20 }}
+			animate={{ opacity: 1, x: 0 }}
+			transition={{ duration: 0.3 }}
+			whileHover={{ y: -4, transition: { duration: 0.3, ease: [0.34, 1.3, 0.64, 1] } }}
+			className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white p-6 shadow-sm"
+		>
 			{/* Top */}
 			<div className="relative z-1">
 				<h3 className="font-medium text-base">{data.label}</h3>
@@ -35,35 +42,49 @@ function StarterCard({ data }: { data: typeof DATA.pricing.starter }) {
 
 			{/* Bottom */}
 			<div className="relative z-1">
-				<ul className="mt-4 space-y-2">
-					{data.features.map((feature) => (
-						<li key={feature} className="flex items-center gap-2">
+				<ul className="my-4 space-y-2">
+					{data.features.map((feature, index) => (
+						<motion.li
+							key={feature}
+							initial={{ opacity: 0, x: -10 }}
+							animate={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.2, delay: index * 0.05 }}
+							className="flex items-center gap-2"
+						>
 							<MedalIcon size={16} />
 							<span className="whitespace-pre-wrap text-sm">{feature}</span>
-						</li>
+						</motion.li>
 					))}
 				</ul>
 
-				<div className="-mt-8 flex justify-end">
-					<Link to="/dashboard" className={cn(buttonVariants({ size: "sm", variant: "outline" }), "")}>
+				<div className="flex w-full justify-end">
+					<Link to="/dashboard" className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full")}>
 						{data.cta}
-						<ArrowRightIcon size={16} />
+						<motion.span whileHover={{ rotate: 180, transition: { duration: 0.3 } }}>
+							<ArrowRightIcon size={16} />
+						</motion.span>
 					</Link>
 				</div>
 			</div>
 
 			<div className="absolute top-0 right-0 z-0 aspect-square h-[140%] translate-x-1/2 -translate-y-1/2 rounded-full bg-tertiary-100" />
-		</div>
+		</motion.div>
 	);
 }
 
 function PremiumCard({ data }: { data: typeof DATA.pricing.premium }) {
 	return (
-		<div className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-primary-300 p-6 shadow-sm">
+		<motion.div
+			initial={{ opacity: 0, x: -20 }}
+			animate={{ opacity: 1, x: 0 }}
+			transition={{ duration: 0.3 }}
+			whileHover={{ y: -4, transition: { duration: 0.3, ease: [0.34, 1.3, 0.64, 1] } }}
+			className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-primary-300 p-6 shadow-sm"
+		>
 			{/* Top */}
 			<div className="relative z-2">
 				<h3 className="font-medium text-base text-white">{data.label}</h3>
-				<p className="font-bold text-4xl text-secondary-200">
+				<p className="font-bold text-2xl text-secondary-200 min-[426px]:text-4xl">
 					{data.price}
 					<span className="ml-1 font-normal text-sm text-white">{data.suffix}</span>
 				</p>
@@ -71,33 +92,40 @@ function PremiumCard({ data }: { data: typeof DATA.pricing.premium }) {
 
 			{/* Bottom */}
 			<div className="relative z-1">
-				<ul className="mt-4 space-y-2 *:text-white">
-					{data.features.map((feature) => (
-						<li key={feature} className="flex items-center gap-2">
+				<ul className="my-4 space-y-2 *:text-white">
+					{data.features.map((feature, index) => (
+						<motion.li
+							key={feature}
+							initial={{ opacity: 0, x: 10 }}
+							animate={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.2, delay: index * 0.05 }}
+							className="flex items-center gap-2"
+						>
 							<MedalIcon size={16} />
 							<span className="whitespace-pre-wrap text-sm">{feature}</span>
-						</li>
+						</motion.li>
 					))}
 				</ul>
 
-				<div className="-mt-8 flex justify-end">
-					<Link to="/premium" className={cn(buttonVariants({ size: "sm", variant: "default" }), "")}>
+				<div className="flex w-full justify-end">
+					<Link to="/premium" className={cn(buttonVariants({ size: "sm", variant: "default" }), "w-full")}>
 						{data.cta}
-						<ArrowRightIcon size={16} />
+						<motion.span whileHover={{ rotate: 180, transition: { duration: 0.3 } }}>
+							<ArrowRightIcon size={16} />
+						</motion.span>
 					</Link>
 				</div>
 			</div>
 
-			{/* Avatar */}
 			<Image
 				src="/avatar/premium-pricing-card-avatar.webp"
 				alt="Subtest Header Avatar"
 				width={530}
 				height={530}
-				className="absolute right-5 bottom-12 z-1 h-[50%] w-auto sm:bottom-10 sm:h-[80%] lg:bottom-11 lg:h-[60%]"
+				className="absolute right-5 bottom-11.5 z-1 hidden h-[50%] w-auto sm:bottom-9.25 sm:h-[80%] lg:bottom-10.5 lg:h-[60%] min-[426px]:block"
 			/>
 
 			<div className="absolute right-0 bottom-0 z-0 aspect-square h-[140%] translate-x-1/2 translate-y-1/2 rounded-full bg-primary-200" />
-		</div>
+		</motion.div>
 	);
 }
