@@ -16,6 +16,13 @@ import { authed, authedRateLimited } from "../index";
 import { canAccessContent } from "../lib/content-access";
 
 /**
+ * Escape SQL LIKE pattern special characters to prevent unexpected query behavior
+ */
+function escapeLikePattern(value: string): string {
+	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
+}
+
+/**
  * Get all subtests with basic info
  * GET /api/subtests
  */
@@ -75,13 +82,13 @@ const listContentByCategory = authedRateLimited
 			throw new ORPCError("NOT_FOUND", { message: "Subtest tidak ditemukan" });
 		}
 
-		const conditions = [eq(contentItem.subtestId, input.subtestId)];
-		if (input.category) {
-			conditions.push(eq(contentItem.type, input.category));
-		}
-		if (input.search) {
-			conditions.push(ilike(contentItem.title, `%${input.search}%`));
-		}
+	const conditions = [eq(contentItem.subtestId, input.subtestId)];
+	if (input.category) {
+		conditions.push(eq(contentItem.type, input.category));
+	}
+	if (input.search) {
+		conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
+	}
 
 		const items = await db
 			.select({

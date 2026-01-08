@@ -65,21 +65,26 @@ function RouteComponent() {
 
 	const contents = useQuery(
 		orpc.subtest.listContentByCategory.queryOptions({
-			input: Object.fromEntries(
-				Object.entries({
+			input: (() => {
+				const input: {
+					subtestId: number;
+					category?: "material" | "tips_and_trick";
+					search?: string;
+					limit: number;
+					offset: number;
+				} = {
 					subtestId: matchedClass?.id ?? 0,
-					category: activeFilter === "all" ? undefined : (activeFilter as "material" | "tips_and_trick"),
-					search: searchQuery || undefined,
 					limit: 20,
 					offset: page * 20,
-				}).filter(([, value]) => value !== undefined),
-			) as {
-				subtestId: number;
-				category?: "material" | "tips_and_trick";
-				search?: string;
-				limit: number;
-				offset: number;
-			},
+				};
+				if (activeFilter !== "all") {
+					input.category = activeFilter as "material" | "tips_and_trick";
+				}
+				if (searchQuery) {
+					input.search = searchQuery;
+				}
+				return input;
+			})(),
 			enabled: Boolean(matchedClass?.id),
 		}),
 	);

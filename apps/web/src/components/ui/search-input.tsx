@@ -16,6 +16,14 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 		setLocalValue(value);
 	}, [value]);
 
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
+
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = e.target.value;
 		setLocalValue(newValue);
@@ -36,20 +44,20 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 
 	return (
 		<div className="relative">
-			<input
-				type="search"
-				value={localValue}
-				onChange={handleChange}
-				placeholder="Cari konten..."
-				className={cn(
-					"flex h-10 w-full rounded-lg border border-input bg-white px-3 py-2 pr-10 text-sm shadow-sm transition-colors",
-					"placeholder:text-muted-foreground",
-					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-					"disabled:cursor-not-allowed disabled:opacity-50",
-					className,
-				)}
-				{...props}
-			/>
+		<input
+			type="search"
+			value={localValue}
+			onChange={handleChange}
+			className={cn(
+				"flex h-10 w-full rounded-lg border border-input bg-white px-3 py-2 pr-10 text-sm shadow-sm transition-colors",
+				"placeholder:text-muted-foreground",
+				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+				"disabled:cursor-not-allowed disabled:opacity-50",
+				className,
+			)}
+			{...props}
+			placeholder={props.placeholder ?? "Cari konten..."}
+		/>
 			{localValue && (
 				<button
 					type="button"

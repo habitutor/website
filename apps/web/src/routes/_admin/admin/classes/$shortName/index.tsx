@@ -96,21 +96,26 @@ function RouteComponent() {
 
 	const contents = useQuery(
 		orpc.subtest.listContentByCategory.queryOptions({
-			input: Object.fromEntries(
-				Object.entries({
+			input: (() => {
+				const input: {
+					subtestId: number;
+					category?: "material" | "tips_and_trick";
+					search?: string;
+					limit: number;
+					offset: number;
+				} = {
 					subtestId: matchedClass?.id ?? 0,
-					category: activeFilter === "all" ? undefined : (activeFilter as "material" | "tips_and_trick"),
-					search: searchQuery || undefined,
 					limit: 20,
 					offset: page * 20,
-				}).filter(([, value]) => value !== undefined),
-			) as {
-				subtestId: number;
-				category?: "material" | "tips_and_trick";
-				search?: string;
-				limit: number;
-				offset: number;
-			},
+				};
+				if (activeFilter !== "all") {
+					input.category = activeFilter as "material" | "tips_and_trick";
+				}
+				if (searchQuery) {
+					input.search = searchQuery;
+				}
+				return input;
+			})(),
 			enabled: Boolean(matchedClass?.id),
 		}),
 	);
@@ -250,9 +255,14 @@ function RouteComponent() {
 	};
 
 	const handleReorder = (newItems: ContentListItem[]) => {
-		if (!matchedClass) return;
+		if (!matchedClass || newItems.length === 0) return;
 
-		const category = activeFilter === "all" ? "material" : activeFilter;
+		let category: "material" | "tips_and_trick";
+		if (activeFilter === "all") {
+			// Disable reordering when filter is "all" - types could be mixed
+			return;
+		}
+		category = activeFilter;
 
 		const updatedItems = newItems.map((item, index) => ({
 			id: item.id,
