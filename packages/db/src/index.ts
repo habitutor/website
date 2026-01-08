@@ -6,9 +6,11 @@ import * as transaction from "./schema/transaction";
 export const db = drizzle({
 	connection: {
 		connectionString: process.env.DATABASE_URL || "",
-		ssl: {
-			rejectUnauthorized: false,
-		},
+		...(process.env.NODE_ENV !== "production"
+			? {
+					ssl: false,
+				}
+			: undefined),
 	},
 	casing: "snake_case",
 	schema: {
