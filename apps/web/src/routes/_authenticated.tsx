@@ -55,7 +55,7 @@ function AuthedLayout() {
 					<Outlet />
 				</Container>
 			) : (
-				<Container className="flex flex-col gap-6 pt-40">
+				<Container className="flex flex-col gap-6 pt-48 sm:pt-40">
 					<Outlet />
 				</Container>
 			)}

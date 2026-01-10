@@ -22,7 +22,7 @@ export const LastClasses = () => {
 
 	if (!data || data.length === 0) {
 		return (
-			<section>
+			<section className="text-center">
 				<h2 className="font-medium">Kelas terakhirmu</h2>
 				<div className="flex flex-col items-center justify-center space-y-6 py-8">
 					<img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
