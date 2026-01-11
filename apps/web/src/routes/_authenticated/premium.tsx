@@ -154,6 +154,7 @@ function RouteComponent() {
 						</Button>
 					</Card>
 				</div>
+
 				<div className="space-y-6 lg:col-span-2">
 					<div>
 						<h2 className="mb-4 font-bold text-neutral-1000 text-xl">Fitur Unggulan</h2>
