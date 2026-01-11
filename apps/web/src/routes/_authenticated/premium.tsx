@@ -121,7 +121,7 @@ function RouteComponent() {
             <Button
               size="lg"
               className="mt-6 w-full hover:cursor-pointer"
-              disabled={transactionMutation.isPending}
+              disabled={isPremium || transactionMutation.isPending}
               onClick={async () => {
                 if (isPremium) return;
                 transactionMutation
