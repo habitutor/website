@@ -4,9 +4,17 @@ import { SubtestCard, SubtestHeader } from "@/components/classes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
+import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/_authenticated/classes/")({
-	component: RouteComponent,
+  head: () => ({
+		meta: createMeta({
+			title: "Kelas",
+			description: "Upgrade ke premium untuk akses penuh ke semua fitur dan materi Habitutor.",
+			noIndex: true,
+		}),
+	}),
+  component: RouteComponent,
 });
 
 function RouteComponent() {

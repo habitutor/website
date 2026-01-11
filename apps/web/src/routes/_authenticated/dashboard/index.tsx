@@ -12,11 +12,19 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { LastClasses } from "../-components/last-classes";
 import { UserProgress } from "../-components/user-progress";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
+	head: () => ({
+		meta: createMeta({
+			title: "Dashboard",
+			description: "Dashboard belajar Habitutor untuk persiapan SNBT/UTBK.",
+			noIndex: true,
+		}),
+	}),
 	component: RouteComponent,
 });
 

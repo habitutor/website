@@ -28,6 +28,7 @@ export function createMeta({ title, description, image, noIndex, canonical }: Me
 	const canonicalUrl = canonical || siteConfig.url;
 
 	return [
+		{ title: fullTitle },
 		{ name: "description", content: metaDescription },
 		{ name: "keywords", content: siteConfig.keywords.join(", ") },
 		{ name: "author", content: siteConfig.name },

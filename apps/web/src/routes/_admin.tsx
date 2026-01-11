@@ -5,6 +5,8 @@ import { createMeta } from "@/lib/seo-utils";
 export const Route = createFileRoute("/_admin")({
 	head: () => ({
 		meta: createMeta({
+			title: "Admin",
+			description: "Panel admin untuk mengelola konten Habitutor.",
 			noIndex: true,
 		}),
 	}),

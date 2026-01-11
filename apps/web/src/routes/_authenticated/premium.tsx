@@ -7,9 +7,17 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/premium")({
+	head: () => ({
+		meta: createMeta({
+			title: "Premium",
+			description: "Upgrade ke premium untuk akses penuh ke semua fitur dan materi Habitutor.",
+			noIndex: true,
+		}),
+	}),
 	component: RouteComponent,
 });
 

@@ -8,6 +8,8 @@ import { createMeta } from "@/lib/seo-utils";
 export const Route = createFileRoute("/_authenticated")({
 	head: () => ({
 		meta: createMeta({
+			title: "Dashboard",
+			description: "Dashboard persiapan SNBT/UTBK kamu.",
 			noIndex: true,
 		}),
 	}),
