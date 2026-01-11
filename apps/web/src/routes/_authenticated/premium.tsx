@@ -125,12 +125,10 @@ function RouteComponent() {
 						<p className="relative z-10 mt-2 text-neutral-600 text-sm">
 							Akses penuh ke semua materi dan fitur eksklusif Habitutor.
 						</p>
-
-<<<<<<< HEAD
 						<Button
 							size="lg"
 							className="mt-6 w-full hover:cursor-pointer"
-							disabled={transactionMutation.isPending}
+							disabled={isPremium || transactionMutation.isPending}
 							onClick={async () => {
 								if (isPremium) return;
 								transactionMutation
@@ -156,38 +154,6 @@ function RouteComponent() {
 						</Button>
 					</Card>
 				</div>
-=======
-            <Button
-              size="lg"
-              className="mt-6 w-full hover:cursor-pointer"
-              disabled={isPremium || transactionMutation.isPending}
-              onClick={async () => {
-                if (isPremium) return;
-                transactionMutation
-                  .mutateAsync({})
-                  .then((data) => {
-                    setToken(data.token);
-                  })
-                  .catch(() => {
-                    toast.error("Gagal membuat transaksi. Silakan coba lagi.");
-                  });
-              }}
-            >
-              {isPremium ? (
-                <>Kamu sudah Premium!</>
-              ) : transactionMutation.isPending ? (
-                <>
-                  <SpinnerIcon className="animate-spin" />
-                  Memproses...
-                </>
-              ) : (
-                <>Premium Sekarang!</>
-              )}
-            </Button>
-          </Card>
-        </div>
->>>>>>> 464916cb85cce75cc7243b945fbd8ebd041f9319
-
 				<div className="space-y-6 lg:col-span-2">
 					<div>
 						<h2 className="mb-4 font-bold text-neutral-1000 text-xl">Fitur Unggulan</h2>
