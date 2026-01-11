@@ -654,7 +654,7 @@ export function ContentList({
 			</div>
 
 			{showCount && searchQuery && items && (
-				<p className="text-muted-foreground text-sm mb-4">
+				<p className="mb-4 text-muted-foreground text-sm">
 					{items.length} hasil untuk "{searchQuery}"
 				</p>
 			)}
