@@ -124,11 +124,7 @@ function RouteComponent() {
 		orpc.admin.subtest.createContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries({
-					predicate: (query) => {
-						return query.queryKey[0] === "subtest.listContentByCategory";
-					},
-				});
+				queryClient.invalidateQueries();
 				setCreateDialogOpen(false);
 			},
 			onError: (error) => {
@@ -141,11 +137,7 @@ function RouteComponent() {
 		orpc.admin.subtest.updateContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries({
-					predicate: (query) => {
-						return query.queryKey[0] === "subtest.listContentByCategory";
-					},
-				});
+				queryClient.invalidateQueries();
 				setEditDialogOpen(false);
 				setEditingItem(null);
 			},
@@ -159,11 +151,7 @@ function RouteComponent() {
 		orpc.admin.subtest.deleteContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries({
-					predicate: (query) => {
-						return query.queryKey[0] === "subtest.listContentByCategory";
-					},
-				});
+				queryClient.invalidateQueries();
 				setDeleteDialogOpen(false);
 				setDeletingItem(null);
 			},
@@ -177,11 +165,7 @@ function RouteComponent() {
 		orpc.admin.subtest.reorderContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries({
-					predicate: (query) => {
-						return query.queryKey[0] === "subtest.listContentByCategory";
-					},
-				});
+				queryClient.invalidateQueries();
 			},
 			onError: (error) => {
 				toast.error(error.message || "Gagal mengubah urutan konten");
@@ -257,12 +241,10 @@ function RouteComponent() {
 	const handleReorder = (newItems: ContentListItem[]) => {
 		if (!matchedClass || newItems.length === 0) return;
 
-		let category: "material" | "tips_and_trick";
 		if (activeFilter === "all") {
 			// Disable reordering when filter is "all" - types could be mixed
 			return;
 		}
-		category = activeFilter;
 
 		const updatedItems = newItems.map((item, index) => ({
 			id: item.id,
@@ -271,7 +253,7 @@ function RouteComponent() {
 
 		reorderMutation.mutate({
 			subtestId: matchedClass.id,
-			type: category,
+			type: activeFilter,
 			items: updatedItems,
 		});
 	};
@@ -298,7 +280,7 @@ function RouteComponent() {
 	if (!matchedClass) return notFound();
 
 	return (
-		<Container className="py-0">
+		<Container className="px-0 pt-0">
 			<ClassHeader subtest={matchedClass} />
 			<div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -329,6 +311,7 @@ function RouteComponent() {
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					onReorder={handleReorder}
+					activeFilter={activeFilter}
 				/>
 			</div>
 

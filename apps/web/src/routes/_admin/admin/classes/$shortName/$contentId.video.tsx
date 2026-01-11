@@ -115,22 +115,27 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex justify-between gap-4">
+			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
 				<h2 className="font-semibold text-lg">Edit Video Materi</h2>
-				<div className="flex gap-4">
+				<div className="flex gap-2">
 					<form.Subscribe>
 						{(state) => (
-							<Button type="submit" disabled={!state.canSubmit || saveMutation.isPending} size="sm">
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan Video"}
+							<Button
+								type="submit"
+								variant="default"
+								disabled={!state.canSubmit || saveMutation.isPending}
+								size="sm"
+								onClick={() => form.handleSubmit()}
+							>
+								{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
 							</Button>
 						)}
 					</form.Subscribe>
-
 					{hasVideo && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
 								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
-									Hapus Video
+									Hapus
 								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>

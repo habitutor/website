@@ -3,9 +3,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SubtestCard, SubtestHeader } from "@/components/classes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
+import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/")({
+	head: () => ({
+		meta: createMeta({
+			title: "Kelas",
+			description: "Upgrade ke premium untuk akses penuh ke semua fitur dan materi Habitutor.",
+			noIndex: true,
+		}),
+	}),
 	component: RouteComponent,
 });
 

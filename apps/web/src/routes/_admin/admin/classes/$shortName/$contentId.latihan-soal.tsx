@@ -163,15 +163,16 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
 				<h2 className="font-semibold text-lg">Edit Latihan Soal</h2>
 
-				<div className="flex gap-4">
+				<div className="flex w-full gap-4">
 					<Button
 						type="button"
 						onClick={handleSave}
 						size="sm"
 						disabled={selectedQuestionIds.length === 0 || saveMutation.isPending}
+						className="w-1/2 sm:w-auto"
 					>
 						{saveMutation.isPending ? "Menyimpan..." : "Simpan Latihan Soal"}
 					</Button>
@@ -179,7 +180,13 @@ function RouteComponent() {
 					{hasPracticeQuestions && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
+								<Button
+									type="button"
+									variant="destructive"
+									disabled={deleteMutation.isPending}
+									size="sm"
+									className="w-1/2 sm:w-auto"
+								>
 									Hapus Latihan Soal
 								</Button>
 							</AlertDialogTrigger>

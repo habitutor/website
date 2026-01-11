@@ -359,7 +359,7 @@ function ContentCard({
 	return (
 		<Card
 			className={cn(
-				"relative gap-1 rounded-[10px] border border-neutral-200 p-3 sm:gap-6 sm:p-4 lg:p-5",
+				"relative gap-3 rounded-[10px] border border-neutral-200 p-3 sm:gap-6 sm:p-4 lg:p-5",
 				!isAdmin && completed && "border-tertiary-300 bg-tertiary-100",
 				isPremiumContent && "overflow-hidden",
 			)}
@@ -387,35 +387,34 @@ function ContentCard({
 			)}
 
 			{/* Header */}
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+			<div className="flex flex-row justify-between gap-3 sm:items-start">
 				{/* Left: drag handle + badge + title */}
-				<div className="flex items-start gap-2 sm:gap-3">
+				<div className="flex items-start">
 					{/* Drag Handle - only for admin */}
 					{isAdmin && dragControls && (
 						<div
-							className="-ml-1 cursor-grab touch-none p-1 active:cursor-grabbing"
+							className="-ml-1 flex aspect-square min-w-7 cursor-grab touch-none items-center justify-center active:cursor-grabbing sm:min-w-8 lg:min-w-9"
 							onPointerDown={(e) => dragControls.start(e)}
 						>
-							<DotsNineIcon className="size-4 text-neutral-400 sm:size-5" weight="bold" />
+							<DotsNineIcon className="size-5 sm:size-6" weight="bold" />
 						</div>
 					)}
-
-					<div className="flex h-5 min-w-7 shrink-0 items-center justify-center rounded border border-neutral-200 bg-white px-1.5 sm:h-6 sm:min-w-8 lg:h-7 lg:min-w-9">
-						<p className="whitespace-nowrap font-medium text-[10px] text-primary-300 sm:text-xs lg:text-sm">
-							{index + 1}
-						</p>
+					<div className="flex aspect-square min-w-7 shrink-0 items-center justify-center rounded border border-neutral-200 bg-white px-1.5 sm:min-w-8 lg:min-w-9">
+						<p className="whitespace-nowrap font-medium text-primary-300 text-xs lg:text-sm">{index + 1}</p>
 					</div>
 
-					<p className="mr-7 font-medium text-neutral-1000 text-sm sm:text-base lg:text-lg">{item.title}</p>
+					<div className="ml-2 flex h-full items-center sm:ml-3">
+						<p className="mr-7 font-medium text-neutral-1000 text-sm sm:text-base lg:text-lg">{item.title}</p>
+					</div>
 				</div>
 
 				{/* Right: admin actions (tanpa move up/down) */}
-				<div className="flex items-center gap-2 sm:flex-col sm:items-end">
+				<div className="flex items-start gap-2 sm:flex-col sm:items-end">
 					{isAdmin && (onEdit || onDelete) && (
 						<div className="flex items-center gap-1">
 							{onEdit && (
 								<Button type="button" variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7" onClick={onEdit}>
-									<PencilSimpleIcon className="size-3 sm:size-3.5 lg:size-5" />
+									<PencilSimpleIcon className="size-4 lg:size-5" />
 								</Button>
 							)}
 
@@ -427,7 +426,7 @@ function ContentCard({
 									className="h-6 w-6 text-destructive hover:text-destructive sm:h-7 sm:w-7"
 									onClick={onDelete}
 								>
-									<TrashIcon className="size-3 sm:size-3.5 lg:size-5" />
+									<TrashIcon className="size-4 lg:size-5" />
 								</Button>
 							)}
 						</div>
@@ -445,7 +444,7 @@ function ContentCard({
 								to={`${basePath}/$shortName/$contentId/${key}`}
 								params={params}
 								className={cn(
-									"flex items-center gap-1.5 rounded-[5px] px-2.5 py-1.5 transition-opacity hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2.5",
+									"flex items-center gap-1.5 rounded-[5px] px-2.5 py-2 transition-opacity hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2.5",
 									"w-full sm:w-auto",
 									className,
 									width,
@@ -589,6 +588,7 @@ export function ContentList({
 	showCount,
 	hasMore,
 	onLoadMore,
+	activeFilter,
 }: {
 	title?: string;
 	items?: ContentListItem[];
@@ -606,6 +606,7 @@ export function ContentList({
 	showCount?: boolean;
 	hasMore?: boolean;
 	onLoadMore?: () => void;
+	activeFilter?: "all" | "material" | "tips_and_trick";
 }) {
 	const isAdmin = useIsAdmin();
 	const [localItems, setLocalItems] = useState<ContentListItem[]>([]);
@@ -643,8 +644,8 @@ export function ContentList({
 		<div className="">
 			<div className="flex items-center justify-between">
 				{title && <h3 className="font-semibold text-lg">{title}</h3>}
-				{isAdmin && onCreate && (
-					<Button type="button" variant="destructive" size="sm" onClick={onCreate}>
+				{isAdmin && onCreate && activeFilter !== "all" && (
+					<Button type="button" variant="destructive" size="sm" onClick={onCreate} className="mb-4">
 						<PlusIcon size={16} className="mr-2" weight="bold" />
 						Tambah Konten
 					</Button>
@@ -653,7 +654,7 @@ export function ContentList({
 			</div>
 
 			{showCount && searchQuery && items && (
-				<p className="text-muted-foreground text-sm">
+				<p className="mb-4 text-muted-foreground text-sm">
 					{items.length} hasil untuk "{searchQuery}"
 				</p>
 			)}
@@ -669,7 +670,7 @@ export function ContentList({
 
 			{localItems &&
 				localItems.length > 0 &&
-				(isAdmin && onReorder ? (
+				(isAdmin && onReorder && activeFilter !== "all" ? (
 					<Reorder.Group as="div" axis="y" values={localItems} onReorder={handleReorder} className="space-y-2">
 						{localItems.map((item, index) => (
 							<ReorderableContentCard

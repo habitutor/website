@@ -82,13 +82,13 @@ const listContentByCategory = authedRateLimited
 			throw new ORPCError("NOT_FOUND", { message: "Subtest tidak ditemukan" });
 		}
 
-	const conditions = [eq(contentItem.subtestId, input.subtestId)];
-	if (input.category) {
-		conditions.push(eq(contentItem.type, input.category));
-	}
-	if (input.search) {
-		conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
-	}
+		const conditions = [eq(contentItem.subtestId, input.subtestId)];
+		if (input.category) {
+			conditions.push(eq(contentItem.type, input.category));
+		}
+		if (input.search) {
+			conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
+		}
 
 		const items = await db
 			.select({

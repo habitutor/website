@@ -7,9 +7,17 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/premium")({
+	head: () => ({
+		meta: createMeta({
+			title: "Premium",
+			description: "Upgrade ke premium untuk akses penuh ke semua fitur dan materi Habitutor.",
+			noIndex: true,
+		}),
+	}),
 	component: RouteComponent,
 });
 
@@ -117,11 +125,10 @@ function RouteComponent() {
 						<p className="relative z-10 mt-2 text-neutral-600 text-sm">
 							Akses penuh ke semua materi dan fitur eksklusif Habitutor.
 						</p>
-
 						<Button
 							size="lg"
 							className="mt-6 w-full hover:cursor-pointer"
-							disabled={true}
+							disabled={isPremium || transactionMutation.isPending}
 							onClick={async () => {
 								if (isPremium) return;
 								transactionMutation
@@ -142,13 +149,9 @@ function RouteComponent() {
 									Memproses...
 								</>
 							) : (
-								<>Segera Hadir</>
+								<>Premium Sekarang!</>
 							)}
 						</Button>
-
-						<div className="relative z-10 mt-6 space-y-2">
-							<p className="text-center text-neutral-400 text-xs">Segera tersedia</p>
-						</div>
 					</Card>
 				</div>
 

@@ -33,6 +33,9 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 				name: "msapplication-TileColor",
 				content: "#fdc10e",
 			},
+			{
+				title: "Habitutor",
+			},
 			...createMeta(),
 		],
 		links: [

@@ -44,11 +44,11 @@ function RouteComponent() {
 	const displayTitle = content.data?.title || contentId;
 
 	return (
-		<Container>
+		<Container className="gap-3 p-0">
 			<div className="w-fit">
 				<BackButton to={"/admin/classes/$shortName"} />
 				{content.isPending ? (
-					<Skeleton className="h-10 w-full" />
+					<Skeleton className="mt-3 h-7 w-full" />
 				) : content.isError ? (
 					<h1 className="mt-3 font-bold text-red-500 text-xl">Error: {content.error.message}</h1>
 				) : (

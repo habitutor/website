@@ -8,8 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/_auth/reset-password")({
+	head: () => ({
+		meta: createMeta({
+			title: "Reset Password",
+			description: "Atur ulang password akun Habitutor kamu.",
+		}),
+	}),
 	component: RouteComponent,
 	validateSearch: (search: Record<string, unknown>) => {
 		return {
