@@ -104,43 +104,33 @@ function RouteComponent() {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
-				<div className="flex gap-4">
-					<form.Subscribe>
-						{(state) => (
-							<Button type="submit" disabled={!state.canSubmit || saveMutation.isPending} size="sm">
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan Catatan"}
+				{hasNote && (
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
+								Hapus Catatan
 							</Button>
-						)}
-					</form.Subscribe>
-
-					{hasNote && (
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
-									Hapus Catatan
-								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Catatan?</AlertDialogTitle>
-									<AlertDialogDescription>
-										Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={() => {
-											deleteMutation.mutate({ id: Number(contentId) });
-										}}
-									>
-										Hapus
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					)}
-				</div>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Hapus Catatan?</AlertDialogTitle>
+								<AlertDialogDescription>
+									Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Batal</AlertDialogCancel>
+								<AlertDialogAction
+									onClick={() => {
+										deleteMutation.mutate({ id: Number(contentId) });
+									}}
+								>
+									Hapus
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+				)}
 			</div>
 
 			<form
@@ -162,6 +152,16 @@ function RouteComponent() {
 						</div>
 					)}
 				</form.Field>
+
+				<div className="flex justify-end">
+					<form.Subscribe>
+						{(state) => (
+							<Button type="submit" disabled={!state.canSubmit || saveMutation.isPending} size="sm">
+								{saveMutation.isPending ? "Menyimpan..." : "Simpan Catatan"}
+							</Button>
+						)}
+					</form.Subscribe>
+				</div>
 			</form>
 		</div>
 	);

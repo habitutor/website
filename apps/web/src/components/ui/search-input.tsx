@@ -44,27 +44,27 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 
 	return (
 		<div className="relative">
-		<input
-			type="search"
-			value={localValue}
-			onChange={handleChange}
-			className={cn(
-				"flex h-10 w-full rounded-lg border border-input bg-white px-3 py-2 pr-10 text-sm shadow-sm transition-colors",
-				"placeholder:text-muted-foreground",
-				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-				"disabled:cursor-not-allowed disabled:opacity-50",
-				className,
-			)}
-			{...props}
-			placeholder={props.placeholder ?? "Cari konten..."}
-		/>
+			<input
+				type="text"
+				value={localValue}
+				onChange={handleChange}
+				className={cn(
+					"flex h-10 w-full rounded-lg border border-input bg-white px-3 py-2 pr-10 text-sm shadow-sm transition-colors",
+					"placeholder:text-muted-foreground",
+					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+					"disabled:cursor-not-allowed disabled:opacity-50",
+					className,
+				)}
+				{...props}
+				placeholder={props.placeholder ?? "Cari konten..."}
+			/>
 			{localValue && (
 				<button
 					type="button"
 					onClick={handleClear}
 					className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
 				>
-					<XIcon className="size-4" />
+					<XIcon className="size-4" weight="bold" />
 				</button>
 			)}
 		</div>
