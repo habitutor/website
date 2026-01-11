@@ -102,7 +102,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
 				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
 				<div className="flex gap-2">
 					<form.Subscribe>
@@ -114,7 +114,7 @@ function RouteComponent() {
 								size="sm"
 								onClick={() => form.handleSubmit()}
 							>
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan Catatan"}
+								{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
 							</Button>
 						)}
 					</form.Subscribe>
@@ -122,7 +122,7 @@ function RouteComponent() {
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
 								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
-									Hapus Catatan
+									Hapus
 								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
