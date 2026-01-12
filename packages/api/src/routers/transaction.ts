@@ -1,77 +1,59 @@
-import { createHash } from "node:crypto";
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
-import { transaction } from "@habitutor/db/schema/transaction";
+import { product, transaction } from "@habitutor/db/schema/transaction";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { eq } from "drizzle-orm";
-import { Snap } from "midtrans-client";
 import { authed, pub } from "..";
+import { createSubscriptionTransaction } from "../lib/midtrans";
 
-const PREMIUM_PRICE = 100_000;
-
-const snap = new Snap({
-	isProduction: process.env.NODE_ENV === "production",
-	serverKey: process.env.MIDTRANS_SERVER_KEY || "",
-	clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
-});
-
-const premium = authed
+const subscribe = authed
 	.route({
-		path: "/transactions/premium",
+		path: "/subscribe",
 		method: "POST",
-		tags: ["Payment", "Premium"],
+		tags: ["Payment", "Subscription"],
 	})
+	.input(
+		type({
+			name: "'premium' | 'basic'",
+		}),
+	)
 	.output(
 		type({
 			token: "string",
 			redirectUrl: "string",
 		}),
 	)
-	.handler(async ({ context, errors }) => {
-		if (context.session.user.isPremium)
+	.handler(async ({ input, context, errors }) => {
+		if (input.name === "premium" && context.session.user.isPremium)
 			throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
 
-		const grossAmount = PREMIUM_PRICE;
+		const [plan] = await db.select().from(product).where(eq(product.slug, input.name)).limit(1);
+		if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
+
+		const grossAmount = plan.price;
+
+		const orderId = `tx_${crypto.randomUUID()}`;
+
 		const [createdTransaction] = await db
 			.insert(transaction)
 			.values({
+				id: orderId,
+				productId: plan.id,
 				grossAmount: String(grossAmount),
 				userId: context.session.user.id,
-				transactionType: "premium",
 			})
 			.returning();
+		console.log(createdTransaction);
+		if (!createdTransaction)
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
 
-		const params = {
-			transaction_details: {
-				order_id: String(createdTransaction?.id),
-				gross_amount: grossAmount,
-			},
-			item_details: [
-				{
-					price: PREMIUM_PRICE,
-					quantity: 1,
-					name: "Premium Access",
-				},
-			],
-			customer_details: {
-				first_name: context.session.user.name,
-				email: context.session.user.email,
-			},
-			credit_card: { secure: true },
-			callbacks: {
-				finish: `${process.env.CORS_ORIGIN}/premium/payment/finish`,
-				error: `${process.env.CORS_ORIGIN}/premium/payment/error`,
-				pending: `${process.env.CORS_ORIGIN}/premium/payment/unfinish`,
-			},
-		};
-
-		const snapTransaction = await snap.createTransaction(params);
-
-		return {
-			token: snapTransaction.token,
-			redirectUrl: snapTransaction.redirect_url,
-		};
+		return await createSubscriptionTransaction({
+			id: orderId,
+			session: context.session,
+			name: plan.name,
+			price: plan.price,
+		});
 	});
 
 const notification = pub
@@ -82,50 +64,70 @@ const notification = pub
 	})
 	.input(type({} as Record<string, unknown>))
 	.handler(async ({ input }) => {
-		const { signature_key, order_id, status_code, gross_amount } = input as {
-			signature_key: string;
+		const { order_id } = input as {
 			order_id: string;
-			status_code: string;
-			gross_amount: string;
 		};
 
 		const serverKey = process.env.MIDTRANS_SERVER_KEY || "";
-		const expectedSignature = createHash("sha512")
-			.update(order_id + status_code + gross_amount + serverKey)
-			.digest("hex");
+		const auth = Buffer.from(`${serverKey}:`).toString("base64");
 
-		if (signature_key !== expectedSignature) {
-			console.error("Invalid webhook signature");
-			throw new ORPCError("UNAUTHORIZED", {
-				message: "Invalid signature",
+		const statusResponse = await fetch(
+			`https://api${process.env.NODE_ENV === "production" ? "" : ".sandbox"}.midtrans.com/v2/${order_id}/status`,
+			{
+				headers: {
+					Authorization: `Basic ${auth}`,
+					"Content-Type": "application/json",
+				},
+			},
+		);
+
+		if (!statusResponse.ok) {
+			console.error(`Midtrans API error: ${statusResponse.status}`);
+			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				message: "Failed to verify transaction status",
 			});
 		}
 
-		const statusResponse = await snap.transaction.notification(input);
-		const orderId = statusResponse.order_id;
-		const transactionStatus = statusResponse.transaction_status;
-		const fraudStatus = statusResponse.fraud_status;
+		const statusData = (await statusResponse.json()) as {
+			transaction_status: string;
+			fraud_status: string;
+		};
+		const transactionStatus = statusData.transaction_status;
+		const fraudStatus = statusData.fraud_status;
 
 		console.log(
-			`Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`,
+			`Transaction notification received. Order ID: ${order_id}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`,
 		);
 
-		const [existingTransaction] = await db.select().from(transaction).where(eq(transaction.id, orderId)).limit(1);
+		const [existingTransaction] = await db
+			.select({
+				tx: transaction,
+				prodType: product.type,
+				prodSlug: product.slug,
+			})
+			.from(transaction)
+			.innerJoin(product, eq(transaction.productId, product.id))
+			.where(eq(transaction.id, order_id))
+			.limit(1);
 
 		if (!existingTransaction) {
-			console.error(`Transaction not found for order ID: ${orderId}`);
+			console.error(`Transaction not found for order ID: ${order_id}`);
 			return { status: "not_found" };
 		}
 
-		const tx = existingTransaction;
+		const tx = existingTransaction.tx;
+		const isPremiumSubscription =
+			existingTransaction.prodType === "subscription" && existingTransaction.prodSlug === "premium";
 
 		if (tx.paidAt) {
-			console.log(`Transaction ${orderId} already processed`);
+			console.log(`Transaction ${order_id} already processed`);
 			return { status: "already_processed" };
 		}
 
-		if (transactionStatus === "capture") {
-			if (fraudStatus === "accept") {
+		if (transactionStatus === "capture" || transactionStatus === "settlement") {
+			const isValid = transactionStatus === "capture" ? fraudStatus === "accept" : true;
+
+			if (isValid) {
 				await db.transaction(async (trx) => {
 					await trx
 						.update(transaction)
@@ -133,40 +135,30 @@ const notification = pub
 							status: "success",
 							paidAt: new Date(),
 						})
-						.where(eq(transaction.id, orderId));
+						.where(eq(transaction.id, order_id));
 
-					await trx.update(user).set({ isPremium: true }).where(eq(user.id, tx.userId!));
+					if (isPremiumSubscription) {
+						await trx
+							.update(user)
+							.set({ isPremium: true, premiumExpiresAt: new Date("2026-04-30") })
+							.where(eq(user.id, tx.userId!));
+					}
 				});
 			}
-		} else if (transactionStatus === "settlement") {
-			await db.transaction(async (trx) => {
-				await trx
-					.update(transaction)
-					.set({
-						status: "success",
-						paidAt: new Date(),
-					})
-					.where(eq(transaction.id, orderId));
-
-				const expireDate = new Date();
-				expireDate.setDate(expireDate.getDate() + 30);
-
-				await trx.update(user).set({ isPremium: true, premiumExpiresAt: expireDate }).where(eq(user.id, tx.userId!));
-			});
 		} else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
 			await db
 				.update(transaction)
 				.set({
 					status: "failed",
 				})
-				.where(eq(transaction.id, orderId));
+				.where(eq(transaction.id, order_id));
 		} else if (transactionStatus === "pending") {
 			await db
 				.update(transaction)
 				.set({
 					status: "pending",
 				})
-				.where(eq(transaction.id, orderId));
+				.where(eq(transaction.id, order_id));
 		}
 
 		return { status: "ok" };
@@ -196,7 +188,7 @@ const getStatus = authed
 	});
 
 export const transactionRouter = {
-	premium,
+	subscribe,
 	notification,
 	getStatus,
 };

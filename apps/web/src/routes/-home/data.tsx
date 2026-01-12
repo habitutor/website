@@ -38,8 +38,8 @@ export const DATA = {
 		},
 		premium: {
 			label: "Premium",
-			price: "Rp100.000",
-			suffix: "/bulan",
+			price: "Rp199.000",
+			suffix: "s.d. April 30 2026",
 			features: [
 				"Ratusan Video Pembahasan",
 				"Tryout & Analisis Kedalaman",
