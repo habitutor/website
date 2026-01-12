@@ -118,11 +118,11 @@ function PremiumCard({ data }: { data: typeof DATA.pricing.premium }) {
 			</div>
 
 			<Image
-				src="/avatar/premium-pricing-card-avatar.webp"
+				src="/avatar/avatar-premium.webp"
 				alt="Subtest Header Avatar"
 				width={530}
 				height={530}
-				className="absolute right-5 bottom-11.5 z-1 hidden h-[50%] w-auto sm:bottom-9.25 sm:h-[80%] lg:bottom-10.5 lg:h-[60%] min-[426px]:block"
+				className="absolute right-5 bottom-10.5 z-1 hidden h-[50%] w-auto sm:bottom-8 sm:h-[80%] lg:bottom-10.5 lg:h-[50%] min-[426px]:block"
 			/>
 
 			<div className="absolute right-0 bottom-0 z-0 aspect-square h-[140%] translate-x-1/2 translate-y-1/2 rounded-full bg-primary-200" />
