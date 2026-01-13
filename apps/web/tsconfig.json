@@ -23,5 +23,5 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": ["node_modules", "dist", "build", ".turbo", "coverage"]
+	"exclude": ["node_modules", ".output", "dist", "build", ".turbo", "coverage"]
 }

@@ -92,7 +92,7 @@ function RouteComponent() {
 			window.snap.pay(token, {
 				onSuccess: () => {
 					toast.success("Pembayaran berhasil! Selamat menjadi premium!");
-          queryClient.removeQueries();
+					queryClient.removeQueries();
 				},
 				onPending: () => {
 					toast.info("Menunggu pembayaran...");
@@ -105,7 +105,7 @@ function RouteComponent() {
 				},
 			});
 		}
-	}, [token]);
+	}, [token, queryClient.removeQueries]);
 
 	const isPremium = session?.user.isPremium;
 
