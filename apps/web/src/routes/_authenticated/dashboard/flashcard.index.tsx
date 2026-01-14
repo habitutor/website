@@ -54,7 +54,7 @@ function RouteComponent() {
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Fitur Terbatas!</DialogTitle>
-							<DialogDescription>Dengan premium, kamu bisa bermain flashcard sepuasnya tanpa batas!</DialogDescription>
+							<DialogDescription>Dengan premium, kamu bisa bermain Brain Gym sepuasnya tanpa batas!</DialogDescription>
 						</DialogHeader>
 						<DialogFooter>
 							<Button variant="outline" onClick={() => setShowPremiumDialog(false)}>
@@ -88,7 +88,7 @@ const StartCard = () => {
 			},
 			onError: (error) => {
 				if (isDefinedError(error) && error.code === "NOT_FOUND") {
-					toast.error("Ups! Kamu sudah mengerjakan semua flashcard yang tersedia!", {
+					toast.error("Ups! Kamu sudah mengerjakan semua Brain Gym yang tersedia!", {
 						description: "Silahkan coba lagi dalam beberapa saat.",
 					});
 				}
@@ -114,7 +114,7 @@ const StartCard = () => {
 				<p className="my-auto p-4 font-medium text-xl">
 					{session?.user.flashcardStreak && session?.user.flashcardStreak > 0 ? (
 						<>
-							Streak Flashcard Kamu! <span className="font-normal">Keren!</span>
+							Streak Brain Gym Kamu! <span className="font-normal">Keren!</span>
 						</>
 					) : (
 						<>Streak kamu mati, main lagi yuk!</>
@@ -123,8 +123,8 @@ const StartCard = () => {
 			</div>
 
 			<div className="flex flex-col gap-2 rounded-md bg-blue-400 p-6 pt-20 text-white">
-				<h1 className="font-bold text-3xl">Flashcard</h1>
-				<p>Uji kemampuan harianmu dengan Flashcard selama 10 menit!</p>
+				<h1 className="font-bold text-3xl">Brain Gym</h1>
+				<p>Uji kemampuan harianmu dengan Brain Gym selama 10 menit!</p>
 			</div>
 
 			<Button
