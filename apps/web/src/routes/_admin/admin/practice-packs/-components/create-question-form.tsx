@@ -1,7 +1,7 @@
+import { PlusIcon, XIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
-import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -213,7 +213,7 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 								onClick={addAnswerOption}
 								disabled={answerOptions.length >= 10}
 							>
-								<Plus className="mr-1 size-4" />
+								<PlusIcon className="mr-1 size-4" />
 								Add Option
 							</Button>
 						</div>
@@ -241,7 +241,7 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 											onClick={() => removeAnswerOption(index)}
 											className="mt-1 size-8 shrink-0"
 										>
-											<X className="size-4" />
+											<XIcon className="size-4" />
 										</Button>
 									)}
 								</div>
