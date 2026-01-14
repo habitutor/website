@@ -1,5 +1,5 @@
 {
-  "id": "1351de2b-7cb8-4589-9c02-205df5d7b2e8",
+  "id": "2dac3de3-c3c7-4c71-b7b5-ea2e3494ebf5",
   "prevId": "22fb6677-8c30-4d04-a2b2-51e1a3936ade",
   "version": "7",
   "dialect": "postgresql",
@@ -1663,7 +1663,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "product_slug_unique": {
+          "name": "product_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
