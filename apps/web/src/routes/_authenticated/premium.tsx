@@ -1,5 +1,6 @@
+import { PREMIUM_DEADLINE } from "@habitutor/api/lib/constants";
 import { InfinityIcon, SparkleIcon, SpinnerIcon, StarIcon } from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useEffect, useState } from "react";
@@ -68,7 +69,8 @@ function PremiumHeader() {
 
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
-	const transactionMutation = useMutation(orpc.transaction.premium.mutationOptions());
+	const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
+	const queryClient = useQueryClient();
 	const [token, setToken] = useState<string | undefined>();
 
 	useEffect(() => {
@@ -91,7 +93,7 @@ function RouteComponent() {
 			window.snap.pay(token, {
 				onSuccess: () => {
 					toast.success("Pembayaran berhasil! Selamat menjadi premium!");
-					window.location.reload();
+					queryClient.removeQueries();
 				},
 				onPending: () => {
 					toast.info("Menunggu pembayaran...");
@@ -104,9 +106,23 @@ function RouteComponent() {
 				},
 			});
 		}
-	}, [token]);
+	}, [token, queryClient.removeQueries]);
 
 	const isPremium = session?.user.isPremium;
+	const isPastDueDate = Date.now() > PREMIUM_DEADLINE.getTime();
+
+	const buttonText = isPremium ? (
+		"Kamu sudah Premium!"
+	) : transactionMutation.isPending ? (
+		<>
+			<SpinnerIcon className="animate-spin" />
+			Memproses...
+		</>
+	) : isPastDueDate ? (
+		"Promo Berakhir"
+	) : (
+		"Premium Sekarang!"
+	);
 
 	return (
 		<Container className="space-y-8">
@@ -119,8 +135,8 @@ function RouteComponent() {
 
 						<h2 className="relative z-10 font-semibold text-lg text-neutral-1000">Paket Premium</h2>
 						<div className="relative z-10 mt-4 flex flex-col items-baseline">
-							<span className="font-bold text-3xl text-primary-500">Rp100.000</span>
-							<span className="ml-1 text-neutral-500 text-sm">/ bulan</span>
+							<span className="font-bold text-3xl text-primary-500">Rp199.000</span>
+							<span className="ml-1 text-neutral-500 text-sm">s.d. UTBK</span>
 						</div>
 						<p className="relative z-10 mt-2 text-neutral-600 text-sm">
 							Akses penuh ke semua materi dan fitur eksklusif Habitutor.
@@ -128,32 +144,26 @@ function RouteComponent() {
 						<Button
 							size="lg"
 							className="mt-6 w-full hover:cursor-pointer"
-							disabled={isPremium || transactionMutation.isPending}
+							disabled={isPremium || transactionMutation.isPending || isPastDueDate}
 							onClick={async () => {
 								if (isPremium) return;
 								transactionMutation
-									.mutateAsync({})
+									.mutateAsync({
+										name: "premium",
+									})
 									.then((data) => {
 										setToken(data.token);
 									})
-									.catch(() => {
-										toast.error("Gagal membuat transaksi. Silakan coba lagi.");
+									.catch((err) => {
+										toast.error(err);
 									});
 							}}
 						>
-							{isPremium ? (
-								<>Kamu sudah Premium!</>
-							) : transactionMutation.isPending ? (
-								<>
-									<SpinnerIcon className="animate-spin" />
-									Memproses...
-								</>
-							) : (
-								<>Premium Sekarang!</>
-							)}
+							{buttonText}
 						</Button>
 					</Card>
 				</div>
+
 				<div className="space-y-6 lg:col-span-2">
 					<div>
 						<h2 className="mb-4 font-bold text-neutral-1000 text-xl">Fitur Unggulan</h2>

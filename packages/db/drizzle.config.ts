@@ -2,13 +2,13 @@ import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
 if (!process.env.DATABASE_URL) {
-  dotenv.config({
-    path: "../../apps/server/.env",
-  });
+	dotenv.config({
+		path: "../../apps/server/.env",
+	});
 }
 
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set in environment variables.");
+	throw new Error("DATABASE_URL is not set in environment variables.");
 }
 export default defineConfig({
 	schema: "./src/schema",
