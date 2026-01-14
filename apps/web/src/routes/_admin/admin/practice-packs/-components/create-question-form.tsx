@@ -1,6 +1,8 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
+import { Plus, X } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
@@ -10,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
 
-const answerCodes = ["A", "B", "C", "D"] as const;
+const ANSWER_CODES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] as const;
 
 interface CreateQuestionFormProps {
 	practicePackId: number;
@@ -18,19 +20,21 @@ interface CreateQuestionFormProps {
 	onCancel?: () => void;
 }
 
-const formValidator = type({
-	content: "string>0",
-	discussion: "string>0",
-	answers: type({
-		A: { content: "string>0", isCorrect: "boolean" },
-		B: { content: "string>0", isCorrect: "boolean" },
-		C: { content: "string>0", isCorrect: "boolean" },
-		D: { content: "string>0", isCorrect: "boolean" },
-	}),
-});
+type AnswerOption = {
+	code: string;
+	content: string;
+	isCorrect: boolean;
+};
 
 export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: CreateQuestionFormProps) {
 	const queryClient = useQueryClient();
+
+	const [answerOptions, setAnswerOptions] = useState<AnswerOption[]>([
+		{ code: "A", content: "", isCorrect: false },
+		{ code: "B", content: "", isCorrect: false },
+		{ code: "C", content: "", isCorrect: false },
+		{ code: "D", content: "", isCorrect: false },
+	]);
 
 	const createQuestionMutation = useMutation(orpc.admin.practicePack.createQuestion.mutationOptions());
 
@@ -42,23 +46,33 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 		defaultValues: {
 			content: "",
 			discussion: "",
-			answers: {
-				A: { content: "", isCorrect: false },
-				B: { content: "", isCorrect: false },
-				C: { content: "", isCorrect: false },
-				D: { content: "", isCorrect: false },
-			},
 		},
 		onSubmit: async ({ value }) => {
-			const validation = formValidator(value);
+			const validation = type({
+				content: "string>0",
+				discussion: "string>0",
+			})(value);
+
 			if (validation instanceof type.errors) {
 				toast.error("Please fill all required fields");
 				return;
 			}
 
-			const hasCorrectAnswer = Object.values(value.answers).some((a) => a.isCorrect);
+			// Validate answer options
+			const hasEmptyContent = answerOptions.some((option) => !option.content.trim());
+			if (hasEmptyContent) {
+				toast.error("All answer options must have content");
+				return;
+			}
+
+			const hasCorrectAnswer = answerOptions.some((option) => option.isCorrect);
 			if (!hasCorrectAnswer) {
 				toast.error("Please mark at least one answer as correct");
+				return;
+			}
+
+			if (answerOptions.length < 2) {
+				toast.error("Please add at least 2 answer options");
 				return;
 			}
 
@@ -69,12 +83,12 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 				});
 
 				await Promise.all(
-					answerCodes.map((code) =>
+					answerOptions.map((option) =>
 						createAnswerMutation.mutateAsync({
 							questionId: question.id,
-							code,
-							content: value.answers[code].content,
-							isCorrect: value.answers[code].isCorrect,
+							code: option.code,
+							content: option.content,
+							isCorrect: option.isCorrect,
 						}),
 					),
 				);
@@ -90,6 +104,12 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 					orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: practicePackId } }),
 				);
 				form.reset();
+				setAnswerOptions([
+					{ code: "A", content: "", isCorrect: false },
+					{ code: "B", content: "", isCorrect: false },
+					{ code: "C", content: "", isCorrect: false },
+					{ code: "D", content: "", isCorrect: false },
+				]);
 				onSuccess?.();
 			} catch (error) {
 				toast.error("Failed to create question", {
@@ -101,6 +121,42 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 
 	const isSubmitting =
 		createQuestionMutation.isPending || createAnswerMutation.isPending || addToPackMutation.isPending;
+
+	const addAnswerOption = () => {
+		if (answerOptions.length >= 10) {
+			toast.error("Maximum 10 answer options allowed");
+			return;
+		}
+		const nextCode = ANSWER_CODES[answerOptions.length];
+		if (!nextCode) return;
+		setAnswerOptions([...answerOptions, { code: nextCode, content: "", isCorrect: false }]);
+	};
+
+	const removeAnswerOption = (index: number) => {
+		if (answerOptions.length <= 2) {
+			toast.error("Minimum 2 answer options required");
+			return;
+		}
+		const newOptions = answerOptions.filter((_, i) => i !== index);
+		// Reassign codes after removal
+		const reassignedOptions = newOptions.map((option, idx) => {
+			const code = ANSWER_CODES[idx];
+			if (!code) return option;
+			return {
+				...option,
+				code,
+			};
+		});
+		setAnswerOptions(reassignedOptions);
+	};
+
+	const updateAnswerOption = (index: number, field: keyof AnswerOption, value: string | boolean) => {
+		const newOptions = [...answerOptions];
+		const currentOption = newOptions[index];
+		if (!currentOption) return;
+		newOptions[index] = { ...currentOption, [field]: value };
+		setAnswerOptions(newOptions);
+	};
 
 	return (
 		<Card>
@@ -148,35 +204,52 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 					</form.Field>
 
 					<div>
-						<h3 className="mb-4 font-medium">Answer Options *</h3>
+						<div className="mb-4 flex items-center justify-between">
+							<h3 className="font-medium">Answer Options *</h3>
+							<Button
+								type="button"
+								size="sm"
+								variant="outline"
+								onClick={addAnswerOption}
+								disabled={answerOptions.length >= 10}
+							>
+								<Plus className="mr-1 size-4" />
+								Add Option
+							</Button>
+						</div>
 						<div className="space-y-3">
-							{answerCodes.map((code) => (
-								<div key={code} className="flex items-start gap-3">
+							{answerOptions.map((option, index) => (
+								<div key={option.code} className="flex items-start gap-2">
 									<div className="mt-2 flex items-center gap-2">
-										<span className="font-medium text-sm">{code}.</span>
-										<form.Field name={`answers.${code}.isCorrect`}>
-											{(field) => (
-												<Checkbox
-													checked={field.state.value}
-													onCheckedChange={(checked) => field.handleChange(!!checked)}
-												/>
-											)}
-										</form.Field>
+										<span className="font-medium text-sm">{option.code}.</span>
+										<Checkbox
+											checked={option.isCorrect}
+											onCheckedChange={(checked) => updateAnswerOption(index, "isCorrect", !!checked)}
+										/>
 									</div>
-									<form.Field name={`answers.${code}.content`}>
-										{(field) => (
-											<Input
-												value={field.state.value}
-												onChange={(e) => field.handleChange(e.target.value)}
-												placeholder={`Option ${code}`}
-												className="flex-1"
-											/>
-										)}
-									</form.Field>
+									<Input
+										value={option.content}
+										onChange={(e) => updateAnswerOption(index, "content", e.target.value)}
+										placeholder={`Option ${option.code}`}
+										className="flex-1"
+									/>
+									{answerOptions.length > 2 && (
+										<Button
+											type="button"
+											size="icon"
+											variant="ghost"
+											onClick={() => removeAnswerOption(index)}
+											className="mt-1 size-8 shrink-0"
+										>
+											<X className="size-4" />
+										</Button>
+									)}
 								</div>
 							))}
 						</div>
-						<p className="mt-2 text-muted-foreground text-xs">Check the box to mark as correct answer</p>
+						<p className="mt-2 text-muted-foreground text-xs">
+							Check the box to mark as correct answer. At least 2 options required.
+						</p>
 					</div>
 
 					<div className="flex gap-2">
