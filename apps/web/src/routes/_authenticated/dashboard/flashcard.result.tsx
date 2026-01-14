@@ -24,7 +24,7 @@ function RouteComponent() {
 			},
 			onError: (error) => {
 				if (isDefinedError(error) && error.code === "NOT_FOUND") {
-					toast.error("Ups! Kamu sudah mengerjakan semua flashcard yang tersedia!", {
+					toast.error("Ups! Kamu sudah mengerjakan semua Brain Gym yang tersedia!", {
 						description: "Silahkan coba lagi dalam beberapa saat.",
 					});
 				} else if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") {
@@ -49,7 +49,7 @@ function RouteComponent() {
 
 			<div className="relative flex items-end overflow-clip bg-green-700 p-4">
 				<div className="pointer-events-none absolute top-1/2 -right-30 z-0 size-60 -translate-y-1/2 rounded-full bg-green-500" />
-				<h1 className="relative z-10 my-auto font-normal text-white text-xl">Flashcard</h1>
+				<h1 className="relative z-10 my-auto font-normal text-white text-xl">Brain Gym</h1>
 			</div>
 
 			<div className="flex gap-2 max-sm:flex-col [&>div]:min-w-46">

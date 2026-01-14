@@ -85,7 +85,7 @@ export const FlashcardCard = () => {
 			className="grid grid-cols-1 gap-4 sm:grid-cols-2"
 		>
 			<div className="flex h-full flex-col gap-2 rounded-md border bg-secondary p-4 backdrop-sepia-100">
-				<h1 className="font-medium">Flashcard {currentPage}</h1>
+				<h1 className="font-medium">Brain Gym {currentPage}</h1>
 				<div className="h-full rounded-sm border border-accent bg-background p-4 text-foreground">
 					{data?.assignedQuestions[currentPage - 1]?.question.content}
 				</div>
