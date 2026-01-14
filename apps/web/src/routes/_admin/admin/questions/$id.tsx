@@ -1,4 +1,4 @@
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, Plus, X } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -18,18 +18,14 @@ export const Route = createFileRoute("/_admin/admin/questions/$id")({
 	component: QuestionEditPage,
 });
 
-const answerCodes = ["A", "B", "C", "D"] as const;
+const ANSWER_CODES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] as const;
 
-const formValidator = type({
-	content: "string>0",
-	discussion: "string>0",
-	answers: type({
-		A: { id: "number", content: "string>0", isCorrect: "boolean" },
-		B: { id: "number", content: "string>0", isCorrect: "boolean" },
-		C: { id: "number", content: "string>0", isCorrect: "boolean" },
-		D: { id: "number", content: "string>0", isCorrect: "boolean" },
-	}),
-});
+type AnswerOption = {
+	id: number;
+	code: string;
+	content: string;
+	isCorrect: boolean;
+};
 
 function QuestionEditPage() {
 	const { id } = Route.useParams();
@@ -37,6 +33,7 @@ function QuestionEditPage() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [initializedQuestionId, setInitializedQuestionId] = useState<number | null>(null);
+	const [answerOptions, setAnswerOptions] = useState<AnswerOption[]>([]);
 
 	const { data: question, isLoading } = useQuery(
 		orpc.admin.practicePack.getQuestionDetail.queryOptions({
@@ -45,46 +42,41 @@ function QuestionEditPage() {
 	);
 
 	const updateQuestionMutation = useMutation(orpc.admin.practicePack.updateQuestion.mutationOptions());
-
 	const updateAnswerMutation = useMutation(orpc.admin.practicePack.updateAnswerOption.mutationOptions());
+	const createAnswerMutation = useMutation(orpc.admin.practicePack.createAnswerOption.mutationOptions());
+	const deleteAnswerMutation = useMutation(orpc.admin.practicePack.deleteAnswerOption.mutationOptions());
 
 	const form = useForm({
 		defaultValues: {
 			content: "",
 			discussion: "",
-			answers: {
-				A: {
-					id: 0,
-					content: "",
-					isCorrect: false,
-				},
-				B: {
-					id: 0,
-					content: "",
-					isCorrect: false,
-				},
-				C: {
-					id: 0,
-					content: "",
-					isCorrect: false,
-				},
-				D: {
-					id: 0,
-					content: "",
-					isCorrect: false,
-				},
-			},
 		},
 		onSubmit: async ({ value }) => {
-			const validation = formValidator(value);
+			const validation = type({
+				content: "string>0",
+				discussion: "string>0",
+			})(value);
+
 			if (validation instanceof type.errors) {
 				toast.error("Please fill all required fields");
 				return;
 			}
 
-			const hasCorrectAnswer = Object.values(value.answers).some((a) => a.isCorrect);
+			// Validate answer options
+			const hasEmptyContent = answerOptions.some((option) => !option.content.trim());
+			if (hasEmptyContent) {
+				toast.error("All answer options must have content");
+				return;
+			}
+
+			const hasCorrectAnswer = answerOptions.some((option) => option.isCorrect);
 			if (!hasCorrectAnswer) {
 				toast.error("Please mark at least one answer as correct");
+				return;
+			}
+
+			if (answerOptions.length < 2) {
+				toast.error("Please add at least 2 answer options");
 				return;
 			}
 
@@ -95,14 +87,23 @@ function QuestionEditPage() {
 					discussion: value.discussion,
 				});
 
+				// Update existing answers and create new ones
 				await Promise.all(
-					answerCodes.map((code) =>
-						updateAnswerMutation.mutateAsync({
-							id: value.answers[code].id,
-							content: value.answers[code].content,
-							isCorrect: value.answers[code].isCorrect,
-						}),
-					),
+					answerOptions.map((option) => {
+						if (option.id > 0) {
+							return updateAnswerMutation.mutateAsync({
+								id: option.id,
+								content: option.content,
+								isCorrect: option.isCorrect,
+							});
+						}
+						return createAnswerMutation.mutateAsync({
+							questionId,
+							code: option.code,
+							content: option.content,
+							isCorrect: option.isCorrect,
+						});
+					}),
 				);
 
 				toast.success("Question updated successfully");
@@ -129,38 +130,34 @@ function QuestionEditPage() {
 		},
 	});
 
-	// Reset initialization state when navigating to a different question
 	useEffect(() => {
 		setInitializedQuestionId(null);
+		setAnswerOptions([]);
 	}, []);
 
-	// Initialize form values when question data is loaded
 	useEffect(() => {
 		if (question && question.id !== initializedQuestionId) {
-			const answersMap = question.answers.reduce(
-				(acc, ans) => {
-					acc[ans.code as keyof typeof acc] = ans;
-					return acc;
-				},
-				{} as Record<(typeof answerCodes)[number], (typeof question.answers)[number]>,
-			);
-
 			form.setFieldValue("content", question.content);
 			form.setFieldValue("discussion", question.discussion);
-			answerCodes.forEach((code) => {
-				const answer = answersMap[code];
-				if (answer) {
-					form.setFieldValue(`answers.${code}.id`, answer.id);
-					form.setFieldValue(`answers.${code}.content`, answer.content);
-					form.setFieldValue(`answers.${code}.isCorrect`, answer.isCorrect);
-				}
+
+			// Initialize answer options from question data
+			const sortedAnswers = [...question.answers].sort((a, b) => {
+				const codeA = ANSWER_CODES.indexOf(a.code as (typeof ANSWER_CODES)[number]);
+				const codeB = ANSWER_CODES.indexOf(b.code as (typeof ANSWER_CODES)[number]);
+				return codeA - codeB;
 			});
+
+			setAnswerOptions(
+				sortedAnswers.map((ans) => ({
+					id: ans.id,
+					code: ans.code,
+					content: ans.content,
+					isCorrect: ans.isCorrect,
+				})),
+			);
 
 			setInitializedQuestionId(question.id);
 		}
-		// The form object from useForm is a stable reference and doesn't change between renders.
-		// Including it in the dependency array would not provide any benefit and is intentionally omitted.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [question, initializedQuestionId, form.setFieldValue]);
 
 	if (Number.isNaN(questionId)) {
@@ -200,7 +197,64 @@ function QuestionEditPage() {
 		);
 	}
 
-	const isSubmitting = updateQuestionMutation.isPending || updateAnswerMutation.isPending;
+	const isSubmitting =
+		updateQuestionMutation.isPending ||
+		updateAnswerMutation.isPending ||
+		createAnswerMutation.isPending ||
+		deleteAnswerMutation.isPending;
+
+	const addAnswerOption = () => {
+		if (answerOptions.length >= 10) {
+			toast.error("Maximum 10 answer options allowed");
+			return;
+		}
+		const nextCode = ANSWER_CODES[answerOptions.length];
+		if (!nextCode) return;
+		setAnswerOptions([...answerOptions, { id: 0, code: nextCode, content: "", isCorrect: false }]);
+	};
+
+	const removeAnswerOption = async (index: number) => {
+		if (answerOptions.length <= 2) {
+			toast.error("Minimum 2 answer options required");
+			return;
+		}
+
+		const option = answerOptions[index];
+		if (!option) return;
+
+		// If option has an ID, delete it from database
+		if (option.id > 0) {
+			try {
+				await deleteAnswerMutation.mutateAsync({ id: option.id });
+				toast.success("Answer option deleted");
+			} catch (error) {
+				toast.error("Failed to delete answer option", {
+					description: String(error),
+				});
+				return;
+			}
+		}
+
+		const newOptions = answerOptions.filter((_, i) => i !== index);
+		// Reassign codes after removal
+		const reassignedOptions = newOptions.map((opt, idx) => {
+			const code = ANSWER_CODES[idx];
+			if (!code) return opt;
+			return {
+				...opt,
+				code,
+			};
+		});
+		setAnswerOptions(reassignedOptions);
+	};
+
+	const updateAnswerOption = (index: number, field: keyof AnswerOption, value: string | boolean) => {
+		const newOptions = [...answerOptions];
+		const currentOption = newOptions[index];
+		if (!currentOption) return;
+		newOptions[index] = { ...currentOption, [field]: value };
+		setAnswerOptions(newOptions);
+	};
 
 	return (
 		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
@@ -259,35 +313,52 @@ function QuestionEditPage() {
 							</form.Field>
 
 							<div>
-								<h3 className="mb-4 font-medium">Answer Options *</h3>
+								<div className="mb-4 flex items-center justify-between">
+									<h3 className="font-medium">Answer Options *</h3>
+									<Button
+										type="button"
+										size="sm"
+										variant="outline"
+										onClick={addAnswerOption}
+										disabled={answerOptions.length >= 10}
+									>
+										<Plus className="mr-1 size-4" />
+										Add Option
+									</Button>
+								</div>
 								<div className="space-y-3">
-									{answerCodes.map((code) => (
-										<div key={code} className="flex items-start gap-3">
+									{answerOptions.map((option, index) => (
+										<div key={`${option.code}-${option.id}`} className="flex items-start gap-2">
 											<div className="mt-2 flex items-center gap-2">
-												<span className="font-medium text-sm">{code}.</span>
-												<form.Field name={`answers.${code}.isCorrect`}>
-													{(field) => (
-														<Checkbox
-															checked={field.state.value}
-															onCheckedChange={(checked) => field.handleChange(!!checked)}
-														/>
-													)}
-												</form.Field>
+												<span className="font-medium text-sm">{option.code}.</span>
+												<Checkbox
+													checked={option.isCorrect}
+													onCheckedChange={(checked) => updateAnswerOption(index, "isCorrect", !!checked)}
+												/>
 											</div>
-											<form.Field name={`answers.${code}.content`}>
-												{(field) => (
-													<Input
-														value={field.state.value}
-														onChange={(e) => field.handleChange(e.target.value)}
-														placeholder={`Option ${code}`}
-														className="flex-1"
-													/>
-												)}
-											</form.Field>
+											<Input
+												value={option.content}
+												onChange={(e) => updateAnswerOption(index, "content", e.target.value)}
+												placeholder={`Option ${option.code}`}
+												className="flex-1"
+											/>
+											{answerOptions.length > 2 && (
+												<Button
+													type="button"
+													size="icon"
+													variant="ghost"
+													onClick={() => removeAnswerOption(index)}
+													className="mt-1 size-8 shrink-0"
+												>
+													<X className="size-4" />
+												</Button>
+											)}
 										</div>
 									))}
 								</div>
-								<p className="mt-2 text-muted-foreground text-xs">Check the box to mark as correct answer</p>
+								<p className="mt-2 text-muted-foreground text-xs">
+									Check the box to mark as correct answer. At least 2 options required.
+								</p>
 							</div>
 
 							<div className="flex gap-2">

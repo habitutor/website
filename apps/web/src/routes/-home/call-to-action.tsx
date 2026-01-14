@@ -13,7 +13,7 @@ export function CallToAction() {
 				animate={{ opacity: 1 }}
 				transition={{ delay: 1.3, duration: 0.3 }}
 			>
-				<img src="/avatar/footer-left.webp" alt="" className="w-[200px] xl:w-[280px]" />
+				<img src="/avatar/tupai-cta-1.webp" alt="" className="w-[200px] xl:w-[280px]" />
 			</motion.div>
 
 			{/* Right Avatar & Decorations */}
@@ -25,7 +25,7 @@ export function CallToAction() {
 						animate={{ opacity: 1 }}
 						transition={{ delay: 1.4, duration: 0.3 }}
 					>
-						<img src="/avatar/footer-right.webp" alt="" className="w-[200px] xl:w-[280px]" />
+						<img src="/avatar/tupai-cta-2.webp" alt="" className="w-[200px] xl:w-[280px]" />
 					</motion.div>
 
 					{/* Decorative Circles (Buletan) */}

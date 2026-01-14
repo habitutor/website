@@ -11,24 +11,6 @@ export function Features() {
 				<div className="relative w-full">
 					<MotionPulse>
 						<motion.div
-							className="absolute -top-20 -left-14 z-20 md:-top-24 md:-left-16"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.1, duration: 0.3 }}
-						>
-							<Image
-								src="/decorations/graduation-cap.webp"
-								alt=""
-								layout="constrained"
-								width={400}
-								height={400}
-								className="h-auto w-36 md:w-40"
-							/>
-						</motion.div>
-					</MotionPulse>
-					<MotionPulse>
-						<motion.div
 							className="absolute -top-12 -left-30 z-0 size-40 rounded-full bg-primary-100 md:size-46"
 							initial={{ opacity: 0 }}
 							whileInView={{ opacity: 1 }}
@@ -54,9 +36,27 @@ export function Features() {
 							/>
 						</motion.div>
 					</MotionPulse>
+					<MotionPulse>
+						<motion.div
+							className="absolute -top-20 -left-14 z-30 md:-top-24 md:-left-16"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.1, duration: 0.3 }}
+						>
+							<Image
+								src="/decorations/graduation-cap.webp"
+								alt=""
+								layout="constrained"
+								width={400}
+								height={400}
+								className="h-auto w-36 md:w-40"
+							/>
+						</motion.div>
+					</MotionPulse>
 
 					<motion.div
-						className="relative overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
+						className="relative z-10 overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
@@ -191,7 +191,7 @@ export function Features() {
 				<div className="relative">
 					<MotionPulse>
 						<motion.div
-							className="absolute -bottom-12 -left-30 z-0 size-40 rounded-full bg-tertiary-100 md:size-46"
+							className="absolute -bottom-90 -left-30 z-0 size-40 rounded-full bg-tertiary-100 md:-bottom-100 md:size-46"
 							initial={{ opacity: 0 }}
 							whileInView={{ opacity: 1 }}
 							viewport={{ once: true }}
@@ -199,8 +199,19 @@ export function Features() {
 						/>
 					</MotionPulse>
 
+					<div className="absolute -right-6 -bottom-8 z-0 hidden md:-right-36 md:-bottom-2 md:block">
+						<Image
+							src="/avatar/feature-avatar.webp"
+							alt=""
+							layout="constrained"
+							width={200}
+							height={200}
+							className="h-auto w-50"
+						/>
+					</div>
+
 					<motion.div
-						className="relative overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
+						className="relative z-10 overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}

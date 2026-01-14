@@ -55,7 +55,7 @@ export function Statistics() {
 								className="h-auto w-64"
 							/>
 						</div>
-						<div className="absolute bottom-10 -left-3 -mb-8 -ml-4 md:-bottom-8 md:mb-8 md:-ml-6">
+						<div className="absolute bottom-4 -left-6 -mb-8 -ml-4 md:-bottom-12 md:-left-3 md:mb-8 md:-ml-6">
 							<Image
 								src="/avatar/study-avatar.webp"
 								alt=""
@@ -113,9 +113,9 @@ export function Statistics() {
 						viewport={{ once: true }}
 						transition={{ delay: 0.3, duration: 0.3 }}
 					>
-						<div className="absolute -right-8 -bottom-12 hidden md:block">
+						<div className="absolute -right-8 -bottom-8 hidden md:block">
 							<Image
-								src="/avatar/climb-avatar.webp"
+								src="/avatar/climb-avatar-2.webp"
 								alt=""
 								layout="constrained"
 								width={300}
