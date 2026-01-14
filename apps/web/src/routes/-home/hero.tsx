@@ -41,13 +41,13 @@ export function Hero() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0.2 }}
-						className="grid w-full grid-cols-2 items-center justify-center gap-2 *:max-sm:text-xs sm:flex"
+						className="flex w-full flex-wrap items-center justify-center gap-2 *:max-sm:text-xs"
 					>
-						<Button asChild size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
-							<motion.div variants={bounce} whileHover="whileHover">
+						<motion.div variants={bounce} whileHover="whileHover">
+							<Button asChild size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
 								<Link to="/login">Mulai Belajar Sekarang</Link>
-							</motion.div>
-						</Button>
+							</Button>
+						</motion.div>
 						<motion.div variants={bounce} whileHover="whileHover">
 							<Button variant="outline" size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
 								<Link to="/dashboard">Cara Kerjanya</Link>

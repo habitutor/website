@@ -20,6 +20,24 @@ export function Features() {
 					</MotionPulse>
 					<MotionPulse>
 						<motion.div
+							className="absolute -top-20 -left-14 z-20 md:-top-24 md:-left-16"
+							initial={{ opacity: 0 }}
+							whileInView={{ opacity: 1 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.1, duration: 0.3 }}
+						>
+							<Image
+								src="/decorations/graduation-cap.webp"
+								alt=""
+								layout="constrained"
+								width={400}
+								height={400}
+								className="h-auto w-36 md:w-40"
+							/>
+						</motion.div>
+					</MotionPulse>
+					<MotionPulse>
+						<motion.div
 							className="absolute -top-0 -right-16 z-0"
 							initial={{ opacity: 0 }}
 							whileInView={{ opacity: 1 }}
@@ -236,7 +254,7 @@ export function Features() {
 							</motion.div>
 						</MotionPulse>
 
-						<div className="flex flex-col p-8 md:grid md:min-h-96 md:grid-cols-[70%_30%]">
+						<div className="flex flex-col p-8 md:grid md:min-h-96 md:grid-cols-[65%_35%]">
 							<motion.div
 								className="relative order-2 mt-6 -mb-8 md:order-1 md:mt-0 md:mb-0"
 								whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
@@ -259,18 +277,14 @@ export function Features() {
 										className="inline-block text-primary"
 										whileHover={{ rotate: [-1, 1, -1, 0], transition: { duration: 0.3 } }}
 									>
-										Penjelasan Jelas
+										Penjelasan Jelas.
 									</motion.span>
-									.{" "}
-									<span className="block">
-										<motion.span
-											className="inline-block text-primary"
-											whileHover={{ rotate: [-1, 1, -1, 0], transition: { duration: 0.3 } }}
-										>
-											Strategi Praktis
-										</motion.span>
-										.
-									</span>
+									<motion.span
+										className="inline-block text-primary"
+										whileHover={{ rotate: [-1, 1, -1, 0], transition: { duration: 0.3 } }}
+									>
+										Strategi Praktis.
+									</motion.span>
 								</h2>
 								<p className="text-foreground text-sm leading-relaxed">
 									Pembelajaran yang mudah diikuti dan dirancang membangun progres jangka panjang.

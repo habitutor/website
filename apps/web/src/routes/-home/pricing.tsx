@@ -1,6 +1,5 @@
-import { ArrowRightIcon, MedalIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -8,124 +7,257 @@ import { cn } from "@/lib/utils";
 import { DATA } from "./data";
 
 export function Pricing() {
-	const { title, subtitle, starter, premium } = DATA.pricing;
+	const { plans } = DATA.pricing;
+
+	const planEntries = Object.values(plans);
+
+	const tryout = Object.values(DATA.pricing_tryout);
 
 	return (
-		<Container>
-			<div className="mb-4 text-center">
-				<h1 className="font-bold text-2xl">{title}</h1>
-				<p className="font-medium text-sm">{subtitle}</p>
+		<Container className="items-center gap-8 2xl:max-w-7xl">
+			<div className="space-y-2 text-center *:text-pretty">
+				<h2 className="font-bold text-2xl sm:text-3xl">
+					Investasi Cerdas untuk Hasil yang <span className="text-primary-300">Maksimal</span>
+				</h2>
+				<p className="text-pretty font-medium text-sm md:text-base">
+					Dapatkan materi lengkap plus strategi rahasia dari kakak-kakak TOP PTN!
+				</p>
 			</div>
 
-			<div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-6">
-				<StarterCard data={starter} />
-				<PremiumCard data={premium} />
+			<div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 2xl:grid-cols-4">
+				{planEntries.map((plan, index) =>
+					index === planEntries.length - 1 ? (
+						<PremiumCard key={plan.label} data={plan} />
+					) : (
+						<BasicCard key={plan.label} data={plan} />
+					),
+				)}
+			</div>
+
+			{/* Paket Try Out */}
+			<div className="flex max-w-250 flex-col items-center justify-center gap-8">
+				<div className="flex h-11 w-full items-center justify-center rounded-2xl border border-neutral-200 bg-tertiary-100 text-center *:text-pretty">
+					<h3 className="font-bold text-base">Paket Try Out</h3>
+				</div>
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3">
+					{tryout.map((plan) => (
+						<TryOutCard key={plan.label} data={plan} />
+					))}
+				</div>
 			</div>
 		</Container>
 	);
 }
 
-function StarterCard({ data }: { data: typeof DATA.pricing.starter }) {
+type TryOutCardData = {
+	readonly label: string;
+	readonly price?: string;
+	readonly features: readonly string[];
+	readonly cta: { readonly label: string; readonly url: string };
+};
+
+function TryOutCard({ data }: { data: TryOutCardData }) {
 	return (
 		<motion.div
-			initial={{ opacity: 0, x: -20 }}
-			animate={{ opacity: 1, x: 0 }}
-			transition={{ duration: 0.3 }}
-			whileHover={{ y: -4, transition: { duration: 0.3, ease: [0.34, 1.3, 0.64, 1] } }}
-			className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white p-6 shadow-sm"
+			initial={{ opacity: 0, y: 24 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.4, ease: "easeOut" }}
+			className="relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm 2xl:min-w-80"
 		>
 			{/* Top */}
-			<div className="relative z-1">
+			<div className="space-y-2 border-b bg-background p-6">
 				<h3 className="font-medium text-base">{data.label}</h3>
-				<p className="font-bold text-4xl text-primary-300">{data.price}</p>
+
+				{data.price && <p className="font-bold text-3xl text-primary-300">{data.price}</p>}
 			</div>
 
-			{/* Bottom */}
-			<div className="relative z-1">
-				<ul className="my-4 space-y-2">
-					{data.features.map((feature, index) => (
-						<motion.li
-							key={feature}
-							initial={{ opacity: 0, x: -10 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.2, delay: index * 0.05 }}
-							className="flex items-center gap-2"
-						>
-							<MedalIcon size={16} />
-							<span className="whitespace-pre-wrap text-sm">{feature}</span>
-						</motion.li>
-					))}
-				</ul>
+			{/* Features */}
+			<ul className="mt-4 space-y-2 px-6">
+				{data.features.map((feature) => (
+					<li key={feature} className="flex items-center gap-2 text-sm">
+						<FeatureIcon status="included" />
+						<span>{feature}</span>
+					</li>
+				))}
+			</ul>
 
-				<div className="flex w-full justify-end">
-					<Link to="/dashboard" className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full")}>
-						{data.cta}
-						<motion.span whileHover={{ rotate: 180, transition: { duration: 0.3 } }}>
-							<ArrowRightIcon size={16} />
-						</motion.span>
-					</Link>
-				</div>
+			{/* CTA */}
+			<div className="p-6">
+				<Link to={data.cta.url as string} className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full")}>
+					{data.cta.label}
+					<ArrowRightIcon size={16} weight="bold" />
+				</Link>
 			</div>
-
-			<div className="absolute top-0 right-0 z-0 aspect-square h-[140%] translate-x-1/2 -translate-y-1/2 rounded-full bg-tertiary-100" />
 		</motion.div>
 	);
 }
 
-function PremiumCard({ data }: { data: typeof DATA.pricing.premium }) {
+type PlanFeature = {
+	readonly label: string;
+	readonly status: "included" | "excluded" | "limited";
+	readonly value?: string;
+};
+
+type PlanData =
+	| {
+			readonly label: string;
+			readonly price_monthly?: string;
+			readonly price_full?: string;
+			readonly suffix?: string;
+			readonly features: readonly PlanFeature[];
+			readonly cta: { readonly label: string; readonly url: string };
+	  }
+	| {
+			readonly label: string;
+			readonly original_price: string;
+			readonly price_now: string;
+			readonly suffix?: string;
+			readonly features: readonly PlanFeature[];
+			readonly cta: { readonly label: string; readonly url: string };
+	  };
+
+function BasicCard({ data }: { data: PlanData }) {
+	const isBasicPlan = "price_monthly" in data || "price_full" in data;
+	if (!isBasicPlan) return null;
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, x: -20 }}
 			animate={{ opacity: 1, x: 0 }}
-			transition={{ duration: 0.3 }}
-			whileHover={{ y: -4, transition: { duration: 0.3, ease: [0.34, 1.3, 0.64, 1] } }}
-			className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-primary-300 p-6 shadow-sm"
+			className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-b-neutral-200 bg-white shadow-sm"
 		>
 			{/* Top */}
-			<div className="relative z-2">
-				<h3 className="font-medium text-base text-white">{data.label}</h3>
-				<p className="font-bold text-2xl text-secondary-200 min-[426px]:text-4xl">
-					{data.price}
-					<span className="ml-1 font-normal text-sm text-white">{data.suffix}</span>
-				</p>
-			</div>
+			<div className="relative h-38 space-y-2 border-neutral-200 border-b p-6">
+				<h3 className="font-medium text-base">{data.label}</h3>
 
-			{/* Bottom */}
-			<div className="relative z-1">
-				<ul className="my-4 space-y-2 *:text-white">
-					{data.features.map((feature, index) => (
-						<motion.li
-							key={feature}
-							initial={{ opacity: 0, x: 10 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.2, delay: index * 0.05 }}
-							className="flex items-center gap-2"
+				<div>
+					{"price_monthly" in data && data.price_monthly && (
+						<p className="relative z-1 font-semibold text-sm">
+							{data.price_monthly} <span className="font-normal">/ bulan</span>
+						</p>
+					)}
+
+					{"price_full" in data && data.price_full && (
+						<p
+							className={cn(
+								"relative z-1 text-wrap font-bold text-3xl text-primary-300",
+								data.label === "Mentoring Privilege" ? "text-black" : "",
+							)}
 						>
-							<MedalIcon size={16} />
-							<span className="whitespace-pre-wrap text-sm">{feature}</span>
-						</motion.li>
-					))}
-				</ul>
-
-				<div className="flex w-full justify-end">
-					<Link to="/premium" className={cn(buttonVariants({ size: "sm", variant: "default" }), "w-full")}>
-						{data.cta}
-						<motion.span whileHover={{ rotate: 180, transition: { duration: 0.3 } }}>
-							<ArrowRightIcon size={16} />
-						</motion.span>
-					</Link>
+							{data.price_full}
+							{"suffix" in data && data.suffix && (
+								<span className="ml-1 font-normal text-black text-sm">{data.suffix}</span>
+							)}
+						</p>
+					)}
 				</div>
+
+				<div className="absolute top-0 right-0 z-0 aspect-square h-[140%] translate-x-1/2 -translate-y-1/2 rounded-full bg-tertiary-100" />
 			</div>
 
-			<Image
-				src="/avatar/avatar-premium.webp"
-				alt="Subtest Header Avatar"
-				width={530}
-				height={530}
-				className="absolute right-5 bottom-10.5 z-1 hidden h-[50%] w-auto sm:bottom-8 sm:h-[80%] lg:bottom-10.5 lg:h-[50%] min-[426px]:block"
-			/>
+			{/* Features */}
+			<ul className="mt-4 space-y-2 px-6">
+				{data.features.map((feature) => (
+					<li key={feature.label} className="flex items-center gap-2 text-sm">
+						<FeatureIcon status={feature.status} />
+						<span
+							className={cn(
+								feature.status === "excluded" && "text-neutral-400 line-through",
+							)}
+						>
+							{feature.label}
+							{feature.value && ` (${feature.value})`}
+						</span>
+					</li>
+				))}
+			</ul>
 
-			<div className="absolute right-0 bottom-0 z-0 aspect-square h-[140%] translate-x-1/2 translate-y-1/2 rounded-full bg-primary-200" />
+			<div className="p-6">
+				<Link to={data.cta.url as string} className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full")}>
+					{data.cta.label}
+					<ArrowRightIcon size={16} weight="bold" />
+				</Link>
+			</div>
 		</motion.div>
+	);
+}
+
+function PremiumCard({ data }: { data: PlanData }) {
+	const isPremiumPlan = "original_price" in data && "price_now" in data;
+	if (!isPremiumPlan) return null;
+
+	return (
+		<motion.div
+			initial={{ opacity: 0, x: -20 }}
+			animate={{ opacity: 1, x: 0 }}
+			className="flex flex-col justify-between overflow-hidden rounded-2xl shadow-sm"
+		>
+			{/* Top */}
+			<div className="relative h-38 overflow-hidden bg-primary-300 p-6">
+				<h3 className="font-medium text-base text-white">{data.label}</h3>
+				<div className="relative inline-block font-bold text-base text-white">
+					{data.original_price}
+
+					<span className="pointer-events-none absolute top-1/2 left-0 h-[2px] w-full -origin-center -rotate-6 bg-red-400" />
+				</div>
+
+				<div>
+					<p className="relative z-1 font-bold text-3xl text-secondary-200">
+						{data.price_now}
+						{"suffix" in data && data.suffix && (
+							<span className="ml-1 font-normal text-sm text-white">{data.suffix}</span>
+						)}
+					</p>
+					<p className="relative z-1 font-normal text-sm text-white">
+						promo <span className="font-bold text-red-100">hemat 80%</span> hanya s.d. 31 Jan
+					</p>
+				</div>
+
+				<div className="absolute right-0 bottom-0 z-0 aspect-square h-[140%] translate-x-1/2 translate-y-1/2 rounded-full bg-primary-400" />
+			</div>
+
+			{/* Features */}
+			<ul className="mt-4 space-y-2 px-6">
+				{data.features.map((feature) => (
+					<li key={feature.label} className="flex items-center gap-2 text-sm">
+						<FeatureIcon status={feature.status} />
+						<span>
+							{feature.label}
+							{feature.value && ` (${feature.value})`}
+						</span>
+					</li>
+				))}
+			</ul>
+
+			<div className="p-6">
+				<Link
+					to={data.cta.url as string}
+					className={cn(buttonVariants({ size: "sm", variant: "darkBlue" }), "w-full font-normal")}
+				>
+					{data.cta.label}
+					<ArrowRightIcon size={16} weight="bold" />
+				</Link>
+			</div>
+		</motion.div>
+	);
+}
+
+function FeatureIcon({ status }: { status: "included" | "excluded" | "limited" }) {
+	if (status === "included")
+		return (
+			<div className="flex size-4 items-center justify-center rounded-full bg-primary-300 p-0.5 text-white">
+				<CheckIcon weight="bold" />
+			</div>
+		);
+	if (status === "limited")
+		return (
+			<div className="flex size-4 items-center justify-center rounded-full bg-secondary-700 p-0.5 text-white">
+				<MedalIcon />
+			</div>
+		);
+	return (
+		<div className="flex size-4 items-center justify-center rounded-full bg-neutral-500 p-0.5 text-white">
+			<XIcon weight="bold" />
+		</div>
 	);
 }

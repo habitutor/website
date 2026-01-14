@@ -1,52 +1,150 @@
-import { InstagramLogoIcon, TiktokLogoIcon } from "@phosphor-icons/react";
+import { InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 
 export const DATA = {
 	testimone: [
 		{
 			id: 1,
-			name: "Nadia Putri",
+			name: "Alumni Batch 2025",
 			title: "Siswa SMA",
-			desc: "Habitutor bantu aku lebih teratur belajar UTBK. Fitur flashcard harian dan penjelasan materi bikin makin paham dan nggak gampang lupa!",
+			desc: "“Habitutor ga cuman bantu aku lolos PTN, tapi juga bantu ngebentuk habit yang bagus”",
 		},
 		{
 			id: 2,
-			name: "Rafi Pratama",
+			name: "Alumni Batch 2025",
 			title: "Peserta Gap Year",
-			desc: "Dulu aku bingung mulai belajar dari mana. Setelah pakai Habitutor, kemajuan belajarku jadi lebih terarah. Analisis tryoutnya jujur ngebantu banget!",
+			desc: "“Selama aku di Habitutor itu beda banget feelnya sama bimbel lain, karena di sini kita ga cuman ngejar PTN aja tapi juga jadi punya mindset jangka panjang!”",
 		},
 		{
 			id: 3,
-			name: "Siti Hanifah",
+			name: "Alumni Batch 2025",
 			title: "Calon Mahasiswa",
-			desc: "Materi premium-nya lengkap dan gampang diakses. Aku bisa tanya-tanya juga di komunitasnya, makin semangat belajar bareng teman seperjuangan.",
+			desc: "“Keren si Habitutor baru 2 tahun berdiri tapi udah bisa bantu ribuan orang lolos PTN, thanks Habitutor <3”",
 		},
 		{
 			id: 4,
-			name: "Angga Wijaya",
+			name: "Alumni Batch 2025",
 			title: "Pengguna Setia",
-			desc: "Aplikasi belajar online paling worth it buat persiapan UTBK. Progresku setiap hari kelihatan jelas, bikin makin rajin belajar!",
+			desc: "“Berkat Habitutor aku bisa tembus skor LBE 800+! makasih bangetttt kak firah dan Habitutor!! WORTH IT PARAH”",
 		},
 	],
 	pricing: {
-		title: "Investasi Belajar yang Bikin Kamu Bertumbuh",
-		subtitle: "Mulai gratis. Upgrade kalau mau kebiasaan yang lebih kuat.",
-		starter: {
-			label: "Starter",
-			price: "Gratis",
-			features: ["Tracking Progress & Streak", "Akses Materi Dasar", "Flashcard Harian", "Komunitas Dasar"],
-			cta: "Mulai Gratis Sekarang",
+		plans: {
+			classroom: {
+				label: "Classroom",
+				price_monthly: "Rp50.000",
+				price_full: "Rp119.000",
+				suffix: "s.d UTBK",
+				features: [
+					{ label: "Akses Full Website", status: "excluded" },
+					{ label: "Google Classroom", status: "excluded" },
+					{ label: "Tugas Harian & Kuis", status: "included" },
+					{ label: "1000+ Latihan Soal", status: "included" },
+					{ label: "Habit Tracker & Grup", status: "included" },
+					{ label: "Matrikulasi Subtest", status: "included" },
+					{ label: "Live Class (3x/Minggu)", status: "included" },
+					{ label: "Mentor UI, ITB, UGM", status: "excluded" },
+					{ label: "Try Out & Pembahasan", status: "limited", value: "3x" },
+				],
+				cta: {
+					label: "Mulai Sekarang",
+					url: "http://lynk.id/habitutor/64p096g69747",
+				},
+			},
+
+			mentoring_perintis: {
+				label: "Mentoring Perintis",
+				price_monthly: "Rp99.000",
+				price_full: "Rp179.000",
+				suffix: "s.d UTBK",
+				features: [
+					{ label: "Akses Full Website", status: "excluded" },
+					{ label: "Google Classroom", status: "excluded" },
+					{ label: "Tugas Harian & Kuis", status: "excluded" },
+					{ label: "1000+ Latihan Soal", status: "excluded" },
+					{ label: "Habit Tracker & Grup", status: "excluded" },
+					{ label: "Matrikulasi Subtest", status: "excluded" },
+					{ label: "Live Class (3x/Minggu)", status: "included" },
+					{ label: "Mentor UI, ITB, UGM", status: "included" },
+					{ label: "Try Out & Pembahasan", status: "excluded" },
+				],
+				cta: {
+					label: "Mulai Sekarang",
+					url: "http://lynk.id/habitutor/z19qjzqr0ln9",
+				},
+			},
+
+			mentoring_privilege: {
+				label: "Mentoring Privilege",
+				price_full: "Rp225.000",
+				suffix: "s.d UTBK",
+				features: [
+					{ label: "Akses Full Website", status: "excluded" },
+					{ label: "Google Classroom", status: "excluded" },
+					{ label: "Tugas Harian & Kuis", status: "included" },
+					{ label: "1000+ Latihan Soal", status: "included" },
+					{ label: "Habit Tracker & Grup", status: "included" },
+					{ label: "Matrikulasi Subtest", status: "included" },
+					{ label: "Live Class (3x/Minggu)", status: "included" },
+					{ label: "Mentor UI, ITB, UGM", status: "included" },
+					{ label: "Try Out & Pembahasan", status: "limited", value: "3x" },
+				],
+				cta: {
+					label: "Mulai Sekarang",
+					url: "http://lynk.id/habitutor/y2rjxkq02d13",
+				},
+			},
+
+			ultimate_bundling: {
+				label: "Ultimate Bundling",
+				badge: "Paling Lengkap",
+				price_now: "Rp199.000",
+				original_price: "Rp1.000.000",
+				suffix: "s.d UTBK",
+				features: [
+					{ label: "Akses Full Website", status: "included" },
+					{ label: "1000+ Soal Dasar SNBT", status: "included" },
+					{ label: "250+ Video Materi", status: "included" },
+					{ label: "1000+ Latihan Soal", status: "included" },
+					{ label: "Habit Tracker & Grup", status: "included" },
+					{ label: "Matrikulasi Subtest", status: "included" },
+					{ label: "Live Class (3x/Minggu)", status: "included" },
+					{ label: "Mentor UI, ITB, UGM", status: "included" },
+					{ label: "Try Out & Pembahasan", status: "limited", value: "15x" },
+				],
+				cta: {
+					label: "Langganan Sekarang",
+					url: "/pricing",
+				},
+			},
 		},
-		premium: {
-			label: "Premium",
-			price: "Rp199.000",
-			suffix: "s.d. UTBK",
-			features: [
-				"Ratusan Video Pembahasan",
-				"Tryout & Analisis Kedalaman",
-				"Tips & Tricks Materi",
-				"Semua Fitur Gratis",
-			],
-			cta: "Langganan Sekarang",
+	},
+	pricing_tryout: {
+		one: {
+			label: "1x Try Out UTBK Habitutor",
+			price: "Rp15.000",
+			features: ["Try Out SNBT-UTBK 1 Kali", "Pembahasan & Analisis", "Penilaian IRT", "Dapat dilakukan kapan saja"],
+			cta: {
+				label: "Mulai Sekarang",
+				url: "http://lynk.id/habitutor/y2rjxkq02d13",
+			},
+		},
+		two: {
+			label: "10x Try Out UTBK Habitutor",
+			price: "Rp99.000",
+			features: ["Try Out SNBT-UTBK 10 Kali", "Pembahasan & Analisis", "Penilaian IRT", "Dapat dilakukan kapan saja"],
+			cta: {
+				label: "Mulai Sekarang",
+				url: "http://lynk.id/habitutor/dzon2p8qgx9n",
+			},
+		},
+		three: {
+			label: "15x Try Out UTBK Habitutor",
+			price: "Rp120.000",
+			features: ["Try Out SNBT-UTBK 15 Kali", "Pembahasan & Analisis", "Penilaian IRT", "Dapat dilakukan kapan saja"],
+			cta: {
+				label: "Mulai Sekarang",
+				url: "http://lynk.id/habitutor/xw1ov34dg98g",
+			},
 		},
 	},
 	footer: {
@@ -54,23 +152,28 @@ export const DATA = {
 			{
 				label: "Instagram",
 				icon: InstagramLogoIcon,
-				url: "https://www.instagram.com/habitutor",
+				url: "https://www.instagram.com/habitutor.id",
 			},
-			// {
-			// 	label: "Twitter",
-			// 	icon: TwitterLogoIcon,
-			// 	url: "https://www.twitter.com/habitutor",
-			// },
+			{
+				label: "X",
+				icon: XLogoIcon,
+				url: "https://x.com/habitutor",
+			},
+			{
+				label: "WhatsApp",
+				icon: WhatsappLogoIcon,
+				url: "https://wa.me/6283854264330",
+			},
 			// {
 			// 	label: "Discord",
 			// 	icon: DiscordLogoIcon,
 			// 	url: "https://discord.gg/habitutor",
 			// },
-			{
-				label: "TikTok",
-				icon: TiktokLogoIcon,
-				url: "https://www.tiktok.com/@habitutor",
-			},
+			// {
+			// 	label: "TikTok",
+			// 	icon: TiktokLogoIcon,
+			// 	url: "https://www.tiktok.com/@habitutor",
+			// },
 			// {
 			// 	label: "YouTube",
 			// 	icon: YoutubeLogoIcon,
