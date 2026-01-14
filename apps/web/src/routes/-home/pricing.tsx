@@ -160,7 +160,11 @@ function BasicCard({ data }: { data: PlanData }) {
 				{data.features.map((feature) => (
 					<li key={feature.label} className="flex items-center gap-2 text-sm">
 						<FeatureIcon status={feature.status} />
-						<span className={feature.status === "excluded" ? "" : ""}>
+						<span
+							className={cn(
+								feature.status === "excluded" && "text-neutral-400 line-through",
+							)}
+						>
 							{feature.label}
 							{feature.value && ` (${feature.value})`}
 						</span>
