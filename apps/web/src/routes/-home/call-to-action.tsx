@@ -46,7 +46,7 @@ export function CallToAction() {
 
 			<div className="container relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 py-2 pt-40 pb-26 text-center">
 				<motion.h2
-					className="font-bold font-sans text-4xl"
+					className="text-pretty font-bold font-sans text-4xl"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.3 }}

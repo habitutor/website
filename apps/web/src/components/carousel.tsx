@@ -191,13 +191,13 @@ const Carousel: React.FC<CarouselProps> = ({
 
 		return (
 			<div
-				className={`flex aspect-video w-full flex-col overflow-hidden rounded-[20px] border border-neutral-200 shadow-sm transition ${bgColor}`}
+				className={`mx-auto flex aspect-video w-full max-w-[90vw] flex-col overflow-hidden rounded-[20px] border border-neutral-200 shadow-sm transition sm:max-w-none ${bgColor}`}
 			>
 				<div className="flex flex-1 flex-col justify-between text-pretty p-4 text-left">
-					<p className="font-light text-sm">{item.desc}</p>
+					<p className="max-h-full overflow-y-auto font-light text-sm">{item.desc}</p>
 					<div>
 						<h3 className="font-medium text-lg">{item.name}</h3>
-						<p className="font-light text-sm">{item.title}</p>
+						{/*<p className="font-light text-sm">{item.title}</p>*/}
 					</div>
 				</div>
 			</div>
