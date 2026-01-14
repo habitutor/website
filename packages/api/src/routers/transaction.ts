@@ -5,6 +5,7 @@ import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { eq } from "drizzle-orm";
 import { authed, pub } from "..";
+import { PREMIUM_DEADLINE } from "../lib/constants";
 import { createSubscriptionTransaction } from "../lib/midtrans";
 
 const subscribe = authed
@@ -27,6 +28,8 @@ const subscribe = authed
 	.handler(async ({ input, context, errors }) => {
 		if (input.name === "premium" && context.session.user.isPremium)
 			throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
+		if (input.name === "premium" && Date.now() > PREMIUM_DEADLINE.getTime())
+			throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
 
 		const [plan] = await db.select().from(product).where(eq(product.slug, input.name)).limit(1);
 		if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
@@ -44,7 +47,6 @@ const subscribe = authed
 				userId: context.session.user.id,
 			})
 			.returning();
-		console.log(createdTransaction);
 		if (!createdTransaction)
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
 
@@ -95,10 +97,6 @@ const notification = pub
 		const transactionStatus = statusData.transaction_status;
 		const fraudStatus = statusData.fraud_status;
 
-		console.log(
-			`Transaction notification received. Order ID: ${order_id}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`,
-		);
-
 		const [existingTransaction] = await db
 			.select({
 				tx: transaction,
@@ -140,7 +138,7 @@ const notification = pub
 					if (isPremiumSubscription) {
 						await trx
 							.update(user)
-							.set({ isPremium: true, premiumExpiresAt: new Date("2026-04-30") })
+							.set({ isPremium: true, premiumExpiresAt: PREMIUM_DEADLINE })
 							.where(eq(user.id, tx.userId!));
 					}
 				});

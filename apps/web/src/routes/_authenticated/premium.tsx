@@ -1,3 +1,4 @@
+import { PREMIUM_DEADLINE } from "@habitutor/api/lib/constants";
 import { InfinityIcon, SparkleIcon, SpinnerIcon, StarIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -108,6 +109,20 @@ function RouteComponent() {
 	}, [token, queryClient.removeQueries]);
 
 	const isPremium = session?.user.isPremium;
+	const isPastDueDate = Date.now() > PREMIUM_DEADLINE.getTime();
+
+	const buttonText = isPremium ? (
+		"Kamu sudah Premium!"
+	) : transactionMutation.isPending ? (
+		<>
+			<SpinnerIcon className="animate-spin" />
+			Memproses...
+		</>
+	) : isPastDueDate ? (
+		"Promo Berakhir"
+	) : (
+		"Premium Sekarang!"
+	);
 
 	return (
 		<Container className="space-y-8">
@@ -121,7 +136,7 @@ function RouteComponent() {
 						<h2 className="relative z-10 font-semibold text-lg text-neutral-1000">Paket Premium</h2>
 						<div className="relative z-10 mt-4 flex flex-col items-baseline">
 							<span className="font-bold text-3xl text-primary-500">Rp199.000</span>
-							<span className="ml-1 text-neutral-500 text-sm">s.d. April 30 2026</span>
+							<span className="ml-1 text-neutral-500 text-sm">s.d. UTBK</span>
 						</div>
 						<p className="relative z-10 mt-2 text-neutral-600 text-sm">
 							Akses penuh ke semua materi dan fitur eksklusif Habitutor.
@@ -129,7 +144,7 @@ function RouteComponent() {
 						<Button
 							size="lg"
 							className="mt-6 w-full hover:cursor-pointer"
-							disabled={isPremium || transactionMutation.isPending}
+							disabled={isPremium || transactionMutation.isPending || isPastDueDate}
 							onClick={async () => {
 								if (isPremium) return;
 								transactionMutation
@@ -144,16 +159,7 @@ function RouteComponent() {
 									});
 							}}
 						>
-							{isPremium ? (
-								<>Kamu sudah Premium!</>
-							) : transactionMutation.isPending ? (
-								<>
-									<SpinnerIcon className="animate-spin" />
-									Memproses...
-								</>
-							) : (
-								<>Premium Sekarang!</>
-							)}
+							{buttonText}
 						</Button>
 					</Card>
 				</div>

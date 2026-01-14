@@ -39,7 +39,7 @@ export const DATA = {
 		premium: {
 			label: "Premium",
 			price: "Rp199.000",
-			suffix: "s.d. April 30 2026",
+			suffix: "s.d. UTBK",
 			features: [
 				"Ratusan Video Pembahasan",
 				"Tryout & Analisis Kedalaman",
