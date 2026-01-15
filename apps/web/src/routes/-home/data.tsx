@@ -137,7 +137,7 @@ export const DATA = {
 				],
 				cta: {
 					label: "Langganan Sekarang",
-					url: "/pricing",
+					url: "/premium",
 				},
 			},
 		},
