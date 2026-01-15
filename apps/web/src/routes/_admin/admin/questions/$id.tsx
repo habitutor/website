@@ -157,7 +157,7 @@ function QuestionEditPage() {
 
 			setInitializedQuestionId(question.id);
 		}
-	}, [question, initializedQuestionId, form.setFieldValue]);
+		}, [question, initializedQuestionId, form.setFieldValue]);
 
 	if (Number.isNaN(questionId)) {
 		return (
@@ -287,7 +287,9 @@ function QuestionEditPage() {
 											id="content"
 											value={field.state.value}
 											onBlur={field.handleBlur}
-											onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => field.handleChange(e.target.value)}
+											onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+												field.handleChange(e.target.value)
+											}
 											placeholder="Enter the question"
 											className="mt-2 min-h-30"
 										/>
