@@ -59,7 +59,7 @@ const Tryout = () => {
 
 			<Button asChild size="icon" variant="secondary" className="z-10">
 				<a
-					href="https://anyacademy.com"
+					href="https://www.anycademy.com"
 					rel="noopener noreferrer"
 					target="_blank"
 					aria-label="Visit AnyAcademy website"
@@ -120,7 +120,7 @@ const Flashcard = () => {
 				</Button>
 			)}
 
-			<div className="absolute -bottom-1/2 sm:-bottom-[20%] -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10" />
+			<div className="absolute -bottom-1/2 -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10 sm:-bottom-[20%]" />
 			<Image
 				src="/avatar/cards.webp"
 				alt=""
