@@ -18,7 +18,7 @@ export function useAnimatedCounter(
 	endValue: number,
 	duration = 1500,
 	delay = 0,
-): { ref: React.RefObject<HTMLSpanElement>; value: number } {
+): { ref: React.RefObject<any>; value: number } {
 	const [value, setValue] = useState(0);
 	const [ref, isInView] = useInView();
 	const [hasStarted, setHasStarted] = useState(false);
