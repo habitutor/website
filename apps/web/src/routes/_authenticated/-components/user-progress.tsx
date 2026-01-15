@@ -1,6 +1,7 @@
 import { ArrowRightIcon, EyeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
@@ -38,6 +39,13 @@ const Material = () => {
 			</Button>
 
 			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-blue-300" />
+			<Image
+				src="/avatar/class-avatar.webp"
+				alt=""
+				width={75}
+				height={75}
+				className="absolute -right-[20%] -bottom-[30%] z-0 w-auto object-contain"
+			/>
 		</div>
 	);
 };
@@ -56,6 +64,13 @@ const Tryout = () => {
 			</Button>
 
 			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />
+			<Image
+				src="/avatar/tryout-avatar.webp"
+				alt=""
+				width={200}
+				height={200}
+				className="absolute -right-[10%] -bottom-[30%] z-0 object-contain"
+			/>
 		</div>
 	);
 };
@@ -101,6 +116,13 @@ const Flashcard = () => {
 			)}
 
 			<div className="absolute -bottom-[20%] -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10" />
+			<Image
+				src="/avatar/cards.webp"
+				alt=""
+				width={300}
+				height={300}
+				className="absolute right-0 -bottom-[5%] z-0 object-contain"
+			/>
 		</div>
 	);
 };

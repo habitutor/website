@@ -197,6 +197,7 @@ const Carousel: React.FC<CarouselProps> = ({
 					<p className="max-h-full overflow-y-auto font-light text-sm">{item.desc}</p>
 					<div>
 						<h3 className="font-medium text-lg">{item.name}</h3>
+						<h4 className="text-base">{item.title}</h4>
 					</div>
 				</div>
 			</div>
