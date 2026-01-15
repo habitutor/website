@@ -1,13 +1,11 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"compilerOptions": {
-		"lib": ["ESNext"],
 		"target": "ESNext",
-		"module": "Preserve",
+		"module": "ESNext",
 		"moduleResolution": "bundler",
-		"moduleDetection": "force",
+		"lib": ["ESNext"],
 		"verbatimModuleSyntax": true,
-		"noEmit": true,
 		"strict": true,
 		"skipLibCheck": true,
 		"resolveJsonModule": true,
@@ -16,13 +14,9 @@
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
 		"noUncheckedIndexedAccess": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitOverride": true,
-		// Stricter flags (disabled by default)
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"noPropertyAccessFromIndexSignature": false,
+		"noFallthroughCasesInSwitch": true,
 		"types": ["bun"]
-	},
-	"exclude": ["node_modules", "dist", ".turbo", ".output", ".zed", ".vercel"]
+	}
 }

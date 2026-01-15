@@ -1,4 +1,4 @@
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -23,8 +23,7 @@ function CreatePracticePackPage() {
 			onSuccess: () => {
 				toast.success("Practice pack berhasil dibuat");
 				queryClient.invalidateQueries({
-					predicate: (query) =>
-						query.queryKey[0] === orpc.admin.practicePack.listPacks.queryKey({ input: { limit: 0, offset: 0 } })[0],
+					queryKey: orpc.admin.practicePack.listPacks.queryKey({ input: {} }),
 				});
 				navigate({ to: "/admin/practice-packs" });
 			},
@@ -60,7 +59,7 @@ function CreatePracticePackPage() {
 			<div className="mb-6 sm:mb-8">
 				<Button variant="ghost" size="sm" className="mb-4" asChild>
 					<Link to="/admin/practice-packs">
-						<ArrowLeft className="size-4" />
+						<ArrowLeftIcon className="size-4" />
 						<span className="hidden sm:inline">Back to Practice Packs</span>
 						<span className="sm:inline">Back</span>
 					</Link>

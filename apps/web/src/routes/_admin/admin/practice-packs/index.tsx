@@ -198,11 +198,7 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 			onSuccess: () => {
 				toast.success("Practice pack berhasil dihapus");
 				queryClient.invalidateQueries({
-					predicate: (query) =>
-						query.queryKey[0] ===
-						orpc.admin.practicePack.listPacks.queryKey({
-							input: { limit: 0, offset: 0 },
-						})[0],
+					queryKey: orpc.admin.practicePack.listPacks.queryKey({ input: {} }),
 				});
 				setDeleteDialogOpen(false);
 			},
