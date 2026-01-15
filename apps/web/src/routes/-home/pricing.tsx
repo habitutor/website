@@ -14,7 +14,7 @@ export function Pricing() {
 	const tryout = Object.values(DATA.pricing_tryout);
 
 	return (
-		<Container className="items-center gap-8 2xl:max-w-7xl">
+		<Container className="items-center gap-8 2xl:max-w-340">
 			<div className="space-y-2 text-center *:text-pretty">
 				<h2 className="font-bold text-2xl sm:text-3xl">
 					Investasi Cerdas untuk Hasil yang <span className="text-primary-300">Maksimal</span>
@@ -190,6 +190,9 @@ function PremiumCard({ data }: { data: PlanData }) {
 		>
 			{/* Top */}
 			<div className="relative h-38 overflow-hidden bg-primary-300 p-6">
+				<div className="absolute top-6 right-6 z-50 flex items-center justify-center rounded-sm bg-primary-100 p-1.25 text-neutral-100 text-sm">
+					<p className="-mt-0.75">Paling Lengkap!</p>
+				</div>
 				<h3 className="font-medium text-base text-white">{data.label}</h3>
 				<div className="relative inline-block font-bold text-base text-white">
 					{data.original_price}
