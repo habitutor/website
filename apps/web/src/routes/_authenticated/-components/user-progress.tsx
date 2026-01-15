@@ -85,7 +85,7 @@ const Flashcard = () => {
 		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
 			<div className="z-10 space-y-0.5">
 				<h4 className={"font-bold text-5xl sm:text-6xl"}>{session.user.flashcardStreak}</h4>
-				<p className="font-bold">Streak Flashcard</p>
+				<p className="font-bold">Streak Brain Gym</p>
 			</div>
 
 			<Button
