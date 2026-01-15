@@ -1,6 +1,7 @@
+import { CaretUpDown, Check, MagnifyingGlass } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -16,9 +17,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/latihan-soal")({
@@ -29,6 +37,11 @@ function RouteComponent() {
 	const { contentId } = Route.useParams();
 	const queryClient = useQueryClient();
 	const [selectedPackId, setSelectedPackId] = useState<number | null>(null);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+	const searchInputRef = useRef<HTMLInputElement>(null);
+
+	const debouncedSearch = useDebounceValue(searchQuery, 300);
 
 	const content = useQuery(
 		orpc.subtest.getContentById.queryOptions({
@@ -39,8 +52,9 @@ function RouteComponent() {
 	const practicePacks = useQuery(
 		orpc.admin.practicePack.listPacks.queryOptions({
 			input: {
-				limit: 10,
+				limit: 50,
 				offset: 0,
+				search: debouncedSearch,
 			},
 		}),
 	);
@@ -103,8 +117,10 @@ function RouteComponent() {
 		}),
 	);
 
-	const handlePackChange = (packId: string) => {
-		setSelectedPackId(Number(packId));
+	const handlePackSelect = (packId: number) => {
+		setSelectedPackId(packId);
+		setDropdownOpen(false);
+		setSearchQuery("");
 		// Keep existing questions selected when switching packs
 		const currentSelected = selectedQuestionIds.filter((id) => {
 			if (content.data?.practiceQuestions && "questions" in content.data.practiceQuestions) {
@@ -119,6 +135,8 @@ function RouteComponent() {
 		});
 		setSelectedQuestionIds(currentSelected);
 	};
+
+	const selectedPack = practicePacks.data?.data.find((p: { id: number }) => p.id === selectedPackId);
 
 	const handleQuestionToggle = (questionId: number) => {
 		setSelectedQuestionIds((prev) =>
@@ -166,13 +184,12 @@ function RouteComponent() {
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
 				<h2 className="font-semibold text-lg">Edit Latihan Soal</h2>
 
-				<div className="flex w-full gap-4">
+				<div className="flex gap-4">
 					<Button
 						type="button"
 						onClick={handleSave}
 						size="sm"
 						disabled={selectedQuestionIds.length === 0 || saveMutation.isPending}
-						className="w-1/2 sm:w-auto"
 					>
 						{saveMutation.isPending ? "Menyimpan..." : "Simpan Latihan Soal"}
 					</Button>
@@ -272,18 +289,44 @@ function RouteComponent() {
 				<div className="space-y-4">
 					<div className="space-y-2">
 						<Label>Pilih Practice Pack untuk Menambah Soal</Label>
-						<Select value={selectedPackId?.toString()} onValueChange={handlePackChange}>
-							<SelectTrigger>
-								<SelectValue placeholder="Pilih Practice Pack" />
-							</SelectTrigger>
-							<SelectContent>
-								{practicePacks.data?.data.map((pack: { id: number; title: string }) => (
-									<SelectItem key={pack.id} value={pack.id.toString()}>
-										{pack.title}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+							<DropdownMenuTrigger asChild>
+								<Button variant="outline" className="w-full justify-between">
+									{selectedPack ? selectedPack.title : "Pilih Practice Pack"}
+									<CaretUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] p-0" align="start">
+								<div className="flex items-center border-b px-3">
+									<MagnifyingGlass className="mr-2 size-4 shrink-0 opacity-50" />
+									<input
+										ref={searchInputRef}
+										placeholder="Cari practice pack..."
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+										className="flex h-10 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+									/>
+								</div>
+								<div className="max-h-60 overflow-y-auto p-1">
+									{practicePacks.isPending && (
+										<p className="py-6 text-center text-muted-foreground text-sm">Memuat...</p>
+									)}
+									{practicePacks.data?.data.length === 0 && (
+										<p className="py-6 text-center text-muted-foreground text-sm">Tidak ada hasil</p>
+									)}
+									{practicePacks.data?.data.map((pack: { id: number; title: string }) => (
+										<DropdownMenuItem
+											key={pack.id}
+											onSelect={() => handlePackSelect(pack.id)}
+											className="cursor-pointer"
+										>
+											<Check className={cn("mr-2 size-4", selectedPackId === pack.id ? "opacity-100" : "opacity-0")} />
+											{pack.title}
+										</DropdownMenuItem>
+									))}
+								</div>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 
 					{packQuestions.data?.questions && packQuestions.data.questions.length > 0 && (

@@ -8,7 +8,7 @@ import {
 } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, count, eq, ilike, sql } from "drizzle-orm";
+import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import { admin } from "../../index";
 
 const getStatistics = admin
@@ -39,24 +39,34 @@ const listPacks = admin
 		type({
 			"limit?": "number",
 			"offset?": "number",
+			"search?": "string",
 		}),
 	)
 	.handler(async ({ input }) => {
 		const limit = input.limit || 20;
 		const offset = input.offset || 0;
+		const search = input.search || "";
 
-		const [totalCount] = await db.select({ count: count() }).from(practicePack);
-
-		const packs = await db
+		const baseQuery = db
 			.select({
 				id: practicePack.id,
 				title: practicePack.title,
 				description: practicePack.description,
 			})
-			.from(practicePack)
-			.limit(limit)
-			.offset(offset)
-			.orderBy(practicePack.id);
+			.from(practicePack);
+
+		const filteredQuery = search
+			? baseQuery.where(and(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
+			: baseQuery;
+
+		const [totalCount] = search
+			? await db
+					.select({ count: count() })
+					.from(practicePack)
+					.where(or(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
+			: await db.select({ count: count() }).from(practicePack);
+
+		const packs = await filteredQuery.limit(limit).offset(offset).orderBy(practicePack.id);
 
 		return {
 			data: packs,
