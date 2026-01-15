@@ -33,6 +33,9 @@ export function EditPackForm({ pack, onSuccess, onCancel }: EditPackFormProps) {
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.practicePack.listPacks.queryKey({ input: {} }),
 				});
+				queryClient.invalidateQueries(
+					orpc.admin.practicePack.getPack.queryOptions({ input: { id: pack.id } }),
+				);
 				onSuccess?.();
 			},
 			onError: (error) => {

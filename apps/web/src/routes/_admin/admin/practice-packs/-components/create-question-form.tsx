@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
 
 const ANSWER_CODES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] as const;
@@ -175,13 +176,13 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 						{(field) => (
 							<div>
 								<Label htmlFor="content">Question Content *</Label>
-								<Input
+								<Textarea
 									id="content"
 									value={field.state.value}
 									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
+									onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => field.handleChange(e.target.value)}
 									placeholder="Enter the question"
-									className="mt-2"
+									className="mt-2 min-h-30"
 								/>
 							</div>
 						)}
