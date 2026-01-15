@@ -298,7 +298,7 @@ function QuestionsList({ packId }: { packId: number }) {
 						<CardHeader className="p-4 sm:p-6">
 							<div className="flex items-center justify-between">
 								<CardTitle className="text-lg sm:text-xl">
-									Question {currentQuestionIndex + 1} of {questions.length}
+									Question {allQuestions.findIndex((q) => q.id === currentQuestion?.id) + 1} of {allQuestions.length}
 								</CardTitle>
 								<span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3 sm:text-sm">
 									#{currentQuestion?.order || currentQuestionIndex + 1}
