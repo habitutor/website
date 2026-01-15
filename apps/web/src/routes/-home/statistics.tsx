@@ -3,6 +3,27 @@ import { motion } from "motion/react";
 import { MotionPulse } from "@/components/motion";
 import { useAnimatedCounter } from "@/hooks/use-animations";
 
+const MIDDLE_STATISTIC_SECTION = [
+	{
+		title: "Belajar Tanpa Arah",
+	},
+	{
+		title: "Buta Pola Soal SNBT",
+	},
+	{
+		title: "Mudah Burnout & Stres",
+	},
+	{
+		title: "Skor Try Out Stagnan",
+	},
+	{
+		title: "Materi Tidak Lengka",
+	},
+	{
+		title: "Bingung Memilih Jurusan",
+	},
+];
+
 function StatCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
 	const { value: animatedValue, ref } = useAnimatedCounter(value, 1200, 0);
 
@@ -85,6 +106,28 @@ export function Statistics() {
 						</div>
 					</motion.div>
 				</div>
+
+				<motion.div
+					className="relative overflow-hidden rounded-2xl border border-primary-100 bg-background p-8 pt-5 text-center shadow-sm *:text-pretty"
+					initial={{ opacity: 0, y: 20 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ delay: 0.2, duration: 0.3 }}
+				>
+					<h3 className="mx-auto mb-5 max-w-[80%] font-bold text-xl md:text-2xl xl:max-w-[65%]">
+						Akar masalahnya, banyak siswa terjebak dalam pola belajar yang keliru
+					</h3>
+					<div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-4">
+						{MIDDLE_STATISTIC_SECTION.map((item, index) => (
+							<div
+								key={index.toString()}
+								className="md:12 flex h-11 items-center justify-center border border-tertiary-200 bg-tertiary-100"
+							>
+								<h4 className="font-medium text-base">{item.title}</h4>
+							</div>
+						))}
+					</div>
+				</motion.div>
 
 				<div className="relative w-full">
 					<MotionPulse>
