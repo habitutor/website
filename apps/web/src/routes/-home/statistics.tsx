@@ -17,7 +17,7 @@ const MIDDLE_STATISTIC_SECTION = [
 		title: "Skor Try Out Stagnan",
 	},
 	{
-		title: "Materi Tidak Lengka",
+		title: "Materi Tidak Lengkap",
 	},
 	{
 		title: "Bingung Memilih Jurusan",
