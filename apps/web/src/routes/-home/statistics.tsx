@@ -4,10 +4,10 @@ import { MotionPulse } from "@/components/motion";
 import { useAnimatedCounter } from "@/hooks/use-animations";
 
 function StatCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
-	const { value: animatedValue } = useAnimatedCounter(value, 1200, 0);
+	const { value: animatedValue, ref } = useAnimatedCounter(value, 1200, 0);
 
 	return (
-		<span className="font-bold text-6xl text-primary-300">
+		<span ref={ref} className="font-bold text-6xl text-primary-300">
 			{animatedValue}
 			{suffix}
 		</span>

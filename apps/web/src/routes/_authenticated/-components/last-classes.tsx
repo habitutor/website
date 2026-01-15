@@ -22,9 +22,9 @@ export const LastClasses = () => {
 
 	if (!data || data.length === 0) {
 		return (
-			<section className="text-center">
+			<section className="">
 				<h2 className="font-medium">Kelas terakhirmu</h2>
-				<div className="flex flex-col items-center justify-center space-y-6 py-8">
+				<div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
 					<img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
 					<p className="font-bold text-2xl text-black">Kamu belum melihat kelas apapun</p>
 					<Button asChild>
