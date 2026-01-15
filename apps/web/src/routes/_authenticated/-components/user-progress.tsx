@@ -58,7 +58,12 @@ const Tryout = () => {
 			</div>
 
 			<Button asChild size="icon" variant="secondary" className="z-10">
-				<a href="https://anyacademy.com" rel="noopener noreferrer" target="_blank">
+				<a
+					href="https://anyacademy.com"
+					rel="noopener noreferrer"
+					target="_blank"
+					aria-label="Visit AnyAcademy website"
+				>
 					<ArrowRightIcon />
 				</a>
 			</Button>
