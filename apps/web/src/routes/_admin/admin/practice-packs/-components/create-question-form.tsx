@@ -97,7 +97,6 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 				await addToPackMutation.mutateAsync({
 					practicePackId,
 					questionId: question.id,
-					order: 1,
 				});
 
 				toast.success("Question created successfully");

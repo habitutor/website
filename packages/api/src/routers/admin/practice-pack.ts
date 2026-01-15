@@ -390,7 +390,7 @@ const addQuestionToPack = admin
 		type({
 			practicePackId: "number",
 			questionId: "number",
-			order: "number",
+			"order?": "number", // Optional - will auto-calculate if not provided
 		}),
 	)
 	.handler(async ({ input }) => {
@@ -408,12 +408,22 @@ const addQuestionToPack = admin
 				message: "Question tidak ditemukan",
 			});
 
+		// Auto-calculate order: get max order + 1
+		let orderValue = input.order;
+		if (orderValue === undefined) {
+			const [maxOrder] = await db
+				.select({ maxOrder: sql<number>`COALESCE(MAX(${practicePackQuestions.order}), 0)` })
+				.from(practicePackQuestions)
+				.where(eq(practicePackQuestions.practicePackId, input.practicePackId));
+			orderValue = (maxOrder?.maxOrder ?? 0) + 1;
+		}
+
 		await db
 			.insert(practicePackQuestions)
 			.values({
 				practicePackId: input.practicePackId,
 				questionId: input.questionId,
-				order: input.order,
+				order: orderValue,
 			})
 			.onConflictDoNothing();
 
@@ -633,13 +643,16 @@ const getPackQuestions = admin
 			});
 		}
 
-		// Format and sort the questions based on order
+		// Format and sort the questions based on order, then by questionId (lower ID = earlier)
 		const questions = Array.from(questionMap.values())
 			.map((q) => ({
 				...q,
 				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
 			}))
-			.sort((a, b) => a.order - b.order);
+			.sort((a, b) => {
+				if (a.order !== b.order) return a.order - b.order;
+				return a.id - b.id; // Secondary sort: lower questionId first
+			});
 
 		return { questions };
 	});

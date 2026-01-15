@@ -28,12 +28,6 @@ export function AddExistingQuestionModal({
 		}),
 	);
 
-	const { data: packQuestions } = useQuery(
-		orpc.admin.practicePack.getPackQuestions.queryOptions({
-			input: { id: practicePackId },
-		}),
-	);
-
 	const addMutation = useMutation(
 		orpc.admin.practicePack.addQuestionToPack.mutationOptions({
 			onSuccess: () => {
@@ -59,11 +53,9 @@ export function AddExistingQuestionModal({
 	);
 
 	const handleAddQuestion = (questionId: number) => {
-		const nextOrder = (packQuestions?.questions.length || 0) + 1;
 		addMutation.mutate({
 			practicePackId,
 			questionId,
-			order: nextOrder,
 		});
 	};
 
