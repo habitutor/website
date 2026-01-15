@@ -31,10 +31,8 @@ export function EditPackForm({ pack, onSuccess, onCancel }: EditPackFormProps) {
 			onSuccess: () => {
 				toast.success("Practice pack updated successfully");
 				queryClient.invalidateQueries({
-					predicate: (query) =>
-						query.queryKey[0] === orpc.admin.practicePack.listPacks.queryKey({ input: { limit: 0, offset: 0 } })[0],
+					queryKey: orpc.admin.practicePack.listPacks.queryKey({ input: {} }),
 				});
-				queryClient.invalidateQueries(orpc.admin.practicePack.getPack.queryOptions({ input: { id: pack.id } }));
 				onSuccess?.();
 			},
 			onError: (error) => {

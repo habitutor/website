@@ -233,11 +233,7 @@ function QuestionCard({
 			onSuccess: () => {
 				toast.success("Question deleted successfully");
 				queryClient.invalidateQueries({
-					predicate: (query) =>
-						query.queryKey[0] ===
-						orpc.admin.practicePack.listAllQuestions.queryKey({
-							input: { limit: 0, offset: 0 },
-						})[0],
+					queryKey: orpc.admin.practicePack.listAllQuestions.queryKey({ input: {} }),
 				});
 				setDeleteDialogOpen(false);
 			},
