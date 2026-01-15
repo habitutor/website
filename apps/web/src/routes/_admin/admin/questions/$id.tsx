@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_admin/admin/questions/$id")({
@@ -156,7 +157,7 @@ function QuestionEditPage() {
 
 			setInitializedQuestionId(question.id);
 		}
-	}, [question, initializedQuestionId, form.setFieldValue]);
+		}, [question, initializedQuestionId, form.setFieldValue]);
 
 	if (Number.isNaN(questionId)) {
 		return (
@@ -282,18 +283,19 @@ function QuestionEditPage() {
 								{(field) => (
 									<div>
 										<Label htmlFor="content">Question Content *</Label>
-										<Input
+										<Textarea
 											id="content"
 											value={field.state.value}
 											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
+											onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+												field.handleChange(e.target.value)
+											}
 											placeholder="Enter the question"
-											className="mt-2"
+											className="mt-2 min-h-30"
 										/>
 									</div>
 								)}
-							</form.Field>
-
+							</form.Field>{" "}
 							<form.Field name="discussion">
 								{(field) => (
 									<div>
@@ -309,7 +311,6 @@ function QuestionEditPage() {
 									</div>
 								)}
 							</form.Field>
-
 							<div>
 								<div className="mb-4 flex items-center justify-between">
 									<h3 className="font-medium">Answer Options *</h3>
@@ -358,7 +359,6 @@ function QuestionEditPage() {
 									Check the box to mark as correct answer. At least 2 options required.
 								</p>
 							</div>
-
 							<div className="flex gap-2">
 								<Button type="submit" disabled={isSubmitting} className="flex-1">
 									{isSubmitting ? (
