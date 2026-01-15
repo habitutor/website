@@ -1,9 +1,10 @@
+import { VideoCamera, VideoCameraSlash } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
+import { useState } from "react";
 import { toast } from "sonner";
-// import { TiptapEditor } from "@/components/tiptap-editor";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import {
 	AlertDialog,
@@ -19,7 +20,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import YouTubePlayer from "@/components/youtube-player";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/utils/orpc";
+import { extractYouTubeId } from "@/utils/youtube";
 
 export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/video")({
 	component: RouteComponent,
@@ -28,6 +33,7 @@ export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentI
 function RouteComponent() {
 	const { contentId } = Route.useParams();
 	const queryClient = useQueryClient();
+	const [showPreview, setShowPreview] = useState(true);
 
 	const content = useQuery(
 		orpc.subtest.getContentById.queryOptions({
@@ -101,6 +107,10 @@ function RouteComponent() {
 		}
 	}
 
+	const debouncedVideoUrl = useDebounceValue(form.state.values.videoUrl as string, 500);
+	const videoId = extractYouTubeId(debouncedVideoUrl);
+	const isValidUrl = !!videoId;
+
 	if (content.isPending) {
 		return <p className="animate-pulse text-sm">Memuat video...</p>;
 	}
@@ -171,7 +181,13 @@ function RouteComponent() {
 				<form.Field name="videoUrl">
 					{(field) => (
 						<div className="space-y-2">
-							<Label htmlFor={field.name}>URL Video (YouTube)</Label>
+							<div className="flex items-center justify-between">
+								<Label htmlFor={field.name}>URL Video (YouTube)</Label>
+								<div className="flex items-center gap-2">
+									{showPreview ? <VideoCamera className="size-4" /> : <VideoCameraSlash className="size-4" />}
+									<Switch checked={showPreview} onCheckedChange={setShowPreview} />
+								</div>
+							</div>
 							<Input
 								id={field.name}
 								name={field.name}
@@ -189,6 +205,23 @@ function RouteComponent() {
 						</div>
 					)}
 				</form.Field>
+
+				{showPreview && (
+					<div className="space-y-2">
+						<Label>Preview</Label>
+						{isValidUrl ? (
+							<div className="aspect-video w-full overflow-hidden rounded-lg border">
+								<YouTubePlayer videoId={videoId} />
+							</div>
+						) : (
+							<div className="flex aspect-video w-full items-center justify-center rounded-lg border border-muted-foreground/30 border-dashed bg-muted/50">
+								<p className="text-muted-foreground text-sm">
+									{debouncedVideoUrl ? "URL tidak valid" : "Masukkan URL YouTube untuk preview"}
+								</p>
+							</div>
+						)}
+					</div>
+				)}
 
 				<form.Field name="content">
 					{(field) => (

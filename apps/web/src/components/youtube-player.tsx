@@ -8,7 +8,7 @@ export default function YouTubePlayer({ videoId }: { videoId: string }) {
 		width: "100%",
 		playerVars: {
 			autoplay: 0,
-			controls: 0,
+			controls: 1,
 			modestbranding: 0,
 			rel: 0,
 		},
