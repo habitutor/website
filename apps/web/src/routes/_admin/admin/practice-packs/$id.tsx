@@ -408,6 +408,9 @@ function QuestionsList({ packId }: { packId: number }) {
 							<div className="grid grid-cols-5 gap-1.5 sm:gap-2 lg:grid-cols-4">
 								{visibleQuestions.map((question, idx) => {
 									const absoluteIndex = startIndex + idx;
+									const originalIndex = allQuestions.findIndex((q) => q.id === question.id);
+									const displayNumber = originalIndex + 1;
+
 									return (
 										<Button
 											key={question.id}
@@ -418,7 +421,7 @@ function QuestionsList({ packId }: { packId: number }) {
 											)}
 											onClick={() => handleQuestionClick(absoluteIndex)}
 										>
-											{absoluteIndex + 1}
+											{displayNumber}
 										</Button>
 									);
 								})}
