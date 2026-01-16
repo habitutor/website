@@ -185,7 +185,7 @@ function QuestionEditPage() {
 							Question Bank
 						</Link>
 						<span>/</span>
-						<span className="text-foreground">Error</span>
+						<span className="text-foreground">Question not found</span>
 					</div>
 					<p className="text-destructive">Question not found</p>
 				</div>
