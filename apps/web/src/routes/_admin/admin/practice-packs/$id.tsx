@@ -1,8 +1,17 @@
-import { ArrowLeftIcon, CaretLeftIcon, CaretRightIcon, MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
+import {
+	ArrowLeftIcon,
+	CaretLeftIcon,
+	CaretRightIcon,
+	MagnifyingGlass,
+	PencilSimple,
+	PlusIcon,
+	Trash,
+} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,8 +23,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
@@ -53,56 +61,62 @@ function PracticePackDetailPage() {
 	return (
 		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 			<div className="mx-auto max-w-6xl">
-				<div className="mb-4 flex items-center gap-4 sm:mb-6">
-					<Button variant="ghost" size="icon" asChild>
-						<a href="/admin/practice-packs">
-							<ArrowLeftIcon className="size-4" />
-						</a>
-					</Button>
-					<h1 className="font-bold text-2xl sm:text-3xl">Practice Pack Detail</h1>
+				{/* Navigation Breadcrumb-like */}
+				<div className="mb-4 flex items-center gap-2 text-muted-foreground text-sm">
+					<Link to="/admin/practice-packs" className="flex items-center gap-1 hover:text-foreground">
+						<ArrowLeftIcon className="size-3.5" />
+						Back to Packs
+					</Link>
 				</div>
 
-				<div className="space-y-4 sm:space-y-6">
-					<PackInfoCard packId={packId} />
+				<div className="space-y-6 sm:space-y-8">
+					<PackInfoHeader packId={packId} />
 
-					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-						<h2 className="font-semibold text-xl sm:text-2xl">Questions</h2>
-						<div className="flex flex-col gap-2 sm:flex-row">
-							<Button onClick={() => setShowAddExisting(true)} variant="outline" className="text-xs sm:text-sm">
-								<MagnifyingGlassIcon className="mr-2 size-3.5 sm:size-4" />
-								Add Existing
-							</Button>
-							<Button onClick={() => setShowCreateForm(true)} className="text-xs sm:text-sm">
-								<PlusIcon className="mr-2 size-3.5 sm:size-4" />
-								Create New Question
-							</Button>
+					<div className="space-y-4">
+						<div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+							<h2 className="font-bold text-xl tracking-tight sm:text-2xl">
+								Questions
+								<span className="ml-2 rounded-full bg-muted px-2.5 py-0.5 font-medium text-base text-muted-foreground">
+									{data?.questions?.length || 0}
+								</span>
+							</h2>
+							<div className="flex flex-col gap-2 sm:flex-row">
+								<Button onClick={() => setShowAddExisting(true)} variant="outline" className="gap-2 text-xs sm:text-sm">
+									<MagnifyingGlass className="size-3.5 sm:size-4" />
+									Add Existing
+								</Button>
+								<Button onClick={() => setShowCreateForm(true)} className="gap-2 text-xs shadow-sm sm:text-sm">
+									<PlusIcon className="size-3.5 sm:size-4" />
+									Create New Question
+								</Button>
+							</div>
 						</div>
+
+						{showAddExisting && (
+							<AddExistingQuestionModal
+								practicePackId={packId}
+								existingQuestionIds={existingQuestionIds}
+								onClose={() => setShowAddExisting(false)}
+							/>
+						)}
+
+						{showCreateForm && (
+							<CreateQuestionForm
+								practicePackId={packId}
+								onSuccess={() => setShowCreateForm(false)}
+								onCancel={() => setShowCreateForm(false)}
+							/>
+						)}
+
+						<QuestionsList packId={packId} onCreateNew={() => setShowCreateForm(true)} />
 					</div>
-
-					{showAddExisting && (
-						<AddExistingQuestionModal
-							practicePackId={packId}
-							existingQuestionIds={existingQuestionIds}
-							onClose={() => setShowAddExisting(false)}
-						/>
-					)}
-
-					{showCreateForm && (
-						<CreateQuestionForm
-							practicePackId={packId}
-							onSuccess={() => setShowCreateForm(false)}
-							onCancel={() => setShowCreateForm(false)}
-						/>
-					)}
-
-					<QuestionsList packId={packId} />
 				</div>
 			</div>
 		</main>
 	);
 }
 
-function PackInfoCard({ packId }: { packId: number }) {
+function PackInfoHeader({ packId }: { packId: number }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const { data: pack, isLoading } = useQuery(
 		orpc.admin.practicePack.getPack.queryOptions({
@@ -112,40 +126,24 @@ function PackInfoCard({ packId }: { packId: number }) {
 
 	if (isLoading) {
 		return (
-			<Card className="rounded-xl shadow-sm">
-				<CardHeader className="p-4 sm:p-6">
-					<CardTitle className="text-lg sm:text-xl">Pack Information</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-					<div className="space-y-4">
-						<Skeleton className="h-8 w-2/3" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-				</CardContent>
-			</Card>
+			<div className="space-y-2">
+				<Skeleton className="h-8 w-1/3" />
+				<Skeleton className="h-4 w-2/3" />
+			</div>
 		);
 	}
 
 	if (!pack) {
-		return (
-			<Card className="rounded-xl shadow-sm">
-				<CardHeader className="p-4 sm:p-6">
-					<CardTitle className="text-lg sm:text-xl">Pack Information</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-					<p className="text-destructive">Practice pack not found</p>
-				</CardContent>
-			</Card>
-		);
+		return <p className="text-destructive">Practice pack not found</p>;
 	}
 
 	if (isEditing) {
 		return (
-			<Card className="rounded-xl shadow-sm">
-				<CardHeader className="p-4 sm:p-6">
+			<Card className="rounded-xl border-dashed py-4 shadow-none">
+				<CardHeader>
 					<CardTitle className="text-lg sm:text-xl">Edit Pack Information</CardTitle>
 				</CardHeader>
-				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+				<CardContent>
 					<EditPackForm pack={pack} onSuccess={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
 				</CardContent>
 			</Card>
@@ -153,29 +151,29 @@ function PackInfoCard({ packId }: { packId: number }) {
 	}
 
 	return (
-		<Card className="rounded-xl shadow-sm">
-			<CardHeader className="p-4 sm:p-6">
-				<CardTitle className="text-lg sm:text-xl">Pack Information</CardTitle>
-			</CardHeader>
-			<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-				<div className="space-y-4">
-					<div>
-						<h3 className="font-semibold text-lg">{pack.title}</h3>
-						{pack.description && <p className="mt-2 text-muted-foreground text-sm">{pack.description}</p>}
-					</div>
-					<Button variant="outline" onClick={() => setIsEditing(true)} size="sm">
-						Edit Pack Info
-					</Button>
-				</div>
+		<Card className="relative py-5 shadow-sm sm:py-6">
+			<CardContent className="pr-10">
+				<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">{pack.title}</h1>
+				<p className="mt-2 text-muted-foreground text-sm leading-relaxed sm:text-base">
+					{pack.description || "No description provided."}
+				</p>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+					onClick={() => setIsEditing(true)}
+				>
+					<PencilSimple className="size-5" />
+					<span className="sr-only">Edit</span>
+				</Button>
 			</CardContent>
 		</Card>
 	);
 }
 
-function QuestionsList({ packId }: { packId: number }) {
+function QuestionsList({ packId, onCreateNew }: { packId: number; onCreateNew: () => void }) {
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 	const [gridPage, setGridPage] = useState(0);
-	const [searchQuery, setSearchQuery] = useState("");
 	const GRID_SIZE = 30;
 	const navigate = useNavigate();
 
@@ -185,12 +183,7 @@ function QuestionsList({ packId }: { packId: number }) {
 		}),
 	);
 
-	const allQuestions = data?.questions || [];
-
-	// Filter questions based on search query
-	const questions = searchQuery
-		? allQuestions.filter((q) => q.content.toLowerCase().includes(searchQuery.toLowerCase()))
-		: allQuestions;
+	const questions = data?.questions || [];
 
 	useEffect(() => {
 		if (questions && questions.length > 0) {
@@ -225,47 +218,25 @@ function QuestionsList({ packId }: { packId: number }) {
 
 	if (isLoading) {
 		return (
-			<Card className="rounded-xl shadow-sm">
-				<CardHeader className="p-4 sm:p-6">
-					<CardTitle className="text-lg sm:text-xl">Questions in this Pack</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-					<div className="space-y-3">
-						<Skeleton className="h-20 w-full" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-				</CardContent>
-			</Card>
+			<div className="space-y-4">
+				<Skeleton className="h-64 w-full rounded-xl" />
+			</div>
 		);
 	}
 
 	if (!questions || questions.length === 0) {
 		return (
-			<Card className="rounded-xl shadow-sm">
-				<CardHeader className="p-4 sm:p-6">
-					<CardTitle className="text-lg sm:text-xl">Questions in this Pack</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-					{allQuestions.length === 0 ? (
-						<p className="text-muted-foreground text-sm">
-							No questions yet. Create a new question or add an existing one.
-						</p>
-					) : (
-						<div className="space-y-4">
-							<div className="relative">
-								<MagnifyingGlassIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-								<Input
-									placeholder="Search questions..."
-									value={searchQuery}
-									onChange={(e) => setSearchQuery(e.target.value)}
-									className="pl-9"
-								/>
-							</div>
-							<p className="text-muted-foreground text-sm">No questions found matching "{searchQuery}".</p>
-						</div>
-					)}
-				</CardContent>
-			</Card>
+			<div className="flex flex-col items-center justify-center space-y-6 rounded-xl border border-dashed py-16 text-center">
+				<img src="/avatar/confused-avatar.webp" alt="No questions" className="h-32 w-auto sm:h-40" />
+				<div className="space-y-2">
+					<h3 className="font-bold text-foreground text-xl">This pack is empty</h3>
+					<p className="text-muted-foreground">Add questions to get started.</p>
+				</div>
+				<Button onClick={onCreateNew} size="lg" className="gap-2">
+					<PlusIcon className="size-4" />
+					Create First Question
+				</Button>
+			</div>
 		);
 	}
 
@@ -279,176 +250,181 @@ function QuestionsList({ packId }: { packId: number }) {
 
 	return (
 		<div className="space-y-4">
-			{/* Search Input */}
-			{allQuestions.length > 0 && (
-				<div className="relative">
-					<MagnifyingGlassIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-					<Input
-						placeholder="Search questions..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-9"
-					/>
-				</div>
-			)}
-
-			<div className="flex flex-col gap-4 lg:flex-row">
+			<div className="flex flex-col gap-6 lg:flex-row">
 				<div className="flex-1 lg:order-1">
-					<Card className="rounded-xl shadow-sm">
-						<CardHeader className="p-4 sm:p-6">
-							<div className="flex items-center justify-between">
-								<CardTitle className="text-lg sm:text-xl">
-									Question {allQuestions.findIndex((q) => q.id === currentQuestion?.id) + 1} of {allQuestions.length}
+					<Card className="overflow-hidden border-none py-0 shadow-md">
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 bg-muted/30 py-4">
+							<div className="space-y-1">
+								<CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+									<div className="flex size-7 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground text-xs shadow-sm">
+										{currentQuestionIndex + 1}
+									</div>
+									Question Content
 								</CardTitle>
-								<span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3 sm:text-sm">
-									#{currentQuestion?.order || currentQuestionIndex + 1}
-								</span>
+								<CardDescription className="text-xs sm:text-sm">Review and manage this question.</CardDescription>
+							</div>
+							<div className="rounded-md bg-background px-2 py-1 font-mono text-[10px] text-muted-foreground shadow-sm ring-1 ring-border sm:py-1.5 sm:text-xs">
+								ID: {currentQuestion.id}
 							</div>
 						</CardHeader>
-						<CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
-							<div>
-								<h4 className="mb-2 font-semibold text-base sm:text-lg">Question:</h4>
-								<p className="text-sm leading-relaxed sm:text-base">{currentQuestion?.content}</p>
+						<CardContent className="space-y-6 py-6">
+							<div className="prose prose-sm max-w-none rounded-lg border bg-card p-4 shadow-sm">
+								<TiptapRenderer content={currentQuestion?.content} />
 							</div>
 
 							<div>
-								<h4 className="mb-2 font-semibold text-base sm:text-lg">Answer Options:</h4>
-								<div className="space-y-2">
+								<h4 className="mb-3 font-semibold text-muted-foreground text-sm uppercase tracking-wider">
+									Answer Options
+								</h4>
+								<div className="grid gap-3 sm:grid-cols-2">
 									{currentQuestion?.answers?.map((answer) => (
 										<div
 											key={answer.id}
 											className={cn(
-												"flex items-start gap-3 rounded-md border p-3 sm:p-4",
-												answer.isCorrect && "border-tertiary bg-tertiary/5",
+												"relative flex items-start gap-3 rounded-lg border p-4 transition-all",
+												answer.isCorrect
+													? "border-green-500 bg-green-50/50 shadow-sm dark:bg-green-950/20"
+													: "hover:border-primary/50",
 											)}
 										>
-											<span
+											<div
 												className={cn(
-													"flex size-6 shrink-0 items-center justify-center rounded-full font-semibold text-xs",
-													answer.isCorrect ? "bg-tertiary text-white" : "bg-muted text-muted-foreground",
+													"flex size-6 shrink-0 items-center justify-center rounded-full font-bold text-xs",
+													answer.isCorrect ? "bg-green-500 text-white" : "bg-muted text-muted-foreground",
 												)}
 											>
 												{answer.code}
-											</span>
-											<p className="flex-1 text-sm leading-relaxed sm:text-base">{answer.content}</p>
+											</div>
+											<p className="flex-1 text-sm">{answer.content}</p>
 											{answer.isCorrect && (
-												<span className="shrink-0 rounded bg-tertiary px-2 py-0.5 font-medium text-white text-xs">
-													Correct
-												</span>
+												<div className="absolute top-2 right-2">
+													<span className="sr-only">Correct</span>
+													<div className="size-2 rounded-full bg-green-500" />
+												</div>
 											)}
 										</div>
 									))}
 								</div>
 							</div>
 
-							<div>
-								<h4 className="mb-2 font-semibold text-base sm:text-lg">Discussion:</h4>
-								<p className="text-muted-foreground text-sm leading-relaxed sm:text-base">
-									{currentQuestion?.discussion}
-								</p>
+							<div className="rounded-lg bg-muted/50 p-4">
+								<h4 className="mb-2 font-semibold text-muted-foreground text-sm uppercase tracking-wider">
+									Discussion
+								</h4>
+								<div className="prose prose-sm max-w-none text-muted-foreground">
+									<TiptapRenderer content={currentQuestion?.discussion} />
+								</div>
 							</div>
 
-							<div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:gap-3">
+							<div className="flex items-center justify-end gap-2 border-t pt-6">
 								<Button
 									variant="outline"
-									className="w-full text-xs sm:w-auto sm:text-sm"
+									size="icon"
 									onClick={() => {
 										navigate({
 											to: "/admin/questions/$id",
 											params: { id: currentQuestion.id.toString() },
 										});
 									}}
+									title="Edit Question Content"
 								>
-									Edit Question
+									<PencilSimple className="size-4" />
 								</Button>
 								<RemoveQuestionButton packId={packId} question={currentQuestion} />
 							</div>
 
 							<div className="flex items-center justify-between border-t pt-4">
 								<Button
-									variant="outline"
+									variant="ghost"
 									size="sm"
-									className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+									className="gap-2"
 									onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
 									disabled={currentQuestionIndex === 0}
 								>
-									<CaretLeftIcon className="mr-1 size-3.5 sm:size-4" />
-									<span className="hidden sm:inline">Previous</span>
-									<span className="sm:hidden">Prev</span>
+									<CaretLeftIcon className="size-4" />
+									Previous
 								</Button>
+								<span className="font-medium text-muted-foreground text-xs">
+									{currentQuestionIndex + 1} of {questions.length}
+								</span>
 								<Button
-									variant="outline"
+									variant="ghost"
 									size="sm"
-									className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+									className="gap-2"
 									onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
 									disabled={currentQuestionIndex === questions.length - 1}
 								>
-									<span className="hidden sm:inline">Next</span>
-									<span className="sm:hidden">Next</span>
-									<CaretRightIcon className="ml-1 size-3.5 sm:size-4" />
+									Next
+									<CaretRightIcon className="size-4" />
 								</Button>
 							</div>
 						</CardContent>
 					</Card>
 				</div>
 
-				<div className="lg:order-2 lg:w-64">
-					<Card className="rounded-xl shadow-sm">
-						<CardHeader className="p-4">
+				<div className="lg:order-2 lg:w-72">
+					<Card className="sticky top-24 rounded-xl border-none py-0 shadow-md">
+						<CardHeader className="bg-muted/30 py-4">
 							<div className="flex items-center justify-between">
-								<CardTitle className="text-base sm:text-lg">Navigate</CardTitle>
+								<div className="space-y-1">
+									<CardTitle className="text-base sm:text-lg">Navigator</CardTitle>
+									<CardDescription className="text-xs">Jump to a question</CardDescription>
+								</div>
 								{totalGridPages > 1 && (
-									<span className="text-muted-foreground text-xs">
+									<span className="rounded-full bg-background px-2 py-0.5 font-medium text-[10px] text-muted-foreground shadow-sm ring-1 ring-border sm:text-xs">
 										{gridPage + 1}/{totalGridPages}
 									</span>
 								)}
 							</div>
 						</CardHeader>
-						<CardContent className="space-y-3 p-4 pt-0">
-							<div className="grid grid-cols-5 gap-1.5 sm:gap-2 lg:grid-cols-4">
+						<CardContent className="py-5">
+							<div className="grid grid-cols-5 gap-2">
 								{visibleQuestions.map((question, idx) => {
 									const absoluteIndex = startIndex + idx;
-									const originalIndex = allQuestions.findIndex((q) => q.id === question.id);
+									const originalIndex = questions.findIndex((q) => q.id === question.id);
 									const displayNumber = originalIndex + 1;
+									const isActive = absoluteIndex === currentQuestionIndex;
 
 									return (
-										<Button
+										<button
 											key={question.id}
-											variant={absoluteIndex === currentQuestionIndex ? "default" : "outline"}
-											className={cn(
-												"h-8 w-full p-0 text-xs sm:h-9 sm:text-sm",
-												absoluteIndex === currentQuestionIndex && "font-semibold",
-											)}
+											type="button"
 											onClick={() => handleQuestionClick(absoluteIndex)}
+											className={cn(
+												"flex aspect-square w-full items-center justify-center rounded-lg border text-sm transition-all",
+												isActive
+													? "scale-105 border-primary bg-primary font-bold text-primary-foreground shadow-md"
+													: "hover:border-primary/50 hover:bg-muted",
+											)}
 										>
 											{displayNumber}
-										</Button>
+										</button>
 									);
 								})}
 							</div>
 
 							{totalGridPages > 1 && (
-								<div className="flex items-center justify-between border-t pt-3">
+								<div className="mt-4 flex items-center justify-between border-t pt-3">
 									<Button
 										variant="ghost"
-										size="sm"
-										className="h-7 px-2 text-xs"
+										size="icon"
+										className="size-8"
 										onClick={() => setGridPage(gridPage - 1)}
 										disabled={gridPage === 0}
 									>
-										<CaretLeftIcon className="size-3.5" />
+										<CaretLeftIcon className="size-4" />
 									</Button>
 									<span className="text-muted-foreground text-xs">
-										{startIndex + 1}-{endIndex} of {questions.length}
+										{startIndex + 1}-{endIndex}
 									</span>
 									<Button
 										variant="ghost"
-										size="sm"
-										className="h-7 px-2 text-xs"
+										size="icon"
+										className="size-8"
 										onClick={() => setGridPage(gridPage + 1)}
 										disabled={gridPage === totalGridPages - 1}
 									>
-										<CaretRightIcon className="size-3.5" />
+										<CaretRightIcon className="size-4" />
 									</Button>
 								</div>
 							)}
@@ -467,8 +443,8 @@ function RemoveQuestionButton({
 	packId: number;
 	question: {
 		id: number;
-		content: string;
-		discussion: string;
+		content: unknown;
+		discussion: unknown;
 		order: number | null;
 	};
 }) {
@@ -500,12 +476,8 @@ function RemoveQuestionButton({
 
 	return (
 		<>
-			<Button
-				variant="destructive"
-				className="w-full text-xs sm:w-auto sm:text-sm"
-				onClick={() => setDeleteDialogOpen(true)}
-			>
-				Remove from Pack
+			<Button variant="destructive" size="icon" onClick={() => setDeleteDialogOpen(true)} title="Remove from Pack">
+				<Trash className="size-4" />
 			</Button>
 
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

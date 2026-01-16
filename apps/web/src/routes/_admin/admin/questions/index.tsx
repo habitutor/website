@@ -1,8 +1,9 @@
-import { Funnel, MagnifyingGlass, PencilSimple, Trash } from "@phosphor-icons/react";
+import { DotsThree, Exam, Funnel, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,16 +15,19 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuItem,
 	DropdownMenuRadioGroup,
 	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_admin/admin/questions/")({
@@ -35,7 +39,7 @@ function QuestionsPage() {
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const [filter, setFilter] = useState<"all" | "unused">("all");
 	const [page, setPage] = useState(1);
-	const limit = 5;
+	const limit = 12;
 	const offset = (page - 1) * limit;
 
 	// Debounce search query
@@ -66,14 +70,21 @@ function QuestionsPage() {
 	return (
 		<main className="flex-1 bg-background p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 			<div className="mx-auto max-w-6xl">
-				<div className="mb-4 flex items-center justify-between sm:mb-6">
+				{/* Breadcrumbs */}
+				<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">
+					<span className="cursor-default hover:text-foreground">Admin</span>
+					<span>/</span>
+					<span className="text-foreground">Question Bank</span>
+				</div>
+
+				<div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<h1 className="font-bold text-2xl sm:text-3xl">Questions Bank</h1>
+						<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">Question Bank</h1>
 						<p className="mt-1 text-muted-foreground text-sm">Manage all questions across practice packs</p>
 					</div>
 				</div>
 
-				<div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row">
+				<div className="mb-6 flex flex-col gap-3 sm:flex-row">
 					<div className="relative flex-1">
 						<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
@@ -86,13 +97,13 @@ function QuestionsPage() {
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="outline" className="w-full sm:w-auto">
-								<Funnel className="mr-2 size-4" />
+							<Button variant="outline" className="w-full gap-2 sm:w-auto">
+								<Funnel className="size-4" />
 								<span className="hidden sm:inline">{filter === "all" ? "All Questions" : "Unused Only"}</span>
 								<span className="sm:hidden">{filter === "all" ? "All" : "Unused"}</span>
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
+						<DropdownMenuContent align="end" className="w-48">
 							<DropdownMenuRadioGroup
 								value={filter}
 								onValueChange={(value) => {
@@ -108,23 +119,27 @@ function QuestionsPage() {
 				</div>
 
 				{isLoading ? (
-					<div className="space-y-4">
-						<Skeleton className="h-32 w-full" />
-						<Skeleton className="h-32 w-full" />
-						<Skeleton className="h-32 w-full" />
+					<div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
+						{[1, 2, 3, 4, 5, 6].map((i) => (
+							<Card key={i} className="px-6 py-6">
+								<Skeleton className="h-6 w-3/4" />
+								<Skeleton className="mt-4 h-4 w-full" />
+								<Skeleton className="mt-6 h-4 w-1/2" />
+							</Card>
+						))}
 					</div>
 				) : !questions || questions.length === 0 ? (
-					<Card className="rounded-xl shadow-sm">
-						<CardContent className="py-12 text-center">
-							<p className="text-muted-foreground text-sm">
-								{searchQuery
-									? "No questions found matching your search."
-									: "No questions yet. Create questions from practice packs."}
-							</p>
-						</CardContent>
-					</Card>
+					<div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
+						<Exam className="mb-4 size-12 text-muted-foreground" />
+						<h3 className="mb-2 font-semibold text-lg">No questions found</h3>
+						<p className="text-muted-foreground text-sm">
+							{searchQuery
+								? "Try adjusting your search query"
+								: "Get started by creating questions from practice packs"}
+						</p>
+					</div>
 				) : (
-					<div className="space-y-4">
+					<div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
 						{questions.map((question) => (
 							<QuestionCard key={question.id} question={question} />
 						))}
@@ -133,7 +148,7 @@ function QuestionsPage() {
 
 				{/* Pagination Controls */}
 				{totalPages > 1 && (
-					<div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8 sm:gap-2">
+					<div className="mt-8 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
 						<Button
 							variant="outline"
 							size="sm"
@@ -219,8 +234,8 @@ function QuestionCard({
 }: {
 	question: {
 		id: number;
-		content: string;
-		discussion: string;
+		content: unknown;
+		discussion: unknown;
 		packCount: number;
 	};
 }) {
@@ -249,56 +264,73 @@ function QuestionCard({
 		deleteMutation.mutate({ id: question.id });
 	};
 
+	const isUnused = question.packCount === 0;
+
 	return (
 		<>
-			<Card className="rounded-xl shadow-sm">
-				<CardHeader className="p-4 sm:p-6">
-					<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-						<div className="flex-1">
-							<CardTitle className="text-base leading-snug sm:text-lg">{question.content}</CardTitle>
-							<p className="mt-2 line-clamp-2 text-muted-foreground text-xs sm:text-sm">{question.discussion}</p>
+			<Card
+				className={cn(
+					"group relative flex flex-col overflow-hidden py-0 transition-all hover:shadow-md",
+					isUnused && "border-dashed bg-muted/30",
+				)}
+			>
+				<Link to={`/admin/questions/${question.id}`} className="flex flex-1 flex-col px-6 py-6">
+					<div className="mb-4 flex-1 space-y-3">
+						<div className="prose prose-sm line-clamp-3 max-w-none text-foreground">
+							<TiptapRenderer content={question.content} />
 						</div>
-						<div className="flex items-center gap-2">
+
+						{/* Mini Discussion Preview */}
+						<div className="flex items-center gap-2 font-bold text-[10px] text-muted-foreground uppercase tracking-wider">
+							<span>Discussion Preview</span>
+						</div>
+						<div className="line-clamp-1 text-muted-foreground text-xs italic opacity-80">
+							<TiptapRenderer content={question.discussion} />
+						</div>
+					</div>
+
+					{/* Metadata */}
+					<div className="mt-auto flex items-center gap-4 font-medium text-muted-foreground text-xs">
+						<div className="flex items-center gap-1.5">
 							{question.packCount > 0 ? (
-								<span className="whitespace-nowrap rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs sm:px-3">
-									Used in {question.packCount} pack
-									{question.packCount !== 1 ? "s" : ""}
+								<span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 font-bold text-[10px] text-green-800 dark:bg-green-900/30 dark:text-green-400">
+									<Package className="mr-1 size-3" />
+									Used in {question.packCount} pack{question.packCount !== 1 ? "s" : ""}
 								</span>
 							) : (
-								<span className="whitespace-nowrap rounded bg-muted px-2 py-1 text-muted-foreground text-xs sm:px-3">
+								<span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 font-bold text-[10px] text-gray-800 dark:bg-gray-800 dark:text-gray-300">
 									Unused
 								</span>
 							)}
 						</div>
+						<div className="font-mono text-[10px] opacity-60">ID: {question.id}</div>
 					</div>
-				</CardHeader>
-				<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-					<div className="flex gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							className="flex-1 text-xs sm:flex-none sm:text-sm"
-							onClick={() => {
-								navigate({
-									to: "/admin/questions/$id",
-									params: { id: question.id.toString() },
-								});
-							}}
-						>
-							<PencilSimple className="size-3.5 sm:mr-2 sm:size-4" />
-							<span className="hidden sm:inline">Edit</span>
-						</Button>
-						<Button
-							variant="destructive"
-							size="sm"
-							className="flex-1 text-xs sm:flex-none sm:text-sm"
-							onClick={() => setDeleteDialogOpen(true)}
-						>
-							<Trash className="size-3.5 sm:mr-2 sm:size-4" />
-							<span className="hidden sm:inline">Delete</span>
-						</Button>
-					</div>
-				</CardContent>
+				</Link>
+
+				<div className="absolute top-4 right-4 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" size="icon" className="size-8 bg-background/80 backdrop-blur-sm">
+								<DotsThree className="size-5" weight="bold" />
+								<span className="sr-only">Open menu</span>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-40">
+							<DropdownMenuItem onClick={() => navigate({ to: `/admin/questions/${question.id}` })}>
+								<PencilSimple className="mr-2 size-4" />
+								Edit Content
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								onClick={() => setDeleteDialogOpen(true)}
+								className="text-destructive focus:text-destructive"
+							>
+								<Trash className="mr-2 size-4" />
+								Delete
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 			</Card>
 
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

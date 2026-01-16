@@ -1,8 +1,8 @@
 export type Question = {
 	id: number;
 	order: number;
-	content: string;
-	discussion: string;
+	content: Record<string, unknown>;
+	discussion: Record<string, unknown>;
 	selectedAnswerId: number | null;
 	answers: Answer[];
 };

@@ -4,13 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
-import Loader from "@/components/loader";
+import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
 
 const ANSWER_CODES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] as const;
@@ -45,13 +44,13 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 
 	const form = useForm({
 		defaultValues: {
-			content: "",
-			discussion: "",
+			content: {} as unknown,
+			discussion: {} as unknown,
 		},
 		onSubmit: async ({ value }) => {
 			const validation = type({
-				content: "string>0",
-				discussion: "string>0",
+				content: "object",
+				discussion: "object",
 			})(value);
 
 			if (validation instanceof type.errors) {
@@ -175,14 +174,12 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 						{(field) => (
 							<div>
 								<Label htmlFor="content">Question Content *</Label>
-								<Textarea
-									id="content"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => field.handleChange(e.target.value)}
-									placeholder="Enter the question"
-									className="mt-2 min-h-30"
-								/>
+								<div className="mt-2 rounded-md border">
+									<TiptapSimpleEditor
+										content={field.state.value as object}
+										onChange={(content) => field.handleChange(content)}
+									/>
+								</div>{" "}
 							</div>
 						)}
 					</form.Field>
@@ -191,14 +188,12 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 						{(field) => (
 							<div>
 								<Label htmlFor="discussion">Discussion / Explanation *</Label>
-								<Input
-									id="discussion"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Explain the answer"
-									className="mt-2"
-								/>
+								<div className="mt-2 rounded-md border">
+									<TiptapSimpleEditor
+										content={field.state.value as object}
+										onChange={(content) => field.handleChange(content)}
+									/>
+								</div>
 							</div>
 						)}
 					</form.Field>
@@ -254,14 +249,7 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 
 					<div className="flex gap-2">
 						<Button type="submit" disabled={isSubmitting} className="flex-1">
-							{isSubmitting ? (
-								<>
-									<Loader />
-									Creating...
-								</>
-							) : (
-								"Create Question"
-							)}
+							{isSubmitting ? <>Creating...</> : "Create Question"}
 						</Button>
 						<Button type="button" variant="outline" onClick={onCancel}>
 							Cancel

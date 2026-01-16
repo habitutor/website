@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -167,8 +168,8 @@ function RouteComponent() {
 			? (content.data.practiceQuestions.questions as Array<{
 					questionId: number;
 					order: number;
-					question: string;
-					discussion: string;
+					question: unknown;
+					discussion: unknown;
 					answers: Array<{
 						id: number;
 						content: string;
@@ -254,8 +255,10 @@ function RouteComponent() {
 											/>
 											<div className="flex-1">
 												<div className="flex items-center gap-2">
-													<p className="font-medium">{question.question}</p>
-													<span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs">
+													<div className="font-medium">
+														<TiptapRenderer content={question.question} />
+													</div>
+													<span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs">
 														Sudah Terhubung
 													</span>
 												</div>
@@ -369,7 +372,7 @@ function RouteComponent() {
 								{packQuestions.data.questions.map(
 									(question: {
 										id: number;
-										content: string;
+										content: unknown;
 										answers: Array<{
 											id: number;
 											content: string;
@@ -384,9 +387,11 @@ function RouteComponent() {
 													<Checkbox checked={isSelected} onCheckedChange={() => handleQuestionToggle(question.id)} />
 													<div className="flex-1">
 														<div className="flex items-center gap-2">
-															<p className="font-medium">{question.content}</p>
+															<div className="font-medium">
+																<TiptapRenderer content={question.content} />
+															</div>
 															{isLinked && (
-																<span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs">
+																<span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs">
 																	Sudah Terhubung
 																</span>
 															)}

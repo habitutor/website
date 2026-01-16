@@ -11,6 +11,23 @@ import { type } from "arktype";
 import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import { admin } from "../../index";
 
+function convertToTiptap(text: string) {
+	try {
+		const parsed = JSON.parse(text);
+		if (parsed && parsed.type === "doc") return parsed;
+	} catch {}
+
+	return {
+		type: "doc",
+		content: [
+			{
+				type: "paragraph",
+				content: [{ type: "text", text }],
+			},
+		],
+	};
+}
+
 const getStatistics = admin
 	.route({
 		path: "/admin/statistics",
@@ -205,7 +222,9 @@ const listAllQuestions = admin
 		const selectFields = {
 			id: question.id,
 			content: question.content,
+			contentJson: question.contentJson,
 			discussion: question.discussion,
+			discussionJson: question.discussionJson,
 			packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
 		};
 
@@ -260,7 +279,14 @@ const listAllQuestions = admin
 				)
 			: db.select({ count: sql<number>`cast(count(*) as integer)` }).from(baseCountQuery.as("sq"));
 
-		const [data, [countResult]] = await Promise.all([dataQuery, countQuery]);
+		const [rawData, [countResult]] = await Promise.all([dataQuery, countQuery]);
+
+		const data = rawData.map((q) => ({
+			id: q.id,
+			packCount: q.packCount,
+			content: q.contentJson || convertToTiptap(q.content),
+			discussion: q.discussionJson || convertToTiptap(q.discussion),
+		}));
 
 		const total = countResult?.count || 0;
 
@@ -296,6 +322,8 @@ const getQuestionDetail = admin
 
 		return {
 			...q,
+			content: q.contentJson || convertToTiptap(q.content),
+			discussion: q.discussionJson || convertToTiptap(q.discussion),
 			answers: q.answerOptions,
 		};
 	});
@@ -308,16 +336,24 @@ const createQuestion = admin
 	})
 	.input(
 		type({
-			content: "string",
-			discussion: "string",
+			content: "unknown",
+			discussion: "unknown",
 		}),
 	)
 	.handler(async ({ input }) => {
+		const contentJson = typeof input.content === "object" ? input.content : null;
+		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
+
+		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+
 		const [q] = await db
 			.insert(question)
 			.values({
-				content: input.content,
-				discussion: input.discussion,
+				content: contentText,
+				discussion: discussionText,
+				contentJson,
+				discussionJson,
 			})
 			.returning();
 
@@ -338,16 +374,24 @@ const updateQuestion = admin
 	.input(
 		type({
 			id: "number",
-			content: "string",
-			discussion: "string",
+			content: "unknown",
+			discussion: "unknown",
 		}),
 	)
 	.handler(async ({ input }) => {
+		const contentJson = typeof input.content === "object" ? input.content : null;
+		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
+
+		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+
 		const [q] = await db
 			.update(question)
 			.set({
-				content: input.content,
-				discussion: input.discussion,
+				content: contentText,
+				discussion: discussionText,
+				contentJson,
+				discussionJson,
 			})
 			.where(eq(question.id, input.id))
 			.returning();
@@ -591,6 +635,8 @@ const getPackQuestions = admin
 				questionOrder: practicePackQuestions.order,
 				questionContent: question.content,
 				questionDiscussion: question.discussion,
+				questionContentJson: question.contentJson,
+				questionDiscussionJson: question.discussionJson,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
 				answerCode: questionAnswerOption.code,
@@ -618,8 +664,8 @@ const getPackQuestions = admin
 			{
 				id: number;
 				order: number;
-				content: string;
-				discussion: string;
+				content: unknown;
+				discussion: unknown;
 				answers: Array<{ id: number; content: string; code: string; isCorrect: boolean }>;
 			}
 		>();
@@ -629,8 +675,8 @@ const getPackQuestions = admin
 				questionMap.set(row.questionId, {
 					id: row.questionId,
 					order: row.questionOrder ?? 1,
-					content: row.questionContent,
-					discussion: row.questionDiscussion,
+					content: row.questionContentJson || convertToTiptap(row.questionContent),
+					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
 					answers: [],
 				});
 			}

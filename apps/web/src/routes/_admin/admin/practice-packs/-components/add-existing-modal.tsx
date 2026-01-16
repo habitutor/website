@@ -1,10 +1,10 @@
-import { MagnifyingGlass, X } from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
@@ -19,12 +19,14 @@ export function AddExistingQuestionModal({
 	existingQuestionIds,
 	onClose,
 }: AddExistingQuestionModalProps) {
-	const [searchQuery, setSearchQuery] = useState("");
+	const [page, setPage] = useState(1);
+	const limit = 10;
+	const offset = (page - 1) * limit;
 	const queryClient = useQueryClient();
 
-	const { data: allQuestions, isLoading } = useQuery(
+	const { data, isLoading } = useQuery(
 		orpc.admin.practicePack.listAllQuestions.queryOptions({
-			input: { limit: 1000, offset: 0 },
+			input: { limit, offset },
 		}),
 	);
 
@@ -46,11 +48,10 @@ export function AddExistingQuestionModal({
 		}),
 	);
 
-	const availableQuestions = allQuestions?.data.filter((q) => !existingQuestionIds.includes(q.id));
-
-	const filteredQuestions = availableQuestions?.filter((q) =>
-		q.content.toLowerCase().includes(searchQuery.toLowerCase()),
-	);
+	const questions = data?.data || [];
+	const total = data?.total || 0;
+	const totalPages = Math.ceil(total / limit);
+	const availableQuestions = questions.filter((q) => !existingQuestionIds.includes(q.id));
 
 	const handleAddQuestion = (questionId: number) => {
 		addMutation.mutate({
@@ -65,7 +66,7 @@ export function AddExistingQuestionModal({
 				<div className="flex items-start justify-between">
 					<div>
 						<CardTitle>Add Existing Question</CardTitle>
-						<CardDescription>Search and add questions from your question bank</CardDescription>
+						<CardDescription>Select questions from your question bank</CardDescription>
 					</div>
 					<Button variant="ghost" size="icon" onClick={onClose}>
 						<X className="size-4" />
@@ -73,16 +74,6 @@ export function AddExistingQuestionModal({
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				<div className="relative">
-					<MagnifyingGlass className="absolute top-3 left-3 size-4 text-muted-foreground" />
-					<Input
-						placeholder="Search questions..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-9"
-					/>
-				</div>
-
 				<div className="max-h-96 space-y-2 overflow-y-auto">
 					{isLoading ? (
 						<>
@@ -90,12 +81,16 @@ export function AddExistingQuestionModal({
 							<Skeleton className="h-20 w-full" />
 							<Skeleton className="h-20 w-full" />
 						</>
-					) : filteredQuestions && filteredQuestions.length > 0 ? (
-						filteredQuestions.map((q) => (
+					) : availableQuestions.length > 0 ? (
+						availableQuestions.map((q) => (
 							<div key={q.id} className="flex items-start gap-3 rounded-lg border p-4">
 								<div className="flex-1">
-									<p className="font-medium">{q.content}</p>
-									<p className="line-clamp-1 text-muted-foreground text-sm">{q.discussion}</p>
+									<div className="prose prose-sm max-w-none font-medium">
+										<TiptapRenderer content={q.content} />
+									</div>
+									<div className="line-clamp-1 text-muted-foreground text-sm">
+										<TiptapRenderer content={q.discussion} />
+									</div>
 								</div>
 								<Button size="sm" onClick={() => handleAddQuestion(q.id)} disabled={addMutation.isPending}>
 									Add
@@ -104,12 +99,24 @@ export function AddExistingQuestionModal({
 						))
 					) : (
 						<div className="py-8 text-center text-muted-foreground">
-							{searchQuery
-								? "No questions found matching your search"
-								: "No available questions. All questions are already in this pack or create new questions first."}
+							No available questions. All questions are already in this pack or create new questions first.
 						</div>
 					)}
 				</div>
+
+				{totalPages > 1 && (
+					<div className="flex items-center justify-center gap-2">
+						<Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
+							Previous
+						</Button>
+						<span className="text-muted-foreground text-sm">
+							Page {page} of {totalPages}
+						</span>
+						<Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+							Next
+						</Button>
+					</div>
+				)}
 			</CardContent>
 		</Card>
 	);
