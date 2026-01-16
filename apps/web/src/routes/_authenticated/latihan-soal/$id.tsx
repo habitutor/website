@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
@@ -105,8 +106,9 @@ function RouteComponent() {
 			<div className="space-y-6">
 				{pack.data?.questions.map((q, idx) => (
 					<Card key={q.id} className="p-6">
-						<h3 className="mb-4 font-medium text-lg">
-							{idx + 1}. {q.content}
+						<h3 className="mb-4 flex items-start gap-2 font-medium text-lg">
+							<span>{idx + 1}.</span>
+							<TiptapRenderer content={q.content} />
 						</h3>
 						<div className="space-y-2">
 							{q.answers.map((answer) => (

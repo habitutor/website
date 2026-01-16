@@ -5,6 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
@@ -87,7 +88,7 @@ export const FlashcardCard = () => {
 			<div className="flex h-full flex-col gap-2 rounded-md border bg-secondary p-4 backdrop-sepia-100">
 				<h1 className="font-medium">Brain Gym {currentPage}</h1>
 				<div className="h-full rounded-sm border border-accent bg-background p-4 text-foreground">
-					{data?.assignedQuestions[currentPage - 1]?.question.content}
+					<TiptapRenderer content={data?.assignedQuestions[currentPage - 1]?.question.content} />
 				</div>
 			</div>
 
@@ -146,7 +147,7 @@ export const FlashcardCard = () => {
 								{option.code}
 							</span>
 
-							{option.content}
+							<TiptapRenderer content={option.content} />
 
 							{/* Animated Icon */}
 							<m.span

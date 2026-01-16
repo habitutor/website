@@ -108,7 +108,7 @@ function RouteComponent() {
 								{q.discussion && (
 									<div className="mt-3 border-neutral-200 border-t pt-3">
 										<p className="mb-1 font-medium text-sm">Pembahasan:</p>
-										<p content={q.discussion} />
+										<TiptapRenderer content={q.discussion} />
 									</div>
 								)}
 							</div>

@@ -15,9 +15,23 @@ import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { authed, authedRateLimited } from "../index";
 import { canAccessContent } from "../lib/content-access";
 
-/**
- * Escape SQL LIKE pattern special characters to prevent unexpected query behavior
- */
+export function convertToTiptap(text: string) {
+	try {
+		const parsed = JSON.parse(text);
+		if (parsed && parsed.type === "doc") return parsed;
+	} catch {}
+
+	return {
+		type: "doc",
+		content: [
+			{
+				type: "paragraph",
+				content: [{ type: "text", text }],
+			},
+		],
+	};
+}
+
 function escapeLikePattern(value: string): string {
 	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
 }
@@ -185,7 +199,9 @@ const getContentById = authedRateLimited
 				questionId: contentPracticeQuestions.questionId,
 				order: contentPracticeQuestions.order,
 				questionContent: question.content,
+				questionContentJson: question.contentJson,
 				questionDiscussion: question.discussion,
+				questionDiscussionJson: question.discussionJson,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
 				answerCode: questionAnswerOption.code,
@@ -219,8 +235,8 @@ const getContentById = authedRateLimited
 				questionMap.set(row.questionId, {
 					questionId: row.questionId,
 					order: row.order,
-					question: row.questionContent,
-					discussion: row.questionDiscussion,
+					question: row.questionContentJson || convertToTiptap(row.questionContent),
+					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
 					answers: [],
 				});
 			}

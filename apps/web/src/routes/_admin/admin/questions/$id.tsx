@@ -5,14 +5,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import Loader from "@/components/loader";
+import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_admin/admin/questions/$id")({
@@ -49,13 +47,13 @@ function QuestionEditPage() {
 
 	const form = useForm({
 		defaultValues: {
-			content: "",
-			discussion: "",
+			content: {} as unknown,
+			discussion: {} as unknown,
 		},
 		onSubmit: async ({ value }) => {
 			const validation = type({
-				content: "string>0",
-				discussion: "string>0",
+				content: "object",
+				discussion: "object",
 			})(value);
 
 			if (validation instanceof type.errors) {
@@ -182,13 +180,12 @@ function QuestionEditPage() {
 		return (
 			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-4xl">
-					<div className="mb-6 flex items-center gap-4">
-						<a href="/admin/questions">
-							<Button variant="ghost" size="icon">
-								<ArrowLeft className="size-4" />
-							</Button>
-						</a>
-						<h1 className="font-bold text-2xl sm:text-3xl">Edit Question</h1>
+					<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">
+						<Link to="/admin/questions" className="hover:text-foreground">
+							Question Bank
+						</Link>
+						<span>/</span>
+						<span className="text-foreground">Question not found</span>
 					</div>
 					<p className="text-destructive">Question not found</p>
 				</div>
@@ -258,94 +255,125 @@ function QuestionEditPage() {
 	return (
 		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
 			<div className="mx-auto max-w-4xl">
-				<div className="mb-4 flex items-center gap-4 sm:mb-6">
-					<a href="/admin/questions">
-						<Button variant="ghost" size="icon">
-							<ArrowLeft className="size-4" />
-						</Button>
-					</a>
-					<h1 className="font-bold text-2xl sm:text-3xl">Edit Question</h1>
+				{/* Breadcrumbs */}
+				<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">
+					<Link to="/admin/questions" className="flex items-center gap-1 hover:text-foreground">
+						<ArrowLeft className="size-3.5" />
+						Back to Question Bank
+					</Link>
 				</div>
 
-				<Card className="rounded-xl shadow-sm">
-					<CardHeader className="p-4 sm:p-6">
-						<CardTitle className="text-lg sm:text-xl">Question Details</CardTitle>
+				<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">Edit Question</h1>
+						<p className="text-muted-foreground text-sm">Update question content and answer options</p>
+					</div>
+				</div>
+
+				<Card className="overflow-hidden rounded-xl py-0 shadow-sm">
+					<CardHeader className="bg-muted/30 py-4">
+						<CardTitle className="text-lg">Question Details</CardTitle>
 					</CardHeader>
-					<CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+					<CardContent className="py-6">
 						<form
 							onSubmit={(e) => {
 								e.preventDefault();
 								form.handleSubmit();
 							}}
-							className="space-y-6"
+							className="space-y-8"
 						>
 							<form.Field name="content">
 								{(field) => (
-									<div>
-										<Label htmlFor="content">Question Content *</Label>
-										<Textarea
-											id="content"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => field.handleChange(e.target.value)}
-											placeholder="Enter the question"
-											className="mt-2 min-h-30"
-										/>
+									<div className="space-y-2">
+										<Label
+											htmlFor="content"
+											className="font-bold text-muted-foreground text-sm uppercase tracking-wider"
+										>
+											Question Content *
+										</Label>
+										<div className="rounded-lg border bg-card p-1">
+											<TiptapSimpleEditor
+												content={field.state.value as object}
+												onChange={(content) => field.handleChange(content)}
+											/>
+										</div>{" "}
 									</div>
 								)}
 							</form.Field>{" "}
 							<form.Field name="discussion">
 								{(field) => (
-									<div>
-										<Label htmlFor="discussion">Discussion / Explanation *</Label>
-										<Input
-											id="discussion"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Explain the answer"
-											className="mt-2"
-										/>
+									<div className="space-y-2">
+										<Label
+											htmlFor="discussion"
+											className="font-bold text-muted-foreground text-sm uppercase tracking-wider"
+										>
+											Discussion / Explanation *
+										</Label>
+										<div className="rounded-lg border bg-muted/20 p-1">
+											<TiptapSimpleEditor
+												content={field.state.value as object}
+												onChange={(content) => field.handleChange(content)}
+											/>
+										</div>
 									</div>
 								)}
 							</form.Field>
-							<div>
-								<div className="mb-4 flex items-center justify-between">
-									<h3 className="font-medium">Answer Options *</h3>
+							<div className="space-y-4">
+								<div className="flex items-center justify-between border-b pb-2">
+									<h3 className="font-bold text-muted-foreground text-sm uppercase tracking-wider">Answer Options *</h3>
 									<Button
 										type="button"
 										size="sm"
 										variant="outline"
 										onClick={addAnswerOption}
 										disabled={answerOptions.length >= 10}
+										className="h-8"
 									>
 										<Plus className="mr-1 size-4" />
 										Add Option
 									</Button>
 								</div>
-								<div className="space-y-3">
+								<div className="grid gap-3 sm:grid-cols-2">
 									{answerOptions.map((option, index) => (
-										<div key={`${option.code}-${option.id}`} className="flex items-start gap-2">
-											<div className="mt-2 flex items-center gap-2">
-												<span className="font-medium text-sm">{option.code}.</span>
+										<div
+											key={`${option.code}-${option.id}`}
+											className={cn(
+												"relative flex items-start gap-3 rounded-lg border p-4 transition-all",
+												option.isCorrect
+													? "border-green-500 bg-green-50/50 shadow-sm dark:bg-green-950/20"
+													: "hover:border-primary/50",
+											)}
+										>
+											<div className="flex flex-col items-center gap-3 pt-1">
+												<span
+													className={cn(
+														"flex size-6 shrink-0 items-center justify-center rounded-full font-bold text-xs",
+														option.isCorrect ? "bg-green-500 text-white" : "bg-muted text-muted-foreground",
+													)}
+												>
+													{option.code}
+												</span>
 												<Checkbox
 													checked={option.isCorrect}
 													onCheckedChange={(checked) => updateAnswerOption(index, "isCorrect", !!checked)}
+													className="size-4"
 												/>
 											</div>
-											<Input
-												value={option.content}
-												onChange={(e) => updateAnswerOption(index, "content", e.target.value)}
-												placeholder={`Option ${option.code}`}
-												className="flex-1"
-											/>
+											<div className="flex flex-1 flex-col gap-2">
+												<textarea
+													value={option.content}
+													onChange={(e) => updateAnswerOption(index, "content", e.target.value)}
+													placeholder={`Option ${option.code}`}
+													className="min-h-[80px] w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+												/>
+											</div>
 											{answerOptions.length > 2 && (
 												<Button
 													type="button"
 													size="icon"
 													variant="ghost"
 													onClick={() => removeAnswerOption(index)}
-													className="mt-1 size-8 shrink-0"
+													className="size-7 text-muted-foreground hover:text-destructive"
 												>
 													<X className="size-4" />
 												</Button>
@@ -353,28 +381,15 @@ function QuestionEditPage() {
 										</div>
 									))}
 								</div>
-								<p className="mt-2 text-muted-foreground text-xs">
+								<p className="font-medium text-[10px] text-muted-foreground italic">
 									Check the box to mark as correct answer. At least 2 options required.
 								</p>
 							</div>
-							<div className="flex gap-2">
-								<Button type="submit" disabled={isSubmitting} className="flex-1">
-									{isSubmitting ? (
-										<>
-											<Loader />
-											Saving...
-										</>
-									) : (
-										"Save Changes"
-									)}
+							<div className="flex gap-3 border-t pt-6">
+								<Button type="submit" disabled={isSubmitting} className="flex-1 shadow-sm">
+									{isSubmitting ? <>Saving Changes...</> : "Save Changes"}
 								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									onClick={() => {
-										window.location.href = "/admin/questions";
-									}}
-								>
+								<Button type="button" variant="outline" onClick={() => navigate({ to: "/admin/questions" })}>
 									Cancel
 								</Button>
 							</div>

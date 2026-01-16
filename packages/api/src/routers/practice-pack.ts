@@ -12,6 +12,7 @@ import { type } from "arktype";
 import { and, desc, eq } from "drizzle-orm";
 import { authed } from "../index";
 import type { Question } from "../types/practice-pack";
+import { convertToTiptap } from "./subtest";
 
 const list = authed
 	.route({
@@ -65,7 +66,9 @@ const find = authed
 				questionId: practicePackQuestions.questionId,
 				questionOrder: practicePackQuestions.order,
 				questionContent: question.content,
+				questionContentJson: question.contentJson,
 				questionDiscussion: question.discussion,
+				questionDiscussionJson: question.discussionJson,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
 				userSelectedAnswerId: practicePackUserAnswer.selectedAnswerId,
@@ -104,10 +107,9 @@ const find = authed
 			if (!questionMap.has(row.questionId))
 				questionMap.set(row.questionId, {
 					id: row.questionId,
-					// set order fallback to 1 or 999 as a default
 					order: row.questionOrder ?? 1,
-					content: row.questionContent,
-					discussion: row.questionDiscussion,
+					content: row.questionContentJson || convertToTiptap(row.questionContent),
+					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
 					selectedAnswerId: row.userSelectedAnswerId,
 					answers: [],
 				});
@@ -292,7 +294,9 @@ const historyByPack = authed
 				questionId: practicePackQuestions.questionId,
 				questionOrder: practicePackQuestions.order,
 				questionContent: question.content,
+				questionContentJson: question.contentJson,
 				questionDiscussion: question.discussion,
+				questionDiscussionJson: question.discussionJson,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
 				answerIsCorrect: questionAnswerOption.isCorrect,
@@ -344,10 +348,9 @@ const historyByPack = authed
 
 				questionMap.set(row.questionId, {
 					id: row.questionId,
-					// set order fallback to 1 or 999 as a default
 					order: row.questionOrder ?? 1,
-					content: row.questionContent,
-					discussion: row.questionDiscussion,
+					content: row.questionContentJson || convertToTiptap(row.questionContent),
+					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
 					selectedAnswerId: row.userSelectedAnswerId,
 					userAnswerIsCorrect,
 					answers: [],

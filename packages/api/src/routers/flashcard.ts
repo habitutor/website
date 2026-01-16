@@ -5,6 +5,7 @@ import { questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { type } from "arktype";
 import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { authed, premium } from "..";
+import { convertToTiptap } from "./subtest";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline
@@ -309,13 +310,16 @@ const result = authed
 					columns: {
 						id: true,
 						content: true,
+						contentJson: true,
 						discussion: true,
+						discussionJson: true,
 					},
 					with: {
 						answerOptions: {
 							columns: {
 								id: true,
 								content: true,
+								contentJson: true,
 								code: true,
 								isCorrect: true,
 							},
@@ -326,8 +330,21 @@ const result = authed
 			},
 		});
 
+		const formattedQuestions = assignedQuestions.map((aq) => ({
+			...aq,
+			question: {
+				...aq.question,
+				content: aq.question.contentJson || convertToTiptap(aq.question.content),
+				discussion: aq.question.discussionJson || convertToTiptap(aq.question.discussion),
+				answerOptions: aq.question.answerOptions.map((ao) => ({
+					...ao,
+					content: ao.contentJson || convertToTiptap(ao.content),
+				})),
+			},
+		}));
+
 		let correct = 0;
-		for (const assignedQuestion of assignedQuestions) {
+		for (const assignedQuestion of formattedQuestions) {
 			const answerMap = new Map<number, boolean>();
 			for (const answerOption of assignedQuestion.question.answerOptions) {
 				answerMap.set(answerOption.id, answerOption.isCorrect);
@@ -339,9 +356,9 @@ const result = authed
 
 		return {
 			...attempt,
-			assignedQuestions,
+			assignedQuestions: formattedQuestions,
 			correctAnswersCount: correct,
-			questionsCount: assignedQuestions.length,
+			questionsCount: formattedQuestions.length,
 		};
 	});
 

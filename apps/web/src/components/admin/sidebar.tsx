@@ -72,17 +72,21 @@ export function AdminSidebar() {
 			{/* Sidebar */}
 			<aside
 				className={cn(
-					"fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r bg-white transition-transform duration-300 lg:translate-x-0",
+					"fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r bg-sidebar transition-transform duration-300 lg:translate-x-0",
 					mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
 				)}
 			>
 				<div className="flex h-16 items-center border-b px-6">
-					<a href="/admin/dashboard" className="font-bold text-lg text-primary">
-						Habitutor Admin
+					<a href="/admin/dashboard" className="flex items-center gap-2 font-bold text-lg text-primary">
+						<div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+							H
+						</div>
+						Habitutor
 					</a>
 				</div>
 
 				<nav className="flex flex-1 flex-col gap-1 p-4">
+					<div className="mb-2 px-2 text-muted-foreground text-xs uppercase tracking-wider">Menu</div>
 					{adminNavLinks.map((link) => {
 						const isActive = location.pathname.startsWith(link.to);
 						const Icon = link.icon;
@@ -92,7 +96,10 @@ export function AdminSidebar() {
 								key={link.to}
 								variant="ghost"
 								size="default"
-								className={cn("justify-start gap-3", isActive && "bg-primary/10 text-primary")}
+								className={cn(
+									"justify-start gap-3 rounded-lg font-medium transition-all",
+									isActive ? "bg-primary/10 text-primary hover:bg-primary/15" : "text-muted-foreground hover:bg-muted",
+								)}
 								onClick={() => setMobileMenuOpen(false)}
 								asChild
 							>
@@ -103,12 +110,14 @@ export function AdminSidebar() {
 							</Button>
 						);
 					})}
+
+					<div className="mt-6 mb-2 px-2 text-muted-foreground text-xs uppercase tracking-wider">Other</div>
 					<Button
 						variant="ghost"
 						size="default"
 						onClick={() => setMobileMenuOpen(false)}
 						asChild
-						className="mt-auto mb-0 justify-start"
+						className="justify-start gap-3 text-muted-foreground hover:bg-muted"
 					>
 						<a href="/dashboard">
 							<UserSwitchIcon className="size-5" />

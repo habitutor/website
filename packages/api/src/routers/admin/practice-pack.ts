@@ -11,6 +11,23 @@ import { type } from "arktype";
 import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import { admin } from "../../index";
 
+function convertToTiptap(text: string) {
+	try {
+		const parsed = JSON.parse(text);
+		if (parsed && parsed.type === "doc") return parsed;
+	} catch {}
+
+	return {
+		type: "doc",
+		content: [
+			{
+				type: "paragraph",
+				content: [{ type: "text", text }],
+			},
+		],
+	};
+}
+
 const getStatistics = admin
 	.route({
 		path: "/admin/statistics",
@@ -205,7 +222,9 @@ const listAllQuestions = admin
 		const selectFields = {
 			id: question.id,
 			content: question.content,
+			contentJson: question.contentJson,
 			discussion: question.discussion,
+			discussionJson: question.discussionJson,
 			packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
 		};
 
@@ -260,7 +279,14 @@ const listAllQuestions = admin
 				)
 			: db.select({ count: sql<number>`cast(count(*) as integer)` }).from(baseCountQuery.as("sq"));
 
-		const [data, [countResult]] = await Promise.all([dataQuery, countQuery]);
+		const [rawData, [countResult]] = await Promise.all([dataQuery, countQuery]);
+
+		const data = rawData.map((q) => ({
+			id: q.id,
+			packCount: q.packCount,
+			content: q.contentJson || convertToTiptap(q.content),
+			discussion: q.discussionJson || convertToTiptap(q.discussion),
+		}));
 
 		const total = countResult?.count || 0;
 
@@ -296,6 +322,8 @@ const getQuestionDetail = admin
 
 		return {
 			...q,
+			content: q.contentJson || convertToTiptap(q.content),
+			discussion: q.discussionJson || convertToTiptap(q.discussion),
 			answers: q.answerOptions,
 		};
 	});
@@ -308,16 +336,24 @@ const createQuestion = admin
 	})
 	.input(
 		type({
-			content: "string",
-			discussion: "string",
+			content: "unknown",
+			discussion: "unknown",
 		}),
 	)
 	.handler(async ({ input }) => {
+		const contentJson = typeof input.content === "object" ? input.content : null;
+		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
+
+		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+
 		const [q] = await db
 			.insert(question)
 			.values({
-				content: input.content,
-				discussion: input.discussion,
+				content: contentText,
+				discussion: discussionText,
+				contentJson,
+				discussionJson,
 			})
 			.returning();
 
@@ -338,16 +374,24 @@ const updateQuestion = admin
 	.input(
 		type({
 			id: "number",
-			content: "string",
-			discussion: "string",
+			content: "unknown",
+			discussion: "unknown",
 		}),
 	)
 	.handler(async ({ input }) => {
+		const contentJson = typeof input.content === "object" ? input.content : null;
+		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
+
+		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+
 		const [q] = await db
 			.update(question)
 			.set({
-				content: input.content,
-				discussion: input.discussion,
+				content: contentText,
+				discussion: discussionText,
+				contentJson,
+				discussionJson,
 			})
 			.where(eq(question.id, input.id))
 			.returning();
@@ -390,7 +434,7 @@ const addQuestionToPack = admin
 		type({
 			practicePackId: "number",
 			questionId: "number",
-			order: "number",
+			"order?": "number", // Optional - will auto-calculate if not provided
 		}),
 	)
 	.handler(async ({ input }) => {
@@ -408,12 +452,22 @@ const addQuestionToPack = admin
 				message: "Question tidak ditemukan",
 			});
 
+		// Auto-calculate order: get max order + 1
+		let orderValue = input.order;
+		if (orderValue === undefined) {
+			const [maxOrder] = await db
+				.select({ maxOrder: sql<number>`COALESCE(MAX(${practicePackQuestions.order}), 0)` })
+				.from(practicePackQuestions)
+				.where(eq(practicePackQuestions.practicePackId, input.practicePackId));
+			orderValue = (maxOrder?.maxOrder ?? 0) + 1;
+		}
+
 		await db
 			.insert(practicePackQuestions)
 			.values({
 				practicePackId: input.practicePackId,
 				questionId: input.questionId,
-				order: input.order,
+				order: orderValue,
 			})
 			.onConflictDoNothing();
 
@@ -581,6 +635,8 @@ const getPackQuestions = admin
 				questionOrder: practicePackQuestions.order,
 				questionContent: question.content,
 				questionDiscussion: question.discussion,
+				questionContentJson: question.contentJson,
+				questionDiscussionJson: question.discussionJson,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
 				answerCode: questionAnswerOption.code,
@@ -608,8 +664,8 @@ const getPackQuestions = admin
 			{
 				id: number;
 				order: number;
-				content: string;
-				discussion: string;
+				content: unknown;
+				discussion: unknown;
 				answers: Array<{ id: number; content: string; code: string; isCorrect: boolean }>;
 			}
 		>();
@@ -619,8 +675,8 @@ const getPackQuestions = admin
 				questionMap.set(row.questionId, {
 					id: row.questionId,
 					order: row.questionOrder ?? 1,
-					content: row.questionContent,
-					discussion: row.questionDiscussion,
+					content: row.questionContentJson || convertToTiptap(row.questionContent),
+					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
 					answers: [],
 				});
 			}
@@ -633,13 +689,16 @@ const getPackQuestions = admin
 			});
 		}
 
-		// Format and sort the questions based on order
+		// Format and sort the questions based on order, then by questionId (lower ID = earlier)
 		const questions = Array.from(questionMap.values())
 			.map((q) => ({
 				...q,
 				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
 			}))
-			.sort((a, b) => a.order - b.order);
+			.sort((a, b) => {
+				if (a.order !== b.order) return a.order - b.order;
+				return a.id - b.id; // Secondary sort: lower questionId first
+			});
 
 		return { questions };
 	});

@@ -1,6 +1,7 @@
 import { ArrowLeft, CheckCircle, Lightbulb, XCircle } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
@@ -102,9 +103,10 @@ function RouteComponent() {
 				{history.data?.questions.map((q, idx) => (
 					<Card key={q.id} className="p-6">
 						<div className="mb-4 flex items-start justify-between">
-							<h3 className="flex-1 font-medium text-lg">
-								{idx + 1}. {q.content}
-							</h3>
+							<div className="flex-1">
+								<span className="font-medium text-lg">{idx + 1}.</span>
+								<TiptapRenderer content={q.content} />
+							</div>
 							{q.userAnswerIsCorrect ? (
 								<CheckCircle className="h-6 w-6 text-green-600" />
 							) : (
@@ -145,7 +147,9 @@ function RouteComponent() {
 									<Lightbulb className="h-4 w-4 text-amber-200" />
 									Pembahasan
 								</div>
-								<p className="text-sm">{q.discussion}</p>
+								<div className="text-sm">
+									<TiptapRenderer content={q.discussion} />
+								</div>
 							</div>
 						)}
 					</Card>

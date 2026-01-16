@@ -1,6 +1,6 @@
 {
-  "id": "88af2a1b-52eb-4f41-97d0-8bf4c1c6941b",
-  "prevId": "1351de2b-7cb8-4589-9c02-205df5d7b2e8",
+  "id": "03971f09-7de0-4ecb-8aa6-07c92e9f9e33",
+  "prevId": "2dac3de3-c3c7-4c71-b7b5-ea2e3494ebf5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -599,6 +599,20 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -886,6 +900,18 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "content_json": {
+          "name": "content_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "discussion_json": {
+          "name": "discussion_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

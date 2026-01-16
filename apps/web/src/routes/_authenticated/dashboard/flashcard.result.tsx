@@ -3,6 +3,7 @@ import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
@@ -104,10 +105,12 @@ function RouteComponent() {
 									<span className={"rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"}>
 										{userAnswer?.code || "-"}
 									</span>
-									<p className={`${isCorrect && "text-green-900"}`}>{userAnswer?.content || "Tidak menjawab"}</p>
+									<span className={isCorrect ? "text-green-900" : ""}>
+										{userAnswer ? <TiptapRenderer content={userAnswer.content} /> : "Tidak menjawab"}
+									</span>
 								</div>
 								<div className="mx-4 rounded-b-sm border bg-white px-4 py-2 text-xs">
-									{assignedQuestion.question.discussion}
+									<TiptapRenderer content={assignedQuestion.question.discussion} />
 								</div>
 							</div>
 						);

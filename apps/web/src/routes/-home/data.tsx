@@ -56,7 +56,7 @@ export const DATA = {
 			classroom: {
 				label: "Classroom",
 				price_monthly: "Rp50.000",
-				price_full: "Rp119.000",
+				price_full: "Rp99.000",
 				suffix: "s.d UTBK",
 				features: [
 					{ label: "Akses Full Website", status: "excluded" },

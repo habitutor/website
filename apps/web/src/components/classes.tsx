@@ -117,7 +117,12 @@ export function SubtestCard({
 	const isLocked = !isAdmin && isPremiumSubtest;
 
 	return (
-		<Card className={cn(backgroundClass, "relative min-h-40 overflow-hidden border-0 p-4 transition-colors")}>
+		<Card
+			className={cn(
+				backgroundClass,
+				"relative min-h-40 overflow-hidden border-0 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
+			)}
+		>
 			{/* Lock overlay for premium content */}
 			{isLocked && (
 				<>
@@ -359,19 +364,19 @@ function ContentCard({
 	return (
 		<Card
 			className={cn(
-				"relative gap-3 rounded-[10px] border border-neutral-200 p-3 sm:gap-6 sm:p-4 lg:p-5",
-				!isAdmin && completed && "border-tertiary-300 bg-tertiary-100",
-				isPremiumContent && "overflow-hidden",
+				"relative gap-3 rounded-xl border border-border/50 p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
+				!isAdmin && completed && "border-tertiary-300 bg-tertiary-50",
+				isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
 			)}
 		>
 			{/* Premium lock overlay */}
 			{isPremiumContent && (
 				<>
 					{/* Dark overlay */}
-					<div className="pointer-events-none absolute inset-0 z-10 bg-black/50" />
+					<div className="pointer-events-none absolute inset-0 z-10 bg-black/10 backdrop-blur-[1px]" />
 					{/* Lock badge */}
 					<div className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">
-						<div className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 backdrop-blur-sm">
+						<div className="flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 backdrop-blur-sm">
 							<LockIcon className="size-4 text-white" weight="fill" />
 							<span className="font-semibold text-white text-xs">Premium</span>
 						</div>
@@ -389,22 +394,22 @@ function ContentCard({
 			{/* Header */}
 			<div className="flex flex-row justify-between gap-3 sm:items-start">
 				{/* Left: drag handle + badge + title */}
-				<div className="flex items-start">
+				<div className="flex items-start gap-3">
 					{/* Drag Handle - only for admin */}
 					{isAdmin && dragControls && (
 						<div
-							className="-ml-1 flex aspect-square min-w-7 cursor-grab touch-none items-center justify-center active:cursor-grabbing sm:min-w-8 lg:min-w-9"
+							className="mt-0.5 flex size-8 cursor-grab touch-none items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:cursor-grabbing"
 							onPointerDown={(e) => dragControls.start(e)}
 						>
-							<DotsNineIcon className="size-5 sm:size-6" weight="bold" />
+							<DotsNineIcon className="size-6" weight="bold" />
 						</div>
 					)}
-					<div className="flex aspect-square min-w-7 shrink-0 items-center justify-center rounded border border-neutral-200 bg-white px-1.5 sm:min-w-8 lg:min-w-9">
-						<p className="whitespace-nowrap font-medium text-primary-300 text-xs lg:text-sm">{index + 1}</p>
+					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary text-sm shadow-sm sm:size-9">
+						{index + 1}
 					</div>
 
-					<div className="ml-2 flex h-full items-center sm:ml-3">
-						<p className="mr-7 font-medium text-neutral-1000 text-sm sm:text-base lg:text-lg">{item.title}</p>
+					<div className="flex h-full items-center pt-0.5">
+						<p className="mr-7 font-bold text-neutral-1000 text-sm sm:text-base lg:text-lg">{item.title}</p>
 					</div>
 				</div>
 
@@ -413,7 +418,7 @@ function ContentCard({
 					{isAdmin && (onEdit || onDelete) && (
 						<div className="flex items-center gap-1">
 							{onEdit && (
-								<Button type="button" variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7" onClick={onEdit}>
+								<Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={onEdit}>
 									<PencilSimpleIcon className="size-4 lg:size-5" />
 								</Button>
 							)}
@@ -423,7 +428,7 @@ function ContentCard({
 									type="button"
 									variant="ghost"
 									size="icon"
-									className="h-6 w-6 text-destructive hover:text-destructive sm:h-7 sm:w-7"
+									className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
 									onClick={onDelete}
 								>
 									<TrashIcon className="size-4 lg:size-5" />
@@ -435,7 +440,7 @@ function ContentCard({
 			</div>
 
 			{/* Actions - Links still work but will be caught by route guard */}
-			<div className="flex gap-2 overflow-x-auto sm:gap-3">
+			<div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
 				{CONTENT_ACTIONS.map(
 					({ key, label, icon: Icon, enabled, className, width }) =>
 						enabled(item) && (
@@ -444,7 +449,7 @@ function ContentCard({
 								to={`${basePath}/$shortName/$contentId/${key}`}
 								params={params}
 								className={cn(
-									"flex items-center gap-1.5 rounded-[5px] px-2.5 py-2 transition-opacity hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2.5",
+									"flex items-center gap-1.5 rounded-lg px-3 py-2 transition-all hover:scale-105 active:scale-95 sm:gap-2 sm:px-4 sm:py-2.5",
 									"w-full sm:w-auto",
 									className,
 									width,
