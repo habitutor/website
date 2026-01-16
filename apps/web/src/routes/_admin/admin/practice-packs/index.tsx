@@ -90,18 +90,7 @@ function PracticePacksListPage() {
 						className="pl-9"
 					/>
 				</div>
-				<div className="flex gap-2">
-					<Button variant="outline" className="gap-2">
-						<Funnel className="size-4" />
-						Filter
-						<CaretDown className="ml-auto size-3 opacity-50" />
-					</Button>
-					<Button variant="outline" className="gap-2">
-						<SortAscending className="size-4" />
-						Sort
-						<CaretDown className="ml-auto size-3 opacity-50" />
-					</Button>
-				</div>
+				{/* Filter and Sort buttons removed because they had no functionality */}
 			</div>
 
 			{isPending && (
