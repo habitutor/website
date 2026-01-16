@@ -18,6 +18,10 @@ export const practicePack = pgTable("practice_pack", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	title: text().notNull(),
 	description: text(),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.defaultNow()
+		.$onUpdate(() => /* @__PURE__ */ new Date()),
 });
 
 export const practicePackRelations = relations(practicePack, ({ many }) => ({

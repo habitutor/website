@@ -1,6 +1,6 @@
 {
-  "id": "88af2a1b-52eb-4f41-97d0-8bf4c1c6941b",
-  "prevId": "1351de2b-7cb8-4589-9c02-205df5d7b2e8",
+  "id": "12c5b43d-4e0d-4efe-bef7-68ca5de3b7b9",
+  "prevId": "88af2a1b-52eb-4f41-97d0-8bf4c1c6941b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -886,6 +886,18 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "content_json": {
+          "name": "content_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "discussion_json": {
+          "name": "discussion_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
