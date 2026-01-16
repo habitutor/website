@@ -1,14 +1,4 @@
-import {
-	CaretDown,
-	DotsThree,
-	Funnel,
-	MagnifyingGlass,
-	Package,
-	PencilSimple,
-	Plus,
-	SortAscending,
-	Trash,
-} from "@phosphor-icons/react";
+import { DotsThree, MagnifyingGlass, Package, PencilSimple, Plus, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
