@@ -22,6 +22,7 @@ import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
+import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin/dashboard'
 import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
@@ -113,6 +114,11 @@ const AuthenticatedClassesIndexRoute =
     path: '/classes/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AuthenticatedLatihanSoalIdRoute =
   AuthenticatedLatihanSoalIdRouteImport.update({
     id: '/latihan-soal/$id',
@@ -271,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/admin/': typeof AdminAdminIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
@@ -300,7 +307,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminAdminRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
@@ -308,6 +314,7 @@ export interface FileRoutesByTo {
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/admin/dashboard': typeof AdminAdminDashboardRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/admin': typeof AdminAdminIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
@@ -349,6 +356,7 @@ export interface FileRoutesById {
   '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
+  '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
@@ -388,6 +396,7 @@ export interface FileRouteTypes {
     | '/premium'
     | '/admin/dashboard'
     | '/latihan-soal/$id'
+    | '/admin/'
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
@@ -417,7 +426,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/forgot-password'
     | '/login'
     | '/register'
@@ -425,6 +433,7 @@ export interface FileRouteTypes {
     | '/premium'
     | '/admin/dashboard'
     | '/latihan-soal/$id'
+    | '/admin'
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
@@ -465,6 +474,7 @@ export interface FileRouteTypes {
     | '/_authenticated/premium'
     | '/_admin/admin/dashboard'
     | '/_authenticated/latihan-soal/$id'
+    | '/_admin/admin/'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/latihan-soal/'
@@ -592,6 +602,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/classes'
       preLoaderRoute: typeof AuthenticatedClassesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_admin/admin/': {
+      id: '/_admin/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminAdminIndexRouteImport
+      parentRoute: typeof AdminAdminRoute
     }
     '/_authenticated/latihan-soal/$id': {
       id: '/_authenticated/latihan-soal/$id'
@@ -794,6 +811,7 @@ const AdminAdminClassesShortNameContentIdRouteWithChildren =
 
 interface AdminAdminRouteChildren {
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
+  AdminAdminIndexRoute: typeof AdminAdminIndexRoute
   AdminAdminPracticePacksIdRoute: typeof AdminAdminPracticePacksIdRoute
   AdminAdminPracticePacksCreateRoute: typeof AdminAdminPracticePacksCreateRoute
   AdminAdminQuestionsIdRoute: typeof AdminAdminQuestionsIdRoute
@@ -806,6 +824,7 @@ interface AdminAdminRouteChildren {
 
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
+  AdminAdminIndexRoute: AdminAdminIndexRoute,
   AdminAdminPracticePacksIdRoute: AdminAdminPracticePacksIdRoute,
   AdminAdminPracticePacksCreateRoute: AdminAdminPracticePacksCreateRoute,
   AdminAdminQuestionsIdRoute: AdminAdminQuestionsIdRoute,
