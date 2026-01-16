@@ -1,5 +1,16 @@
 import { relations } from "drizzle-orm";
-import { boolean, char, integer, pgEnum, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	char,
+	integer,
+	jsonb,
+	pgEnum,
+	pgTable,
+	primaryKey,
+	text,
+	timestamp,
+	unique,
+} from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { userFlashcardQuestionAnswer } from "./flashcard";
 
@@ -65,6 +76,8 @@ export const question = pgTable("question", {
 	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
 	content: text("content").notNull(),
 	discussion: text("discussion").notNull(),
+	contentJson: jsonb("content_json"),
+	discussionJson: jsonb("discussion_json"),
 });
 
 export const questionRelations = relations(question, ({ many }) => ({

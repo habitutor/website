@@ -12,23 +12,7 @@ import { type } from "arktype";
 import { and, desc, eq } from "drizzle-orm";
 import { authed } from "../index";
 import type { Question } from "../types/practice-pack";
-
-function convertToTiptap(text: string) {
-	try {
-		const parsed = JSON.parse(text);
-		if (parsed && parsed.type === "doc") return parsed;
-	} catch {}
-
-	return {
-		type: "doc",
-		content: [
-			{
-				type: "paragraph",
-				content: [{ type: "text", text }],
-			},
-		],
-	};
-}
+import { convertToTiptap } from "./subtest";
 
 const list = authed
 	.route({
