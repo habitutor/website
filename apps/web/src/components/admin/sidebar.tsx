@@ -78,10 +78,7 @@ export function AdminSidebar() {
 			>
 				<div className="flex h-16 items-center border-b px-6">
 					<a href="/admin/dashboard" className="flex items-center gap-2 font-bold text-lg text-primary">
-						<div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-							H
-						</div>
-						Habitutor
+						Habitutor Admin
 					</a>
 				</div>
 
