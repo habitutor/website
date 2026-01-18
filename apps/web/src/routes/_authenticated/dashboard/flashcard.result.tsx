@@ -92,10 +92,10 @@ function RouteComponent() {
 				) : (
 					data?.assignedQuestions.map((assignedQuestion) => {
 						const correctAnswer = assignedQuestion.question.answerOptions.find(
-							(answer: any) => answer.isCorrect,
+							(answer) => answer.isCorrect,
 						);
 						const userAnswer = assignedQuestion.question.answerOptions.find(
-							(answer: any) => answer.id === assignedQuestion.selectedAnswerId,
+							(answer) => answer.id === assignedQuestion.selectedAnswerId,
 						);
 						const isCorrect = correctAnswer?.id === userAnswer?.id;
 
