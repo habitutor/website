@@ -2,10 +2,10 @@ import {
 	ArrowLeftIcon,
 	CaretLeftIcon,
 	CaretRightIcon,
-	MagnifyingGlass,
-	PencilSimple,
+	MagnifyingGlassIcon,
+	PencilSimpleIcon,
 	PlusIcon,
-	Trash,
+	TrashIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -82,7 +82,7 @@ function PracticePackDetailPage() {
 							</h2>
 							<div className="flex flex-col gap-2 sm:flex-row">
 								<Button onClick={() => setShowAddExisting(true)} variant="outline" className="gap-2 text-xs sm:text-sm">
-									<MagnifyingGlass className="size-3.5 sm:size-4" />
+									<MagnifyingGlassIcon className="size-3.5 sm:size-4" />
 									Add Existing
 								</Button>
 								<Button onClick={() => setShowCreateForm(true)} className="gap-2 text-xs shadow-sm sm:text-sm">
@@ -163,7 +163,7 @@ function PackInfoHeader({ packId }: { packId: number }) {
 					className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
 					onClick={() => setIsEditing(true)}
 				>
-					<PencilSimple className="size-5" />
+					<PencilSimpleIcon className="size-5" />
 					<span className="sr-only">Edit</span>
 				</Button>
 			</CardContent>
@@ -251,7 +251,7 @@ function QuestionsList({ packId, onCreateNew }: { packId: number; onCreateNew: (
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col gap-6 lg:flex-row">
-				<div className="flex-1 lg:order-1">
+				<div className="min-w-0 flex-1 lg:order-1">
 					<Card className="overflow-hidden border-none py-0 shadow-md">
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 bg-muted/30 py-4">
 							<div className="space-y-1">
@@ -328,7 +328,7 @@ function QuestionsList({ packId, onCreateNew }: { packId: number; onCreateNew: (
 									}}
 									title="Edit Question Content"
 								>
-									<PencilSimple className="size-4" />
+									<PencilSimpleIcon className="size-4" />
 								</Button>
 								<RemoveQuestionButton packId={packId} question={currentQuestion} />
 							</div>
@@ -477,7 +477,7 @@ function RemoveQuestionButton({
 	return (
 		<>
 			<Button variant="destructive" size="icon" onClick={() => setDeleteDialogOpen(true)} title="Remove from Pack">
-				<Trash className="size-4" />
+				<TrashIcon className="size-4" />
 			</Button>
 
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

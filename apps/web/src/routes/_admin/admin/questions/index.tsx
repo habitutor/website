@@ -274,7 +274,11 @@ function QuestionCard({
 					isUnused && "border-dashed bg-muted/30",
 				)}
 			>
-				<Link to={`/admin/questions/${question.id}`} className="flex flex-1 flex-col px-6 py-6">
+				<Link
+					to="/admin/questions/$id"
+					params={{ id: question.id.toString() }}
+					className="flex flex-1 flex-col px-6 py-6"
+				>
 					<div className="mb-4 flex-1 space-y-3">
 						<div className="prose prose-sm line-clamp-3 max-w-none text-foreground">
 							<TiptapRenderer content={question.content} />
@@ -316,7 +320,14 @@ function QuestionCard({
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-40">
-							<DropdownMenuItem onClick={() => navigate({ to: `/admin/questions/${question.id}` })}>
+							<DropdownMenuItem
+								onClick={() =>
+									navigate({
+										to: "/admin/questions/$id",
+										params: { id: question.id.toString() },
+									})
+								}
+							>
 								<PencilSimple className="mr-2 size-4" />
 								Edit Content
 							</DropdownMenuItem>

@@ -3,17 +3,17 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./src/index.ts"
+			"types": "./dist/index.d.mts",
+			"default": "./dist/index.mjs"
 		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./src/*.ts"
+			"types": "./dist/*.d.mts",
+			"default": "./dist/*.mjs"
 		}
 	},
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "bunx @typescript/native-preview@latest --noEmit",
+		"check-types": "tsc --noEmit",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",

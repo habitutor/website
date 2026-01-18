@@ -39,7 +39,7 @@ import {
 } from "@/components/tiptap-ui/color-highlight-popover";
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu";
-import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
+import { ImageLinkPopover } from "@/components/tiptap-ui/image-link-popover";
 import { LinkButton, LinkContent, LinkPopover } from "@/components/tiptap-ui/link-popover";
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu";
 import { MarkButton } from "@/components/tiptap-ui/mark-button";
@@ -116,7 +116,7 @@ const MainToolbarContent = ({
 			<ToolbarSeparator />
 
 			<ToolbarGroup>
-				<ImageUploadButton text="Add" />
+				<ImageLinkPopover />
 			</ToolbarGroup>
 
 			<Spacer />
