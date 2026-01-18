@@ -319,7 +319,6 @@ const result = authed
 							columns: {
 								id: true,
 								content: true,
-								contentJson: true,
 								code: true,
 								isCorrect: true,
 							},
@@ -338,7 +337,7 @@ const result = authed
 				discussion: aq.question.discussionJson || convertToTiptap(aq.question.discussion),
 				answerOptions: aq.question.answerOptions.map((ao) => ({
 					...ao,
-					content: ao.contentJson || convertToTiptap(ao.content),
+					content: convertToTiptap(ao.content),
 				})),
 			},
 		}));

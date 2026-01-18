@@ -1,12 +1,9 @@
-import { WarningOctagon } from "@phosphor-icons/react";
-import { useRouter } from "@tanstack/react-router";
+import { WarningOctagonIcon } from "@phosphor-icons/react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
 export default function ErrorComponent({ error }: { error: Error }) {
-	const router = useRouter();
-
 	useEffect(() => {
 		console.error(error);
 	}, [error]);
@@ -15,7 +12,7 @@ export default function ErrorComponent({ error }: { error: Error }) {
 		<Container className="flex h-screen items-center justify-center">
 			<div className="flex flex-col items-center text-center">
 				<div className="rounded-full bg-destructive/10 p-4">
-					<WarningOctagon className="size-12 text-destructive" weight="fill" />
+					<WarningOctagonIcon className="size-12 text-destructive" weight="fill" />
 				</div>
 				<h1 className="mt-4 font-bold text-3xl text-neutral-1000">Terjadi Kesalahan</h1>
 				<p className="mt-2 max-w-md text-neutral-600">
@@ -31,7 +28,7 @@ export default function ErrorComponent({ error }: { error: Error }) {
 					<Button
 						variant="outline"
 						onClick={() => {
-							router.invalidate();
+							window.location.reload();
 						}}
 					>
 						Coba Lagi

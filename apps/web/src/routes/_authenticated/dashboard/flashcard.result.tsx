@@ -91,9 +91,11 @@ function RouteComponent() {
 					<Skeleton className="h-120 w-full" />
 				) : (
 					data?.assignedQuestions.map((assignedQuestion) => {
-						const correctAnswer = assignedQuestion.question.answerOptions.find((answer) => answer.isCorrect);
+						const correctAnswer = assignedQuestion.question.answerOptions.find(
+							(answer: any) => answer.isCorrect,
+						);
 						const userAnswer = assignedQuestion.question.answerOptions.find(
-							(answer) => answer.id === assignedQuestion.selectedAnswerId,
+							(answer: any) => answer.id === assignedQuestion.selectedAnswerId,
 						);
 						const isCorrect = correctAnswer?.id === userAnswer?.id;
 
