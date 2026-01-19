@@ -98,7 +98,7 @@ const get = authed
 
 		if (!attempt) return { status };
 
-		const assignedQuestions = await db.query.userFlashcardQuestionAnswer.findMany({
+		const assignedQuestionsRaw = await db.query.userFlashcardQuestionAnswer.findMany({
 			where: and(
 				eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
 				isNull(userFlashcardQuestionAnswer.selectedAnswerId),
@@ -108,6 +108,7 @@ const get = authed
 					columns: {
 						id: true,
 						content: true,
+						contentJson: true,
 					},
 					with: {
 						answerOptions: {
@@ -122,6 +123,18 @@ const get = authed
 				},
 			},
 		});
+
+		const assignedQuestions = assignedQuestionsRaw.map((aq) => ({
+			...aq,
+			question: {
+				...aq.question,
+				content: aq.question.contentJson || convertToTiptap(aq.question.content),
+				answerOptions: aq.question.answerOptions.map((ao) => ({
+					...ao,
+					content: convertToTiptap(ao.content),
+				})),
+			},
+		}));
 
 		status = attempt.submittedAt ? "submitted" : "ongoing";
 

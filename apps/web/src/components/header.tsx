@@ -13,9 +13,17 @@ export default function Header() {
 			</Link>
 			<div className="flex items-center gap-2">
 				{session.data?.user ? (
-					<Button variant={"outline"} asChild>
-						<Link to="/dashboard">Lanjut Belajar</Link>
-					</Button>
+					<>
+						{session.data.user.role === "admin" && (
+							<Button variant={"default"} asChild>
+								<Link to="/admin/dashboard">Admin</Link>
+							</Button>
+						)}
+
+						<Button variant={"outline"} asChild>
+							<Link to="/dashboard">Lanjut Belajar</Link>
+						</Button>
+					</>
 				) : (
 					<Button variant={"default"} asChild>
 						<Link to="/login">Coba Gratis</Link>
