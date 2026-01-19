@@ -73,7 +73,8 @@ export const FlashcardCard = () => {
 
 	function handleSubmit() {
 		submitMutation.mutate({});
-		queryClient.removeQueries({ queryKey: ["auth", "getSession", "flashcard"] });
+		queryClient.removeQueries({ queryKey: orpc.flashcard.result.key() });
+		queryClient.invalidateQueries({ queryKey: ["auth", "getSession"] });
 		navigate({ to: "/dashboard/flashcard/result" });
 	}
 
