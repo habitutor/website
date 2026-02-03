@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AdminBreadcrumbs } from "@/components/admin/dashboard-layout";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { $getSession } from "@/lib/get-user";
@@ -42,12 +43,11 @@ function AdminLayout() {
 		<SidebarProvider>
 			<AdminSidebar />
 			<SidebarInset>
-				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-					<div className="flex items-center gap-2 px-4">
-						<SidebarTrigger className="-ml-1" />
-					</div>
+				<header className="flex h-16 shrink-0 items-center gap-4 px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+					<SidebarTrigger />
+					<AdminBreadcrumbs />
 				</header>
-				<div className="flex flex-1 flex-col gap-4 p-4 pt-0 lg:p-0 lg:pt-0">
+				<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
 					<Outlet />
 				</div>
 			</SidebarInset>

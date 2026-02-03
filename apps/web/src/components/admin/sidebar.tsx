@@ -57,6 +57,72 @@ const adminNavLinks = [
 	},
 ];
 
+export function AdminSidebar() {
+	const location = useLocation();
+
+	return (
+		<Sidebar collapsible="icon" variant="sidebar">
+			<SidebarHeader>
+				<SidebarLogo />
+			</SidebarHeader>
+
+			<SidebarContent>
+				<SidebarGroup>
+					<SidebarGroupLabel>Menu</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							{adminNavLinks.map((link) => {
+								const isActive = location.pathname.startsWith(link.to);
+								const Icon = link.icon;
+
+								return (
+									<SidebarMenuItem key={link.to}>
+										<SidebarMenuButton asChild isActive={isActive} tooltip={link.name}>
+											<Link to={link.to}>
+												<Icon className="size-5" weight={isActive ? "fill" : "regular"} />
+												<span>{link.name}</span>
+											</Link>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								);
+							})}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+
+				<SidebarGroup>
+					<SidebarGroupLabel>Other</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<SidebarMenuButton asChild tooltip="User Dashboard">
+									<Link to="/dashboard">
+										<UserSwitchIcon className="size-5" />
+										<span>User Dashboard</span>
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			</SidebarContent>
+
+			<SidebarFooter>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarUserProfile />
+					</SidebarMenuItem>
+					<SidebarMenuItem>
+						<SidebarLogout />
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</SidebarFooter>
+
+			<SidebarRail />
+		</Sidebar>
+	);
+}
+
 function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -137,10 +203,10 @@ function SidebarLogo() {
 	const isCollapsed = state === "collapsed";
 
 	return (
-		<div className="flex h-16 items-center border-b px-2">
+		<div className="flex h-16 items-center border-b">
 			<Link
 				to="/admin/dashboard"
-				className="flex w-full items-center justify-center gap-2 font-bold text-lg text-primary"
+				className="flex w-full items-center gap-2 font-bold text-lg text-primary"
 				title="Habitutor Admin"
 			>
 				<Image
@@ -154,71 +220,5 @@ function SidebarLogo() {
 				{!isCollapsed && <span className="truncate">Habitutor Admin</span>}
 			</Link>
 		</div>
-	);
-}
-
-export function AdminSidebar() {
-	const location = useLocation();
-
-	return (
-		<Sidebar collapsible="icon" variant="sidebar">
-			<SidebarHeader>
-				<SidebarLogo />
-			</SidebarHeader>
-
-			<SidebarContent>
-				<SidebarGroup>
-					<SidebarGroupLabel>Menu</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{adminNavLinks.map((link) => {
-								const isActive = location.pathname.startsWith(link.to);
-								const Icon = link.icon;
-
-								return (
-									<SidebarMenuItem key={link.to}>
-										<SidebarMenuButton asChild isActive={isActive} tooltip={link.name}>
-											<Link to={link.to}>
-												<Icon className="size-5" weight={isActive ? "fill" : "regular"} />
-												<span>{link.name}</span>
-											</Link>
-										</SidebarMenuButton>
-									</SidebarMenuItem>
-								);
-							})}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-
-				<SidebarGroup>
-					<SidebarGroupLabel>Other</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							<SidebarMenuItem>
-								<SidebarMenuButton asChild tooltip="User Dashboard">
-									<Link to="/dashboard">
-										<UserSwitchIcon className="size-5" />
-										<span>User Dashboard</span>
-									</Link>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-			</SidebarContent>
-
-			<SidebarFooter>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarUserProfile />
-					</SidebarMenuItem>
-					<SidebarMenuItem>
-						<SidebarLogout />
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarFooter>
-
-			<SidebarRail />
-		</Sidebar>
 	);
 }

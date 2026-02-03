@@ -100,12 +100,5 @@ interface AdminContainerProps {
 }
 
 export function AdminContainer({ children }: AdminContainerProps) {
-	return (
-		<main className="flex-1 p-4 pt-0">
-			<div className="mb-4">
-				<AdminBreadcrumbs />
-			</div>
-			{children}
-		</main>
-	);
+	return <main className="flex-1 p-4 pt-0">{children}</main>;
 }
