@@ -30,7 +30,7 @@ import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/latihan-soal")({
+export const Route = createFileRoute("/admin/classes/$shortName/$contentId/latihan-soal")({
 	component: RouteComponent,
 });
 

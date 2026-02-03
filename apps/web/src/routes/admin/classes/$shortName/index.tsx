@@ -32,7 +32,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/")({
+export const Route = createFileRoute("/admin/classes/$shortName/")({
 	params: {
 		parse: (raw) => ({
 			shortName: raw.shortName?.toLowerCase(),

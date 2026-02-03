@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/dashboard")({
+export const Route = createFileRoute("/admin/dashboard")({
 	component: AdminDashboard,
 });
 
@@ -13,7 +13,7 @@ function AdminDashboard() {
 	const { data: stats, isLoading } = useQuery(orpc.admin.practicePack.getStatistics.queryOptions());
 
 	return (
-		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+		<main className="flex-1 p-4 pt-0">
 			<div className="mb-6 sm:mb-8">
 				<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">Admin Dashboard</h1>
 				<p className="text-muted-foreground text-sm sm:text-base">Selamat datang di panel admin Habitutor</p>

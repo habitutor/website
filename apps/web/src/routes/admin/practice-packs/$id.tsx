@@ -31,7 +31,7 @@ import { AddExistingQuestionModal } from "./-components/add-existing-modal";
 import { CreateQuestionForm } from "./-components/create-question-form";
 import { EditPackForm } from "./-components/edit-pack-form";
 
-export const Route = createFileRoute("/_admin/admin/practice-packs/$id")({
+export const Route = createFileRoute("/admin/practice-packs/$id")({
 	component: PracticePackDetailPage,
 });
 
@@ -52,14 +52,14 @@ function PracticePackDetailPage() {
 
 	if (Number.isNaN(packId)) {
 		return (
-			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+			<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 				<p className="text-destructive">Invalid practice pack ID</p>
 			</main>
 		);
 	}
 
 	return (
-		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+		<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 			<div className="mx-auto max-w-6xl">
 				{/* Navigation Breadcrumb-like */}
 				<div className="mb-4 flex items-center gap-2 text-muted-foreground text-sm">

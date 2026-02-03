@@ -30,7 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/questions/")({
+export const Route = createFileRoute("/admin/questions/")({
 	component: QuestionsPage,
 });
 
@@ -68,7 +68,7 @@ function QuestionsPage() {
 	const totalPages = Math.ceil(total / limit);
 
 	return (
-		<main className="flex-1 bg-background p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+		<main className="flex-1 p-4 pt-0">
 			<div className="mx-auto max-w-6xl">
 				{/* Breadcrumbs */}
 				<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">

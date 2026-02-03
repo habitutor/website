@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/practice-packs/")({
+export const Route = createFileRoute("/admin/practice-packs/")({
 	component: PracticePacksListPage,
 });
 
@@ -47,7 +47,7 @@ function PracticePacksListPage() {
 	const filteredPacks = packs.filter((pack) => pack.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
 	return (
-		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+		<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 			{/* Breadcrumbs */}
 			<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">
 				<span className="cursor-default hover:text-foreground">Admin</span>

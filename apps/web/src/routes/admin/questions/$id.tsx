@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/questions/$id")({
+export const Route = createFileRoute("/admin/questions/$id")({
 	component: QuestionEditPage,
 });
 
@@ -160,7 +160,7 @@ function QuestionEditPage() {
 
 	if (Number.isNaN(questionId)) {
 		return (
-			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+			<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 				<p className="text-destructive">Invalid question ID</p>
 			</main>
 		);
@@ -168,7 +168,7 @@ function QuestionEditPage() {
 
 	if (isLoading) {
 		return (
-			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+			<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-4xl">
 					<Skeleton className="mb-6 h-10 w-64" />
 					<Skeleton className="h-96 w-full" />
@@ -179,7 +179,7 @@ function QuestionEditPage() {
 
 	if (!question) {
 		return (
-			<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+			<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 				<div className="mx-auto max-w-4xl">
 					<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">
 						<Link to="/admin/questions" className="hover:text-foreground">
@@ -254,7 +254,7 @@ function QuestionEditPage() {
 	};
 
 	return (
-		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+		<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 			<div className="mx-auto max-w-4xl">
 				{/* Breadcrumbs */}
 				<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/practice-packs/create")({
+export const Route = createFileRoute("/admin/practice-packs/create")({
 	component: CreatePracticePackPage,
 });
 
@@ -55,7 +55,7 @@ function CreatePracticePackPage() {
 	});
 
 	return (
-		<main className="flex-1 p-4 pt-20 lg:ml-64 lg:p-8 lg:pt-8">
+		<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
 			<div className="mb-6 sm:mb-8">
 				<Button variant="ghost" size="sm" className="mb-4" asChild>
 					<Link to="/admin/practice-packs">

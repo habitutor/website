@@ -1,7 +1,9 @@
+import { VideoCamera, VideoCameraSlash } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
+import { useState } from "react";
 import { toast } from "sonner";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import {
@@ -16,15 +18,22 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import YouTubePlayer from "@/components/youtube-player";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/utils/orpc";
+import { extractYouTubeId } from "@/utils/youtube";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/notes")({
+export const Route = createFileRoute("/admin/classes/$shortName/$contentId/video")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
 	const { contentId } = Route.useParams();
 	const queryClient = useQueryClient();
+	const [showPreview, setShowPreview] = useState(true);
 
 	const content = useQuery(
 		orpc.subtest.getContentById.queryOptions({
@@ -33,63 +42,77 @@ function RouteComponent() {
 	);
 
 	const saveMutation = useMutation(
-		orpc.admin.subtest.upsertNote.mutationOptions({
+		orpc.admin.subtest.upsertVideo.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.getContentById.queryKey({
-						input: { contentId: Number(contentId) },
+						input: {
+							contentId: Number(contentId),
+						},
 					}),
 				});
 			},
 			onError: (error) => {
-				toast.error(error.message || "Gagal menyimpan catatan");
+				toast.error(error.message || "Gagal menyimpan video");
 			},
 		}),
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subtest.deleteNote.mutationOptions({
+		orpc.admin.subtest.deleteVideo.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
 					queryKey: orpc.subtest.getContentById.queryKey({
-						input: { contentId: Number(contentId) },
+						input: {
+							contentId: Number(contentId),
+						},
 					}),
 				});
 			},
 			onError: (error) => {
-				toast.error(error.message || "Gagal menghapus catatan");
+				toast.error(error.message || "Gagal menghapus video");
 			},
 		}),
 	);
 
 	const form = useForm({
 		defaultValues: {
+			videoUrl: "",
 			content: {} as object,
 		},
 		onSubmit: async ({ value }) => {
 			saveMutation.mutate({
 				id: Number(contentId),
+				videoUrl: value.videoUrl,
 				content: value.content,
 			});
 		},
 		validators: {
 			onSubmit: type({
+				videoUrl: "string >= 1",
 				content: "object",
 			}),
 		},
 	});
 
 	// Update form when content loads
-	if (content.data?.note) {
-		if (form.state.values.content !== content.data.note.content) {
-			form.setFieldValue("content", (content.data.note.content as object) || {});
+	if (content.data?.video) {
+		if (form.state.values.videoUrl !== content.data.video.videoUrl) {
+			form.setFieldValue("videoUrl", content.data.video.videoUrl || "");
+		}
+		if (form.state.values.content !== content.data.video.content) {
+			form.setFieldValue("content", (content.data.video.content as object) || {});
 		}
 	}
 
+	const debouncedVideoUrl = useDebounceValue(form.state.values.videoUrl as string, 500);
+	const videoId = extractYouTubeId(debouncedVideoUrl);
+	const isValidUrl = !!videoId;
+
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat catatan...</p>;
+		return <p className="animate-pulse text-sm">Memuat video...</p>;
 	}
 
 	if (content.isError) {
@@ -98,12 +121,12 @@ function RouteComponent() {
 
 	if (!content.data) return notFound();
 
-	const hasNote = !!content.data.note;
+	const hasVideo = !!content.data.video;
 
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
+				<h2 className="font-semibold text-lg">Edit Video Materi</h2>
 				<div className="flex gap-2">
 					<form.Subscribe>
 						{(state) => (
@@ -118,7 +141,7 @@ function RouteComponent() {
 							</Button>
 						)}
 					</form.Subscribe>
-					{hasNote && (
+					{hasVideo && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
 								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
@@ -127,9 +150,9 @@ function RouteComponent() {
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Catatan?</AlertDialogTitle>
+									<AlertDialogTitle>Hapus Video?</AlertDialogTitle>
 									<AlertDialogDescription>
-										Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.
+										Apakah Anda yakin ingin menghapus video ini? Tindakan ini tidak dapat dibatalkan.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
@@ -155,10 +178,62 @@ function RouteComponent() {
 				}}
 				className="space-y-4"
 			>
+				<form.Field name="videoUrl">
+					{(field) => (
+						<div className="space-y-2">
+							<div className="flex items-center justify-between">
+								<Label htmlFor={field.name}>URL Video (YouTube)</Label>
+								<div className="flex items-center gap-2">
+									{showPreview ? <VideoCamera className="size-4" /> : <VideoCameraSlash className="size-4" />}
+									<Switch checked={showPreview} onCheckedChange={setShowPreview} />
+								</div>
+							</div>
+							<Input
+								id={field.name}
+								name={field.name}
+								type="url"
+								value={field.state.value as string}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								placeholder="https://www.youtube.com/watch?v=..."
+							/>
+							{field.state.meta.errors.map((error) => (
+								<p key={error?.message} className="text-red-500 text-sm">
+									{error?.message}
+								</p>
+							))}
+						</div>
+					)}
+				</form.Field>
+
+				{showPreview && (
+					<div className="space-y-2">
+						<Label>Preview</Label>
+						{isValidUrl ? (
+							<div className="aspect-video w-full overflow-hidden rounded-lg border">
+								<YouTubePlayer videoId={videoId} />
+							</div>
+						) : (
+							<div className="flex aspect-video w-full items-center justify-center rounded-lg border border-muted-foreground/30 border-dashed bg-muted/50">
+								<p className="text-muted-foreground text-sm">
+									{debouncedVideoUrl ? "URL tidak valid" : "Masukkan URL YouTube untuk preview"}
+								</p>
+							</div>
+						)}
+					</div>
+				)}
+
 				<form.Field name="content">
 					{(field) => (
 						<div className="space-y-2">
+							<Label>Konten Video (Deskripsi)</Label>
+							{/* <TiptapEditor
+                content={field.state.value}
+                onChange={(content) => field.handleChange(content)}
+              /> */}
+
 							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+
 							{field.state.meta.errors.map((error) => (
 								<p key={error?.message} className="text-red-500 text-sm">
 									{error?.message}
