@@ -134,15 +134,24 @@ function SidebarUserProfile() {
 
 function SidebarLogo() {
 	const { state } = useSidebar();
+	const isCollapsed = state === "collapsed";
 
 	return (
-		<div className="flex h-16 items-center border-b px-4">
+		<div className="flex h-16 items-center border-b px-2">
 			<Link
 				to="/admin/dashboard"
-				className="flex items-center gap-2 truncate whitespace-nowrap font-bold text-lg text-primary"
+				className="flex w-full items-center justify-center gap-2 font-bold text-lg text-primary"
+				title="Habitutor Admin"
 			>
-				<Image src="/logo.svg" alt="Habitutor" layout="fullWidth" className="size-8 shrink-0" />
-				{state !== "collapsed" && <span>Habitutor Admin</span>}
+				<Image
+					src="/logo.svg"
+					alt="Habitutor"
+					layout="constrained"
+					width={32}
+					height={32}
+					className="size-8 shrink-0"
+				/>
+				{!isCollapsed && <span className="truncate">Habitutor Admin</span>}
 			</Link>
 		</div>
 	);
