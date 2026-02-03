@@ -6,6 +6,7 @@ const ROUTE_LABELS: Record<string, string> = {
 	"practice-packs": "Practice Packs",
 	questions: "Question Bank",
 	classes: "Classes",
+	users: "Users",
 	create: "Create",
 };
 
@@ -28,9 +29,9 @@ function generateBreadcrumbs(pathname: string, matches: ReturnType<typeof useMat
 			// For parameters, try to get title from route match
 			const match = matches.find((m) => m.pathname === currentPath);
 			const routeId = match?.routeId;
-			if (routeId && routeId.includes("contentId")) {
+			if (routeId?.includes("contentId")) {
 				breadcrumbs.push({ label: "Content" });
-			} else if (routeId && routeId.includes("shortName")) {
+			} else if (routeId?.includes("shortName")) {
 				breadcrumbs.push({ label: cleanSegment.toUpperCase() });
 			} else {
 				// For numeric IDs or other params, show shortened version

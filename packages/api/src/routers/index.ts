@@ -3,6 +3,7 @@ import { type } from "arktype";
 import { pub } from "../index";
 import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminSubtestRouter } from "./admin/subtest";
+import { adminUserRouter } from "./admin/users";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
 import { socialRouter } from "./social";
@@ -27,6 +28,7 @@ export const appRouter = {
 	admin: {
 		practicePack: adminPracticePackRouter,
 		subtest: adminSubtestRouter,
+		users: adminUserRouter,
 	},
 	transaction: transactionRouter,
 };

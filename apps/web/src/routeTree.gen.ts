@@ -20,6 +20,7 @@ import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-pass
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
+import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminQuestionsIndexRouteImport } from './routes/admin/questions/index'
 import { Route as AdminPracticePacksIndexRouteImport } from './routes/admin/practice-packs/index'
 import { Route as AdminClassesIndexRouteImport } from './routes/admin/classes/index'
@@ -100,6 +101,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => AuthRoute,
+} as any)
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminQuestionsIndexRoute = AdminQuestionsIndexRouteImport.update({
   id: '/questions/',
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/admin/classes': typeof AdminClassesIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
   '/admin/questions': typeof AdminQuestionsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -316,6 +323,7 @@ export interface FileRoutesByTo {
   '/admin/classes': typeof AdminClassesIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
   '/admin/questions': typeof AdminQuestionsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -357,6 +365,7 @@ export interface FileRoutesById {
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/_authenticated/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   '/_authenticated/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -397,6 +406,7 @@ export interface FileRouteTypes {
     | '/admin/classes'
     | '/admin/practice-packs'
     | '/admin/questions'
+    | '/admin/users'
     | '/classes/$shortName/$contentId'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
@@ -434,6 +444,7 @@ export interface FileRouteTypes {
     | '/admin/classes'
     | '/admin/practice-packs'
     | '/admin/questions'
+    | '/admin/users'
     | '/classes/$shortName/$contentId'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
@@ -474,6 +485,7 @@ export interface FileRouteTypes {
     | '/admin/classes/'
     | '/admin/practice-packs/'
     | '/admin/questions/'
+    | '/admin/users/'
     | '/_authenticated/classes/$shortName/$contentId'
     | '/_authenticated/dashboard/flashcard/result'
     | '/_authenticated/latihan-soal/riwayat/$id'
@@ -578,6 +590,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/questions/': {
       id: '/admin/questions/'
@@ -893,6 +912,7 @@ interface AdminRouteChildren {
   AdminClassesIndexRoute: typeof AdminClassesIndexRoute
   AdminPracticePacksIndexRoute: typeof AdminPracticePacksIndexRoute
   AdminQuestionsIndexRoute: typeof AdminQuestionsIndexRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AdminClassesShortNameContentIdRoute: typeof AdminClassesShortNameContentIdRouteWithChildren
   AdminClassesShortNameIndexRoute: typeof AdminClassesShortNameIndexRoute
 }
@@ -906,6 +926,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClassesIndexRoute: AdminClassesIndexRoute,
   AdminPracticePacksIndexRoute: AdminPracticePacksIndexRoute,
   AdminQuestionsIndexRoute: AdminQuestionsIndexRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
   AdminClassesShortNameContentIdRoute:
     AdminClassesShortNameContentIdRouteWithChildren,
   AdminClassesShortNameIndexRoute: AdminClassesShortNameIndexRoute,

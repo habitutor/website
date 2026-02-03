@@ -1,6 +1,6 @@
 "use client";
 
-import { BooksIcon, House, Package, Question, SignOut, UserSwitchIcon } from "@phosphor-icons/react";
+import { BooksIcon, House, Package, Question, SignOut, User, UserSwitchIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -54,6 +54,11 @@ const adminNavLinks = [
 		name: "Classes",
 		to: "/admin/classes" as const,
 		icon: BooksIcon,
+	},
+	{
+		name: "Users",
+		to: "/admin/users" as const,
+		icon: User,
 	},
 ];
 
