@@ -3,6 +3,7 @@
 import { BooksIcon, House, Package, Question, SignOut, UserSwitchIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { useState } from "react";
 
 import {
@@ -131,20 +132,29 @@ function SidebarUserProfile() {
 	);
 }
 
+function SidebarLogo() {
+	const { state } = useSidebar();
+
+	return (
+		<div className="flex h-16 items-center border-b px-4">
+			<Link
+				to="/admin/dashboard"
+				className="flex items-center gap-2 truncate whitespace-nowrap font-bold text-lg text-primary"
+			>
+				<Image src="/logo.svg" alt="Habitutor" layout="fullWidth" className="size-8 shrink-0" />
+				{state !== "collapsed" && <span>Habitutor Admin</span>}
+			</Link>
+		</div>
+	);
+}
+
 export function AdminSidebar() {
 	const location = useLocation();
 
 	return (
 		<Sidebar collapsible="icon" variant="sidebar">
 			<SidebarHeader>
-				<div className="flex h-16 items-center border-b px-4">
-					<Link
-						to="/admin/dashboard"
-						className="flex items-center gap-2 truncate whitespace-nowrap font-bold text-lg text-primary"
-					>
-						Habitutor Admin
-					</Link>
-				</div>
+				<SidebarLogo />
 			</SidebarHeader>
 
 			<SidebarContent>
