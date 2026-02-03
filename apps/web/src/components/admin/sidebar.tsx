@@ -5,7 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
-
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -33,6 +32,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 const adminNavLinks = [
 	{
@@ -62,7 +62,7 @@ export function AdminSidebar() {
 
 	return (
 		<Sidebar collapsible="icon" variant="sidebar">
-			<SidebarHeader>
+			<SidebarHeader className="p-0">
 				<SidebarLogo />
 			</SidebarHeader>
 
@@ -203,7 +203,7 @@ function SidebarLogo() {
 	const isCollapsed = state === "collapsed";
 
 	return (
-		<div className="flex h-16 items-center border-b px-4">
+		<div className={cn("flex h-16 items-center px-4", isCollapsed ? "" : "border-b")}>
 			<Link
 				to="/admin/dashboard"
 				className="flex w-full items-center gap-2 font-bold text-lg text-primary"
