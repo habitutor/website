@@ -15,6 +15,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	Sidebar,
@@ -105,6 +106,31 @@ function SidebarLogout() {
 	);
 }
 
+function SidebarUserProfile() {
+	const { state } = useSidebar();
+	const session = authClient.useSession();
+	const user = session.data?.user;
+
+	if (!user) return null;
+
+	return (
+		<div className="flex items-center gap-3 px-2 py-3">
+			<Avatar className="size-8 shrink-0">
+				<AvatarImage src={user.image ?? undefined} alt={user.name} />
+				<AvatarFallback className="bg-primary/10 text-primary text-sm">
+					{user.name.charAt(0).toUpperCase()}
+				</AvatarFallback>
+			</Avatar>
+			{state !== "collapsed" && (
+				<div className="flex min-w-0 flex-col">
+					<span className="truncate font-medium text-sm">{user.name}</span>
+					<span className="truncate text-muted-foreground text-xs">{user.email}</span>
+				</div>
+			)}
+		</div>
+	);
+}
+
 export function AdminSidebar() {
 	const location = useLocation();
 
@@ -164,6 +190,9 @@ export function AdminSidebar() {
 
 			<SidebarFooter>
 				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarUserProfile />
+					</SidebarMenuItem>
 					<SidebarMenuItem>
 						<SidebarLogout />
 					</SidebarMenuItem>
