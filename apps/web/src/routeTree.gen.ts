@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
@@ -47,6 +48,11 @@ import { Route as AuthenticatedClassesShortNameContentIdVideoRouteImport } from 
 import { Route as AuthenticatedClassesShortNameContentIdNotesRouteImport } from './routes/_authenticated/classes/$shortName/$contentId.notes'
 import { Route as AuthenticatedClassesShortNameContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$shortName/$contentId.latihan-soal'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -61,14 +67,14 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/admin/dashboard',
-  path: '/admin/dashboard',
-  getParentRoute: () => rootRouteImport,
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   id: '/premium',
@@ -96,19 +102,19 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 const AdminQuestionsIndexRoute = AdminQuestionsIndexRouteImport.update({
-  id: '/admin/questions/',
-  path: '/admin/questions/',
-  getParentRoute: () => rootRouteImport,
+  id: '/questions/',
+  path: '/questions/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminPracticePacksIndexRoute = AdminPracticePacksIndexRouteImport.update({
-  id: '/admin/practice-packs/',
-  path: '/admin/practice-packs/',
-  getParentRoute: () => rootRouteImport,
+  id: '/practice-packs/',
+  path: '/practice-packs/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminClassesIndexRoute = AdminClassesIndexRouteImport.update({
-  id: '/admin/classes/',
-  path: '/admin/classes/',
-  getParentRoute: () => rootRouteImport,
+  id: '/classes/',
+  path: '/classes/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedLatihanSoalIndexRoute =
   AuthenticatedLatihanSoalIndexRouteImport.update({
@@ -129,20 +135,20 @@ const AuthenticatedClassesIndexRoute =
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AdminQuestionsIdRoute = AdminQuestionsIdRouteImport.update({
-  id: '/admin/questions/$id',
-  path: '/admin/questions/$id',
-  getParentRoute: () => rootRouteImport,
+  id: '/questions/$id',
+  path: '/questions/$id',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminPracticePacksCreateRoute =
   AdminPracticePacksCreateRouteImport.update({
-    id: '/admin/practice-packs/create',
-    path: '/admin/practice-packs/create',
-    getParentRoute: () => rootRouteImport,
+    id: '/practice-packs/create',
+    path: '/practice-packs/create',
+    getParentRoute: () => AdminRoute,
   } as any)
 const AdminPracticePacksIdRoute = AdminPracticePacksIdRouteImport.update({
-  id: '/admin/practice-packs/$id',
-  path: '/admin/practice-packs/$id',
-  getParentRoute: () => rootRouteImport,
+  id: '/practice-packs/$id',
+  path: '/practice-packs/$id',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedLatihanSoalIdRoute =
   AuthenticatedLatihanSoalIdRouteImport.update({
@@ -152,9 +158,9 @@ const AuthenticatedLatihanSoalIdRoute =
   } as any)
 const AdminClassesShortNameIndexRoute =
   AdminClassesShortNameIndexRouteImport.update({
-    id: '/admin/classes/$shortName/',
-    path: '/admin/classes/$shortName/',
-    getParentRoute: () => rootRouteImport,
+    id: '/classes/$shortName/',
+    path: '/classes/$shortName/',
+    getParentRoute: () => AdminRoute,
   } as any)
 const AuthenticatedLatihanSoalRiwayatIndexRoute =
   AuthenticatedLatihanSoalRiwayatIndexRouteImport.update({
@@ -176,9 +182,9 @@ const AuthenticatedClassesShortNameIndexRoute =
   } as any)
 const AdminClassesShortNameContentIdRoute =
   AdminClassesShortNameContentIdRouteImport.update({
-    id: '/admin/classes/$shortName/$contentId',
-    path: '/admin/classes/$shortName/$contentId',
-    getParentRoute: () => rootRouteImport,
+    id: '/classes/$shortName/$contentId',
+    path: '/classes/$shortName/$contentId',
+    getParentRoute: () => AdminRoute,
   } as any)
 const AuthenticatedPremiumPaymentUnfinishRoute =
   AuthenticatedPremiumPaymentUnfinishRouteImport.update({
@@ -255,13 +261,14 @@ const AuthenticatedClassesShortNameContentIdLatihanSoalRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
@@ -332,6 +339,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
@@ -371,13 +379,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/reset-password'
     | '/premium'
     | '/admin/dashboard'
-    | '/admin'
+    | '/admin/'
     | '/latihan-soal/$id'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
@@ -447,6 +456,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_auth'
     | '/_authenticated'
+    | '/admin'
     | '/_auth/forgot-password'
     | '/_auth/login'
     | '/_auth/register'
@@ -487,20 +497,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminIndexRoute: typeof AdminIndexRoute
-  AdminPracticePacksIdRoute: typeof AdminPracticePacksIdRoute
-  AdminPracticePacksCreateRoute: typeof AdminPracticePacksCreateRoute
-  AdminQuestionsIdRoute: typeof AdminQuestionsIdRoute
-  AdminClassesIndexRoute: typeof AdminClassesIndexRoute
-  AdminPracticePacksIndexRoute: typeof AdminPracticePacksIndexRoute
-  AdminQuestionsIndexRoute: typeof AdminQuestionsIndexRoute
-  AdminClassesShortNameContentIdRoute: typeof AdminClassesShortNameContentIdRouteWithChildren
-  AdminClassesShortNameIndexRoute: typeof AdminClassesShortNameIndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -524,17 +532,17 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
+      path: '/'
+      fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
       id: '/admin/dashboard'
-      path: '/admin/dashboard'
+      path: '/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/premium': {
       id: '/_authenticated/premium'
@@ -573,24 +581,24 @@ declare module '@tanstack/react-router' {
     }
     '/admin/questions/': {
       id: '/admin/questions/'
-      path: '/admin/questions'
+      path: '/questions'
       fullPath: '/admin/questions'
       preLoaderRoute: typeof AdminQuestionsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/practice-packs/': {
       id: '/admin/practice-packs/'
-      path: '/admin/practice-packs'
+      path: '/practice-packs'
       fullPath: '/admin/practice-packs'
       preLoaderRoute: typeof AdminPracticePacksIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/classes/': {
       id: '/admin/classes/'
-      path: '/admin/classes'
+      path: '/classes'
       fullPath: '/admin/classes'
       preLoaderRoute: typeof AdminClassesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/latihan-soal/': {
       id: '/_authenticated/latihan-soal/'
@@ -615,24 +623,24 @@ declare module '@tanstack/react-router' {
     }
     '/admin/questions/$id': {
       id: '/admin/questions/$id'
-      path: '/admin/questions/$id'
+      path: '/questions/$id'
       fullPath: '/admin/questions/$id'
       preLoaderRoute: typeof AdminQuestionsIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/practice-packs/create': {
       id: '/admin/practice-packs/create'
-      path: '/admin/practice-packs/create'
+      path: '/practice-packs/create'
       fullPath: '/admin/practice-packs/create'
       preLoaderRoute: typeof AdminPracticePacksCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/practice-packs/$id': {
       id: '/admin/practice-packs/$id'
-      path: '/admin/practice-packs/$id'
+      path: '/practice-packs/$id'
       fullPath: '/admin/practice-packs/$id'
       preLoaderRoute: typeof AdminPracticePacksIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/latihan-soal/$id': {
       id: '/_authenticated/latihan-soal/$id'
@@ -643,10 +651,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/classes/$shortName/': {
       id: '/admin/classes/$shortName/'
-      path: '/admin/classes/$shortName'
+      path: '/classes/$shortName'
       fullPath: '/admin/classes/$shortName'
       preLoaderRoute: typeof AdminClassesShortNameIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/latihan-soal/riwayat/': {
       id: '/_authenticated/latihan-soal/riwayat/'
@@ -671,10 +679,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/classes/$shortName/$contentId': {
       id: '/admin/classes/$shortName/$contentId'
-      path: '/admin/classes/$shortName/$contentId'
+      path: '/classes/$shortName/$contentId'
       fullPath: '/admin/classes/$shortName/$contentId'
       preLoaderRoute: typeof AdminClassesShortNameContentIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/premium/payment/unfinish': {
       id: '/_authenticated/premium/payment/unfinish'
@@ -876,10 +884,20 @@ const AdminClassesShortNameContentIdRouteWithChildren =
     AdminClassesShortNameContentIdRouteChildren,
   )
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AuthRoute: AuthRouteWithChildren,
-  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminPracticePacksIdRoute: typeof AdminPracticePacksIdRoute
+  AdminPracticePacksCreateRoute: typeof AdminPracticePacksCreateRoute
+  AdminQuestionsIdRoute: typeof AdminQuestionsIdRoute
+  AdminClassesIndexRoute: typeof AdminClassesIndexRoute
+  AdminPracticePacksIndexRoute: typeof AdminPracticePacksIndexRoute
+  AdminQuestionsIndexRoute: typeof AdminQuestionsIndexRoute
+  AdminClassesShortNameContentIdRoute: typeof AdminClassesShortNameContentIdRouteWithChildren
+  AdminClassesShortNameIndexRoute: typeof AdminClassesShortNameIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminPracticePacksIdRoute: AdminPracticePacksIdRoute,
@@ -891,6 +909,15 @@ const rootRouteChildren: RootRouteChildren = {
   AdminClassesShortNameContentIdRoute:
     AdminClassesShortNameContentIdRouteWithChildren,
   AdminClassesShortNameIndexRoute: AdminClassesShortNameIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthRoute: AuthRouteWithChildren,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
