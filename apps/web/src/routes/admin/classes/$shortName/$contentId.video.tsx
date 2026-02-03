@@ -5,6 +5,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import {
 	AlertDialog,
@@ -124,125 +125,128 @@ function RouteComponent() {
 	const hasVideo = !!content.data.video;
 
 	return (
-		<div className="space-y-6">
-			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="font-semibold text-lg">Edit Video Materi</h2>
-				<div className="flex gap-2">
-					<form.Subscribe>
-						{(state) => (
-							<Button
-								type="submit"
-								variant="default"
-								disabled={!state.canSubmit || saveMutation.isPending}
-								size="sm"
-								onClick={() => form.handleSubmit()}
-							>
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
-							</Button>
-						)}
-					</form.Subscribe>
-					{hasVideo && (
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
-									Hapus
+		<AdminContainer>
+			<AdminHeader title="Edit Video" description="Manage video content and description" />
+			<div className="mt-6 space-y-6">
+				<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
+					<h2 className="font-semibold text-lg">Edit Video Materi</h2>
+					<div className="flex gap-2">
+						<form.Subscribe>
+							{(state) => (
+								<Button
+									type="submit"
+									variant="default"
+									disabled={!state.canSubmit || saveMutation.isPending}
+									size="sm"
+									onClick={() => form.handleSubmit()}
+								>
+									{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
 								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Video?</AlertDialogTitle>
-									<AlertDialogDescription>
-										Apakah Anda yakin ingin menghapus video ini? Tindakan ini tidak dapat dibatalkan.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={() => {
-											deleteMutation.mutate({ id: Number(contentId) });
-										}}
-									>
+							)}
+						</form.Subscribe>
+						{hasVideo && (
+							<AlertDialog>
+								<AlertDialogTrigger asChild>
+									<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
 										Hapus
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					)}
-				</div>
-			</div>
-
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
-				className="space-y-4"
-			>
-				<form.Field name="videoUrl">
-					{(field) => (
-						<div className="space-y-2">
-							<div className="flex items-center justify-between">
-								<Label htmlFor={field.name}>URL Video (YouTube)</Label>
-								<div className="flex items-center gap-2">
-									{showPreview ? <VideoCamera className="size-4" /> : <VideoCameraSlash className="size-4" />}
-									<Switch checked={showPreview} onCheckedChange={setShowPreview} />
-								</div>
-							</div>
-							<Input
-								id={field.name}
-								name={field.name}
-								type="url"
-								value={field.state.value as string}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="https://www.youtube.com/watch?v=..."
-							/>
-							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-sm">
-									{error?.message}
-								</p>
-							))}
-						</div>
-					)}
-				</form.Field>
-
-				{showPreview && (
-					<div className="space-y-2">
-						<Label>Preview</Label>
-						{isValidUrl ? (
-							<div className="aspect-video w-full overflow-hidden rounded-lg border">
-								<YouTubePlayer videoId={videoId} />
-							</div>
-						) : (
-							<div className="flex aspect-video w-full items-center justify-center rounded-lg border border-muted-foreground/30 border-dashed bg-muted/50">
-								<p className="text-muted-foreground text-sm">
-									{debouncedVideoUrl ? "URL tidak valid" : "Masukkan URL YouTube untuk preview"}
-								</p>
-							</div>
+									</Button>
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Hapus Video?</AlertDialogTitle>
+										<AlertDialogDescription>
+											Apakah Anda yakin ingin menghapus video ini? Tindakan ini tidak dapat dibatalkan.
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Batal</AlertDialogCancel>
+										<AlertDialogAction
+											onClick={() => {
+												deleteMutation.mutate({ id: Number(contentId) });
+											}}
+										>
+											Hapus
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
 						)}
 					</div>
-				)}
+				</div>
 
-				<form.Field name="content">
-					{(field) => (
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
+					className="space-y-4"
+				>
+					<form.Field name="videoUrl">
+						{(field) => (
+							<div className="space-y-2">
+								<div className="flex items-center justify-between">
+									<Label htmlFor={field.name}>URL Video (YouTube)</Label>
+									<div className="flex items-center gap-2">
+										{showPreview ? <VideoCamera className="size-4" /> : <VideoCameraSlash className="size-4" />}
+										<Switch checked={showPreview} onCheckedChange={setShowPreview} />
+									</div>
+								</div>
+								<Input
+									id={field.name}
+									name={field.name}
+									type="url"
+									value={field.state.value as string}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									placeholder="https://www.youtube.com/watch?v=..."
+								/>
+								{field.state.meta.errors.map((error) => (
+									<p key={error?.message} className="text-red-500 text-sm">
+										{error?.message}
+									</p>
+								))}
+							</div>
+						)}
+					</form.Field>
+
+					{showPreview && (
 						<div className="space-y-2">
-							<Label>Konten Video (Deskripsi)</Label>
-							{/* <TiptapEditor
+							<Label>Preview</Label>
+							{isValidUrl ? (
+								<div className="aspect-video w-full overflow-hidden rounded-lg border">
+									<YouTubePlayer videoId={videoId} />
+								</div>
+							) : (
+								<div className="flex aspect-video w-full items-center justify-center rounded-lg border border-muted-foreground/30 border-dashed bg-muted/50">
+									<p className="text-muted-foreground text-sm">
+										{debouncedVideoUrl ? "URL tidak valid" : "Masukkan URL YouTube untuk preview"}
+									</p>
+								</div>
+							)}
+						</div>
+					)}
+
+					<form.Field name="content">
+						{(field) => (
+							<div className="space-y-2">
+								<Label>Konten Video (Deskripsi)</Label>
+								{/* <TiptapEditor
                 content={field.state.value}
                 onChange={(content) => field.handleChange(content)}
               /> */}
 
-							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+								<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
 
-							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-sm">
-									{error?.message}
-								</p>
-							))}
-						</div>
-					)}
-				</form.Field>
-			</form>
-		</div>
+								{field.state.meta.errors.map((error) => (
+									<p key={error?.message} className="text-red-500 text-sm">
+										{error?.message}
+									</p>
+								))}
+							</div>
+						)}
+					</form.Field>
+				</form>
+			</div>
+		</AdminContainer>
 	);
 }

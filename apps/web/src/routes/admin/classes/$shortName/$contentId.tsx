@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { BackButton } from "@/components/back-button";
-import { Container } from "@/components/ui/container";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
@@ -44,19 +43,16 @@ function RouteComponent() {
 	const displayTitle = content.data?.title || contentId;
 
 	return (
-		<Container className="gap-3 p-0">
-			<div className="w-fit">
-				<BackButton to={"/admin/classes/$shortName"} />
-				{content.isPending ? (
-					<Skeleton className="mt-3 h-7 w-full" />
-				) : content.isError ? (
-					<h1 className="mt-3 font-bold text-red-500 text-xl">Error: {content.error.message}</h1>
-				) : (
-					<h1 className="mt-3 font-bold text-xl">{displayTitle}</h1>
-				)}
-			</div>
+		<AdminContainer>
+			{content.isPending ? (
+				<Skeleton className="h-8 w-64" />
+			) : content.isError ? (
+				<AdminHeader title={`Error: ${content.error.message}`} />
+			) : (
+				<AdminHeader title={displayTitle} description="Manage video, notes, and practice questions" />
+			)}
 
-			<Tabs value={currentTab} onValueChange={handleTabChange}>
+			<Tabs value={currentTab} onValueChange={handleTabChange} className="mt-6">
 				<TabsList>
 					<TabsTrigger value="video">Video</TabsTrigger>
 					<TabsTrigger value="notes">Catatan</TabsTrigger>
@@ -67,6 +63,6 @@ function RouteComponent() {
 					<Outlet />
 				</TabsContent>
 			</Tabs>
-		</Container>
+		</AdminContainer>
 	);
 }

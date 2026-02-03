@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -47,27 +48,15 @@ function PracticePacksListPage() {
 	const filteredPacks = packs.filter((pack) => pack.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
 	return (
-		<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
-			{/* Breadcrumbs */}
-			<div className="mb-4 flex items-center gap-2 font-medium text-muted-foreground text-sm">
-				<span className="cursor-default hover:text-foreground">Admin</span>
-				<span>/</span>
-				<span className="text-foreground">Practice Packs</span>
-			</div>
-
-			<div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">Practice Packs</h1>
-					<p className="text-muted-foreground">Manage and organize your question collections</p>
-				</div>
-
+		<AdminContainer>
+			<AdminHeader title="Practice Packs" description="Manage and organize your question collections">
 				<Button asChild>
 					<Link to="/admin/practice-packs/create">
 						<Plus className="mr-2 size-4" />
 						Create New Pack
 					</Link>
 				</Button>
-			</div>
+			</AdminHeader>
 
 			{/* Filters & Search Bar */}
 			<div className="mb-6 flex flex-col gap-3 sm:flex-row">
@@ -203,7 +192,7 @@ function PracticePacksListPage() {
 					</Button>
 				</div>
 			)}
-		</main>
+		</AdminContainer>
 	);
 }
 

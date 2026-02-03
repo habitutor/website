@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { toast } from "sonner";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import {
 	AlertDialog,
@@ -101,73 +102,76 @@ function RouteComponent() {
 	const hasNote = !!content.data.note;
 
 	return (
-		<div className="space-y-6">
-			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
-				<div className="flex gap-2">
-					<form.Subscribe>
-						{(state) => (
-							<Button
-								type="submit"
-								variant="default"
-								disabled={!state.canSubmit || saveMutation.isPending}
-								size="sm"
-								onClick={() => form.handleSubmit()}
-							>
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
-							</Button>
-						)}
-					</form.Subscribe>
-					{hasNote && (
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
-									Hapus
+		<AdminContainer>
+			<AdminHeader title="Edit Notes" description="Manage notes and study materials" />
+			<div className="mt-6 space-y-6">
+				<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
+					<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
+					<div className="flex gap-2">
+						<form.Subscribe>
+							{(state) => (
+								<Button
+									type="submit"
+									variant="default"
+									disabled={!state.canSubmit || saveMutation.isPending}
+									size="sm"
+									onClick={() => form.handleSubmit()}
+								>
+									{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
 								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Catatan?</AlertDialogTitle>
-									<AlertDialogDescription>
-										Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={() => {
-											deleteMutation.mutate({ id: Number(contentId) });
-										}}
-									>
+							)}
+						</form.Subscribe>
+						{hasNote && (
+							<AlertDialog>
+								<AlertDialogTrigger asChild>
+									<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
 										Hapus
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					)}
+									</Button>
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Hapus Catatan?</AlertDialogTitle>
+										<AlertDialogDescription>
+											Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Batal</AlertDialogCancel>
+										<AlertDialogAction
+											onClick={() => {
+												deleteMutation.mutate({ id: Number(contentId) });
+											}}
+										>
+											Hapus
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						)}
+					</div>
 				</div>
-			</div>
 
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
-				className="space-y-4"
-			>
-				<form.Field name="content">
-					{(field) => (
-						<div className="space-y-2">
-							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
-							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-sm">
-									{error?.message}
-								</p>
-							))}
-						</div>
-					)}
-				</form.Field>
-			</form>
-		</div>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
+					className="space-y-4"
+				>
+					<form.Field name="content">
+						{(field) => (
+							<div className="space-y-2">
+								<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+								{field.state.meta.errors.map((error) => (
+									<p key={error?.message} className="text-red-500 text-sm">
+										{error?.message}
+									</p>
+								))}
+							</div>
+						)}
+					</form.Field>
+				</form>
+			</div>
+		</AdminContainer>
 	);
 }

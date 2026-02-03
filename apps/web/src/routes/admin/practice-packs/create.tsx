@@ -1,9 +1,9 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { toast } from "sonner";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -55,19 +55,8 @@ function CreatePracticePackPage() {
 	});
 
 	return (
-		<main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
-			<div className="mb-6 sm:mb-8">
-				<Button variant="ghost" size="sm" className="mb-4" asChild>
-					<Link to="/admin/practice-packs">
-						<ArrowLeftIcon className="size-4" />
-						<span className="hidden sm:inline">Back to Practice Packs</span>
-						<span className="sm:inline">Back</span>
-					</Link>
-				</Button>
-
-				<h1 className="font-bold text-2xl sm:text-3xl">Create Practice Pack</h1>
-				<p className="text-muted-foreground">Buat paket latihan soal baru</p>
-			</div>
+		<AdminContainer>
+			<AdminHeader title="Create Practice Pack" description="Buat paket latihan soal baru" />
 
 			<Card className="w-full rounded-xl p-4 shadow-sm sm:max-w-2xl sm:p-6">
 				<form
@@ -143,6 +132,6 @@ function CreatePracticePackPage() {
 					</div>
 				</form>
 			</Card>
-		</main>
+		</AdminContainer>
 	);
 }

@@ -4,7 +4,8 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { ContentFilters, ContentList } from "@/components/classes";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -17,7 +18,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Container } from "@/components/ui/container";
 import {
 	Dialog,
 	DialogContent,
@@ -260,28 +260,24 @@ function RouteComponent() {
 
 	if (subtests.isPending) {
 		return (
-			<div className="mx-auto max-w-6xl">
-				<Container className="pt-12">
-					<p className="animate-pulse text-sm">Memuat kelas...</p>
-				</Container>
-			</div>
+			<AdminContainer>
+				<p className="animate-pulse text-sm">Memuat kelas...</p>
+			</AdminContainer>
 		);
 	}
 
 	if (subtests.isError) {
 		return (
-			<div className="mx-auto max-w-6xl">
-				<Container className="pt-12">
-					<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
-				</Container>
-			</div>
+			<AdminContainer>
+				<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
+			</AdminContainer>
 		);
 	}
 	if (!matchedClass) return notFound();
 
 	return (
-		<Container className="px-0 pt-0">
-			<ClassHeader subtest={matchedClass} />
+		<AdminContainer>
+			<AdminHeader title={matchedClass.name} description="Manage content for this class" />
 			<div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="w-full flex-1 sm:max-w-md">
@@ -463,6 +459,6 @@ function RouteComponent() {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</Container>
+		</AdminContainer>
 	);
 }

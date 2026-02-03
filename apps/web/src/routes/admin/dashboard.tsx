@@ -1,6 +1,7 @@
 import { Package, Question, Users } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
@@ -13,11 +14,8 @@ function AdminDashboard() {
 	const { data: stats, isLoading } = useQuery(orpc.admin.practicePack.getStatistics.queryOptions());
 
 	return (
-		<main className="flex-1 p-4 pt-0">
-			<div className="mb-6 sm:mb-8">
-				<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">Admin Dashboard</h1>
-				<p className="text-muted-foreground text-sm sm:text-base">Selamat datang di panel admin Habitutor</p>
-			</div>
+		<AdminContainer>
+			<AdminHeader title="Admin Dashboard" description="Selamat datang di panel admin Habitutor" />
 
 			<div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
 				<StatsCard
@@ -45,7 +43,7 @@ function AdminDashboard() {
 					iconClassName="text-orange-500"
 				/>
 			</div>
-		</main>
+		</AdminContainer>
 	);
 }
 

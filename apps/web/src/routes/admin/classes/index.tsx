@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { SubtestCard, SubtestHeader } from "@/components/classes";
-import { Container } from "@/components/ui/container";
+import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { SubtestCard } from "@/components/classes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
@@ -13,8 +13,8 @@ function RouteComponent() {
 	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 
 	return (
-		<Container className="py-0">
-			<SubtestHeader />
+		<AdminContainer>
+			<AdminHeader title="Classes" description="Manage learning classes and content" />
 
 			<div className="space-y-4">
 				{subtests.isPending && (
@@ -37,6 +37,6 @@ function RouteComponent() {
 					</div>
 				)}
 			</div>
-		</Container>
+		</AdminContainer>
 	);
 }
