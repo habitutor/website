@@ -203,10 +203,13 @@ function SidebarLogo() {
 	const isCollapsed = state === "collapsed";
 
 	return (
-		<div className={cn("flex h-16 items-center px-4", isCollapsed ? "" : "border-b")}>
+		<div className={cn("flex h-16 items-center", isCollapsed ? "justify-center" : "border-b px-4")}>
 			<Link
 				to="/admin/dashboard"
-				className="flex w-full items-center gap-2 font-bold text-lg text-primary"
+				className={cn(
+					"flex items-center gap-2 font-bold text-lg text-primary",
+					isCollapsed ? "justify-center" : "w-full",
+				)}
 				title="Habitutor Admin"
 			>
 				<Image
