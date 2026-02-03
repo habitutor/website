@@ -1,4 +1,3 @@
-import { House } from "@phosphor-icons/react";
 import { Link, useLocation, useMatches } from "@tanstack/react-router";
 import { Fragment } from "react";
 
@@ -55,7 +54,7 @@ export function AdminBreadcrumbs() {
 	return (
 		<nav className="flex items-center gap-2 font-medium text-muted-foreground text-sm">
 			<Link to="/admin/dashboard" className="hover:text-foreground">
-				<House className="size-4" />
+				Admin
 			</Link>
 			{breadcrumbs.slice(1).map((crumb) => (
 				<Fragment key={`${crumb.label}-${crumb.href || "current"}`}>

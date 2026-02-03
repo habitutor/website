@@ -47,7 +47,7 @@ function AdminLayout() {
 					<SidebarTrigger className="text-muted-foreground hover:text-foreground" />
 					<AdminBreadcrumbs />
 				</header>
-				<div className="flex flex-1 flex-col">
+				<div className="flex flex-1 flex-col pt-4">
 					<Outlet />
 				</div>
 			</SidebarInset>

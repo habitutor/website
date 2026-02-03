@@ -203,7 +203,7 @@ function SidebarLogo() {
 	const isCollapsed = state === "collapsed";
 
 	return (
-		<div className="flex h-16 items-center border-b">
+		<div className="flex h-16 items-center border-b px-4">
 			<Link
 				to="/admin/dashboard"
 				className="flex w-full items-center gap-2 font-bold text-lg text-primary"
