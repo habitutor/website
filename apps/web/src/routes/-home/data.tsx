@@ -78,7 +78,7 @@ export const DATA = {
 			mentoring_perintis: {
 				label: "Mentoring Perintis",
 				price_monthly: "Rp99.000",
-				price_full: "Rp179.000",
+				price_full: "Rp119.000",
 				suffix: "s.d UTBK",
 				features: [
 					{ label: "Akses Full Website", status: "excluded" },
@@ -87,7 +87,7 @@ export const DATA = {
 					{ label: "1000+ Latihan Soal", status: "excluded" },
 					{ label: "Habit Tracker & Grup", status: "excluded" },
 					{ label: "Matrikulasi Subtest", status: "excluded" },
-					{ label: "Live Class (3x/Minggu)", status: "included" },
+					{ label: "Live Class (5x/Minggu)", status: "included" },
 					{ label: "Mentor UI, ITB, UGM", status: "included" },
 					{ label: "Try Out & Pembahasan", status: "excluded" },
 				],
@@ -99,7 +99,7 @@ export const DATA = {
 
 			mentoring_privilege: {
 				label: "Mentoring Privilege",
-				price_full: "Rp225.000",
+				price_full: "Rp149.000",
 				suffix: "s.d UTBK",
 				features: [
 					{ label: "Akses Full Website", status: "excluded" },
@@ -108,7 +108,7 @@ export const DATA = {
 					{ label: "1000+ Latihan Soal", status: "included" },
 					{ label: "Habit Tracker & Grup", status: "included" },
 					{ label: "Matrikulasi Subtest", status: "included" },
-					{ label: "Live Class (3x/Minggu)", status: "included" },
+					{ label: "Live Class (5x/Minggu)", status: "included" },
 					{ label: "Mentor UI, ITB, UGM", status: "included" },
 					{ label: "Try Out & Pembahasan", status: "limited", value: "3x" },
 				],
@@ -121,7 +121,7 @@ export const DATA = {
 			ultimate_bundling: {
 				label: "Ultimate Bundling",
 				badge: "Paling Lengkap",
-				price_now: "Rp199.000",
+				price_now: "Rp249.000",
 				original_price: "Rp1.000.000",
 				suffix: "s.d UTBK",
 				features: [
@@ -131,7 +131,7 @@ export const DATA = {
 					{ label: "1000+ Latihan Soal", status: "included" },
 					{ label: "Habit Tracker & Grup", status: "included" },
 					{ label: "Matrikulasi Subtest", status: "included" },
-					{ label: "Live Class (3x/Minggu)", status: "included" },
+					{ label: "Live Class (5x/Minggu)", status: "included" },
 					{ label: "Mentor UI, ITB, UGM", status: "included" },
 					{ label: "Try Out & Pembahasan", status: "limited", value: "15x" },
 				],
