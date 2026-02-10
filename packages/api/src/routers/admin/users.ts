@@ -64,9 +64,10 @@ const listUsers = admin
 			.orderBy(desc(user.createdAt), desc(user.id))
 			.limit(limit + 1);
 
-    if (users.length < 1) throw errors.NOT_FOUND({
-      message: "Gagal menemukan data user."
-    })
+		if (users.length < 1)
+			throw errors.NOT_FOUND({
+				message: "Gagal menemukan data user.",
+			});
 
 		const hasMore = users.length > limit;
 		const data = hasMore ? users.slice(0, limit) : users;

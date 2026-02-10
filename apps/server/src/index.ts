@@ -75,12 +75,6 @@ app.use("/*", async (c, next) => {
 	await next();
 });
 
-app.post("/transactions/webhook", async (c) => {
-	await c.req.json();
-
-	return c.json({ status: "OK" });
-});
-
 app.get("/", (c) => {
 	return c.text("OK");
 });
