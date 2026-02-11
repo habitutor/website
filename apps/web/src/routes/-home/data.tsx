@@ -123,7 +123,7 @@ export const DATA = {
 				badge: "Paling Lengkap",
 				price_now: "Rp249.000",
 				original_price: "Rp1.000.000",
-				suffix: "s.d UTBK",
+				suffix: "s.d SNBT",
 				features: [
 					{ label: "Akses Full Website", status: "included" },
 					{ label: "1000+ Soal Dasar SNBT", status: "included" },
