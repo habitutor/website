@@ -57,7 +57,7 @@ export const DATA = {
 				label: "Classroom",
 				price_monthly: "Rp50.000",
 				price_full: "Rp99.000",
-				suffix: "s.d UTBK",
+				suffix: "sampai SNBT",
 				features: [
 					{ label: "Akses Full Website", status: "excluded" },
 					{ label: "Google Classroom", status: "included" },
@@ -79,7 +79,7 @@ export const DATA = {
 				label: "Mentoring Perintis",
 				price_monthly: "Rp99.000",
 				price_full: "Rp119.000",
-				suffix: "s.d UTBK",
+				suffix: "sampai SNBT",
 				features: [
 					{ label: "Akses Full Website", status: "excluded" },
 					{ label: "Google Classroom", status: "excluded" },
@@ -100,7 +100,7 @@ export const DATA = {
 			mentoring_privilege: {
 				label: "Mentoring Privilege",
 				price_full: "Rp149.000",
-				suffix: "s.d UTBK",
+				suffix: "sampai SNBT",
 				features: [
 					{ label: "Akses Full Website", status: "excluded" },
 					{ label: "Google Classroom", status: "included" },
@@ -123,7 +123,7 @@ export const DATA = {
 				badge: "Paling Lengkap",
 				price_now: "Rp249.000",
 				original_price: "Rp1.000.000",
-				suffix: "s.d SNBT",
+				suffix: "sampai SNBT",
 				features: [
 					{ label: "Akses Full Website", status: "included" },
 					{ label: "1000+ Soal Dasar SNBT", status: "included" },

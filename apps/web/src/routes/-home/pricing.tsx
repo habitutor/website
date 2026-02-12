@@ -201,10 +201,10 @@ function PremiumCard({ data }: { data: PlanData }) {
 				</div>
 
 				<div>
-					<p className="relative z-1 font-bold text-3xl text-secondary-200">
+					<p className="relative flex flex-row items-end z-1 font-bold text-3xl text-secondary-200">
 						{data.price_now}
 						{"suffix" in data && data.suffix && (
-							<span className="ml-1 font-normal text-sm text-white">{data.suffix}</span>
+							<span className="ml-1 font-normal text-sm text-white whitespace-nowrap">{data.suffix}</span>
 						)}
 					</p>
 					<p className="relative z-1 font-normal text-sm text-white">
