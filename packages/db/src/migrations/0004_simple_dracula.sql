@@ -1,0 +1,1 @@
+ALTER TABLE "question" ADD COLUMN "is_flashcard_question" boolean DEFAULT true NOT NULL;

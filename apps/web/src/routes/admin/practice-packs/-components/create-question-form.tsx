@@ -36,16 +36,17 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 		{ code: "D", content: "", isCorrect: false },
 	]);
 
-	const createQuestionMutation = useMutation(orpc.admin.practicePack.createQuestion.mutationOptions());
+	const createQuestionMutation = useMutation(orpc.admin.question.create.mutationOptions());
 
-	const createAnswerMutation = useMutation(orpc.admin.practicePack.createAnswerOption.mutationOptions());
+	const createAnswerMutation = useMutation(orpc.admin.question.createAnswer.mutationOptions());
 
-	const addToPackMutation = useMutation(orpc.admin.practicePack.addQuestionToPack.mutationOptions());
+	const addToPackMutation = useMutation(orpc.admin.practicePack.addQuestion.mutationOptions());
 
 	const form = useForm({
 		defaultValues: {
 			content: {} as unknown,
 			discussion: {} as unknown,
+			isFlashcardQuestion: true,
 		},
 		onSubmit: async ({ value }) => {
 			const validation = type({
@@ -80,6 +81,7 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 				const question = await createQuestionMutation.mutateAsync({
 					content: value.content,
 					discussion: value.discussion,
+					isFlashcardQuestion: value.isFlashcardQuestion,
 				});
 
 				await Promise.all(
@@ -100,7 +102,7 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 
 				toast.success("Question created successfully");
 				queryClient.invalidateQueries(
-					orpc.admin.practicePack.getPackQuestions.queryOptions({ input: { id: practicePackId } }),
+					orpc.admin.practicePack.getQuestions.queryOptions({ input: { id: practicePackId } }),
 				);
 				form.reset();
 				setAnswerOptions([
@@ -194,6 +196,21 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 										onChange={(content) => field.handleChange(content)}
 									/>
 								</div>
+							</div>
+						)}
+					</form.Field>
+
+					<form.Field name="isFlashcardQuestion">
+						{(field) => (
+							<div className="flex items-center gap-2">
+								<Checkbox
+									id="isFlashcardQuestion"
+									checked={field.state.value}
+									onCheckedChange={(checked) => field.handleChange(!!checked)}
+								/>
+								<Label htmlFor="isFlashcardQuestion" className="cursor-pointer">
+									Available for Flashcard
+								</Label>
 							</div>
 						)}
 					</form.Field>

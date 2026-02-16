@@ -27,13 +27,13 @@ export function EditPackForm({ pack, onSuccess, onCancel }: EditPackFormProps) {
 	const queryClient = useQueryClient();
 
 	const updateMutation = useMutation(
-		orpc.admin.practicePack.updatePack.mutationOptions({
+		orpc.admin.practicePack.update.mutationOptions({
 			onSuccess: () => {
 				toast.success("Practice pack updated successfully");
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.listPacks.queryKey({ input: {} }),
+					queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
 				});
-				queryClient.invalidateQueries(orpc.admin.practicePack.getPack.queryOptions({ input: { id: pack.id } }));
+				queryClient.invalidateQueries(orpc.admin.practicePack.get.queryOptions({ input: { id: pack.id } }));
 				onSuccess?.();
 			},
 			onError: (error) => {

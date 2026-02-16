@@ -1,6 +1,8 @@
 import {
+	CardsIcon,
 	CaretLeftIcon,
 	CaretRightIcon,
+	DotsThreeOutlineIcon,
 	MagnifyingGlassIcon,
 	PencilSimpleIcon,
 	PlusIcon,
@@ -24,6 +26,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
@@ -43,7 +51,7 @@ function PracticePackDetailPage() {
 	const [showAddExisting, setShowAddExisting] = useState(false);
 
 	const { data } = useQuery(
-		orpc.admin.practicePack.getPackQuestions.queryOptions({
+		orpc.admin.practicePack.getQuestions.queryOptions({
 			input: { id: packId },
 		}),
 	);
@@ -108,9 +116,23 @@ function PracticePackDetailPage() {
 
 function PackInfoHeader({ packId }: { packId: number }) {
 	const [isEditing, setIsEditing] = useState(false);
+	const queryClient = useQueryClient();
+
 	const { data: pack, isLoading } = useQuery(
-		orpc.admin.practicePack.getPack.queryOptions({
+		orpc.admin.practicePack.get.queryOptions({
 			input: { id: packId },
+		}),
+	);
+
+	const toggleFlashcardMutation = useMutation(
+		orpc.admin.practicePack.toggleAvailableForFlashcard.mutationOptions({
+			onSuccess: (data) => {
+				toast.success(data.message);
+				queryClient.invalidateQueries(orpc.admin.practicePack.getQuestions.queryOptions({ input: { id: packId } }));
+			},
+			onError: (error) => {
+				toast.error("Failed to update flashcard status", { description: String(error) });
+			},
 		}),
 	);
 
@@ -142,20 +164,52 @@ function PackInfoHeader({ packId }: { packId: number }) {
 
 	return (
 		<Card className="relative py-5 shadow-sm sm:py-6">
-			<CardContent className="pr-10">
-				<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">{pack.title}</h1>
-				<p className="mt-2 text-muted-foreground text-sm leading-relaxed sm:text-base">
-					{pack.description || "No description provided."}
-				</p>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
-					onClick={() => setIsEditing(true)}
-				>
-					<PencilSimpleIcon className="size-5" />
-					<span className="sr-only">Edit</span>
-				</Button>
+			<CardContent className="flex justify-between">
+				<div>
+					<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">{pack.title}</h1>
+					<p className="mt-2 text-muted-foreground text-sm leading-relaxed sm:text-base">
+						{pack.description || "No description provided."}
+					</p>
+				</div>
+				<div>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" size="icon" title="Toggle Flashcard Availability">
+								<DotsThreeOutlineIcon />
+								<span className="sr-only">Toggle Flashcard</span>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem
+								onClick={() => {
+									toggleFlashcardMutation.mutate({ id: packId, isFlashcardQuestion: true });
+								}}
+								disabled={toggleFlashcardMutation.isPending}
+							>
+								<CardsIcon className="text-green-400" />
+								Enable for Flashcard
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									toggleFlashcardMutation.mutate({ id: packId, isFlashcardQuestion: false });
+								}}
+								disabled={toggleFlashcardMutation.isPending}
+							>
+								<CardsIcon className="text-red-400" />
+								Disable for Flashcard
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="text-muted-foreground hover:text-foreground"
+						onClick={() => setIsEditing(true)}
+					>
+						<PencilSimpleIcon className="size-5" />
+						<span className="sr-only">Edit</span>
+					</Button>
+				</div>
 			</CardContent>
 		</Card>
 	);
@@ -168,7 +222,7 @@ function QuestionsList({ packId, onCreateNew }: { packId: number; onCreateNew: (
 	const navigate = useNavigate();
 
 	const { data, isLoading } = useQuery(
-		orpc.admin.practicePack.getPackQuestions.queryOptions({
+		orpc.admin.practicePack.getQuestions.queryOptions({
 			input: { id: packId },
 		}),
 	);
@@ -442,11 +496,11 @@ function RemoveQuestionButton({
 	const queryClient = useQueryClient();
 
 	const removeMutation = useMutation(
-		orpc.admin.practicePack.removeQuestionFromPack.mutationOptions({
+		orpc.admin.practicePack.removeQuestion.mutationOptions({
 			onSuccess: () => {
 				toast.success("Question removed from pack");
 				queryClient.invalidateQueries(
-					orpc.admin.practicePack.getPackQuestions.queryOptions({
+					orpc.admin.practicePack.getQuestions.queryOptions({
 						input: { id: packId },
 					}),
 				);

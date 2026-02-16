@@ -11,8 +11,8 @@ import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq } from "drizzle-orm";
 import { authed } from "../index";
+import { convertToTiptap } from "../lib/tiptap";
 import type { Question } from "../types/practice-pack";
-import { convertToTiptap } from "./subtest";
 
 const list = authed
 	.route({

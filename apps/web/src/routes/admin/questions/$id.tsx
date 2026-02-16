@@ -8,6 +8,7 @@ import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
@@ -34,20 +35,21 @@ function QuestionEditPage() {
 	const [answerOptions, setAnswerOptions] = useState<AnswerOption[]>([]);
 
 	const { data: question, isLoading } = useQuery(
-		orpc.admin.practicePack.getQuestionDetail.queryOptions({
+		orpc.admin.question.get.queryOptions({
 			input: { id: questionId },
 		}),
 	);
 
-	const updateQuestionMutation = useMutation(orpc.admin.practicePack.updateQuestion.mutationOptions());
-	const updateAnswerMutation = useMutation(orpc.admin.practicePack.updateAnswerOption.mutationOptions());
-	const createAnswerMutation = useMutation(orpc.admin.practicePack.createAnswerOption.mutationOptions());
-	const deleteAnswerMutation = useMutation(orpc.admin.practicePack.deleteAnswerOption.mutationOptions());
+	const updateQuestionMutation = useMutation(orpc.admin.question.update.mutationOptions());
+	const updateAnswerMutation = useMutation(orpc.admin.question.updateAnswer.mutationOptions());
+	const createAnswerMutation = useMutation(orpc.admin.question.createAnswer.mutationOptions());
+	const deleteAnswerMutation = useMutation(orpc.admin.question.deleteAnswer.mutationOptions());
 
 	const form = useForm({
 		defaultValues: {
 			content: {} as unknown,
 			discussion: {} as unknown,
+			isFlashcardQuestion: true,
 		},
 		onSubmit: async ({ value }) => {
 			const validation = type({
@@ -83,6 +85,7 @@ function QuestionEditPage() {
 					id: questionId,
 					content: value.content,
 					discussion: value.discussion,
+					isFlashcardQuestion: value.isFlashcardQuestion,
 				});
 
 				// Update existing answers and create new ones
@@ -107,12 +110,12 @@ function QuestionEditPage() {
 				toast.success("Question updated successfully");
 
 				queryClient.invalidateQueries(
-					orpc.admin.practicePack.getQuestionDetail.queryOptions({
+					orpc.admin.question.get.queryOptions({
 						input: { id: questionId },
 					}),
 				);
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.listAllQuestions.queryKey({ input: {} }),
+					queryKey: orpc.admin.question.list.queryKey({ input: {} }),
 				});
 
 				setTimeout(() => {
@@ -135,6 +138,7 @@ function QuestionEditPage() {
 		if (question && question.id !== initializedQuestionId) {
 			form.setFieldValue("content", question.content);
 			form.setFieldValue("discussion", question.discussion);
+			form.setFieldValue("isFlashcardQuestion", question.isFlashcardQuestion);
 
 			// Initialize answer options from question data
 			const sortedAnswers = [...question.answers].sort((a, b) => {
@@ -237,6 +241,20 @@ function QuestionEditPage() {
 											onChange={(content) => field.handleChange(content)}
 										/>
 									</div>
+								</div>
+							)}
+						</form.Field>
+						<form.Field name="isFlashcardQuestion">
+							{(field) => (
+								<div className="flex items-center gap-2">
+									<Checkbox
+										id="isFlashcardQuestion"
+										checked={field.state.value}
+										onCheckedChange={(checked) => field.handleChange(!!checked)}
+									/>
+									<Label htmlFor="isFlashcardQuestion" className="cursor-pointer">
+										Available for Flashcard
+									</Label>
 								</div>
 							)}
 						</form.Field>

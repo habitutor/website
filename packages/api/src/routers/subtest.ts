@@ -14,27 +14,7 @@ import { type } from "arktype";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { authed, authedRateLimited } from "../index";
 import { canAccessContent } from "../lib/content-access";
-
-export function convertToTiptap(text: string) {
-	try {
-		const parsed = JSON.parse(text);
-		if (parsed && parsed.type === "doc") return parsed;
-	} catch {}
-
-	return {
-		type: "doc",
-		content: [
-			{
-				type: "paragraph",
-				content: [{ type: "text", text }],
-			},
-		],
-	};
-}
-
-function escapeLikePattern(value: string): string {
-	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
-}
+import { convertToTiptap } from "../lib/tiptap";
 
 /**
  * Get all subtests with basic info
@@ -101,7 +81,7 @@ const listContentByCategory = authedRateLimited
 			conditions.push(eq(contentItem.type, input.category));
 		}
 		if (input.search) {
-			conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
+			conditions.push(ilike(contentItem.title, `%${input.search}%`));
 		}
 
 		const items = await db

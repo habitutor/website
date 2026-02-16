@@ -1,11 +1,11 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
-import { questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { type } from "arktype";
 import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { authed, premium } from "..";
-import { convertToTiptap } from "./subtest";
+import { convertToTiptap } from "../lib/tiptap";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline
@@ -56,6 +56,7 @@ const start = authed
 				.returning();
 
 			const availableQuestions = await tx.query.question.findMany({
+				where: eq(question.isFlashcardQuestion, true),
 				with: {
 					answerOptions: true,
 				},
@@ -65,7 +66,7 @@ const start = authed
 
 			if (availableQuestions.length < 5)
 				throw errors.NOT_FOUND({
-					message: "Kamu sudah mengerjakan semua flashcard yang tersedia untuk sekarang. Silahkan coba lagi nanti.",
+					message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
 				});
 
 			await tx.insert(userFlashcardQuestionAnswer).values(

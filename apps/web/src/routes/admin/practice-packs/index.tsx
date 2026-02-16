@@ -38,7 +38,7 @@ function PracticePacksListPage() {
 	const offset = (page - 1) * limit;
 
 	const { data, isPending, isError, error } = useQuery(
-		orpc.admin.practicePack.listPacks.queryOptions({ input: { limit, offset } }),
+		orpc.admin.practicePack.list.queryOptions({ input: { limit, offset } }),
 	);
 
 	const packs = data?.data || [];
@@ -202,11 +202,11 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 	const navigate = useNavigate();
 
 	const deleteMutation = useMutation(
-		orpc.admin.practicePack.deletePack.mutationOptions({
+		orpc.admin.practicePack.delete.mutationOptions({
 			onSuccess: () => {
 				toast.success("Practice pack berhasil dihapus");
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.listPacks.queryKey({ input: {} }),
+					queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
 				});
 				setDeleteDialogOpen(false);
 			},

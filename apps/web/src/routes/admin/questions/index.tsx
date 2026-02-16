@@ -1,4 +1,4 @@
-import { DotsThree, Exam, Funnel, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
+import { Cards, DotsThree, Exam, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -21,8 +21,6 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -38,35 +36,54 @@ export const Route = createFileRoute("/admin/questions/")({
 function QuestionsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
-	const [filter, setFilter] = useState<"all" | "unused">("all");
-	const [page, setPage] = useState(1);
+	const [cursor, setCursor] = useState<string | null>(null);
+	const [cursorHistory, setCursorHistory] = useState<string[]>([]);
 	const limit = 12;
-	const offset = (page - 1) * limit;
 
-	// Debounce search query
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setDebouncedSearch(searchQuery);
-			setPage(1); // Reset to page 1 when search changes
+			setCursor(null);
+			setCursorHistory([]);
 		}, 300);
 
 		return () => clearTimeout(timer);
 	}, [searchQuery]);
 
 	const { data, isLoading } = useQuery(
-		orpc.admin.practicePack.listAllQuestions.queryOptions({
+		orpc.admin.question.list.queryOptions({
 			input: {
 				limit,
-				offset,
-				unusedOnly: filter === "unused",
+				cursor: cursor ?? undefined,
 				search: debouncedSearch,
 			},
 		}),
 	);
 
 	const questions = data?.data || [];
-	const total = data?.total || 0;
-	const totalPages = Math.ceil(total / limit);
+	const hasMore = data?.hasMore || false;
+	const nextCursor = data?.nextCursor || null;
+
+	const handleNext = () => {
+		if (nextCursor) {
+			if (cursor) {
+				setCursorHistory((prev) => [...prev, cursor]);
+			}
+			setCursor(nextCursor);
+		}
+	};
+
+	const handlePrevious = () => {
+		if (cursorHistory.length > 0) {
+			const previousCursor = cursorHistory[cursorHistory.length - 1];
+			setCursorHistory((prev) => prev.slice(0, -1));
+			setCursor(previousCursor);
+		} else {
+			setCursor(null);
+		}
+	};
+
+	const hasPrevious = cursor !== null || cursorHistory.length > 0;
 
 	return (
 		<AdminContainer>
@@ -82,28 +99,6 @@ function QuestionsPage() {
 						className="pl-9"
 					/>
 				</div>
-
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" className="w-full gap-2 sm:w-auto">
-							<Funnel className="size-4" />
-							<span className="hidden sm:inline">{filter === "all" ? "All Questions" : "Unused Only"}</span>
-							<span className="sm:hidden">{filter === "all" ? "All" : "Unused"}</span>
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-48">
-						<DropdownMenuRadioGroup
-							value={filter}
-							onValueChange={(value) => {
-								setFilter(value as "all" | "unused");
-								setPage(1);
-							}}
-						>
-							<DropdownMenuRadioItem value="all">All Questions</DropdownMenuRadioItem>
-							<DropdownMenuRadioItem value="unused">Unused Only</DropdownMenuRadioItem>
-						</DropdownMenuRadioGroup>
-					</DropdownMenuContent>
-				</DropdownMenu>
 			</div>
 
 			{isLoading ? (
@@ -132,81 +127,26 @@ function QuestionsPage() {
 				</div>
 			)}
 
-			{/* Pagination Controls */}
-			{totalPages > 1 && (
-				<div className="mt-8 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+			{(hasPrevious || hasMore) && (
+				<div className="mt-6 flex items-center justify-center gap-4 sm:mt-8">
 					<Button
 						variant="outline"
 						size="sm"
-						disabled={page === 1}
-						onClick={() => setPage(page - 1)}
-						className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+						disabled={!hasPrevious || isLoading}
+						onClick={handlePrevious}
+						className="h-9 px-4"
 					>
-						<span className="hidden sm:inline">Previous</span>
-						<span className="sm:hidden">Prev</span>
+						Previous
 					</Button>
 
-					<div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1">
-						{page > 3 && (
-							<>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setPage(1)}
-									className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
-								>
-									1
-								</Button>
-								{page > 4 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
-							</>
-						)}
-
-						{Array.from({ length: totalPages }, (_, i) => i + 1)
-							.filter((pageNum) => {
-								return (
-									pageNum === page ||
-									pageNum === page - 1 ||
-									pageNum === page + 1 ||
-									pageNum === page - 2 ||
-									pageNum === page + 2
-								);
-							})
-							.map((pageNum) => (
-								<Button
-									key={pageNum}
-									variant={pageNum === page ? "default" : "outline"}
-									size="sm"
-									onClick={() => setPage(pageNum)}
-									className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
-								>
-									{pageNum}
-								</Button>
-							))}
-
-						{page < totalPages - 2 && (
-							<>
-								{page < totalPages - 3 && <span className="hidden px-1 text-xs sm:inline sm:px-2">...</span>}
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setPage(totalPages)}
-									className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
-								>
-									{totalPages}
-								</Button>
-							</>
-						)}
-					</div>
-
 					<Button
 						variant="outline"
 						size="sm"
-						disabled={page === totalPages}
-						onClick={() => setPage(page + 1)}
-						className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+						disabled={!hasMore || isLoading}
+						onClick={handleNext}
+						className="h-9 px-4"
 					>
-						<span className="hidden sm:inline">Next</span>
-						<span className="sm:hidden">Next</span>
+						Next
 					</Button>
 				</div>
 			)}
@@ -222,6 +162,7 @@ function QuestionCard({
 		content: unknown;
 		discussion: unknown;
 		packCount: number;
+		isFlashcardQuestion: boolean;
 	};
 }) {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -229,16 +170,32 @@ function QuestionCard({
 	const navigate = useNavigate();
 
 	const deleteMutation = useMutation(
-		orpc.admin.practicePack.deleteQuestion.mutationOptions({
+		orpc.admin.question.delete.mutationOptions({
 			onSuccess: () => {
 				toast.success("Question deleted successfully");
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.listAllQuestions.queryKey({ input: {} }),
+					queryKey: orpc.admin.question.list.queryKey({ input: {} }),
 				});
 				setDeleteDialogOpen(false);
 			},
 			onError: (error) => {
 				toast.error("Failed to delete question", {
+					description: String(error),
+				});
+			},
+		}),
+	);
+
+	const toggleFlashcardMutation = useMutation(
+		orpc.admin.question.update.mutationOptions({
+			onSuccess: () => {
+				toast.success(question.isFlashcardQuestion ? "Removed from flashcard" : "Added to flashcard");
+				queryClient.invalidateQueries({
+					queryKey: orpc.admin.question.list.queryKey({ input: {} }),
+				});
+			},
+			onError: (error) => {
+				toast.error("Failed to update flashcard status", {
 					description: String(error),
 				});
 			},
@@ -292,6 +249,18 @@ function QuestionCard({
 								</span>
 							)}
 						</div>
+						<div className="flex items-center gap-1.5">
+							{question.isFlashcardQuestion ? (
+								<span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 font-bold text-[10px] text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+									<Cards className="mr-1 size-3" />
+									Flashcard
+								</span>
+							) : (
+								<span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 font-bold text-[10px] text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+									No Flashcard
+								</span>
+							)}
+						</div>
 						<div className="font-mono text-[10px] opacity-60">ID: {question.id}</div>
 					</div>
 				</Link>
@@ -315,6 +284,27 @@ function QuestionCard({
 							>
 								<PencilSimple className="mr-2 size-4" />
 								Edit Content
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={(e) => {
+									e.preventDefault();
+									toggleFlashcardMutation.mutate({
+										id: question.id,
+										isFlashcardQuestion: !question.isFlashcardQuestion,
+									});
+								}}
+							>
+								{question.isFlashcardQuestion ? (
+									<>
+										<Cards className="mr-2 size-4" />
+										Remove from Flashcard
+									</>
+								) : (
+									<>
+										<Cards className="mr-2 size-4" />
+										Add to Flashcard
+									</>
+								)}
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem

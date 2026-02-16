@@ -78,6 +78,7 @@ export const question = pgTable("question", {
 	discussion: text("discussion").notNull(),
 	contentJson: jsonb("content_json"),
 	discussionJson: jsonb("discussion_json"),
+	isFlashcardQuestion: boolean("is_flashcard_question").notNull().default(true),
 });
 
 export const questionRelations = relations(question, ({ many }) => ({
