@@ -118,7 +118,7 @@ export function Features() {
 
 				{/* Testimone Section */}
 				<div className="container relative mx-auto flex w-full max-w-4xl flex-col overflow-visible px-4">
-					<MotionPulse>
+					{/* <MotionPulse>
 						<motion.div
 							className="absolute -right-50 z-2 size-75 translate-y-1/2 rounded-full bg-primary-100"
 							initial={{ opacity: 0 }}
@@ -146,9 +146,9 @@ export function Features() {
 							viewport={{ once: true }}
 							transition={{ delay: 0.6, duration: 0.3 }}
 						/>
-					</MotionPulse>
+					</MotionPulse> */}
 
-					<MotionPulse>
+					{/* <MotionPulse>
 						<motion.div
 							className="absolute -top-3 -left-50 z-2 w-62.5 translate-y-1/2 sm:w-75"
 							initial={{ opacity: 0 }}
@@ -158,9 +158,9 @@ export function Features() {
 						>
 							<Image src="/decorations/book.webp" alt="Buku Wan***t" width={300} height={150} className="h-auto" />
 						</motion.div>
-					</MotionPulse>
+					</MotionPulse> */}
 
-					<MotionPulse>
+					{/* <MotionPulse>
 						<motion.div
 							className="absolute -top-3 -right-25 z-4 w-62.5 -translate-y-1/2 lg:-right-35 lg:translate-y-1/2"
 							initial={{ opacity: 0 }}
@@ -170,10 +170,10 @@ export function Features() {
 						>
 							<Image src="/decorations/pencil.webp" alt="Pensil 2B" width={300} height={150} className="h-auto" />
 						</motion.div>
-					</MotionPulse>
+					</MotionPulse> */}
 
 					<motion.div
-						className="relative z-3 flex flex-col gap-y-32 rounded-2xl border border-neutral-200 bg-neutral-100 px-4 py-8"
+						className="relative z-3 flex flex-col gap-y-4 rounded-2xl px-4 py-8"
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
@@ -181,25 +181,24 @@ export function Features() {
 					>
 						<div className="mb-4 text-center">
 							<h2 className="font-bold text-2xl">
-								Ruang Aman untuk <span className="text-primary-300">Bertanya & Tumbuh</span>
+								Testimony Lorem Ipsum
 							</h2>
-							<p className="font-medium text-sm">Ribuan siswa telah menemukan rumah kedua mereka di sini.</p>
 						</div>
 
-						<Image
+						{/* <Image
 							src="/avatar/testimone-avatar.webp"
 							alt="Empty State"
 							width={300}
 							height={150}
 							className="absolute inset-0 m-auto w-62.5 sm:w-75"
-						/>
+						/> */}
 
 						<Carousel
 							items={[...DATA.testimone]}
 							showNavigation={true}
 							showDots={true}
 							autoPlay={false}
-							gap={36}
+							gap={12}
 							responsiveGap={true}
 							className=""
 						/>

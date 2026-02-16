@@ -4,6 +4,8 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Container } from "./ui/container";
+import { Image } from "@unpic/react";
+import { motion } from "motion/react";
 
 export interface CarouselItem {
 	id: string | number;
@@ -30,7 +32,7 @@ interface CarouselProps {
 
 const Carousel: React.FC<CarouselProps> = ({
 	items,
-	cardWidth = 360, // 72 * 4 = 288px
+	cardWidth = 440, // 72 * 4 = 288px
 	cardHeight = 211, // 96 * 4 = 384px
 	gap = 32,
 	responsiveGap = false, // New prop
@@ -153,25 +155,22 @@ const Carousel: React.FC<CarouselProps> = ({
 		let scale = 1;
 		let blur = 0;
 		let opacity = isVisible ? 1 : 0;
-		let translateY = 0;
 		let zIndex = 1;
 
 		if (position === 0) {
 			scale = 1;
 			blur = 0;
 			opacity = 1;
-			translateY = 0;
 			zIndex = 10;
 		} else if (Math.abs(position) === 1) {
 			scale = 1;
 			blur = 0;
 			opacity = 1;
-			translateY = 36;
 			zIndex = 5;
 		}
 
 		return {
-			transform: `translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`,
+			transform: `translateX(${translateX}px) scale(${scale})`,
 			filter: `blur(${blur}px)`,
 			opacity,
 			zIndex,
@@ -185,19 +184,41 @@ const Carousel: React.FC<CarouselProps> = ({
 	};
 
 	const defaultRenderCard = (item: CarouselItem) => {
-		// Alternate between 2 colors based on item id
 		const itemId = typeof item.id === "number" ? item.id : Number.parseInt(item.id as string, 10) || 0;
-		const bgColor = itemId % 2 === 0 ? "bg-tertiary-100 *:text-black" : "bg-primary-300 *:text-white";
+		const colors = ["bg-secondary-400", "bg-green-100", "bg-primary-100"];
+		const borderColors = ["border-secondary-600", "border-fourtiary-200", "border-primary-200"];
+		const bgColor = colors[itemId % 3];
+		const borderColor = borderColors[itemId % 3];
 
 		return (
 			<div
-				className={`mx-auto flex aspect-video w-full max-w-[90vw] flex-col overflow-hidden rounded-[20px] border border-neutral-200 shadow-sm transition sm:max-w-none ${bgColor}`}
+				className={`mx-auto flex aspect-video w-full max-w-[90vw] flex-col overflow-hidden rounded-[8px] border border-primary-100 shadow-sm transition sm:max-w-none`}
 			>
-				<div className="flex flex-1 flex-col justify-between text-pretty p-4 text-left">
-					<p className="max-h-full overflow-y-auto font-light text-sm">{item.desc}</p>
+			<div className="relative flex flex-1 flex-col justify-between text-pretty p-4 text-left overflow-hidden">
+				<p className="font-medium max-h-full overflow-y-auto text-sm">{item.desc}</p>
+				<div  className="flex flex-row justify-between items-center">
 					<div>
-						<h3 className="font-medium text-lg">{item.name}</h3>
-						<h4 className="text-base">{item.title}</h4>
+						<h3 className="font-bold text-lg">{item.name}</h3>
+						<h4 className="text-sm">{item.title}</h4>
+					</div>
+					<div>
+						{/* Avatar */}
+						{typeof item.avatar === "string" && item.avatar && (
+							<Image
+								src={item.avatar}
+								alt={item.name}
+								width={160}
+								height={160}
+								className="object-cover z-3 absolute top-22 md:top-29.5 lg:top-29.5 right-5 overflow-hidden"
+							/>
+						)}
+							<motion.div
+							className={`z-2 size-48 rounded-full ${bgColor} ${borderColor} border-2 absolute top-32 md:top-39 lg:top-39 right-4 overflow-hidden`}
+							viewport={{ once: true }}
+							transition={{ delay: 0.6, duration: 0.3 }}
+						>
+						</motion.div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -212,7 +233,7 @@ const Carousel: React.FC<CarouselProps> = ({
 				{showNavigation && (
 					<>
 						{/* XL ke atas: tombol di kiri-kanan card aktif */}
-						<button
+						{/* <button
 							type="button"
 							onClick={prevSlide}
 							disabled={isTransitioning}
@@ -227,7 +248,7 @@ const Carousel: React.FC<CarouselProps> = ({
 							className="absolute top-1/2 z-30 hidden translate-x-49.5 -translate-y-1/2 rounded-[10px] bg-primary-200 p-2.5 text-neutral-100 shadow transition-all duration-300 ease-out hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 lg:flex xl:translate-x-53.75"
 						>
 							<ArrowRightIcon size={24} />
-						</button>
+						</button> */}
 					</>
 				)}
 
