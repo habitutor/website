@@ -278,6 +278,7 @@ const getQuestions = admin
 				questionDiscussion: question.discussion,
 				questionContentJson: question.contentJson,
 				questionDiscussionJson: question.discussionJson,
+				questionIsFlashcard: question.isFlashcardQuestion,
 				answerId: questionAnswerOption.id,
 				answerContent: questionAnswerOption.content,
 				answerCode: questionAnswerOption.code,
@@ -306,6 +307,7 @@ const getQuestions = admin
 				order: number;
 				content: unknown;
 				discussion: unknown;
+				isFlashcard: boolean;
 				answers: Array<{ id: number; content: string; code: string; isCorrect: boolean }>;
 			}
 		>();
@@ -317,6 +319,7 @@ const getQuestions = admin
 					order: row.questionOrder ?? 1,
 					content: row.questionContentJson || convertToTiptap(row.questionContent),
 					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
+					isFlashcard: row.questionIsFlashcard ?? true,
 					answers: [],
 				});
 			}

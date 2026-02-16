@@ -61,9 +61,14 @@ function PracticePacksListPage() {
 			{/* Filters & Search Bar */}
 			<div className="mb-6 flex flex-col gap-3 sm:flex-row">
 				<div className="relative flex-1">
-					<MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+					<MagnifyingGlass
+						className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+						aria-hidden="true"
+					/>
 					<Input
-						placeholder="Search practice packs..."
+						type="search"
+						autoComplete="off"
+						placeholder="Search practice packs…"
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						className="pl-9"
@@ -277,10 +282,12 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction asChild>
-							<Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
-								{deleteMutation.isPending ? "Deleting..." : "Delete"}
-							</Button>
+						<AlertDialogAction
+							onClick={handleDelete}
+							disabled={deleteMutation.isPending}
+							className="bg-destructive text-white hover:bg-destructive/80"
+						>
+							{deleteMutation.isPending ? "Deleting…" : "Delete"}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
