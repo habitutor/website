@@ -60,11 +60,12 @@ habitutor/
 ## Available Scripts
 
 - `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run build:packages`: Run `tsdown` for all packages
+- `bun run build`: Build all applications (apps + packages)
+- `bun run build:packages`: Run `tsdown` for all packages (required for importing packages)
 - `bun run dev:web`: Start only the web application
 - `bun run dev:server`: Start only the server
 - `bun run check-types`: Check TypeScript types across all apps
 - `bun run db:push`: Push schema changes to database
 - `bun run db:studio`: Open database studio UI
-- `bun run check`: Run Biome formatting and linting
+- `bun run lint`: Run Biome formatting and linting
+- `bun run lint:fix --unsafe`: Run Biome formatting and linting with autofix
