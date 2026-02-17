@@ -1,3 +1,4 @@
+import { FloppyDisk, X } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -171,10 +172,46 @@ function QuestionEditPage() {
 	if (isLoading) {
 		return (
 			<AdminContainer>
-				<div className="mx-auto max-w-4xl">
-					<Skeleton className="mb-6 h-10 w-64" />
-					<Skeleton className="h-96 w-full" />
+				{/* Header */}
+				<div className="mb-8 space-y-2">
+					<Skeleton className="h-8 w-48" />
+					<Skeleton className="h-5 w-72" />
 				</div>
+
+				{/* Card */}
+				<Card className="overflow-hidden rounded-xl py-0 shadow-sm">
+					{/* Card Header */}
+					<CardHeader className="bg-muted/30 py-4">
+						<Skeleton className="h-6 w-36" />
+					</CardHeader>
+
+					{/* Card Content */}
+					<CardContent className="space-y-8 py-6">
+						{/* Question Content field */}
+						<div className="space-y-2">
+							<Skeleton className="h-4 w-32" />
+							<Skeleton className="h-40 w-full rounded-lg" />
+						</div>
+
+						{/* Discussion field */}
+						<div className="space-y-2">
+							<Skeleton className="h-4 w-40" />
+							<Skeleton className="h-40 w-full rounded-lg" />
+						</div>
+
+						{/* Checkbox row */}
+						<div className="flex items-center gap-2">
+							<Skeleton className="size-4 rounded-sm" />
+							<Skeleton className="h-4 w-36" />
+						</div>
+
+						{/* Buttons */}
+						<div className="flex gap-3 border-t pt-6">
+							<Skeleton className="h-10 flex-1 rounded-md" />
+							<Skeleton className="h-10 w-24 rounded-md" />
+						</div>
+					</CardContent>
+				</Card>
 			</AdminContainer>
 		);
 	}
@@ -197,7 +234,24 @@ function QuestionEditPage() {
 
 	return (
 		<AdminContainer>
-			<AdminHeader title="Edit Question" description="Update question content and answer options" />
+			<AdminHeader title="Edit Question" description="Update question content and answer options">
+				<div className="ml-auto flex items-center gap-2">
+					<Button
+						type="submit"
+						form="question-form"
+						disabled={isSubmitting}
+						isPending={isSubmitting}
+						className="shadow-sm"
+					>
+						<FloppyDisk className="mr-2 size-4" />
+						Save Changes
+					</Button>
+					<Button type="button" variant="outline" onClick={() => navigate({ to: "/admin/questions" })}>
+						<X className="mr-2 size-4" />
+						Cancel
+					</Button>
+				</div>
+			</AdminHeader>
 
 			<Card className="overflow-hidden rounded-xl py-0 shadow-sm">
 				<CardHeader className="bg-muted/30 py-4">
@@ -205,6 +259,7 @@ function QuestionEditPage() {
 				</CardHeader>
 				<CardContent className="py-6">
 					<form
+						id="question-form"
 						onSubmit={(e) => {
 							e.preventDefault();
 							form.handleSubmit();
@@ -258,14 +313,6 @@ function QuestionEditPage() {
 								</div>
 							)}
 						</form.Field>
-						<div className="flex gap-3 border-t pt-6">
-							<Button type="submit" disabled={isSubmitting} className="flex-1 shadow-sm">
-								{isSubmitting ? <>Saving Changes...</> : "Save Changes"}
-							</Button>
-							<Button type="button" variant="outline" onClick={() => navigate({ to: "/admin/questions" })}>
-								Cancel
-							</Button>
-						</div>
 					</form>
 				</CardContent>
 			</Card>

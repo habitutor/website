@@ -6,8 +6,10 @@ import {
 	CheckCircleIcon,
 	DotsThreeOutlineIcon,
 	PencilSimpleIcon,
+	TrashIcon,
 } from "@phosphor-icons/react";
 import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,6 +44,7 @@ export function QuestionCard({
 	onNext,
 }: QuestionCardProps) {
 	const navigate = useNavigate();
+	const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
 
 	return (
 		<Card className="overflow-hidden border-none py-0 shadow-md">
@@ -85,10 +88,23 @@ export function QuestionCard({
 							<PencilSimpleIcon className="size-4" />
 							Edit Question
 						</DropdownMenuItem>
-						<RemoveQuestionDialog packId={packId} question={question} />
+						<DropdownMenuItem
+							onClick={() => setRemoveDialogOpen(true)}
+							className="text-destructive focus:text-destructive"
+						>
+							<TrashIcon className="size-4" />
+							Remove
+						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
+
+			<RemoveQuestionDialog
+				packId={packId}
+				question={question}
+				open={removeDialogOpen}
+				onOpenChange={setRemoveDialogOpen}
+			/>
 
 			<CardContent className="space-y-4 py-4">
 				<div className="relative rounded-lg border-l-4 border-l-primary bg-card p-3 shadow-sm">
