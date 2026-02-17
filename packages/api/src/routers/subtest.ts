@@ -27,13 +27,13 @@ const listSubtests = authed
 	})
 	.input(
 		type({
-			"limit?": "number",
-			"offset?": "number",
+			"limit": "number = 50",
+			"offset": "number = 0",
 		}),
 	)
 	.handler(async ({ input }) => {
-		const limit = Math.min(input.limit ?? 50, 100);
-		const offset = input.offset ?? 0;
+		const limit = input.limit;
+		const offset = input.offset;
 
 		const subtests = await db
 			.select({
@@ -50,6 +50,7 @@ const listSubtests = authed
 			.orderBy(subtest.order)
 			.limit(limit)
 			.offset(offset);
+    console.log(subtests)
 
 		return {
 			data: subtests,

@@ -91,8 +91,8 @@ function RouteComponent() {
 		navigate({ search: cleanSearch });
 	};
 
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
-	const matchedClass = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
+	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
+	const matchedClass = subtests.data?.data?.find((item) => item.shortName?.toLowerCase() === shortName);
 
 	const contents = useQuery(
 		orpc.subtest.listContentByCategory.queryOptions({

@@ -96,7 +96,7 @@ const subtestCardAvatar = {
 	pm: "/avatar/subtest-pm-avatar.webp",
 } as const;
 
-type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>[number];
+type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>[number]["data"][number];
 
 export function SubtestCard({
 	subtest,

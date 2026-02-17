@@ -21,7 +21,7 @@ function RouteComponent() {
 	const session = authClient.useSession();
 	const userIsPremium = session.data?.user?.isPremium ?? false;
 	const userRole = session.data?.user?.role;
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
+	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
 
 	return (
 		<div className="mt-4 sm:-mt-3">
@@ -40,11 +40,11 @@ function RouteComponent() {
 
 				{subtests.isError && <p className="text-red-500">Error: {subtests.error.message}</p>}
 
-				{subtests.data && subtests.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
+				{subtests.data && subtests.data.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
 
-				{subtests.data && subtests.data.length > 0 && (
+				{subtests.data && subtests.data.data.length > 0 && (
 					<div className="grid h-full grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-						{subtests.data.map((subtest) => (
+						{subtests.data.data.map((subtest) => (
 							<SubtestCard key={subtest.id} subtest={subtest} userIsPremium={userIsPremium} userRole={userRole} />
 						))}
 					</div>
