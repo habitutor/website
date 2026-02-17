@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { createTestFlashcardAttempt } from "../__tests__/factories/flashcard";
-import { getStartOfDay } from "../utils/date";
+import { createTestFlashcardAttempt } from "../../__tests__/factories/flashcard";
+import { getStartOfDay } from "../../utils/date";
 
 const GRACE_PERIOD_SECONDS = 5;
 

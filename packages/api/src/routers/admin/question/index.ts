@@ -1,10 +1,8 @@
-import { db } from "@habitutor/db";
-import { practicePackQuestions, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
-import { admin } from "../../index";
-import { convertToTiptap } from "../../lib/tiptap";
+import { admin } from "../../..";
+import { convertToTiptap } from "../../../lib/tiptap";
+import { adminQuestionRepo } from "./repo";
 
 interface CursorData {
 	id: number;
@@ -40,27 +38,11 @@ const list = admin
 		const search = input.search || "";
 		const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
 
-		const rawData = await db
-			.select({
-				id: question.id,
-				content: question.content,
-				contentJson: question.contentJson,
-				discussion: question.discussion,
-				discussionJson: question.discussionJson,
-				isFlashcardQuestion: question.isFlashcardQuestion,
-				packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
-			})
-			.from(question)
-			.where(
-				and(
-					search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
-					cursorData ? sql`${question.id} < ${cursorData.id}` : undefined,
-				),
-			)
-			.leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
-			.groupBy(question.id)
-			.orderBy(desc(question.id))
-			.limit(limit + 1);
+		const rawData = await adminQuestionRepo.list({
+			limit,
+			cursorId: cursorData?.id ?? null,
+			search,
+		});
 
 		const hasMore = rawData.length > limit;
 		const data = hasMore ? rawData.slice(0, limit) : rawData;
@@ -69,13 +51,23 @@ const list = admin
 		const nextCursor = hasMore && lastItem ? encodeCursor({ id: lastItem.id }) : null;
 
 		return {
-			data: data.map((q) => ({
-				id: q.id,
-				packCount: q.packCount,
-				content: q.contentJson || convertToTiptap(q.content),
-				discussion: q.discussionJson || convertToTiptap(q.discussion),
-				isFlashcardQuestion: q.isFlashcardQuestion,
-			})),
+			data: data.map(
+				(q: {
+					id: number;
+					packCount: number;
+					content: string;
+					contentJson: unknown;
+					discussion: string;
+					discussionJson: unknown;
+					isFlashcardQuestion: boolean;
+				}) => ({
+					id: q.id,
+					packCount: q.packCount,
+					content: q.contentJson || convertToTiptap(q.content),
+					discussion: q.discussionJson || convertToTiptap(q.discussion),
+					isFlashcardQuestion: q.isFlashcardQuestion,
+				}),
+			),
 			nextCursor,
 			hasMore,
 		};
@@ -89,14 +81,7 @@ const get = admin
 	})
 	.input(type({ id: "number" }))
 	.handler(async ({ input }) => {
-		const q = await db.query.question.findFirst({
-			where: eq(question.id, input.id),
-			with: {
-				answerOptions: {
-					orderBy: (answerOptions, { asc }) => [asc(answerOptions.code)],
-				},
-			},
-		});
+		const q = await adminQuestionRepo.getById({ id: input.id });
 
 		if (!q)
 			throw new ORPCError("NOT_FOUND", {
@@ -107,7 +92,13 @@ const get = admin
 			...q,
 			content: q.contentJson || convertToTiptap(q.content),
 			discussion: q.discussionJson || convertToTiptap(q.discussion),
-			answers: q.answerOptions,
+			answers: q.answerOptions as Array<{
+				id: number;
+				content: string;
+				code: string;
+				isCorrect: boolean;
+				questionId: number;
+			}>,
 		};
 	});
 
@@ -131,16 +122,13 @@ const create = admin
 		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
 		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
 
-		const [q] = await db
-			.insert(question)
-			.values({
-				content: contentText,
-				discussion: discussionText,
-				contentJson,
-				discussionJson,
-				isFlashcardQuestion: input.isFlashcardQuestion ?? true,
-			})
-			.returning();
+		const q = await adminQuestionRepo.create({
+			content: contentText,
+			discussion: discussionText,
+			contentJson,
+			discussionJson,
+			isFlashcardQuestion: input.isFlashcardQuestion ?? true,
+		});
 
 		if (!q)
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -182,7 +170,7 @@ const update = admin
 			updateData.isFlashcardQuestion = input.isFlashcardQuestion;
 		}
 
-		const [q] = await db.update(question).set(updateData).where(eq(question.id, input.id)).returning();
+		const q = await adminQuestionRepo.update({ id: input.id, data: updateData });
 
 		if (!q)
 			throw new ORPCError("NOT_FOUND", {
@@ -200,7 +188,7 @@ const delete_ = admin
 	})
 	.input(type({ id: "number" }))
 	.handler(async ({ input }) => {
-		const [q] = await db.delete(question).where(eq(question.id, input.id)).returning();
+		const q = await adminQuestionRepo.delete({ id: input.id });
 
 		if (!q)
 			throw new ORPCError("NOT_FOUND", {
@@ -236,10 +224,7 @@ const bulkUpdateFlashcard = admin
 			});
 		}
 
-		const existingQuestions = await db
-			.select({ id: question.id })
-			.from(question)
-			.where(inArray(question.id, input.questionIds));
+		const existingQuestions = await adminQuestionRepo.getByIds({ ids: input.questionIds });
 
 		if (existingQuestions.length !== input.questionIds.length) {
 			throw new ORPCError("NOT_FOUND", {
@@ -247,10 +232,10 @@ const bulkUpdateFlashcard = admin
 			});
 		}
 
-		await db
-			.update(question)
-			.set({ isFlashcardQuestion: input.isFlashcard })
-			.where(inArray(question.id, input.questionIds));
+		await adminQuestionRepo.bulkUpdateFlashcard({
+			ids: input.questionIds,
+			isFlashcard: input.isFlashcard,
+		});
 
 		return {
 			message: input.isFlashcard
@@ -275,22 +260,19 @@ const createAnswer = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const [q] = await db.select().from(question).where(eq(question.id, input.questionId)).limit(1);
+		const q = await adminQuestionRepo.getQuestionById({ id: input.questionId });
 
 		if (!q)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Question tidak ditemukan",
 			});
 
-		const [answer] = await db
-			.insert(questionAnswerOption)
-			.values({
-				questionId: input.questionId,
-				content: input.content,
-				isCorrect: input.isCorrect,
-				code: input.code,
-			})
-			.returning();
+		const answer = await adminQuestionRepo.createAnswer({
+			questionId: input.questionId,
+			content: input.content,
+			isCorrect: input.isCorrect,
+			code: input.code,
+		});
 
 		if (!answer)
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -314,14 +296,11 @@ const updateAnswer = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const [answer] = await db
-			.update(questionAnswerOption)
-			.set({
-				content: input.content,
-				isCorrect: input.isCorrect,
-			})
-			.where(eq(questionAnswerOption.id, input.id))
-			.returning();
+		const answer = await adminQuestionRepo.updateAnswer({
+			id: input.id,
+			content: input.content,
+			isCorrect: input.isCorrect,
+		});
 
 		if (!answer)
 			throw new ORPCError("NOT_FOUND", {
@@ -339,7 +318,7 @@ const deleteAnswer = admin
 	})
 	.input(type({ id: "number" }))
 	.handler(async ({ input }) => {
-		const [answer] = await db.delete(questionAnswerOption).where(eq(questionAnswerOption.id, input.id)).returning();
+		const answer = await adminQuestionRepo.deleteAnswer({ id: input.id });
 
 		if (!answer)
 			throw new ORPCError("NOT_FOUND", {

@@ -1,9 +1,7 @@
-import { db } from "@habitutor/db";
-import { user } from "@habitutor/db/schema/auth";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { admin } from "../../index";
+import { admin } from "../../..";
+import { adminUserRepo } from "./repo";
 
 interface CursorData {
 	createdAt: string;
@@ -42,27 +40,12 @@ const listUsers = admin
 		const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
 		const cursorCreatedAt = cursorData ? new Date(cursorData.createdAt) : null;
 
-		const users = await db
-			.select({
-				id: user.id,
-				name: user.name,
-				email: user.email,
-				role: user.role,
-				isPremium: user.isPremium,
-				premiumExpiresAt: user.premiumExpiresAt,
-				createdAt: user.createdAt,
-			})
-			.from(user)
-			.where(
-				and(
-					search.length > 0 ? or(ilike(user.name, `%${search}%`), ilike(user.email, `%${search}%`)) : undefined,
-					cursorData && cursorCreatedAt
-						? sql`(${user.createdAt}, ${user.id}) < (${cursorCreatedAt}, ${cursorData.id})`
-						: undefined,
-				),
-			)
-			.orderBy(desc(user.createdAt), desc(user.id))
-			.limit(limit + 1);
+		const users = await adminUserRepo.list({
+			limit,
+			cursorCreatedAt,
+			cursorId: cursorData?.id ?? null,
+			search,
+		});
 
 		if (users.length < 1)
 			throw errors.NOT_FOUND({
@@ -102,7 +85,7 @@ const updateUserPremium = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const [existingUser] = await db.select().from(user).where(eq(user.id, input.id)).limit(1);
+		const existingUser = await adminUserRepo.getById({ id: input.id });
 
 		if (!existingUser) {
 			throw new ORPCError("NOT_FOUND", {
@@ -110,14 +93,11 @@ const updateUserPremium = admin
 			});
 		}
 
-		const [updatedUser] = await db
-			.update(user)
-			.set({
-				isPremium: input.isPremium,
-				premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : input.isPremium ? null : null,
-			})
-			.where(eq(user.id, input.id))
-			.returning();
+		const updatedUser = await adminUserRepo.updatePremium({
+			id: input.id,
+			isPremium: input.isPremium,
+			premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : input.isPremium ? null : null,
+		});
 
 		if (!updatedUser) {
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {

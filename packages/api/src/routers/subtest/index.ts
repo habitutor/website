@@ -1,25 +1,10 @@
-import { db } from "@habitutor/db";
-import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
-import {
-	contentItem,
-	contentPracticeQuestions,
-	noteMaterial,
-	subtest,
-	userProgress,
-	videoMaterial,
-} from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq, ilike, sql } from "drizzle-orm";
-import { authed, authedRateLimited } from "../../index";
+import { authed, authedRateLimited } from "../..";
 import { canAccessContent } from "../../lib/content-access";
 import { convertToTiptap } from "../../lib/tiptap";
-import { subtestRepository } from "./repo";
+import { subtestRepo } from "./repo";
 
-/**
- * Get all subtests with basic info
- * GET /api/subtests
- */
 const listSubtests = authed
 	.route({
 		path: "/subtests",
@@ -33,38 +18,18 @@ const listSubtests = authed
 		}),
 	)
 	.handler(async ({ input }) => {
-		const limit = input.limit;
-		const offset = input.offset;
-
-		const subtests = await db
-			.select({
-				id: subtest.id,
-				name: subtest.name,
-				shortName: subtest.shortName,
-				description: subtest.description,
-				order: subtest.order,
-				totalContent: sql<number>`COUNT(${contentItem.id})`,
-			})
-			.from(subtest)
-			.leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
-			.groupBy(subtest.id, subtest.name, subtest.shortName, subtest.description, subtest.order)
-			.orderBy(subtest.order)
-			.limit(limit)
-			.offset(offset);
+		const subtests = await subtestRepo.listSubtests({
+			limit: input.limit,
+			offset: input.offset,
+		});
 
 		return {
 			data: subtests,
-			limit,
-			offset,
+			limit: input.limit,
+			offset: input.offset,
 		};
 	});
 
-/**
- * Get content items by subtest and category
- * Returns ALL content items with metadata (no content detail)
- * Frontend will show lock overlay for premium content
- * GET /api/subtests/{subtestId}/content/{category}
- */
 const listContentByCategory = authedRateLimited
 	.route({
 		path: "/subtests/{subtestId}/content",
@@ -81,59 +46,20 @@ const listContentByCategory = authedRateLimited
 		}),
 	)
 	.handler(async ({ input, context }) => {
-		const [targetSubtest] = await db
-			.select({ order: subtest.order })
-			.from(subtest)
-			.where(eq(subtest.id, input.subtestId))
-			.limit(1);
+		const targetSubtest = await subtestRepo.getSubtestOrder({ subtestId: input.subtestId });
 
 		if (!targetSubtest) {
 			throw new ORPCError("NOT_FOUND", { message: "Subtest tidak ditemukan" });
 		}
 
-		const items = await db
-			.select({
-				id: contentItem.id,
-				title: contentItem.title,
-				order: contentItem.order,
-				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
-				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
-				videoCompleted: userProgress.videoCompleted,
-				noteCompleted: userProgress.noteCompleted,
-				practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
-				lastViewedAt: userProgress.lastViewedAt,
-			})
-			.from(contentItem)
-			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
-			.leftJoin(
-				userProgress,
-				and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
-			)
-			.where(
-				and(
-					eq(contentItem.subtestId, input.subtestId),
-					input.category ? eq(contentItem.type, input.category) : undefined,
-					input.search ? ilike(contentItem.title, `%${input.search}%`) : undefined,
-				),
-			)
-			.orderBy(contentItem.order)
-			.limit(input.limit ?? 20)
-			.offset(input.offset ?? 0)
-			.groupBy(
-				contentItem.id,
-				videoMaterial.id,
-				noteMaterial.id,
-				contentPracticeQuestions.contentItemId,
-				userProgress.videoCompleted,
-				userProgress.noteCompleted,
-				userProgress.practiceQuestionsCompleted,
-				userProgress.lastViewedAt,
-			);
-
-		return items;
+		return subtestRepo.listContentByCategory({
+			subtestId: input.subtestId,
+			category: input.category,
+			search: input.search,
+			limit: input.limit ?? 20,
+			offset: input.offset ?? 0,
+			userId: context.session.user.id,
+		});
 	});
 
 const getContentById = authedRateLimited
@@ -148,28 +74,7 @@ const getContentById = authedRateLimited
 		}),
 	)
 	.handler(async ({ input, context }) => {
-		const [row] = await db
-			.select({
-				id: contentItem.id,
-				title: contentItem.title,
-				type: contentItem.type,
-				order: contentItem.order,
-				subtestId: contentItem.subtestId,
-				subtestOrder: subtest.order,
-
-				videoId: videoMaterial.id,
-				videoUrl: videoMaterial.videoUrl,
-				videoContent: videoMaterial.content,
-
-				noteId: noteMaterial.id,
-				noteContent: noteMaterial.content,
-			})
-			.from(contentItem)
-			.innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
-			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.where(eq(contentItem.id, input.contentId))
-			.limit(1);
+		const row = await subtestRepo.getContentWithMaterials({ contentId: input.contentId });
 
 		if (!row) {
 			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
@@ -186,27 +91,10 @@ const getContentById = authedRateLimited
 			throw new ORPCError("FORBIDDEN", { message: "Konten ini memerlukan akun premium" });
 		}
 
-		// Get practice questions with full question and answer data
-		const practiceQuestionsRows = await db
-			.select({
-				questionId: contentPracticeQuestions.questionId,
-				order: contentPracticeQuestions.order,
-				questionContent: question.content,
-				questionContentJson: question.contentJson,
-				questionDiscussion: question.discussion,
-				questionDiscussionJson: question.discussionJson,
-				answerId: questionAnswerOption.id,
-				answerContent: questionAnswerOption.content,
-				answerCode: questionAnswerOption.code,
-				answerIsCorrect: questionAnswerOption.isCorrect,
-			})
-			.from(contentPracticeQuestions)
-			.innerJoin(question, eq(question.id, contentPracticeQuestions.questionId))
-			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
-			.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
-			.orderBy(contentPracticeQuestions.order, questionAnswerOption.code);
+		const practiceQuestionsRows = await subtestRepo.getPracticeQuestionsForContent({
+			contentId: input.contentId,
+		});
 
-		// Group questions and their answers
 		const questionMap = new Map<
 			number,
 			{
@@ -241,7 +129,6 @@ const getContentById = authedRateLimited
 			});
 		}
 
-		// Sort questions by order and answers by code
 		const questions = Array.from(questionMap.values())
 			.map((q) => ({
 				...q,
@@ -276,10 +163,6 @@ const getContentById = authedRateLimited
 		};
 	});
 
-/**
- * Track content view (for recent views)
- * POST /api/content/{id}/view
- */
 const trackView = authed
 	.route({
 		path: "/content/{id}/view",
@@ -289,26 +172,18 @@ const trackView = authed
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input, context }) => {
-		const [item] = await db
-			.select({ id: contentItem.id })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
+		const item = await subtestRepo.getContentById({ contentId: input.id });
 
 		if (!item)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Konten tidak ditemukan",
 			});
 
-		await subtestRepository.recordContentView(context.session.user.id, input.id);
+		await subtestRepo.recordContentView({ userId: context.session.user.id, contentItemId: input.id });
 
 		return { message: "Berhasil mencatat aktivitas" };
 	});
 
-/**
- * Get recent 5 content views for dashboard
- * GET /api/content/recent
- */
 const getRecentViews = authedRateLimited
 	.route({
 		path: "/content/recent",
@@ -316,13 +191,9 @@ const getRecentViews = authedRateLimited
 		tags: ["Content"],
 	})
 	.handler(async ({ context }) => {
-		return await subtestRepository.getSubtestHistoryForUser(context.session.user.id);
+		return subtestRepo.getRecentContentViews({ userId: context.session.user.id });
 	});
 
-/**
- * Update user progress
- * PATCH /api/content/{id}/progress
- */
 const updateProgress = authed
 	.route({
 		path: "/content/{id}/progress",
@@ -339,52 +210,24 @@ const updateProgress = authed
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input, context }) => {
-		const [item] = await db
-			.select({ id: contentItem.id })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
+		const item = await subtestRepo.getContentById({ contentId: input.id });
 
 		if (!item)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Konten tidak ditemukan",
 			});
 
-		const updateData: {
-			videoCompleted?: boolean;
-			noteCompleted?: boolean;
-			practiceQuestionsCompleted?: boolean;
-			lastViewedAt: Date;
-			updatedAt: Date;
-		} = {
-			lastViewedAt: new Date(),
-			updatedAt: new Date(),
-		};
-
-		if (input.videoCompleted !== undefined) updateData.videoCompleted = input.videoCompleted;
-		if (input.noteCompleted !== undefined) updateData.noteCompleted = input.noteCompleted;
-		if (input.practiceQuestionsCompleted !== undefined)
-			updateData.practiceQuestionsCompleted = input.practiceQuestionsCompleted;
-
-		await db
-			.insert(userProgress)
-			.values({
-				userId: context.session.user.id,
-				contentItemId: input.id,
-				...updateData,
-			})
-			.onConflictDoUpdate({
-				target: [userProgress.userId, userProgress.contentItemId],
-				set: updateData,
-			});
+		await subtestRepo.upsertUserProgress({
+			userId: context.session.user.id,
+			contentItemId: input.id,
+			videoCompleted: input.videoCompleted,
+			noteCompleted: input.noteCompleted,
+			practiceQuestionsCompleted: input.practiceQuestionsCompleted,
+		});
 
 		return { message: "Progress berhasil disimpan" };
 	});
 
-/**
- * Get user progress statistics
- * GET /api/content/progress/stats
- */
 const getProgressStats = authed
 	.route({
 		path: "/content/progress/stats",
@@ -392,12 +235,7 @@ const getProgressStats = authed
 		tags: ["Content"],
 	})
 	.handler(async ({ context }) => {
-		const [stats] = await db
-			.select({
-				materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,
-			})
-			.from(userProgress)
-			.where(eq(userProgress.userId, context.session.user.id));
+		const stats = await subtestRepo.getProgressStats({ userId: context.session.user.id });
 
 		return {
 			materialsCompleted: Number(stats?.materialsCompleted ?? 0),

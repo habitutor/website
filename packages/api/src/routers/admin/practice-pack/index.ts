@@ -1,15 +1,8 @@
-import { db } from "@habitutor/db";
-import {
-	practicePack,
-	practicePackQuestions,
-	question,
-	questionAnswerOption,
-} from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
-import { admin } from "../../index";
-import { convertToTiptap } from "../../lib/tiptap";
+import { admin } from "../../..";
+import { convertToTiptap } from "../../../lib/tiptap";
+import { adminPracticePackRepo } from "./repo";
 
 const list = admin
 	.route({
@@ -29,30 +22,12 @@ const list = admin
 		const offset = input.offset || 0;
 		const search = input.search || "";
 
-		const baseQuery = db
-			.select({
-				id: practicePack.id,
-				title: practicePack.title,
-				description: practicePack.description,
-			})
-			.from(practicePack);
-
-		const filteredQuery = search
-			? baseQuery.where(and(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
-			: baseQuery;
-
-		const [totalCount] = search
-			? await db
-					.select({ count: count() })
-					.from(practicePack)
-					.where(or(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
-			: await db.select({ count: count() }).from(practicePack);
-
-		const packs = await filteredQuery.limit(limit).offset(offset).orderBy(practicePack.id);
+		const packs = await adminPracticePackRepo.list({ limit, offset, search });
+		const total = await adminPracticePackRepo.count({ search });
 
 		return {
 			data: packs,
-			total: totalCount?.count || 0,
+			total,
 			limit,
 			offset,
 		};
@@ -66,15 +41,7 @@ const get = admin
 	})
 	.input(type({ id: "number" }))
 	.handler(async ({ input }) => {
-		const [pack] = await db
-			.select({
-				id: practicePack.id,
-				title: practicePack.title,
-				description: practicePack.description,
-			})
-			.from(practicePack)
-			.where(eq(practicePack.id, input.id))
-			.limit(1);
+		const pack = await adminPracticePackRepo.getById({ id: input.id });
 
 		if (!pack)
 			throw new ORPCError("NOT_FOUND", {
@@ -97,12 +64,10 @@ const create = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const [pack] = await db
-			.insert(practicePack)
-			.values({
-				...input,
-			})
-			.returning();
+		const pack = await adminPracticePackRepo.create({
+			title: input.title,
+			description: input.description,
+		});
 
 		if (!pack)
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -126,14 +91,11 @@ const update = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const [pack] = await db
-			.update(practicePack)
-			.set({
-				title: input.title,
-				description: input.description,
-			})
-			.where(eq(practicePack.id, input.id))
-			.returning();
+		const pack = await adminPracticePackRepo.update({
+			id: input.id,
+			title: input.title,
+			description: input.description,
+		});
 
 		if (!pack)
 			throw new ORPCError("NOT_FOUND", {
@@ -151,7 +113,7 @@ const delete_ = admin
 	})
 	.input(type({ id: "number" }))
 	.handler(async ({ input }) => {
-		const [pack] = await db.delete(practicePack).where(eq(practicePack.id, input.id)).returning();
+		const pack = await adminPracticePackRepo.delete({ id: input.id });
 
 		if (!pack)
 			throw new ORPCError("NOT_FOUND", {
@@ -175,14 +137,14 @@ const addQuestion = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const [pack] = await db.select().from(practicePack).where(eq(practicePack.id, input.practicePackId)).limit(1);
+		const pack = await adminPracticePackRepo.getPracticePackById({ id: input.practicePackId });
 
 		if (!pack)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Practice pack tidak ditemukan",
 			});
 
-		const [q] = await db.select().from(question).where(eq(question.id, input.questionId)).limit(1);
+		const q = await adminPracticePackRepo.getQuestionById({ id: input.questionId });
 
 		if (!q)
 			throw new ORPCError("NOT_FOUND", {
@@ -191,21 +153,15 @@ const addQuestion = admin
 
 		let orderValue = input.order;
 		if (orderValue === undefined) {
-			const [maxOrder] = await db
-				.select({ maxOrder: sql<number>`COALESCE(MAX(${practicePackQuestions.order}), 0)` })
-				.from(practicePackQuestions)
-				.where(eq(practicePackQuestions.practicePackId, input.practicePackId));
-			orderValue = (maxOrder?.maxOrder ?? 0) + 1;
+			const maxOrder = await adminPracticePackRepo.getMaxQuestionOrder({ practicePackId: input.practicePackId });
+			orderValue = maxOrder + 1;
 		}
 
-		await db
-			.insert(practicePackQuestions)
-			.values({
-				practicePackId: input.practicePackId,
-				questionId: input.questionId,
-				order: orderValue,
-			})
-			.onConflictDoNothing();
+		await adminPracticePackRepo.addQuestion({
+			practicePackId: input.practicePackId,
+			questionId: input.questionId,
+			order: orderValue ?? 1,
+		});
 
 		return { message: "Berhasil menambahkan question ke practice pack" };
 	});
@@ -223,14 +179,10 @@ const removeQuestion = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		await db
-			.delete(practicePackQuestions)
-			.where(
-				and(
-					eq(practicePackQuestions.practicePackId, input.practicePackId),
-					eq(practicePackQuestions.questionId, input.questionId),
-				),
-			);
+		await adminPracticePackRepo.removeQuestion({
+			practicePackId: input.practicePackId,
+			questionId: input.questionId,
+		});
 
 		return { message: "Berhasil menghapus question dari practice pack" };
 	});
@@ -249,15 +201,11 @@ const reorderQuestion = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		await db
-			.update(practicePackQuestions)
-			.set({ order: input.order })
-			.where(
-				and(
-					eq(practicePackQuestions.practicePackId, input.practicePackId),
-					eq(practicePackQuestions.questionId, input.questionId),
-				),
-			);
+		await adminPracticePackRepo.updateQuestionOrder({
+			practicePackId: input.practicePackId,
+			questionId: input.questionId,
+			order: input.order,
+		});
 
 		return { message: "Berhasil mengupdate urutan question" };
 	});
@@ -270,28 +218,10 @@ const getQuestions = admin
 	})
 	.input(type({ id: "number" }))
 	.handler(async ({ input }) => {
-		const rows = await db
-			.select({
-				questionId: practicePackQuestions.questionId,
-				questionOrder: practicePackQuestions.order,
-				questionContent: question.content,
-				questionDiscussion: question.discussion,
-				questionContentJson: question.contentJson,
-				questionDiscussionJson: question.discussionJson,
-				questionIsFlashcard: question.isFlashcardQuestion,
-				answerId: questionAnswerOption.id,
-				answerContent: questionAnswerOption.content,
-				answerCode: questionAnswerOption.code,
-				answerIsCorrect: questionAnswerOption.isCorrect,
-			})
-			.from(practicePack)
-			.innerJoin(practicePackQuestions, eq(practicePackQuestions.practicePackId, practicePack.id))
-			.innerJoin(question, eq(question.id, practicePackQuestions.questionId))
-			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
-			.where(eq(practicePack.id, input.id));
+		const rows = await adminPracticePackRepo.getQuestionsForPack({ packId: input.id });
 
 		if (rows.length === 0) {
-			const [pack] = await db.select().from(practicePack).where(eq(practicePack.id, input.id)).limit(1);
+			const pack = await adminPracticePackRepo.getPracticePackById({ id: input.id });
 			if (!pack) {
 				throw new ORPCError("NOT_FOUND", {
 					message: "Practice pack not found",
@@ -365,18 +295,11 @@ const toggleAvailableForFlashcard = admin
 		}),
 	)
 	.handler(async ({ input, errors }) => {
-		const [pack] = await db
-			.select({ id: practicePack.id })
-			.from(practicePack)
-			.where(eq(practicePack.id, input.id))
-			.limit(1);
+		const pack = await adminPracticePackRepo.getPracticePackById({ id: input.id });
 
 		if (!pack) throw errors.NOT_FOUND({ message: "Practice pack tidak ditemukan" });
 
-		const questionIds = await db
-			.select({ questionId: practicePackQuestions.questionId })
-			.from(practicePackQuestions)
-			.where(eq(practicePackQuestions.practicePackId, input.id));
+		const questionIds = await adminPracticePackRepo.getQuestionIdsForPack({ packId: input.id });
 
 		if (questionIds.length === 0) {
 			return {
@@ -386,13 +309,12 @@ const toggleAvailableForFlashcard = admin
 			};
 		}
 
-		const ids = questionIds.map((q) => q.questionId);
+		const ids = questionIds.map((q: { questionId: number }) => q.questionId);
 
-		const result = await db
-			.update(question)
-			.set({ isFlashcardQuestion: input.isFlashcardQuestion })
-			.where(inArray(question.id, ids))
-			.returning({ id: question.id });
+		const result = await adminPracticePackRepo.updateQuestionsFlashcard({
+			questionIds: ids,
+			isFlashcardQuestion: input.isFlashcardQuestion,
+		});
 
 		return {
 			id: input.id,

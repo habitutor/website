@@ -1,15 +1,13 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
-import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
-import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { type } from "arktype";
-import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
-import { authed, premium } from "..";
-import { convertToTiptap } from "../lib/tiptap";
-import { getStartOfDay } from "../utils/date";
+import { eq, sql } from "drizzle-orm";
+import { authed, premium } from "../..";
+import { convertToTiptap } from "../../lib/tiptap";
+import { getStartOfDay } from "../../utils/date";
+import { flashcardRepo } from "./repo";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
-// Grace period to allow submitting after deadline
 const GRACE_PERIOD_SECONDS = 5;
 
 const start = authed
@@ -23,13 +21,8 @@ const start = authed
 		const today = getStartOfDay();
 		const isPremium = context.session.user.isPremium;
 
-		return await db.transaction(async (tx) => {
-			const [latestAttempt] = await tx
-				.select()
-				.from(userFlashcardAttempt)
-				.where(eq(userFlashcardAttempt.userId, context.session.user.id))
-				.orderBy(desc(userFlashcardAttempt.startedAt))
-				.limit(1);
+		return db.transaction(async (tx) => {
+			const latestAttempt = await flashcardRepo.getLatestAttempt({ db: tx, userId: context.session.user.id });
 
 			if (latestAttempt && !isPremium && latestAttempt.startedAt.getTime() >= today.getTime())
 				throw errors.UNPROCESSABLE_CONTENT({
@@ -46,46 +39,33 @@ const start = authed
 					message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
 				});
 
-			const [attempt] = await tx
-				.insert(userFlashcardAttempt)
-				.values({
-					userId: context.session.user.id,
-					startedAt: new Date(),
-					deadline: deadline,
-				})
-				.returning();
+			const attempt = await flashcardRepo.createAttempt({ db: tx, userId: context.session.user.id, deadline });
 
-			// Select random question IDs first (much faster than full table scan with relations)
-			const randomQuestionIds = await tx
-				.select({ id: question.id })
-				.from(question)
-				.where(eq(question.isFlashcardQuestion, true))
-				.orderBy(sql`RANDOM()`)
-				.limit(5);
+			if (!attempt)
+				throw errors.INTERNAL_SERVER_ERROR({
+					message: "Gagal membuat sesi flashcard.",
+				});
+
+			const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({ db: tx });
 
 			if (randomQuestionIds.length < 5)
 				throw errors.NOT_FOUND({
 					message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
 				});
 
-			// Then fetch full question data with relations using the random IDs
-			const availableQuestions = await tx.query.question.findMany({
-				where: inArray(
-					question.id,
-					randomQuestionIds.map((q) => q.id),
-				),
-				with: {
-					answerOptions: true,
-				},
+			const availableQuestions = await flashcardRepo.getQuestionsByIds({
+				db: tx,
+				ids: randomQuestionIds.map((q) => q.id),
 			});
 
-			await tx.insert(userFlashcardQuestionAnswer).values(
-				availableQuestions.map((q) => ({
-					attemptId: attempt?.id,
+			await flashcardRepo.insertQuestionAnswers({
+				db: tx,
+				answers: availableQuestions.map((q: { id: number }) => ({
+					attemptId: attempt.id,
 					assignedDate: today,
 					questionId: q.id,
 				})),
-			);
+			});
 
 			return "Sukses memulai sesi flashcard!";
 		});
@@ -100,40 +80,11 @@ const get = authed
 	.handler(async ({ context }) => {
 		let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
-		const [attempt] = await db
-			.select()
-			.from(userFlashcardAttempt)
-			.where(eq(userFlashcardAttempt.userId, context.session.user.id))
-			.orderBy(desc(userFlashcardAttempt.startedAt))
-			.limit(1);
+		const attempt = await flashcardRepo.getLatestAttempt({ userId: context.session.user.id });
 
 		if (!attempt) return { status };
 
-		const assignedQuestionsRaw = await db.query.userFlashcardQuestionAnswer.findMany({
-			where: and(
-				eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
-				isNull(userFlashcardQuestionAnswer.selectedAnswerId),
-			),
-			with: {
-				question: {
-					columns: {
-						id: true,
-						content: true,
-						contentJson: true,
-					},
-					with: {
-						answerOptions: {
-							columns: {
-								id: true,
-								content: true,
-								code: true,
-							},
-							orderBy: (answers, { asc }) => [asc(answers.code)],
-						},
-					},
-				},
-			},
-		});
+		const assignedQuestionsRaw = await flashcardRepo.getUnansweredQuestions({ attemptId: attempt.id });
 
 		const assignedQuestions = assignedQuestionsRaw.map((aq) => ({
 			...aq,
@@ -168,12 +119,10 @@ const submit = authed
 			context.session.user.lastCompletedFlashcardAt &&
 			context.session.user.lastCompletedFlashcardAt.getTime() >= today.getTime();
 
-		const [latestAttempt] = await db
-			.select()
-			.from(userFlashcardAttempt)
-			.where(and(eq(userFlashcardAttempt.userId, context.session.user.id), gte(userFlashcardAttempt.startedAt, today)))
-			.orderBy(desc(userFlashcardAttempt.startedAt))
-			.limit(1);
+		const latestAttempt = await flashcardRepo.getLatestAttemptForToday({
+			userId: context.session.user.id,
+			today,
+		});
 
 		if (!latestAttempt) {
 			throw errors.NOT_FOUND({
@@ -187,7 +136,6 @@ const submit = authed
 			});
 		}
 
-		// Grace period for submitting
 		if (Date.now() > latestAttempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
 			throw errors.UNPROCESSABLE_CONTENT({
 				message: "Waktu sesi flashcard telah berakhir.",
@@ -195,10 +143,7 @@ const submit = authed
 		}
 
 		await db.transaction(async (tx) => {
-			await tx
-				.update(userFlashcardAttempt)
-				.set({ submittedAt: new Date() })
-				.where(eq(userFlashcardAttempt.id, latestAttempt.id));
+			await flashcardRepo.markAttemptSubmitted({ db: tx, attemptId: latestAttempt.id });
 			if (!hasDoneToday)
 				await tx
 					.update(user)
@@ -231,22 +176,11 @@ const save = authed
 	.handler(async ({ input, context, errors }) => {
 		const today = getStartOfDay();
 
-		const [attempt] = await db
-			.select({
-				id: userFlashcardAttempt.id,
-				deadline: userFlashcardAttempt.deadline,
-			})
-			.from(userFlashcardQuestionAnswer)
-			.innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
-			.where(
-				and(
-					eq(userFlashcardQuestionAnswer.questionId, input.questionId),
-					eq(userFlashcardQuestionAnswer.assignedDate, today),
-					eq(userFlashcardAttempt.userId, context.session.user.id),
-				),
-			)
-			.orderBy(desc(userFlashcardAttempt.startedAt))
-			.limit(1);
+		const attempt = await flashcardRepo.getAttemptForQuestion({
+			userId: context.session.user.id,
+			questionId: input.questionId,
+			today,
+		});
 
 		if (!attempt) throw errors.NOT_FOUND();
 
@@ -256,33 +190,21 @@ const save = authed
 			});
 		}
 
-		const answers = await db
-			.select({
-				id: questionAnswerOption.id,
-				isCorrect: questionAnswerOption.isCorrect,
-			})
-			.from(questionAnswerOption)
-			.where(eq(questionAnswerOption.questionId, input.questionId));
+		const answers = await flashcardRepo.getAnswersForQuestion({ questionId: input.questionId });
 
 		if (!answers || answers.length === 0) {
 			throw errors.NOT_FOUND();
 		}
-		const correctAnswer = answers.find((answer) => answer.isCorrect);
-		const userAnswer = answers.find((answer) => answer.id === input.answerId);
+		const correctAnswer = answers.find((answer: { id: number; isCorrect: boolean }) => answer.isCorrect);
+		const userAnswer = answers.find((answer: { id: number; isCorrect: boolean }) => answer.id === input.answerId);
 		if (!correctAnswer || !userAnswer) throw errors.NOT_FOUND();
 
-		await db
-			.update(userFlashcardQuestionAnswer)
-			.set({
-				selectedAnswerId: input.answerId,
-			})
-			.where(
-				and(
-					eq(userFlashcardQuestionAnswer.questionId, input.questionId),
-					eq(userFlashcardQuestionAnswer.assignedDate, today),
-					eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
-				),
-			);
+		await flashcardRepo.updateQuestionAnswer({
+			questionId: input.questionId,
+			attemptId: attempt.id,
+			selectedAnswerId: input.answerId,
+			today,
+		});
 
 		return {
 			isCorrect: userAnswer.isCorrect,
@@ -303,51 +225,17 @@ const result = authed
 		}),
 	)
 	.handler(async ({ context, errors, input }) => {
-		const [attempt] = await db
-			.select()
-			.from(userFlashcardAttempt)
-			.where(
-				and(
-					eq(userFlashcardAttempt.userId, context.session.user.id),
-					input.id ? eq(userFlashcardAttempt.id, input.id) : undefined,
-				),
-			)
-			.orderBy(desc(userFlashcardAttempt.startedAt))
-			.limit(1);
+		const attempt = await flashcardRepo.getAttemptWithOptionalId({
+			userId: context.session.user.id,
+			attemptId: input.id,
+		});
 
 		if (!attempt)
 			throw errors.NOT_FOUND({
 				message: "Anda belom mengerjakan flashcard hari ini.",
 			});
 
-		const assignedQuestions = await db.query.userFlashcardQuestionAnswer.findMany({
-			where: eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
-			columns: {
-				selectedAnswerId: true,
-			},
-			with: {
-				question: {
-					columns: {
-						id: true,
-						content: true,
-						contentJson: true,
-						discussion: true,
-						discussionJson: true,
-					},
-					with: {
-						answerOptions: {
-							columns: {
-								id: true,
-								content: true,
-								code: true,
-								isCorrect: true,
-							},
-							orderBy: (answers, { asc }) => [asc(answers.code)],
-						},
-					},
-				},
-			},
-		});
+		const assignedQuestions = await flashcardRepo.getAttemptQuestionAnswers({ attemptId: attempt.id });
 
 		const formattedQuestions = assignedQuestions.map((aq) => ({
 			...aq,
@@ -387,16 +275,7 @@ const history = premium
 		tags: ["Flashcard"],
 	})
 	.handler(async ({ context }) => {
-		return await db
-			.select({
-				id: userFlashcardAttempt.id,
-				startedAt: userFlashcardAttempt.startedAt,
-				submittedAt: userFlashcardAttempt.submittedAt,
-			})
-			.from(userFlashcardAttempt)
-			.where(eq(userFlashcardAttempt.userId, context.session.user.id))
-			.orderBy(desc(userFlashcardAttempt.startedAt))
-			.limit(50);
+		return flashcardRepo.getUserHistory({ userId: context.session.user.id });
 	});
 
 export const flashcardRouter = {

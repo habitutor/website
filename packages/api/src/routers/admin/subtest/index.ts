@@ -1,20 +1,9 @@
 import { db } from "@habitutor/db";
-import {
-	contentItem,
-	contentPracticeQuestions,
-	noteMaterial,
-	subtest,
-	videoMaterial,
-} from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq } from "drizzle-orm";
-import { admin } from "../..";
+import { admin } from "../../..";
+import { adminSubtestRepo } from "./repo";
 
-/**
- * Create new subtest (class)
- * POST /api/admin/subtests
- */
 const createSubtest = admin
 	.route({
 		path: "/admin/subtests",
@@ -31,15 +20,12 @@ const createSubtest = admin
 	)
 	.output(type({ message: "string", id: "number" }))
 	.handler(async ({ input }) => {
-		const [created] = await db
-			.insert(subtest)
-			.values({
-				name: input.name,
-				shortName: input.shortName,
-				description: input.description ?? null,
-				order: input.order ?? 1,
-			})
-			.returning();
+		const created = await adminSubtestRepo.createSubtest({
+			name: input.name,
+			shortName: input.shortName,
+			description: input.description ?? null,
+			order: input.order ?? 1,
+		});
 
 		if (!created)
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -52,10 +38,6 @@ const createSubtest = admin
 		};
 	});
 
-/**
- * Update subtest (class)
- * PATCH /api/admin/subtests/{id}
- */
 const updateSubtest = admin
 	.route({
 		path: "/admin/subtests/{id}",
@@ -88,7 +70,7 @@ const updateSubtest = admin
 		if (input.description !== undefined) updateData.description = input.description ?? null;
 		if (input.order !== undefined) updateData.order = input.order;
 
-		const [updatedRow] = await db.update(subtest).set(updateData).where(eq(subtest.id, input.id)).returning();
+		const updatedRow = await adminSubtestRepo.updateSubtest({ id: input.id, data: updateData });
 
 		if (!updatedRow)
 			throw new ORPCError("NOT_FOUND", {
@@ -98,10 +80,6 @@ const updateSubtest = admin
 		return { message: "Kelas berhasil diperbarui" };
 	});
 
-/**
- * Delete subtest (class)
- * DELETE /api/admin/subtests/{id}
- */
 const deleteSubtest = admin
 	.route({
 		path: "/admin/subtests/{id}",
@@ -111,7 +89,7 @@ const deleteSubtest = admin
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		const [deletedRow] = await db.delete(subtest).where(eq(subtest.id, input.id)).returning();
+		const deletedRow = await adminSubtestRepo.deleteSubtest({ id: input.id });
 
 		if (!deletedRow)
 			throw new ORPCError("NOT_FOUND", {
@@ -121,10 +99,6 @@ const deleteSubtest = admin
 		return { message: "Kelas berhasil dihapus" };
 	});
 
-/**
- * Reorder subtests (classes)
- * PATCH /api/admin/subtests/reorder
- */
 const reorderSubtests = admin
 	.route({
 		path: "/admin/subtests/reorder",
@@ -142,17 +116,13 @@ const reorderSubtests = admin
 
 		await db.transaction(async (tx) => {
 			for (const item of items) {
-				await tx.update(subtest).set({ order: item.order, updatedAt: new Date() }).where(eq(subtest.id, item.id));
+				await adminSubtestRepo.updateSubtestOrder({ db: tx, id: item.id, order: item.order });
 			}
 		});
 
 		return { message: "Urutan kelas berhasil diperbarui" };
 	});
 
-/**
- * Create new content item
- * POST /api/admin/content
- */
 const createContent = admin
 	.route({
 		path: "/admin/content",
@@ -191,14 +161,12 @@ const createContent = admin
 			});
 		}
 
-		// Validate that tips_and_trick cannot have practice questions
 		if (input.type === "tips_and_trick" && hasPracticeQuestions) {
 			throw new ORPCError("BAD_REQUEST", {
 				message: "Tips & Trick tidak boleh memiliki latihan soal",
 			});
 		}
 
-		// Validate video structure if provided
 		if (hasVideo) {
 			if (
 				typeof input.video !== "object" ||
@@ -215,7 +183,6 @@ const createContent = admin
 			}
 		}
 
-		// Validate note structure if provided
 		if (hasNote) {
 			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
 				throw new ORPCError("BAD_REQUEST", {
@@ -224,18 +191,14 @@ const createContent = admin
 			}
 		}
 
-		// Create content and materials in a transaction
 		const result = await db.transaction(async (tx) => {
-			// Insert content item
-			const [newContent] = await tx
-				.insert(contentItem)
-				.values({
-					subtestId: input.subtestId,
-					type: input.type,
-					title: input.title,
-					order: input.order,
-				})
-				.returning();
+			const newContent = await adminSubtestRepo.createContentItem({
+				db: tx,
+				subtestId: input.subtestId,
+				type: input.type,
+				title: input.title,
+				order: input.order,
+			});
 
 			if (!newContent)
 				throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -248,42 +211,33 @@ const createContent = admin
 				practiceQuestions?: number;
 			} = {};
 
-			// Insert video material if provided
 			if (hasVideo && input.video) {
-				const [video] = await tx
-					.insert(videoMaterial)
-					.values({
-						contentItemId: newContent.id,
-						videoUrl: (input.video as { videoUrl: string }).videoUrl,
-						content: (input.video as { content: object }).content,
-					})
-					.returning();
+				const video = await adminSubtestRepo.upsertVideoMaterial({
+					db: tx,
+					contentItemId: newContent.id,
+					videoUrl: (input.video as { videoUrl: string }).videoUrl,
+					content: (input.video as { content: object }).content,
+				});
 
 				if (video) createdMaterials.video = video.id;
 			}
 
-			// Insert note material if provided
 			if (hasNote && input.note) {
-				const [note] = await tx
-					.insert(noteMaterial)
-					.values({
-						contentItemId: newContent.id,
-						content: (input.note as { content: object }).content,
-					})
-					.returning();
+				const note = await adminSubtestRepo.upsertNoteMaterial({
+					db: tx,
+					contentItemId: newContent.id,
+					content: (input.note as { content: object }).content,
+				});
 
 				if (note) createdMaterials.note = note.id;
 			}
 
-			// Insert practice questions if provided (only for material type)
 			if (hasPracticeQuestions && input.practiceQuestionIds && input.type === "material") {
-				await tx.insert(contentPracticeQuestions).values(
-					input.practiceQuestionIds.map((questionId: number, index: number) => ({
-						contentItemId: newContent.id,
-						questionId,
-						order: index + 1,
-					})),
-				);
+				await adminSubtestRepo.insertPracticeQuestions({
+					db: tx,
+					contentItemId: newContent.id,
+					questionIds: input.practiceQuestionIds,
+				});
 
 				createdMaterials.practiceQuestions = input.practiceQuestionIds.length;
 			}
@@ -301,10 +255,6 @@ const createContent = admin
 		};
 	});
 
-/**
- * Update content item
- * PATCH /api/admin/content/{id}
- */
 const updateContent = admin
 	.route({
 		path: "/admin/content/{id}",
@@ -327,7 +277,7 @@ const updateContent = admin
 		if (input.title !== undefined) updateData.title = input.title;
 		if (input.order !== undefined) updateData.order = input.order;
 
-		const [updated] = await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning();
+		const updated = await adminSubtestRepo.updateContentItem({ id: input.id, data: updateData });
 
 		if (!updated)
 			throw new ORPCError("NOT_FOUND", {
@@ -337,10 +287,6 @@ const updateContent = admin
 		return { message: "Konten berhasil diperbarui" };
 	});
 
-/**
- * Delete content item
- * DELETE /api/admin/content/{id}
- */
 const deleteContent = admin
 	.route({
 		path: "/admin/content/{id}",
@@ -350,7 +296,7 @@ const deleteContent = admin
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
+		const deleted = await adminSubtestRepo.deleteContentItem({ id: input.id });
 
 		if (!deleted)
 			throw new ORPCError("NOT_FOUND", {
@@ -360,10 +306,6 @@ const deleteContent = admin
 		return { message: "Konten berhasil dihapus" };
 	});
 
-/**
- * Reorder content items
- * PATCH /api/admin/content/reorder
- */
 const reorderContent = admin
 	.route({
 		path: "/admin/content/reorder",
@@ -379,7 +321,6 @@ const reorderContent = admin
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// Validate items array at runtime
 		if (!Array.isArray(input.items)) {
 			throw new ORPCError("BAD_REQUEST", {
 				message: "Items harus berupa array",
@@ -388,7 +329,6 @@ const reorderContent = admin
 
 		const items = input.items as { id: number; order: number }[];
 
-		// Validate each item
 		for (const item of items) {
 			if (typeof item.id !== "number" || typeof item.order !== "number") {
 				throw new ORPCError("BAD_REQUEST", {
@@ -397,46 +337,31 @@ const reorderContent = admin
 			}
 		}
 
-		// Use transaction for atomic updates
-		// First set all orders to negative values to avoid unique constraint violation
-		// Then set them to their final values
 		await db.transaction(async (tx) => {
-			// Step 1: Set all orders to negative (temporary) values
 			for (const [i, item] of items.entries()) {
-				await tx
-					.update(contentItem)
-					.set({ order: -(i + 1000), updatedAt: new Date() })
-					.where(
-						and(
-							eq(contentItem.id, item.id),
-							eq(contentItem.subtestId, input.subtestId),
-							eq(contentItem.type, input.type),
-						),
-					);
+				await adminSubtestRepo.updateContentOrder({
+					db: tx,
+					id: item.id,
+					order: -(i + 1000),
+					subtestId: input.subtestId,
+					type: input.type,
+				});
 			}
 
-			// Step 2: Set final order values
 			for (const item of items) {
-				await tx
-					.update(contentItem)
-					.set({ order: item.order, updatedAt: new Date() })
-					.where(
-						and(
-							eq(contentItem.id, item.id),
-							eq(contentItem.subtestId, input.subtestId),
-							eq(contentItem.type, input.type),
-						),
-					);
+				await adminSubtestRepo.updateContentOrder({
+					db: tx,
+					id: item.id,
+					order: item.order,
+					subtestId: input.subtestId,
+					type: input.type,
+				});
 			}
 		});
 
 		return { message: "Urutan konten berhasil diperbarui" };
 	});
 
-/**
- * Add/Update video material
- * POST /api/admin/content/{id}/video
- */
 const upsertVideo = admin
 	.route({
 		path: "/admin/content/{id}/video",
@@ -452,42 +377,24 @@ const upsertVideo = admin
 	)
 	.output(type({ message: "string", videoId: "number" }))
 	.handler(async ({ input }) => {
-		// Validate video URL
 		if (!input.videoUrl) {
 			throw new ORPCError("BAD_REQUEST", {
 				message: "Video URL wajib diisi",
 			});
 		}
 
-		// Check if content exists
-		const [content] = await db
-			.select({ id: contentItem.id })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
+		const content = await adminSubtestRepo.getContentItemById({ id: input.id });
 
 		if (!content)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Konten tidak ditemukan",
 			});
 
-		// Upsert video material
-		const [video] = await db
-			.insert(videoMaterial)
-			.values({
-				contentItemId: input.id,
-				videoUrl: input.videoUrl,
-				content: input.content,
-			})
-			.onConflictDoUpdate({
-				target: videoMaterial.contentItemId,
-				set: {
-					videoUrl: input.videoUrl,
-					content: input.content,
-					updatedAt: new Date(),
-				},
-			})
-			.returning();
+		const video = await adminSubtestRepo.upsertVideoMaterial({
+			contentItemId: input.id,
+			videoUrl: input.videoUrl,
+			content: input.content,
+		});
 
 		if (!video)
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -497,10 +404,6 @@ const upsertVideo = admin
 		return { message: "Video material berhasil disimpan", videoId: video.id };
 	});
 
-/**
- * Delete video material
- * DELETE /api/admin/content/{id}/video
- */
 const deleteVideo = admin
 	.route({
 		path: "/admin/content/{id}/video",
@@ -510,7 +413,7 @@ const deleteVideo = admin
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
+		const deleted = await adminSubtestRepo.deleteVideoMaterial({ contentItemId: input.id });
 
 		if (!deleted)
 			throw new ORPCError("NOT_FOUND", {
@@ -520,10 +423,6 @@ const deleteVideo = admin
 		return { message: "Video material berhasil dihapus" };
 	});
 
-/**
- * Add/Update note material
- * POST /api/admin/content/{id}/note
- */
 const upsertNote = admin
 	.route({
 		path: "/admin/content/{id}/note",
@@ -533,38 +432,22 @@ const upsertNote = admin
 	.input(
 		type({
 			id: "number",
-			content: "object", // Tiptap JSON
+			content: "object",
 		}),
 	)
 	.output(type({ message: "string", noteId: "number" }))
 	.handler(async ({ input }) => {
-		// Check if content exists
-		const [content] = await db
-			.select({ id: contentItem.id })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
+		const content = await adminSubtestRepo.getContentItemById({ id: input.id });
 
 		if (!content)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Konten tidak ditemukan",
 			});
 
-		// Upsert note material
-		const [note] = await db
-			.insert(noteMaterial)
-			.values({
-				contentItemId: input.id,
-				content: input.content,
-			})
-			.onConflictDoUpdate({
-				target: noteMaterial.contentItemId,
-				set: {
-					content: input.content,
-					updatedAt: new Date(),
-				},
-			})
-			.returning();
+		const note = await adminSubtestRepo.upsertNoteMaterial({
+			contentItemId: input.id,
+			content: input.content,
+		});
 
 		if (!note)
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -577,10 +460,6 @@ const upsertNote = admin
 		};
 	});
 
-/**
- * Delete note material
- * DELETE /api/admin/content/{id}/note
- */
 const deleteNote = admin
 	.route({
 		path: "/admin/content/{id}/note",
@@ -590,7 +469,7 @@ const deleteNote = admin
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
+		const deleted = await adminSubtestRepo.deleteNoteMaterial({ contentItemId: input.id });
 
 		if (!deleted)
 			throw new ORPCError("NOT_FOUND", {
@@ -600,10 +479,6 @@ const deleteNote = admin
 		return { message: "Catatan material berhasil dihapus" };
 	});
 
-/**
- * Link practice questions to content (only for Material type)
- * POST /api/admin/content/{id}/practice-questions
- */
 const linkPracticeQuestions = admin
 	.route({
 		path: "/admin/content/{id}/practice-questions",
@@ -618,12 +493,7 @@ const linkPracticeQuestions = admin
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// Check if content exists and is Material type
-		const [content] = await db
-			.select({ id: contentItem.id, type: contentItem.type })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
+		const content = await adminSubtestRepo.getContentItemWithDetails({ id: input.id });
 
 		if (!content)
 			throw new ORPCError("NOT_FOUND", {
@@ -636,27 +506,18 @@ const linkPracticeQuestions = admin
 			});
 		}
 
-		// Delete existing practice question links
-		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
+		await adminSubtestRepo.deletePracticeQuestions({ contentItemId: input.id });
 
-		// Insert new practice question links
 		if (input.questionIds.length > 0) {
-			await db.insert(contentPracticeQuestions).values(
-				input.questionIds.map((questionId: number, index: number) => ({
-					contentItemId: input.id,
-					questionId,
-					order: index + 1,
-				})),
-			);
+			await adminSubtestRepo.insertPracticeQuestions({
+				contentItemId: input.id,
+				questionIds: input.questionIds,
+			});
 		}
 
 		return { message: "Latihan soal berhasil dihubungkan ke konten" };
 	});
 
-/**
- * Remove practice questions from content
- * DELETE /api/admin/content/{id}/practice-questions
- */
 const unlinkPracticeQuestions = admin
 	.route({
 		path: "/admin/content/{id}/practice-questions",
@@ -666,7 +527,7 @@ const unlinkPracticeQuestions = admin
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
+		await adminSubtestRepo.deletePracticeQuestions({ contentItemId: input.id });
 
 		return { message: "Latihan soal berhasil dihapus dari konten" };
 	});

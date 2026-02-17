@@ -1,12 +1,10 @@
 import { db } from "@habitutor/db";
-import { user } from "@habitutor/db/schema/auth";
-import { product, transaction } from "@habitutor/db/schema/transaction";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { eq } from "drizzle-orm";
-import { authed, pub } from "..";
-import { PREMIUM_DEADLINE } from "../lib/constants";
-import { createSubscriptionTransaction } from "../lib/midtrans";
+import { authed, pub } from "../..";
+import { PREMIUM_DEADLINE } from "../../lib/constants";
+import { createSubscriptionTransaction } from "../../lib/midtrans";
+import { transactionRepo } from "./repo";
 
 const subscribe = authed
 	.route({
@@ -31,22 +29,19 @@ const subscribe = authed
 		if (input.name === "premium" && Date.now() > PREMIUM_DEADLINE.getTime())
 			throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
 
-		const [plan] = await db.select().from(product).where(eq(product.slug, input.name)).limit(1);
+		const plan = await transactionRepo.getProductBySlug({ slug: input.name });
 		if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
 		const grossAmount = plan.price;
 
 		const orderId = `tx_${crypto.randomUUID()}`;
 
-		const [createdTransaction] = await db
-			.insert(transaction)
-			.values({
-				id: orderId,
-				productId: plan.id,
-				grossAmount: String(grossAmount),
-				userId: context.session.user.id,
-			})
-			.returning();
+		const createdTransaction = await transactionRepo.createTransaction({
+			id: orderId,
+			productId: plan.id,
+			grossAmount: String(grossAmount),
+			userId: context.session.user.id,
+		});
 		if (!createdTransaction)
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
 
@@ -97,16 +92,7 @@ const notification = pub
 		const transactionStatus = statusData.transaction_status;
 		const fraudStatus = statusData.fraud_status;
 
-		const [existingTransaction] = await db
-			.select({
-				tx: transaction,
-				prodType: product.type,
-				prodSlug: product.slug,
-			})
-			.from(transaction)
-			.innerJoin(product, eq(transaction.productId, product.id))
-			.where(eq(transaction.id, order_id))
-			.limit(1);
+		const existingTransaction = await transactionRepo.getTransactionWithProduct({ orderId: order_id });
 
 		if (!existingTransaction) {
 			console.error(`Transaction not found for order ID: ${order_id}`);
@@ -127,36 +113,33 @@ const notification = pub
 
 			if (isValid) {
 				await db.transaction(async (trx) => {
-					await trx
-						.update(transaction)
-						.set({
-							status: "success",
-							paidAt: new Date(),
-						})
-						.where(eq(transaction.id, order_id));
+					await transactionRepo.updateTransactionStatus({
+						db: trx,
+						orderId: order_id,
+						status: "success",
+						paidAt: new Date(),
+					});
 
-					if (isPremiumSubscription) {
-						await trx
-							.update(user)
-							.set({ isPremium: true, premiumExpiresAt: PREMIUM_DEADLINE })
-							.where(eq(user.id, tx.userId!));
+					if (isPremiumSubscription && tx.userId) {
+						await transactionRepo.updateUserPremium({
+							db: trx,
+							userId: tx.userId,
+							isPremium: true,
+							premiumExpiresAt: PREMIUM_DEADLINE,
+						});
 					}
 				});
 			}
 		} else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
-			await db
-				.update(transaction)
-				.set({
-					status: "failed",
-				})
-				.where(eq(transaction.id, order_id));
+			await transactionRepo.updateTransactionStatus({
+				orderId: order_id,
+				status: "failed",
+			});
 		} else if (transactionStatus === "pending") {
-			await db
-				.update(transaction)
-				.set({
-					status: "pending",
-				})
-				.where(eq(transaction.id, order_id));
+			await transactionRepo.updateTransactionStatus({
+				orderId: order_id,
+				status: "pending",
+			});
 		}
 
 		return { status: "ok" };
@@ -170,18 +153,17 @@ const getStatus = authed
 	})
 	.input(type({ orderId: "string" }))
 	.handler(async ({ input }) => {
-		const tx = await db.select().from(transaction).where(eq(transaction.id, input.orderId)).limit(1);
+		const tx = await transactionRepo.getTransactionById({ orderId: input.orderId });
 
-		if (!tx.length) {
+		if (!tx) {
 			throw new ORPCError("NOT_FOUND", {
 				message: "Transaction not found",
 			});
 		}
 
-		const row = tx[0]!;
 		return {
-			status: row.status,
-			paidAt: row.paidAt,
+			status: tx.status,
+			paidAt: tx.paidAt,
 		};
 	});
 
