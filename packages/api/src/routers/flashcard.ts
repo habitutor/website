@@ -3,7 +3,7 @@ import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
 import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { type } from "arktype";
-import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import { authed, premium } from "..";
 import { convertToTiptap } from "../lib/tiptap";
 
@@ -55,19 +55,29 @@ const start = authed
 				})
 				.returning();
 
-			const availableQuestions = await tx.query.question.findMany({
-				where: eq(question.isFlashcardQuestion, true),
-				with: {
-					answerOptions: true,
-				},
-				orderBy: sql`RANDOM()`,
-				limit: 5,
-			});
+			// Select random question IDs first (much faster than full table scan with relations)
+			const randomQuestionIds = await tx
+				.select({ id: question.id })
+				.from(question)
+				.where(eq(question.isFlashcardQuestion, true))
+				.orderBy(sql`RANDOM()`)
+				.limit(5);
 
-			if (availableQuestions.length < 5)
+			if (randomQuestionIds.length < 5)
 				throw errors.NOT_FOUND({
 					message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
 				});
+
+			// Then fetch full question data with relations using the random IDs
+			const availableQuestions = await tx.query.question.findMany({
+				where: inArray(
+					question.id,
+					randomQuestionIds.map((q) => q.id),
+				),
+				with: {
+					answerOptions: true,
+				},
+			});
 
 			await tx.insert(userFlashcardQuestionAnswer).values(
 				availableQuestions.map((q) => ({
