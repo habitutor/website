@@ -96,7 +96,7 @@ const subtestCardAvatar = {
 	pm: "/avatar/subtest-pm-avatar.webp",
 } as const;
 
-type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>[number]["data"][number];
+type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>["data"][number];
 
 export function SubtestCard({
 	subtest,
@@ -456,9 +456,9 @@ function ContentCard({
 									isPremiumContent && "pointer-events-none opacity-60",
 								)}
 							>
-								<Icon className="size-4 sm:size-[18px]" weight="bold" />
+								<Icon className="size-4 sm:size-4.5" weight="bold" />
 								<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
-								<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
+								<CaretRightIcon className="ml-auto size-4 sm:size-4.5" weight="bold" />
 							</Link>
 						),
 				)}
