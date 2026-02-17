@@ -5,7 +5,7 @@ export function PremiumHeader() {
 		<div className="relative overflow-hidden rounded-[10px] bg-primary-300 text-white">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
 				<div className="relative z-10 max-w-xl">
-					<h1 className="font-bold text-[24px] leading-tight sm:text-[30px]">Upgrade ke Premium</h1>
+					<h1 className="font-bold text-[24px] leading-tight sm:text-[30px]">Pilih Paketmu</h1>
 					<p className="mt-2 text-[14px] text-white/90 leading-5.25">
 						Investasikan masa depanmu sekarang! Dapatkan akses penuh ke semua fitur Habitutor dan tingkatkan peluang
 						kelulusanmu.
