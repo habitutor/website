@@ -233,66 +233,64 @@ const save = authed
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
 
-		return await db.transaction(async (tx) => {
-			const [attempt] = await tx
-				.select({
-					id: userFlashcardAttempt.id,
-					deadline: userFlashcardAttempt.deadline,
-				})
-				.from(userFlashcardQuestionAnswer)
-				.innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
-				.where(
-					and(
-						eq(userFlashcardQuestionAnswer.questionId, input.questionId),
-						eq(userFlashcardQuestionAnswer.assignedDate, today),
-						eq(userFlashcardAttempt.userId, context.session.user.id),
-					),
-				)
-				.orderBy(desc(userFlashcardAttempt.startedAt))
-				.limit(1);
+		const [attempt] = await db
+			.select({
+				id: userFlashcardAttempt.id,
+				deadline: userFlashcardAttempt.deadline,
+			})
+			.from(userFlashcardQuestionAnswer)
+			.innerJoin(userFlashcardAttempt, eq(userFlashcardQuestionAnswer.attemptId, userFlashcardAttempt.id))
+			.where(
+				and(
+					eq(userFlashcardQuestionAnswer.questionId, input.questionId),
+					eq(userFlashcardQuestionAnswer.assignedDate, today),
+					eq(userFlashcardAttempt.userId, context.session.user.id),
+				),
+			)
+			.orderBy(desc(userFlashcardAttempt.startedAt))
+			.limit(1);
 
-			if (!attempt) throw errors.NOT_FOUND();
+		if (!attempt) throw errors.NOT_FOUND();
 
-			if (Date.now() > attempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
-				throw errors.UNPROCESSABLE_CONTENT({
-					message: "Waktu sesi flashcard telah berakhir.",
-				});
-			}
+		if (Date.now() > attempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
+			throw errors.UNPROCESSABLE_CONTENT({
+				message: "Waktu sesi flashcard telah berakhir.",
+			});
+		}
 
-			const answers = await tx
-				.select({
-					id: questionAnswerOption.id,
-					isCorrect: questionAnswerOption.isCorrect,
-				})
-				.from(questionAnswerOption)
-				.where(eq(questionAnswerOption.questionId, input.questionId));
+		const answers = await db
+			.select({
+				id: questionAnswerOption.id,
+				isCorrect: questionAnswerOption.isCorrect,
+			})
+			.from(questionAnswerOption)
+			.where(eq(questionAnswerOption.questionId, input.questionId));
 
-			if (!answers || answers.length === 0) {
-				throw errors.NOT_FOUND();
-			}
-			const correctAnswer = answers.find((answer) => answer.isCorrect);
-			const userAnswer = answers.find((answer) => answer.id === input.answerId);
-			if (!correctAnswer || !userAnswer) throw errors.NOT_FOUND();
+		if (!answers || answers.length === 0) {
+			throw errors.NOT_FOUND();
+		}
+		const correctAnswer = answers.find((answer) => answer.isCorrect);
+		const userAnswer = answers.find((answer) => answer.id === input.answerId);
+		if (!correctAnswer || !userAnswer) throw errors.NOT_FOUND();
 
-			await tx
-				.update(userFlashcardQuestionAnswer)
-				.set({
-					selectedAnswerId: input.answerId,
-				})
-				.where(
-					and(
-						eq(userFlashcardQuestionAnswer.questionId, input.questionId),
-						eq(userFlashcardQuestionAnswer.assignedDate, today),
-						eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
-					),
-				);
+		await db
+			.update(userFlashcardQuestionAnswer)
+			.set({
+				selectedAnswerId: input.answerId,
+			})
+			.where(
+				and(
+					eq(userFlashcardQuestionAnswer.questionId, input.questionId),
+					eq(userFlashcardQuestionAnswer.assignedDate, today),
+					eq(userFlashcardQuestionAnswer.attemptId, attempt.id),
+				),
+			);
 
-			return {
-				isCorrect: userAnswer.isCorrect,
-				correctAnswerId: correctAnswer.id,
-				userAnswerId: userAnswer.id,
-			};
-		});
+		return {
+			isCorrect: userAnswer.isCorrect,
+			correctAnswerId: correctAnswer.id,
+			userAnswerId: userAnswer.id,
+		};
 	});
 
 const result = authed

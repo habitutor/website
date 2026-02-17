@@ -9,7 +9,7 @@ import {
 } from "@habitutor/db/schema/practice-pack";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { authed } from "../index";
 import { convertToTiptap } from "../lib/tiptap";
 import type { Question } from "../types/practice-pack";
@@ -256,7 +256,21 @@ const history = authed
 		method: "GET",
 		tags: ["Practice Packs"],
 	})
-	.handler(async ({ context }) => {
+	.input(
+		type({
+			"limit?": "number",
+			"offset?": "number",
+		}),
+	)
+	.handler(async ({ context, input }) => {
+		const limit = Math.min(input.limit ?? 20, 100);
+		const offset = input.offset ?? 0;
+
+		const [totalResult] = await db
+			.select({ count: count() })
+			.from(practicePackAttempt)
+			.where(eq(practicePackAttempt.userId, context.session.user.id));
+
 		const attempts = await db
 			.select({
 				practicePackId: practicePackAttempt.practicePackId,
@@ -266,11 +280,18 @@ const history = authed
 			})
 			.from(practicePackAttempt)
 			.where(eq(practicePackAttempt.userId, context.session.user.id))
-			.orderBy(desc(practicePackAttempt.startedAt));
+			.orderBy(desc(practicePackAttempt.startedAt))
+			.limit(limit)
+			.offset(offset);
 
 		return {
 			packsFinished: attempts.filter((pack) => pack.status === "finished").length,
 			data: attempts,
+			pagination: {
+				limit,
+				offset,
+				total: totalResult?.count ?? 0,
+			},
 		};
 	});
 

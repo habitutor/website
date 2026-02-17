@@ -4,14 +4,13 @@ import {
 	contentItem,
 	contentPracticeQuestions,
 	noteMaterial,
-	recentContentView,
 	subtest,
 	userProgress,
 	videoMaterial,
 } from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, eq, ilike, sql } from "drizzle-orm";
 import { authed, authedRateLimited } from "../index";
 import { canAccessContent } from "../lib/content-access";
 import { convertToTiptap } from "../lib/tiptap";
@@ -26,7 +25,16 @@ const listSubtests = authed
 		method: "GET",
 		tags: ["Content"],
 	})
-	.handler(async () => {
+	.input(
+		type({
+			"limit?": "number",
+			"offset?": "number",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const limit = Math.min(input.limit ?? 50, 100);
+		const offset = input.offset ?? 0;
+
 		const subtests = await db
 			.select({
 				id: subtest.id,
@@ -39,9 +47,15 @@ const listSubtests = authed
 			.from(subtest)
 			.leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
 			.groupBy(subtest.id, subtest.name, subtest.shortName, subtest.description, subtest.order)
-			.orderBy(subtest.order);
+			.orderBy(subtest.order)
+			.limit(limit)
+			.offset(offset);
 
-		return subtests;
+		return {
+			data: subtests,
+			limit,
+			offset,
+		};
 	});
 
 /**
@@ -276,7 +290,6 @@ const trackView = authed
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input, context }) => {
-		// Verify content exists
 		const [item] = await db
 			.select({ id: contentItem.id })
 			.from(contentItem)
@@ -288,52 +301,26 @@ const trackView = authed
 				message: "Konten tidak ditemukan",
 			});
 
-		await db.transaction(async (tx) => {
-			await tx
-				.delete(recentContentView)
-				.where(
-					and(eq(recentContentView.userId, context.session.user.id), eq(recentContentView.contentItemId, input.id)),
-				);
-
-			await tx.insert(recentContentView).values({
-				userId: context.session.user.id,
-				contentItemId: input.id,
-			});
-
-			const allViews = await tx
-				.select({
-					id: recentContentView.id,
-					contentItemId: recentContentView.contentItemId,
-					viewedAt: recentContentView.viewedAt,
-				})
-				.from(recentContentView)
-				.where(eq(recentContentView.userId, context.session.user.id))
-				.orderBy(desc(recentContentView.viewedAt));
-
-			const contentMap = new Map<number, (typeof allViews)[0]>();
-			const duplicateIds: number[] = [];
-
-			for (const view of allViews) {
-				if (contentMap.has(view.contentItemId)) {
-					duplicateIds.push(view.id);
-				} else {
-					contentMap.set(view.contentItemId, view);
-				}
-			}
-
-			if (duplicateIds.length > 0) {
-				await tx.delete(recentContentView).where(inArray(recentContentView.id, duplicateIds));
-			}
-
-			const uniqueViews = Array.from(contentMap.values())
-				.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime())
-				.slice(5);
-
-			if (uniqueViews.length > 0) {
-				const idsToDelete = uniqueViews.map((v) => v.id);
-				await tx.delete(recentContentView).where(inArray(recentContentView.id, idsToDelete));
-			}
-		});
+		await db.execute(sql`
+			WITH deleted AS (
+				DELETE FROM recent_content_view 
+				WHERE user_id = ${context.session.user.id} AND content_item_id = ${input.id}
+			),
+			inserted AS (
+				INSERT INTO recent_content_view (user_id, content_item_id)
+				VALUES (${context.session.user.id}, ${input.id})
+			)
+			DELETE FROM recent_content_view 
+			WHERE id IN (
+				SELECT id FROM (
+					SELECT id, 
+					       ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY viewed_at DESC) as rn
+					FROM recent_content_view 
+					WHERE user_id = ${context.session.user.id}
+				) ranked 
+				WHERE rn > 5
+			)
+		`);
 
 		return { message: "Berhasil mencatat aktivitas" };
 	});
@@ -349,86 +336,34 @@ const getRecentViews = authedRateLimited
 		tags: ["Content"],
 	})
 	.handler(async ({ context }) => {
-		const allViewsForCleanup = await db
-			.select({
-				id: recentContentView.id,
-				contentItemId: recentContentView.contentItemId,
-				viewedAt: recentContentView.viewedAt,
-			})
-			.from(recentContentView)
-			.where(eq(recentContentView.userId, context.session.user.id))
-			.orderBy(desc(recentContentView.viewedAt));
+		const views = await db.execute(sql`
+			SELECT 
+				r.viewed_at AS "viewedAt",
+				c.id AS "contentId",
+				c.title AS "contentTitle",
+				c.type AS "contentType",
+				s.id AS "subtestId",
+				s.name AS "subtestName",
+				s.short_name AS "subtestShortName",
+				vm.id IS NOT NULL AS "hasVideo",
+				nm.id IS NOT NULL AS "hasNote",
+				cpq.content_item_id IS NOT NULL AS "hasPracticeQuestions"
+			FROM (
+				SELECT DISTINCT ON (content_item_id) content_item_id, viewed_at
+				FROM recent_content_view
+				WHERE user_id = ${context.session.user.id}
+				ORDER BY content_item_id, viewed_at DESC
+			) r
+			INNER JOIN content_item c ON c.id = r.content_item_id
+			INNER JOIN subtest s ON s.id = c.subtest_id
+			LEFT JOIN video_material vm ON vm.content_item_id = c.id
+			LEFT JOIN note_material nm ON nm.content_item_id = c.id
+			LEFT JOIN content_practice_questions cpq ON cpq.content_item_id = c.id
+			ORDER BY r.viewed_at DESC
+			LIMIT 5
+		`);
 
-		const contentMap = new Map<number, (typeof allViewsForCleanup)[0]>();
-		const duplicateIds: number[] = [];
-
-		for (const view of allViewsForCleanup) {
-			if (contentMap.has(view.contentItemId)) {
-				duplicateIds.push(view.id);
-			} else {
-				contentMap.set(view.contentItemId, view);
-			}
-		}
-
-		if (duplicateIds.length > 0) {
-			await db.delete(recentContentView).where(inArray(recentContentView.id, duplicateIds));
-		}
-
-		const uniqueContentIds = Array.from(contentMap.values()).map((v) => v.contentItemId);
-
-		if (uniqueContentIds.length === 0) {
-			return [];
-		}
-
-		const views = await db
-			.select({
-				viewedAt: recentContentView.viewedAt,
-				contentId: contentItem.id,
-				contentTitle: contentItem.title,
-				contentType: contentItem.type,
-				subtestId: subtest.id,
-				subtestName: subtest.name,
-				subtestShortName: subtest.shortName,
-				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
-				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
-			})
-			.from(recentContentView)
-			.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))
-			.innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
-			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
-			.where(and(eq(recentContentView.userId, context.session.user.id), inArray(contentItem.id, uniqueContentIds)))
-			.groupBy(
-				recentContentView.viewedAt,
-				contentItem.id,
-				contentItem.title,
-				contentItem.type,
-				subtest.id,
-				subtest.name,
-				subtest.shortName,
-				videoMaterial.id,
-				noteMaterial.id,
-				contentPracticeQuestions.contentItemId,
-			)
-			.orderBy(desc(recentContentView.viewedAt));
-
-		const finalMap = new Map<number, (typeof views)[0]>();
-		for (const view of views) {
-			if (!finalMap.has(view.contentId)) {
-				finalMap.set(view.contentId, view);
-			} else {
-				const existing = finalMap.get(view.contentId)!;
-				if (new Date(view.viewedAt).getTime() > new Date(existing.viewedAt).getTime()) {
-					finalMap.set(view.contentId, view);
-				}
-			}
-		}
-
-		return Array.from(finalMap.values())
-			.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime())
-			.slice(0, 5);
+		return views.rows;
 	});
 
 /**
