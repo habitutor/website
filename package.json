@@ -42,7 +42,8 @@
 		"db:down": "turbo -F @habitutor/db db:down",
 		"db:seed": "turbo -F @habitutor/db db:seed",
 		"db:reset": "turbo -F @habitutor/db db:reset",
-		"auth:generate": "turbo -F @habitutor/auth auth:generate"
+		"auth:generate": "turbo -F @habitutor/auth auth:generate",
+		"test": "turbo test"
 	},
 	"dependencies": {
 		"dotenv": "^17.2.2"
@@ -53,5 +54,5 @@
 		"shadcn": "^3.8.2",
 		"turbo": "^2.7.4"
 	},
-	"packageManager": "bun@1.3.2"
+	"packageManager": "bun@1.3.5"
 }

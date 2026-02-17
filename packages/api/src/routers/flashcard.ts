@@ -6,6 +6,7 @@ import { type } from "arktype";
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import { authed, premium } from "..";
 import { convertToTiptap } from "../lib/tiptap";
+import { getStartOfDay } from "../utils/date";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline
@@ -19,9 +20,8 @@ const start = authed
 	})
 	.handler(async ({ context, errors }) => {
 		const deadline = new Date(Date.now() + FLASHCARD_SESSION_DURATION_MINUTES * 60_000);
-		const today = new Date();
+		const today = getStartOfDay();
 		const isPremium = context.session.user.isPremium;
-		today.setHours(0, 0, 0, 0);
 
 		return await db.transaction(async (tx) => {
 			const [latestAttempt] = await tx
@@ -163,8 +163,7 @@ const submit = authed
 		tags: ["Flashcard"],
 	})
 	.handler(async ({ context, errors }) => {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
+		const today = getStartOfDay();
 		const hasDoneToday =
 			context.session.user.lastCompletedFlashcardAt &&
 			context.session.user.lastCompletedFlashcardAt.getTime() >= today.getTime();
@@ -230,8 +229,7 @@ const save = authed
 		}),
 	)
 	.handler(async ({ input, context, errors }) => {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
+		const today = getStartOfDay();
 
 		const [attempt] = await db
 			.select({
@@ -371,7 +369,6 @@ const result = authed
 				answerMap.set(answerOption.id, answerOption.isCorrect);
 			}
 
-			// 0 as fallback ID if user didn't fill in their answer
 			if (answerMap.get(assignedQuestion.selectedAnswerId || 0)) correct++;
 		}
 
@@ -390,18 +387,16 @@ const history = premium
 		tags: ["Flashcard"],
 	})
 	.handler(async ({ context }) => {
-		const attempts = await db
-			.select()
+		return await db
+			.select({
+				id: userFlashcardAttempt.id,
+				startedAt: userFlashcardAttempt.startedAt,
+				submittedAt: userFlashcardAttempt.submittedAt,
+			})
 			.from(userFlashcardAttempt)
 			.where(eq(userFlashcardAttempt.userId, context.session.user.id))
 			.orderBy(desc(userFlashcardAttempt.startedAt))
 			.limit(50);
-
-		return attempts.map((attempt) => ({
-			id: attempt.id,
-			startedAt: attempt.startedAt,
-			submittedAt: attempt.submittedAt,
-		}));
 	});
 
 export const flashcardRouter = {

@@ -65,6 +65,11 @@
 		},
 		"auth:generate": {
 			"cache": false
+		},
+		"test": {
+			"dependsOn": ["^build"],
+			"outputs": [],
+			"inputs": ["**/*.test.ts", "**/*.spec.ts"]
 		}
 	}
 }

@@ -61,6 +61,7 @@ habitutor/
 
 - `bun run dev`: Start all applications in development mode
 - `bun run build`: Build all applications (apps + packages)
+- `bun test`: Run tests
 - `bun run build:packages`: Run `tsdown` for all packages (required for importing packages)
 - `bun run dev:web`: Start only the web application
 - `bun run dev:server`: Start only the server

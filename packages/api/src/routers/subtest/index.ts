@@ -1,5 +1,4 @@
 import { db } from "@habitutor/db";
-import { subtestRepository } from "@habitutor/db/repositories/subtest.repo";
 import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import {
 	contentItem,
@@ -12,9 +11,10 @@ import {
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq, ilike, sql } from "drizzle-orm";
-import { authed, authedRateLimited } from "../index";
-import { canAccessContent } from "../lib/content-access";
-import { convertToTiptap } from "../lib/tiptap";
+import { authed, authedRateLimited } from "../../index";
+import { canAccessContent } from "../../lib/content-access";
+import { convertToTiptap } from "../../lib/tiptap";
+import { subtestRepository } from "./repo";
 
 /**
  * Get all subtests with basic info

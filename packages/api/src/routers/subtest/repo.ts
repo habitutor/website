@@ -1,5 +1,5 @@
+import { db } from "@habitutor/db";
 import { sql } from "drizzle-orm";
-import { db } from "..";
 
 type RecentContentView = {
 	viewedAt: Date;
