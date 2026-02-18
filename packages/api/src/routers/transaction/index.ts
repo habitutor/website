@@ -4,6 +4,7 @@ import { type } from "arktype";
 import { authed, pub } from "../..";
 import { PREMIUM_DEADLINE } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
+import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
 
 const subscribe = authed
@@ -15,6 +16,7 @@ const subscribe = authed
 	.input(
 		type({
 			name: "'premium' | 'basic'",
+			"referralCode?": "string",
 		}),
 	)
 	.output(
@@ -32,7 +34,36 @@ const subscribe = authed
 		const plan = await transactionRepo.getProductBySlug({ slug: input.name });
 		if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
-		const grossAmount = plan.price;
+		let grossAmount = plan.price;
+		let validatedReferralCodeId: string | undefined;
+
+		if (input.referralCode) {
+			const code = input.referralCode.trim();
+
+			if (code.length !== 11) {
+				throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
+			}
+
+			const codeRecord = await referralRepo.getCodeByCode({ code });
+			if (!codeRecord) {
+				throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
+			}
+
+			if (codeRecord.userId === context.session.user.id) {
+				throw errors.UNPROCESSABLE_CONTENT({
+					message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
+				});
+			}
+
+			const existingUsage = await referralRepo.getUserUsage({ userId: context.session.user.id });
+			if (existingUsage) {
+				throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
+			}
+
+			validatedReferralCodeId = codeRecord.id;
+			const discounted = Math.ceil(Number(grossAmount) * 0.75);
+			grossAmount = String(discounted);
+		}
 
 		const orderId = `tx_${crypto.randomUUID()}`;
 
@@ -41,6 +72,7 @@ const subscribe = authed
 			productId: plan.id,
 			grossAmount: String(grossAmount),
 			userId: context.session.user.id,
+			referralCodeId: validatedReferralCodeId,
 		});
 		if (!createdTransaction)
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
@@ -49,7 +81,7 @@ const subscribe = authed
 			id: orderId,
 			session: context.session,
 			name: plan.name,
-			price: plan.price,
+			price: grossAmount,
 		});
 	});
 
@@ -127,6 +159,39 @@ const notification = pub
 							isPremium: true,
 							premiumExpiresAt: PREMIUM_DEADLINE,
 						});
+					}
+
+					if (tx.referralCodeId && tx.userId) {
+						const alreadyRecorded = await referralRepo.getUsageByTransactionId({
+							db: trx,
+							transactionId: order_id,
+						});
+						if (!alreadyRecorded) {
+							const originalProduct = await transactionRepo.getProductBySlug({
+								db: trx,
+								slug: existingTransaction.prodSlug,
+							});
+							const cashback = originalProduct ? String(Math.floor(Number(originalProduct.price) * 0.25)) : "0";
+
+							try {
+								await referralRepo.createUsage({
+									db: trx,
+									userId: tx.userId,
+									referralCodeId: tx.referralCodeId,
+									transactionId: order_id,
+									cashbackAmount: cashback,
+								});
+								await referralRepo.incrementReferralCount({
+									db: trx,
+									referralCodeId: tx.referralCodeId,
+								});
+							} catch (err) {
+								// Unique constraint violation means referral was already recorded
+								const isUniqueViolation =
+									err instanceof Error && "code" in err && (err as { code: string }).code === "23505";
+								if (!isUniqueViolation) throw err;
+							}
+						}
 					}
 				});
 			}
