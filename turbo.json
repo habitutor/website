@@ -1,8 +1,8 @@
 {
 	"$schema": "https://turbo.build/schema.json",
-	"ui": "stream",
+	"ui": "tui",
 	"remoteCache": {
-		"enabled": false,
+		"enabled": true,
 		"teamSlug": "habitutor-production"
 	},
 	"tasks": {
