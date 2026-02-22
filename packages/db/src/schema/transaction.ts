@@ -1,5 +1,6 @@
 import { decimal, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./auth";
+import { referralCode } from "./referral";
 
 export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"]);
 export const statusEnum = pgEnum("transaction_status_enum", ["pending", "success", "failed"]);
@@ -12,6 +13,7 @@ export const transaction = pgTable(
 		productId: uuid("product_id").references(() => product.id, { onDelete: "set null" }),
 		grossAmount: decimal("gross_amount"),
 		status: statusEnum("status").notNull().default("pending"),
+		referralCodeId: uuid("referral_code_id").references(() => referralCode.id, { onDelete: "set null" }),
 		paidAt: timestamp("paid_at"),
 		orderedAt: timestamp("ordered_at").defaultNow(),
 	},

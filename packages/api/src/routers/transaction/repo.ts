@@ -15,12 +15,14 @@ export const transactionRepo = {
 		productId,
 		grossAmount,
 		userId,
+		referralCodeId,
 	}: {
 		db?: DrizzleDatabase;
 		id: string;
 		productId: string;
 		grossAmount: string;
 		userId: string;
+		referralCodeId?: string;
 	}) => {
 		const [tx] = await db
 			.insert(transaction)
@@ -29,6 +31,7 @@ export const transactionRepo = {
 				productId,
 				grossAmount,
 				userId,
+				referralCodeId,
 			})
 			.returning();
 		return tx;
