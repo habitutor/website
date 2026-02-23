@@ -1,4 +1,4 @@
-import { InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
+import { InstagramLogoIcon, YoutubeLogoIcon, TiktokLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 
 export const DATA = {
 	testimone: [
@@ -179,30 +179,31 @@ export const DATA = {
 				url: "https://www.instagram.com/habitutor.id",
 			},
 			{
-				label: "X",
-				icon: XLogoIcon,
-				url: "https://x.com/habitutor",
-			},
-			{
-				label: "WhatsApp",
-				icon: WhatsappLogoIcon,
-				url: "https://wa.me/6283854264330",
-			},
+				label: "YouTube",
+				icon: YoutubeLogoIcon,
+				url: "https://www.youtube.com/@habitutor",
+				},
+			//{
+				//label: "WhatsApp",
+				//icon: WhatsappLogoIcon,
+				//url: "https://wa.me/6283854264330",
+			//},
 			// {
 			// 	label: "Discord",
 			// 	icon: DiscordLogoIcon,
 			// 	url: "https://discord.gg/habitutor",
 			// },
-			// {
-			// 	label: "TikTok",
-			// 	icon: TiktokLogoIcon,
-			// 	url: "https://www.tiktok.com/@habitutor",
-			// },
-			// {
-			// 	label: "YouTube",
-			// 	icon: YoutubeLogoIcon,
-			// 	url: "https://www.youtube.com/@habitutor",
-			// },
+			{
+				label: "TikTok",
+				icon: TiktokLogoIcon,
+				url: "https://www.tiktok.com/@habitutor",
+			},
+
+			{
+				label: "X",
+				icon: XLogoIcon,
+				url: "https://x.com/habitutor",
+			},
 		],
 	},
 } as const;
