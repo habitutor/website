@@ -43,11 +43,11 @@ function AdminLayout() {
 		<SidebarProvider>
 			<AdminSidebar />
 			<SidebarInset>
-				<header className="flex h-16 shrink-0 items-center gap-4 border-b bg-sidebar px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+				<header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-sidebar px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
 					<SidebarTrigger className="text-muted-foreground hover:text-foreground" />
 					<AdminBreadcrumbs />
 				</header>
-				<div className="flex flex-1 flex-col pt-4">
+				<div className="flex flex-1 flex-col overflow-auto p-4">
 					<Outlet />
 				</div>
 			</SidebarInset>

@@ -19,11 +19,11 @@ function CreatePracticePackPage() {
 	const queryClient = useQueryClient();
 
 	const createMutation = useMutation(
-		orpc.admin.practicePack.createPack.mutationOptions({
+		orpc.admin.practicePack.create.mutationOptions({
 			onSuccess: () => {
 				toast.success("Practice pack berhasil dibuat");
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.listPacks.queryKey({ input: {} }),
+					queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
 				});
 				navigate({ to: "/admin/practice-packs" });
 			},

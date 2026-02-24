@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
 	boolean,
 	char,
+	index,
 	integer,
 	jsonb,
 	pgEnum,
@@ -44,7 +45,11 @@ export const practicePackAttempt = pgTable(
 		completedAt: timestamp("completed_at"),
 		status: practicePackStatus("practice_pack_status").notNull().default("ongoing"),
 	},
-	(t) => [unique("user_attempt").on(t.userId, t.practicePackId)],
+	(t) => [
+		unique("user_attempt").on(t.userId, t.practicePackId),
+		index("idx_pp_attempt_user").on(t.userId),
+		index("idx_pp_attempt_pack").on(t.practicePackId),
+	],
 );
 
 export const practicePackQuestions = pgTable(
@@ -72,13 +77,18 @@ export const practicePackQuestionsRelations = relations(practicePackQuestions, (
 	}),
 }));
 
-export const question = pgTable("question", {
-	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-	content: text("content").notNull(),
-	discussion: text("discussion").notNull(),
-	contentJson: jsonb("content_json"),
-	discussionJson: jsonb("discussion_json"),
-});
+export const question = pgTable(
+	"question",
+	{
+		id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+		content: text("content").notNull(),
+		discussion: text("discussion").notNull(),
+		contentJson: jsonb("content_json"),
+		discussionJson: jsonb("discussion_json"),
+		isFlashcardQuestion: boolean("is_flashcard_question").notNull().default(true),
+	},
+	(t) => [index("idx_question_flashcard").on(t.isFlashcardQuestion)],
+);
 
 export const questionRelations = relations(question, ({ many }) => ({
 	answerOptions: many(questionAnswerOption),
@@ -97,7 +107,10 @@ export const questionAnswerOption = pgTable(
 		content: text().notNull(),
 		isCorrect: boolean("is_correct").notNull().default(false),
 	},
-	(t) => [unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code)],
+	(t) => [
+		unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code),
+		index("idx_answer_option_question").on(t.questionId),
+	],
 );
 
 export const questionAnswerOptionRelations = relations(questionAnswerOption, ({ one }) => ({
@@ -121,5 +134,5 @@ export const practicePackUserAnswer = pgTable(
 			.notNull()
 			.references(() => questionAnswerOption.id, { onDelete: "set null" }),
 	},
-	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] })],
+	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] }), index("idx_pp_user_answer_attempt").on(t.attemptId)],
 );
