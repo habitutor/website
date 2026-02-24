@@ -1,3 +1,4 @@
+import { SpinnerIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot as SlotPrimitive } from "radix-ui";
 import type * as React from "react";
@@ -45,14 +46,41 @@ function Button({
 	variant,
 	size,
 	asChild = false,
+	isPending = false,
+	children,
+	disabled,
 	...props
 }: React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
 		asChild?: boolean;
+		isPending?: boolean;
 	}) {
 	const Comp = asChild ? SlotPrimitive.Slot : "button";
 
-	return <Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+	if (asChild) {
+		return (
+			<Comp
+				data-slot="button"
+				className={cn(buttonVariants({ variant, size, className }))}
+				disabled={disabled || isPending}
+				{...props}
+			>
+				{children}
+			</Comp>
+		);
+	}
+
+	return (
+		<Comp
+			data-slot="button"
+			className={cn(buttonVariants({ variant, size, className }))}
+			disabled={disabled || isPending}
+			{...props}
+		>
+			{isPending && <SpinnerIcon className="animate-spin" />}
+			{children}
+		</Comp>
+	);
 }
 
 export { Button, buttonVariants };

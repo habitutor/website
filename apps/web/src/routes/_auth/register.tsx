@@ -228,7 +228,7 @@ function SignUpForm() {
 					onClick={() =>
 						authClient.signIn.social({
 							provider: "google",
-							callbackURL: `${location.url}/dashboard`,
+							callbackURL: `${location.pathname}/dashboard`,
 						})
 					}
 					variant="outline"
