@@ -1,6 +1,6 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,7 @@ type TryOutCardData = {
 
 function TryOutCard({ data }: { data: TryOutCardData }) {
 	return (
-		<motion.div
+		<m.div
 			initial={{ opacity: 0, y: 24 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.4, ease: "easeOut" }}
@@ -88,7 +88,7 @@ function TryOutCard({ data }: { data: TryOutCardData }) {
 					<ArrowRightIcon size={16} weight="bold" />
 				</Link>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 }
 
@@ -121,7 +121,7 @@ function BasicCard({ data }: { data: PlanData }) {
 	if (!isBasicPlan) return null;
 
 	return (
-		<motion.div
+		<m.div
 			initial={{ opacity: 0, x: -20 }}
 			animate={{ opacity: 1, x: 0 }}
 			className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-b-neutral-200 bg-white shadow-sm"
@@ -174,7 +174,7 @@ function BasicCard({ data }: { data: PlanData }) {
 					<ArrowRightIcon size={16} weight="bold" />
 				</Link>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 }
 
@@ -183,7 +183,7 @@ function PremiumCard({ data }: { data: PlanData }) {
 	if (!isPremiumPlan) return null;
 
 	return (
-		<motion.div
+		<m.div
 			initial={{ opacity: 0, x: -20 }}
 			animate={{ opacity: 1, x: 0 }}
 			className="flex flex-col justify-between overflow-hidden rounded-2xl shadow-sm"
@@ -237,7 +237,7 @@ function PremiumCard({ data }: { data: PlanData }) {
 					<ArrowRightIcon size={16} weight="bold" />
 				</Link>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 }
 

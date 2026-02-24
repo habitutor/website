@@ -2,7 +2,7 @@ import { ArrowCircleRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
@@ -65,7 +65,7 @@ function RouteComponent() {
 				<MotionStaggerItem>
 					<section className="flex w-full items-center justify-between gap-8 max-sm:flex-col-reverse max-sm:items-start">
 						<div className="flex items-center gap-2">
-							<motion.span
+							<m.span
 								animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
 								transition={{
 									duration: 1.2,
@@ -76,7 +76,7 @@ function RouteComponent() {
 								className="inline-block origin-[70%_70%] text-5xl"
 							>
 								👋
-							</motion.span>
+							</m.span>
 							<div className="text-primary">
 								<h1 className="text-xl">
 									Halo, <strong>{session?.user.name.split(" ")[0]}</strong>

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { Button } from "@/components/ui/button";
 import { bounce } from "@/lib/animation-variants";
 
@@ -7,26 +7,26 @@ export function CallToAction() {
 	return (
 		<div className="relative overflow-hidden pb-44 sm:pb-36">
 			{/* Left Avatar */}
-			<motion.div
+			<m.div
 				className="absolute bottom-0 left-0"
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ delay: 1.3, duration: 0.3 }}
 			>
 				<img src="/avatar/tupai-cta-1.webp" alt="" className="w-[200px] xl:w-[280px]" />
-			</motion.div>
+			</m.div>
 
 			{/* Right Avatar & Decorations */}
 			<div className="absolute right-0 bottom-0">
 				<div className="relative">
-					<motion.div
+					<m.div
 						className="relative z-10"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						transition={{ delay: 1.4, duration: 0.3 }}
 					>
 						<img src="/avatar/tupai-cta-2.webp" alt="" className="w-[200px] xl:w-[280px]" />
-					</motion.div>
+					</m.div>
 
 					{/* Decorative Circles (Buletan) */}
 					{/* <div className="absolute -top-10 -right-4 flex items-center justify-center">
@@ -35,7 +35,7 @@ export function CallToAction() {
 					<div className="absolute -top-4 right-16 flex items-center justify-center">
 						<div className="size-[35px] rounded-full bg-[#FFDB43]" />
 					</div> */}
-					<motion.div
+					<m.div
 						className="absolute -right-20 -bottom-10 z-0 size-40 rounded-full bg-tertiary-100 md:size-80"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -45,31 +45,31 @@ export function CallToAction() {
 			</div>
 
 			<div className="container relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 py-2 pt-40 pb-26 text-center">
-				<motion.h2
+				<m.h2
 					className="text-pretty font-bold font-sans text-4xl"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.3 }}
 				>
 					Kamu Punya{" "}
-					<motion.span
+					<m.span
 						className="inline-block text-primary-300"
 						whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0], transition: { duration: 0.3 } }}
 					>
 						Potensi
-					</motion.span>
+					</m.span>
 					,<br />
 					Kami Punya{" "}
-					<motion.span
+					<m.span
 						className="inline-block text-primary-300"
 						whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0], transition: { duration: 0.3 } }}
 					>
 						Strateginya
-					</motion.span>
+					</m.span>
 					!
-				</motion.h2>
+				</m.h2>
 
-				<motion.p
+				<m.p
 					className="text-pretty"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -77,13 +77,13 @@ export function CallToAction() {
 				>
 					Berhenti menebak-nebak cara belajar yang benar. Biarkan kami membimbingmu memaksimalkan setiap potensi yang
 					kamu miliki.
-				</motion.p>
+				</m.p>
 
-				<motion.div variants={bounce} whileHover="whileHover">
+				<m.div variants={bounce} whileHover="whileHover">
 					<Button asChild className="relative">
 						<Link to="/login">Mulai Perjalananmu</Link>
 					</Button>
-				</motion.div>
+				</m.div>
 			</div>
 		</div>
 	);
