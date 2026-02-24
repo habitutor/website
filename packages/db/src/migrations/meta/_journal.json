@@ -50,6 +50,13 @@
       "when": 1771468218399,
       "tag": "0006_kind_mad_thinker",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1771908405669,
+      "tag": "0007_unique_king_cobra",
+      "breakpoints": true
     }
   ]
 }

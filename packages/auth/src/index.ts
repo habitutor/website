@@ -84,6 +84,15 @@ export const auth = betterAuth({
 				defaultValue: null,
 				input: false,
 			},
+			phoneNumber: {
+				type: "string",
+				validator: {
+					input: type("string"),
+				},
+				required: false,
+				defaultValue: null,
+				input: true,
+			}
 		},
 	},
 	trustedOrigins: [
