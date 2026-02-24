@@ -1,5 +1,5 @@
 import { Image } from "@unpic/react";
-import Carousel from "@/components/carousel";
+import Carousel from "@/components/testimone-carousel";
 import { DATA } from "./data";
 
 export default function Testimone() {
