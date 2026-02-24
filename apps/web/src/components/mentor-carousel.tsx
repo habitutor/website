@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 
 export interface CarouselItem {
   id: string | number;
-  name: string;
-  major: string;
+  name?: string;
+  major?: string;
   university?: string;
   score_snbt?: number | null;
   mentor?: string | null;
