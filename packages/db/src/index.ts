@@ -5,6 +5,7 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import { Pool } from "pg";
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
+import * as referral from "./schema/referral";
 import * as transaction from "./schema/transaction";
 
 const pool = new Pool({
@@ -17,6 +18,7 @@ const pool = new Pool({
 const schema = {
 	...practice,
 	...flashcard,
+	...referral,
 	...transaction,
 };
 

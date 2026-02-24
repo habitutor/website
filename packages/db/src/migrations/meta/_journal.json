@@ -43,6 +43,13 @@
       "when": 1771300417266,
       "tag": "0005_unusual_overlord",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771468218399,
+      "tag": "0006_kind_mad_thinker",
+      "breakpoints": true
     }
   ]
 }
