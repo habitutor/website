@@ -9,9 +9,9 @@ import { DATA } from "./data";
 
 export function CallToAction() {
     return (
-        <section className="flex w-full flex-col items-center px-4 py-20 bg-white">
+        <section className="flex w-full flex-col overflow-hidden items-center px-4 py-20 bg-background">
 			<MotionPulse>
-				<motion.div className="absolute -right-200 -bottom-100 z-0 size-56 rounded-full border-[#B3DFF5] border-[2px] bg-tertiary-100 md:size-84"
+				<motion.div className="absolute -right-200 -bottom-100 z-0 size-56 rounded-full border-[#B3DFF5] border-2 bg-tertiary-100 md:size-84"
 					initial={{ opacity: 0 }}
 					whileInView={{ opacity: 1 }}
 					viewport={{ once: true }}
@@ -20,7 +20,7 @@ export function CallToAction() {
 			</MotionPulse>
 
 			<MotionPulse>
-				<motion.div className="absolute -left-200 -bottom-190 z-0 size-56 rounded-full border-[#B3DFF5] border-[2px] bg-tertiary-100 md:size-64"
+				<motion.div className="absolute -left-200 -bottom-190 z-0 size-56 rounded-full border-[#B3DFF5] border-2 bg-tertiary-100 md:size-64"
 					initial={{ opacity: 0 }}
 					whileInView={{ opacity: 1 }}
 					viewport={{ once: true }}
@@ -28,7 +28,7 @@ export function CallToAction() {
 				/>
 			</MotionPulse>
             {/* TOP CONTAINER */}
-            <div className="relative flex min-h-[489px] w-full max-w-[1238px] flex-col overflow-hidden rounded-t-[16px] border-x-[2px] border-t-[2px] border-[#B3DFF5] bg-[#F4FAFF]">
+            <div className="relative flex min-h-122.25 w-full max-w-7xl flex-col overflow-hidden rounded-t-2xl border-x-2 border-t-2 border-[#B3DFF5] bg-[#F4FAFF]">
                 
                 <div className="relative z-10 flex h-full flex-1 flex-col justify-center px-6 py-12 md:px-10 lg:px-20">
                     <div className="flex w-full flex-col lg:flex-row lg:items-center">
@@ -86,7 +86,7 @@ export function CallToAction() {
                                         )}
                                     >
                                         <Link to="/dashboard" className="flex items-center justify-center gap-2">
-                                            <WhatsappLogoIcon size={24} weight="duotone" className="text-[#777777]" />
+                                            <WhatsappLogoIcon size={24} weight="duotone" className="text-neutral-700" />
                                             Masih Ada Pertanyaan?
                                         </Link>
                                     </Button>
@@ -104,7 +104,7 @@ export function CallToAction() {
                                 <img 
                                     src="/avatar/tupai-cta-1.webp" 
                                     alt="Mascot" 
-                                    className="h-auto w-[180px] md:w-[300px] lg:w-[400px] object-contain -scale-x-100 translate-y-2" 
+                                    className="h-auto w-45 md:w-75 lg:w-100 object-contain -scale-x-100 translate-y-2" 
                                 />
                             </motion.div>
                         </div>
@@ -112,7 +112,7 @@ export function CallToAction() {
                 </div>
             </div>
             {/* BOTTOM CONTAINER */}
-            <div className="relative z-10 w-full max-w-[1238px] rounded-b-[16px] border-x-[2px] border-b-[2px] border-[#24356B] bg-[#3650A2] py-8 text-white md:py-10">
+            <div className="relative z-10 w-full max-w-7xl rounded-b-2xl border-x-2 border-b-2 border-[#24356B] bg-[#3650A2] py-8 text-white md:py-10">
                 <div className="mx-auto px-6 md:px-10 lg:px-20">
                     <div className="flex flex-col items-center justify-between gap-8 sm:flex-row sm:gap-6">
                         <div className="flex flex-col items-center gap-1 sm:items-start">
@@ -120,7 +120,6 @@ export function CallToAction() {
                                 <img
                                     src={"/logo.svg"}
 									alt="Logo Habitutor"
-									layout="fullWidth"
 									className="pointer-events-none -ml-2.5 select-none"
                                 />
                                 <h3 className="font-medium text-2xl">Habitutor</h3>
@@ -145,10 +144,10 @@ export function CallToAction() {
                         </div>
                     </div>
 
-                    <div className="my-6 h-[1px] w-full bg-white" />
+                    <div className="my-6 h-px w-full bg-white" />
 
                     <div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
-                        <p className="max-w-[280px] text-xs opacity-80 md:max-w-none md:text-sm">
+                        <p className="max-w-70 text-xs opacity-80 md:max-w-none md:text-sm">
                             Ubah Persiapan Ujian Menjadi Investasi Masa Depan
                         </p>
                         
