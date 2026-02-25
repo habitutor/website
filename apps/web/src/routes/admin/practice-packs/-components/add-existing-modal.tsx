@@ -1,11 +1,11 @@
 import { X } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 
 interface AddExistingQuestionModalProps {
@@ -19,8 +19,7 @@ export function AddExistingQuestionModal({
 	existingQuestionIds,
 	onClose,
 }: AddExistingQuestionModalProps) {
-	const [cursor, setCursor] = useState<string | null>(null);
-	const [cursorHistory, setCursorHistory] = useState<string[]>([]);
+	const { cursor, handleNext, handlePrevious, hasPrevious } = useCursorPagination();
 	const limit = 10;
 	const queryClient = useQueryClient();
 
@@ -59,27 +58,6 @@ export function AddExistingQuestionModal({
 			questionId,
 		});
 	};
-
-	const handleNext = () => {
-		if (nextCursor) {
-			if (cursor) {
-				setCursorHistory((prev) => [...prev, cursor]);
-			}
-			setCursor(nextCursor);
-		}
-	};
-
-	const handlePrevious = () => {
-		if (cursorHistory.length > 0) {
-			const previousCursor = cursorHistory[cursorHistory.length - 1];
-			setCursorHistory((prev) => prev.slice(0, -1));
-			setCursor(previousCursor);
-		} else {
-			setCursor(null);
-		}
-	};
-
-	const hasPrevious = cursor !== null || cursorHistory.length > 0;
 
 	return (
 		<Card>
@@ -130,7 +108,12 @@ export function AddExistingQuestionModal({
 						<Button variant="outline" size="sm" disabled={!hasPrevious || isLoading} onClick={handlePrevious}>
 							Previous
 						</Button>
-						<Button variant="outline" size="sm" disabled={!hasMore || isLoading} onClick={handleNext}>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={!hasMore || isLoading}
+							onClick={() => nextCursor && handleNext(nextCursor)}
+						>
 							Next
 						</Button>
 					</div>

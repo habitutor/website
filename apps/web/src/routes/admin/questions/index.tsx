@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -36,19 +37,17 @@ export const Route = createFileRoute("/admin/questions/")({
 function QuestionsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
-	const [cursor, setCursor] = useState<string | null>(null);
-	const [cursorHistory, setCursorHistory] = useState<string[]>([]);
+	const { cursor, handleNext, handlePrevious, resetCursor, hasPrevious } = useCursorPagination();
 	const limit = 12;
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setDebouncedSearch(searchQuery);
-			setCursor(null);
-			setCursorHistory([]);
+			resetCursor();
 		}, 300);
 
 		return () => clearTimeout(timer);
-	}, [searchQuery]);
+	}, [searchQuery, resetCursor]);
 
 	const { data, isLoading } = useQuery(
 		orpc.admin.question.list.queryOptions({
@@ -63,27 +62,6 @@ function QuestionsPage() {
 	const questions = data?.data || [];
 	const hasMore = data?.hasMore || false;
 	const nextCursor = data?.nextCursor || null;
-
-	const handleNext = () => {
-		if (nextCursor) {
-			if (cursor) {
-				setCursorHistory((prev) => [...prev, cursor]);
-			}
-			setCursor(nextCursor);
-		}
-	};
-
-	const handlePrevious = () => {
-		if (cursorHistory.length > 0) {
-			const previousCursor = cursorHistory[cursorHistory.length - 1];
-			setCursorHistory((prev) => prev.slice(0, -1));
-			setCursor(previousCursor);
-		} else {
-			setCursor(null);
-		}
-	};
-
-	const hasPrevious = cursor !== null || cursorHistory.length > 0;
 
 	return (
 		<AdminContainer>
@@ -171,7 +149,7 @@ function QuestionsPage() {
 						variant="outline"
 						size="sm"
 						disabled={!hasMore || isLoading}
-						onClick={handleNext}
+						onClick={() => nextCursor && handleNext(nextCursor)}
 						className="h-9 px-4"
 					>
 						Next

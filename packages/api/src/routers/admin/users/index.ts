@@ -33,7 +33,7 @@ const listUsers = admin
 			"search?": "string",
 		}),
 	)
-	.handler(async ({ input, errors }) => {
+	.handler(async ({ input }) => {
 		const limit = Math.min(input.limit || 10, 50);
 		const search = input.search || "";
 
@@ -47,10 +47,12 @@ const listUsers = admin
 			search,
 		});
 
-		if (users.length < 1)
-			throw errors.NOT_FOUND({
-				message: "Gagal menemukan data user.",
-			});
+		if (users.length === 0)
+			return {
+				data: [],
+				nextCursor: null,
+				hasMore: false,
+			};
 
 		const hasMore = users.length > limit;
 		const data = hasMore ? users.slice(0, limit) : users;
