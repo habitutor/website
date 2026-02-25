@@ -1,8 +1,6 @@
-"use client";
-
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { Container } from "./ui/container";
 
 export interface CarouselItem {
@@ -30,10 +28,10 @@ interface CarouselProps {
 
 const Carousel: React.FC<CarouselProps> = ({
 	items,
-	cardWidth = 360, // 72 * 4 = 288px
-	cardHeight = 211, // 96 * 4 = 384px
+	cardWidth = 360,
+	cardHeight = 211,
 	gap = 32,
-	responsiveGap = false, // New prop
+	responsiveGap = false,
 	className = "",
 	showNavigation = true,
 	showDots = true,
@@ -42,46 +40,52 @@ const Carousel: React.FC<CarouselProps> = ({
 	onItemClick,
 	renderCard,
 }) => {
-	const [currentIndex, setCurrentIndex] = useState(1);
-	const [isTransitioning, setIsTransitioning] = useState(false);
-	const [currentGap, setCurrentGap] = useState(gap);
+	const getResponsiveGap = () => {
+		if (!responsiveGap) return gap;
+		if (typeof window === "undefined") return gap;
+		const width = window.innerWidth;
+		if (width < 640) return Math.min(16, gap * 0.5);
+		if (width < 768) return Math.max(24, gap * 0.75);
+		if (width < 1024) return gap;
+		if (width < 1280) return gap * 1.5;
+		return gap * 1.5;
+	};
 
-	// Responsive gap calculation
-	useEffect(() => {
-		if (!responsiveGap) {
-			setCurrentGap(gap);
-			return;
+	type CarouselState = {
+		currentIndex: number;
+		isTransitioning: boolean;
+	};
+
+	type CarouselAction =
+		| { type: "START_TRANSITION" }
+		| { type: "NEXT" }
+		| { type: "PREV" }
+		| { type: "GO_TO"; index: number }
+		| { type: "RESET_INDEX"; index: number }
+		| { type: "END_TRANSITION" };
+
+	const carouselReducer = (state: CarouselState, action: CarouselAction): CarouselState => {
+		switch (action.type) {
+			case "START_TRANSITION":
+				return { ...state, isTransitioning: true };
+			case "NEXT":
+				return { ...state, currentIndex: state.currentIndex + 1, isTransitioning: true };
+			case "PREV":
+				return { ...state, currentIndex: state.currentIndex - 1, isTransitioning: true };
+			case "GO_TO":
+				return { ...state, currentIndex: action.index + 1, isTransitioning: true };
+			case "RESET_INDEX":
+				return { ...state, currentIndex: action.index };
+			case "END_TRANSITION":
+				return { ...state, isTransitioning: false };
+			default:
+				return state;
 		}
+	};
 
-		const updateGap = () => {
-			const width = window.innerWidth;
-			let newGap: number;
-
-			if (width < 640) {
-				// sm
-				newGap = Math.min(16, gap * 0.5);
-			} else if (width < 768) {
-				// md
-				newGap = Math.max(24, gap * 0.75);
-			} else if (width < 1024) {
-				// lg
-				newGap = gap;
-			} else if (width < 1280) {
-				// xl
-				newGap = gap * 1.25;
-			} else {
-				// 2xl+
-				newGap = gap * 1.5;
-			}
-
-			setCurrentGap(newGap);
-		};
-
-		updateGap();
-		window.addEventListener("resize", updateGap);
-
-		return () => window.removeEventListener("resize", updateGap);
-	}, [gap, responsiveGap]);
+	const [state, dispatch] = useReducer(carouselReducer, { currentIndex: 1, isTransitioning: false });
+	const currentIndex = state.currentIndex;
+	const isTransitioning = state.isTransitioning;
 
 	// Create extended array for infinite scroll effect
 	const extendedItems =
@@ -95,20 +99,17 @@ const Carousel: React.FC<CarouselProps> = ({
 
 	const nextSlide = () => {
 		if (isTransitioning) return;
-		setIsTransitioning(true);
-		setCurrentIndex((prev) => prev + 1);
+		dispatch({ type: "NEXT" });
 	};
 
 	const prevSlide = () => {
 		if (isTransitioning) return;
-		setIsTransitioning(true);
-		setCurrentIndex((prev) => prev - 1);
+		dispatch({ type: "PREV" });
 	};
 
 	const goToSlide = (index: number) => {
 		if (isTransitioning) return;
-		setIsTransitioning(true);
-		setCurrentIndex(index + 1); // +1 because of the extended array
+		dispatch({ type: "GO_TO", index });
 	};
 
 	// Handle infinite scroll reset
@@ -116,13 +117,11 @@ const Carousel: React.FC<CarouselProps> = ({
 		const timer = setTimeout(
 			() => {
 				if (currentIndex === 0) {
-					// Jumped to fake last item, now go to real last item
-					setCurrentIndex(items.length);
+					dispatch({ type: "RESET_INDEX", index: items.length });
 				} else if (currentIndex === extendedItems.length - 1) {
-					// Jumped to fake first item, now go to real first item
-					setCurrentIndex(1);
+					dispatch({ type: "RESET_INDEX", index: 1 });
 				}
-				setIsTransitioning(false);
+				dispatch({ type: "END_TRANSITION" });
 			},
 			isTransitioning ? 500 : 0,
 		);
@@ -136,7 +135,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
 		const interval = setInterval(() => {
 			if (!isTransitioning) {
-				setCurrentIndex((prev) => prev + 1);
+				dispatch({ type: "NEXT" });
 			}
 		}, autoPlayInterval);
 
@@ -145,7 +144,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
 	const getCardStyle = (index: number) => {
 		const position = index - currentIndex;
-		const translateX = position * (cardWidth + currentGap);
+		const translateX = position * (cardWidth + getResponsiveGap());
 
 		// Only show cards within position -1, 0, 1 (3 cards total)
 		const isVisible = Math.abs(position) <= 1;
@@ -237,7 +236,7 @@ const Carousel: React.FC<CarouselProps> = ({
 						if (!item) return null;
 						return (
 							<button
-								key={`${item.id}-${index}`}
+								key={item.id}
 								type="button"
 								className="absolute cursor-pointer"
 								style={{

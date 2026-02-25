@@ -1,5 +1,3 @@
-"use client";
-
 import { BooksIcon, House, Package, Question, SignOut, User, UserSwitchIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";

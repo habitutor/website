@@ -23,7 +23,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Button } from "./ui/button";
 import "./tiptap-styles.css";
 
@@ -264,15 +264,16 @@ function TiptapEditorInner({ content, onChange, className }: TiptapEditorProps) 
 	);
 }
 
+const emptySubscribe = () => () => {};
+
 export function TiptapEditor(props: TiptapEditorProps) {
-	const [isMounted, setIsMounted] = useState(false);
+	const isMounted = useSyncExternalStore(
+		emptySubscribe,
+		() => true,
+		() => false,
+	);
 
-	useEffect(() => {
-		setIsMounted(true);
-	}, []);
-
-	// Only render the editor on the client side to avoid SSR issues
-	if (!isMounted || typeof window === "undefined") {
+	if (!isMounted) {
 		return (
 			<div className={props.className}>
 				<div className="mb-4 flex flex-wrap gap-2 rounded-md border border-input bg-background p-2">
