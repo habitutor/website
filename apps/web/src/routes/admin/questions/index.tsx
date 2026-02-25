@@ -103,7 +103,8 @@ function QuestionsPage() {
 
 			{isLoading ? (
 				<div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-					{[1, 2, 3, 4, 5, 6].map((i) => (
+					{Array.from({ length: 12 }).map((_, i) => (
+						// biome-ignore lint: skeleton items don't need stable keys
 						<Card key={i} className="relative flex flex-col overflow-hidden py-0">
 							<div className="flex flex-1 flex-col px-6 py-6">
 								{/* Content area */}

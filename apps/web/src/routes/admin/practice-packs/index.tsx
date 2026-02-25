@@ -79,7 +79,8 @@ function PracticePacksListPage() {
 
 			{isPending && (
 				<div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-					{[1, 2, 3].map((i) => (
+					{Array.from({ length: 9 }).map((_, i) => (
+						// biome-ignore lint: skeleton items don't need stable keys
 						<Card key={i} className="px-6">
 							<Skeleton className="h-6 w-3/4" />
 							<Skeleton className="h-4 w-full" />
