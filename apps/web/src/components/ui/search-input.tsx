@@ -1,5 +1,5 @@
 import { XIcon } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface SearchInputProps extends Omit<React.ComponentProps<"input">, "onChange" | "value"> {
@@ -11,18 +11,6 @@ interface SearchInputProps extends Omit<React.ComponentProps<"input">, "onChange
 export function SearchInput({ value, onChange, debounceMs = 500, className, ...props }: SearchInputProps) {
 	const [localValue, setLocalValue] = useState(value);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	useEffect(() => {
-		setLocalValue(value);
-	}, [value]);
-
-	useEffect(() => {
-		return () => {
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-			}
-		};
-	}, []);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = e.target.value;
@@ -42,11 +30,13 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 		onChange("");
 	};
 
+	const displayValue = value !== undefined ? value : localValue;
+
 	return (
 		<div className="relative">
 			<input
 				type="text"
-				value={localValue}
+				value={displayValue}
 				onChange={handleChange}
 				className={cn(
 					"flex h-10 w-full rounded-lg border border-input bg-white px-3 py-2 pr-10 text-sm shadow-sm transition-colors",
@@ -58,7 +48,7 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 				{...props}
 				placeholder={props.placeholder ?? "Cari konten..."}
 			/>
-			{localValue && (
+			{displayValue && (
 				<button
 					type="button"
 					onClick={handleClear}
