@@ -204,6 +204,8 @@ export function Features() {
 						/>
 					</motion.div>
 				</div>
+				
+				{/* <AboutUs /> */}
 
 				<div className="relative">
 					<MotionPulse>
