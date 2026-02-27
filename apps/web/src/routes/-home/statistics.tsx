@@ -2,6 +2,7 @@ import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import { MotionPulse } from "@/components/motion";
 import { useAnimatedCounter } from "@/hooks/use-animations";
+import { AboutUs } from "./about-us";
 
 const MIDDLE_STATISTIC_SECTION = [
 	{
@@ -37,8 +38,8 @@ function StatCounter({ value, suffix = "" }: { value: number; suffix?: string })
 
 export function Statistics() {
 	return (
-		<section className="overflow-x-hidden bg-background py-16">
-			<div className="container mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
+		<section className=" bg-background">
+			{/* <div className="container mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
 				<div className="relative">
 					<MotionPulse>
 						<motion.div
@@ -195,7 +196,8 @@ export function Statistics() {
 						</div>
 					</motion.div>
 				</div>
-			</div>
+			</div> */}
+			<AboutUs />
 		</section>
 	);
 }
