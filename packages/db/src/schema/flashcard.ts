@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { date, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { date, index, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { question, questionAnswerOption } from "./practice-pack";
 
@@ -17,7 +17,10 @@ export const userFlashcardQuestionAnswer = pgTable(
 		answeredAt: timestamp("answered_at"),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 	},
-	(t) => [primaryKey({ columns: [t.attemptId, t.assignedDate, t.questionId] })],
+	(t) => [
+		primaryKey({ columns: [t.attemptId, t.assignedDate, t.questionId] }),
+		index("idx_flashcard_answer_attempt").on(t.attemptId),
+	],
 );
 
 export const userFlashcardQuestionAnswerRelations = relations(userFlashcardQuestionAnswer, ({ one }) => ({
@@ -35,16 +38,23 @@ export const userFlashcardQuestionAnswerRelations = relations(userFlashcardQuest
 	}),
 }));
 
-export const userFlashcardAttempt = pgTable("user_flashcard_attempt", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
-	userId: text("user_id")
-		.notNull()
-		.references(() => user.id, { onDelete: "cascade" }),
-	date: date("date", { mode: "date" }).notNull().default(sql`CURRENT_DATE`),
-	startedAt: timestamp("started_at").notNull().defaultNow(),
-	deadline: timestamp().notNull(),
-	submittedAt: timestamp("submitted_at"),
-});
+export const userFlashcardAttempt = pgTable(
+	"user_flashcard_attempt",
+	{
+		id: integer().primaryKey().generatedAlwaysAsIdentity(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		date: date("date", { mode: "date" }).notNull().default(sql`CURRENT_DATE`),
+		startedAt: timestamp("started_at").notNull().defaultNow(),
+		deadline: timestamp().notNull(),
+		submittedAt: timestamp("submitted_at"),
+	},
+	(t) => [
+		index("idx_flashcard_attempt_user").on(t.userId),
+		index("idx_flashcard_attempt_user_started").on(t.userId, t.startedAt),
+	],
+);
 
 export const userFlashcardAttemptRelations = relations(userFlashcardAttempt, ({ one, many }) => ({
 	user: one(user, {

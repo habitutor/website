@@ -9,30 +9,31 @@ import { AboutUs } from "./-home/about-us";
 import { Pricing } from "./-home/pricing";
 import { Statistics } from "./-home/statistics";
 import { FAQ } from "./-home/faq";
+import Testimone from "./-home/testimone";
 
 export const Route = createFileRoute("/")({
-	head: () => ({
-		meta: createMeta({
-			description:
-				"Ubah persiapan ujian SNBT/UTBK menjadi lebih mudah dan terstruktur dengan Habitutor. Materi lengkap, latihan soal interaktif, dan analisis progres belajar.",
-			image: "/og-image.png",
-		}),
-	}),
-	component: HomeComponent,
+  head: () => ({
+    meta: createMeta({
+      description:
+        "Ubah persiapan ujian SNBT/UTBK menjadi lebih mudah dan terstruktur dengan Habitutor. Materi lengkap, latihan soal interaktif, dan analisis progres belajar.",
+      image: "/og-image.png",
+    }),
+  }),
+  component: HomeComponent,
 });
 
 function HomeComponent() {
-	return (
-		<>
-			<Header />
-			<Hero />
-			<Statistics />
-			<Features />
-			<AboutUs />
-			<Pricing />
-			<FAQ />
-			<CallToAction />
-			<Footer />
-		</>
-	);
+  return (
+    <>
+      <Header />
+      <Hero />
+      <Testimone />
+      <Statistics />
+      <Features />
+      <Pricing />
+      <FAQ />
+      <CallToAction />
+      <Footer />
+    </>
+  );
 }

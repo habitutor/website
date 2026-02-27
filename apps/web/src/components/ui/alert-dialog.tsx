@@ -1,3 +1,4 @@
+import { SpinnerIcon } from "@phosphor-icons/react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import type * as React from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -87,8 +88,23 @@ function AlertDialogDescription({
 	);
 }
 
-function AlertDialogAction({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
-	return <AlertDialogPrimitive.Action className={cn(buttonVariants(), className)} {...props} />;
+function AlertDialogAction({
+	className,
+	isPending,
+	children,
+	disabled,
+	...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Action> & { isPending?: boolean }) {
+	return (
+		<AlertDialogPrimitive.Action
+			className={cn(buttonVariants(), className, isPending && "opacity-70")}
+			disabled={disabled || isPending}
+			{...props}
+		>
+			{isPending && <SpinnerIcon className="animate-spin" />}
+			{children}
+		</AlertDialogPrimitive.Action>
+	);
 }
 
 function AlertDialogCancel({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {

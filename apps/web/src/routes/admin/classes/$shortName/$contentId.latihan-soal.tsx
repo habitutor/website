@@ -52,7 +52,7 @@ function RouteComponent() {
 	);
 
 	const practicePacks = useQuery(
-		orpc.admin.practicePack.listPacks.queryOptions({
+		orpc.admin.practicePack.list.queryOptions({
 			input: {
 				limit: 50,
 				offset: 0,
@@ -61,12 +61,12 @@ function RouteComponent() {
 		}),
 	);
 
-	const packQuestions = useQuery({
-		...orpc.admin.practicePack.getPackQuestions.queryOptions({
+	const packQuestions = useQuery(
+		orpc.admin.practicePack.getQuestions.queryOptions({
 			input: { id: selectedPackId! },
+			enabled: selectedPackId !== null,
 		}),
-		enabled: selectedPackId !== null,
-	});
+	);
 
 	const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
 	const [isInitialized, setIsInitialized] = useState(false);

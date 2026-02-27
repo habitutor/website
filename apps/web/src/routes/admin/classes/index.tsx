@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin/classes/")({
 });
 
 function RouteComponent() {
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
+	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
 
 	return (
 		<AdminContainer>
@@ -27,11 +27,11 @@ function RouteComponent() {
 
 				{subtests.isError && <p className="text-red-500">Error: {subtests.error.message}</p>}
 
-				{subtests.data && subtests.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
+				{subtests.data && subtests.data.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
 
-				{subtests.data && subtests.data.length > 0 && (
+				{subtests.data && subtests.data.data.length > 0 && (
 					<div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-						{subtests.data.map((subtest) => (
+						{subtests.data.data.map((subtest) => (
 							<SubtestCard key={subtest.id} subtest={subtest} />
 						))}
 					</div>

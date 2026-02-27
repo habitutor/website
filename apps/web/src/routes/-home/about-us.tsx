@@ -9,7 +9,7 @@ import { Image } from "@unpic/react";
 
 export function AboutUs() {
     return (
-        <section className="bg-background flex flex-col items-center justify-center relative overflow-visible">
+        <section className="bg-neutral-100 flex flex-col items-center justify-center relative overflow-visible">
 
             <motion.div className="container flex w-full flex-col gap-40 relative items-centerlg:gap-20"
                     initial={{ opacity: 0 }}
@@ -127,7 +127,7 @@ export function AboutUs() {
                 </div>
             </motion.div>
                 {/* v */}
-                    {/* <motion.div
+                    <motion.div
                         className="absolute bg-tertiary-100 size-80 lg:size-120 border-t-2 border-tertiary-200 -bottom-30 -right-35 lg:-bottom-50 lg:-right-30"
                         style={{ transform: "rotate(-25deg)" }}
                         initial={{ opacity: 0,}}
@@ -142,7 +142,7 @@ export function AboutUs() {
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.5, duration: 0.3 }}
-                    /> */}
+                    />
         </section>
     );
 }
