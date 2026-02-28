@@ -29,6 +29,20 @@
       "when": 1768538328754,
       "tag": "0003_outstanding_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772202478416,
+      "tag": "0004_jittery_mulholland_black",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1772205950104,
+      "tag": "0005_chief_ben_urich",
+      "breakpoints": true
     }
   ]
 }

@@ -1,372 +1,261 @@
 import { useState, useEffect } from "react";
+import { ArrowLeftIcon, CheckIcon, Copy } from "lucide-react";
+import { motion } from "motion/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MotionPulse } from "@/components/motion";
+import { Image } from "@unpic/react";
+import { cn } from "@/lib/utils";
+import { getAvatarId, getAvatarSrc } from "@/lib/avatar";
+import { orpc } from "@/utils/orpc";
 
-const AVATARS = Array.from({ length: 10 }, (_, i) => ({
-  id: i + 1,
-  src: `/avatar/tupai${i + 1}.webp`,
-  label: `Tupai ${i + 1}`,
-}));
+const AVATAR = [
+  {
+    id: 1,
+    src: "/avatar/profile/tupai-1.webp",
+    label: "tupai-1",
+    className: "bg-primary-100 border-primary-200",
+    imageClassName: " w-[90px] h-21",
+  },
+  {
+    id: 2,
+    src: "/avatar/profile/tupai-2.webp",
+    label: "tupai-2",
+    className: "bg-secondary-300 border-secondary-700",
+    imageClassName: "w-[81px] h-[71px]",
+  },
+  {
+    id: 3,
+    src: "/avatar/profile/tupai-3.webp",
+    label: "tupai-3",
+    className: "bg-tertiary-300 border-tertiary-500",
+  },
+  {
+    id: 4,
+    src: "/avatar/profile/tupai-4.webp",
+    label: "tupai-4",
+    className: "bg-red-100 border-red-200",
+  },
+  {
+    id: 5,
+    src: "/avatar/profile/tupai-5.webp",
+    label: "tupai-5",
+    className: "bg-primary-300 border-primary-500",
+  },
+  {
+    id: 6,
+    src: "/avatar/profile/tupai-6.webp",
+    label: "tupai-6",
+    className: "bg-secondary-300 border-secondary-700",
+  },
+  {
+    id: 7,
+    src: "/avatar/profile/tupai-7.webp",
+    label: "tupai-7",
+    className: "bg-red-100 border-red-200",
+  },
+  {
+    id: 8,
+    src: "/avatar/profile/tupai-8.webp",
+    label: "tupai-8",
+    className: "bg-primary-300 border-primary-500",
+  },
+  {
+    id: 9,
+    src: "/avatar/profile/tupai-9.webp",
+    label: "tupai-9",
+    className: "bg-tertiary-100 border-tertiary-200",
+  },
+  {
+    id: 10,
+    src: "/avatar/profile/tupai-10.webp",
+    label: "tupai-10",
+    className: "bg-tertiary-300 border-tertiary-500",
+  },
+];
 
-const AvatarItem = ({
-  av,
+function AvatarItem({
+  avatar,
   selected,
   onSelect,
-  size = 76,
 }: {
-  av: { id: number; src: string; label: string };
+  avatar: (typeof AVATAR)[0];
   selected: boolean;
   onSelect: (id: number) => void;
-  size?: number;
-}) => (
-  <div
-    onClick={() => onSelect(av.id)}
-    className="avatar-item"
-    style={{
-      width: size,
-      height: size,
-      minWidth: size,
-      borderRadius: 12,
-      background: "#FFF3C4",
-      border: selected ? "2.5px solid #22C55E" : "2px solid #E4E4E7",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
-      position: "relative",
-      flexShrink: 0,
-      overflow: "hidden",
-      transition: "transform 0.15s, border 0.15s",
-    }}
-  >
-    <img
-      src={av.src}
-      alt={av.label}
-      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      onError={(e) => {
-        (e.currentTarget as HTMLImageElement).style.display = "none";
-        const next = e.currentTarget.nextSibling as HTMLElement;
-        if (next) next.style.display = "flex";
-      }}
-    />
-    <span
-      style={{
-        display: "none",
-        position: "absolute",
-        inset: 0,
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: size * 0.42,
-      }}
-    >
-      🐿️
-    </span>
-    {selected && (
-      <div
-        style={{
-          position: "absolute",
-          top: 4,
-          left: 4,
-          width: 18,
-          height: 18,
-          borderRadius: "50%",
-          background: "#22C55E",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1,
-        }}
-      >
-        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-          <path d="M1 4L3.8 7L9 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-    )}
-  </div>
-);
-
-function SaveRow({ onSave }: { onSave: () => void }) {
+}) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, flexShrink: 0 }}>
-      <hr style={{ border: "none", borderTop: "1px solid #E4E4E7", margin: 0 }} />
-      <div className="save-row-inner" style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button
-          className="save-btn"
-          onClick={onSave}
-          style={{
-            height: 42,
-            padding: "0 32px",
-            background: "#3650A2",
-            border: "1px solid #3650A2",
-            borderRadius: 8,
-            color: "white",
-            fontSize: 12,
-            fontWeight: 600,
-            fontFamily: "inherit",
-            cursor: "pointer",
-          }}
-        >
-          Save Changes
-        </button>
+    <button
+      type="button"
+      onClick={() => onSelect(avatar.id)}
+      className={cn(
+        "relative flex cursor-pointer aspect-square w-21 h-21 items-end justify-center rounded-lg border-2 transition-all",
+        avatar.className,
+      )}
+    >
+      <Image
+        src={avatar.src}
+        alt={avatar.label}
+        width={80}
+        height={80}
+        className={cn(avatar.imageClassName, "")}
+      />
+
+      <div
+        className={`absolute left-1 top-1 flex size-5 items-center justify-center rounded-full border-2 text-white ${selected ? "bg-fourtiary-200 border-fourtiary-300" : "bg-transparent border-primary-background"}`}
+      >
+        {selected && <CheckIcon className="size-3" />}
       </div>
-    </div>
+    </button>
   );
 }
 
-function Toast({ show }: { show: boolean }) {
+function SaveRow({ onSave }: { onSave: () => void }) {
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 32,
-        left: "50%",
-        transform: show ? "translate(-50%, 0)" : "translate(-50%, 20px)",
-        opacity: show ? 1 : 0,
-        transition: "opacity 0.3s ease, transform 0.3s ease",
-        pointerEvents: "none",
-        zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        background: "#22C55E",
-        color: "white",
-        padding: "12px 24px",
-        borderRadius: 10,
-        fontSize: 13,
-        fontWeight: 600,
-        fontFamily: "inherit",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-      }}
-    >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M20 6L9 17l-5-5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      Profil berhasil disimpan
+    <div className="flex shrink-0 flex-col gap-4 sticky md:pt-6 border-t">
+      <div className="flex justify-end">
+        <Button onClick={onSave} className="w-full md:w-fit">
+          Save Changes
+        </Button>
+      </div>
     </div>
   );
 }
 
 export default function ProfilePage() {
+  const { session } = useRouteContext({ from: "/_authenticated" });
+  const queryClient = useQueryClient();
+  const profileQuery = useQuery(orpc.profile.get.queryOptions());
   const [tab, setTab] = useState<"data" | "customize">("data");
-  const [formData, setFormData] = useState({ email: "Habitutor@gmail.com", phone: "", name: "" });
+  const [formData, setFormData] = useState({
+    email: session?.user.email,
+    phone: "",
+    name: session?.user.name ?? "",
+  });
   const [customize, setCustomize] = useState({ kampus: "", jurusan: "" });
-  const [selectedAvatar, setSelectedAvatar] = useState(1);
+  const [selectedAvatar, setSelectedAvatar] = useState(() =>
+    getAvatarId(session?.user.image),
+  );
   const [copied, setCopied] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const affiliateCode = "Habit#1234!";
+  const referralCode = profileQuery.data?.referralCode ?? "N/A";
+  const referralCount = profileQuery.data?.referralUsage ?? 0;
 
+  // Sync phone from API once loaded
+  const profileData = profileQuery.data;
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
-    document.head.appendChild(link);
-
-    // Baca avatar yang sudah disimpan sebelumnya
-    const saved = localStorage.getItem("selectedAvatar");
-    if (saved) {
-      const match = saved.match(/tupai(\d+)\.webp/);
-      if (match) setSelectedAvatar(Number(match[1]));
+    if (profileData?.phoneNumber) {
+      setFormData((prev) => ({
+        ...prev,
+        phone: profileData.phoneNumber ?? "",
+      }));
     }
-  }, []);
+  }, [profileData?.phoneNumber]);
+
+  const avatarMutation = useMutation(
+    orpc.profile.updateAvatar.mutationOptions(),
+  );
+  const profileMutation = useMutation(orpc.profile.update.mutationOptions());
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(affiliateCode);
+    navigator.clipboard.writeText(referralCode);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 3000);
   };
 
-  const handleSave = () => {
-    const src = `/avatar/tupai${selectedAvatar}.webp`;
+  const handleSave = async () => {
+    const avatarId = String(selectedAvatar);
+    const src = getAvatarSrc(avatarId);
 
-    // Simpan ke localStorage
-    localStorage.setItem("selectedAvatar", src);
+    try {
+      // Simpan avatar (hanya ID)
+      await avatarMutation.mutateAsync({ image: avatarId });
+    } catch (err) {
+      console.error("Avatar save error:", err);
+      toast.error("Gagal menyimpan avatar");
+      return;
+    }
+
+    try {
+      // Simpan data profil (nama & telepon)
+      await profileMutation.mutateAsync({
+        name: formData.name,
+        phoneNumber: formData.phone,
+      });
+    } catch (err) {
+      console.error("Profile save error:", err);
+      toast.error("Gagal menyimpan data profil");
+      return;
+    }
+
+    // Refresh data
+    queryClient.invalidateQueries({ queryKey: orpc.profile.get.key() });
 
     // Beritahu header via custom event
     window.dispatchEvent(new CustomEvent("avatarChanged", { detail: { src } }));
 
-    // Tampilkan notif
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    toast.success("Profil berhasil disimpan");
   };
 
   return (
-    <>
-      <style>{`
-        @keyframes popUp {
-          0%   { transform: translateY(60px); opacity: 0; }
-          60%  { transform: translateY(-10px); opacity: 1; }
-          80%  { transform: translateY(4px); }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes cardSlideUp {
-          0%   { transform: translateY(30px); opacity: 0; }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-        .profile-page-bg {
-          background: #F4FAFF;
-          min-height: calc(100vh - 86px);
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          position: relative;
-          overflow: hidden;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .mascot-popup { animation: popUp 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-        .avatar-item:hover { transform: scale(1.05); }
-        .tab-active { background: #3650A2 !important; color: white !important; }
-        .tab-inactive { background: white !important; color: #3650A2 !important; }
-        input:focus { outline: none; }
-
-        /* Dekorasi bulatan */
-        .deco-1 {
-          position: fixed; top: 497px; left: -101px;
-          width: 525px; height: 525px; border-radius: 50%;
-          border: 2px solid #B3DFF5; background: #D9EFFA;
-          pointer-events: none; z-index: 0;
-        }
-        .deco-2 {
-          position: fixed; top: 406px; left: 22px;
-          pointer-events: none; z-index: 0;
-        }
-        .deco-3 {
-          position: fixed; top: 542px; right: 0;
-          width: 314px; height: 314px; border-radius: 50%;
-          border: 2px solid #B3DFF5; background: #D9EFFA;
-          pointer-events: none; z-index: 0;
-        }
-        .deco-4 {
-          position: fixed; top: 436px; right: -42px;
-          pointer-events: none; z-index: 0;
-        }
-
-        @media (max-width: 768px) {
-          .profile-page-bg { min-height: 100vh; overflow: auto; }
-          .profile-card {
-            padding: 0 0 32px 0 !important;
-            gap: 0 !important;
-            border-left: none !important;
-            border-right: none !important;
-          }
-          .back-btn-wrap { display: none !important; }
-          .hero-wrap { padding: 16px 16px 0 16px !important; }
-          .hero-banner { height: 140px !important; }
-          .hero-title { font-size: 26px !important; line-height: 1.3 !important; }
-          .hero-sub { font-size: 13px !important; }
-          .hero-mascot { width: 115px !important; height: 106px !important; right: 8px !important; }
-          .page-body { padding: 0 16px !important; gap: 16px !important; margin-top: 26px !important; }
-          .form-row { flex-direction: column !important; }
-          .form-col { width: 100% !important; }
-          .tab-btn { flex: 1 !important; }
-          .save-btn { width: 100% !important; }
-          .save-row-inner { justify-content: flex-end !important; }
-          .save-wrap { padding-left: 16px !important; padding-right: 16px !important; }
-          .banner-circle-wrap {
-            width: 183px !important; height: 185px !important;
-            top: auto !important; bottom: 0 !important;
-          }
-          .banner-circle-inner {
-            width: 183px !important; height: 185px !important;
-            top: auto !important; bottom: -92px !important; right: -52px !important;
-          }
-          .customize-row { flex-direction: column !important; }
-          .customize-fields { width: 100% !important; order: 2 !important; }
-          .customize-avatars { width: 100% !important; order: 1 !important; }
-          .avatar-scroll-mobile { display: flex !important; }
-          .avatar-grid-desktop { display: none !important; }
-          .referral-row { flex-direction: column !important; }
-          .referral-row > div:first-child { width: 100% !important; justify-content: flex-start !important; }
-          .deco-1, .deco-2, .deco-3, .deco-4 { display: none; }
-        }
-      `}</style>
-
-      {/* Notif toast */}
-      <Toast show={showToast} />
-
+    <main>
       {/* Background dan dekorasi */}
-      <div className="profile-page-bg" style={{
-        width: "100vw",
-        marginLeft: "calc(-50vw + 50%)",
-      }}>
-
+      <div className="relative pt-20 flex w-full justify-center items-start md:overflow-y-hidden bg-background">
         {/* Dekorasi bulatan */}
-        <div className="deco-1" />
-        <div className="deco-2">
-          <svg width="79" height="79" viewBox="0 0 79 79" fill="none">
-            <circle cx="39.5" cy="39.5" r="38.5" fill="#D9EFFA" stroke="#B3DFF5" strokeWidth="2" />
-          </svg>
-        </div>
-        <div className="deco-3" />
-        <div className="deco-4">
-          <svg width="83" height="126" viewBox="0 0 83 126" fill="none">
-            <path d="M62.5 1C96.458 1 124 28.7508 124 63C124 97.2492 96.458 125 62.5 125C28.542 125 1 97.2492 1 63C1 28.7508 28.542 1 62.5 1Z" fill="#D9EFFA" stroke="#B3DFF5" strokeWidth="2" />
-          </svg>
-        </div>
+        <MotionPulse>
+          <motion.div
+            className="pointer-events-none fixed left-5.5 top-101.5 z-0 hidden size-20 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+          />
+        </MotionPulse>
+        <MotionPulse>
+          <motion.div
+            className="pointer-events-none fixed right-0 top-135.5 z-0 hidden size-78.5 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, duration: 0.3 }}
+          />
+        </MotionPulse>
+        <MotionPulse>
+          <motion.div
+            className="pointer-events-none fixed -right-10.5 top-109 z-0 hidden size-32 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5, duration: 0.3 }}
+          />
+        </MotionPulse>
 
         {/* kartu */}
-        <main
-          className="profile-card"
-          style={{
-            position: "relative",
-            zIndex: 1,
-            width: "100%",
-            maxWidth: 1280,
-            background: "white",
-            borderLeft: "1px solid #D2D2D2",
-            borderRight: "1px solid #D2D2D2",
-            borderBottom: "1px solid #D2D2D2",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 26,
-            padding: "40px 0",
-            boxSizing: "border-box",
-            animation: "cardSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both",
-            minHeight: "calc(100vh - 86px)",
-          }}
-        >
+        <main className="relative z-2 w-full space-y-6 md:h-[calc(100vh-80px)] items-center border-x border-neutral-300 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-6 py-10">
           {/* Tombol kembali */}
-          <div className="back-btn-wrap" style={{ width: "100%", paddingLeft: 54, paddingRight: 54, boxSizing: "border-box" }}>
-            <button
-              style={{
-                display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
-                background: "#3650A2", border: "none", borderRadius: 8, color: "white",
-                fontSize: 12, fontFamily: "inherit", fontWeight: 600, cursor: "pointer",
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
+          <div className="hidden w-full px-12 md:block">
+            <Button className="h-8 rounded-md bg-primary-300 px-4 text-xs font-semibold text-white hover:bg-primary-400">
+              <ArrowLeftIcon className="size-4" />
               Kembali
-            </button>
+            </Button>
           </div>
 
           {/* Hero banner */}
-          <div className="hero-wrap" style={{ position: "relative", width: "100%", flexShrink: 0, paddingLeft: 54, paddingRight: 54, boxSizing: "border-box" }}>
-            <div
-              className="hero-banner"
-              style={{
-                position: "relative", width: "100%", height: 117, borderRadius: 10,
-                border: "2px solid #B3DFF5", background: "#D9EFFA",
-                overflow: "visible", flexShrink: 0,
-              }}
-            >
+          <div className="relative w-full shrink-0 px-12 max-md:px-4">
+            <div className="relative h-29.25 w-full overflow-visible rounded-[10px] border-2 border-tertiary-200 bg-tertiary-100 max-md:h-35">
               {/* Bulatan biru dalam banner */}
-              <div className="banner-circle-wrap" style={{
-                position: "absolute", top: 0, right: 0, overflow: "hidden",
-                borderTopRightRadius: 10, borderBottomRightRadius: 10,
-                width: 280, height: "100%", pointerEvents: "none",
-              }}>
-                <div className="banner-circle-inner" style={{
-                  position: "absolute", width: 310, height: 310, borderRadius: "50%",
-                  border: "2px solid #5BBAE9", background: "#87CCEF", top: -47, right: -41,
-                }} />
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-70 overflow-hidden rounded-br-[10px] rounded-tr-[10px] max-md:bottom-0 max-md:top-auto max-md:h-46.25 max-md:w-45.75">
+                <div className="absolute -right-10.25 -top-11.75 size-77.5 rounded-full border-2 border-tertiary-400 bg-tertiary-300 max-md:-bottom-23 max-md:-right-13 max-md:top-auto max-md:size-45.75" />
               </div>
 
               {/* Teks */}
-              <div style={{ position: "absolute", top: 21, left: 24, zIndex: 1, maxWidth: "55%" }}>
-                <h1 className="hero-title" style={{ margin: 0, fontSize: 34, lineHeight: "51px", color: "#3650A2", fontFamily: "inherit", fontWeight: 400 }}>
-                  Halo, <span style={{ fontWeight: 700 }}>Melinda!</span>
+              <div className="p-4 md:py-5 md:px-6 ">
+                <h1 className="m-0 text-[28px] md:text-[34px] font-normal leading-[1.2] text-primary-300">
+                  Halo, <span className="font-bold">{session?.user.name}!</span>
                 </h1>
-                <p className="hero-sub" style={{ margin: 0, fontSize: 14, color: "#3650A2", fontWeight: 400 }}>
+                <p className="m-0 text-[12px] text-primary-300 md:w-full w-2/3">
                   Lengkapi informasi profilmu di bawah ini
                 </p>
               </div>
@@ -374,99 +263,133 @@ export default function ProfilePage() {
               {/* Gambar tupai — key berubah tiap ganti avatar → re-mount → animasi ulang */}
               <div
                 key={selectedAvatar}
-                className="mascot-popup hero-mascot"
-                style={{ position: "absolute", bottom: 0, right: 24, width: 222, height: 205, zIndex: 3, pointerEvents: "none" }}
+                className="pointer-events-none absolute bottom-0 right-6 z-30 h-51.25 w-55.5 animate-in fade-in slide-in-from-bottom-6 max-md:right-2 max-md:h-26.5 max-md:w-28.75"
               >
-                <img
-                  src={`/avatar/tupai${selectedAvatar}.webp`}
+                <Image
+                  src={`/avatar/profile/tupai-${selectedAvatar}.webp`}
                   alt="Maskot"
-                  style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom" }}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                  layout="fullWidth"
+                  className="h-full w-full object-contain object-bottom"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      "none";
+                  }}
                 />
               </div>
             </div>
           </div>
 
           {/* Konten */}
-          <div className="page-body" style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1, width: "100%", paddingLeft: 54, paddingRight: 54, boxSizing: "border-box" }}>
-
+          <div className="relative flex w-full flex-1 flex-col gap-5 px-12 max-md:mt-6 max-md:gap-4 max-md:px-4">
             {/* Tabs */}
-            <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
-              <button
-                className={`tab-btn ${tab === "data" ? "tab-active" : "tab-inactive"}`}
+            <div className="flex shrink-0 gap-3">
+              <Button
+                variant={tab === "data" ? "default" : "outline"}
                 onClick={() => setTab("data")}
-                style={{ height: 37, padding: "0 14px", border: "1px solid #3650A2", borderRadius: 8, fontSize: 12, fontFamily: "inherit", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
               >
                 Data Dirimu
-              </button>
-              <button
-                className={`tab-btn ${tab === "customize" ? "tab-active" : "tab-inactive"}`}
+              </Button>
+              <Button
+                variant={tab === "customize" ? "default" : "outline"}
                 onClick={() => setTab("customize")}
-                style={{ height: 37, padding: "0 14px", border: "1px solid #3650A2", borderRadius: 8, fontSize: 12, fontFamily: "inherit", fontWeight: 400, cursor: "pointer", whiteSpace: "nowrap" }}
               >
                 Customize
-              </button>
+              </Button>
             </div>
 
             {/* TAB: Data Diri */}
             {tab === "data" && (
-              <div className="form-row" style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+              <div className="flex flex-col items-start gap-6 md:flex-row">
                 {/* Kiri: form fields */}
-                <div className="form-col" style={{ display: "flex", flexDirection: "column", gap: 12, width: "47%" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>Email</label>
-                    <div style={{ border: "1px solid #D2D2D2", borderRadius: 6, background: "#E8E8E8", padding: "1px 3px" }}>
-                      <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        style={{ width: "100%", border: "none", background: "transparent", padding: "8px", fontSize: 13, color: "#333", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    </div>
+                <div className="flex w-[48%] flex-col gap-3 max-md:w-full">
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      className="cursor-not-allowed bg-muted"
+                      disabled
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>Nomor Telepon</label>
-                    <div style={{ border: "1px solid #E4E4E7", borderRadius: 6, background: "white", padding: "1px 3px" }}>
-                      <input type="tel" value={formData.phone} placeholder="Nomor Telepon" onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        style={{ width: "100%", border: "none", background: "transparent", padding: "8px", fontSize: 13, color: "#333", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Nomor Telepon</Label>
+                    <Input
+                      type="tel"
+                      value={formData.phone}
+                      placeholder="Nomor Telepon"
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>Nama</label>
-                    <div style={{ border: "1px solid #E4E4E7", borderRadius: 6, background: "white", padding: "1px 3px" }}>
-                      <input type="text" value={formData.name} placeholder="Nama" onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        style={{ width: "100%", border: "none", background: "transparent", padding: "8px", fontSize: 13, color: "#333", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Nama</Label>
+                    <Input
+                      type="text"
+                      value={formData.name}
+                      placeholder="Nama"
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                    />
                   </div>
                 </div>
 
                 {/* Kanan: affiliate */}
-                <div className="form-col" style={{ display: "flex", flexDirection: "column", gap: 7, width: "53%" }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: "#333" }}>
+                <div className="flex flex-col gap-2 max-md:w-full">
+                  <div className="text-xs font-medium">
                     Ajak Teman, Dapat <strong>Cashback 25%</strong>
                   </div>
-                  <div style={{ display: "flex", alignItems: "stretch", height: 94, borderRadius: 8, border: "2px solid #FDC10E", background: "#FED65E", overflow: "hidden", boxSizing: "border-box" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, padding: "0 0 0 16px", justifyContent: "center" }}>
-                      <span style={{ fontSize: 10, fontWeight: 500, color: "#333" }}>Kode Affiliatemu</span>
-                      <span style={{ fontSize: 28, fontWeight: 700, lineHeight: "42px", color: "#333" }}>{affiliateCode}</span>
+                  <div className="flex h-23.5 items-stretch overflow-hidden rounded-lg border-2 border-secondary-600 bg-secondary-400">
+                    <div className="flex flex-1 flex-col justify-center gap-1 pl-4">
+                      <span className="text-[10px] font-medium">
+                        Kode Affiliatemu
+                      </span>
+                      <span className="text-[28px] font-bold leading-10.5">
+                        {referralCode}
+                      </span>
                     </div>
-                    <button onClick={handleCopy} className="affiliate-copy-btn"
-                      style={{ width: 72, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#FDC10E", border: "none", borderLeft: "2px solid #E1A902", cursor: "pointer" }}>
-                      {copied
-                        ? <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><path d="M20 6L9 17l-5-5" stroke="#121926" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                        : <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5M11 9H20C21.1046 9 22 9.89543 22 11V20C22 21.1046 21.1046 22 20 22H11C9.89543 22 9 21.1046 9 20V11C9 9.89543 9.89543 9 11 9Z" stroke="#121926" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                      }
+                    <button
+                      onClick={handleCopy}
+                      className="flex w-18 cursor-pointer shrink-0 items-center justify-center border-l-2 border-secondary-700 bg-secondary-600"
+                    >
+                      {copied ? (
+                        <CheckIcon className="size-5" />
+                      ) : (
+                        <Copy className="size-5" />
+                      )}
                     </button>
                   </div>
-                  <div className="referral-row" style={{ display: "flex", gap: 12 }}>
+                  <div className="flex gap-3 max-md:flex-col">
                     {/* Referral Terdaftar */}
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, width: 110, padding: "14px 12px", borderRadius: 8, border: "2px solid #D9EFFA", background: "#F4FAFF", flexShrink: 0, boxSizing: "border-box" }}>
-                      <span style={{ fontSize: 20, fontWeight: 700, color: "#333" }}>000</span>
-                      <span style={{ fontSize: 9, fontWeight: 500, color: "#333", whiteSpace: "nowrap" }}>Referral<br />Terdaftar</span>
+                    <div className="flex w-27.5 shrink-0 items-center justify-center gap-1.5 rounded-lg border-2 border-tertiary-100 bg-background px-3 py-3.5 max-md:w-full max-md:justify-start">
+                      <span className="text-[20px] font-bold ">
+                        {referralCount}
+                      </span>
+                      <span className="whitespace-nowrap text-[9px] font-medium">
+                        Referral
+                        <br />
+                        Terdaftar
+                      </span>
                     </div>
                     {/* Terms and Conditions */}
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, padding: "12px 14px", borderRadius: 10, border: "1px solid #F4FAFF", background: "white" }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#333" }}>Terms and Conditions</span>
-                      <ul style={{ fontSize: 10, lineHeight: "15px", color: "#333", margin: 0, paddingLeft: 14 }}>
-                        <li>Cashback 25% berlaku untuk pembelian paket oleh teman (pengguna baru).</li>
-                        <li>Saldo akan masuk setelah transaksi teman terverifikasi.</li>
-                        <li>Habitutor berhak membatalkan reward jika ditemukan indikasi kecurangan.</li>
+                    <div className="flex flex-1 flex-col gap-1 rounded-[10px] border border-background bg-white px-3.5 py-3">
+                      <span className="text-[10px] font-bold">
+                        Terms and Conditions
+                      </span>
+                      <ul className="m-0 list-disc pl-3.5 text-[10px] leading-3.75">
+                        <li>
+                          Cashback 25% berlaku untuk pembelian paket oleh teman
+                          (pengguna baru).
+                        </li>
+                        <li>
+                          Saldo akan masuk setelah transaksi teman
+                          terverifikasi.
+                        </li>
+                        <li>
+                          Habitutor berhak membatalkan reward jika ditemukan
+                          indikasi kecurangan.
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -476,38 +399,47 @@ export default function ProfilePage() {
 
             {/* TAB: Customize */}
             {tab === "customize" && (
-              <div className="customize-row" style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
+              <div className="flex w-full md:flex-row items-start gap-8 flex-col-reverse">
                 {/* Kiri: fields */}
-                <div className="customize-fields" style={{ display: "flex", flexDirection: "column", gap: 16, width: "38%", flexShrink: 0 }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>Pilih Kampus Impianmu</label>
-                    <div style={{ border: "1px solid #E4E4E7", borderRadius: 6, background: "white", padding: "1px 3px" }}>
-                      <input type="text" value={customize.kampus} placeholder="Kampus"
-                        onChange={(e) => setCustomize({ ...customize, kampus: e.target.value })}
-                        style={{ width: "100%", border: "none", background: "transparent", padding: "8px", fontSize: 13, color: "#333", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    </div>
+                <div className="flex flex-1 shrink-0 flex-col gap-4 w-full">
+                  <div className="space-y-2">
+                    <Label>Pilih Kampus Impianmu</Label>
+                    <Input
+                      type="text"
+                      value={customize.kampus}
+                      placeholder="Kampus"
+                      onChange={(e) =>
+                        setCustomize({ ...customize, kampus: e.target.value })
+                      }
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>Pilih Jurusan Impianmu</label>
-                    <div style={{ border: "1px solid #E4E4E7", borderRadius: 6, background: "white", padding: "1px 3px" }}>
-                      <input type="text" value={customize.jurusan} placeholder="Jurusan"
-                        onChange={(e) => setCustomize({ ...customize, jurusan: e.target.value })}
-                        style={{ width: "100%", border: "none", background: "transparent", padding: "8px", fontSize: 13, color: "#333", boxSizing: "border-box", fontFamily: "inherit" }} />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Pilih Jurusan Impianmu</Label>
+                    <Input
+                      type="text"
+                      value={customize.jurusan}
+                      placeholder="Jurusan"
+                      onChange={(e) =>
+                        setCustomize({
+                          ...customize,
+                          jurusan: e.target.value,
+                        })
+                      }
+                    />
                   </div>
                 </div>
 
-                {/* Kanan: avatar grid */}
-                <div className="customize-avatars" style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1, minWidth: 0 }}>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>Pilih Avatarmu</label>
-                  <div className="avatar-scroll-mobile" style={{ display: "none", overflowX: "auto", paddingBottom: 8, gap: 10 }}>
-                    {AVATARS.map((av) => (
-                      <AvatarItem key={av.id} av={av} selected={selectedAvatar === av.id} onSelect={setSelectedAvatar} size={80} />
-                    ))}
-                  </div>
-                  <div className="avatar-grid-desktop" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
-                    {AVATARS.map((av) => (
-                      <AvatarItem key={av.id} av={av} selected={selectedAvatar === av.id} onSelect={setSelectedAvatar} size={76} />
+                {/* Kanan: avatar grid — fixed width agar tetap square */}
+                <div className="flex w-full shrink-0 flex-col gap-2.5 overflow-hidden md:w-117.5">
+                  <h2 className="text-xs font-semibold">Pilih Avatarmu</h2>
+                  <div className="flex w-full flex-row gap-2.5 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:pb-0 md:overflow-x-visible">
+                    {AVATAR.map((av) => (
+                      <AvatarItem
+                        key={av.id}
+                        avatar={av}
+                        selected={selectedAvatar === av.id}
+                        onSelect={setSelectedAvatar}
+                      />
                     ))}
                   </div>
                 </div>
@@ -516,11 +448,11 @@ export default function ProfilePage() {
           </div>
 
           {/* Save Changes */}
-          <div className="save-wrap" style={{ width: "100%", paddingLeft: 54, paddingRight: 54, boxSizing: "border-box", alignSelf: "stretch" }}>
+          <div className="w-full self-stretch px-12 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:z-50 max-md:bg-white max-md:px-4 max-md:py-4 max-md:shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
             <SaveRow onSave={handleSave} />
           </div>
         </main>
       </div>
-    </>
+    </main>
   );
 }
