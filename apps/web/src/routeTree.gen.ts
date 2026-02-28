@@ -122,6 +122,8 @@ const AuthenticatedProfileIndexRoute =
   AuthenticatedProfileIndexRouteImport.update({
     id: '/profile/',
     path: '/profile/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPremiumIndexRoute =
   AuthenticatedPremiumIndexRouteImport.update({
     id: '/premium/',
@@ -287,8 +289,8 @@ export interface FileRoutesByFullPath {
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
-  '/profile': typeof AuthenticatedProfileIndexRoute
   '/premium': typeof AuthenticatedPremiumIndexRoute
+  '/profile': typeof AuthenticatedProfileIndexRoute
   '/admin/classes': typeof AdminClassesIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
   '/admin/questions': typeof AdminQuestionsIndexRoute
@@ -326,8 +328,8 @@ export interface FileRoutesByTo {
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
-  '/profile': typeof AuthenticatedProfileIndexRoute
   '/premium': typeof AuthenticatedPremiumIndexRoute
+  '/profile': typeof AuthenticatedProfileIndexRoute
   '/admin/classes': typeof AdminClassesIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
   '/admin/questions': typeof AdminQuestionsIndexRoute
@@ -369,8 +371,8 @@ export interface FileRoutesById {
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
-  '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/_authenticated/premium/': typeof AuthenticatedPremiumIndexRoute
+  '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
@@ -411,8 +413,8 @@ export interface FileRouteTypes {
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
-    | '/profile'
     | '/premium'
+    | '/profile'
     | '/admin/classes'
     | '/admin/practice-packs'
     | '/admin/questions'
@@ -450,8 +452,8 @@ export interface FileRouteTypes {
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
-    | '/profile'
     | '/premium'
+    | '/profile'
     | '/admin/classes'
     | '/admin/practice-packs'
     | '/admin/questions'
@@ -492,8 +494,8 @@ export interface FileRouteTypes {
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/latihan-soal/'
-    | '/_authenticated/profile/'
     | '/_authenticated/premium/'
+    | '/_authenticated/profile/'
     | '/admin/classes/'
     | '/admin/practice-packs/'
     | '/admin/questions/'
@@ -629,6 +631,8 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/premium/': {
       id: '/_authenticated/premium/'
       path: '/premium'
@@ -849,8 +853,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
-  AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
   AuthenticatedPremiumIndexRoute: typeof AuthenticatedPremiumIndexRoute
+  AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
   AuthenticatedClassesShortNameContentIdRoute: typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   AuthenticatedDashboardFlashcardResultRoute: typeof AuthenticatedDashboardFlashcardResultRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
@@ -867,8 +871,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
-  AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
   AuthenticatedPremiumIndexRoute: AuthenticatedPremiumIndexRoute,
+  AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
   AuthenticatedClassesShortNameContentIdRoute:
     AuthenticatedClassesShortNameContentIdRouteWithChildren,
   AuthenticatedDashboardFlashcardResultRoute:
