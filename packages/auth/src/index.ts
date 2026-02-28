@@ -8,7 +8,8 @@ import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
-const REFERRAL_CODE_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
+const REFERRAL_CODE_CHARS =
+	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
 const REFERRAL_CODE_LENGTH = 11;
 
 function generateReferralCodeString(): string {
@@ -19,18 +20,26 @@ function generateReferralCodeString(): string {
 }
 
 async function createReferralCodeForUser(userId: string) {
-	const existing = await db.select().from(referralCode).where(eq(referralCode.userId, userId)).limit(1);
+	const existing = await db
+		.select()
+		.from(referralCode)
+		.where(eq(referralCode.userId, userId))
+		.limit(1);
+
 	if (existing[0]) return;
 
 	for (let attempt = 0; attempt < 5; attempt++) {
 		const code = generateReferralCodeString();
+
 		const [result] = await db
 			.insert(referralCode)
 			.values({ code, userId })
 			.onConflictDoNothing({ target: referralCode.code })
 			.returning();
+
 		if (result) return;
 	}
+
 	console.error(`Failed to generate referral code for user ${userId}`);
 }
 
@@ -41,6 +50,7 @@ export const auth = betterAuth({
 		provider: "pg",
 		schema,
 	}),
+
 	user: {
 		additionalFields: {
 			role: {
@@ -92,15 +102,40 @@ export const auth = betterAuth({
 				required: false,
 				defaultValue: null,
 				input: true,
-			}
+			},
+			referralCodes: {
+				type: "string",
+				required: false,
+				input: false,
+			},
+			referralUsage: {
+				type: "number",
+				required: false,
+				defaultValue: 0,
+				input: false,
+			},
+			dreamCampus: {
+				type: "string",
+				required: false,
+				defaultValue: null,
+				input: false,
+			},
+			dreamMajor: {
+				type: "string",
+				required: false,
+				defaultValue: null,
+				input: false,
+			},
 		},
 	},
+
 	trustedOrigins: [
 		process.env.CORS_ORIGIN || "http://localhost:3000",
 		"https://habitutor.id",
 		"https://www.habitutor.id",
 		"https://api.habitutor.id",
 	],
+
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url, token }) => {
@@ -116,6 +151,7 @@ export const auth = betterAuth({
 				});
 		},
 	},
+
 	socialProviders: {
 		google: {
 			clientId: (process.env.GOOGLE_CLIENT_ID as string)?.trim(),
@@ -124,14 +160,17 @@ export const auth = betterAuth({
 			prompt: "select_account consent",
 		},
 	},
+
 	session: {
 		cookieCache: {
 			enabled: true,
 			maxAge: 5 * 60,
 		},
 	},
+
 	secret: process.env.BETTER_AUTH_SECRET,
 	baseURL: process.env.BETTER_AUTH_URL,
+
 	databaseHooks: {
 		user: {
 			create: {
@@ -141,6 +180,7 @@ export const auth = betterAuth({
 			},
 		},
 	},
+
 	advanced: {
 		defaultCookieAttributes: {
 			sameSite: "Lax",

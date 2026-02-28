@@ -57,6 +57,20 @@
       "when": 1771908405669,
       "tag": "0007_unique_king_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772202478416,
+      "tag": "0008_jittery_mulholland_black",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1772205950104,
+      "tag": "0009_chief_ben_urich",
+      "breakpoints": true
     }
   ]
 }

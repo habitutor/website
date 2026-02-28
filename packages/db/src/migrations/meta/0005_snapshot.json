@@ -1,6 +1,6 @@
 {
-  "id": "2c245d7a-ec7a-4813-8363-0af20efdb9fb",
-  "prevId": "fbe8ba78-e38a-43b6-9f41-0ffbbb3b9f3f",
+  "id": "4d5e50c8-2a25-45fc-9ff4-2d308a8b8928",
+  "prevId": "955d681b-558d-4c22-a7fb-a2281dd345f3",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -305,6 +305,12 @@
         "premium_expires_at": {
           "name": "premium_expires_at",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         }

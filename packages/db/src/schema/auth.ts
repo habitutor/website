@@ -25,6 +25,10 @@ export const user = pgTable("user", {
   lastCompletedFlashcardAt: timestamp("last_completed_flashcard_at"),
   premiumExpiresAt: timestamp("premium_expires_at"),
   phoneNumber: text("phone_number"),
+  referralCode: text("referral_code"),
+  referralUsage: integer("referral_usage").default(0),
+  dreamCampus: text("dream_campus"),
+  dreamMajor: text("dream_major"),
 });
 
 export const session = pgTable(
