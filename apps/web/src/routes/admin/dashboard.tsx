@@ -11,7 +11,7 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 function AdminDashboard() {
-	const { data: stats, isLoading } = useQuery(orpc.admin.practicePack.getStatistics.queryOptions());
+	const { data: stats, isLoading } = useQuery(orpc.admin.statistics.get.queryOptions());
 
 	return (
 		<AdminContainer>

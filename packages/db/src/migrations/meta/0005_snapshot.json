@@ -452,7 +452,44 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_flashcard_attempt_user": {
+          "name": "idx_flashcard_attempt_user",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_flashcard_attempt_user_started": {
+          "name": "idx_flashcard_attempt_user_started",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "user_flashcard_attempt_user_id_user_id_fk": {
           "name": "user_flashcard_attempt_user_id_user_id_fk",
@@ -516,7 +553,23 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_flashcard_answer_attempt": {
+          "name": "idx_flashcard_answer_attempt",
+          "columns": [
+            {
+              "expression": "attempt_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "user_flashcard_question_answer_question_id_question_id_fk": {
           "name": "user_flashcard_question_answer_question_id_question_id_fk",
@@ -684,7 +737,38 @@
           "default": "'ongoing'"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_pp_attempt_user": {
+          "name": "idx_pp_attempt_user",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_pp_attempt_pack": {
+          "name": "idx_pp_attempt_pack",
+          "columns": [
+            {
+              "expression": "practice_pack_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "practice_pack_attempt_user_id_user_id_fk": {
           "name": "practice_pack_attempt_user_id_user_id_fk",
@@ -818,7 +902,23 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_pp_user_answer_attempt": {
+          "name": "idx_pp_user_answer_attempt",
+          "columns": [
+            {
+              "expression": "attempt_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "practice_pack_user_answer_attempt_id_practice_pack_attempt_id_fk": {
           "name": "practice_pack_user_answer_attempt_id_practice_pack_attempt_id_fk",
@@ -918,9 +1018,32 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
+        },
+        "is_flashcard_question": {
+          "name": "is_flashcard_question",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_question_flashcard": {
+          "name": "idx_question_flashcard",
+          "columns": [
+            {
+              "expression": "is_flashcard_question",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -975,7 +1098,23 @@
           "default": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_answer_option_question": {
+          "name": "idx_answer_option_question",
+          "columns": [
+            {
+              "expression": "question_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "question_answer_option_question_id_question_id_fk": {
           "name": "question_answer_option_question_id_question_id_fk",
@@ -1758,7 +1897,23 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_transaction_user": {
+          "name": "idx_transaction_user",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "transaction_user_id_user_id_fk": {
           "name": "transaction_user_id_user_id_fk",

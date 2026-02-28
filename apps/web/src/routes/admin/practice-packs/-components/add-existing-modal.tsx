@@ -19,23 +19,23 @@ export function AddExistingQuestionModal({
 	existingQuestionIds,
 	onClose,
 }: AddExistingQuestionModalProps) {
-	const [page, setPage] = useState(1);
+	const [cursor, setCursor] = useState<string | null>(null);
+	const [cursorHistory, setCursorHistory] = useState<string[]>([]);
 	const limit = 10;
-	const offset = (page - 1) * limit;
 	const queryClient = useQueryClient();
 
 	const { data, isLoading } = useQuery(
-		orpc.admin.practicePack.listAllQuestions.queryOptions({
-			input: { limit, offset },
+		orpc.admin.question.list.queryOptions({
+			input: { limit, cursor: cursor ?? undefined },
 		}),
 	);
 
 	const addMutation = useMutation(
-		orpc.admin.practicePack.addQuestionToPack.mutationOptions({
+		orpc.admin.practicePack.addQuestion.mutationOptions({
 			onSuccess: () => {
 				toast.success("Question added to pack");
 				queryClient.invalidateQueries(
-					orpc.admin.practicePack.getPackQuestions.queryOptions({
+					orpc.admin.practicePack.getQuestions.queryOptions({
 						input: { id: practicePackId },
 					}),
 				);
@@ -49,8 +49,8 @@ export function AddExistingQuestionModal({
 	);
 
 	const questions = data?.data || [];
-	const total = data?.total || 0;
-	const totalPages = Math.ceil(total / limit);
+	const hasMore = data?.hasMore || false;
+	const nextCursor = data?.nextCursor || null;
 	const availableQuestions = questions.filter((q) => !existingQuestionIds.includes(q.id));
 
 	const handleAddQuestion = (questionId: number) => {
@@ -59,6 +59,27 @@ export function AddExistingQuestionModal({
 			questionId,
 		});
 	};
+
+	const handleNext = () => {
+		if (nextCursor) {
+			if (cursor) {
+				setCursorHistory((prev) => [...prev, cursor]);
+			}
+			setCursor(nextCursor);
+		}
+	};
+
+	const handlePrevious = () => {
+		if (cursorHistory.length > 0) {
+			const previousCursor = cursorHistory[cursorHistory.length - 1];
+			setCursorHistory((prev) => prev.slice(0, -1));
+			setCursor(previousCursor);
+		} else {
+			setCursor(null);
+		}
+	};
+
+	const hasPrevious = cursor !== null || cursorHistory.length > 0;
 
 	return (
 		<Card>
@@ -104,15 +125,12 @@ export function AddExistingQuestionModal({
 					)}
 				</div>
 
-				{totalPages > 1 && (
+				{(hasPrevious || hasMore) && (
 					<div className="flex items-center justify-center gap-2">
-						<Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
+						<Button variant="outline" size="sm" disabled={!hasPrevious || isLoading} onClick={handlePrevious}>
 							Previous
 						</Button>
-						<span className="text-muted-foreground text-sm">
-							Page {page} of {totalPages}
-						</span>
-						<Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+						<Button variant="outline" size="sm" disabled={!hasMore || isLoading} onClick={handleNext}>
 							Next
 						</Button>
 					</div>

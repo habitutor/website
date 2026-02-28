@@ -1,21 +1,33 @@
+import type { ExtractTablesWithRelations } from "drizzle-orm";
+import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import { drizzle } from "drizzle-orm/node-postgres";
+import type { PgTransaction } from "drizzle-orm/pg-core";
+import { Pool } from "pg";
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
+import * as referral from "./schema/referral";
 import * as transaction from "./schema/transaction";
 
-export const db = drizzle({
-	connection: {
-		connectionString: process.env.DATABASE_URL || "",
-		...(process.env.NODE_ENV !== "production"
-			? {
-					ssl: false,
-				}
-			: undefined),
-	},
-	casing: "snake_case",
-	schema: {
-		...practice,
-		...flashcard,
-		...transaction,
-	},
+const pool = new Pool({
+	connectionString: process.env.DATABASE_URL || "",
+	max: 20,
+	idleTimeoutMillis: 30000,
+	connectionTimeoutMillis: 10000,
 });
+
+const schema = {
+	...practice,
+	...flashcard,
+	...referral,
+	...transaction,
+};
+
+export const db = drizzle(pool, {
+	casing: "snake_case",
+	schema,
+});
+
+export type Schema = typeof schema;
+export type DrizzleDatabase =
+	| typeof db
+	| PgTransaction<NodePgQueryResultHKT, Schema, ExtractTablesWithRelations<Schema>>;

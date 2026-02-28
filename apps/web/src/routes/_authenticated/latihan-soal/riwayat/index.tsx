@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/latihan-soal/riwayat/")({
 });
 
 function RouteComponent() {
-	const history = useQuery(orpc.practicePack.history.queryOptions());
+	const history = useQuery(orpc.practicePack.history.queryOptions({ input: {} }));
 
 	return (
 		<>

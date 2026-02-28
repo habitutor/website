@@ -1,7 +1,7 @@
 "use client";
 
+import { SidebarSimpleIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ function SidebarProvider({
 				_setOpen(openState);
 			}
 
-			// This sets the cookie to keep the sidebar state.
+			// biome-ignore lint/suspicious/noDocumentCookie: This sets the cookie to keep the sidebar state.
 			document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
 		},
 		[setOpenProp, open],
@@ -248,7 +248,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 			}}
 			{...props}
 		>
-			<PanelLeftIcon />
+			<SidebarSimpleIcon />
 			<span className="sr-only">Toggle Sidebar</span>
 		</Button>
 	);
