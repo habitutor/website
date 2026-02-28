@@ -27,6 +27,8 @@ export const user = pgTable("user", {
   phoneNumber: text("phone_number"),
   referralCode: text("referral_code"),
   referralUsage: integer("referral_usage").default(0),
+  dreamCampus: text("dream_campus"),
+  dreamMajor: text("dream_major"),
 });
 
 export const session = pgTable(

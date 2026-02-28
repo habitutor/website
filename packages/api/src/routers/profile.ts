@@ -19,6 +19,8 @@ const getProfile = authed
       "image?": "string | null",
       "referralCode?": "string | null",
       "referralUsage?": "number | null",
+      "dreamCampus?": "string | null",
+      "dreamMajor?": "string | null",
     }),
   )
   .handler(async ({ context }) => {
@@ -30,6 +32,8 @@ const getProfile = authed
         phoneNumber: user.phoneNumber,
         referralCode: user.referralCode,
         referralUsage: user.referralUsage,
+        dreamCampus: user.dreamCampus,
+        dreamMajor: user.dreamMajor,
       })
       .from(user)
       .where(eq(user.id, id))
@@ -42,6 +46,8 @@ const getProfile = authed
       image: row?.image ?? null,
       referralCode: row?.referralCode ?? null,
       referralUsage: row?.referralUsage ?? 0,
+      dreamCampus: row?.dreamCampus ?? null,
+      dreamMajor: row?.dreamMajor ?? null,
     };
   });
 
@@ -55,6 +61,8 @@ const updateProfile = authed
     type({
       "name?": "string",
       "phoneNumber?": "string",
+      "dreamCampus?": "string",
+      "dreamMajor?": "string",
     }),
   )
   .output(
@@ -67,6 +75,9 @@ const updateProfile = authed
     if (input.name !== undefined) updates.name = input.name;
     if (input.phoneNumber !== undefined)
       updates.phoneNumber = input.phoneNumber;
+    if (input.dreamCampus !== undefined)
+      updates.dreamCampus = input.dreamCampus;
+    if (input.dreamMajor !== undefined) updates.dreamMajor = input.dreamMajor;
     if (Object.keys(updates).length > 0) {
       await db
         .update(user)

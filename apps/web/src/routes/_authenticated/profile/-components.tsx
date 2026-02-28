@@ -146,13 +146,18 @@ export default function ProfilePage() {
   // Sync phone from API once loaded
   const profileData = profileQuery.data;
   useEffect(() => {
-    if (profileData?.phoneNumber) {
+    if (profileData) {
       setFormData((prev) => ({
         ...prev,
         phone: profileData.phoneNumber ?? "",
       }));
+      setCustomize((prev) => ({
+        ...prev,
+        kampus: profileData.dreamCampus ?? "",
+        jurusan: profileData.dreamMajor ?? "",
+      }));
     }
-  }, [profileData?.phoneNumber]);
+  }, [profileData]);
 
   const avatarMutation = useMutation(
     orpc.profile.updateAvatar.mutationOptions(),
@@ -179,10 +184,12 @@ export default function ProfilePage() {
     }
 
     try {
-      // Simpan data profil (nama & telepon)
+      // Simpan data profil (nama, telepon, kampus, jurusan)
       await profileMutation.mutateAsync({
         name: formData.name,
         phoneNumber: formData.phone,
+        dreamCampus: customize.kampus,
+        dreamMajor: customize.jurusan,
       });
     } catch (err) {
       console.error("Profile save error:", err);

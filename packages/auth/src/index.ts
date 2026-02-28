@@ -73,6 +73,18 @@ export const auth = betterAuth({
         defaultValue: 0,
         input: false,
       },
+      dreamCampus: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
+      dreamMajor: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
     },
   },
   trustedOrigins: [
