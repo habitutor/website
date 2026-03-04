@@ -46,7 +46,9 @@
 		"test": "turbo test"
 	},
 	"dependencies": {
-		"dotenv": "^17.2.2"
+		"dotenv": "^17.2.2",
+		"drizzle-orm": "^0.45.1",
+		"lucide-react": "^0.577.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.11",
