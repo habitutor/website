@@ -13,6 +13,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HomePremiumIndexRouteImport } from './routes/home-premium/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
@@ -66,6 +67,11 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomePremiumIndexRoute = HomePremiumIndexRouteImport.update({
+  id: '/home-premium/',
+  path: '/home-premium/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -282,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/': typeof AdminIndexRoute
+  '/home-premium': typeof HomePremiumIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
@@ -321,6 +328,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin': typeof AdminIndexRoute
+  '/home-premium': typeof HomePremiumIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
@@ -364,6 +372,7 @@ export interface FileRoutesById {
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/': typeof AdminIndexRoute
+  '/home-premium/': typeof HomePremiumIndexRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
@@ -406,6 +415,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/dashboard'
     | '/admin/'
+    | '/home-premium'
     | '/latihan-soal/$id'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
@@ -445,6 +455,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/dashboard'
     | '/admin'
+    | '/home-premium'
     | '/latihan-soal/$id'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
@@ -487,6 +498,7 @@ export interface FileRouteTypes {
     | '/_auth/reset-password'
     | '/admin/dashboard'
     | '/admin/'
+    | '/home-premium/'
     | '/_authenticated/latihan-soal/$id'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
@@ -524,6 +536,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  HomePremiumIndexRoute: typeof HomePremiumIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -554,6 +567,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home-premium/': {
+      id: '/home-premium/'
+      path: '/home-premium'
+      fullPath: '/home-premium'
+      preLoaderRoute: typeof HomePremiumIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -953,6 +973,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  HomePremiumIndexRoute: HomePremiumIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
