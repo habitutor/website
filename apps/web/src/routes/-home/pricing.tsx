@@ -1,4 +1,5 @@
 import {
+  ArrowLeftIcon,
   ArrowRightIcon,
   CheckIcon,
   MedalIcon,
@@ -6,6 +7,7 @@ import {
 } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect, useState, type ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
@@ -26,9 +28,26 @@ export function Pricing() {
     "border-tertiary-600",
   ];
 
+  const mobilePlanCards = planEntries.map((plan, index) =>
+    index === planEntries.length - 1 ? (
+      <PremiumCard key={plan.label} data={plan} />
+    ) : (
+      <BasicCard
+        key={plan.label}
+        data={plan}
+        headerBg={basicHeaderStyles[index]}
+        headerBorder={basicHeaderBorder[index]}
+      />
+    ),
+  );
+
+  const mobileTryoutCards = tryout.map((plan) => (
+    <TryOutCard key={plan.label} data={plan} />
+  ));
+
   return (
     <div className="flex py-16 bg-[#FFFCF3] border-2 border-secondary-100">
-      <div className="container space-y-11 items-center gap-8 2xl:max-w-340 mx-auto">
+      <div className="container space-y-11 items-center gap-8 px-4 mx-auto">
         <div className="space-y-2 text-center *:text-pretty">
           <h2 className="font-extrabold text-2xl sm:text-3xl">
             Investasi Cerdas untuk Hasil yang{" "}
@@ -42,7 +61,9 @@ export function Pricing() {
 
         {/* Main Plans Section */}
         <div className="w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+          <MobileCarousel items={mobilePlanCards} paginationLabel="Paket Belajar" />
+
+          <div className="hidden w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-4">
             {planEntries.map((plan, index) =>
               index === planEntries.length - 1 ? (
                 <PremiumCard key={plan.label} data={plan} />
@@ -65,13 +86,119 @@ export function Pricing() {
           </div>
 
           <div className="w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            <MobileCarousel items={mobileTryoutCards} paginationLabel="Paket Try Out" />
+
+            <div className="hidden w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
               {tryout.map((plan) => (
                 <TryOutCard key={plan.label} data={plan} />
               ))}
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileCarousel({
+  items,
+  paginationLabel,
+}: {
+  items: ReactNode[];
+  paginationLabel: string;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const totalItems = items.length;
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === totalItems - 1;
+
+  const goPrev = () => {
+    if (isFirst) return;
+    setCurrentIndex((prev) => prev - 1);
+  };
+
+  const goNext = () => {
+    if (isLast) return;
+    setCurrentIndex((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    if (currentIndex > totalItems - 1) {
+      setCurrentIndex(Math.max(0, totalItems - 1));
+    }
+  }, [currentIndex, totalItems]);
+
+  if (totalItems === 0) return null;
+
+  return (
+    <div className="w-full space-y-4 sm:hidden">
+      <div className="relative">
+        <button
+          type="button"
+          onClick={goPrev}
+          disabled={isFirst}
+          aria-label={`Sebelumnya ${paginationLabel}`}
+          className="absolute left-0 top-1/2 z-40 ml-2 flex cursor-pointer -translate-x-1/2 -translate-y-1/2 rounded-lg bg-primary-200 p-2 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ArrowLeftIcon size={22} />
+        </button>
+
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={isLast}
+          aria-label={`Selanjutnya ${paginationLabel}`}
+          className="absolute right-0 top-1/2 z-40 mr-2 flex cursor-pointer translate-x-1/2 -translate-y-1/2 rounded-lg bg-primary-200 p-2 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ArrowRightIcon size={22} />
+        </button>
+
+        <div className="overflow-hidden px-8">
+          <motion.div
+            className="flex"
+            animate={{ x: `-${currentIndex * 100}%` }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.08}
+            onDragEnd={(_, info) => {
+              const dragThreshold = 50;
+
+              if (info.offset.x <= -dragThreshold && !isLast) {
+                goNext();
+                return;
+              }
+
+              if (info.offset.x >= dragThreshold && !isFirst) {
+                goPrev();
+              }
+            }}
+          >
+            {items.map((item, index) => (
+              <div
+                key={`${paginationLabel}-${index}`}
+                className="w-full shrink-0 pl-2.5 pr-2.5"
+              >
+                {item}
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-2">
+        {items.map((_, index) => (
+          <button
+            key={`${paginationLabel}-dot-${index}`}
+            type="button"
+            onClick={() => setCurrentIndex(index)}
+            aria-label={`${paginationLabel} ${index + 1}`}
+            className={cn(
+              "h-2.5 w-2.5 rounded-full transition-all duration-200",
+              currentIndex === index ? "bg-primary-300" : "bg-primary-100",
+            )}
+          />
+        ))}
       </div>
     </div>
   );
@@ -128,7 +255,7 @@ function BasicCard({
   headerBorder?: string;
 }) {
   return (
-    <motion.div className="relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm w-73 shrink-0 h-131.25">
+    <motion.div className="relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm w-full shrink-0 h-131.25">
       <div
         className={cn(
           "absolute -bottom-20 -right-12 size-45 border-2 rounded-full z-0",
@@ -198,7 +325,7 @@ function BasicCard({
 
 function PremiumCard({ data }: { data: any }) {
   return (
-    <motion.div className="relative flex flex-col overflow-hidden rounded-2xl bg-[#3650A2] text-white shadow-lg w-73 shrink-0 h-131.25">
+    <motion.div className="relative flex flex-col overflow-hidden rounded-2xl bg-[#3650A2] text-white shadow-lg w-full shrink-0 h-131.25">
       <div className="absolute -bottom-20 -right-12 size-45 rounded-full border-[#151F3F] border-2 bg-[#24356B] z-0" />
       <div className="absolute bottom-13 left-1/2 size-9 -translate-x-1/2 rounded-full border-[#151F3F] border-2 bg-[#24356B] z-0" />
       <div className="relative z-10 px-6 py-4 flex justify-between items-center bg-primary-500 border-2 rounded-t-2xl border-neutral-1000">

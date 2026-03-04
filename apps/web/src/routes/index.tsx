@@ -3,7 +3,6 @@ import Header from "@/components/header";
 import { createMeta } from "@/lib/seo-utils";
 import { CallToAction } from "./-home/call-to-action";
 import { Features } from "./-home/features";
-import Footer from "./-home/footer";
 import { Hero } from "./-home/hero";
 import { Pricing } from "./-home/pricing";
 import { Statistics } from "./-home/statistics";
@@ -32,7 +31,7 @@ function HomeComponent() {
       <Pricing />
       <FAQ />
       <CallToAction />
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

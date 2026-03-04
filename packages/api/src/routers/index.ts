@@ -31,34 +31,14 @@ export const appRouter = {
   flashcard: flashcardRouter,
   subtest: subtestRouter,
   admin: {
+    statistics: adminStatisticsRouter,
     practicePack: adminPracticePackRouter,
+    question: adminQuestionRouter,
     subtest: adminSubtestRouter,
     users: adminUserRouter,
   },
   transaction: transactionRouter,
-	healthCheck: pub
-		.route({
-			path: "/healthcheck",
-			method: "GET",
-			tags: ["Uncategorized"],
-		})
-		.output(type({ message: "string" }))
-		.handler(() => {
-			return { message: "OK" };
-		}),
-	social: socialRouter,
-	practicePack: practicePackRouter,
-	flashcard: flashcardRouter,
-	subtest: subtestRouter,
-	admin: {
-		statistics: adminStatisticsRouter,
-		practicePack: adminPracticePackRouter,
-		question: adminQuestionRouter,
-		subtest: adminSubtestRouter,
-		users: adminUserRouter,
-	},
-	transaction: transactionRouter,
-	referral: referralRouter,
+  referral: referralRouter,
 };
 
 export type AppRouter = typeof appRouter;
