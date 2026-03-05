@@ -45,20 +45,17 @@ export function Statistics() {
 	return (
         <section className="bg-neutral-100 flex flex-col items-center justify-center relative overflow-visible">
 
-            <motion.div className="container flex w-full flex-col gap-40 relative items-centerlg:gap-20"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.9, duration: 0.3 }}>
+            <div className="container flex w-full flex-col gap-40 relative items-centerlg:gap-20"
+               >
                 <motion.div
-                    className="absolute -top-20 left-0 size-50 rounded-full border-2 bg-[#f4faff] border-tertiary-200 pointer-events-none hidden lg:block"
+                    className="absolute -top-20 left-0 size-50 rounded-full border-2 bg-background border-tertiary-200 pointer-events-none hidden lg:block"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.9, duration: 0.3 }}
                 />
                 <motion.div
-                    className="absolute top-0 right-0 size-50 rounded-full border-2 bg-[#f4faff] border-tertiary-200 pointer-events-none hidden lg:block"
+                    className="absolute top-0 right-0 size-50 rounded-full border-2 bg-background border-tertiary-200 pointer-events-none hidden lg:block"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
@@ -68,14 +65,14 @@ export function Statistics() {
                 <div className="container flex w-full flex-col gap-40 px-4 relative items-center overflow-hidden lg:gap-20">
 
                 <motion.div
-                    className="absolute -bottom-10 left-40 size-80 rounded-full border-2 bg-[#f4faff] border-tertiary-200 pointer-events-none hidden lg:block"
+                    className="absolute -bottom-10 left-40 size-80 rounded-full border-2 bg-background border-tertiary-200 pointer-events-none hidden lg:block"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.9, duration: 0.3 }}
                 />
                 <motion.div
-                    className="absolute -bottom-10 right-35 size-80 rounded-full border-2 bg-[#f4faff] border-tertiary-200 pointer-events-none hidden lg:block"
+                    className="absolute -bottom-10 right-35 size-80 rounded-full border-2 bg-background border-tertiary-200 pointer-events-none hidden lg:block"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
@@ -127,12 +124,9 @@ export function Statistics() {
                         height={600}
                         className="absolute -bottom-5 lg:top-25 w-80 lg:w-155 z-2"
                     />
-                    <motion.div
+                    <div
                         className="w-full flex flex-col items-center justify-center gap-2 lg:gap-10"
-                        initial={{ opacity: 0,}}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.5, duration: 0.3 }}
+               
                     >
 
                         <div className="bg-primary-300 border-2 z-2 border-primary-400 text-neutral-100 w-full lg:w-7/10 rounded-2xl px-1 lg:px-10 py-8 flex flex-col gap-4 relative overflow-hidden">
@@ -156,10 +150,10 @@ export function Statistics() {
                                 className="absolute left-0.5 bottom-0.5 rounded-2xl hidden lg:block"
                             />
                         </div>
-                    </motion.div>
+                    </div>
 
                 </div>
-            </motion.div>
+            </div>
                 {/* v */}
                     <div className="absolute inset-0 inset-y-0 bg-tertiary-100 [clip-path:polygon(100%_100%,0%_100%,100%_64%,100%_100%,0_100%,0_64%)] sm:[clip-path:polygon(49%_100%,49%_100%,100%_38%,100%_100%,0_100%,0_38%)] z-0" />
         </section>
