@@ -1,4 +1,4 @@
-import { ArrowCircleRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon,XIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -34,6 +34,8 @@ function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const { data, error } = useQuery(orpc.social.queryOptions());
 	const [showDialog, setShowDialog] = useState(false);
+	const [showPremiumSection, setShowPremiumSection] = useState(true);
+
 
 	const handleSocialClick = (e: React.MouseEvent, socialLink?: string) => {
 		if (!socialLink || error) {
@@ -61,73 +63,101 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 
-			<MotionStagger className="flex flex-col gap-6">
+			<MotionStagger className="flex flex-col gap-6	">
 				<MotionStaggerItem>
 					<section className="flex w-full items-center justify-between gap-8 max-sm:flex-col-reverse max-sm:items-start">
 						<div className="flex items-center gap-2">
-							<motion.span
-								animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
-								transition={{
-									duration: 1.2,
-									ease: "easeInOut",
-									repeat: Number.POSITIVE_INFINITY,
-									repeatDelay: 3,
-								}}
-								className="inline-block origin-[70%_70%] text-5xl"
-							>
-								👋
-							</motion.span>
+							<Image
+								src="/avatar/Tupai-dashboard.webp"
+								alt="Dashboard Avatar"
+								width={140}
+								height={140}
+								className="object-cover"
+							/>
 							<div className="text-primary">
-								<h1 className="text-xl">
-									Halo, <strong>{session?.user.name.split(" ")[0]}</strong>
+								<h1 className="text-4xl">
+									Halo, <strong>{session?.user.name.split(" ")[0]}!</strong>
 								</h1>
-								<p className="text-sm">Yuk lanjutkan perjalanan harimu</p>
+								<p className="text-lg"><strong>{session?.user.dreamMajor}, {session?.user.dreamCampus}</strong> menantimu!</p>
 							</div>
 						</div>
 
-						<div className="grid grid-cols-2 gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
-							<a
-								href={data?.discord || "#"}
-								rel={data?.discord ? "noopener noreferrer" : undefined}
-								target={data?.discord ? "_blank" : undefined}
-								onClick={(e) => handleSocialClick(e, data?.discord ?? undefined)}
-								className="group relative overflow-clip bg-discord hover:bg-discord/80"
-							>
-								<p className="z-10">Join Discord</p>
-								<ArrowCircleRightIcon size={24} />
-								<Image
-									src="/icons/discord.svg"
-									width={70}
-									height={70}
-									className="absolute right-0 -bottom-[40%] opacity-50 transition-colors group-hover:-translate-y-1"
-								/>
-							</a>
+						<div className="flex gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
 							<a
 								href={data?.whatsapp || "#"}
 								rel={data?.whatsapp ? "noopener noreferrer" : undefined}
 								target={data?.whatsapp ? "_blank" : undefined}
 								onClick={(e) => handleSocialClick(e, data?.whatsapp ?? undefined)}
-								className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
+								className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80 border border-fourtiary-300 max-sm:fixed max-sm:bottom-4 max-sm:right-4 max-sm:z-50 max-sm:w-auto"
 							>
-								<p className="z-10">Join Whatsapp</p>
-								<ArrowCircleRightIcon size={24} className="z-10" />
+								<p className="z-10 pr-30 max-sm:pr-18  font-semibold">Join 
+									<br />
+									Whatsapp</p>
+								<ArrowRightIcon weight="bold" size={24} className="z-10 absolute top-2 right-3" />
 								<Image
 									src="/icons/whatsapp.svg"
-									width={70}
-									height={70}
-									className="absolute right-0 -bottom-[40%] opacity-50 transition-transform group-hover:-translate-y-1"
+									width={60}
+									height={60}
+									className="absolute right-[10%] -bottom-[25%] transition-transform group-hover:-translate-y-1"
 								/>
 							</a>
 						</div>
 					</section>
+						{session?.user.isPremium && showPremiumSection && (
+							<MotionStaggerItem>
+								<section className="bg-secondary-400 relative overflow-hidden py-4 pl-6 pr-4 hidden lg:block mb-6">
+									<div className="flex items-center justify-between max-sm:flex-col max-sm:gap-4">
+										<div className="flex flex-col gap-2 text-neutral-1000">
+											<div className="flex items-center gap-2">
+												<h2 className="text-2xl font-bold">Pindahkan ke Layar Utamamu!</h2>
+											</div>
+											<p className="">Gunakan di Mobile. Akses Kapanpun</p>
+										</div>
+										<div className="flex flex-col gap-4 z-10">
+											<button
+												onClick={() => setShowPremiumSection(false)}
+												className="z-10 p-2 hover:bg-black/10 rounded-lg flex justify-center"
+												aria-label="Close"
+											>
+												<XIcon weight="bold" size={24} className="text-neutral-1000" />
+											</button>
+											<Link to="/premium" className="max-sm:w-full">
+												<Button className="max-sm:w-full bg-secondary-1000 hover:bg-secondary-900">
+													<ArrowRightIcon weight="bold" size={20} />
+												</Button>
+											</Link>
+										</div>
+									</div>
+										<div className="absolute -bottom-[40%] right-0 aspect-square z-0 w-60 h-full bg-secondary-600" />
+										<Image
+											src="/avatar/testi-avatar-3.webp"
+											alt="Dashboard Mobile Avatar"
+											width={200}
+											height={200}
+											className="object-contain absolute -bottom-2 right-[5%] z-0"
+										/>
+								</section>
+							</MotionStaggerItem>
+						)}
+					<UserProgress />
 				</MotionStaggerItem>
 
 				<MotionStaggerItem>
-					<UserProgress />
-				</MotionStaggerItem>
-				<MotionStaggerItem>
 					<LastClasses />
 				</MotionStaggerItem>
+
+				<div className="fixed top-[25%] right-[10%] -z-2 w-50 h-50 rounded-full bg-tertiary-100 border border-tertiary-200" />
+				<div className="fixed top-[15%] right-[8%] -z-2 w-20 h-20 rounded-full bg-tertiary-100 border border-tertiary-200" />
+
+
+				<div className="fixed bottom-130 -left-[2%] -z-2 w-30 h-30 rounded-full bg-tertiary-100 border border-tertiary-200" />
+				<div className="fixed -bottom-20 -left-[5%] -z-2 w-150 h-150 rounded-full bg-tertiary-100 border border-tertiary-200" />
+				<Image
+					src="/decorations/dashboard-bg.webp"
+					width={140}
+					height={140}
+					className="fixed bottom-0 left-0 w-screen -z-1 pointer-events-none"
+				/>
 			</MotionStagger>
 		</>
 	);

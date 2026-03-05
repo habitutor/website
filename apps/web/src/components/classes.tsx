@@ -10,10 +10,10 @@ import {
 	LockKeyIcon,
 	NoteIcon,
 	PencilSimpleIcon,
-	PlayCircleIcon,
 	PlusIcon,
 	TrashIcon,
 } from "@phosphor-icons/react";
+import { VideoIcon, BookIcon, FileIcon } from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Reorder, useDragControls } from "motion/react";
@@ -271,7 +271,7 @@ const CONTENT_ACTIONS = [
 	{
 		key: "video",
 		label: "Video Materi",
-		icon: PlayCircleIcon,
+		icon: VideoIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
 		className: "bg-primary-300 text-white",
 		width: "w-fit",
@@ -279,15 +279,15 @@ const CONTENT_ACTIONS = [
 	{
 		key: "notes",
 		label: "Catatan Materi",
-		icon: NoteIcon,
+		icon: BookIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
 		className: "bg-secondary-300 text-neutral-1000",
 		width: "w-fit",
 	},
 	{
 		key: "latihan-soal",
-		label: "Latihan Soal",
-		icon: ExamIcon,
+		label: "Quiz",
+		icon: FileIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
 		className: "bg-tertiary-200 text-neutral-1000",
 		width: "w-fit",
@@ -456,7 +456,7 @@ function ContentCard({
 									isPremiumContent && "pointer-events-none opacity-60",
 								)}
 							>
-								<Icon className="size-4 sm:size-4.5" weight="bold" />
+								<Icon className="size-4 sm:size-4.5" />
 								<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
 								<CaretRightIcon className="ml-auto size-4 sm:size-4.5" weight="bold" />
 							</Link>
@@ -531,12 +531,12 @@ export function LastContentViewedCard({
 	};
 
 	return (
-		<Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
+		<Card className="rounded-[10px] border border-tertiary-200 bg-background p-4 sm:p-5">
 			{/* Header */}
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				{/* Left: badge + title */}
 				<div className="flex items-start gap-3">
-					<div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border border-neutral-200">
+					<div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border-2 border-neutral-200">
 						<p className="font-medium text-[12px] text-primary-300">{index + 1}</p>
 					</div>
 
@@ -545,7 +545,7 @@ export function LastContentViewedCard({
 
 				{/* Right: label + admin actions */}
 				<div className="flex items-center gap-2 sm:flex-col sm:items-end">
-					{shortName && <span className="text-muted-foreground text-xs">{shortName}</span>}
+					{shortName && <span className="text-muted-foreground text-xs text-primary-200">{shortName}</span>}
 				</div>
 			</div>
 
@@ -565,7 +565,7 @@ export function LastContentViewedCard({
 									width,
 								)}
 							>
-								<Icon size={18} weight="bold" />
+								<Icon size={18} />
 								<span className="whitespace-nowrap font-medium text-[14px]">{label}</span>
 								<CaretRightIcon size={18} className="ml-auto" weight="bold" />
 							</Link>
