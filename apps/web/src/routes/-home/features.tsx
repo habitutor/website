@@ -125,7 +125,7 @@ export function Features() {
         {!isMobile && (
           <MotionPulse className="z-15">
             <motion.div
-              className="relative -top-24  left-250"
+              className="relative -top-24 left-250 lg:left-280 xl:left-350"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -178,7 +178,7 @@ export function Features() {
           <div className="relative flex md:col-span-6 z-10">
             <MotionPulse>
               <motion.div
-                className="absolute -top-24 -left-30"
+                className="absolute -top-24 -left-30 translate-x-5"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
