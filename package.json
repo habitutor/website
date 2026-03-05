@@ -47,8 +47,12 @@
 	},
 	"dependencies": {
 		"dotenv": "^17.2.2",
+<<<<<<< feat/faq-and-testimone
+		"lucide-react": "^0.570.0"
+=======
 		"drizzle-orm": "^0.45.1",
 		"lucide-react": "^0.577.0"
+>>>>>>> revamp
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.11",

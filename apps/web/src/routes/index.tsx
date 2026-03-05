@@ -4,6 +4,7 @@ import { createMeta } from "@/lib/seo-utils";
 import { CallToAction } from "./-home/call-to-action";
 import { Features } from "./-home/features";
 import { Hero } from "./-home/hero";
+import { AboutUs } from "./-home/about-us";
 import { Pricing } from "./-home/pricing";
 import { Statistics } from "./-home/statistics";
 import { FAQ } from "./-home/faq";
