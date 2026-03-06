@@ -19,6 +19,7 @@ import { orpc } from "@/utils/orpc";
 import { LastClasses } from "../-components/last-classes";
 import { UserProgress } from "../-components/user-progress";
 import { UserNews } from "../-components/user-news";
+import { LiveClasses } from "../-components/live-classes";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
 	head: () => ({
@@ -145,6 +146,10 @@ function RouteComponent() {
 
 				<MotionStaggerItem>
 					<UserNews />
+				</MotionStaggerItem>
+
+				<MotionStaggerItem>
+					<LiveClasses />
 				</MotionStaggerItem>
 
 				<MotionStaggerItem>

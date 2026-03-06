@@ -7,7 +7,7 @@ import { orpc } from "@/utils/orpc";
 
 export const UserProgress = () => {
 	return (
-		<section className="bg-neutral-100 border border-netural-300 p-6 rounded-md">
+		<section className="bg-neutral-100 border border-netural-300 p-6 rounded-2xl">
 			<h2 className="mb-2 font-medium">Progres Kamu!</h2>
 			<div className="grid gap-2 sm:grid-cols-5">
 				<div className="space-y-2 sm:col-span-2">

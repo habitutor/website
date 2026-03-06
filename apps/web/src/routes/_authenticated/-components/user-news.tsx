@@ -1,5 +1,8 @@
 import { Fragment } from "react";
 import { Image } from "@unpic/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 
 export type NewsItem = {
     id: string;
@@ -67,7 +70,7 @@ const NewsList = ({ items }: { items: NewsItem[] }) => {
                                 src="/avatar/news-avatar.webp"
                                 width={300}
                                 height={300}
-                                className="absolute -right-1/3 -bottom-4/5 lg:-right-[15%] lg:-bottom-4/5 w-140 lg:w-90 lg:-right-10 pointer-events-none z-2"
+                                className="absolute -right-1/3 -bottom-4/5 lg:-right-[15%] lg:-bottom-4/5 sm:-right-[15%] sm:-bottom-0 sm:w-120 w-140 lg:w-90 pointer-events-none z-2"
                             />
                         )}
                         {!isPrimary && (
@@ -76,6 +79,17 @@ const NewsList = ({ items }: { items: NewsItem[] }) => {
                         {!isPrimary && (
                             <div className="absolute lg:right-[45%] right-[40%] -bottom-2 w-10 h-10 z-0 rounded-full bg-red-200 border border-red-300" />
                         )}
+                        {!isPrimary && (
+                            <Link to="/profile">
+                                <Button
+                                    
+                                    className="absolute right-2 bottom-2 z-10 bg-red-300 rounded-md p-2 hover:bg-red-400"
+                                >
+                                    <ArrowRightIcon weight="bold" className="text-neutral-1000 w-6 h-6" />
+                                </Button>
+                            </Link>
+                        )}
+
                     </div>
                 );
             })}
