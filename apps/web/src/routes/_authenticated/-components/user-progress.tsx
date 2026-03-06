@@ -44,7 +44,7 @@ const Material = () => {
 				alt=""
 				width={75}
 				height={75}
-				className="absolute right-[0] -bottom-[30%] z-0 w-auto object-contain"
+				className="absolute right-0 -bottom-[30%] z-0 w-auto object-contain"
 			/>
 		</div>
 	);
@@ -72,9 +72,9 @@ const Tryout = () => {
 			<Image
 				src="/avatar/tryout-avatar.webp"
 				alt=""
-				width={210}
-				height={210}
-				className="absolute -right-[10%] -bottom-[50%] z-0 object-contain"
+				width={220}
+				height={220}
+				className="absolute -right-[12%] -bottom-[50%] z-0 object-contain"
 			/>
 		</div>
 	);
@@ -126,14 +126,14 @@ const Flashcard = () => {
 				</Button>
 			)}
 
-			<div className="absolute top-0 left-3 z-0 aspect-square w-10 h-10 rounded-full bg-primary-200 sm:-bottom-[20%]" />
+			<div className="absolute bottom-1/2 lg:top-0 left-3 z-0 aspect-square w-10 h-10 rounded-full bg-primary-200 sm:-bottom-[20%]" />
 			<div className="absolute -bottom-1/2 -left-[5%] z-0 aspect-square h-full rounded-full bg-primary-200 sm:-bottom-[20%]" />
 			<Image
 				src="/avatar/tupai-braingym.webp"
 				alt=""
-				width={300}
-				height={300}
-				className="absolute right-0 -bottom-[5%] z-0 object-contain"
+				width={280}
+				height={280}
+				className="absolute right-0 w-50 h-50 lg:w-70 lg:h-70 bottom-0 z-0 object-contain"
 			/>
 		</div>
 	);

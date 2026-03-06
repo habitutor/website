@@ -18,6 +18,7 @@ import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { LastClasses } from "../-components/last-classes";
 import { UserProgress } from "../-components/user-progress";
+import { UserNews } from "../-components/user-news";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
 	head: () => ({
@@ -143,15 +144,19 @@ function RouteComponent() {
 				</MotionStaggerItem>
 
 				<MotionStaggerItem>
+					<UserNews />
+				</MotionStaggerItem>
+
+				<MotionStaggerItem>
 					<LastClasses />
 				</MotionStaggerItem>
 
-				<div className="fixed top-[25%] right-[10%] -z-2 w-50 h-50 rounded-full bg-tertiary-100 border border-tertiary-200" />
-				<div className="fixed top-[15%] right-[8%] -z-2 w-20 h-20 rounded-full bg-tertiary-100 border border-tertiary-200" />
+				<div className="fixed bottom-[8%] lg:top-[25%] right-[10%] -z-2 w-30 h-30 lg:w-50 lg:h-50 rounded-full bg-tertiary-100 border border-tertiary-200" />
+				<div className="fixed bottom-[20%] lg:top-[15%] right-[8%] -z-2 w-10 h-10 lg:w-20 lg:h-20 rounded-full bg-tertiary-100 border border-tertiary-200" />
 
 
-				<div className="fixed bottom-130 -left-[2%] -z-2 w-30 h-30 rounded-full bg-tertiary-100 border border-tertiary-200" />
-				<div className="fixed -bottom-20 -left-[5%] -z-2 w-150 h-150 rounded-full bg-tertiary-100 border border-tertiary-200" />
+				<div className="fixed bottom-[15%] lg:bottom-[50%] -left-[2%] -z-2 w-10 h-10 lg:w-25 lg:h-25 rounded-full bg-tertiary-100 border border-tertiary-200" />
+				<div className="fixed -bottom-[10%] -left-[5%] -z-2 w-60 h-60 lg:w-150 lg:h-150 rounded-full bg-tertiary-100 border border-tertiary-200" />
 				<Image
 					src="/decorations/dashboard-bg.webp"
 					width={140}

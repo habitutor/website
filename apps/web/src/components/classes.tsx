@@ -3,17 +3,17 @@ import {
 	CaretRightIcon,
 	CheckCircleIcon,
 	DotsNineIcon,
-	ExamIcon,
+	BookIcon,
 	EyeIcon,
 	EyeSlashIcon,
 	LockIcon,
 	LockKeyIcon,
-	NoteIcon,
+	FileIcon,
 	PencilSimpleIcon,
 	PlusIcon,
 	TrashIcon,
+	VideoCameraIcon
 } from "@phosphor-icons/react";
-import { VideoIcon, BookIcon, FileIcon } from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Reorder, useDragControls } from "motion/react";
@@ -271,7 +271,7 @@ const CONTENT_ACTIONS = [
 	{
 		key: "video",
 		label: "Video Materi",
-		icon: VideoIcon,
+		icon: VideoCameraIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
 		className: "bg-primary-300 text-white",
 		width: "w-fit",
@@ -560,7 +560,7 @@ export function LastContentViewedCard({
 								params={params}
 								className={cn(
 									"flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
-									"w-full sm:w-auto",
+									"w-full sm:w-50",
 									className,
 									width,
 								)}
