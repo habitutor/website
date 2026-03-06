@@ -115,14 +115,15 @@ function RouteComponent() {
 											</div>
 											<p className="">Gunakan di Mobile. Akses Kapanpun</p>
 										</div>
-										<div className="flex flex-col gap-4 z-10">
-											<button
+										<div className="flex flex-col gap-4 z-10 items-end">
+											<Button
 												onClick={() => setShowPremiumSection(false)}
-												className="z-10 p-2 hover:bg-black/10 rounded-lg flex justify-center"
+												className="z-10 p-2 bg-transparent hover:bg-transparent rounded-lg text-neutral-900 flex justify-center shadow-none"
 												aria-label="Close"
+												size={"icon"} asChild
 											>
-												<XIcon weight="bold" size={24} className="text-neutral-1000" />
-											</button>
+												<XIcon weight="bold" size={24} />
+											</Button>
 											<Link to="/premium" className="max-sm:w-full">
 												<Button className="max-sm:w-full bg-secondary-1000 hover:bg-secondary-900">
 													<ArrowRightIcon weight="bold" size={20} />

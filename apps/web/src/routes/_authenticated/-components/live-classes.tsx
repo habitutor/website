@@ -115,7 +115,7 @@ export const LiveClasses = () => {
 					onLoad={checkScroll}
 					className="overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
 				>
-					<div className="flex gap-3 pb-2 px-4 ">
+					<div className="flex gap-3 px-4">
 						{NEWS.map((liveClass) => (
 							<div
 								key={liveClass.id}
@@ -126,7 +126,7 @@ export const LiveClasses = () => {
 										<h3 className="font-bold text-xl">{liveClass.title}</h3>
 									</div>
 									<div className=" border-neutral-200 z-10 text-sm font-normal flex flex-col gap-2 [&>p]:flex [&>p]:items-center [&>p]:gap-2">
-										<p> <CalendarBlankIcon weight="bold" /> {liveClass.date}</p>
+										<p><CalendarBlankIcon weight="bold" /> {liveClass.date}</p>
 										<p><ClockIcon weight="bold" /> {liveClass.time}</p>
 										<p><UsersIcon weight="bold" /> {liveClass.mentor}</p>
 									</div>
@@ -147,22 +147,22 @@ export const LiveClasses = () => {
 					</div>
 				</div>
 
-				<button
+				<Button
 					onClick={() => scroll("left")}
 					disabled={!canScrollLeft}
-					className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 bg-tertiary-800 rounded-md p-2 hover:bg-tertiary-700 disabled:cursor-not-allowed transition-all"
+					className="absolute left-0 top-1/2 disabled:opacity-100 -translate-y-1/2 -translate-x-3 z-10 bg-tertiary-800 rounded-md p-2 hover:bg-tertiary-700 disabled:cursor-not-allowed transition-all"
 					aria-label="Carousel sebelumnya"
 				>
 					<ArrowLeftIcon weight="bold" className="text-white w-6 h-6" />
-				</button>
-				<button
+				</Button>
+				<Button
 					onClick={() => scroll("right")}
 					disabled={!canScrollRight}
-					className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 bg-tertiary-800 rounded-md p-2 hover:bg-tertiary-700 disabled:cursor-not-allowed transition-all"
+					className="absolute right-0 top-1/2 disabled:opacity-100 -translate-y-1/2 translate-x-3 z-10 bg-tertiary-800 rounded-md p-2 hover:bg-tertiary-700 disabled:cursor-not-allowed transition-all"
 					aria-label="Carousel selanjutnya"
 				>
 					<ArrowRightIcon weight="bold" className="text-white w-6 h-6" />
-				</button>
+				</Button>
 			</div>
 		</section>
 	);
