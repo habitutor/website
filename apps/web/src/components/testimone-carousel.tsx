@@ -152,7 +152,7 @@ const Carousel: React.FC<CarouselProps> = ({
                   alt={item.name}
                   width={160}
                   height={160}
-                  className="object-cover z-3 absolute top-22 md:top-29.5 lg:top-29.5 right-5 overflow-hidden"
+                  className="object-cover z-3 absolute bottom-0 right-5 overflow-hidden"
                 />
               )}
 
