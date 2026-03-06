@@ -1,16 +1,22 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { TryOutCard } from "@/components/pricing/tryout-card";
+import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";
+import { orpc } from "@/utils/orpc";
 import { BundlingCard } from "./-components/bundling-card";
 import { PerintisClassroomCard } from "./-components/perintis-card";
 import { PremiumHeader } from "./-components/premium-header";
 import { PrivilegeCard } from "./-components/privilege-card";
+
+type BundlingVariant = "premium" | "premium2";
 
 export const Route = createFileRoute("/_authenticated/premium/")({
 	head: () => ({
@@ -26,6 +32,60 @@ export const Route = createFileRoute("/_authenticated/premium/")({
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const tryoutPlans = Object.values(DATA.pricing_tryout);
+	const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
+	const [paymentToken, setPaymentToken] = useState<string>();
+	const [paymentRedirectUrl, setPaymentRedirectUrl] = useState<string>();
+	const [activeVariant, setActiveVariant] = useState<BundlingVariant | null>(null);
+	const sessionUser = session?.user as { isPremium?: boolean; premiumTier?: BundlingVariant | null } | undefined;
+	const isPremium = sessionUser?.isPremium ?? false;
+	const currentTier = isPremium ? (sessionUser?.premiumTier ?? "premium") : null;
+
+	useMidtransScript();
+
+	useEffect(() => {
+		if (!paymentToken) return;
+
+		if (window.snap) {
+			window.snap.pay(paymentToken, {
+				onSuccess: () => {
+					toast.success("Pembayaran berhasil! Selamat menjadi premium!");
+					window.location.reload();
+				},
+				onPending: () => {
+					toast.info("Menunggu pembayaran...");
+				},
+				onError: () => {
+					toast.error("Pembayaran gagal. Silakan coba lagi.");
+				},
+				onClose: () => {
+					toast.warning("Pembayaran dibatalkan.");
+				},
+			});
+			return;
+		}
+
+		if (paymentRedirectUrl) {
+			window.location.href = paymentRedirectUrl;
+		}
+	}, [paymentRedirectUrl, paymentToken]);
+
+	const handleSubscribe = (variant: BundlingVariant) => {
+		if (transactionMutation.isPending) return;
+
+		setActiveVariant(variant);
+		const payload = { name: variant } as Parameters<typeof transactionMutation.mutate>[0];
+		transactionMutation.mutate(payload, {
+			onSuccess: (data) => {
+				setPaymentToken(data.token);
+				setPaymentRedirectUrl(data.redirectUrl);
+				setActiveVariant(null);
+			},
+			onError: (error) => {
+				toast.error(error.message);
+				setActiveVariant(null);
+			},
+		});
+	};
 	// const tierCards = [
 	// 	<TierCard key="free" variant="free" isPremium={isPremium} />,
 	// 	<TierCard
@@ -37,8 +97,24 @@ function RouteComponent() {
 	// 	/>,
 	// ];
 	const bundlingCards = [
-		<BundlingCard key="premium" variant="premium" buttonLabel="Segera Hadir" buttonDisabled />,
-		<BundlingCard key="premium2" variant="premium2" buttonLabel="Segera Hadir" buttonDisabled />,
+		<BundlingCard
+			key="premium"
+			variant="premium"
+			isCurrentPlan={currentTier === "premium"}
+			isSubscribed={isPremium && currentTier !== "premium"}
+			isPending={transactionMutation.isPending && activeVariant === "premium"}
+			buttonDisabled={false}
+			onSubscribe={handleSubscribe}
+		/>,
+		<BundlingCard
+			key="premium2"
+			variant="premium2"
+			isCurrentPlan={currentTier === "premium2"}
+			isSubscribed={isPremium && currentTier !== "premium2"}
+			isPending={transactionMutation.isPending && activeVariant === "premium2"}
+			buttonDisabled={false}
+			onSubscribe={handleSubscribe}
+		/>,
 	];
 	const privilegeCards = [
 		<PrivilegeCard key="privilege1" variant="privilege1" />,

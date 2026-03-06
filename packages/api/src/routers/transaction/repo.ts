@@ -74,14 +74,24 @@ export const transactionRepo = {
 		db = defaultDb,
 		userId,
 		isPremium,
+		premiumTier,
 		premiumExpiresAt,
 	}: {
 		db?: DrizzleDatabase;
 		userId: string;
 		isPremium: boolean;
+		premiumTier?: "premium" | "premium2" | null;
 		premiumExpiresAt: Date | null;
 	}) => {
-		const [u] = await db.update(user).set({ isPremium, premiumExpiresAt }).where(eq(user.id, userId)).returning();
+		const [u] = await db
+			.update(user)
+			.set({
+				isPremium,
+				premiumExpiresAt,
+				...(premiumTier !== undefined ? { premiumTier } : {}),
+			})
+			.where(eq(user.id, userId))
+			.returning();
 		return u;
 	},
 

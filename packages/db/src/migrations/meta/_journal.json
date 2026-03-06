@@ -43,6 +43,13 @@
       "when": 1771300417266,
       "tag": "0005_unusual_overlord",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772784000000,
+      "tag": "0006_tidy_premium_tier",
+      "breakpoints": true
     }
   ]
 }
