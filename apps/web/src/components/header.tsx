@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { List, WhatsappLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { authClient } from "@/lib/auth-client";
-import { Button } from "./ui/button";
-import { DATA } from "@/routes/-home/data";
-import { WhatsappLogoIcon, List } from "@phosphor-icons/react";
+import { useState } from "react";
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
+import { authClient } from "@/lib/auth-client";
+import { DATA } from "@/routes/-home/data";
+import { Button } from "./ui/button";
 
 export default function Header() {
 	const session = authClient.useSession();
@@ -16,7 +16,7 @@ export default function Header() {
 
 	const menuItems = session.data?.user ? (
 		<>
-			<Button variant={"outline"} className="border-0 w-full md:w-auto" asChild>
+			<Button variant={"outline"} className="w-full border-0 md:w-auto" asChild>
 				<Link to="/home-premium">Premium</Link>
 			</Button>
 			{session.data.user.role === "admin" && (
@@ -30,14 +30,16 @@ export default function Header() {
 		</>
 	) : (
 		<>
-			<Button variant={"outline"} className="border-0 w-full md:w-auto " asChild>
+			<Button variant={"outline"} className="w-full border-0 md:w-auto" asChild>
 				<Link to="/home-premium">Premium</Link>
 			</Button>
-			<Button variant={"outline"} className="w-full md:w-auto " asChild>
+			<Button variant={"outline"} className="w-full md:w-auto" asChild>
 				<a href={DATA.footer.socials[2].url}>
-					<WhatsappLogoIcon />Hubungi Kami</a>
+					<WhatsappLogoIcon />
+					Hubungi Kami
+				</a>
 			</Button>
-			<Button variant={"default"} className="w-full md:w-auto " asChild>
+			<Button variant={"default"} className="w-full md:w-auto" asChild>
 				<Link to="/login">Coba Gratis</Link>
 			</Button>
 		</>
@@ -45,15 +47,18 @@ export default function Header() {
 
 	return (
 		<>
-			<div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 md:rounded-lg border-neutral-300 border-b bg-white px-6 backdrop-blur-lg md:px-8">
+			<div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 border-neutral-300 border-b bg-white px-6 backdrop-blur-lg md:rounded-lg md:px-8">
 				<Link to="/" className="relative size-12 text-primary">
-					<Image src={"/logo.svg"} alt="Logo Habitutor" layout="fullWidth" className="pointer-events-none select-none" />
+					<Image
+						src={"/logo.svg"}
+						alt="Logo Habitutor"
+						layout="fullWidth"
+						className="pointer-events-none select-none"
+					/>
 				</Link>
 
 				{/* Desktop Menu */}
-				<div className="hidden items-center gap-2 md:flex">
-					{menuItems}
-				</div>
+				<div className="hidden items-center gap-2 md:flex">{menuItems}</div>
 
 				{/* Mobile Menu Button */}
 				{isMobile && (
@@ -65,10 +70,8 @@ export default function Header() {
 
 			{/* Mobile Dropdown Menu */}
 			{isMobile && isOpen && (
-				<div className="fixed inset-x-0 top-20 z-40 bg-white mx-1 shadow-lg border border-t-0 border-neutral-300 rounded-b-lg animate-in fade-in slide-in-from-top-2 duration-300">
-					<div className="flex flex-col text-center gap-2 p-4">
-						{menuItems}
-					</div>
+				<div className="fade-in slide-in-from-top-2 fixed inset-x-0 top-20 z-40 mx-1 animate-in rounded-b-lg border border-neutral-300 border-t-0 bg-white shadow-lg duration-300">
+					<div className="flex flex-col gap-2 p-4 text-center">{menuItems}</div>
 				</div>
 			)}
 		</>
