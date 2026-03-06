@@ -28,14 +28,17 @@ export function Pricing() {
   const mobilePlanCards = planEntries.map((plan, index) =>
     index === planEntries.length - 1 ? (
       <BundlingCard key={plan.label} data={plan} variant="premium" span colors={{
-        bg: "bg-primary-300",
+        bg: "bg-primary-300 border-primary-400",
+        border: "border-primary-400",
         text: "text-neutral-100",
-        price: "text-neutral-100",
+        price: "text-secondary-200",
+        promo: "text-red-100",
         header: "bg-primary-500 border-neutral-1000",
         circle: "bg-primary-400 border-primary-500",
-        button: "bg-primary-500 hover:bg-primary-600 text-neutral-100",
-        checkBadge: "bg-secondary-200",
+        button: "bg-primary-500 hover:bg-primary-600 text-neutral-100 border-neutral-1000",
+        checkBadge: "bg-background text-secondary-1000",
         medalBadge: "bg-secondary-700 text-neutral-100",
+        divider: "border-primary-100",
       }} />
     ) : (
       <BundlingCard
@@ -76,14 +79,17 @@ export function Pricing() {
             {planEntries.map((plan, index) =>
               index === planEntries.length - 1 ? (
                 <BundlingCard key={plan.label} data={plan} variant="premium" span colors={{
-                  bg: "bg-primary-300",
+                  bg: "bg-primary-300 border-primary-400",
+                  border: "border-primary-400",
                   text: "text-neutral-100",
-                  price: "text-neutral-100",
+                  price: "text-secondary-200",
+                  promo: "text-red-100",
                   header: "bg-primary-500 border-neutral-1000",
                   circle: "bg-primary-400 border-primary-500",
-                  button: "bg-primary-500 hover:bg-primary-600 text-neutral-100",
-                  checkBadge: "bg-secondary-200",
+                  button: "bg-primary-500 hover:bg-primary-600 text-neutral-100 border-neutral-1000",
+                  checkBadge: "bg-background text-secondary-1000",
                   medalBadge: "bg-secondary-700 text-neutral-100",
+                  divider: "border-primary-100",
                 }} />
               ) : (
                 <BundlingCard

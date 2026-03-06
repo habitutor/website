@@ -169,30 +169,74 @@ const Carousel: React.FC<CarouselProps> = ({
   };
 
   return (
-    <div className="z-30 w-full">
-      <div className="relative flex h-80 w-full overflow-hidden">
+    <div className="z-30 w-full space-y-4">
+      {/* Desktop carousel with side buttons */}
+      <div className="hidden md:flex items-center gap-4 justify-center">
         {showNavigation && (
-          <>
-            <button
-              type="button"
-              onClick={prevSlide}
-              disabled={isTransitioning}
-              className="absolute left-0 top-1/2 z-40 hidden cursor-pointer -translate-x-1/2 -translate-y-1/2 rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 md:flex"
-            >
-              <ArrowLeftIcon size={24} />
-            </button>
-
-            <button
-              type="button"
-              onClick={nextSlide}
-              disabled={isTransitioning}
-              className="absolute right-0 top-1/2 z-40 hidden cursor-pointer translate-x-1/2 -translate-y-1/2 rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 md:flex"
-            >
-              <ArrowRightIcon size={24} />
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={prevSlide}
+            disabled={isTransitioning}
+            className="flex cursor-pointer rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 shrink-0"
+          >
+            <ArrowLeftIcon size={24} />
+          </button>
         )}
 
+        <div className="relative flex h-80 w-full overflow-hidden">
+          <div className="relative px-2 flex flex-row items-center justify-start">
+            {Array.from({ length: visibleCount }).map((_, i) => {
+              const virtualIndex =
+                currentIndex + i - Math.floor(visibleCount / 2);
+
+              const item = getItem(virtualIndex);
+
+              if (!item) return null;
+
+              const realIndex =
+                ((virtualIndex % total) + total) % total;
+
+              return (
+                <button
+                  key={`${item.id}-${i}`}
+                  type="button"
+                  className="absolute shrink-0 cursor-pointer"
+                  style={{
+                    width: cardWidth,
+                    height: cardHeight,
+                    ...getCardStyle(i),
+                  }}
+                  onClick={() => {
+                    if (realIndex !== currentIndex) {
+                      goToSlide(realIndex);
+                    }
+
+                    onItemClick?.(item, realIndex);
+                  }}
+                >
+                  {renderCard
+                    ? renderCard(item, realIndex, i === Math.floor(visibleCount / 2))
+                    : defaultRenderCard(item)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {showNavigation && (
+          <button
+            type="button"
+            onClick={nextSlide}
+            disabled={isTransitioning}
+            className="flex cursor-pointer rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 shrink-0"
+          >
+            <ArrowRightIcon size={24} />
+          </button>
+        )}
+      </div>
+
+      {/* Mobile carousel */}
+      <div className="md:hidden relative flex h-80 w-full overflow-hidden">
         <div className="relative px-2 flex flex-row items-center justify-start">
           {Array.from({ length: visibleCount }).map((_, i) => {
             const virtualIndex =
@@ -232,6 +276,7 @@ const Carousel: React.FC<CarouselProps> = ({
         </div>
       </div>
 
+      {/* Mobile navigation buttons */}
       {showNavigation && (
         <div className="w-full md:hidden">
           <div className="flex justify-between">

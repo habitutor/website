@@ -10,14 +10,17 @@ interface BundlingCardProps {
   span?: boolean;
   colors?: {
     bg?: string;
+    border?: string;
     text?: string;
     price?: string;
+    promo?: string;
     header?: string;
     circle?: string;
     button?: string;
     checkBadge?: string;
     limitedBadge?: string;
     medalBadge?: string;
+    divider?: string;
   };
 }
 
@@ -30,20 +33,22 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
       bg: "bg-primary-300",
       text: "text-white",
       price: "text-white",
+      promo: "",
       header: "bg-primary-500 border-neutral-1000",
       circle: "bg-primary-400 border-primary-500",
       button: "bg-primary-500 hover:bg-primary-600 text-white",
       checkBadge: "bg-secondary-200",
       medalBadge: "bg-secondary-700",
+      divider: "border-white",
     };
 
     const premiumColors = { ...defaultPremiumColors, ...colors };
 
     return (
-      <motion.div className={cn("relative flex flex-col overflow-hidden rounded-2xl shadow-lg w-full shrink-0 h-131.25", premiumColors.bg, premiumColors.text)}>
-        <div className={cn("absolute -bottom-20 -right-12 size-45 rounded-full border-2 z-0", premiumColors.circle)} />
-        <div className={cn("absolute bottom-13 left-1/2 size-9 -translate-x-1/2 rounded-full border-2 z-0", premiumColors.circle)} />
-        <div className={cn("relative z-10 px-6 py-4 flex justify-between items-center border-2 rounded-t-2xl", premiumColors.header)}>
+      <motion.div className={cn("relative flex flex-col overflow-hidden rounded-2xl shadow-lg w-full max-w-110 md:max-w-70 shrink-0 h-131.25", premiumColors.bg, premiumColors.text)}>
+        <div className={cn("absolute -bottom-20 -right-12 size-45 rounded-full border-2 z-1", premiumColors.circle)} />
+        <div className={cn("absolute bottom-13 left-1/2 size-9 -translate-x-1/2 rounded-full border-2 z-1", premiumColors.circle)} />
+        <div className={cn("relative z-10 px-6 py-4 flex justify-between text-neutral-100 items-center border-2 rounded-t-2xl", premiumColors.header)}>
           <h3 className="font-bold text-base">{data.label}</h3>
           {span && (
             <span className="rounded-xl bg-red-100 px-2 py-0.5 text-[10px] font-medium uppercase text-black">
@@ -51,22 +56,22 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             </span>
           )}
         </div>
-        <div className="relative z-10 px-6 py-4 border-2 border-b-0 border-primary-400">
-          <div className={cn("relative inline-block font-bold text-base", premiumColors.price)}>
+        <div className={cn("relative z-10 px-6 py-4 border-2 border-b-0", premiumColors.border)}>
+          <div className={cn("relative inline-block font-bold text-base", premiumColors.text)}>
             {data.original_price}
             <span className="pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -origin-center -rotate-6 bg-red-400" />
           </div>
           <div className="flex items-baseline gap-1">
-            <p className="text-3xl font-black text-[#FEEAAE]">{data.price_now}</p>
-            <span className="text-[10px]">sampai SNBT</span>
+            <p className={cn("text-3xl font-black", premiumColors.price)}>{data.price_now}</p>
+            <span className="text-[10px] whitespace-nowrap">sampai SNBT</span>
           </div>
-          <p className="text-[12px]">
-            promo <span className="font-bold text-[#FFBABA]">hemat 75%</span>{" "}
-            sampai 1 Maret
+          <p className={cn("text-[12px]")}>
+            promo <span className={cn("font-bold", premiumColors.promo)}>hemat {data.percentage}</span>{" "}
+            sampai {data.promo_end}
           </p>
-          <hr className="mt-4 border-white/10" />
+          <hr className={cn("mt-4", premiumColors.divider)} />
         </div>
-        <div className={cn("relative z-10 flex-1 px-6 pb-4 border-x-2 border-primary-400", premiumColors.bg)}>
+        <div className={cn("relative z-10 flex-1 px-6 pb-4 border-x-2", premiumColors.border)}>
           <ul className="space-y-2 mt-4">
             {data.features.map((feature: any) => (
               <li key={feature.label} className="flex items-center gap-2 text-xs">
@@ -76,12 +81,12 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             ))}
           </ul>
         </div>
-        <div className="relative z-10 p-6 border-2 border-t-0 border-primary-400">
+        <div className={cn("relative z-10 p-6 border-2 border-t-0", premiumColors.border)}>
           <Link
             to={data.cta.url as string}
             className={cn(
               buttonVariants({ size: "sm" }),
-              "w-full", premiumColors.button
+              "w-full border", premiumColors.button
             )}
           >
             {data.cta.label} <ArrowRightIcon size={16} weight="bold" />
@@ -92,10 +97,10 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
   }
 
   return (
-    <motion.div className="relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm w-full shrink-0 h-131.25">
+    <motion.div className="relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm w-full max-w-110 md:max-w-70 shrink-0 h-131.25">
       <div
         className={cn(
-          "absolute -bottom-20 -right-12 size-45 rounded-full z-0 border-2",
+          "absolute -bottom-20 -right-12 size-45 rounded-full z-1 border-2",
           colors?.circle,
         )}
       />
