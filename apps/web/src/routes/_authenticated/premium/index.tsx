@@ -1,22 +1,75 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
+import { authClient } from "@/lib/auth-client";
 import { TryOutCard } from "@/components/pricing/tryout-card";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";
-import { orpc } from "@/utils/orpc";
+import { orpc, queryClient } from "@/utils/orpc";
 import { BundlingCard } from "./-components/bundling-card";
 import { PerintisClassroomCard } from "./-components/perintis-card";
 import { PremiumHeader } from "./-components/premium-header";
 import { PrivilegeCard } from "./-components/privilege-card";
 
 type BundlingVariant = "premium" | "premium2";
+
+const AUTH_SESSION_QUERY_KEY = ["auth", "getSession"] as const;
+
+function sleep(milliseconds: number) {
+	return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+async function syncTransactionStatus(orderId: string) {
+	const response = await fetch("http://localhost:3001/rpc/transaction/sync-status", {
+		method: "POST",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ orderId }),
+	});
+
+	if (!response.ok) {
+		throw new Error("Gagal menyinkronkan status transaksi.");
+	}
+
+	const payload = (await response.json()) as {
+		json?: {
+			status?: "pending" | "success" | "failed" | "not_found";
+			paidAt?: string | null;
+		};
+	};
+
+	return payload.json;
+}
+
+async function waitForPremiumActivation(orderId: string) {
+	for (let attempt = 0; attempt < 5; attempt += 1) {
+		try {
+			const syncResult = await syncTransactionStatus(orderId);
+
+			if (syncResult?.status === "success") {
+				return true;
+			}
+
+			if (syncResult?.status === "failed" || syncResult?.status === "not_found") {
+				return false;
+			}
+		} catch (error) {
+			console.error("Failed to sync transaction status", error);
+		}
+
+		await sleep(1000);
+	}
+
+	return false;
+}
 
 export const Route = createFileRoute("/_authenticated/premium/")({
 	head: () => ({
@@ -31,10 +84,12 @@ export const Route = createFileRoute("/_authenticated/premium/")({
 
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
+	const router = useRouter();
 	const tryoutPlans = Object.values(DATA.pricing_tryout);
 	const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
 	const [paymentToken, setPaymentToken] = useState<string>();
 	const [paymentRedirectUrl, setPaymentRedirectUrl] = useState<string>();
+	const [paymentOrderId, setPaymentOrderId] = useState<string>();
 	const [activeVariant, setActiveVariant] = useState<BundlingVariant | null>(null);
 	const sessionUser = session?.user as { isPremium?: boolean; premiumTier?: BundlingVariant | null } | undefined;
 	const isPremium = sessionUser?.isPremium ?? false;
@@ -42,14 +97,25 @@ function RouteComponent() {
 
 	useMidtransScript();
 
+	const refreshPremiumSession = async () => {
+		await queryClient.invalidateQueries({ queryKey: AUTH_SESSION_QUERY_KEY });
+		const { data: refreshedSession } = await authClient.getSession();
+		queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, { data: refreshedSession });
+		await router.invalidate();
+		window.location.replace("/premium");
+	};
+
 	useEffect(() => {
 		if (!paymentToken) return;
 
 		if (window.snap) {
 			window.snap.pay(paymentToken, {
-				onSuccess: () => {
-					toast.success("Pembayaran berhasil! Selamat menjadi premium!");
-					window.location.reload();
+				onSuccess: async () => {
+					if (paymentOrderId) {
+						await waitForPremiumActivation(paymentOrderId);
+					}
+
+					await refreshPremiumSession();
 				},
 				onPending: () => {
 					toast.info("Menunggu pembayaran...");
@@ -67,7 +133,7 @@ function RouteComponent() {
 		if (paymentRedirectUrl) {
 			window.location.href = paymentRedirectUrl;
 		}
-	}, [paymentRedirectUrl, paymentToken]);
+	}, [paymentOrderId, paymentRedirectUrl, paymentToken, router]);
 
 	const handleSubscribe = (variant: BundlingVariant) => {
 		if (transactionMutation.isPending) return;
@@ -76,8 +142,10 @@ function RouteComponent() {
 		const payload = { name: variant } as Parameters<typeof transactionMutation.mutate>[0];
 		transactionMutation.mutate(payload, {
 			onSuccess: (data) => {
-				setPaymentToken(data.token);
-				setPaymentRedirectUrl(data.redirectUrl);
+				const transactionData = data as typeof data & { orderId?: string };
+				setPaymentToken(transactionData.token);
+				setPaymentRedirectUrl(transactionData.redirectUrl);
+				setPaymentOrderId(transactionData.orderId);
 				setActiveVariant(null);
 			},
 			onError: (error) => {

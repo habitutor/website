@@ -1,55 +1,11 @@
 import type { auth } from "@habitutor/auth";
 import { Snap } from "midtrans-client";
 
-function getMidtransKeys() {
-  return {
-    serverKey: (process.env.MIDTRANS_SERVER_KEY || "").trim(),
-    clientKey: (process.env.MIDTRANS_CLIENT_KEY || "").trim(),
-  };
-}
-
-function isPlaceholderMidtransKey(value: string) {
-  return value.length === 0 || value.includes("YOURKEYHERE");
-}
-
-export function validateMidtransConfig() {
-  const { serverKey, clientKey } = getMidtransKeys();
-
-  if (
-    isPlaceholderMidtransKey(serverKey) ||
-    isPlaceholderMidtransKey(clientKey)
-  ) {
-    throw new Error(
-      "Midtrans configuration is missing or still using placeholder values. Update MIDTRANS_SERVER_KEY and MIDTRANS_CLIENT_KEY.",
-    );
-  }
-
-  return { serverKey, clientKey };
-}
-
-function resolveMidtransProductionMode() {
-  const explicitMode = process.env.MIDTRANS_IS_PRODUCTION;
-
-  if (explicitMode === "true") return true;
-  if (explicitMode === "false") return false;
-
-  const { serverKey } = getMidtransKeys();
-  return serverKey.length > 0 && !serverKey.startsWith("SB-");
-}
-
-export function getMidtransBaseUrl() {
-  return `https://api${resolveMidtransProductionMode() ? "" : ".sandbox"}.midtrans.com`;
-}
-
-function createSnapClient() {
-  const { serverKey, clientKey } = validateMidtransConfig();
-
-  return new Snap({
-    isProduction: resolveMidtransProductionMode(),
-    serverKey,
-    clientKey,
-  });
-}
+export const snap = new Snap({
+  isProduction: process.env.NODE_ENV === "production",
+  serverKey: process.env.MIDTRANS_SERVER_KEY || "",
+  clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
+});
 
 export async function createSubscriptionTransaction({
   id,
@@ -86,7 +42,6 @@ export async function createSubscriptionTransaction({
     },
   };
 
-  const snap = createSnapClient();
   const snapTransaction = await snap.createTransaction(params);
 
   return {
