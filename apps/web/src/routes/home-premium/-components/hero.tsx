@@ -2,50 +2,33 @@ import { motion } from "motion/react";
 import { MotionPulse } from "@/components/motion/motion-components";
 
 export function Hero() {
-	const isMobile = window.innerWidth < 720;
-
 	return (
 		<section className="relative overflow-hidden bg-background">
 			<div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-				{!isMobile && (
-					<>
-						<MotionPulse>
-							<div className="absolute top-90 left-15 h-66 w-66 rounded-full border-2 border-secondary-200 bg-secondary-100" />
-						</MotionPulse>
+				<MotionPulse>
+					<div className="absolute top-80 left-10 h-15 w-15 md:top-90 md:left-15 md:h-66 md:w-66 rounded-full border-2 border-secondary-200 bg-secondary-100" />
+				</MotionPulse>
 
-						<MotionPulse>
-							<div className="absolute top-70 left-10 h-23 w-23 rounded-full border-2 border-green-100 bg-[#C5F5DC]" />
-						</MotionPulse>
+				<MotionPulse>
+					<div className="md:absolute md:flex hidden top-70 left-10 h-23 w-23 rounded-full border-2 border-green-100 bg-[#C5F5DC]" />
+				</MotionPulse>
 
-						<MotionPulse>
-							<div className="absolute top-70 right-5 h-23 w-23 rounded-full border-2 border-secondary-200 bg-secondary-100" />
-						</MotionPulse>
+				<MotionPulse>
+					<div className="md:absolute md:flex hidden top-70 right-5 h-23 w-23 rounded-full border-2 border-secondary-200 bg-secondary-100" />
+				</MotionPulse>
 
-						<MotionPulse>
-							<div className="absolute top-90 right-10 h-75 w-75 rounded-full border-2 border-green-100 bg-[#C5F5DC]" />
-						</MotionPulse>
+				<MotionPulse>
+					<div className="absolute md:top-90 md:right-10 md:h-75 md:w-75 top-70 right-10 h-15 w-15 rounded-full border-2 border-green-100 bg-[#C5F5DC]" />
+				</MotionPulse>
 
-						<MotionPulse>
-							<div className="absolute top-70 right-40 h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100" />
-						</MotionPulse>
+				<MotionPulse>
+					<div className="md:absolute md:flex hidden top-70 right-40 h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100" />
+				</MotionPulse>
 
-						<MotionPulse>
-							<div className="absolute top-50 left-30 h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100" />
-						</MotionPulse>
-					</>
-				)}
+				<MotionPulse>
+					<div className="md:absolute md:flex hidden top-50 left-30 h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100" />
+				</MotionPulse>
 
-				{isMobile && (
-					<>
-						<MotionPulse>
-							<div className="absolute top-70 right-10 h-15 w-15 rounded-full border-2 border-green-100 bg-[#C5F5DC]" />
-						</MotionPulse>
-
-						<MotionPulse>
-							<div className="absolute top-80 left-10 h-15 w-15 rounded-full border-2 border-secondary-200 bg-secondary-100" />
-						</MotionPulse>
-					</>
-				)}
 			</div>
 			<main className="relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden px-4 py-22">
 				<div className="container z-1 flex shrink-0 flex-col items-center space-y-10 pt-8 md:mx-auto md:space-y-13 md:pt-20">

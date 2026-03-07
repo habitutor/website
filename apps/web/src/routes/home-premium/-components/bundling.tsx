@@ -64,7 +64,7 @@ export function Bundling() {
 			<div className="w-full rounded-2xl border border-neutral-300 bg-neutral-100 p-6">
 				<MobileCarousel items={mobilePlanCards} paginationLabel="Paket Belajar" />
 
-				<div className="hidden w-full flex-wrap justify-center gap-6 sm:flex">
+				<div className="hidden w-full sm:grid xl:grid-cols-4 md:grid-cols-2 justify-center gap-6" >
 					{premiumPlans.map((plan, index) => (
 						<BundlingCard
 							key={plan.label}

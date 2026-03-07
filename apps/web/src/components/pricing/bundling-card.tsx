@@ -72,7 +72,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 		return (
 			<motion.div
 				className={cn(
-					"relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl shadow-lg md:max-w-70",
+					"relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl shadow-lg md:max-w-none",
 					premiumColors.bg,
 					premiumColors.text,
 				)}
@@ -135,7 +135,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 	}
 
 	return (
-		<motion.div className="relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:max-w-70">
+		<motion.div className="relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:max-w-none">
 			<div className={cn("absolute -right-12 -bottom-20 z-1 size-45 rounded-full border-2", colors?.circle)} />
 			<div
 				className={cn("absolute bottom-13 left-1/2 z-0 size-9 -translate-x-1/2 rounded-full border-2", colors?.circle)}

@@ -30,8 +30,8 @@ export function CallToAction() {
 				/>
 			</MotionPulse>
 			{/* TOP CONTAINER */}
-			<div className="container relative mx-4 flex min-h-122.25 w-full flex-col overflow-hidden rounded-t-2xl border-[#B3DFF5] border-x-2 border-t-2 bg-[#F4FAFF]">
-				<div className="relative z-10 flex h-full flex-1 flex-col justify-start px-8 py-8 md:justify-center md:px-10 lg:px-20">
+			<div className="container relative mx-4 flex min-h-122.25 h-150 md:h-full w-full flex-col overflow-hidden rounded-t-2xl border-[#B3DFF5] border-x-2 border-t-2 bg-[#F4FAFF]">
+				<div className="relative z-10 flex md:h-full h-150 flex-1 flex-col justify-start px-8 py-8 md:justify-center md:px-10 lg:px-20">
 					<div className="flex w-full flex-col lg:flex-row lg:items-center">
 						{/* Left Content */}
 						<div className="z-20 flex flex-col items-start gap-6 lg:w-2/3">
@@ -95,7 +95,7 @@ export function CallToAction() {
 								<img
 									src="/avatar/tupai-cta-1.webp"
 									alt="Mascot"
-									className="h-auto w-45 translate-y-2 -scale-x-100 object-contain md:w-75 lg:w-100"
+									className="h-auto w-60 translate-y-2 -scale-x-100 object-contain md:w-75 lg:w-100"
 								/>
 							</motion.div>
 						</div>

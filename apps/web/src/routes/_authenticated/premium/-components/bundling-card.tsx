@@ -213,17 +213,17 @@ function TierButton({
           ? variant === "premium2"
             ? "bg-secondary-200 text-secondary-900"
             : "bg-primary-100 text-primary-600"
-          : bundlingColors[variant].button,
+          : bundlingColors[variant].button, 
       )}
     >
       {isCurrentPlan
         ? variant === "premium2"
-          ? "Kamu sudah Bundling!"
-          : "Kamu sudah Premium!"
+          ? "Kamu sudah berlangganan paket ini!"
+          : "Kamu sudah berlangganan paket ini!"
         : isPending
           ? "Memproses..."
           : isSubscribed
-            ? "Sudah Berlangganan"
+            ? "Kamu sudah premium"
             : (buttonLabel ?? "Langganan Sekarang")}
     </button>
   );

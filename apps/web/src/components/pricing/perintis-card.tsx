@@ -45,7 +45,7 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
 	return (
 		<motion.div
 			className={cn(
-				"relative flex h-fit min-h-110 w-full max-w-110 flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-sm",
+				"relative flex h-fit min-h-110 w-full flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-sm",
 			)}
 			initial={{ opacity: 0, y: 20 }}
 			whileInView={{ opacity: 1, y: 0 }}
