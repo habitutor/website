@@ -2,11 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import Loader from "@/components/loader";
 import { Container } from "@/components/ui/container";
-import { authClient } from "@/lib/auth-client";
+import { refreshAuthSession } from "@/lib/auth-session";
 import { usePaymentStatus } from "./-hooks/use-payment-status";
-import { queryClient } from "@/utils/orpc";
-
-const AUTH_SESSION_QUERY_KEY = ["auth", "getSession"] as const;
 
 async function syncTransactionStatus(orderId: string) {
 	const response = await fetch("http://localhost:3001/rpc/transaction/sync-status", {
@@ -49,9 +46,7 @@ function RouteComponent() {
 				console.error("Failed to sync premium state after payment finish", error);
 			}
 
-			await queryClient.invalidateQueries({ queryKey: AUTH_SESSION_QUERY_KEY });
-			const { data: refreshedSession } = await authClient.getSession();
-			queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, { data: refreshedSession });
+			await refreshAuthSession();
 
 			if (isCancelled) return;
 

@@ -6,6 +6,7 @@ import { isValidElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { authClient } from "@/lib/auth-client";
+import { refreshAuthSession } from "@/lib/auth-session";
 import { TryOutCard } from "@/components/pricing/tryout-card";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
@@ -18,8 +19,6 @@ import { PremiumHeader } from "./-components/premium-header";
 import { PrivilegeCard } from "./-components/privilege-card";
 
 type BundlingVariant = "premium" | "premium2";
-
-const AUTH_SESSION_QUERY_KEY = ["auth", "getSession"] as const;
 
 function sleep(milliseconds: number) {
 	return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -98,10 +97,9 @@ function RouteComponent() {
 	useMidtransScript();
 
 	const refreshPremiumSession = async () => {
-		await queryClient.invalidateQueries({ queryKey: AUTH_SESSION_QUERY_KEY });
-		const { data: refreshedSession } = await authClient.getSession();
-		queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, { data: refreshedSession });
-		await router.invalidate();
+		await refreshAuthSession({
+			invalidateRouter: () => router.invalidate(),
+		});
 		window.location.replace("/premium");
 	};
 
