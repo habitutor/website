@@ -6,14 +6,7 @@ import type { RouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-function getApiUrl() {
-	return (
-		process.env.VITE_SERVER_URL ??
-		import.meta.env.VITE_SERVER_URL ??
-		(process.env.NODE_ENV === "production" ? "https://api.habitutor.id" : "http://localhost:3001")
-	);
-}
+import { getApiBaseUrl } from "@/lib/api-base-url";
 
 const serializer = new StandardRPCJsonSerializer();
 export const queryClient = new QueryClient({
@@ -60,7 +53,7 @@ export const queryClient = new QueryClient({
 
 const client: RouterClient<typeof appRouter> = createORPCClient(
 	new RPCLink({
-		url: `${getApiUrl()}/rpc`,
+		url: `${getApiBaseUrl()}/rpc`,
 		fetch(url, options) {
 			return fetch(url, {
 				...options,

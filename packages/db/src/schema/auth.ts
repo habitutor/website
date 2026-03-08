@@ -14,6 +14,7 @@ export const user = pgTable("user", {
 		.notNull(),
 	role: text("role").default("user"),
 	isPremium: boolean("is_premium").default(false),
+	premiumTier: text("premium_tier"),
 	flashcardStreak: integer("flashcard_streak").default(0),
 	lastCompletedFlashcardAt: timestamp("last_completed_flashcard_at"),
 	premiumExpiresAt: timestamp("premium_expires_at"),

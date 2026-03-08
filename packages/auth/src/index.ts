@@ -7,6 +7,21 @@ import { Resend } from "resend";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");
+const localDevOrigins = [
+	"http://localhost:3000",
+	"http://127.0.0.1:3000",
+	"http://localhost:5173",
+	"http://127.0.0.1:5173",
+];
+const trustedOrigins = Array.from(
+	new Set([
+		process.env.CORS_ORIGIN || "http://localhost:3000",
+		...localDevOrigins,
+		"https://habitutor.id",
+		"https://www.habitutor.id",
+		"https://api.habitutor.id",
+	]),
+);
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -29,6 +44,15 @@ export const auth = betterAuth({
 					input: type("boolean"),
 				},
 				defaultValue: false,
+				input: false,
+			},
+			premiumTier: {
+				type: "string",
+				validator: {
+					input: type("'premium' | 'premium2' | null"),
+				},
+				required: false,
+				defaultValue: null,
 				input: false,
 			},
 			flashcardStreak: {
@@ -58,12 +82,7 @@ export const auth = betterAuth({
 			},
 		},
 	},
-	trustedOrigins: [
-		process.env.CORS_ORIGIN || "http://localhost:3000",
-		"https://habitutor.id",
-		"https://www.habitutor.id",
-		"https://api.habitutor.id",
-	],
+	trustedOrigins,
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url, token }) => {

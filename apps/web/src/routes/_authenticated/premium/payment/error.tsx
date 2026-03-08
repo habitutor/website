@@ -35,7 +35,7 @@ function RouteComponent() {
 				</div>
 
 				<Button variant="white" className="w-full" asChild>
-					<Link to="/dashboard">Ke Dashboard</Link>
+					<Link to="/premium">Kembali ke Premium</Link>
 				</Button>
 			</div>
 		</Container>

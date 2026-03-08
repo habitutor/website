@@ -83,6 +83,7 @@ const updateUserPremium = admin
 		type({
 			id: "string",
 			isPremium: "boolean",
+			"premiumTier?": "'premium' | 'premium2'",
 			"premiumExpiresAt?": "string",
 		}),
 	)
@@ -98,7 +99,8 @@ const updateUserPremium = admin
 		const updatedUser = await adminUserRepo.updatePremium({
 			id: input.id,
 			isPremium: input.isPremium,
-			premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : input.isPremium ? null : null,
+			premiumTier: input.isPremium ? (input.premiumTier ?? "premium") : null,
+			premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null,
 		});
 
 		if (!updatedUser) {
@@ -112,6 +114,7 @@ const updateUserPremium = admin
 			name: updatedUser.name,
 			email: updatedUser.email,
 			isPremium: updatedUser.isPremium,
+			premiumTier: updatedUser.premiumTier,
 			premiumExpiresAt: updatedUser.premiumExpiresAt,
 		};
 	});

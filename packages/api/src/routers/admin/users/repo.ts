@@ -23,6 +23,7 @@ export const adminUserRepo = {
 				email: user.email,
 				role: user.role,
 				isPremium: user.isPremium,
+				premiumTier: user.premiumTier,
 				premiumExpiresAt: user.premiumExpiresAt,
 				createdAt: user.createdAt,
 			})
@@ -48,14 +49,24 @@ export const adminUserRepo = {
 		db = defaultDb,
 		id,
 		isPremium,
+		premiumTier,
 		premiumExpiresAt,
 	}: {
 		db?: DrizzleDatabase;
 		id: string;
 		isPremium: boolean;
+		premiumTier?: "premium" | "premium2" | null;
 		premiumExpiresAt: Date | null;
 	}) => {
-		const [u] = await db.update(user).set({ isPremium, premiumExpiresAt }).where(eq(user.id, id)).returning();
+		const [u] = await db
+			.update(user)
+			.set({
+				isPremium,
+				premiumTier: isPremium ? (premiumTier ?? "premium") : null,
+				premiumExpiresAt,
+			})
+			.where(eq(user.id, id))
+			.returning();
 		return u;
 	},
 };

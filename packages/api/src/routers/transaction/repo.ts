@@ -1,7 +1,8 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { product, transaction } from "@habitutor/db/schema/transaction";
-import { eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
 	getProductBySlug: async ({ db = defaultDb, slug }: { db?: DrizzleDatabase; slug: string }) => {
@@ -48,6 +49,30 @@ export const transactionRepo = {
 		return result;
 	},
 
+	getLatestSuccessfulPremiumTierByUserId: async ({
+		db = defaultDb,
+		userId,
+	}: {
+		db?: DrizzleDatabase;
+		userId: string;
+	}) => {
+		const [result] = await db
+			.select({
+				prodSlug: product.slug,
+			})
+			.from(transaction)
+			.innerJoin(product, eq(transaction.productId, product.id))
+			.where(and(eq(transaction.userId, userId), eq(transaction.status, "success"), eq(product.type, "subscription")))
+			.orderBy(desc(transaction.paidAt), desc(transaction.orderedAt))
+			.limit(1);
+
+		if (result?.prodSlug === "premium" || result?.prodSlug === "premium2") {
+			return result.prodSlug;
+		}
+
+		return null;
+	},
+
 	updateTransactionStatus: async ({
 		db = defaultDb,
 		orderId,
@@ -74,15 +99,35 @@ export const transactionRepo = {
 		db = defaultDb,
 		userId,
 		isPremium,
+		premiumTier,
 		premiumExpiresAt,
 	}: {
 		db?: DrizzleDatabase;
 		userId: string;
 		isPremium: boolean;
+		premiumTier?: "premium" | "premium2" | null;
 		premiumExpiresAt: Date | null;
 	}) => {
-		const [u] = await db.update(user).set({ isPremium, premiumExpiresAt }).where(eq(user.id, userId)).returning();
-		return u;
+		const resolvedPremiumTier = resolvePremiumTierForUpdate({
+			isPremium,
+			premiumTier,
+			premiumExpiresAt,
+		});
+
+		const updates = [
+			sql`is_premium = ${isPremium}`,
+			sql`premium_expires_at = ${premiumExpiresAt}`,
+			sql`updated_at = now()`,
+		];
+
+		if (resolvedPremiumTier !== undefined) {
+			updates.push(sql`premium_tier = ${resolvedPremiumTier}`);
+		}
+
+		await db.execute(sql`UPDATE "user" SET ${sql.join(updates, sql`, `)} WHERE id = ${userId}`);
+
+		const [updatedUser] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+		return updatedUser;
 	},
 
 	getTransactionById: async ({ db = defaultDb, orderId }: { db?: DrizzleDatabase; orderId: string }) => {
