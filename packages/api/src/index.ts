@@ -4,6 +4,10 @@ import { eq } from "drizzle-orm";
 import { o } from "./lib/orpc";
 import { rateLimit } from "./middlewares/rate-limit";
 import { requireAdmin } from "./middlewares/rbac";
+import {
+  DEFAULT_PREMIUM_TIER,
+  shouldBackfillPremiumTier,
+} from "./routers/transaction/premium-tier";
 import { transactionRepo } from "./routers/transaction/repo";
 
 export const pub = o;
@@ -46,21 +50,22 @@ const requireAuth = o.middleware(async ({ context, next, errors }) => {
       });
   }
 
-  if (sessionUser.isPremium && !sessionUser.premiumTier) {
-    const inferredTier =
-      (await transactionRepo.getLatestSuccessfulPremiumTierByUserId({
-        userId: sessionUser.id,
-      })) ?? "premium";
-
+  if (
+    shouldBackfillPremiumTier({
+      isPremium: sessionUser.isPremium,
+      premiumTier: sessionUser.premiumTier,
+      premiumExpiresAt: sessionUser.premiumExpiresAt ?? null,
+    })
+  ) {
     await transactionRepo
       .updateUserPremium({
         userId: sessionUser.id,
         isPremium: true,
-        premiumTier: inferredTier,
+        premiumTier: null,
         premiumExpiresAt: sessionUser.premiumExpiresAt ?? null,
       })
       .then(() => {
-        sessionUser.premiumTier = inferredTier;
+        sessionUser.premiumTier = DEFAULT_PREMIUM_TIER;
       });
   }
 

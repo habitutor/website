@@ -2,6 +2,7 @@ import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { product, transaction } from "@habitutor/db/schema/transaction";
 import { and, desc, eq, sql } from "drizzle-orm";
+import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
   getProductBySlug: async ({
@@ -129,14 +130,20 @@ export const transactionRepo = {
     premiumTier?: "premium" | "premium2" | null;
     premiumExpiresAt: Date | null;
   }) => {
+    const resolvedPremiumTier = resolvePremiumTierForUpdate({
+      isPremium,
+      premiumTier,
+      premiumExpiresAt,
+    });
+
     const updates = [
       sql`is_premium = ${isPremium}`,
       sql`premium_expires_at = ${premiumExpiresAt}`,
       sql`updated_at = now()`,
     ];
 
-    if (premiumTier !== undefined) {
-      updates.push(sql`premium_tier = ${premiumTier}`);
+    if (resolvedPremiumTier !== undefined) {
+      updates.push(sql`premium_tier = ${resolvedPremiumTier}`);
     }
 
     await db.execute(
