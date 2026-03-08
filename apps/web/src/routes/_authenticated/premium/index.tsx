@@ -5,14 +5,14 @@ import { motion } from "motion/react";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
-import { authClient } from "@/lib/auth-client";
-import { refreshAuthSession } from "@/lib/auth-session";
 import { TryOutCard } from "@/components/pricing/tryout-card";
+import { getApiBaseUrl } from "@/lib/api-base-url";
+import { refreshAuthSession } from "@/lib/auth-session";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";
-import { orpc, queryClient } from "@/utils/orpc";
+import { orpc } from "@/utils/orpc";
 import { BundlingCard } from "./-components/bundling-card";
 import { PerintisClassroomCard } from "./-components/perintis-card";
 import { PremiumHeader } from "./-components/premium-header";
@@ -25,7 +25,7 @@ function sleep(milliseconds: number) {
 }
 
 async function syncTransactionStatus(orderId: string) {
-	const response = await fetch("http://localhost:3001/rpc/transaction/sync-status", {
+	const response = await fetch(`${getApiBaseUrl()}/rpc/transaction/sync-status`, {
 		method: "POST",
 		credentials: "include",
 		headers: {
@@ -84,6 +84,7 @@ export const Route = createFileRoute("/_authenticated/premium/")({
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const router = useRouter();
+	const invalidateRouter = router.invalidate;
 	const tryoutPlans = Object.values(DATA.pricing_tryout);
 	const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
 	const [paymentToken, setPaymentToken] = useState<string>();
@@ -96,15 +97,15 @@ function RouteComponent() {
 
 	useMidtransScript();
 
-	const refreshPremiumSession = async () => {
-		await refreshAuthSession({
-			invalidateRouter: () => router.invalidate(),
-		});
-		window.location.replace("/premium");
-	};
-
 	useEffect(() => {
 		if (!paymentToken) return;
+
+		const completePremiumUpgrade = async () => {
+			await refreshAuthSession({
+				invalidateRouter,
+			});
+			window.location.replace("/premium");
+		};
 
 		if (window.snap) {
 			window.snap.pay(paymentToken, {
@@ -113,7 +114,7 @@ function RouteComponent() {
 						await waitForPremiumActivation(paymentOrderId);
 					}
 
-					await refreshPremiumSession();
+					await completePremiumUpgrade();
 				},
 				onPending: () => {
 					toast.info("Menunggu pembayaran...");
@@ -131,7 +132,7 @@ function RouteComponent() {
 		if (paymentRedirectUrl) {
 			window.location.href = paymentRedirectUrl;
 		}
-	}, [paymentOrderId, paymentRedirectUrl, paymentToken, router]);
+	}, [invalidateRouter, paymentOrderId, paymentRedirectUrl, paymentToken]);
 
 	const handleSubscribe = (variant: BundlingVariant) => {
 		if (transactionMutation.isPending) return;

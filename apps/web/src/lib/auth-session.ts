@@ -11,9 +11,7 @@ export async function getFreshSession() {
 	});
 }
 
-export async function refreshAuthSession(options?: {
-	invalidateRouter?: () => Promise<void> | void;
-}) {
+export async function refreshAuthSession(options?: { invalidateRouter?: () => Promise<void> | void }) {
 	await queryClient.invalidateQueries({ queryKey: AUTH_SESSION_QUERY_KEY });
 
 	const { data: refreshedSession } = await getFreshSession();

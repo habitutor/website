@@ -2,11 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import Loader from "@/components/loader";
 import { Container } from "@/components/ui/container";
+import { getApiBaseUrl } from "@/lib/api-base-url";
 import { refreshAuthSession } from "@/lib/auth-session";
 import { usePaymentStatus } from "./-hooks/use-payment-status";
 
 async function syncTransactionStatus(orderId: string) {
-	const response = await fetch("http://localhost:3001/rpc/transaction/sync-status", {
+	const response = await fetch(`${getApiBaseUrl()}/rpc/transaction/sync-status`, {
 		method: "POST",
 		credentials: "include",
 		headers: {

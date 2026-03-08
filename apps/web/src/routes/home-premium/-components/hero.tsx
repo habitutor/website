@@ -6,29 +6,28 @@ export function Hero() {
 		<section className="relative overflow-hidden bg-background">
 			<div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
 				<MotionPulse>
-					<div className="absolute top-80 left-10 h-15 w-15 md:top-90 md:left-15 md:h-66 md:w-66 rounded-full border-2 border-secondary-200 bg-secondary-100" />
+					<div className="absolute top-80 left-10 h-15 w-15 rounded-full border-2 border-secondary-200 bg-secondary-100 md:top-90 md:left-15 md:h-66 md:w-66" />
 				</MotionPulse>
 
 				<MotionPulse>
-					<div className="md:absolute md:flex hidden top-70 left-10 h-23 w-23 rounded-full border-2 border-green-100 bg-[#C5F5DC]" />
+					<div className="top-70 left-10 hidden h-23 w-23 rounded-full border-2 border-green-100 bg-[#C5F5DC] md:absolute md:flex" />
 				</MotionPulse>
 
 				<MotionPulse>
-					<div className="md:absolute md:flex hidden top-70 right-5 h-23 w-23 rounded-full border-2 border-secondary-200 bg-secondary-100" />
+					<div className="top-70 right-5 hidden h-23 w-23 rounded-full border-2 border-secondary-200 bg-secondary-100 md:absolute md:flex" />
 				</MotionPulse>
 
 				<MotionPulse>
-					<div className="absolute md:top-90 md:right-10 md:h-75 md:w-75 top-70 right-10 h-15 w-15 rounded-full border-2 border-green-100 bg-[#C5F5DC]" />
+					<div className="absolute top-70 right-10 h-15 w-15 rounded-full border-2 border-green-100 bg-[#C5F5DC] md:top-90 md:right-10 md:h-75 md:w-75" />
 				</MotionPulse>
 
 				<MotionPulse>
-					<div className="md:absolute md:flex hidden top-70 right-40 h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100" />
+					<div className="top-70 right-40 hidden h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100 md:absolute md:flex" />
 				</MotionPulse>
 
 				<MotionPulse>
-					<div className="md:absolute md:flex hidden top-50 left-30 h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100" />
+					<div className="top-50 left-30 hidden h-15 w-15 rounded-full border-2 border-neutral-200 bg-neutral-100 md:absolute md:flex" />
 				</MotionPulse>
-
 			</div>
 			<main className="relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden px-4 py-22">
 				<div className="container z-1 flex shrink-0 flex-col items-center space-y-10 pt-8 md:mx-auto md:space-y-13 md:pt-20">
