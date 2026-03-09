@@ -1,6 +1,4 @@
-"use client";
-
-import { List, WhatsappLogoIcon } from "@phosphor-icons/react";
+import { ListIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
@@ -63,7 +61,7 @@ export default function Header() {
 				{/* Mobile Menu Button */}
 				{isMobile && (
 					<Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-						<List weight="bold" className="size-6" />
+						<ListIcon weight="bold" className="size-6" />
 					</Button>
 				)}
 			</div>
