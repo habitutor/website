@@ -47,7 +47,7 @@ export function Pricing() {
 			</div>
 			
 			{/* cta */}
-			<Link to="/premium" className={cn(buttonVariants({ size: "lg", variant: "default" }),)}>
+			<Link to="/home-premium" className={cn(buttonVariants({ size: "lg", variant: "default" }),)}>
 				Lihat Semua Paket Kami!
 			</Link>
 		</Container>
