@@ -20,7 +20,7 @@ export function TryOutCard({ data }: { data: TryOutCardData }) {
 			initial={{ opacity: 0, y: 24 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.4, ease: "easeOut" }}
-			className="relative flex h-100 w-full flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm 2xl:min-w-80"
+			className="relative flex h-100 w-full flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm"
 		>
 			<div className="space-y-2 border-b bg-background p-6">
 				<h3 className="font-medium text-neutral-1000 text-sm">{data.label}</h3>

@@ -1,7 +1,7 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import * as m from "motion/react-m";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
@@ -45,6 +45,11 @@ export function Pricing() {
 					))}
 				</div>
 			</div>
+			
+			{/* cta */}
+			<Link to="/premium" className={cn(buttonVariants({ size: "lg", variant: "default" }),)}>
+				Lihat Semua Paket Kami!
+			</Link>
 		</Container>
 	);
 }
@@ -100,21 +105,21 @@ type PlanFeature = {
 
 type PlanData =
 	| {
-			readonly label: string;
-			readonly price_monthly?: string;
-			readonly price_full?: string;
-			readonly suffix?: string;
-			readonly features: readonly PlanFeature[];
-			readonly cta: { readonly label: string; readonly url: string };
-	  }
+		readonly label: string;
+		readonly price_monthly?: string;
+		readonly price_full?: string;
+		readonly suffix?: string;
+		readonly features: readonly PlanFeature[];
+		readonly cta: { readonly label: string; readonly url: string };
+	}
 	| {
-			readonly label: string;
-			readonly original_price: string;
-			readonly price_now: string;
-			readonly suffix?: string;
-			readonly features: readonly PlanFeature[];
-			readonly cta: { readonly label: string; readonly url: string };
-	  };
+		readonly label: string;
+		readonly original_price: string;
+		readonly price_now: string;
+		readonly suffix?: string;
+		readonly features: readonly PlanFeature[];
+		readonly cta: { readonly label: string; readonly url: string };
+	};
 
 function BasicCard({ data }: { data: PlanData }) {
 	const isBasicPlan = "price_monthly" in data || "price_full" in data;
