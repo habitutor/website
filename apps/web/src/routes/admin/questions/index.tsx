@@ -1,7 +1,8 @@
 import { Cards, DotsThree, Exam, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { type } from "arktype";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
@@ -26,35 +27,80 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
+const questionsSearchSchema = type({
+	"search?": "string",
+	"cursor?": "string",
+	"cursorHistory?": "string[]",
+});
+
 export const Route = createFileRoute("/admin/questions/")({
 	component: QuestionsPage,
+	validateSearch: questionsSearchSchema,
 });
 
 function QuestionsPage() {
-	const [searchQuery, setSearchQuery] = useState("");
-	const [debouncedSearch, setDebouncedSearch] = useState("");
-	const { cursor, handleNext, handlePrevious, resetCursor, hasPrevious } = useCursorPagination();
+	const navigate = useNavigate({ from: "/admin/questions/" });
+	const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
+	const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
+	const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
+
+	const [searchQuery, setSearchQuery] = useState(searchParam);
+	const debouncedSearch = useDebounceValue(searchQuery, 300);
+	const isFirstRender = useRef(true);
 	const limit = 12;
 
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			setDebouncedSearch(searchQuery);
-			resetCursor();
-		}, 300);
+		if (isFirstRender.current) {
+			isFirstRender.current = false;
+			return;
+		}
+		navigate({
+			search: (prev) => ({
+				...prev,
+				search: debouncedSearch || undefined,
+				cursor: undefined,
+				cursorHistory: undefined,
+			}),
+			replace: true,
+		});
+	}, [debouncedSearch, navigate]);
 
-		return () => clearTimeout(timer);
-	}, [searchQuery, resetCursor]);
+	const handleNext = (nextCursor: string) => {
+		navigate({
+			search: (prev) => ({
+				...prev,
+				cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
+				cursor: nextCursor,
+			}),
+		});
+	};
+
+	const handlePrevious = () => {
+		navigate({
+			search: (prev) => {
+				const history = prev.cursorHistory ?? [];
+				if (history.length > 0) {
+					return {
+						...prev,
+						cursor: history[history.length - 1],
+						cursorHistory: history.slice(0, -1),
+					};
+				}
+				return { ...prev, cursor: undefined, cursorHistory: undefined };
+			},
+		});
+	};
 
 	const { data, isLoading } = useQuery(
 		orpc.admin.question.list.queryOptions({
 			input: {
 				limit,
 				cursor: cursor ?? undefined,
-				search: debouncedSearch,
+				search: searchParam,
 			},
 		}),
 	);

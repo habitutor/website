@@ -1,38 +1,87 @@
 import { MagnifyingGlassIcon, UserIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { type } from "arktype";
+import { useEffect, useRef, useState } from "react";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/utils/orpc";
 import { CursorPagination } from "./-components/pagination";
 import { UserRow } from "./-components/user-row";
 
+const usersSearchSchema = type({
+	"search?": "string",
+	"cursor?": "string",
+	"cursorHistory?": "string[]",
+});
+
 export const Route = createFileRoute("/admin/users/")({
 	component: UsersPage,
+	validateSearch: usersSearchSchema,
 });
 
 function UsersPage() {
-	const [searchQuery, setSearchQuery] = useState("");
+	const navigate = useNavigate({ from: "/admin/users/" });
+	const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
+	const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
+	const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
+
+	const [searchQuery, setSearchQuery] = useState(searchParam);
 	const debouncedSearch = useDebounceValue(searchQuery, 500);
-	const { cursor, handleNext, handlePrevious, resetCursor, hasPrevious } = useCursorPagination();
+	const isFirstRender = useRef(true);
 	const limit = 10;
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: debouncedSearch is needed to reset cursor when search changes
 	useEffect(() => {
-		resetCursor();
-	}, [resetCursor, debouncedSearch]);
+		if (isFirstRender.current) {
+			isFirstRender.current = false;
+			return;
+		}
+		navigate({
+			search: (prev) => ({
+				...prev,
+				search: debouncedSearch || undefined,
+				cursor: undefined,
+				cursorHistory: undefined,
+			}),
+			replace: true,
+		});
+	}, [debouncedSearch, navigate]);
+
+	const handleNext = (nextCursor: string) => {
+		navigate({
+			search: (prev) => ({
+				...prev,
+				cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
+				cursor: nextCursor,
+			}),
+		});
+	};
+
+	const handlePrevious = () => {
+		navigate({
+			search: (prev) => {
+				const history = prev.cursorHistory ?? [];
+				if (history.length > 0) {
+					return {
+						...prev,
+						cursor: history[history.length - 1],
+						cursorHistory: history.slice(0, -1),
+					};
+				}
+				return { ...prev, cursor: undefined, cursorHistory: undefined };
+			},
+		});
+	};
 
 	const { data, isPending } = useQuery(
 		orpc.admin.users.listUsers.queryOptions({
 			input: {
 				limit,
 				cursor: cursor ?? undefined,
-				search: debouncedSearch,
+				search: searchParam,
 			},
 		}),
 	);
