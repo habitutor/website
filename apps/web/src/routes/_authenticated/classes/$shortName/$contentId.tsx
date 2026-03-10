@@ -111,15 +111,13 @@ function RouteComponent() {
 	return (
 		<Container className="min-h-screen border-neutral-200 border-x bg-white pt-28 sm:gap-6">
 			<div className="flex justify-between">
-				<BackButton
-					to={
-						currentTab === "video"
-							? `/classes/${shortName}`
-							: currentTab === "notes"
-								? `/classes/${shortName}/${contentId}/video`
-								: `/classes/${shortName}/${contentId}/notes`
-					}
-				/>
+				{currentTab === "video" ? (
+					<BackButton to="/classes/$shortName" params={{ shortName }} />
+				) : currentTab === "notes" ? (
+					<BackButton to="/classes/$shortName/$contentId/video" params={{ shortName, contentId }} />
+				) : (
+					<BackButton to="/classes/$shortName/$contentId/notes" params={{ shortName, contentId }} />
+				)}
 				{currentTab === "video" && (
 					<NextButton
 						to={`/classes/${shortName}/${contentId}/notes`}

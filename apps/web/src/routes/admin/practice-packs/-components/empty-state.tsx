@@ -1,11 +1,12 @@
-import { PlusIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 
 type EmptyStateProps = {
 	onCreateNew: () => void;
+	onAddExisting: () => void;
 };
 
-export function EmptyState({ onCreateNew }: EmptyStateProps) {
+export function EmptyState({ onCreateNew, onAddExisting }: EmptyStateProps) {
 	return (
 		<div className="flex flex-col items-center justify-center space-y-6 rounded-xl border border-dashed py-16 text-center">
 			<img src="/avatar/confused-avatar.webp" alt="No questions" className="h-32 w-auto sm:h-40" />
@@ -13,10 +14,16 @@ export function EmptyState({ onCreateNew }: EmptyStateProps) {
 				<h3 className="font-bold text-foreground text-xl">This pack is empty</h3>
 				<p className="text-muted-foreground">Add questions to get started.</p>
 			</div>
-			<Button onClick={onCreateNew} size="lg" className="gap-2">
-				<PlusIcon className="size-4" />
-				Create First Question
-			</Button>
+			<div className="flex flex-col gap-2 sm:flex-row">
+				<Button onClick={onAddExisting} variant="lightBlue" size="lg" className="gap-2">
+					<MagnifyingGlassIcon className="size-4" />
+					Add Existing
+				</Button>
+				<Button onClick={onCreateNew} size="lg" className="gap-2">
+					<PlusIcon className="size-4" />
+					Create New Question
+				</Button>
+			</div>
 		</div>
 	);
 }

@@ -1,7 +1,7 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import * as m from "motion/react-m";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";

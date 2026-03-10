@@ -5,12 +5,6 @@ import { MotionPulse } from "@/components/motion";
 import { fadeInUp } from "@/lib/animation-variants";
 import { DATA } from "./data";
 
-const fadeInView = {
-	initial: { opacity: 0 },
-	whileInView: { opacity: 1 },
-	viewport: { once: true },
-} as const;
-
 const getFadeInViewWithDelay = (delay: number) => ({
 	initial: { opacity: 0 },
 	whileInView: { opacity: 1 },

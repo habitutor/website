@@ -40,26 +40,32 @@ function PracticePackDetailPage() {
 	return (
 		<AdminContainer>
 			<div className="space-y-6 sm:space-y-8">
-				<PackInfoHeader packId={packId} />
+				<PackInfoHeader packId={packId} backTo="/admin/practice-packs" />
 
 				<div className="space-y-4">
 					<div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-						<h2 className="font-bold text-xl tracking-tight sm:text-2xl">
+						<h2 className="flex items-center gap-4 font-bold text-xl tracking-tight sm:text-2xl">
 							Questions
-							<span className="ml-2 rounded-full bg-muted px-2.5 py-0.5 font-medium text-base text-muted-foreground">
+							<span className="rounded-lg bg-blue-100 px-2 py-1 font-medium font-mono text-base text-muted-foreground">
 								{data?.questions?.length || 0}
 							</span>
 						</h2>
-						<div className="flex flex-col gap-2 sm:flex-row">
-							<Button onClick={() => setShowAddExisting(true)} variant="lightBlue" className="gap-2 text-xs sm:text-sm">
-								<MagnifyingGlassIcon className="size-3.5 sm:size-4" />
-								Add Existing
-							</Button>
-							<Button onClick={() => setShowCreateForm(true)} className="gap-2 text-xs shadow-sm sm:text-sm">
-								<PlusIcon className="size-3.5 sm:size-4" />
-								Create New Question
-							</Button>
-						</div>
+						{data?.questions && data.questions.length > 0 && (
+							<div className="flex flex-col gap-2 sm:flex-row">
+								<Button
+									onClick={() => setShowAddExisting(true)}
+									variant="lightBlue"
+									className="gap-2 text-xs sm:text-sm"
+								>
+									<MagnifyingGlassIcon className="size-3.5 sm:size-4" />
+									Add Existing
+								</Button>
+								<Button onClick={() => setShowCreateForm(true)} className="gap-2 text-xs shadow-sm sm:text-sm">
+									<PlusIcon className="size-3.5 sm:size-4" />
+									Create New Question
+								</Button>
+							</div>
+						)}
 					</div>
 
 					{showAddExisting && (
@@ -78,7 +84,11 @@ function PracticePackDetailPage() {
 						/>
 					)}
 
-					<QuestionsList packId={packId} onCreateNew={() => setShowCreateForm(true)} />
+					<QuestionsList
+						packId={packId}
+						onCreateNew={() => setShowCreateForm(true)}
+						onAddExisting={() => setShowAddExisting(true)}
+					/>
 				</div>
 			</div>
 		</AdminContainer>

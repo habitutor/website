@@ -12,9 +12,10 @@ import type { Question } from "./types";
 type QuestionsListProps = {
 	packId: number;
 	onCreateNew: () => void;
+	onAddExisting: () => void;
 };
 
-export function QuestionsList({ packId, onCreateNew }: QuestionsListProps) {
+export function QuestionsList({ packId, onCreateNew, onAddExisting }: QuestionsListProps) {
 	const [currentIndex, setCurrentIndex] = useState(0);
 
 	const { data, isLoading } = useQuery(
@@ -50,7 +51,7 @@ export function QuestionsList({ packId, onCreateNew }: QuestionsListProps) {
 	}
 
 	if (questions.length === 0) {
-		return <EmptyState onCreateNew={onCreateNew} />;
+		return <EmptyState onCreateNew={onCreateNew} onAddExisting={onAddExisting} />;
 	}
 
 	const currentQuestion = questions[currentIndex];
