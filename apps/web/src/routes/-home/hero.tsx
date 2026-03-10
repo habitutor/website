@@ -3,7 +3,7 @@ import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
 import { MotionFloat } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
-import { bounce } from "@/lib/animation-variants";
+import { bounce, fadeInUp } from "@/lib/animation-variants";
 
 export function Hero() {
 	return (
@@ -11,9 +11,9 @@ export function Hero() {
 			<div className="container mx-auto flex max-w-5xl shrink-0 flex-col items-center px-4 pt-8 md:pt-20">
 				<div className="flex max-w-3xl flex-col items-center gap-3 text-center md:gap-4">
 					<m.h2
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.3, delay: 0 }}
+						variants={fadeInUp}
+						initial="initial"
+						animate="animate"
 						className="font-bold font-sans text-3xl sm:text-4xl md:text-5xl"
 					>
 						Ubah Persiapan Ujian Menjadi{" "}
@@ -28,9 +28,10 @@ export function Hero() {
 					</m.h2>
 
 					<m.p
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.3, delay: 0.1 }}
+						variants={fadeInUp}
+						initial="initial"
+						animate="animate"
+						transition={{ delay: 0.1 }}
 						className="text-sm sm:text-base"
 					>
 						Tidak hanya membantumu menaklukkan SNBT, tapi Habitutor juga membentuk growth mindset untuk tantangan masa
@@ -38,9 +39,10 @@ export function Hero() {
 					</m.p>
 
 					<m.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.3, delay: 0.2 }}
+						variants={fadeInUp}
+						initial="initial"
+						animate="animate"
+						transition={{ delay: 0.2 }}
 						className="flex w-full flex-wrap items-center justify-center gap-2 *:max-sm:text-xs"
 					>
 						<m.div variants={bounce} whileHover="whileHover">

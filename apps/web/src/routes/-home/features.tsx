@@ -2,7 +2,29 @@ import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
 import Carousel from "@/components/carousel";
 import { MotionPulse } from "@/components/motion";
+import { fadeInUp } from "@/lib/animation-variants";
 import { DATA } from "./data";
+
+const fadeInView = {
+	initial: { opacity: 0 },
+	whileInView: { opacity: 1 },
+	viewport: { once: true },
+} as const;
+
+const getFadeInViewWithDelay = (delay: number) => ({
+	initial: { opacity: 0 },
+	whileInView: { opacity: 1 },
+	viewport: { once: true },
+	transition: { delay, duration: 0.3 },
+});
+
+const getFadeInUpWithDelay = (delay: number) => ({
+	variants: fadeInUp,
+	initial: "initial",
+	whileInView: "animate",
+	viewport: { once: true },
+	transition: { delay, duration: 0.3 },
+});
 
 export function Features() {
 	return (
@@ -12,20 +34,11 @@ export function Features() {
 					<MotionPulse>
 						<m.div
 							className="absolute -top-12 -left-30 z-0 size-40 rounded-full bg-primary-100 md:size-46"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.2, duration: 0.3 }}
+							{...getFadeInViewWithDelay(0.2)}
 						/>
 					</MotionPulse>
 					<MotionPulse>
-						<m.div
-							className="absolute -top-20 -left-14 z-20 md:-top-24 md:-left-16"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.1, duration: 0.3 }}
-						>
+						<m.div className="absolute -top-20 -left-14 z-20 md:-top-24 md:-left-16" {...getFadeInViewWithDelay(0.1)}>
 							<Image
 								src="/decorations/graduation-cap.webp"
 								alt=""
@@ -37,13 +50,7 @@ export function Features() {
 						</m.div>
 					</MotionPulse>
 					<MotionPulse>
-						<m.div
-							className="absolute -top-0 -right-16 z-0"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.3, duration: 0.3 }}
-						>
+						<m.div className="absolute -top-0 -right-16 z-0" {...getFadeInViewWithDelay(0.3)}>
 							<Image
 								src="/decorations/green-yellow-double-circle.webp"
 								alt=""
@@ -55,13 +62,7 @@ export function Features() {
 						</m.div>
 					</MotionPulse>
 					<MotionPulse>
-						<m.div
-							className="absolute -top-20 -left-14 z-30 md:-top-24 md:-left-16"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.1, duration: 0.3 }}
-						>
+						<m.div className="absolute -top-20 -left-14 z-30 md:-top-24 md:-left-16" {...getFadeInViewWithDelay(0.1)}>
 							<Image
 								src="/decorations/graduation-cap.webp"
 								alt=""
@@ -75,10 +76,7 @@ export function Features() {
 
 					<m.div
 						className="relative z-10 overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.3 }}
+						{...getFadeInUpWithDelay(0)}
 					>
 						<div className="flex flex-col p-8 md:grid md:min-h-96 md:grid-cols-[30%_70%]">
 							<div className="absolute top-38 -left-40 z-0 size-100 rounded-full bg-tertiary-100 sm:top-30 md:top-50 md:left-60 md:size-54" />
@@ -131,30 +129,21 @@ export function Features() {
 					<MotionPulse>
 						<m.div
 							className="absolute top-10 -left-30 z-2 size-45 rounded-full bg-fourtiary-100"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.5, duration: 0.3 }}
+							{...getFadeInViewWithDelay(0.5)}
 						/>
 					</MotionPulse>
 
 					<MotionPulse>
 						<m.div
 							className="absolute top-10 -left-40 z-2 size-11 rounded-full bg-yellow-100"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.6, duration: 0.3 }}
+							{...getFadeInViewWithDelay(0.6)}
 						/>
 					</MotionPulse>
 
 					<MotionPulse>
 						<m.div
 							className="absolute -top-3 -left-50 z-2 w-62.5 translate-y-1/2 sm:w-75"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.7, duration: 0.3 }}
+							{...getFadeInViewWithDelay(0.7)}
 						>
 							<Image src="/decorations/book.webp" alt="Buku Wan***t" width={300} height={150} className="h-auto" />
 						</m.div>
@@ -163,10 +152,7 @@ export function Features() {
 					<MotionPulse>
 						<m.div
 							className="absolute -top-3 -right-25 z-4 w-62.5 -translate-y-1/2 lg:-right-35 lg:translate-y-1/2"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.8, duration: 0.3 }}
+							{...getFadeInViewWithDelay(0.8)}
 						>
 							<Image src="/decorations/pencil.webp" alt="Pensil 2B" width={300} height={150} className="h-auto" />
 						</m.div>
@@ -174,10 +160,7 @@ export function Features() {
 
 					<m.div
 						className="relative z-3 flex flex-col gap-y-32 rounded-2xl border border-neutral-200 bg-neutral-100 px-4 py-8"
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ delay: 0.5, duration: 0.3 }}
+						{...getFadeInUpWithDelay(0.5)}
 					>
 						<div className="mb-4 text-center">
 							<h2 className="font-bold text-2xl">
@@ -210,10 +193,7 @@ export function Features() {
 					<MotionPulse>
 						<m.div
 							className="absolute -bottom-90 -left-30 z-0 size-40 rounded-full bg-tertiary-100 md:-bottom-100 md:size-46"
-							initial={{ opacity: 0 }}
-							whileInView={{ opacity: 1 }}
-							viewport={{ once: true }}
-							transition={{ delay: 0.9, duration: 0.3 }}
+							{...getFadeInViewWithDelay(0.9)}
 						/>
 					</MotionPulse>
 
@@ -230,19 +210,10 @@ export function Features() {
 
 					<m.div
 						className="relative z-10 overflow-hidden rounded-2xl bg-neutral-100 shadow-sm"
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.3 }}
+						{...getFadeInUpWithDelay(0)}
 					>
 						<MotionPulse>
-							<m.div
-								className="absolute top-40 -right-20 z-0 md:top-50 md:-right-10"
-								initial={{ opacity: 0 }}
-								whileInView={{ opacity: 1 }}
-								viewport={{ once: true }}
-								transition={{ delay: 1, duration: 0.3 }}
-							>
+							<m.div className="absolute top-40 -right-20 z-0 md:top-50 md:-right-10" {...getFadeInViewWithDelay(1)}>
 								<Image
 									src="/decorations/green-yellow-2-circle.webp"
 									alt=""

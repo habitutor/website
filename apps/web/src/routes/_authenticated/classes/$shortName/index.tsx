@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useCallback } from "react";
 import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
 import { SearchInput } from "@/components/ui/search-input";
@@ -34,62 +35,51 @@ function RouteComponent() {
 	const page = (searchParams as Search).page ?? 0;
 
 	const navigate = Route.useNavigate();
-	const updateSearch = (updates: Partial<Search>) => {
-		const newSearch: Partial<Search> = {};
+	const updateSearch = useCallback(
+		(updates: Partial<Search>) => {
+			const newSearch: Partial<Search> = {};
 
-		if (updates.q !== undefined) {
-			newSearch.q = updates.q || undefined;
-		}
-		if (updates.category !== undefined) {
-			newSearch.category = updates.category || undefined;
-		}
-		if (updates.page !== undefined) {
-			newSearch.page = updates.page;
-		}
+			if (updates.q !== undefined) {
+				newSearch.q = updates.q || undefined;
+			}
+			if (updates.category !== undefined) {
+				newSearch.category = updates.category || undefined;
+			}
+			if (updates.page !== undefined) {
+				newSearch.page = updates.page;
+			}
 
-		if (
-			(updates.q !== undefined && updates.q !== (searchParams as Search).q) ||
-			(updates.category !== undefined && updates.category !== (searchParams as Search).category)
-		) {
-			newSearch.page = 0;
-		}
+			if (
+				(updates.q !== undefined && updates.q !== (searchParams as Search).q) ||
+				(updates.category !== undefined && updates.category !== (searchParams as Search).category)
+			) {
+				newSearch.page = 0;
+			}
 
-		// Remove undefined values to avoid ?category=undefined in URL
-		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
+			// Remove undefined values to avoid ?category=undefined in URL
+			const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
 
-		navigate({ search: cleanSearch });
-	};
+			navigate({ search: cleanSearch });
+		},
+		[navigate, searchParams],
+	);
 
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
-	const matchedClass = subtests.data?.data?.find((item) => item.shortName?.toLowerCase() === shortName);
-
-	const contents = useQuery(
-		orpc.subtest.listContentByCategory.queryOptions({
-			input: (() => {
-				const input: {
-					subtestId: number;
-					category?: "material" | "tips_and_trick";
-					search?: string;
-					limit: number;
-					offset: number;
-				} = {
-					subtestId: matchedClass?.id ?? 0,
-					limit: 20,
-					offset: page * 20,
-				};
-				if (activeFilter !== "all") {
-					input.category = activeFilter as "material" | "tips_and_trick";
-				}
-				if (searchQuery) {
-					input.search = searchQuery;
-				}
-				return input;
-			})(),
-			enabled: Boolean(matchedClass?.id),
+	const data = useQuery(
+		orpc.subtest.getSubtestByShortName.queryOptions({
+			input: {
+				shortName,
+				category: activeFilter === "all" ? undefined : activeFilter,
+				search: searchQuery || undefined,
+				limit: 20,
+				offset: page * 20,
+			},
 		}),
 	);
 
-	if (subtests.isPending) {
+	const matchedClass = data.data?.subtest;
+	const contents = data.data?.contents;
+
+	if (data.isPending) {
 		return (
 			<Container className="space-y-6">
 				<Skeleton className="h-70 w-full" />
@@ -97,10 +87,10 @@ function RouteComponent() {
 		);
 	}
 
-	if (subtests.isError) {
+	if (data.isError) {
 		return (
 			<Container className="pt-12">
-				<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
+				<p className="text-red-500 text-sm">Error: {data.error.message}</p>
 			</Container>
 		);
 	}
@@ -125,12 +115,11 @@ function RouteComponent() {
 
 			<div className="space-y-4">
 				<ContentList
-					items={contents.data}
-					isLoading={contents.isPending}
-					error={contents.isError ? contents.error.message : undefined}
+					items={contents}
+					isLoading={false}
 					searchQuery={searchQuery}
 					showCount={Boolean(searchQuery)}
-					hasMore={contents.data?.length === 20}
+					hasMore={contents?.length === 20}
 					onLoadMore={() => updateSearch({ page: page + 1 })}
 					userIsPremium={userIsPremium}
 					userRole={userRole}

@@ -3,11 +3,13 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
+
+const TiptapSimpleEditor = lazy(() => import("@/components/tiptap-simple-editor"));
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -19,6 +21,9 @@ export const Route = createFileRoute("/admin/questions/$id")({
 });
 
 const ANSWER_CODES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] as const;
+
+// Pre-computed lookup map for O(1) code ordering (PERF-006)
+const CODE_ORDER = new Map<string, number>(ANSWER_CODES.map((code, i) => [code, i]));
 
 type AnswerOption = {
 	id: number;
@@ -130,36 +135,35 @@ function QuestionEditPage() {
 		},
 	});
 
-	useEffect(() => {
-		setInitializedQuestionId(null);
-		setAnswerOptions([]);
-	}, []);
+	// Derive answer options from question data using useMemo (PERF-005, PERF-006)
+	const derivedAnswerOptions = useMemo(() => {
+		if (!question) return [];
 
+		// Use pre-computed Map for O(1) lookup (PERF-006)
+		const sortedAnswers = [...question.answers].sort((a, b) => {
+			const codeA = CODE_ORDER.get(a.code) ?? 0;
+			const codeB = CODE_ORDER.get(b.code) ?? 0;
+			return codeA - codeB;
+		});
+
+		return sortedAnswers.map((ans) => ({
+			id: ans.id,
+			code: ans.code,
+			content: ans.content,
+			isCorrect: ans.isCorrect,
+		}));
+	}, [question]);
+
+	// Sync derived options to state when question changes
 	useEffect(() => {
 		if (question && question.id !== initializedQuestionId) {
 			form.setFieldValue("content", question.content);
 			form.setFieldValue("discussion", question.discussion);
 			form.setFieldValue("isFlashcardQuestion", question.isFlashcardQuestion);
-
-			// Initialize answer options from question data
-			const sortedAnswers = [...question.answers].sort((a, b) => {
-				const codeA = ANSWER_CODES.indexOf(a.code as (typeof ANSWER_CODES)[number]);
-				const codeB = ANSWER_CODES.indexOf(b.code as (typeof ANSWER_CODES)[number]);
-				return codeA - codeB;
-			});
-
-			setAnswerOptions(
-				sortedAnswers.map((ans) => ({
-					id: ans.id,
-					code: ans.code,
-					content: ans.content,
-					isCorrect: ans.isCorrect,
-				})),
-			);
-
+			setAnswerOptions(derivedAnswerOptions);
 			setInitializedQuestionId(question.id);
 		}
-	}, [question, initializedQuestionId, form.setFieldValue]);
+	}, [question, initializedQuestionId, form.setFieldValue, derivedAnswerOptions]);
 
 	if (Number.isNaN(questionId)) {
 		return (
@@ -273,14 +277,16 @@ function QuestionEditPage() {
 										Question Content *
 									</Label>
 									<div className="rounded-lg border bg-card p-1">
-										<TiptapSimpleEditor
-											content={field.state.value as object}
-											onChange={(content) => field.handleChange(content)}
-										/>
-									</div>{" "}
+										<Suspense fallback={<div className="h-40 w-full animate-pulse rounded bg-muted" />}>
+											<TiptapSimpleEditor
+												content={field.state.value as object}
+												onChange={(content) => field.handleChange(content)}
+											/>
+										</Suspense>
+									</div>
 								</div>
 							)}
-						</form.Field>{" "}
+						</form.Field>
 						<form.Field name="discussion">
 							{(field) => (
 								<div className="space-y-2">
@@ -291,10 +297,12 @@ function QuestionEditPage() {
 										Discussion / Explanation *
 									</Label>
 									<div className="rounded-lg border bg-muted/20 p-1">
-										<TiptapSimpleEditor
-											content={field.state.value as object}
-											onChange={(content) => field.handleChange(content)}
-										/>
+										<Suspense fallback={<div className="h-40 w-full animate-pulse rounded bg-muted" />}>
+											<TiptapSimpleEditor
+												content={field.state.value as object}
+												onChange={(content) => field.handleChange(content)}
+											/>
+										</Suspense>
 									</div>
 								</div>
 							)}

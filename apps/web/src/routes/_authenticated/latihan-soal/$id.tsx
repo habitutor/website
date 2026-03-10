@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
@@ -32,19 +32,25 @@ function RouteComponent() {
 		}),
 	);
 
+	const initialAnswers = useMemo(() => {
+		if (!pack.data?.questions) return {};
+		const savedAnswers: Record<number, number> = {};
+		pack.data.questions.forEach((q) => {
+			if (q.selectedAnswerId !== null) {
+				savedAnswers[q.id] = q.selectedAnswerId;
+			}
+		});
+		return savedAnswers;
+	}, [pack.data?.questions]);
+
 	const [answers, setAnswers] = useState<Record<number, number>>({});
 
+	// Sync local state when initialAnswers changes
 	useEffect(() => {
-		if (pack.data?.questions) {
-			const savedAnswers: Record<number, number> = {};
-			pack.data.questions.forEach((q) => {
-				if (q.selectedAnswerId !== null) {
-					savedAnswers[q.id] = q.selectedAnswerId;
-				}
-			});
-			setAnswers(savedAnswers);
+		if (Object.keys(initialAnswers).length > 0) {
+			setAnswers(initialAnswers);
 		}
-	}, [pack.data]);
+	}, [initialAnswers]);
 
 	const saveMutation = useDebouncedMutation(
 		orpc.practicePack.saveAnswer.mutationOptions(),
@@ -63,17 +69,20 @@ function RouteComponent() {
 		}),
 	);
 
-	const handleAnswerChange = (questionId: number, answerId: number) => {
-		setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+	const handleAnswerChange = useCallback(
+		(questionId: number, answerId: number) => {
+			setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
 
-		if (pack.data?.attemptId) {
-			saveMutation.debouncedMutate({
-				id: id,
-				questionId,
-				selectedAnswerId: answerId,
-			});
-		}
-	};
+			if (pack.data?.attemptId) {
+				saveMutation.debouncedMutate({
+					id: id,
+					questionId,
+					selectedAnswerId: answerId,
+				});
+			}
+		},
+		[id, pack.data?.attemptId, saveMutation],
+	);
 
 	if (Number.isNaN(id)) return notFound();
 

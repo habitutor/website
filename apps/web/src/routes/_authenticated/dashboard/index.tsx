@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,12 +35,15 @@ function RouteComponent() {
 	const { data, error } = useQuery(orpc.social.queryOptions());
 	const [showDialog, setShowDialog] = useState(false);
 
-	const handleSocialClick = (e: React.MouseEvent, socialLink?: string) => {
-		if (!socialLink || error) {
-			e.preventDefault();
-			setShowDialog(true);
-		}
-	};
+	const handleSocialClick = useCallback(
+		(e: React.MouseEvent, socialLink?: string) => {
+			if (!socialLink || error) {
+				e.preventDefault();
+				setShowDialog(true);
+			}
+		},
+		[error],
+	);
 
 	return (
 		<>

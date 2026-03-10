@@ -2,10 +2,12 @@ import { PlusIcon, XIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { toast } from "sonner";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
+
+const TiptapSimpleEditor = lazy(() => import("@/components/tiptap-simple-editor"));
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -177,11 +179,13 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 							<div>
 								<Label htmlFor="content">Question Content *</Label>
 								<div className="mt-2 rounded-md border">
-									<TiptapSimpleEditor
-										content={field.state.value as object}
-										onChange={(content) => field.handleChange(content)}
-									/>
-								</div>{" "}
+									<Suspense fallback={<div className="h-40 w-full animate-pulse rounded bg-muted" />}>
+										<TiptapSimpleEditor
+											content={field.state.value as object}
+											onChange={(content) => field.handleChange(content)}
+										/>
+									</Suspense>
+								</div>
 							</div>
 						)}
 					</form.Field>
@@ -191,10 +195,12 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 							<div>
 								<Label htmlFor="discussion">Discussion / Explanation *</Label>
 								<div className="mt-2 rounded-md border">
-									<TiptapSimpleEditor
-										content={field.state.value as object}
-										onChange={(content) => field.handleChange(content)}
-									/>
+									<Suspense fallback={<div className="h-40 w-full animate-pulse rounded bg-muted" />}>
+										<TiptapSimpleEditor
+											content={field.state.value as object}
+											onChange={(content) => field.handleChange(content)}
+										/>
+									</Suspense>
 								</div>
 							</div>
 						)}
