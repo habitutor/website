@@ -1,8 +1,8 @@
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { admin } from "#index";
-import { convertToTiptap } from "#lib/tiptap";
-import { adminQuestionRepo } from "#routers/admin/question/repo";
+import { admin } from "../../../index";
+import { convertToTiptap } from "../../../lib/tiptap";
+import { adminQuestionRepo } from "./repo";
 
 interface CursorData {
 	id: number;

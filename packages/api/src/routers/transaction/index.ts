@@ -1,10 +1,10 @@
 import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { authed, pub } from "#index";
-import { PREMIUM_DEADLINE } from "#lib/constants";
-import { createSubscriptionTransaction } from "#lib/midtrans";
-import { transactionRepo } from "#routers/transaction/repo";
+import { authed, pub } from "../../index";
+import { PREMIUM_DEADLINE } from "../../lib/constants";
+import { createSubscriptionTransaction } from "../../lib/midtrans";
+import { transactionRepo } from "./repo";
 
 function getMidtransStatusBaseUrls() {
 	const serverKey = process.env.MIDTRANS_SERVER_KEY || "";

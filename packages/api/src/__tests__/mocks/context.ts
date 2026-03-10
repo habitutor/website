@@ -1,4 +1,4 @@
-import type { Context } from "#context";
+import type { Context } from "../../context";
 
 type SessionUser = NonNullable<Context["session"]>["user"];
 type SessionData = NonNullable<Context["session"]>;

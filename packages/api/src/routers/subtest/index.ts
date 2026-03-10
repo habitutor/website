@@ -1,9 +1,9 @@
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { authed, authedRateLimited } from "#index";
-import { canAccessContent } from "#lib/content-access";
-import { convertToTiptap } from "#lib/tiptap";
-import { subtestRepo } from "#routers/subtest/repo";
+import { authed, authedRateLimited } from "../../index";
+import { canAccessContent } from "../../lib/content-access";
+import { convertToTiptap } from "../../lib/tiptap";
+import { subtestRepo } from "./repo";
 
 const listSubtests = authed
 	.route({

@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { admin } from "#index";
-import { adminUserRepo } from "#routers/admin/users/repo";
+import { admin } from "../../../index";
+import { adminUserRepo } from "./repo";
 
 interface CursorData {
 	createdAt: string;

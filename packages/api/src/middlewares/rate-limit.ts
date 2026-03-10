@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { o } from "#lib/orpc";
+import { o } from "../lib/orpc";
 
 /**
  * Rate limiting configuration

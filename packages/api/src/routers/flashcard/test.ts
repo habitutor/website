@@ -5,7 +5,7 @@ import {
 	resolveAttemptAnswer,
 	shouldBlockStartSession,
 	shouldIncrementFlashcardStreak,
-} from "#routers/flashcard/logic";
+} from "./logic";
 
 const GRACE_PERIOD_SECONDS = 5;
 

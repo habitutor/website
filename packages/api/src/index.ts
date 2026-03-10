@@ -1,11 +1,11 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { eq } from "drizzle-orm";
-import { o } from "#lib/orpc";
-import { rateLimit } from "#middlewares/rate-limit";
-import { requireAdmin } from "#middlewares/rbac";
-import { DEFAULT_PREMIUM_TIER, shouldBackfillPremiumTier } from "#routers/transaction/premium-tier";
-import { transactionRepo } from "#routers/transaction/repo";
+import { o } from "./lib/orpc";
+import { rateLimit } from "./middlewares/rate-limit";
+import { requireAdmin } from "./middlewares/rbac";
+import { DEFAULT_PREMIUM_TIER, shouldBackfillPremiumTier } from "./routers/transaction/premium-tier";
+import { transactionRepo } from "./routers/transaction/repo";
 
 export const pub = o;
 const requireAuth = o.middleware(async ({ context, next, errors }) => {

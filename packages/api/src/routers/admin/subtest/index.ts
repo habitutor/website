@@ -1,8 +1,8 @@
 import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { admin } from "#index";
-import { adminSubtestRepo } from "#routers/admin/subtest/repo";
+import { admin } from "../../../index";
+import { adminSubtestRepo } from "./repo";
 
 const createSubtest = admin
 	.route({

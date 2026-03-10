@@ -1,5 +1,5 @@
 import { decimal, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { user } from "#schema/auth";
+import { user } from "./auth";
 
 export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"]);
 export const statusEnum = pgEnum("transaction_status_enum", ["pending", "success", "failed"]);

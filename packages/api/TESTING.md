@@ -61,7 +61,7 @@ bun test
 
 ```typescript
 import { describe, expect, test } from "bun:test";
-import { myFunction } from "#myModule";
+import { myFunction } from "./myModule";
 
 describe("myFunction", () => {
   test("should work correctly", () => {
@@ -74,8 +74,8 @@ describe("myFunction", () => {
 
 ```typescript
 import { describe, expect, test } from "bun:test";
-import { createMockContext } from "#__tests__/mocks/context";
-import { createMockErrors } from "#__tests__/mocks/errors";
+import { createMockContext } from "./__tests__/mocks/context";
+import { createMockErrors } from "./__tests__/mocks/errors";
 
 describe("myHandler", () => {
   test("should handle request", async () => {

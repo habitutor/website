@@ -1,5 +1,5 @@
-import { admin } from "#index";
-import { adminStatisticsRepo } from "#routers/admin/statistics/repo";
+import { admin } from "../../../index";
+import { adminStatisticsRepo } from "./repo";
 
 const get = admin
 	.route({

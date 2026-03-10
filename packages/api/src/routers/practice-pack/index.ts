@@ -1,9 +1,9 @@
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { authed } from "#index";
-import { convertToTiptap } from "#lib/tiptap";
-import { buildHistoryQuestionMap, buildQuestionMap, practicePackRepo } from "#routers/practice-pack/repo";
-import type { Question } from "#types/practice-pack";
+import { authed } from "../../index";
+import { convertToTiptap } from "../../lib/tiptap";
+import type { Question } from "../../types/practice-pack";
+import { buildHistoryQuestionMap, buildQuestionMap, practicePackRepo } from "./repo";
 
 const list = authed
 	.route({

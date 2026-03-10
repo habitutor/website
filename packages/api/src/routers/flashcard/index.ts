@@ -2,17 +2,17 @@ import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
-import { authed, premium } from "#index";
-import { convertToTiptap } from "#lib/tiptap";
+import { authed, premium } from "../../index";
+import { convertToTiptap } from "../../lib/tiptap";
+import { getStartOfDay } from "../../utils/date";
 import {
 	countCorrectAnswers,
 	isAttemptExpired,
 	resolveAttemptAnswer,
 	shouldBlockStartSession,
 	shouldIncrementFlashcardStreak,
-} from "#routers/flashcard/logic";
-import { flashcardRepo } from "#routers/flashcard/repo";
-import { getStartOfDay } from "#utils/date";
+} from "./logic";
+import { flashcardRepo } from "./repo";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 const GRACE_PERIOD_SECONDS = 5;

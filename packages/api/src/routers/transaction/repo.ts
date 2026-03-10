@@ -2,7 +2,7 @@ import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { product, transaction } from "@habitutor/db/schema/transaction";
 import { and, desc, eq, sql } from "drizzle-orm";
-import { resolvePremiumTierForUpdate } from "#routers/transaction/premium-tier";
+import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
 	getProductBySlug: async ({ db = defaultDb, slug }: { db?: DrizzleDatabase; slug: string }) => {
