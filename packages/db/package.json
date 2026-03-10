@@ -11,9 +11,17 @@
 			"default": "./dist/*.mjs"
 		}
 	},
+	"imports": {
+		"#*": [
+			"./src/*.ts",
+			"./src/*/index.ts"
+		],
+		"#schema/*": "./src/schema/*.ts",
+		"#seed/*": "./src/seed/*.ts"
+	},
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "tsc --noEmit",
+		"check-types": "tsgo --noEmit",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
@@ -27,7 +35,6 @@
 	},
 	"devDependencies": {
 		"@habitutor/config": "workspace:*",
-		"@types/pg": "^8.16.0",
 		"drizzle-kit": "^0.31.8",
 		"drizzle-seed": "^0.3.1",
 		"tsdown": "catalog:"
@@ -36,7 +43,6 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"pg": "^8.17.1",
 		"arktype": "catalog:",
 		"dotenv": "catalog:",
 		"drizzle-orm": "catalog:"

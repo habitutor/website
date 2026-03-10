@@ -1,8 +1,8 @@
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
-import { admin } from "../../..";
-import { convertToTiptap } from "../../../lib/tiptap";
-import { adminPracticePackRepo } from "./repo";
+import { admin } from "#index";
+import { convertToTiptap } from "#lib/tiptap";
+import { adminPracticePackRepo } from "#routers/admin/practice-pack/repo";
 
 const list = admin
 	.route({

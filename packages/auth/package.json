@@ -10,6 +10,13 @@
 			"default": "./dist/*.mjs"
 		}
 	},
+	"imports": {
+		"#*": [
+			"./src/*.ts",
+			"./src/*/index.ts"
+		],
+		"#lib/*": "./src/lib/*.ts"
+	},
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",

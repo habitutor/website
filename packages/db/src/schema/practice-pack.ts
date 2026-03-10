@@ -12,15 +12,15 @@ import {
 	timestamp,
 	unique,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth";
-import { userFlashcardQuestionAnswer } from "./flashcard";
+import { user } from "#schema/auth";
+import { userFlashcardQuestionAnswer } from "#schema/flashcard";
 
 export const practicePack = pgTable("practice_pack", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	title: text().notNull(),
 	description: text(),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at")
+	createdAt: timestamp().defaultNow(),
+	updatedAt: timestamp()
 		.defaultNow()
 		.$onUpdate(() => /* @__PURE__ */ new Date()),
 });
@@ -34,15 +34,15 @@ export const practicePackStatus = pgEnum("practice_pack_status", ["not_started",
 export const practicePackAttempt = pgTable(
 	"practice_pack_attempt",
 	{
-		id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-		userId: text("user_id")
+		id: integer().primaryKey().generatedAlwaysAsIdentity(),
+		userId: text()
 			.notNull()
 			.references(() => user.id, { onDelete: "set null" }),
-		practicePackId: integer("practice_pack_id")
+		practicePackId: integer()
 			.notNull()
 			.references(() => practicePack.id, { onDelete: "cascade" }),
-		startedAt: timestamp("started_at").notNull().defaultNow(),
-		completedAt: timestamp("completed_at"),
+		startedAt: timestamp().notNull().defaultNow(),
+		completedAt: timestamp(),
 		status: practicePackStatus("practice_pack_status").notNull().default("ongoing"),
 	},
 	(t) => [
@@ -55,13 +55,13 @@ export const practicePackAttempt = pgTable(
 export const practicePackQuestions = pgTable(
 	"practice_pack_questions",
 	{
-		practicePackId: integer("practice_pack_id")
+		practicePackId: integer()
 			.notNull()
 			.references(() => practicePack.id, { onDelete: "cascade" }),
-		questionId: integer("question_id")
+		questionId: integer()
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
-		order: integer("order").default(1),
+		order: integer().default(1),
 	},
 	(table) => [primaryKey({ columns: [table.practicePackId, table.questionId] })],
 );
@@ -80,12 +80,12 @@ export const practicePackQuestionsRelations = relations(practicePackQuestions, (
 export const question = pgTable(
 	"question",
 	{
-		id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-		content: text("content").notNull(),
-		discussion: text("discussion").notNull(),
-		contentJson: jsonb("content_json"),
-		discussionJson: jsonb("discussion_json"),
-		isFlashcardQuestion: boolean("is_flashcard_question").notNull().default(true),
+		id: integer().primaryKey().generatedAlwaysAsIdentity(),
+		content: text().notNull(),
+		discussion: text().notNull(),
+		contentJson: jsonb(),
+		discussionJson: jsonb(),
+		isFlashcardQuestion: boolean().notNull().default(true),
 	},
 	(t) => [index("idx_question_flashcard").on(t.isFlashcardQuestion)],
 );
@@ -101,11 +101,11 @@ export const questionAnswerOption = pgTable(
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
 		code: char({ length: 1 }).notNull(),
-		questionId: integer("question_id")
+		questionId: integer()
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
 		content: text().notNull(),
-		isCorrect: boolean("is_correct").notNull().default(false),
+		isCorrect: boolean().notNull().default(false),
 	},
 	(t) => [
 		unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code),
@@ -124,13 +124,13 @@ export const questionAnswerOptionRelations = relations(questionAnswerOption, ({ 
 export const practicePackUserAnswer = pgTable(
 	"practice_pack_user_answer",
 	{
-		attemptId: integer("attempt_id")
+		attemptId: integer()
 			.notNull()
 			.references(() => practicePackAttempt.id, { onDelete: "cascade" }),
-		questionId: integer("question_id")
+		questionId: integer()
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
-		selectedAnswerId: integer("selected_answer_id")
+		selectedAnswerId: integer()
 			.notNull()
 			.references(() => questionAnswerOption.id, { onDelete: "set null" }),
 	},

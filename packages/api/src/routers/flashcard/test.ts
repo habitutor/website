@@ -1,186 +1,156 @@
 import { describe, expect, test } from "bun:test";
-import { createTestFlashcardAttempt } from "../../__tests__/factories/flashcard";
-import { getStartOfDay } from "../../utils/date";
+import {
+	countCorrectAnswers,
+	isAttemptExpired,
+	resolveAttemptAnswer,
+	shouldBlockStartSession,
+	shouldIncrementFlashcardStreak,
+} from "#routers/flashcard/logic";
 
 const GRACE_PERIOD_SECONDS = 5;
 
-describe("Flashcard Router - Start Handler Logic", () => {
-	describe("today validation", () => {
-		test("getStartOfDay returns midnight for comparison", () => {
-			const now = new Date("2026-02-17T15:30:00");
-			const startOfDay = getStartOfDay(now);
-			expect(startOfDay.getHours()).toBe(0);
-			expect(startOfDay.getMinutes()).toBe(0);
-		});
+describe("flashcard start logic", () => {
+	const today = new Date("2026-03-10T00:00:00.000Z");
 
-		test("attempt from earlier today should be detected", () => {
-			const today = getStartOfDay();
-			const attemptTime = new Date(today.getTime() + 60 * 60 * 1000);
-
-			expect(attemptTime.getTime() >= today.getTime()).toBe(true);
-		});
-
-		test("attempt from yesterday should not block new session", () => {
-			const today = getStartOfDay();
-			const yesterdayAttempt = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-
-			expect(yesterdayAttempt.getTime() >= today.getTime()).toBe(false);
-		});
+	test("blocks free user with an attempt started today", () => {
+		expect(
+			shouldBlockStartSession({
+				isPremium: false,
+				today,
+				latestAttempt: {
+					startedAt: new Date("2026-03-10T02:00:00.000Z"),
+					submittedAt: null,
+				},
+			}),
+		).toBe(true);
 	});
 
-	describe("premium vs free user logic", () => {
-		test("free user should be blocked if attempt exists today", () => {
-			const isPremium = false;
-			const today = getStartOfDay();
-			const latestAttempt = createTestFlashcardAttempt({
-				startedAt: new Date(today.getTime() + 60 * 60 * 1000),
-			});
+	test("blocks premium user only when latest attempt is still ongoing", () => {
+		expect(
+			shouldBlockStartSession({
+				isPremium: true,
+				today,
+				latestAttempt: {
+					startedAt: new Date("2026-03-10T02:00:00.000Z"),
+					submittedAt: null,
+				},
+			}),
+		).toBe(true);
 
-			const shouldBlock = !isPremium && latestAttempt.startedAt.getTime() >= today.getTime();
-			expect(shouldBlock).toBe(true);
-		});
+		expect(
+			shouldBlockStartSession({
+				isPremium: true,
+				today,
+				latestAttempt: {
+					startedAt: new Date("2026-03-10T02:00:00.000Z"),
+					submittedAt: new Date("2026-03-10T02:10:00.000Z"),
+				},
+			}),
+		).toBe(false);
+	});
 
-		test("premium user with ongoing session should be blocked", () => {
-			const isPremium = true;
-			const today = getStartOfDay();
-			const latestAttempt = createTestFlashcardAttempt({
-				startedAt: new Date(today.getTime() + 60 * 60 * 1000),
-				submittedAt: null,
-			});
-
-			const shouldBlock =
-				isPremium && !latestAttempt.submittedAt && latestAttempt.startedAt.getTime() >= today.getTime();
-			expect(shouldBlock).toBe(true);
-		});
-
-		test("premium user with submitted session can start new one", () => {
-			const isPremium = true;
-			const today = getStartOfDay();
-			const latestAttempt = createTestFlashcardAttempt({
-				startedAt: new Date(today.getTime() + 60 * 60 * 1000),
-				submittedAt: new Date(),
-			});
-
-			const shouldBlock =
-				isPremium && !latestAttempt.submittedAt && latestAttempt.startedAt.getTime() >= today.getTime();
-			expect(shouldBlock).toBe(false);
-		});
+	test("does not block when latest attempt is from a previous day", () => {
+		expect(
+			shouldBlockStartSession({
+				isPremium: false,
+				today,
+				latestAttempt: {
+					startedAt: new Date("2026-03-09T23:59:59.000Z"),
+					submittedAt: null,
+				},
+			}),
+		).toBe(false);
 	});
 });
 
-describe("Flashcard Router - Submit Handler Logic", () => {
-	describe("deadline validation", () => {
-		test("submission within deadline should succeed", () => {
-			const deadline = new Date(Date.now() + 5 * 60 * 1000);
-			const isExpired = Date.now() > deadline.getTime() + GRACE_PERIOD_SECONDS * 1000;
-			expect(isExpired).toBe(false);
-		});
+describe("flashcard submit logic", () => {
+	test("marks attempt as expired only after grace period", () => {
+		const deadline = new Date("2026-03-10T10:00:00.000Z");
 
-		test("submission after deadline + grace period should fail", () => {
-			const deadline = new Date(Date.now() - 10 * 60 * 1000);
-			const isExpired = Date.now() > deadline.getTime() + GRACE_PERIOD_SECONDS * 1000;
-			expect(isExpired).toBe(true);
-		});
+		expect(
+			isAttemptExpired({
+				deadline,
+				now: new Date("2026-03-10T10:00:04.000Z").getTime(),
+				gracePeriodSeconds: GRACE_PERIOD_SECONDS,
+			}),
+		).toBe(false);
 
-		test("submission within grace period should succeed", () => {
-			const deadline = new Date(Date.now() - 3 * 1000);
-			const isExpired = Date.now() > deadline.getTime() + GRACE_PERIOD_SECONDS * 1000;
-			expect(isExpired).toBe(false);
-		});
+		expect(
+			isAttemptExpired({
+				deadline,
+				now: new Date("2026-03-10T10:00:06.000Z").getTime(),
+				gracePeriodSeconds: GRACE_PERIOD_SECONDS,
+			}),
+		).toBe(true);
 	});
 
-	describe("streak logic", () => {
-		test("user who completed flashcard today should not increment streak", () => {
-			const today = getStartOfDay();
-			const lastCompletedFlashcardAt = new Date(today.getTime() + 60 * 60 * 1000);
-			const hasDoneToday = lastCompletedFlashcardAt.getTime() >= today.getTime();
+	test("increments streak only when user has not completed flashcard today", () => {
+		const today = new Date("2026-03-10T00:00:00.000Z");
 
-			expect(hasDoneToday).toBe(true);
-		});
+		expect(
+			shouldIncrementFlashcardStreak({
+				today,
+				lastCompletedFlashcardAt: new Date("2026-03-09T22:00:00.000Z"),
+			}),
+		).toBe(true);
 
-		test("user who has not completed flashcard today should increment streak", () => {
-			const today = getStartOfDay();
-			const lastCompletedFlashcardAt = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			const hasDoneToday = lastCompletedFlashcardAt && lastCompletedFlashcardAt.getTime() >= today.getTime();
-
-			expect(hasDoneToday).toBe(false);
-		});
-	});
-});
-
-describe("Flashcard Router - Save Handler Logic", () => {
-	describe("answer validation", () => {
-		test("correct answer identified properly", () => {
-			const answers = [
-				{ id: 1, isCorrect: false },
-				{ id: 2, isCorrect: true },
-				{ id: 3, isCorrect: false },
-			];
-
-			const correctAnswer = answers.find((a) => a.isCorrect);
-			expect(correctAnswer?.id).toBe(2);
-		});
-
-		test("user answer matched correctly", () => {
-			const answers = [
-				{ id: 1, isCorrect: false },
-				{ id: 2, isCorrect: true },
-			];
-			const userAnswerId = 1;
-
-			const userAnswer = answers.find((a) => a.id === userAnswerId);
-			expect(userAnswer?.isCorrect).toBe(false);
-		});
-
-		test("non-existent answer returns undefined", () => {
-			const answers = [
-				{ id: 1, isCorrect: false },
-				{ id: 2, isCorrect: true },
-			];
-			const userAnswerId = 999;
-
-			const userAnswer = answers.find((a) => a.id === userAnswerId);
-			expect(userAnswer).toBeUndefined();
-		});
+		expect(
+			shouldIncrementFlashcardStreak({
+				today,
+				lastCompletedFlashcardAt: new Date("2026-03-10T01:00:00.000Z"),
+			}),
+		).toBe(false);
 	});
 });
 
-describe("Flashcard Router - Result Handler Logic", () => {
-	describe("score calculation", () => {
-		test("counts correct answers correctly", () => {
-			const assignedQuestions = [
+describe("flashcard save logic", () => {
+	test("returns scoring payload when user answer exists", () => {
+		expect(
+			resolveAttemptAnswer({
+				answers: [
+					{ id: 1, isCorrect: false },
+					{ id: 2, isCorrect: true },
+				],
+				userAnswerId: 1,
+			}),
+		).toEqual({
+			correctAnswerId: 2,
+			userAnswerId: 1,
+			isCorrect: false,
+		});
+	});
+
+	test("returns undefined when user answer id is invalid", () => {
+		expect(
+			resolveAttemptAnswer({
+				answers: [
+					{ id: 1, isCorrect: false },
+					{ id: 2, isCorrect: true },
+				],
+				userAnswerId: 999,
+			}),
+		).toBeUndefined();
+	});
+});
+
+describe("flashcard result logic", () => {
+	test("counts only correctly selected answers", () => {
+		expect(
+			countCorrectAnswers([
 				{ selectedAnswerId: 1, question: { answerOptions: [{ id: 1, isCorrect: true }] } },
 				{ selectedAnswerId: 2, question: { answerOptions: [{ id: 2, isCorrect: false }] } },
 				{ selectedAnswerId: 3, question: { answerOptions: [{ id: 3, isCorrect: true }] } },
-			];
+			]),
+		).toBe(2);
+	});
 
-			let correct = 0;
-			for (const q of assignedQuestions) {
-				const answerMap = new Map(
-					q.question.answerOptions.map((a: { id: number; isCorrect: boolean }) => [a.id, a.isCorrect]),
-				);
-				if (answerMap.get(q.selectedAnswerId || 0)) correct++;
-			}
-
-			expect(correct).toBe(2);
-		});
-
-		test("handles unanswered questions", () => {
-			const assignedQuestions = [
+	test("ignores unanswered and mismatched selections", () => {
+		expect(
+			countCorrectAnswers([
 				{ selectedAnswerId: null, question: { answerOptions: [{ id: 1, isCorrect: true }] } },
-				{ selectedAnswerId: 1, question: { answerOptions: [{ id: 1, isCorrect: true }] } },
-			];
-
-			let correct = 0;
-			for (const q of assignedQuestions) {
-				if (q.selectedAnswerId === null) continue;
-				const answerMap = new Map(
-					q.question.answerOptions.map((a: { id: number; isCorrect: boolean }) => [a.id, a.isCorrect]),
-				);
-				if (answerMap.get(q.selectedAnswerId)) correct++;
-			}
-
-			expect(correct).toBe(1);
-		});
+				{ selectedAnswerId: 10, question: { answerOptions: [{ id: 1, isCorrect: true }] } },
+				{ selectedAnswerId: 2, question: { answerOptions: [{ id: 2, isCorrect: true }] } },
+			]),
+		).toBe(1);
 	});
 });

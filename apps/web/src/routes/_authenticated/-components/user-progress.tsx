@@ -93,32 +93,34 @@ const Flashcard = () => {
 				<p className="font-bold">Streak Brain Gym</p>
 			</div>
 
-			<Button
-				size="lg"
-				className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
-				asChild
-			>
-				{session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() ? (
-					<Link to="/dashboard/flashcard/result">
-						Lihat Hasil <EyeIcon />
-					</Link>
-				) : (
-					<Link to="/dashboard/flashcard">
-						Mainkan Flashcard Sekarang <ArrowRightIcon />
-					</Link>
-				)}
-			</Button>
-			{session.user.isPremium && session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() && (
+			<div className="flex items-center gap-2">
 				<Button
 					size="lg"
 					className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
 					asChild
 				>
-					<Link to="/dashboard/flashcard">
-						Main Lagi <ArrowRightIcon />
-					</Link>
+					{session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() ? (
+						<Link to="/dashboard/flashcard/result">
+							Lihat Hasil <EyeIcon />
+						</Link>
+					) : (
+						<Link to="/dashboard/flashcard">
+							Mainkan Flashcard Sekarang <ArrowRightIcon />
+						</Link>
+					)}
 				</Button>
-			)}
+				{session.user.isPremium && session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() && (
+					<Button
+						size="lg"
+						className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+						asChild
+					>
+						<Link to="/dashboard/flashcard">
+							Main Lagi <ArrowRightIcon />
+						</Link>
+					</Button>
+				)}
+			</div>
 
 			<div className="absolute -bottom-1/2 -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10 sm:-bottom-[20%]" />
 			<Image

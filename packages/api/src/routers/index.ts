@@ -1,16 +1,16 @@
 import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
-import { pub } from "../index";
-import { adminPracticePackRouter } from "./admin/practice-pack";
-import { adminQuestionRouter } from "./admin/question";
-import { adminStatisticsRouter } from "./admin/statistics";
-import { adminSubtestRouter } from "./admin/subtest";
-import { adminUserRouter } from "./admin/users";
-import { flashcardRouter } from "./flashcard";
-import { practicePackRouter } from "./practice-pack";
-import { socialRouter } from "./social";
-import { subtestRouter } from "./subtest";
-import { transactionRouter } from "./transaction";
+import { pub } from "#index";
+import { adminPracticePackRouter } from "#routers/admin/practice-pack";
+import { adminQuestionRouter } from "#routers/admin/question";
+import { adminStatisticsRouter } from "#routers/admin/statistics";
+import { adminSubtestRouter } from "#routers/admin/subtest";
+import { adminUserRouter } from "#routers/admin/users";
+import { flashcardRouter } from "#routers/flashcard";
+import { practicePackRouter } from "#routers/practice-pack";
+import { socialRouter } from "#routers/social";
+import { subtestRouter } from "#routers/subtest";
+import { transactionRouter } from "#routers/transaction";
 
 export const appRouter = {
 	healthCheck: pub

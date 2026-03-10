@@ -13,6 +13,7 @@ export function createTestUser(overrides?: Partial<UserSelect>): UserSelect {
 		updatedAt: new Date(),
 		role: "user",
 		isPremium: false,
+		premiumTier: "premium1",
 		flashcardStreak: 0,
 		lastCompletedFlashcardAt: null,
 		premiumExpiresAt: null,

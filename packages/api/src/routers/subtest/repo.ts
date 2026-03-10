@@ -253,7 +253,7 @@ export const subtestRepo = {
 			LIMIT 5
 		`);
 
-		return views.rows as RecentContentView[];
+		return views as RecentContentView[];
 	},
 
 	upsertUserProgress: async ({

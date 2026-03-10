@@ -6,6 +6,7 @@ import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { refreshAuthSession } from "@/lib/auth-session";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
@@ -25,6 +26,9 @@ export const FlashcardCard = () => {
 	);
 	const submitMutation = useMutation(
 		orpc.flashcard.submit.mutationOptions({
+			onSuccess: async () => {
+				await refreshAuthSession();
+			},
 			onError: (error) => {
 				if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT")
 					toast.error("Ups! Kamu sudah melewati batas waktu pengumpulan!");
@@ -71,8 +75,8 @@ export const FlashcardCard = () => {
 		}
 	};
 
-	function handleSubmit() {
-		submitMutation.mutate({});
+	async function handleSubmit() {
+		await submitMutation.mutateAsync({});
 		queryClient.removeQueries({ queryKey: ["auth", "getSession", "flashcard"] });
 		navigate({ to: "/dashboard/flashcard/result" });
 	}
