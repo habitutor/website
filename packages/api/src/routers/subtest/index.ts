@@ -30,6 +30,43 @@ const listSubtests = authed
 		};
 	});
 
+const getSubtestByShortName = authedRateLimited
+	.route({
+		path: "/subtests/by-short-name/{shortName}",
+		method: "GET",
+		tags: ["Content"],
+	})
+	.input(
+		type({
+			shortName: "string",
+			category: type("'material' | 'tips_and_trick'").optional(),
+			search: type("string").optional(),
+			limit: type("number >= 1").optional(),
+			offset: type("number >= 0").optional(),
+		}),
+	)
+	.handler(async ({ input, context }) => {
+		const subtest = await subtestRepo.getSubtestByShortName({ shortName: input.shortName });
+
+		if (!subtest) {
+			throw new ORPCError("NOT_FOUND", { message: "Subtest tidak ditemukan" });
+		}
+
+		const contents = await subtestRepo.listContentByCategory({
+			subtestId: subtest.id,
+			category: input.category,
+			search: input.search,
+			limit: input.limit ?? 20,
+			offset: input.offset ?? 0,
+			userId: context.session.user.id,
+		});
+
+		return {
+			subtest,
+			contents,
+		};
+	});
+
 const listContentByCategory = authedRateLimited
 	.route({
 		path: "/subtests/{subtestId}/content",
@@ -244,6 +281,7 @@ const getProgressStats = authed
 
 export const subtestRouter = {
 	listSubtests,
+	getSubtestByShortName,
 	listContentByCategory,
 	getContentById,
 	trackView,

@@ -42,6 +42,25 @@ export const subtestRepo = {
 			.offset(offset);
 	},
 
+	getSubtestByShortName: async ({ db = defaultDb, shortName }: { db?: DrizzleDatabase; shortName: string }) => {
+		const [result] = await db
+			.select({
+				id: subtest.id,
+				name: subtest.name,
+				shortName: subtest.shortName,
+				description: subtest.description,
+				order: subtest.order,
+				totalContent: sql<number>`COUNT(${contentItem.id})`,
+			})
+			.from(subtest)
+			.leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
+			.where(eq(sql`LOWER(${subtest.shortName})`, shortName.toLowerCase()))
+			.groupBy(subtest.id, subtest.name, subtest.shortName, subtest.description, subtest.order)
+			.limit(1);
+
+		return result;
+	},
+
 	getSubtestOrder: async ({ db = defaultDb, subtestId }: { db?: DrizzleDatabase; subtestId: number }) => {
 		const [result] = await db.select({ order: subtest.order }).from(subtest).where(eq(subtest.id, subtestId)).limit(1);
 		return result;

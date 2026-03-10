@@ -74,7 +74,6 @@ function PracticePacksListPage() {
 						className="pl-9"
 					/>
 				</div>
-				{/* Filter and Sort buttons removed because they had no functionality */}
 			</div>
 
 			{isPending && (

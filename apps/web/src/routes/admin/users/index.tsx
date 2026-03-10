@@ -24,7 +24,7 @@ export const Route = createFileRoute("/admin/users/")({
 });
 
 function UsersPage() {
-	const navigate = useNavigate({ from: "/admin/users/" });
+	const navigate = useNavigate({ from: Route.fullPath });
 	const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
 	const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
 	const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });

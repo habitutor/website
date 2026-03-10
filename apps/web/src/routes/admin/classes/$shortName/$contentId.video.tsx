@@ -3,10 +3,12 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
+
+const TiptapSimpleEditor = lazy(() => import("@/components/tiptap-simple-editor"));
+
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -235,7 +237,9 @@ function RouteComponent() {
                 onChange={(content) => field.handleChange(content)}
               /> */}
 
-								<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+								<Suspense fallback={<div className="h-40 w-full animate-pulse rounded bg-muted" />}>
+									<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+								</Suspense>
 
 								{field.state.meta.errors.map((error) => (
 									<p key={error?.message} className="text-red-500 text-sm">

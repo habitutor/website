@@ -43,7 +43,7 @@ export const Route = createFileRoute("/admin/questions/")({
 });
 
 function QuestionsPage() {
-	const navigate = useNavigate({ from: "/admin/questions/" });
+	const navigate = useNavigate({ from: Route.fullPath });
 	const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
 	const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
 	const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });

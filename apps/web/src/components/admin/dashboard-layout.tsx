@@ -1,5 +1,8 @@
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { Link, useLocation, useMatches } from "@tanstack/react-router";
 import { Fragment } from "react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn, type TRoutes } from "@/lib/utils";
 
 const ROUTE_LABELS: Record<string, string> = {
 	dashboard: "Dashboard",
@@ -77,12 +80,22 @@ interface AdminHeaderProps {
 	title: string;
 	description?: string;
 	children?: React.ReactNode;
+	backTo?: TRoutes;
 }
 
-export function AdminHeader({ title, description, children }: AdminHeaderProps) {
+export function AdminHeader({ title, description, children, backTo }: AdminHeaderProps) {
 	return (
 		<div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
 			<div>
+				{backTo && (
+					<Link
+						to={backTo}
+						className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mb-4 inline-flex items-center gap-1")}
+					>
+						<ArrowLeftIcon size={20} weight="bold" />
+						Kembali
+					</Link>
+				)}
 				<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">{title}</h1>
 				{description && <p className="mt-1 text-muted-foreground text-sm">{description}</p>}
 			</div>

@@ -1,10 +1,8 @@
-import { X } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 
@@ -23,7 +21,7 @@ export function AddExistingQuestionModal({
 	const limit = 10;
 	const queryClient = useQueryClient();
 
-	const { data, isLoading } = useQuery(
+	const { data, isPending } = useQuery(
 		orpc.admin.question.list.queryOptions({
 			input: { limit, cursor: cursor ?? undefined },
 		}),
@@ -59,28 +57,17 @@ export function AddExistingQuestionModal({
 		});
 	};
 
+	if (isPending) return null;
+
 	return (
 		<Card>
 			<CardHeader>
-				<div className="flex items-start justify-between">
-					<div>
-						<CardTitle>Add Existing Question</CardTitle>
-						<CardDescription>Select questions from your question bank</CardDescription>
-					</div>
-					<Button variant="ghost" size="icon" onClick={onClose}>
-						<X className="size-4" />
-					</Button>
-				</div>
+				<CardTitle>Add Existing Question</CardTitle>
+				<CardDescription>Select questions from your question bank</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div className="max-h-96 space-y-2 overflow-y-auto">
-					{isLoading ? (
-						<>
-							<Skeleton className="h-20 w-full" />
-							<Skeleton className="h-20 w-full" />
-							<Skeleton className="h-20 w-full" />
-						</>
-					) : availableQuestions.length > 0 ? (
+					{availableQuestions.length > 0 ? (
 						availableQuestions.map((q) => (
 							<div key={q.id} className="flex items-start gap-3 rounded-lg border p-4">
 								<div className="flex-1">
@@ -105,13 +92,13 @@ export function AddExistingQuestionModal({
 
 				{(hasPrevious || hasMore) && (
 					<div className="flex items-center justify-center gap-2">
-						<Button variant="outline" size="sm" disabled={!hasPrevious || isLoading} onClick={handlePrevious}>
+						<Button variant="outline" size="sm" disabled={!hasPrevious || isPending} onClick={handlePrevious}>
 							Previous
 						</Button>
 						<Button
 							variant="outline"
 							size="sm"
-							disabled={!hasMore || isLoading}
+							disabled={!hasMore || isPending}
 							onClick={() => nextCursor && handleNext(nextCursor)}
 						>
 							Next
@@ -119,6 +106,11 @@ export function AddExistingQuestionModal({
 					</div>
 				)}
 			</CardContent>
+			<CardFooter>
+				<Button variant="outline" onClick={onClose}>
+					Close
+				</Button>
+			</CardFooter>
 		</Card>
 	);
 }
