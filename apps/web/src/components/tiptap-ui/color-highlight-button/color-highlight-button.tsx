@@ -37,28 +37,18 @@ export function ColorHighlightShortcutBadge({
 /**
  * Button component for applying color highlights in a Tiptap editor.
  *
- * Supports two highlighting modes:
- * - "mark": Uses the highlight mark extension (default)
- * - "node": Uses the node background extension
+ * Uses the highlight mark extension.
  *
  * For custom button implementations, use the `useColorHighlight` hook instead.
  *
  * @example
  * ```tsx
- * // Mark-based highlighting (default)
  * <ColorHighlightButton highlightColor="yellow" />
- *
- * // Node-based background coloring
- * <ColorHighlightButton
- *   highlightColor="var(--tt-color-highlight-blue)"
- *   mode="node"
- * />
  *
  * // With custom callback
  * <ColorHighlightButton
  *   highlightColor="red"
- *   mode="mark"
- *   onApplied={({ color, mode }) => console.log(`Applied ${color} in ${mode} mode`)}
+ *   onApplied={({ color }) => console.log(`Applied ${color}`)}
  * />
  * ```
  */
@@ -69,7 +59,6 @@ export const ColorHighlightButton = forwardRef<HTMLButtonElement, ColorHighlight
 			highlightColor,
 			text,
 			hideWhenUnavailable = false,
-			mode = "mark",
 			onApplied,
 			showShortcut = false,
 			onClick,
@@ -85,7 +74,6 @@ export const ColorHighlightButton = forwardRef<HTMLButtonElement, ColorHighlight
 			highlightColor,
 			label: text || `Toggle highlight (${highlightColor})`,
 			hideWhenUnavailable,
-			mode,
 			onApplied,
 		});
 

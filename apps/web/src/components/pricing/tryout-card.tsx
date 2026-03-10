@@ -1,6 +1,6 @@
 import { ArrowRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ interface TryOutCardData {
 
 export function TryOutCard({ data }: { data: TryOutCardData }) {
 	return (
-		<motion.div
+		<m.div
 			initial={{ opacity: 0, y: 24 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.4, ease: "easeOut" }}
@@ -42,6 +42,6 @@ export function TryOutCard({ data }: { data: TryOutCardData }) {
 					<ArrowRightIcon size={16} weight="bold" />
 				</Link>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 }

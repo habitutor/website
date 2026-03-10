@@ -1,5 +1,5 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
 import { BundlingCard } from "@/components/pricing/bundling-card";
 import { cn } from "@/lib/utils";
@@ -142,7 +142,7 @@ function MobileCarousel({ items, paginationLabel }: { items: ReactNode[]; pagina
 				</button>
 
 				<div className="overflow-hidden">
-					<motion.div
+					<m.div
 						className="flex"
 						animate={{ x: `-${currentIndex * 100}%` }}
 						transition={{ duration: 0.35, ease: "easeInOut" }}
@@ -167,7 +167,7 @@ function MobileCarousel({ items, paginationLabel }: { items: ReactNode[]; pagina
 								{item}
 							</div>
 						))}
-					</motion.div>
+					</m.div>
 				</div>
 			</div>
 

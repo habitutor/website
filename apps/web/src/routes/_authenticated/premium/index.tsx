@@ -1,18 +1,17 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { TryOutCard } from "@/components/pricing/tryout-card";
-import { getApiBaseUrl } from "@/lib/api-base-url";
 import { refreshAuthSession } from "@/lib/auth-session";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";
-import { orpc } from "@/utils/orpc";
+import { client, orpc } from "@/utils/orpc";
 import { BundlingCard } from "./-components/bundling-card";
 import { PerintisClassroomCard } from "./-components/perintis-card";
 import { PremiumHeader } from "./-components/premium-header";
@@ -24,34 +23,10 @@ function sleep(milliseconds: number) {
 	return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function syncTransactionStatus(orderId: string) {
-	const response = await fetch(`${getApiBaseUrl()}/rpc/transaction/sync-status`, {
-		method: "POST",
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ orderId }),
-	});
-
-	if (!response.ok) {
-		throw new Error("Gagal menyinkronkan status transaksi.");
-	}
-
-	const payload = (await response.json()) as {
-		json?: {
-			status?: "pending" | "success" | "failed" | "not_found";
-			paidAt?: string | null;
-		};
-	};
-
-	return payload.json;
-}
-
 async function waitForPremiumActivation(orderId: string) {
 	for (let attempt = 0; attempt < 5; attempt += 1) {
 		try {
-			const syncResult = await syncTransactionStatus(orderId);
+			const syncResult = await client.transaction.syncStatus({ orderId });
 
 			if (syncResult?.status === "success") {
 				return true;
@@ -315,7 +290,7 @@ function MobileCarousel({ items, paginationLabel }: { items: ReactNode[]; pagina
 				</button>
 
 				<div className="overflow-hidden">
-					<motion.div
+					<m.div
 						className="flex"
 						animate={{ x: `-${currentIndex * 100}%` }}
 						transition={{ duration: 0.35, ease: "easeInOut" }}
@@ -340,7 +315,7 @@ function MobileCarousel({ items, paginationLabel }: { items: ReactNode[]; pagina
 								{item}
 							</div>
 						))}
-					</motion.div>
+					</m.div>
 				</div>
 			</div>
 

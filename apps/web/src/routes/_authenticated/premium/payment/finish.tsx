@@ -2,24 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import Loader from "@/components/loader";
 import { Container } from "@/components/ui/container";
-import { getApiBaseUrl } from "@/lib/api-base-url";
 import { refreshAuthSession } from "@/lib/auth-session";
+import { client } from "@/utils/orpc";
 import { usePaymentStatus } from "./-hooks/use-payment-status";
-
-async function syncTransactionStatus(orderId: string) {
-	const response = await fetch(`${getApiBaseUrl()}/rpc/transaction/sync-status`, {
-		method: "POST",
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ orderId }),
-	});
-
-	if (!response.ok) {
-		throw new Error("Gagal menyinkronkan status transaksi.");
-	}
-}
 
 export const Route = createFileRoute("/_authenticated/premium/payment/finish")({
 	component: RouteComponent,
@@ -42,7 +27,7 @@ function RouteComponent() {
 
 		const refreshPremiumState = async () => {
 			try {
-				await syncTransactionStatus(order_id);
+				await client.transaction.syncStatus({ orderId: order_id });
 			} catch (error) {
 				console.error("Failed to sync premium state after payment finish", error);
 			}

@@ -1,6 +1,6 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
 	const cardColors = { ...defaultColors, ...colors };
 
 	return (
-		<motion.div
+		<m.div
 			className={cn(
 				"relative flex h-fit min-h-110 w-full flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-sm",
 			)}
@@ -111,7 +111,7 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
 					{data.cta.label} <ArrowRightIcon size={16} weight="bold" />
 				</Link>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 }
 

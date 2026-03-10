@@ -1,7 +1,7 @@
 import { WhatsappLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { MotionPulse } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ export function CallToAction() {
 	return (
 		<section className="mx-auto flex w-full flex-col items-center overflow-hidden bg-neutral-100 px-4 py-20">
 			<MotionPulse>
-				<motion.div
+				<m.div
 					className="absolute -right-200 -bottom-100 z-0 size-56 rounded-full border-2 border-[#B3DFF5] bg-tertiary-100 md:size-84"
 					initial={{ opacity: 0 }}
 					whileInView={{ opacity: 1 }}
@@ -21,7 +21,7 @@ export function CallToAction() {
 			</MotionPulse>
 
 			<MotionPulse>
-				<motion.div
+				<m.div
 					className="absolute -bottom-190 -left-200 z-0 size-56 rounded-full border-2 border-[#B3DFF5] bg-tertiary-100 md:size-64"
 					initial={{ opacity: 0 }}
 					whileInView={{ opacity: 1 }}
@@ -36,30 +36,30 @@ export function CallToAction() {
 						{/* Left Content */}
 						<div className="z-20 flex flex-col items-start gap-6 lg:w-2/3">
 							<div className="space-y-2">
-								<motion.h2
+								<m.h2
 									className="max-w-5xl text-pretty font-extrabold font-sans text-2xl md:text-5xl"
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ duration: 0.3 }}
 								>
 									Unlock Versi{" "}
-									<motion.span
+									<m.span
 										className="inline-block text-primary-300"
 										whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0], transition: { duration: 0.3 } }}
 									>
 										Terbaik
-									</motion.span>
+									</m.span>
 									<br />
 									dari{" "}
-									<motion.span
+									<m.span
 										className="inline-block text-primary-300"
 										whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0], transition: { duration: 0.3 } }}
 									>
 										Persiapanmu
-									</motion.span>
-								</motion.h2>
+									</m.span>
+								</m.h2>
 
-								<motion.p
+								<m.p
 									className="text-pretty text-sm md:text-lg"
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
@@ -67,7 +67,7 @@ export function CallToAction() {
 								>
 									Dengan Premium, kamu dapat semua fitur unggulan: live class rutin, tryout intensif, dan mentoring dari
 									kakak TOP PTN
-								</motion.p>
+								</m.p>
 							</div>
 							{/* UPDATED BUTTON CONTAINER: Added w-full and responsive flex directions */}
 							<div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -86,7 +86,7 @@ export function CallToAction() {
 
 						{/* Right Mascot Container */}
 						<div className="pointer-events-none absolute right-0 bottom-0 flex h-full items-end justify-end overflow-hidden">
-							<motion.div
+							<m.div
 								initial={{ opacity: 0, x: 50 }}
 								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: 0.3, duration: 0.5 }}
@@ -97,7 +97,7 @@ export function CallToAction() {
 									alt="Mascot"
 									className="h-auto w-60 translate-y-2 -scale-x-100 object-contain md:w-75 lg:w-100"
 								/>
-							</motion.div>
+							</m.div>
 						</div>
 					</div>
 				</div>

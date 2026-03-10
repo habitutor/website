@@ -51,7 +51,7 @@ export const queryClient = new QueryClient({
 	},
 });
 
-const client: RouterClient<typeof appRouter> = createORPCClient(
+export const client: RouterClient<typeof appRouter> = createORPCClient(
 	new RPCLink({
 		url: `${getApiBaseUrl()}/rpc`,
 		fetch(url, options) {

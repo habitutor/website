@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { MotionPulse } from "@/components/motion/motion-components";
 
 export function Hero() {
@@ -32,31 +32,31 @@ export function Hero() {
 			<main className="relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden px-4 py-22">
 				<div className="container z-1 flex shrink-0 flex-col items-center space-y-10 pt-8 md:mx-auto md:space-y-13 md:pt-20">
 					<div className="flex max-w-4xl flex-col items-center gap-1 text-center md:gap-2">
-						<motion.h2
+						<m.h2
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3, delay: 0 }}
 							className="font-extrabold font-sans text-3xl leading-10 sm:text-4xl md:text-5xl md:leading-18"
 						>
 							Akses Premium Untuk <span className="text-primary-300">Strategi</span>{" "}
-							<motion.span
+							<m.span
 								className="inline-block text-primary-300"
 								initial={{ opacity: 0 }}
 								animate={{ opacity: 1 }}
 								transition={{ duration: 0.6, delay: 0.3 }}
 							>
 								Lebih Tajam & Hasil Lebih Besar
-							</motion.span>
-						</motion.h2>
+							</m.span>
+						</m.h2>
 
-						<motion.p
+						<m.p
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3, delay: 0.1 }}
 							className="text-sm sm:text-lg"
 						>
 							Investasikan masa depanmu sekarang! dengan bimbingan intensif dari Habitutor
-						</motion.p>
+						</m.p>
 					</div>
 				</div>
 			</main>

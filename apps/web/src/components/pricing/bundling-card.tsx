@@ -1,6 +1,6 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +70,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 		const premiumColors = { ...defaultPremiumColors, ...colors };
 
 		return (
-			<motion.div
+			<m.div
 				className={cn(
 					"relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl shadow-lg md:max-w-none",
 					premiumColors.bg,
@@ -130,12 +130,12 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 						{data.cta.label} <ArrowRightIcon size={16} weight="bold" />
 					</Link>
 				</div>
-			</motion.div>
+			</m.div>
 		);
 	}
 
 	return (
-		<motion.div className="relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:max-w-none">
+		<m.div className="relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:max-w-none">
 			<div className={cn("absolute -right-12 -bottom-20 z-1 size-45 rounded-full border-2", colors?.circle)} />
 			<div
 				className={cn("absolute bottom-13 left-1/2 z-0 size-9 -translate-x-1/2 rounded-full border-2", colors?.circle)}
@@ -174,7 +174,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 					{data.cta.label} <ArrowRightIcon size={16} weight="bold" />
 				</Link>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 }
 
