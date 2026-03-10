@@ -42,13 +42,13 @@ export const userFlashcardAttempt = pgTable(
 	"user_flashcard_attempt",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		userId: text("user_id")
+		userId: text()
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
-		date: date("date", { mode: "date" }).notNull().default(sql`CURRENT_DATE`),
-		startedAt: timestamp("started_at").notNull().defaultNow(),
+		date: date({ mode: "date" }).notNull().default(sql`CURRENT_DATE`),
+		startedAt: timestamp().notNull().defaultNow(),
 		deadline: timestamp().notNull(),
-		submittedAt: timestamp("submitted_at"),
+		submittedAt: timestamp(),
 	},
 	(t) => [
 		index("idx_flashcard_attempt_user").on(t.userId),

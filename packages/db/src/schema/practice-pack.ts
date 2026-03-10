@@ -101,11 +101,11 @@ export const questionAnswerOption = pgTable(
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
 		code: char({ length: 1 }).notNull(),
-		questionId: integer("question_id")
+		questionId: integer()
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
 		content: text().notNull(),
-		isCorrect: boolean("is_correct").notNull().default(false),
+		isCorrect: boolean().notNull().default(false),
 	},
 	(t) => [
 		unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code),
@@ -124,13 +124,13 @@ export const questionAnswerOptionRelations = relations(questionAnswerOption, ({ 
 export const practicePackUserAnswer = pgTable(
 	"practice_pack_user_answer",
 	{
-		attemptId: integer("attempt_id")
+		attemptId: integer()
 			.notNull()
 			.references(() => practicePackAttempt.id, { onDelete: "cascade" }),
-		questionId: integer("question_id")
+		questionId: integer()
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
-		selectedAnswerId: integer("selected_answer_id")
+		selectedAnswerId: integer()
 			.notNull()
 			.references(() => questionAnswerOption.id, { onDelete: "set null" }),
 	},

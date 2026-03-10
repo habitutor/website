@@ -12,8 +12,8 @@ export const subtest = pgTable("subtest", {
 	shortName: text("short_name").notNull().unique(),
 	description: text(),
 	order: integer().notNull().default(1),
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+	createdAt: timestamp().notNull().defaultNow(),
+	updatedAt: timestamp().notNull().defaultNow(),
 });
 
 /*
@@ -28,14 +28,14 @@ export const contentItem = pgTable(
 	"content_item",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		subtestId: integer("subtest_id")
+		subtestId: integer()
 			.notNull()
 			.references(() => subtest.id, { onDelete: "cascade" }),
 		type: contentTypeEnum("type").notNull(),
 		title: text().notNull(),
 		order: integer().notNull(),
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at").notNull().defaultNow(),
+		createdAt: timestamp().notNull().defaultNow(),
+		updatedAt: timestamp().notNull().defaultNow(),
 	},
 	(t) => [unique("unique_content_order").on(t.subtestId, t.type, t.order)],
 );
@@ -49,10 +49,10 @@ export const videoMaterial = pgTable("video_material", {
 		.notNull()
 		.unique()
 		.references(() => contentItem.id, { onDelete: "cascade" }),
-	videoUrl: text("video_url").notNull(), // YouTube URL
+	videoUrl: text().notNull(), // YouTube URL
 	content: jsonb().notNull(),
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+	createdAt: timestamp().notNull().defaultNow(),
+	updatedAt: timestamp().notNull().defaultNow(),
 });
 
 export const noteMaterial = pgTable("note_material", {
@@ -62,17 +62,17 @@ export const noteMaterial = pgTable("note_material", {
 		.unique() // one-to-one
 		.references(() => contentItem.id, { onDelete: "cascade" }),
 	content: jsonb().notNull(), // Lexical/rich text JSON
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+	createdAt: timestamp().notNull().defaultNow(),
+	updatedAt: timestamp().notNull().defaultNow(),
 });
 
 export const contentPracticeQuestions = pgTable(
 	"content_practice_questions",
 	{
-		contentItemId: integer("content_item_id")
+		contentItemId: integer()
 			.notNull()
 			.references(() => contentItem.id, { onDelete: "cascade" }),
-		questionId: integer("question_id")
+		questionId: integer()
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
 		order: integer().notNull().default(1),
@@ -92,18 +92,18 @@ export const userProgress = pgTable(
 	"user_progress",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		userId: text("user_id")
+		userId: text()
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
-		contentItemId: integer("content_item_id")
+		contentItemId: integer()
 			.notNull()
 			.references(() => contentItem.id, { onDelete: "cascade" }),
-		videoCompleted: boolean("video_completed").notNull().default(false),
-		noteCompleted: boolean("note_completed").notNull().default(false),
-		practiceQuestionsCompleted: boolean("practice_questions_completed").notNull().default(false),
-		lastViewedAt: timestamp("last_viewed_at").notNull().defaultNow(),
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at").notNull().defaultNow(),
+		videoCompleted: boolean().notNull().default(false),
+		noteCompleted: boolean().notNull().default(false),
+		practiceQuestionsCompleted: boolean().notNull().default(false),
+		lastViewedAt: timestamp().notNull().defaultNow(),
+		createdAt: timestamp().notNull().defaultNow(),
+		updatedAt: timestamp().notNull().defaultNow(),
 	},
 	(t) => [
 		// One progress record per user per content
@@ -121,13 +121,13 @@ export const recentContentView = pgTable(
 	"recent_content_view",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		userId: text("user_id")
+		userId: text()
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
-		contentItemId: integer("content_item_id")
+		contentItemId: integer()
 			.notNull()
 			.references(() => contentItem.id, { onDelete: "cascade" }),
-		viewedAt: timestamp("viewed_at").notNull().defaultNow(),
+		viewedAt: timestamp().notNull().defaultNow(),
 	},
 	(t) => [index("idx_recent_view_user_time").on(t.userId, t.viewedAt)],
 );
