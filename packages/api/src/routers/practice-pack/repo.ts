@@ -8,7 +8,7 @@ import {
 	questionAnswerOption,
 } from "@habitutor/db/schema/practice-pack";
 import { and, count, desc, eq } from "drizzle-orm";
-import type { Question } from "../../types/practice-pack";
+import type { Question } from "#types/practice-pack";
 
 export const practicePackRepo = {
 	listWithAttempts: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {

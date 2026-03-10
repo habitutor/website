@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { canAccessContent, isFirstContent, isFirstSubtest } from "./content-access";
+import { canAccessContent, isFirstContent, isFirstSubtest } from "#lib/content-access";
 
 describe("canAccessContent", () => {
 	describe("admin access", () => {

@@ -1,10 +1,10 @@
 import { SQL } from "bun";
 import type { BunSQLDatabase } from "drizzle-orm/bun-sql";
 import { drizzle } from "drizzle-orm/bun-sql";
-import * as flashcard from "./schema/flashcard";
-import * as practice from "./schema/practice-pack";
-import * as subtest from "./schema/subtest";
-import * as transaction from "./schema/transaction";
+import * as flashcard from "#schema/flashcard";
+import * as practice from "#schema/practice-pack";
+import * as subtest from "#schema/subtest";
+import * as transaction from "#schema/transaction";
 
 const TEST_DATABASE_URL =
 	process.env.TEST_DATABASE_URL || "postgresql://postgres:password@localhost:6970/habitutor_test";

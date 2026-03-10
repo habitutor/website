@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { DEFAULT_PREMIUM_TIER, resolvePremiumTierForUpdate, shouldBackfillPremiumTier } from "./premium-tier";
+import {
+	DEFAULT_PREMIUM_TIER,
+	resolvePremiumTierForUpdate,
+	shouldBackfillPremiumTier,
+} from "#routers/transaction/premium-tier";
 
 describe("shouldBackfillPremiumTier", () => {
 	const now = new Date("2026-03-08T10:00:00.000Z");

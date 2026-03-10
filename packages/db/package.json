@@ -11,6 +11,14 @@
 			"default": "./dist/*.mjs"
 		}
 	},
+	"imports": {
+		"#*": [
+			"./src/*.ts",
+			"./src/*/index.ts"
+		],
+		"#schema/*": "./src/schema/*.ts",
+		"#seed/*": "./src/seed/*.ts"
+	},
 	"scripts": {
 		"build": "tsdown",
 		"check-types": "tsgo --noEmit",

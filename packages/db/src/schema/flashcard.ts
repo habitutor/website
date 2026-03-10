@@ -1,7 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import { date, index, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
-import { user } from "./auth";
-import { question, questionAnswerOption } from "./practice-pack";
+import { user } from "#schema/auth";
+import { question, questionAnswerOption } from "#schema/practice-pack";
 
 export const userFlashcardQuestionAnswer = pgTable(
 	"user_flashcard_question_answer",

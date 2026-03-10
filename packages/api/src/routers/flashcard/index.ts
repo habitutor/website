@@ -2,10 +2,17 @@ import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
-import { authed, premium } from "../..";
-import { convertToTiptap } from "../../lib/tiptap";
-import { getStartOfDay } from "../../utils/date";
-import { flashcardRepo } from "./repo";
+import { authed, premium } from "#index";
+import { convertToTiptap } from "#lib/tiptap";
+import {
+	countCorrectAnswers,
+	isAttemptExpired,
+	resolveAttemptAnswer,
+	shouldBlockStartSession,
+	shouldIncrementFlashcardStreak,
+} from "#routers/flashcard/logic";
+import { flashcardRepo } from "#routers/flashcard/repo";
+import { getStartOfDay } from "#utils/date";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 const GRACE_PERIOD_SECONDS = 5;
@@ -23,18 +30,14 @@ const start = authed
 
 		return db.transaction(async (tx) => {
 			const latestAttempt = await flashcardRepo.getLatestAttempt({ db: tx, userId: context.session.user.id });
+			const shouldBlock = shouldBlockStartSession({ latestAttempt, isPremium, today });
 
-			if (latestAttempt && !isPremium && latestAttempt.startedAt.getTime() >= today.getTime())
+			if (shouldBlock && !isPremium)
 				throw errors.UNPROCESSABLE_CONTENT({
 					message: "Kamu sudah memulai sesi flashcard hari ini.",
 				});
 
-			if (
-				latestAttempt &&
-				isPremium &&
-				!latestAttempt.submittedAt &&
-				latestAttempt.startedAt.getTime() >= today.getTime()
-			)
+			if (shouldBlock && isPremium)
 				throw errors.UNPROCESSABLE_CONTENT({
 					message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
 				});
@@ -115,9 +118,10 @@ const submit = authed
 	})
 	.handler(async ({ context, errors }) => {
 		const today = getStartOfDay();
-		const hasDoneToday =
-			context.session.user.lastCompletedFlashcardAt &&
-			context.session.user.lastCompletedFlashcardAt.getTime() >= today.getTime();
+		const shouldIncrementStreak = shouldIncrementFlashcardStreak({
+			lastCompletedFlashcardAt: context.session.user.lastCompletedFlashcardAt,
+			today,
+		});
 
 		const latestAttempt = await flashcardRepo.getLatestAttemptForToday({
 			userId: context.session.user.id,
@@ -136,7 +140,9 @@ const submit = authed
 			});
 		}
 
-		if (Date.now() > latestAttempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
+		if (
+			isAttemptExpired({ deadline: latestAttempt.deadline, now: Date.now(), gracePeriodSeconds: GRACE_PERIOD_SECONDS })
+		) {
 			throw errors.UNPROCESSABLE_CONTENT({
 				message: "Waktu sesi flashcard telah berakhir.",
 			});
@@ -144,7 +150,7 @@ const submit = authed
 
 		await db.transaction(async (tx) => {
 			await flashcardRepo.markAttemptSubmitted({ db: tx, attemptId: latestAttempt.id });
-			if (!hasDoneToday)
+			if (shouldIncrementStreak)
 				await tx
 					.update(user)
 					.set({ flashcardStreak: sql`${user.flashcardStreak} + 1`, lastCompletedFlashcardAt: new Date() })
@@ -184,7 +190,7 @@ const save = authed
 
 		if (!attempt) throw errors.NOT_FOUND();
 
-		if (Date.now() > attempt.deadline.getTime() + GRACE_PERIOD_SECONDS * 1000) {
+		if (isAttemptExpired({ deadline: attempt.deadline, now: Date.now(), gracePeriodSeconds: GRACE_PERIOD_SECONDS })) {
 			throw errors.UNPROCESSABLE_CONTENT({
 				message: "Waktu sesi flashcard telah berakhir.",
 			});
@@ -195,9 +201,8 @@ const save = authed
 		if (!answers || answers.length === 0) {
 			throw errors.NOT_FOUND();
 		}
-		const correctAnswer = answers.find((answer: { id: number; isCorrect: boolean }) => answer.isCorrect);
-		const userAnswer = answers.find((answer: { id: number; isCorrect: boolean }) => answer.id === input.answerId);
-		if (!correctAnswer || !userAnswer) throw errors.NOT_FOUND();
+		const resolvedAnswer = resolveAttemptAnswer({ answers, userAnswerId: input.answerId });
+		if (!resolvedAnswer) throw errors.NOT_FOUND();
 
 		await flashcardRepo.updateQuestionAnswer({
 			questionId: input.questionId,
@@ -207,9 +212,9 @@ const save = authed
 		});
 
 		return {
-			isCorrect: userAnswer.isCorrect,
-			correctAnswerId: correctAnswer.id,
-			userAnswerId: userAnswer.id,
+			isCorrect: resolvedAnswer.isCorrect,
+			correctAnswerId: resolvedAnswer.correctAnswerId,
+			userAnswerId: resolvedAnswer.userAnswerId,
 		};
 	});
 
@@ -250,15 +255,7 @@ const result = authed
 			},
 		}));
 
-		let correct = 0;
-		for (const assignedQuestion of formattedQuestions) {
-			const answerMap = new Map<number, boolean>();
-			for (const answerOption of assignedQuestion.question.answerOptions) {
-				answerMap.set(answerOption.id, answerOption.isCorrect);
-			}
-
-			if (answerMap.get(assignedQuestion.selectedAnswerId || 0)) correct++;
-		}
+		const correct = countCorrectAnswers(formattedQuestions);
 
 		return {
 			...attempt,

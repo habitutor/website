@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { authed } from "../..";
+import { authed } from "#index";
 
 export const socialRouter = authed
 	.route({

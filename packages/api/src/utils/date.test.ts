@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { getStartOfDay } from "./date";
+import { getStartOfDay } from "#utils/date";
 
 describe("getStartOfDay", () => {
 	test("sets hours, minutes, seconds, and milliseconds to 0", () => {

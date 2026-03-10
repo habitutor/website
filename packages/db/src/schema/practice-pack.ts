@@ -12,8 +12,8 @@ import {
 	timestamp,
 	unique,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth";
-import { userFlashcardQuestionAnswer } from "./flashcard";
+import { user } from "#schema/auth";
+import { userFlashcardQuestionAnswer } from "#schema/flashcard";
 
 export const practicePack = pgTable("practice_pack", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),

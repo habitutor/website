@@ -10,6 +10,26 @@
 			"default": "./dist/*.mjs"
 		}
 	},
+	"imports": {
+		"#index": "./src/index.ts",
+		"#*": [
+			"./src/*.ts",
+			"./src/*/index.ts"
+		],
+		"#lib/*": "./src/lib/*.ts",
+		"#utils/*": "./src/utils/*.ts",
+		"#types/*": "./src/types/*.ts",
+		"#routers/*": [
+			"./src/routers/*.ts",
+			"./src/routers/*/index.ts"
+		],
+		"#routers/admin/*": [
+			"./src/routers/admin/*.ts",
+			"./src/routers/admin/*/index.ts"
+		],
+		"#middlewares/*": "./src/middlewares/*.ts",
+		"#__tests__/*": "./src/__tests__/*.ts"
+	},
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
