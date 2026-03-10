@@ -6,16 +6,16 @@ import { question, questionAnswerOption } from "./practice-pack";
 export const userFlashcardQuestionAnswer = pgTable(
 	"user_flashcard_question_answer",
 	{
-		assignedDate: date("assigned_date", { mode: "date" }).notNull(),
-		questionId: integer("question_id")
+		assignedDate: date({ mode: "date" }).notNull(),
+		questionId: integer()
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
-		selectedAnswerId: integer("selected_answer_id").references(() => questionAnswerOption.id, { onDelete: "set null" }),
-		attemptId: integer("attempt_id").references(() => userFlashcardAttempt.id, {
+		selectedAnswerId: integer().references(() => questionAnswerOption.id, { onDelete: "set null" }),
+		attemptId: integer().references(() => userFlashcardAttempt.id, {
 			onDelete: "set null",
 		}),
-		answeredAt: timestamp("answered_at"),
-		createdAt: timestamp("created_at").notNull().defaultNow(),
+		answeredAt: timestamp(),
+		createdAt: timestamp().notNull().defaultNow(),
 	},
 	(t) => [
 		primaryKey({ columns: [t.attemptId, t.assignedDate, t.questionId] }),
