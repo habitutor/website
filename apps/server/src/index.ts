@@ -63,6 +63,15 @@ app.use("/*", async (c, next) => {
 		return c.newResponse(rpcResult.response.body, rpcResult.response);
 	}
 
+	const url = new URL(c.req.url);
+	const pathname = url.pathname;
+	const isDocsPath = pathname === "/api-reference" || pathname === "/api-reference/";
+	const isSpecPath = pathname === "/api-reference/spec.json";
+
+	if ((isDocsPath || isSpecPath) && context.session?.user?.role !== "admin") {
+		return c.json({ error: "Forbidden - Admin access required" }, 403);
+	}
+
 	const apiResult = await apiHandler.handle(c.req.raw, {
 		prefix: "/api-reference",
 		context: context,
