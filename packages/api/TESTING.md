@@ -64,9 +64,9 @@ import { describe, expect, test } from "bun:test";
 import { myFunction } from "./myModule";
 
 describe("myFunction", () => {
-	test("should work correctly", () => {
-		expect(myFunction("input")).toBe("expected");
-	});
+  test("should work correctly", () => {
+    expect(myFunction("input")).toBe("expected");
+  });
 });
 ```
 
@@ -78,12 +78,12 @@ import { createMockContext } from "./__tests__/mocks/context";
 import { createMockErrors } from "./__tests__/mocks/errors";
 
 describe("myHandler", () => {
-	test("should handle request", async () => {
-		const context = createMockContext();
-		const errors = createMockErrors();
+  test("should handle request", async () => {
+    const context = createMockContext();
+    const errors = createMockErrors();
 
-		// Test handler logic
-	});
+    // Test handler logic
+  });
 });
 ```
 

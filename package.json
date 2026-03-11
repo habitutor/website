@@ -1,59 +1,59 @@
 {
-	"name": "habitutor",
-	"private": true,
-	"workspaces": {
-		"packages": [
-			"apps/*",
-			"packages/*"
-		],
-		"catalog": {
-			"hono": "^4.11.4",
-			"@orpc/server": "^1.13.4",
-			"@orpc/openapi": "^1.13.4",
-			"@orpc/arktype": "^1.13.4",
-			"better-auth": "^1.4.13",
-			"dotenv": "^17.2.2",
-			"drizzle-orm": "^0.45.1",
-			"arktype": "^2.1.29",
-			"typescript": "^5.8.2",
-			"midtrans-client": "^1.4.3",
-			"tsdown": "^0.18.4",
-			"@orpc/client": "^1.13.4"
-		}
-	},
-	"type": "module",
-	"scripts": {
-		"lint": "oxlint . && oxfmt --check .",
-		"lint:fix": "oxlint --fix . && oxfmt --write .",
-		"dev": "turbo dev",
-		"build": "turbo build",
-		"build:packages": "turbo build --filter='./packages/*'",
-		"check-types": "turbo check-types",
-		"dev:native": "turbo -F native dev",
-		"dev:web": "turbo -F web dev",
-		"dev:server": "turbo -F server dev",
-		"db:push": "turbo -F @habitutor/db db:push",
-		"db:studio": "turbo -F @habitutor/db db:studio",
-		"db:generate": "turbo -F @habitutor/db db:generate",
-		"db:migrate": "turbo -F @habitutor/db db:migrate",
-		"db:start": "turbo -F @habitutor/db db:start",
-		"db:watch": "turbo -F @habitutor/db db:watch",
-		"db:stop": "turbo -F @habitutor/db db:stop",
-		"db:down": "turbo -F @habitutor/db db:down",
-		"db:seed": "turbo -F @habitutor/db db:seed",
-		"db:reset": "turbo -F @habitutor/db db:reset",
-		"auth:generate": "turbo -F @habitutor/auth auth:generate",
-		"test": "turbo test"
-	},
-	"dependencies": {
-		"dotenv": "^17.2.2"
-	},
-	"devDependencies": {
-		"@types/bun": "^1.3.6",
-		"oxfmt": "^0.37.0",
-		"oxlint": "^1.52.0",
-		"shadcn": "^3.8.2",
-		"turbo": "^2.8.11"
-	},
-	"packageManager": "bun@1.3.5"
+  "name": "habitutor",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "hono": "^4.11.4",
+      "@orpc/server": "^1.13.4",
+      "@orpc/openapi": "^1.13.4",
+      "@orpc/arktype": "^1.13.4",
+      "better-auth": "^1.4.13",
+      "dotenv": "^17.2.2",
+      "drizzle-orm": "^0.45.1",
+      "arktype": "^2.1.29",
+      "typescript": "^5.8.2",
+      "midtrans-client": "^1.4.3",
+      "tsdown": "^0.18.4",
+      "@orpc/client": "^1.13.4"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "lint": "oxlint . && oxfmt --check .",
+    "lint:fix": "oxlint --fix . && oxfmt --write .",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "build:packages": "turbo build --filter='./packages/*'",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @habitutor/db db:push",
+    "db:studio": "turbo -F @habitutor/db db:studio",
+    "db:generate": "turbo -F @habitutor/db db:generate",
+    "db:migrate": "turbo -F @habitutor/db db:migrate",
+    "db:start": "turbo -F @habitutor/db db:start",
+    "db:watch": "turbo -F @habitutor/db db:watch",
+    "db:stop": "turbo -F @habitutor/db db:stop",
+    "db:down": "turbo -F @habitutor/db db:down",
+    "db:seed": "turbo -F @habitutor/db db:seed",
+    "db:reset": "turbo -F @habitutor/db db:reset",
+    "auth:generate": "turbo -F @habitutor/auth auth:generate",
+    "test": "turbo test"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.6",
+    "oxfmt": "^0.37.0",
+    "oxlint": "^1.52.0",
+    "shadcn": "^3.8.2",
+    "turbo": "^2.8.11"
+  },
+  "packageManager": "bun@1.3.5"
 }

@@ -97,12 +97,12 @@ The `overrides` field cannot be auto-migrated from either Prettier or Biome. Con
 
 ```json
 {
-	"overrides": [
-		{
-			"files": ["*.md"],
-			"options": { "tabWidth": 4 }
-		}
-	]
+  "overrides": [
+    {
+      "files": ["*.md"],
+      "options": { "tabWidth": 4 }
+    }
+  ]
 }
 ```
 
@@ -125,10 +125,10 @@ Sort import statements, inspired by `eslint-plugin-perfectionist/sort-imports` (
 
 ```json
 {
-	"sortImports": {
-		"partitionByNewline": true,
-		"newlinesBetween": false
-	}
+  "sortImports": {
+    "partitionByNewline": true,
+    "newlinesBetween": false
+  }
 }
 ```
 
