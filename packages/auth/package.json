@@ -1,5 +1,6 @@
 {
 	"name": "@habitutor/auth",
+	"type": "module",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.mts",
@@ -10,18 +11,10 @@
 			"default": "./dist/*.mjs"
 		}
 	},
-	"type": "module",
 	"scripts": {
 		"build": "tsdown",
 		"auth:generate": "bunx @better-auth/cli@latest generate --output ../db/src/schema/auth.ts --config ./src/index.ts --yes",
 		"check-types": "tsgo --noEmit"
-	},
-	"devDependencies": {
-		"tsdown": "catalog:",
-		"@habitutor/config": "workspace:*"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
 	},
 	"dependencies": {
 		"@habitutor/db": "workspace:*",
@@ -29,5 +22,12 @@
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
 		"resend": "^6.6.0"
+	},
+	"devDependencies": {
+		"@habitutor/config": "workspace:*",
+		"tsdown": "catalog:"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
 	}
 }

@@ -34,7 +34,7 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
 } {
 	const handler = useMemo(
 		() => throttle<T>(fn, wait, options),
-		// biome-ignore lint/correctness/useExhaustiveDependencies: gatau anjir
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		dependencies,
 	);
 

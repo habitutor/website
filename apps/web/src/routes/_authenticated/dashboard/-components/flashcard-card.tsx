@@ -3,7 +3,7 @@ import { CheckIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import * as m from "motion/react-m";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { refreshAuthSession } from "@/lib/auth-session";
@@ -41,10 +41,17 @@ export const FlashcardCard = () => {
 	const [, hours, minutes, seconds] = useCountdown((data?.status !== "not_started" && data?.deadline) || 0);
 	const [disableInteraction, setDisableInteraction] = useState(false);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: dumb biome cant detect functions
+	const handleSubmit = useCallback(async () => {
+		await submitMutation.mutateAsync({});
+		queryClient.removeQueries({
+			queryKey: ["auth", "getSession", "flashcard"],
+		});
+		navigate({ to: "/dashboard/flashcard/result" });
+	}, [submitMutation, queryClient, navigate]);
+
 	useEffect(() => {
 		if (data?.status === "ongoing" && hours === "00" && minutes === "00" && seconds === "00") handleSubmit();
-	}, [data?.status, hours, minutes, seconds]);
+	}, [data?.status, hours, minutes, seconds, handleSubmit]);
 
 	// to satisfy typescript, this has been handled in parent component
 	if (data?.status === "not_started") return null;
@@ -74,12 +81,6 @@ export const FlashcardCard = () => {
 			setDisableInteraction(false);
 		}
 	};
-
-	async function handleSubmit() {
-		await submitMutation.mutateAsync({});
-		queryClient.removeQueries({ queryKey: ["auth", "getSession", "flashcard"] });
-		navigate({ to: "/dashboard/flashcard/result" });
-	}
 
 	return (
 		<m.div

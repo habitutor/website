@@ -1,0 +1,34 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"categories": {
+		"correctness": "error"
+	},
+	"rules": {
+		"react-hooks/exhaustive-deps": "warn",
+		"oxc/sort-imports": "warn",
+		"no-param-reassign": "error",
+		"prefer-const": "error",
+		"no-unused-vars": "error"
+	},
+	"plugins": ["react", "typescript", "oxc"],
+	"ignorePatterns": [
+		"**/.next",
+		"**/.output",
+		"**/bin",
+		"**/dist",
+		"**/.turbo",
+		"**/dev-dist",
+		"**/.zed",
+		"**/.vscode",
+		"**/routeTree.gen.ts",
+		"**/src-tauri",
+		"**/.nuxt",
+		"bts.jsonc",
+		"**/.expo",
+		"**/.alchemy",
+		"**/.svelte-kit",
+		"**/worker-configuration.d.ts",
+		"**/migrations",
+		"**/.source"
+	]
+}

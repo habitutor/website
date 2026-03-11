@@ -1,0 +1,33 @@
+{
+	"useTabs": true,
+	"tabWidth": 2,
+	"printWidth": 120,
+	"singleQuote": false,
+	"jsxSingleQuote": false,
+	"quoteProps": "as-needed",
+	"trailingComma": "all",
+	"semi": true,
+	"arrowParens": "always",
+	"bracketSameLine": false,
+	"bracketSpacing": true,
+	"ignorePatterns": [
+		"**/.next",
+		"**/.output",
+		"**/bin",
+		"**/dist",
+		"**/.turbo",
+		"**/dev-dist",
+		"**/.zed",
+		"**/.vscode",
+		"**/routeTree.gen.ts",
+		"**/src-tauri",
+		"**/.nuxt",
+		"bts.jsonc",
+		"**/.expo",
+		"**/.alchemy",
+		"**/.svelte-kit",
+		"**/worker-configuration.d.ts",
+		"**/migrations",
+		"**/.source"
+	]
+}

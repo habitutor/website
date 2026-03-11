@@ -25,6 +25,11 @@
 		"db:reset": "docker compose down -v && docker compose up -d && sleep 2 && bun db:push && bun db:seed",
 		"db:seed": "bun run src/seed/index.ts"
 	},
+	"dependencies": {
+		"arktype": "catalog:",
+		"dotenv": "catalog:",
+		"drizzle-orm": "catalog:"
+	},
 	"devDependencies": {
 		"@habitutor/config": "workspace:*",
 		"drizzle-kit": "^0.31.8",
@@ -33,10 +38,5 @@
 	},
 	"peerDependencies": {
 		"typescript": "^5"
-	},
-	"dependencies": {
-		"arktype": "catalog:",
-		"dotenv": "catalog:",
-		"drizzle-orm": "catalog:"
 	}
 }

@@ -371,7 +371,7 @@ type ProtocolOptions = {
 type ProtocolConfig = Array<ProtocolOptions | string>;
 
 const ATTR_WHITESPACE =
-	// biome-ignore lint/suspicious/noControlCharactersInRegex: Control characters are needed to match whitespace patterns
+	// eslint-disable-next-line no-control-regex
 	/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g;
 
 export function isAllowedUri(uri: string | undefined, protocols?: ProtocolConfig) {

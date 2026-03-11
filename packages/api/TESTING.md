@@ -64,9 +64,9 @@ import { describe, expect, test } from "bun:test";
 import { myFunction } from "./myModule";
 
 describe("myFunction", () => {
-  test("should work correctly", () => {
-    expect(myFunction("input")).toBe("expected");
-  });
+	test("should work correctly", () => {
+		expect(myFunction("input")).toBe("expected");
+	});
 });
 ```
 
@@ -78,31 +78,37 @@ import { createMockContext } from "./__tests__/mocks/context";
 import { createMockErrors } from "./__tests__/mocks/errors";
 
 describe("myHandler", () => {
-  test("should handle request", async () => {
-    const context = createMockContext();
-    const errors = createMockErrors();
-    
-    // Test handler logic
-  });
+	test("should handle request", async () => {
+		const context = createMockContext();
+		const errors = createMockErrors();
+
+		// Test handler logic
+	});
 });
 ```
 
 ## Test Patterns
 
 ### Pure Logic Tests (Preferred)
+
 Test business logic without database dependencies:
+
 - Extract logic into pure functions
 - Test decision trees, validations, calculations
 - Fast, no external dependencies
 
 ### Mock-Based Tests
+
 For handlers with dependencies:
+
 - Use `createMockContext()` for auth/session
 - Use `createMockErrors()` for error handling
 - Use `createMockDb()` for database operations
 
 ### Integration Tests (Future)
+
 For full end-to-end testing:
+
 - Use test database (Docker)
 - Seed test data with factories
 - Clean up between tests
@@ -110,6 +116,7 @@ For full end-to-end testing:
 ## CI/CD
 
 Tests run automatically in CI pipelines. Ensure:
+
 - All tests pass before merging
 - New features include tests
 - Bug fixes include regression tests

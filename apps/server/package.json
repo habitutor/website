@@ -1,7 +1,7 @@
 {
 	"name": "server",
-	"main": "src/index.ts",
 	"type": "module",
+	"main": "src/index.ts",
 	"scripts": {
 		"build": "bun build --production --target=bun --minify --sourcemap --bytecode ./src/index.ts --outdir ./dist",
 		"compile": "bun build --production --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
@@ -22,9 +22,9 @@
 		"midtrans-client": "catalog:"
 	},
 	"devDependencies": {
-		"typescript": "catalog:",
-		"tsdown": "catalog:",
 		"@habitutor/config": "workspace:*",
-		"@types/node": "^24.10.8"
+		"@types/node": "^24.10.8",
+		"tsdown": "catalog:",
+		"typescript": "catalog:"
 	}
 }
