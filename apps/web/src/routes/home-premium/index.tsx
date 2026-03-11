@@ -15,7 +15,7 @@ function RouteComponent() {
 		<main className="">
 			<Header />
 			<Hero />
-			<section className="space-y-30 border-tertiary-200 border-b-2 bg-tertiary-100 pb-30">
+			<section className="space-y-30 border-b-2 border-tertiary-200 bg-tertiary-100 pb-30">
 				<Bundling />
 				<Perintis />
 				<Tryout />

@@ -46,7 +46,7 @@ function RouteComponent() {
 	}
 
 	if (content.isError) {
-		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
 	}
 
 	if (!content.data) return notFound();
@@ -55,13 +55,13 @@ function RouteComponent() {
 	if (!practiceQuestions) {
 		return (
 			<div className="space-y-4">
-				<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
+				<p className="text-base font-semibold text-primary-300">Latihan Soal</p>
 
 				<PracticeQuestionHeader content={content.data.title} />
 
 				<hr />
 
-				<div className="flex flex-col items-center justify-center gap-2 text-pretty text-center">
+				<div className="flex flex-col items-center justify-center gap-2 text-center text-pretty">
 					<Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
 					<p>
 						Ups, kontennya belum tersedia,
@@ -75,7 +75,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p className="font-semibold text-base text-primary-300">Latihan Soal Materi</p>
+			<p className="text-base font-semibold text-primary-300">Latihan Soal Materi</p>
 
 			<PracticeQuestionHeader content={content.data.title} />
 
@@ -96,7 +96,7 @@ function RouteComponent() {
 											<p
 												key={answer.id}
 												className={
-													answer.isCorrect ? "font-semibold text-green-600 text-sm" : "text-muted-foreground text-sm"
+													answer.isCorrect ? "text-sm font-semibold text-green-600" : "text-sm text-muted-foreground"
 												}
 											>
 												{answer.code}. {answer.content}
@@ -106,8 +106,8 @@ function RouteComponent() {
 									</div>
 								)}
 								{q.discussion && (
-									<div className="mt-3 border-neutral-200 border-t pt-3">
-										<p className="mb-1 font-medium text-sm">Pembahasan:</p>
+									<div className="mt-3 border-t border-neutral-200 pt-3">
+										<p className="mb-1 text-sm font-medium">Pembahasan:</p>
 										<TiptapRenderer content={q.discussion} />
 									</div>
 								)}
@@ -116,7 +116,7 @@ function RouteComponent() {
 					/>
 				))
 			) : (
-				<p className="text-muted-foreground text-sm">Belum ada latihan soal untuk materi ini.</p>
+				<p className="text-sm text-muted-foreground">Belum ada latihan soal untuk materi ini.</p>
 			)}
 		</div>
 	);

@@ -60,9 +60,9 @@ function RouteComponent() {
 					</Link>
 				</Button>
 				<div className="flex-1">
-					<h1 className="font-bold text-2xl">{history.data?.title}</h1>
+					<h1 className="text-2xl font-bold">{history.data?.title}</h1>
 					{history.data?.startedAt && history.data?.completedAt && (
-						<p className="text-muted-foreground text-sm">
+						<p className="text-sm text-muted-foreground">
 							{new Date(history.data.startedAt).toLocaleDateString("id-ID", {
 								day: "numeric",
 								month: "long",
@@ -82,19 +82,19 @@ function RouteComponent() {
 			</div>
 
 			<Card className="mb-6 p-6">
-				<h2 className="mb-4 font-semibold text-xl">Hasil</h2>
+				<h2 className="mb-4 text-xl font-semibold">Hasil</h2>
 				<div className="grid grid-cols-3 gap-4 text-center">
 					<div>
-						<p className="text-muted-foreground text-sm">Skor</p>
-						<p className="font-bold text-3xl">{score.toFixed(0)}%</p>
+						<p className="text-sm text-muted-foreground">Skor</p>
+						<p className="text-3xl font-bold">{score.toFixed(0)}%</p>
 					</div>
 					<div>
-						<p className="text-muted-foreground text-sm">Benar</p>
-						<p className="font-bold text-3xl text-green-800">{correctAnswers}</p>
+						<p className="text-sm text-muted-foreground">Benar</p>
+						<p className="text-3xl font-bold text-green-800">{correctAnswers}</p>
 					</div>
 					<div>
-						<p className="text-muted-foreground text-sm">Salah</p>
-						<p className="font-bold text-3xl text-red-600">{totalQuestions - correctAnswers}</p>
+						<p className="text-sm text-muted-foreground">Salah</p>
+						<p className="text-3xl font-bold text-red-600">{totalQuestions - correctAnswers}</p>
 					</div>
 				</div>
 			</Card>
@@ -104,7 +104,7 @@ function RouteComponent() {
 					<Card key={q.id} className="p-6">
 						<div className="mb-4 flex items-start justify-between">
 							<div className="flex-1">
-								<span className="font-medium text-lg">{idx + 1}.</span>
+								<span className="text-lg font-medium">{idx + 1}.</span>
 								<TiptapRenderer content={q.content} />
 							</div>
 							{q.userAnswerIsCorrect ? (
@@ -134,16 +134,16 @@ function RouteComponent() {
 											className="cursor-default"
 										/>
 										<span className="flex-1">{answer.content}</span>
-										{isCorrectAnswer && <span className="text-green-500 text-xs">Jawaban Benar</span>}
-										{isUserAnswer && !isCorrectAnswer && <span className="text-destructive text-xs">Jawaban Anda</span>}
+										{isCorrectAnswer && <span className="text-xs text-green-500">Jawaban Benar</span>}
+										{isUserAnswer && !isCorrectAnswer && <span className="text-xs text-destructive">Jawaban Anda</span>}
 									</Label>
 								);
 							})}
 						</div>
-						{!q.selectedAnswerId && <p className="mt-2 text-muted-foreground text-sm">Tidak dijawab</p>}
+						{!q.selectedAnswerId && <p className="mt-2 text-sm text-muted-foreground">Tidak dijawab</p>}
 						{q.discussion && (
 							<div className="mt-4 rounded-lg border bg-accent p-4">
-								<div className="mb-2 flex items-center gap-2 font-medium text-sm">
+								<div className="mb-2 flex items-center gap-2 text-sm font-medium">
 									<Lightbulb className="h-4 w-4 text-amber-200" />
 									Pembahasan
 								</div>

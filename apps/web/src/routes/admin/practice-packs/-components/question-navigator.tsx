@@ -45,7 +45,7 @@ export function QuestionNavigator({
 								onClick={() => onQuestionClick(absoluteIndex)}
 								aria-current={isActive ? "true" : undefined}
 								className={cn(
-									"flex aspect-square w-full touch-manipulation items-center justify-center rounded-md border font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+									"flex aspect-square w-full touch-manipulation items-center justify-center rounded-md border font-mono text-xs transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none",
 									isActive
 										? "border-primary bg-primary font-bold text-primary-foreground"
 										: "border-border hover:border-primary/50 hover:bg-muted",
@@ -65,7 +65,7 @@ export function QuestionNavigator({
 							onClick={onPreviousPage}
 							disabled={gridPage === 0}
 							aria-label="Previous page"
-							className="flex size-6 items-center justify-center rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-40 disabled:hover:bg-transparent"
+							className="flex size-6 items-center justify-center rounded-md hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:opacity-40 disabled:hover:bg-transparent"
 						>
 							<CaretLeftIcon className="size-3.5" />
 						</button>
@@ -77,7 +77,7 @@ export function QuestionNavigator({
 							onClick={onNextPage}
 							disabled={gridPage === totalGridPages - 1}
 							aria-label="Next page"
-							className="flex size-6 items-center justify-center rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-40 disabled:hover:bg-transparent"
+							className="flex size-6 items-center justify-center rounded-md hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:opacity-40 disabled:hover:bg-transparent"
 						>
 							<CaretRightIcon className="size-3.5" />
 						</button>

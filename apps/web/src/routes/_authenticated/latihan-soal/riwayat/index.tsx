@@ -20,7 +20,7 @@ function RouteComponent() {
 						<ArrowLeft />
 					</Link>
 				</Button>
-				<h1 className="font-bold text-2xl">Riwayat Latihan</h1>
+				<h1 className="text-2xl font-bold">Riwayat Latihan</h1>
 			</div>
 
 			{history.isPending && <p className="animate-pulse">Memuat riwayat...</p>}
@@ -38,8 +38,8 @@ function RouteComponent() {
 					<Card key={attempt.practicePackId} className="p-6">
 						<div className="flex items-start justify-between">
 							<div className="flex-1">
-								<h3 className="mb-2 font-medium text-lg">Latihan Soal #{attempt.practicePackId}</h3>
-								<div className="space-y-1 text-muted-foreground text-sm">
+								<h3 className="mb-2 text-lg font-medium">Latihan Soal #{attempt.practicePackId}</h3>
+								<div className="space-y-1 text-sm text-muted-foreground">
 									{attempt.startedAt && (
 										<div className="flex items-center gap-2">
 											<Calendar className="h-4 w-4" />

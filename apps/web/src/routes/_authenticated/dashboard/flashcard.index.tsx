@@ -108,10 +108,10 @@ const StartCard = () => {
 			</Button>
 
 			<div className="flex overflow-clip rounded-md bg-yellow-200">
-				<div className="min-w-32 rounded-l-md rounded-tr-full bg-yellow-500 px-4 py-2 font-bold text-4xl text-white">
+				<div className="min-w-32 rounded-l-md rounded-tr-full bg-yellow-500 px-4 py-2 text-4xl font-bold text-white">
 					{session?.user.flashcardStreak || "0"}
 				</div>
-				<p className="my-auto p-4 font-medium text-xl">
+				<p className="my-auto p-4 text-xl font-medium">
 					{session?.user.flashcardStreak && session?.user.flashcardStreak > 0 ? (
 						<>
 							Streak Brain Gym Kamu! <span className="font-normal">Keren!</span>
@@ -123,7 +123,7 @@ const StartCard = () => {
 			</div>
 
 			<div className="flex flex-col gap-2 rounded-md bg-blue-400 p-6 pt-20 text-white">
-				<h1 className="font-bold text-3xl">Brain Gym</h1>
+				<h1 className="text-3xl font-bold">Brain Gym</h1>
 				<p>Uji kemampuan harianmu dengan Brain Gym selama 10 menit!</p>
 			</div>
 

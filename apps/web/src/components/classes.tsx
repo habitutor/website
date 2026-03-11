@@ -43,8 +43,8 @@ export function SubtestHeader() {
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
 				{/* TEXT — mobile top, desktop LEFT */}
 				<div className="relative z-10 max-w-xl">
-					<h1 className="font-bold text-[24px] text-neutral-1000 leading-tight sm:text-[30px]">{title}</h1>
-					<p className="mt-2 text-[14px] text-neutral-1000 leading-[21px]">{description}</p>
+					<h1 className="text-[24px] leading-tight font-bold text-neutral-1000 sm:text-[30px]">{title}</h1>
+					<p className="mt-2 text-[14px] leading-[21px] text-neutral-1000">{description}</p>
 				</div>
 
 				{/* VISUAL */}
@@ -58,7 +58,7 @@ export function SubtestHeader() {
 						alt="Subtest Header Avatar"
 						width={260}
 						height={260}
-						className="absolute right-0 size-[210px] -translate-y-10 select-none object-cover sm:bottom-0 sm:translate-y-1/2"
+						className="absolute right-0 size-[210px] -translate-y-10 object-cover select-none sm:bottom-0 sm:translate-y-1/2"
 					/>
 				</div>
 			</div>
@@ -132,7 +132,7 @@ export function SubtestCard({
 					<div className="absolute top-4 left-4 z-10">
 						<div className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
 							<LockKeyIcon size={16} className="text-white" weight="fill" />
-							<span className="font-semibold text-white text-xs">Premium dulu yuk!</span>
+							<span className="text-xs font-semibold text-white">Premium dulu yuk!</span>
 						</div>
 					</div>
 				</>
@@ -148,13 +148,13 @@ export function SubtestCard({
 					alt={`${subtest?.name} Avatar`}
 					width={356}
 					height={356}
-					className="pointer-events-none select-none object-cover object-[50%_50%]"
+					className="pointer-events-none object-cover object-[50%_50%] select-none"
 				/>
 			</div>
 			<div className="flex h-full justify-between">
 				<div className="mt-auto mb-0 w-1/2">
-					<h3 className="text-pretty font-semibold">{subtest?.name}</h3>
-					<p className="font-light text-sm"> {subtest?.totalContent} Konten</p>
+					<h3 className="font-semibold text-pretty">{subtest?.name}</h3>
+					<p className="text-sm font-light"> {subtest?.totalContent} Konten</p>
 				</div>
 
 				{isLocked ? (
@@ -202,7 +202,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 				<div className={cn("relative z-10 max-w-xl md:col-span-3", forceTextWhite && "text-white")}>
 					<h1
 						className={cn(
-							"font-bold text-[24px] leading-tight sm:text-[30px]",
+							"text-[24px] leading-tight font-bold sm:text-[30px]",
 							forceTextWhite ? "text-white" : "text-neutral-1000",
 						)}
 					>
@@ -224,7 +224,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 						alt={`${subtest?.name} Avatar`}
 						width={260}
 						height={260}
-						className="absolute right-0 size-70 translate-x-1/8 -translate-y-15 select-none object-cover sm:bottom-0 sm:left-0 sm:size-90 sm:translate-x-1/6 sm:translate-y-1/2 sm:translate-y-[55%] sm:object-cover"
+						className="absolute right-0 size-70 translate-x-1/8 -translate-y-15 object-cover select-none sm:bottom-0 sm:left-0 sm:size-90 sm:translate-x-1/6 sm:translate-y-1/2 sm:translate-y-[55%] sm:object-cover"
 					/>
 				</div>
 			</div>
@@ -365,7 +365,7 @@ function ContentCard({
 		<Card
 			className={cn(
 				"relative gap-3 rounded-xl border border-border/50 p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
-				!isAdmin && completed && "border-tertiary-300 bg-tertiary-50",
+				!isAdmin && completed && "bg-tertiary-50 border-tertiary-300",
 				isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
 			)}
 		>
@@ -378,7 +378,7 @@ function ContentCard({
 					<div className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">
 						<div className="flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 backdrop-blur-sm">
 							<LockIcon className="size-4 text-white" weight="fill" />
-							<span className="font-semibold text-white text-xs">Premium</span>
+							<span className="text-xs font-semibold text-white">Premium</span>
 						</div>
 					</div>
 				</>
@@ -404,12 +404,12 @@ function ContentCard({
 							<DotsNineIcon className="size-6" weight="bold" />
 						</div>
 					)}
-					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary text-sm shadow-sm sm:size-9">
+					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary shadow-sm sm:size-9">
 						{index + 1}
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<p className="mr-7 font-bold text-neutral-1000 text-sm sm:text-base lg:text-lg">{item.title}</p>
+						<p className="mr-7 text-sm font-bold text-neutral-1000 sm:text-base lg:text-lg">{item.title}</p>
 					</div>
 				</div>
 
@@ -457,7 +457,7 @@ function ContentCard({
 								)}
 							>
 								<Icon className="size-4 sm:size-4.5" weight="bold" />
-								<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
+								<span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
 								<CaretRightIcon className="ml-auto size-4 sm:size-4.5" weight="bold" />
 							</Link>
 						),
@@ -495,7 +495,7 @@ export function ContentFilters({
 					type="button"
 					onClick={() => onChange(filter.value)}
 					className={cn(
-						"whitespace-nowrap rounded-lg border px-3 py-2 font-normal text-xs transition-all",
+						"rounded-lg border px-3 py-2 text-xs font-normal whitespace-nowrap transition-all",
 						"sm:h-10",
 						"border-primary-300 bg-white text-primary-300",
 						"hover:bg-primary-50",
@@ -537,15 +537,15 @@ export function LastContentViewedCard({
 				{/* Left: badge + title */}
 				<div className="flex items-start gap-3">
 					<div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border border-neutral-200">
-						<p className="font-medium text-[12px] text-primary-300">{index + 1}</p>
+						<p className="text-[12px] font-medium text-primary-300">{index + 1}</p>
 					</div>
 
-					<p className="font-medium text-[18px] text-neutral-1000 sm:text-[20px]">{item.title}</p>
+					<p className="text-[18px] font-medium text-neutral-1000 sm:text-[20px]">{item.title}</p>
 				</div>
 
 				{/* Right: label + admin actions */}
 				<div className="flex items-center gap-2 sm:flex-col sm:items-end">
-					{shortName && <span className="text-muted-foreground text-xs">{shortName}</span>}
+					{shortName && <span className="text-xs text-muted-foreground">{shortName}</span>}
 				</div>
 			</div>
 
@@ -566,7 +566,7 @@ export function LastContentViewedCard({
 								)}
 							>
 								<Icon size={18} weight="bold" />
-								<span className="whitespace-nowrap font-medium text-[14px]">{label}</span>
+								<span className="text-[14px] font-medium whitespace-nowrap">{label}</span>
 								<CaretRightIcon size={18} className="ml-auto" weight="bold" />
 							</Link>
 						),
@@ -648,23 +648,23 @@ export function ContentList({
 	return (
 		<div className="">
 			<div className="flex items-center justify-between">
-				{title && <h3 className="font-semibold text-lg">{title}</h3>}
+				{title && <h3 className="text-lg font-semibold">{title}</h3>}
 				{isAdmin && onCreate && activeFilter !== "all" && (
 					<Button type="button" variant="destructive" size="sm" onClick={onCreate} className="mb-4">
 						<PlusIcon size={16} className="mr-2" weight="bold" />
 						Tambah Konten
 					</Button>
 				)}
-				{isLoading && !title && <p className="text-muted-foreground text-xs">Memuat...</p>}
+				{isLoading && !title && <p className="text-xs text-muted-foreground">Memuat...</p>}
 			</div>
 
 			{showCount && searchQuery && items && (
-				<p className="mb-4 text-muted-foreground text-sm">
+				<p className="mb-4 text-sm text-muted-foreground">
 					{items.length} hasil untuk "{searchQuery}"
 				</p>
 			)}
 
-			{error && <p className="text-red-500 text-sm">{error}</p>}
+			{error && <p className="text-sm text-red-500">{error}</p>}
 
 			{!isLoading && !error && (!localItems || localItems.length === 0) && (
 				<div className="flex flex-col items-center justify-center gap-2">
@@ -728,7 +728,7 @@ export function PracticeQuestionHeader({ content }: { content: string }) {
 
 			{/* Main content (penentu height) */}
 			<div className="relative flex items-center gap-6 px-6 py-4" style={{ zIndex: 1 }}>
-				<h1 className="font-medium text-neutral-1000 text-xl">{content}</h1>
+				<h1 className="text-xl font-medium text-neutral-1000">{content}</h1>
 			</div>
 		</div>
 	);
@@ -793,7 +793,7 @@ export function PracticeQuestion({
 
 			{/* Jawaban */}
 			<AnswerCollapsible title={answerTitle}>
-				<div className="text-muted-foreground text-sm">{answer}</div>
+				<div className="text-sm text-muted-foreground">{answer}</div>
 			</AnswerCollapsible>
 		</div>
 	);

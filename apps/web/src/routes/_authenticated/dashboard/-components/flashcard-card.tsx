@@ -100,7 +100,7 @@ export const FlashcardCard = () => {
 			<div className="flex flex-col gap-4">
 				<div className="relative flex min-h-24 items-end overflow-clip rounded-sm border border-green-700 bg-green-500 p-6">
 					<div className="pointer-events-none absolute top-1/2 -left-30 z-0 size-60 -translate-y-1/2 rounded-full bg-green-700" />
-					<p className="relative z-10 mt-auto font-semibold text-3xl text-white">
+					<p className="relative z-10 mt-auto text-3xl font-semibold text-white">
 						{hours}:{minutes}:{seconds}
 					</p>
 				</div>
@@ -144,7 +144,7 @@ export const FlashcardCard = () => {
 						>
 							<span
 								className={cn(
-									"rounded-xs border border-foreground/20 px-2 py-0.5 font-medium text-neutrals-500 text-sm transition-colors duration-300",
+									"text-neutrals-500 rounded-xs border border-foreground/20 px-2 py-0.5 text-sm font-medium transition-colors duration-300",
 									isCorrect && "border-green-800 bg-green-500 text-white",
 									isUserAnswer && isWrong && "border-red-500 bg-red-500 text-white",
 								)}

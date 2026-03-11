@@ -48,7 +48,7 @@ export function ManagePremiumDialog({
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<span className="font-medium text-sm">Premium Expiry Date</span>
+						<span className="text-sm font-medium">Premium Expiry Date</span>
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
@@ -68,7 +68,7 @@ export function ManagePremiumDialog({
 								/>
 							</PopoverContent>
 						</Popover>
-						<p className="text-muted-foreground text-xs">
+						<p className="text-xs text-muted-foreground">
 							{isPremium
 								? "Select a new expiry date to extend or modify premium access."
 								: "Select an expiry date for the premium access."}

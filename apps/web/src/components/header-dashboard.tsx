@@ -56,7 +56,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					</Button>
 				</div>
 			)}
-			<div className="flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
+			<div className="flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-b-2 border-accent bg-white px-6 backdrop-blur-lg md:px-8">
 				<Link to="/" className="relative size-12">
 					<Image src="/logo.svg" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
 				</Link>
@@ -124,7 +124,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 							<Link
 								key={link.to}
 								to={link.to}
-								className="rounded-md px-4 py-3 font-medium text-lg hover:bg-accent"
+								className="rounded-md px-4 py-3 text-lg font-medium hover:bg-accent"
 								onClick={() => setMobileMenuOpen(false)}
 							>
 								{link.name}

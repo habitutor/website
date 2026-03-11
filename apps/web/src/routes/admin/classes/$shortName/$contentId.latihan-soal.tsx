@@ -158,7 +158,7 @@ function RouteComponent() {
 	}
 
 	if (content.isError) {
-		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
 	}
 
 	if (!content.data) return notFound();
@@ -186,7 +186,7 @@ function RouteComponent() {
 			<AdminHeader title="Edit Practice Questions" description="Link practice questions to this content" />
 			<div className="mt-6 space-y-6">
 				<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-					<h2 className="font-semibold text-lg">Edit Latihan Soal</h2>
+					<h2 className="text-lg font-semibold">Edit Latihan Soal</h2>
 
 					<div className="flex gap-4">
 						<Button
@@ -240,8 +240,8 @@ function RouteComponent() {
 						<div className="space-y-4">
 							<div className="flex items-center justify-between">
 								<div>
-									<Label className="font-semibold text-base">Soal yang Sudah Terhubung</Label>
-									<p className="text-muted-foreground text-sm">
+									<Label className="text-base font-semibold">Soal yang Sudah Terhubung</Label>
+									<p className="text-sm text-muted-foreground">
 										{existingQuestions.length} soal sudah terhubung dengan konten ini
 									</p>
 								</div>
@@ -261,7 +261,7 @@ function RouteComponent() {
 														<div className="font-medium">
 															<TiptapRenderer content={question.question} />
 														</div>
-														<span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs">
+														<span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
 															Sudah Terhubung
 														</span>
 													</div>
@@ -315,10 +315,10 @@ function RouteComponent() {
 									</div>
 									<div className="max-h-60 overflow-y-auto p-1">
 										{practicePacks.isPending && (
-											<p className="py-6 text-center text-muted-foreground text-sm">Memuat...</p>
+											<p className="py-6 text-center text-sm text-muted-foreground">Memuat...</p>
 										)}
 										{practicePacks.data?.data.length === 0 && (
-											<p className="py-6 text-center text-muted-foreground text-sm">Tidak ada hasil</p>
+											<p className="py-6 text-center text-sm text-muted-foreground">Tidak ada hasil</p>
 										)}
 										{practicePacks.data?.data.map((pack: { id: number; title: string }) => (
 											<DropdownMenuItem
@@ -396,7 +396,7 @@ function RouteComponent() {
 																	<TiptapRenderer content={question.content} />
 																</div>
 																{isLinked && (
-																	<span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-xs">
+																	<span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
 																		Sudah Terhubung
 																	</span>
 																)}
@@ -428,7 +428,7 @@ function RouteComponent() {
 							</div>
 						)}
 
-						{packQuestions.isPending && <p className="text-muted-foreground text-sm">Memuat soal...</p>}
+						{packQuestions.isPending && <p className="text-sm text-muted-foreground">Memuat soal...</p>}
 					</div>
 				</div>
 			</div>

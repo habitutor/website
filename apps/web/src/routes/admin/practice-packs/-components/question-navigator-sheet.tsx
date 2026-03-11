@@ -47,7 +47,7 @@ export function QuestionNavigatorSheet({ questions, currentIndex, onQuestionClic
 								onClick={() => handleQuestionClick(idx)}
 								aria-current={isActive ? "true" : undefined}
 								className={cn(
-									"flex aspect-square w-full items-center justify-center rounded-lg border text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+									"flex aspect-square w-full items-center justify-center rounded-lg border text-sm transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
 									isActive
 										? "scale-105 border-primary bg-primary font-bold text-primary-foreground shadow-md"
 										: "hover:border-primary/50 hover:bg-muted",

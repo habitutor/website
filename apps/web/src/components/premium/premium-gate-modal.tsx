@@ -26,7 +26,7 @@ export function PremiumGateModal({ isOpen, onClose, contentType, previewContent 
 
 					{/* Content */}
 					<Card className="relative z-10 border-none shadow-none">
-						<CardHeader className="space-y-3 text-pretty text-center">
+						<CardHeader className="space-y-3 text-center text-pretty">
 							<CardTitle className="text-xl">
 								<span>
 									<Image

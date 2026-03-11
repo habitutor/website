@@ -100,23 +100,23 @@ export function BundlingCard({
 					colors.header,
 				)}
 			>
-				<h3 className="font-bold text-base text-neutral-100">{data.label}</h3>
+				<h3 className="text-base font-bold text-neutral-100">{data.label}</h3>
 			</div>
 
 			{/* Price Section */}
 			<div className={cn("relative z-10 border-2 border-b-0 px-6 py-4", colors.border)}>
-				<div className={cn("relative inline-block font-bold text-base", colors.text)}>
+				<div className={cn("relative inline-block text-base font-bold", colors.text)}>
 					{data.original_price}
-					<span className="pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -origin-center -rotate-6 bg-red-400" />
+					<span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-red-400" />
 				</div>
 				{monthlyPrice && (
 					<div className="mb-1 flex items-baseline gap-1">
-						<p className={cn("font-bold text-[16px]", colors.text)}>{monthlyPrice}</p>
+						<p className={cn("text-[16px] font-bold", colors.text)}>{monthlyPrice}</p>
 						<span className={cn("text-[12px]", colors.text)}>/ bulan</span>
 					</div>
 				)}
 				<div className="flex items-baseline gap-1">
-					<p className={cn("font-black text-3xl", colors.price)}>{displayPrice}</p>
+					<p className={cn("text-3xl font-black", colors.price)}>{displayPrice}</p>
 					<span className={cn("text-[12px]", colors.text)}>{data.suffix ?? "sampai SNBT"}</span>
 				</div>
 				<p className={cn("text-[12px]", colors.text)}>
@@ -208,11 +208,11 @@ function TierButton({
 				onSubscribe(variant);
 			}}
 			className={cn(
-				"flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium text-sm transition-colors",
+				"flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
 				isCurrentPlan
 					? variant === "premium2"
 						? "bg-secondary-200 text-secondary-900"
-						: "bg-primary-100 text-primary-600"
+						: "text-primary-600 bg-primary-100"
 					: bundlingColors[variant].button,
 			)}
 		>

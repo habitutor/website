@@ -187,8 +187,8 @@ function RouteComponent() {
 			<MotionStaggerItem>
 				<div className="space-y-6 rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
 					<div className="flex flex-col">
-						<span className="font-bold text-lg sm:text-2xl">Ultimate Bundling</span>
-						<span className="font-medium text-sm sm:text-lg">
+						<span className="text-lg font-bold sm:text-2xl">Ultimate Bundling</span>
+						<span className="text-sm font-medium sm:text-lg">
 							Paket yang paling worth it!!! Paling lengkap + murah!!
 						</span>
 					</div>
@@ -200,8 +200,8 @@ function RouteComponent() {
 			<MotionStaggerItem>
 				<div className="space-y-6 rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
 					<div className="flex flex-col">
-						<span className="font-bold text-lg sm:text-2xl">Privilege</span>
-						<span className="font-medium text-sm sm:text-lg">
+						<span className="text-lg font-bold sm:text-2xl">Privilege</span>
+						<span className="text-sm font-medium sm:text-lg">
 							Pilihan paket belajar yang lebih ringan dengan benefit terarah.
 						</span>
 					</div>
@@ -213,8 +213,8 @@ function RouteComponent() {
 			<MotionStaggerItem>
 				<div className="space-y-6 rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
 					<div className="flex flex-col">
-						<span className="font-bold text-lg sm:text-2xl">Perintis & Classroom</span>
-						<span className="font-medium text-sm sm:text-lg">
+						<span className="text-lg font-bold sm:text-2xl">Perintis & Classroom</span>
+						<span className="text-sm font-medium sm:text-lg">
 							Pilihan belajar bertahap dengan isi dan warna yang sama seperti section perintis.
 						</span>
 					</div>
@@ -226,8 +226,8 @@ function RouteComponent() {
 			<MotionStaggerItem>
 				<div className="space-y-6 rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
 					<div className="flex flex-col">
-						<span className="font-bold text-lg sm:text-2xl">Paket Try Out</span>
-						<span className="font-medium text-sm sm:text-lg">
+						<span className="text-lg font-bold sm:text-2xl">Paket Try Out</span>
+						<span className="text-sm font-medium sm:text-lg">
 							Pilih paket try out sesuai intensitas latihan yang kamu butuhkan.
 						</span>
 					</div>

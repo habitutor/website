@@ -110,12 +110,12 @@ function RouteComponent() {
 
 	return (
 		<>
-			<h1 className="mb-6 font-bold text-2xl">{pack.data?.title}</h1>
+			<h1 className="mb-6 text-2xl font-bold">{pack.data?.title}</h1>
 
 			<div className="space-y-6">
 				{pack.data?.questions.map((q, idx) => (
 					<Card key={q.id} className="p-6">
-						<h3 className="mb-4 flex items-start gap-2 font-medium text-lg">
+						<h3 className="mb-4 flex items-start gap-2 text-lg font-medium">
 							<span>{idx + 1}.</span>
 							<TiptapRenderer content={q.content} />
 						</h3>

@@ -16,7 +16,7 @@ export default function Footer() {
 							layout="fullWidth"
 							className="pointer-events-none -ml-2.5 select-none"
 						/>
-						<h3 className="font-medium text-2xl">Habitutor</h3>
+						<h3 className="text-2xl font-medium">Habitutor</h3>
 					</div>
 					<p className="text-center sm:text-left">Ubah Persiapan Ujian Menjadi Investasi Masa Depan</p>
 				</div>

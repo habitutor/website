@@ -16,10 +16,10 @@ export function Pricing() {
 	return (
 		<Container className="items-center gap-8 2xl:max-w-340">
 			<div className="space-y-2 text-center *:text-pretty">
-				<h2 className="font-bold text-2xl sm:text-3xl">
+				<h2 className="text-2xl font-bold sm:text-3xl">
 					Investasi Cerdas untuk Hasil yang <span className="text-primary-300">Maksimal</span>
 				</h2>
-				<p className="text-pretty font-medium text-sm md:text-base">
+				<p className="text-sm font-medium text-pretty md:text-base">
 					Dapatkan materi lengkap plus strategi rahasia dari kakak-kakak TOP PTN!
 				</p>
 			</div>
@@ -37,7 +37,7 @@ export function Pricing() {
 			{/* Paket Try Out */}
 			<div className="flex max-w-250 flex-col items-center justify-center gap-8">
 				<div className="flex h-11 w-full items-center justify-center rounded-2xl border border-neutral-200 bg-tertiary-100 text-center *:text-pretty">
-					<h3 className="font-bold text-base">Paket Try Out</h3>
+					<h3 className="text-base font-bold">Paket Try Out</h3>
 				</div>
 				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3">
 					{tryout.map((plan) => (
@@ -71,9 +71,9 @@ function TryOutCard({ data }: { data: TryOutCardData }) {
 		>
 			{/* Top */}
 			<div className="space-y-2 border-b bg-background p-6">
-				<h3 className="font-medium text-base">{data.label}</h3>
+				<h3 className="text-base font-medium">{data.label}</h3>
 
-				{data.price && <p className="font-bold text-3xl text-primary-300">{data.price}</p>}
+				{data.price && <p className="text-3xl font-bold text-primary-300">{data.price}</p>}
 			</div>
 
 			{/* Features */}
@@ -132,12 +132,12 @@ function BasicCard({ data }: { data: PlanData }) {
 			className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-b-neutral-200 bg-white shadow-sm"
 		>
 			{/* Top */}
-			<div className="relative h-38 space-y-2 border-neutral-200 border-b p-6">
-				<h3 className="font-medium text-base">{data.label}</h3>
+			<div className="relative h-38 space-y-2 border-b border-neutral-200 p-6">
+				<h3 className="text-base font-medium">{data.label}</h3>
 
 				<div>
 					{"price_monthly" in data && data.price_monthly && (
-						<p className="relative z-1 font-semibold text-sm">
+						<p className="relative z-1 text-sm font-semibold">
 							{data.price_monthly} <span className="font-normal">/ bulan</span>
 						</p>
 					)}
@@ -145,13 +145,13 @@ function BasicCard({ data }: { data: PlanData }) {
 					{"price_full" in data && data.price_full && (
 						<p
 							className={cn(
-								"relative z-1 text-wrap font-bold text-3xl text-primary-300",
+								"relative z-1 text-3xl font-bold text-wrap text-primary-300",
 								data.label === "Mentoring Privilege" ? "text-black" : "",
 							)}
 						>
 							{data.price_full}
 							{"suffix" in data && data.suffix && (
-								<span className="ml-1 font-normal text-black text-sm">{data.suffix}</span>
+								<span className="ml-1 text-sm font-normal text-black">{data.suffix}</span>
 							)}
 						</p>
 					)}
@@ -195,24 +195,24 @@ function PremiumCard({ data }: { data: PlanData }) {
 		>
 			{/* Top */}
 			<div className="relative h-38 overflow-hidden bg-primary-300 p-6">
-				<div className="absolute top-6 right-6 z-50 flex items-center justify-center rounded-sm bg-primary-100 p-1.25 text-neutral-100 text-sm">
+				<div className="absolute top-6 right-6 z-50 flex items-center justify-center rounded-sm bg-primary-100 p-1.25 text-sm text-neutral-100">
 					<p className="-mt-0.75">Paling Lengkap!</p>
 				</div>
-				<h3 className="font-medium text-base text-white">{data.label}</h3>
-				<div className="relative inline-block font-bold text-base text-white">
+				<h3 className="text-base font-medium text-white">{data.label}</h3>
+				<div className="relative inline-block text-base font-bold text-white">
 					{data.original_price}
 
-					<span className="pointer-events-none absolute top-1/2 left-0 h-[2px] w-full -origin-center -rotate-6 bg-red-400" />
+					<span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-[2px] w-full -rotate-6 bg-red-400" />
 				</div>
 
 				<div>
-					<p className="relative z-1 flex flex-row items-end font-bold text-3xl text-secondary-200">
+					<p className="relative z-1 flex flex-row items-end text-3xl font-bold text-secondary-200">
 						{data.price_now}
 						{"suffix" in data && data.suffix && (
-							<span className="ml-1 whitespace-nowrap font-normal text-sm text-white">{data.suffix}</span>
+							<span className="ml-1 text-sm font-normal whitespace-nowrap text-white">{data.suffix}</span>
 						)}
 					</p>
-					<p className="relative z-1 font-normal text-sm text-white">
+					<p className="relative z-1 text-sm font-normal text-white">
 						promo <span className="font-bold text-red-100">hemat 75%</span> hanya sampai 1 Maret
 					</p>
 				</div>

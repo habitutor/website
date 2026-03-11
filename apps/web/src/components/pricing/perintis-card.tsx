@@ -70,19 +70,19 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
 					cardColors.border,
 				)}
 			>
-				<h3 className="font-bold text-base text-neutral-1000">{data.label}</h3>
+				<h3 className="text-base font-bold text-neutral-1000">{data.label}</h3>
 			</div>
 
 			{/* Price Section */}
 			<div className="relative z-10 border-2 border-b-0 px-6 py-4">
 				{data.price_monthly && (
 					<div className="mb-1 flex items-baseline gap-1">
-						<p className={cn("font-bold text-[16px] text-neutral-1000")}>{data.price_monthly}</p>
+						<p className={cn("text-[16px] font-bold text-neutral-1000")}>{data.price_monthly}</p>
 						<span className="text-[12px]">/ bulan</span>
 					</div>
 				)}
 				<div className="flex items-baseline gap-1">
-					<p className="font-black text-3xl text-primary-300">{data.price_full}</p>
+					<p className="text-3xl font-black text-primary-300">{data.price_full}</p>
 					<span className="text-[12px] text-neutral-1000">sampai SNBT</span>
 				</div>
 				<hr className="mt-4 border-neutral-200" />
@@ -103,7 +103,7 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
 			</div>
 
 			{/* Button Section */}
-			<div className="relative z-10 rounded-b-2xl border-2 border-neutral-200 border-t-0 p-6">
+			<div className="relative z-10 rounded-b-2xl border-2 border-t-0 border-neutral-200 p-6">
 				<Link
 					to={data.cta.url as string}
 					className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full hover:bg-neutral-200")}

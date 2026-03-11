@@ -56,7 +56,7 @@ export function AdminBreadcrumbs() {
 	const breadcrumbs = generateBreadcrumbs(location.pathname, matches);
 
 	return (
-		<nav className="flex items-center gap-2 font-medium text-muted-foreground text-sm">
+		<nav className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
 			<Link to="/admin/dashboard" className="hover:text-foreground">
 				Admin
 			</Link>
@@ -96,8 +96,8 @@ export function AdminHeader({ title, description, children, backTo }: AdminHeade
 						Kembali
 					</Link>
 				)}
-				<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">{title}</h1>
-				{description && <p className="mt-1 text-muted-foreground text-sm">{description}</p>}
+				<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+				{description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
 			</div>
 			{children && <div className="flex items-center gap-2">{children}</div>}
 		</div>

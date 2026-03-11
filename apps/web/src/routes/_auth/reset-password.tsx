@@ -112,7 +112,7 @@ function ResetPasswordForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -135,7 +135,7 @@ function ResetPasswordForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}

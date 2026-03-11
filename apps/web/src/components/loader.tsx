@@ -27,7 +27,7 @@ export default function Loader() {
 					/>
 				))}
 			</div>
-			<p className="animate-pulse font-medium text-muted-foreground text-sm">{text}</p>
+			<p className="animate-pulse text-sm font-medium text-muted-foreground">{text}</p>
 		</div>
 	);
 }

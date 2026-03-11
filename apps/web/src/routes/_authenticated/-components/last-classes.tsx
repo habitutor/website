@@ -26,7 +26,7 @@ export const LastClasses = () => {
 				<h2 className="font-medium">Kelas terakhirmu</h2>
 				<div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
 					<img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
-					<p className="font-bold text-2xl text-black">Kamu belum melihat kelas apapun</p>
+					<p className="text-2xl font-bold text-black">Kamu belum melihat kelas apapun</p>
 					<Button asChild>
 						<Link to="/classes">
 							Kelas Sekarang <ArrowRightIcon className="" />

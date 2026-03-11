@@ -30,14 +30,14 @@ export function CallToAction() {
 				/>
 			</MotionPulse>
 			{/* TOP CONTAINER */}
-			<div className="container relative mx-4 flex h-150 min-h-122.25 w-full flex-col overflow-hidden rounded-t-2xl border-[#B3DFF5] border-x-2 border-t-2 bg-[#F4FAFF] md:h-full">
+			<div className="relative container mx-4 flex h-150 min-h-122.25 w-full flex-col overflow-hidden rounded-t-2xl border-x-2 border-t-2 border-[#B3DFF5] bg-[#F4FAFF] md:h-full">
 				<div className="relative z-10 flex h-150 flex-1 flex-col justify-start px-8 py-8 md:h-full md:justify-center md:px-10 lg:px-20">
 					<div className="flex w-full flex-col lg:flex-row lg:items-center">
 						{/* Left Content */}
 						<div className="z-20 flex flex-col items-start gap-6 lg:w-2/3">
 							<div className="space-y-2">
 								<m.h2
-									className="max-w-5xl text-pretty font-extrabold font-sans text-2xl md:text-5xl"
+									className="max-w-5xl font-sans text-2xl font-extrabold text-pretty md:text-5xl"
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ duration: 0.3 }}
@@ -60,7 +60,7 @@ export function CallToAction() {
 								</m.h2>
 
 								<m.p
-									className="text-pretty text-sm md:text-lg"
+									className="text-sm text-pretty md:text-lg"
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ duration: 0.3, delay: 0.1 }}
@@ -103,13 +103,13 @@ export function CallToAction() {
 				</div>
 			</div>
 			{/* BOTTOM CONTAINER */}
-			<div className="container relative z-10 mx-4 w-full rounded-b-2xl border-[#24356B] border-x-2 border-b-2 bg-[#3650A2] py-7 text-white md:py-10">
+			<div className="relative z-10 container mx-4 w-full rounded-b-2xl border-x-2 border-b-2 border-[#24356B] bg-[#3650A2] py-7 text-white md:py-10">
 				<div className="w-full space-y-4 px-6 md:px-10 lg:px-20">
 					<div className="flex flex-col items-center justify-between border-neutral-100 pb-3 sm:flex-row sm:gap-6 md:border-b">
 						<div className="flex flex-col items-center gap-1 sm:items-start">
 							<div className="flex items-center gap-2">
 								<img src={"/logo.svg"} alt="Logo Habitutor" className="pointer-events-none -ml-2.5 select-none" />
-								<h3 className="font-medium text-2xl">Habitutor</h3>
+								<h3 className="text-2xl font-medium">Habitutor</h3>
 							</div>
 						</div>
 

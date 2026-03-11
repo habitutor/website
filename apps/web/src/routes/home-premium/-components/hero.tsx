@@ -30,13 +30,13 @@ export function Hero() {
 				</MotionPulse>
 			</div>
 			<main className="relative mx-auto flex w-full flex-col items-center justify-center overflow-hidden px-4 py-22">
-				<div className="container z-1 flex shrink-0 flex-col items-center space-y-10 pt-8 md:mx-auto md:space-y-13 md:pt-20">
+				<div className="z-1 container flex shrink-0 flex-col items-center space-y-10 pt-8 md:mx-auto md:space-y-13 md:pt-20">
 					<div className="flex max-w-4xl flex-col items-center gap-1 text-center md:gap-2">
 						<m.h2
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3, delay: 0 }}
-							className="font-extrabold font-sans text-3xl leading-10 sm:text-4xl md:text-5xl md:leading-18"
+							className="font-sans text-3xl leading-10 font-extrabold sm:text-4xl md:text-5xl md:leading-18"
 						>
 							Akses Premium Untuk <span className="text-primary-300">Strategi</span>{" "}
 							<m.span
@@ -64,7 +64,7 @@ export function Hero() {
 				<div className="absolute inset-0 inset-y-0 z-2 bg-tertiary-100 [clip-path:polygon(30%_100%,70%_100%,100%_30%,100%_100%,0_100%,0_30%)] md:[clip-path:polygon(20%_100%,80%_100%,100%_0,100%_100%,0_100%,0_0)] xl:[clip-path:polygon(25%_100%,75%_100%,100%_0,100%_100%,0_100%,0_0)] 2xl:[clip-path:polygon(35%_100%,65%_100%,100%_0,100%_100%,0_100%,0_0)]" />
 				<div className="absolute left-1/2 h-75 w-130 -translate-x-1/2 rounded-t-full border-2 border-red-200 bg-red-100 md:h-115 md:w-230" />
 				<div className="relative z-10 flex h-full flex-col items-center justify-end pb-5 md:pb-10">
-					<p className="text-center font-bold text-lg md:text-2xl">Ultimate Bundling & Privilege</p>
+					<p className="text-center text-lg font-bold md:text-2xl">Ultimate Bundling & Privilege</p>
 					<p className="max-w-50 text-center text-sm md:max-w-none md:text-lg">
 						Paket yang paling worth it, Paling lengkap dan murah!!
 					</p>

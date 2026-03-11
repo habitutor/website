@@ -55,12 +55,12 @@ export function PrivilegeCard({ variant }: PrivilegeCardProps) {
 			/>
 
 			<div className={cn("relative z-10 rounded-t-2xl border-2 px-6 py-4", colors.header)}>
-				<h3 className="font-bold text-base text-neutral-1000">{data.label}</h3>
+				<h3 className="text-base font-bold text-neutral-1000">{data.label}</h3>
 			</div>
 
-			<div className="relative z-10 border-2 border-neutral-200 border-b-0 px-6 py-4">
+			<div className="relative z-10 border-2 border-b-0 border-neutral-200 px-6 py-4">
 				<div className="flex items-baseline gap-1">
-					<p className="font-bold text-2xl text-[#3650A2]">{data.price_full}</p>
+					<p className="text-2xl font-bold text-[#3650A2]">{data.price_full}</p>
 					<span className="text-[12px]">{data.suffix}</span>
 				</div>
 				{data.percentage && data.promo_end && (
@@ -71,7 +71,7 @@ export function PrivilegeCard({ variant }: PrivilegeCardProps) {
 				<hr className="mt-4 border-slate-100" />
 			</div>
 
-			<div className="relative z-10 flex-1 border-neutral-200 border-x-2 px-6 pb-4">
+			<div className="relative z-10 flex-1 border-x-2 border-neutral-200 px-6 pb-4">
 				<ul className={cn("mt-2 grid grid-cols-2 gap-2")}>
 					{data.features.map((feature) => (
 						<li key={feature.label} className="flex items-center gap-2 text-xs">
@@ -82,7 +82,7 @@ export function PrivilegeCard({ variant }: PrivilegeCardProps) {
 				</ul>
 			</div>
 
-			<div className="relative z-10 rounded-b-2xl border-2 border-neutral-200 border-t-0 p-6">
+			<div className="relative z-10 rounded-b-2xl border-2 border-t-0 border-neutral-200 p-6">
 				<Link
 					to={data.cta.url}
 					className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full hover:bg-neutral-200")}

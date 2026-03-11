@@ -74,7 +74,7 @@ export function AddExistingQuestionModal({
 									<div className="prose prose-sm max-w-none font-medium">
 										<TiptapRenderer content={q.content} />
 									</div>
-									<div className="line-clamp-1 text-muted-foreground text-sm">
+									<div className="line-clamp-1 text-sm text-muted-foreground">
 										<TiptapRenderer content={q.discussion} />
 									</div>
 								</div>

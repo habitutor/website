@@ -16,7 +16,7 @@ function RouteComponent() {
 	return (
 		<>
 			<div className="flex justify-between gap-4">
-				<h1 className="mb-6 font-bold text-2xl">Latihan Soal</h1>
+				<h1 className="mb-6 text-2xl font-bold">Latihan Soal</h1>
 
 				<Button asChild>
 					<Link to="/latihan-soal/riwayat">
@@ -69,7 +69,7 @@ const PacketCard = (props: {
 	return (
 		<Card className="p-4">
 			<div className="flex flex-col justify-between gap-4">
-				<h3 className="font-medium text-lg">{props.title}</h3>
+				<h3 className="text-lg font-medium">{props.title}</h3>
 				{props.packStatus === "ongoing" ? (
 					<Button asChild type="button" variant={"secondary"} className="flex-1 hover:cursor-pointer">
 						<Link

@@ -90,21 +90,21 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 						premiumColors.header,
 					)}
 				>
-					<h3 className="font-bold text-base">{data.label}</h3>
+					<h3 className="text-base font-bold">{data.label}</h3>
 					{span && (
-						<span className="rounded-xl bg-red-100 px-2 py-0.5 font-medium text-[10px] text-black uppercase">
+						<span className="rounded-xl bg-red-100 px-2 py-0.5 text-[10px] font-medium text-black uppercase">
 							Terlengkap!
 						</span>
 					)}
 				</div>
 				<div className={cn("relative z-10 border-2 border-b-0 px-6 py-4", premiumColors.border)}>
-					<div className={cn("relative inline-block font-bold text-base", premiumColors.text)}>
+					<div className={cn("relative inline-block text-base font-bold", premiumColors.text)}>
 						{data.original_price}
-						<span className="pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -origin-center -rotate-6 bg-red-400" />
+						<span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-red-400" />
 					</div>
 					<div className="flex items-baseline gap-1">
-						<p className={cn("font-black text-3xl", premiumColors.price)}>{data.price_now}</p>
-						<span className="whitespace-nowrap text-[10px]">sampai SNBT</span>
+						<p className={cn("text-3xl font-black", premiumColors.price)}>{data.price_now}</p>
+						<span className="text-[10px] whitespace-nowrap">sampai SNBT</span>
 					</div>
 					<p className={cn("text-[12px]")}>
 						promo <span className={cn("font-bold", premiumColors.promo)}>hemat {data.percentage}</span> sampai{" "}
@@ -141,22 +141,22 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 				className={cn("absolute bottom-13 left-1/2 z-0 size-9 -translate-x-1/2 rounded-full border-2", colors?.circle)}
 			/>
 			<div className={cn("relative z-10 rounded-t-2xl border-2 px-6 py-4", colors?.header)}>
-				<h3 className="font-bold text-base text-neutral-1000">{data.label}</h3>
+				<h3 className="text-base font-bold text-neutral-1000">{data.label}</h3>
 			</div>
-			<div className="relative z-10 border-2 border-neutral-200 border-b-0 px-6 py-4">
+			<div className="relative z-10 border-2 border-b-0 border-neutral-200 px-6 py-4">
 				{data.price_monthly && (
 					<div className="flex items-baseline gap-1">
-						<p className="font-bold text-[16px]">{data.price_monthly}</p>
+						<p className="text-[16px] font-bold">{data.price_monthly}</p>
 						<span className="font-regular text-[12px]">/ bulan</span>
 					</div>
 				)}
 				<div className="flex items-baseline gap-1">
-					<p className="font-bold text-2xl text-[#3650A2]">{data.price_full}</p>
+					<p className="text-2xl font-bold text-[#3650A2]">{data.price_full}</p>
 					<span className="text-[12px]">sampai SNBT</span>
 				</div>
 				<hr className="mt-4 border-slate-100" />
 			</div>
-			<div className="relative z-10 flex-1 border-neutral-200 border-x-2 px-6 pb-4">
+			<div className="relative z-10 flex-1 border-x-2 border-neutral-200 px-6 pb-4">
 				<ul className="mt-2 space-y-2">
 					{data.features.map((feature) => (
 						<li key={feature.label} className="flex items-center gap-2 text-xs">
@@ -166,7 +166,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
 					))}
 				</ul>
 			</div>
-			<div className="relative z-10 rounded-b-2xl border-2 border-neutral-200 border-t-0 p-6">
+			<div className="relative z-10 rounded-b-2xl border-2 border-t-0 border-neutral-200 p-6">
 				<Link
 					to={data.cta.url as string}
 					className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full hover:bg-neutral-200")}

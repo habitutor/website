@@ -65,14 +65,14 @@ function StatsCard({
 	return (
 		<Card className={`overflow-hidden transition-all hover:shadow-md ${className}`}>
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-				<CardTitle className="font-medium text-muted-foreground text-sm">{title}</CardTitle>
+				<CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
 				<Icon className={`size-4 ${iconClassName}`} weight="bold" />
 			</CardHeader>
 			<CardContent>
 				{isLoading ? (
 					<Skeleton className="h-8 w-20" />
 				) : (
-					<div className="font-bold text-2xl sm:text-3xl">{value?.toLocaleString() || 0}</div>
+					<div className="text-2xl font-bold sm:text-3xl">{value?.toLocaleString() || 0}</div>
 				)}
 			</CardContent>
 		</Card>

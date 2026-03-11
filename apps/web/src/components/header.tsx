@@ -45,7 +45,7 @@ export default function Header() {
 
 	return (
 		<>
-			<div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 border-neutral-300 border-b bg-white px-6 backdrop-blur-lg md:rounded-lg md:px-8">
+			<div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 border-b border-neutral-300 bg-white px-6 backdrop-blur-lg md:rounded-lg md:px-8">
 				<Link to="/" className="relative size-12 text-primary">
 					<Image
 						src={"/logo.svg"}
@@ -68,7 +68,7 @@ export default function Header() {
 
 			{/* Mobile Dropdown Menu */}
 			{isMobile && isOpen && (
-				<div className="fade-in slide-in-from-top-2 fixed inset-x-0 top-20 z-40 mx-1 animate-in rounded-b-lg border border-neutral-300 border-t-0 bg-white shadow-lg duration-300">
+				<div className="fixed inset-x-0 top-20 z-40 mx-1 animate-in rounded-b-lg border border-t-0 border-neutral-300 bg-white shadow-lg duration-300 fade-in slide-in-from-top-2">
 					<div className="flex flex-col gap-2 p-4 text-center">{menuItems}</div>
 				</div>
 			)}

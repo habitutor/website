@@ -26,7 +26,7 @@ const Material = () => {
 	return (
 		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
 			<div className="z-10 space-y-0.5">
-				<h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
+				<h4 className={`text-4xl font-bold sm:text-5xl ${isPending && "animate-pulse"}`}>
 					{!isPending ? (data?.materialsCompleted ?? 0) : "..."}
 				</h4>
 				<p className="font-bold">Materi Dipelajari</p>
@@ -54,7 +54,7 @@ const Tryout = () => {
 	return (
 		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
 			<div className="z-10 space-y-0.5">
-				<h2 className="font-bold text-2xl">Kerjakan Tryout</h2>
+				<h2 className="text-2xl font-bold">Kerjakan Tryout</h2>
 			</div>
 
 			<Button asChild size="icon" variant="secondary" className="z-10">
@@ -89,14 +89,14 @@ const Flashcard = () => {
 	return (
 		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
 			<div className="z-10 space-y-0.5">
-				<h4 className={"font-bold text-5xl sm:text-6xl"}>{session.user.flashcardStreak}</h4>
+				<h4 className={"text-5xl font-bold sm:text-6xl"}>{session.user.flashcardStreak}</h4>
 				<p className="font-bold">Streak Brain Gym</p>
 			</div>
 
 			<div className="flex items-center gap-2">
 				<Button
 					size="lg"
-					className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+					className="z-10 max-sm:h-auto max-sm:py-1 max-sm:text-xs max-sm:text-wrap max-sm:has-[>svg]:px-2"
 					asChild
 				>
 					{session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() ? (
@@ -112,7 +112,7 @@ const Flashcard = () => {
 				{session.user.isPremium && session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() && (
 					<Button
 						size="lg"
-						className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
+						className="z-10 max-sm:h-auto max-sm:py-1 max-sm:text-xs max-sm:text-wrap max-sm:has-[>svg]:px-2"
 						asChild
 					>
 						<Link to="/dashboard/flashcard">

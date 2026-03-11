@@ -65,19 +65,19 @@ export function PerintisClassroomCard({ variant }: PerintisClassroomCardProps) {
 			/>
 
 			<div className={cn("relative z-10 rounded-t-2xl border-2 px-6 py-4 text-neutral-1000", colors.bg, colors.border)}>
-				<h3 className="font-bold text-base text-neutral-1000">{data.label}</h3>
+				<h3 className="text-base font-bold text-neutral-1000">{data.label}</h3>
 			</div>
 
 			<div className="relative z-10 border-2 border-b-0 px-6 py-4">
 				{data.price_monthly && (
 					<div className="mb-1 flex items-baseline gap-1">
-						<p className="font-bold text-[16px] text-neutral-1000">{data.price_monthly}</p>
+						<p className="text-[16px] font-bold text-neutral-1000">{data.price_monthly}</p>
 						<span className="text-[12px]">/ bulan</span>
 					</div>
 				)}
 				<div className="flex items-baseline gap-1">
-					<p className="font-black text-3xl text-primary-300">{data.price_full}</p>
-					<span className="whitespace-nowrap text-[12px] text-neutral-1000">{data.suffix}</span>
+					<p className="text-3xl font-black text-primary-300">{data.price_full}</p>
+					<span className="text-[12px] whitespace-nowrap text-neutral-1000">{data.suffix}</span>
 				</div>
 				<hr className="mt-4 border-neutral-200" />
 			</div>
@@ -93,7 +93,7 @@ export function PerintisClassroomCard({ variant }: PerintisClassroomCardProps) {
 				</ul>
 			</div>
 
-			<div className="relative z-10 rounded-b-2xl border-2 border-neutral-200 border-t-0 p-6">
+			<div className="relative z-10 rounded-b-2xl border-2 border-t-0 border-neutral-200 p-6">
 				<Link
 					to={data.cta.url}
 					className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full hover:bg-neutral-200")}

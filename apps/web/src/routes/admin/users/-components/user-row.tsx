@@ -41,13 +41,13 @@ export function UserRow({ user }: UserRowProps) {
 				<TableCell className="font-medium">{user.name}</TableCell>
 				<TableCell>{user.email}</TableCell>
 				<TableCell>
-					<span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 font-medium text-xs capitalize">
+					<span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
 						{user.role || "user"}
 					</span>
 				</TableCell>
 				<TableCell>
 					{isPremium ? (
-						<span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-medium text-[10px] text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+						<span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
 							<Crown className="size-3" weight="fill" />
 							Premium
 							{user.premiumExpiresAt && (
@@ -57,12 +57,12 @@ export function UserRow({ user }: UserRowProps) {
 							)}
 						</span>
 					) : (
-						<span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 font-medium text-[10px] text-muted-foreground">
+						<span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
 							Free
 						</span>
 					)}
 				</TableCell>
-				<TableCell className="text-muted-foreground text-sm">
+				<TableCell className="text-sm text-muted-foreground">
 					{format(new Date(user.createdAt), "MMM d, yyyy")}
 				</TableCell>
 				<TableCell className="text-right">

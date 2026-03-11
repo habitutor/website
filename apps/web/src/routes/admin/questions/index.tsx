@@ -166,8 +166,8 @@ function QuestionsPage() {
 			) : !questions || questions.length === 0 ? (
 				<div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
 					<Exam className="mb-4 size-12 text-muted-foreground" />
-					<h3 className="mb-2 font-semibold text-lg">No questions found</h3>
-					<p className="text-muted-foreground text-sm">
+					<h3 className="mb-2 text-lg font-semibold">No questions found</h3>
+					<p className="text-sm text-muted-foreground">
 						{searchQuery ? "Try adjusting your search query" : "Get started by creating questions from practice packs"}
 					</p>
 				</div>
@@ -279,36 +279,36 @@ function QuestionCard({
 						</div>
 
 						{/* Mini Discussion Preview */}
-						<div className="flex items-center gap-2 font-bold text-[10px] text-muted-foreground uppercase tracking-wider">
+						<div className="flex items-center gap-2 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
 							<span>Discussion Preview</span>
 						</div>
-						<div className="line-clamp-1 text-muted-foreground text-xs italic opacity-80">
+						<div className="line-clamp-1 text-xs text-muted-foreground italic opacity-80">
 							<TiptapRenderer content={question.discussion} />
 						</div>
 					</div>
 
 					{/* Metadata */}
-					<div className="mt-auto flex items-center gap-4 font-medium text-muted-foreground text-xs">
+					<div className="mt-auto flex items-center gap-4 text-xs font-medium text-muted-foreground">
 						<div className="flex items-center gap-1.5">
 							{question.packCount > 0 ? (
-								<span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 font-bold text-[10px] text-green-800 dark:bg-green-900/30 dark:text-green-400">
+								<span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-800 dark:bg-green-900/30 dark:text-green-400">
 									<Package className="mr-1 size-3" />
 									Used in {question.packCount} pack{question.packCount !== 1 ? "s" : ""}
 								</span>
 							) : (
-								<span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 font-bold text-[10px] text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+								<span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-800 dark:bg-gray-800 dark:text-gray-300">
 									Unused
 								</span>
 							)}
 						</div>
 						<div className="flex items-center gap-1.5">
 							{question.isFlashcardQuestion ? (
-								<span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 font-bold text-[10px] text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+								<span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
 									<Cards className="mr-1 size-3" />
 									Flashcard
 								</span>
 							) : (
-								<span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 font-bold text-[10px] text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+								<span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
 									No Flashcard
 								</span>
 							)}
@@ -317,7 +317,7 @@ function QuestionCard({
 					</div>
 				</Link>
 
-				<div className="absolute top-4 right-4 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+				<div className="absolute top-4 right-4 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="ghost" size="icon" className="size-8 bg-background/80 backdrop-blur-sm">
@@ -395,7 +395,7 @@ function QuestionCard({
 						<AlertDialogAction
 							onClick={handleDelete}
 							disabled={deleteMutation.isPending}
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+							className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
 						>
 							{deleteMutation.isPending ? "Deleting..." : "Delete"}
 						</AlertDialogAction>

@@ -192,10 +192,10 @@ const Carousel: React.FC<CarouselProps> = ({
 			<div
 				className={`mx-auto flex aspect-video w-full max-w-[90vw] flex-col overflow-hidden rounded-[20px] border border-neutral-200 shadow-sm transition sm:max-w-none ${bgColor}`}
 			>
-				<div className="flex flex-1 flex-col justify-between text-pretty p-4 text-left">
-					<p className="max-h-full overflow-y-auto font-light text-sm">{item.desc}</p>
+				<div className="flex flex-1 flex-col justify-between p-4 text-left text-pretty">
+					<p className="max-h-full overflow-y-auto text-sm font-light">{item.desc}</p>
 					<div>
-						<h3 className="font-medium text-lg">{item.name}</h3>
+						<h3 className="text-lg font-medium">{item.name}</h3>
 						<h4 className="text-base">{item.title}</h4>
 					</div>
 				</div>
@@ -300,7 +300,7 @@ const Carousel: React.FC<CarouselProps> = ({
 								onClick={() => goToSlide(index)}
 								disabled={isTransitioning}
 								className={`size-2 rounded-full transition-all duration-200 disabled:cursor-not-allowed ${
-									index === activeIndex ? "scale-125 bg-dot-active" : "scale-125 bg-dot-inactive"
+									index === activeIndex ? "bg-dot-active scale-125" : "bg-dot-inactive scale-125"
 								}`}
 							/>
 						);

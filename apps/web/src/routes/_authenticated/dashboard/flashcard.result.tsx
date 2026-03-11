@@ -50,7 +50,7 @@ function RouteComponent() {
 
 			<div className="relative flex items-end overflow-clip bg-green-700 p-4">
 				<div className="pointer-events-none absolute top-1/2 -right-30 z-0 size-60 -translate-y-1/2 rounded-full bg-green-500" />
-				<h1 className="relative z-10 my-auto font-normal text-white text-xl">Brain Gym</h1>
+				<h1 className="relative z-10 my-auto text-xl font-normal text-white">Brain Gym</h1>
 			</div>
 
 			<div className="flex gap-2 max-sm:flex-col [&>div]:min-w-46">
@@ -61,7 +61,7 @@ function RouteComponent() {
 							<Skeleton className="h-10 w-16" />
 						) : (
 							<>
-								<span className="mr-1 font-bold text-4xl text-primary">
+								<span className="mr-1 text-4xl font-bold text-primary">
 									{((data?.correctAnswersCount || 0) / (data?.questionsCount || 5)) * 100}
 								</span>
 								/100
@@ -77,7 +77,7 @@ function RouteComponent() {
 							<Skeleton className="h-10 w-16" />
 						) : (
 							<>
-								<span className="mr-1 font-bold text-4xl text-primary">{data?.correctAnswersCount}</span>/
+								<span className="mr-1 text-4xl font-bold text-primary">{data?.correctAnswersCount}</span>/
 								{data?.questionsCount}
 							</>
 						)}

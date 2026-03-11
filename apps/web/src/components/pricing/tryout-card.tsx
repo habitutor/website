@@ -23,8 +23,8 @@ export function TryOutCard({ data }: { data: TryOutCardData }) {
 			className="relative flex h-100 w-full flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm"
 		>
 			<div className="space-y-2 border-b bg-background p-6">
-				<h3 className="font-medium text-neutral-1000 text-sm">{data.label}</h3>
-				{data.price && <p className="font-bold text-3xl text-primary-300">{data.price}</p>}
+				<h3 className="text-sm font-medium text-neutral-1000">{data.label}</h3>
+				{data.price && <p className="text-3xl font-bold text-primary-300">{data.price}</p>}
 			</div>
 			<ul className="mt-4 flex-1 space-y-2 px-6">
 				{data.features.map((feature: string) => (

@@ -52,7 +52,7 @@ export function PackInfoHeader({ packId, backTo }: PackInfoHeaderProps) {
 			{backTo && (
 				<Link
 					to={backTo}
-					className="mb-4 inline-flex items-center gap-1 rounded-md border bg-transparent px-3 py-2 font-medium text-sm hover:bg-accent hover:text-accent-foreground"
+					className="mb-4 inline-flex items-center gap-1 rounded-md border bg-transparent px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
 				>
 					<ArrowLeftIcon size={20} weight="bold" />
 					Kembali
@@ -60,8 +60,8 @@ export function PackInfoHeader({ packId, backTo }: PackInfoHeaderProps) {
 			)}
 			<div className="flex gap-4">
 				<div className="min-w-0">
-					<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">{pack.title}</h1>
-					<p className="mt-2 text-muted-foreground text-sm leading-relaxed sm:text-base">
+					<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{pack.title}</h1>
+					<p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
 						{pack.description || "No description provided."}
 					</p>
 				</div>

@@ -90,7 +90,7 @@ function RouteComponent() {
 	if (data.isError) {
 		return (
 			<Container className="pt-12">
-				<p className="text-red-500 text-sm">Error: {data.error.message}</p>
+				<p className="text-sm text-red-500">Error: {data.error.message}</p>
 			</Container>
 		);
 	}

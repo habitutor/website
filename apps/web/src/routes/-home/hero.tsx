@@ -14,7 +14,7 @@ export function Hero() {
 						variants={fadeInUp}
 						initial="initial"
 						animate="animate"
-						className="font-bold font-sans text-3xl sm:text-4xl md:text-5xl"
+						className="font-sans text-3xl font-bold sm:text-4xl md:text-5xl"
 					>
 						Ubah Persiapan Ujian Menjadi{" "}
 						<m.span

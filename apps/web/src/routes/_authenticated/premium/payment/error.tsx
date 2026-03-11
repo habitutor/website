@@ -27,11 +27,11 @@ function RouteComponent() {
 				</div>
 
 				<div className="text-center">
-					<h1 className="mb-2 font-bold text-3xl text-white">Terjadi Kesalahan</h1>
+					<h1 className="mb-2 text-3xl font-bold text-white">Terjadi Kesalahan</h1>
 					<p className="text-sm text-white/90">
 						Maaf, terjadi kesalahan saat memproses pembayaran. Silakan coba lagi atau hubungi tim support kami.
 					</p>
-					{order_id && <p className="mt-2 text-white/70 text-xs">Order ID: {order_id}</p>}
+					{order_id && <p className="mt-2 text-xs text-white/70">Order ID: {order_id}</p>}
 				</div>
 
 				<Button variant="white" className="w-full" asChild>

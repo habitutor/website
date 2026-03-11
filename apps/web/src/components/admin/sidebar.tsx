@@ -187,14 +187,14 @@ function SidebarUserProfile() {
 		<div className="flex items-center gap-3 px-2 py-3">
 			<Avatar className="size-8 shrink-0">
 				<AvatarImage src={user.image ?? undefined} alt={user.name} />
-				<AvatarFallback className="bg-primary/10 text-primary text-sm">
+				<AvatarFallback className="bg-primary/10 text-sm text-primary">
 					{user.name.charAt(0).toUpperCase()}
 				</AvatarFallback>
 			</Avatar>
 			{state !== "collapsed" && (
 				<div className="flex min-w-0 flex-col">
-					<span className="truncate font-medium text-sm">{user.name}</span>
-					<span className="truncate text-muted-foreground text-xs">{user.email}</span>
+					<span className="truncate text-sm font-medium">{user.name}</span>
+					<span className="truncate text-xs text-muted-foreground">{user.email}</span>
 				</div>
 			)}
 		</div>
@@ -210,7 +210,7 @@ function SidebarLogo() {
 			<Link
 				to="/admin/dashboard"
 				className={cn(
-					"flex items-center gap-2 font-bold text-lg text-primary",
+					"flex items-center gap-2 text-lg font-bold text-primary",
 					isCollapsed ? "justify-center" : "w-full",
 				)}
 				title="Habitutor Admin"

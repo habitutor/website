@@ -82,7 +82,7 @@ function CreatePracticePackPage() {
 										placeholder="e.g. Matematika Dasar"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={String(error)} className="text-destructive text-sm">
+										<p key={String(error)} className="text-sm text-destructive">
 											{String(error)}
 										</p>
 									))}
@@ -101,10 +101,10 @@ function CreatePracticePackPage() {
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
 										placeholder="Describe what this practice pack is about..."
-										className="flex min-h-30 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+										className="flex min-h-30 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={String(error)} className="text-destructive text-sm">
+										<p key={String(error)} className="text-sm text-destructive">
 											{String(error)}
 										</p>
 									))}

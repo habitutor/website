@@ -14,7 +14,7 @@ export default function ErrorComponent({ error }: { error: Error }) {
 				<div className="rounded-full bg-destructive/10 p-4">
 					<WarningOctagonIcon className="size-12 text-destructive" weight="fill" />
 				</div>
-				<h1 className="mt-4 font-bold text-3xl text-neutral-1000">Terjadi Kesalahan</h1>
+				<h1 className="mt-4 text-3xl font-bold text-neutral-1000">Terjadi Kesalahan</h1>
 				<p className="mt-2 max-w-md text-neutral-600">
 					Maaf, sepertinya terjadi masalah saat memuat halaman ini. Silakan coba lagi nanti atau hubungi bantuan jika
 					masalah berlanjut.

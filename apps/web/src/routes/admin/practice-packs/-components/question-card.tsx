@@ -50,7 +50,7 @@ export function QuestionCard({
 		<Card className="overflow-hidden border-none py-0 shadow-md">
 			<div className="flex items-center justify-between gap-3 border-b bg-muted/30 px-4 py-3">
 				<div className="flex items-center gap-2">
-					<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary font-bold text-primary-foreground text-xs">
+					<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
 						{currentIndex + 1}
 					</span>
 					<Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
@@ -112,7 +112,7 @@ export function QuestionCard({
 				</div>
 
 				<div className="rounded-lg bg-muted/30 p-3">
-					<h3 className="mb-2 font-medium text-muted-foreground text-xs uppercase tracking-wide">Answer Options</h3>
+					<h3 className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">Answer Options</h3>
 					<div className="grid gap-2 sm:grid-cols-2">
 						{question.answers?.map((answer) => (
 							<div
@@ -124,7 +124,7 @@ export function QuestionCard({
 							>
 								<span
 									className={cn(
-										"flex size-5 shrink-0 items-center justify-center rounded-sm font-bold text-[10px]",
+										"flex size-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold",
 										answer.isCorrect ? "bg-green-500 text-white" : "bg-muted text-muted-foreground",
 									)}
 								>
@@ -140,12 +140,12 @@ export function QuestionCard({
 				</div>
 
 				<Collapsible>
-					<CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-left text-muted-foreground text-xs transition-colors hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&[data-state=open]>svg]:rotate-180">
+					<CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&[data-state=open]>svg]:rotate-180">
 						<span>Discussion</span>
 						<CaretDownIcon className="ml-auto size-3 transition-transform duration-200" />
 					</CollapsibleTrigger>
 					<CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-						<div className="prose prose-sm max-w-none border-t px-3 pt-3 pb-1 text-muted-foreground text-sm">
+						<div className="prose prose-sm max-w-none border-t px-3 pt-3 pb-1 text-sm text-muted-foreground">
 							<TiptapRenderer content={question.discussion} />
 						</div>
 					</CollapsibleContent>
@@ -163,7 +163,7 @@ export function QuestionCard({
 						Previous
 					</Button>
 					<div className="flex items-center gap-2">
-						<span className="font-mono text-muted-foreground text-xs">
+						<span className="font-mono text-xs text-muted-foreground">
 							{currentIndex + 1}/{totalQuestions}
 						</span>
 						<KeyboardShortcutsHint />

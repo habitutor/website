@@ -199,7 +199,7 @@ function SignUpForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error} className="text-red-500 text-xs">
+										<p key={error} className="text-xs text-red-500">
 											{error}
 										</p>
 									))}
@@ -219,7 +219,7 @@ function SignUpForm() {
 
 				<div className="flex items-center gap-4 py-4">
 					<Separator className="flex-1" />
-					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
+					<span className="shrink-0 text-xs text-muted-foreground uppercase">atau</span>
 					<Separator className="flex-1" />
 				</div>
 

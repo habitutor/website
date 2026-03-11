@@ -138,8 +138,8 @@ function UsersTable({
 		return (
 			<div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
 				<UserIcon className="mb-4 size-12 text-muted-foreground" />
-				<h3 className="mb-2 font-semibold text-lg">No users found</h3>
-				<p className="text-muted-foreground text-sm">Try adjusting your search query</p>
+				<h3 className="mb-2 text-lg font-semibold">No users found</h3>
+				<p className="text-sm text-muted-foreground">Try adjusting your search query</p>
 			</div>
 		);
 	}

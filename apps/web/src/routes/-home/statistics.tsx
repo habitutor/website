@@ -28,7 +28,7 @@ function StatCounter({ value, suffix = "" }: { value: number; suffix?: string })
 	const { value: animatedValue, ref } = useAnimatedCounter(value, 1200, 0);
 
 	return (
-		<span ref={ref} className="font-bold text-6xl text-primary-300">
+		<span ref={ref} className="text-6xl font-bold text-primary-300">
 			{animatedValue}
 			{suffix}
 		</span>
@@ -89,7 +89,7 @@ export function Statistics() {
 
 						<div className="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-2">
 							<div className="flex flex-col items-center gap-2 text-center">
-								<h3 className="font-medium text-sm">Fokus Lulus PTN tetapi</h3>
+								<h3 className="text-sm font-medium">Fokus Lulus PTN tetapi</h3>
 								<StatCounter value={87} suffix="%" />
 								<p className="text-sm leading-relaxed">
 									Mahasiswa salah jurusan. Akibat belajar tanpa fondasi yang benar.
@@ -97,7 +97,7 @@ export function Statistics() {
 							</div>
 
 							<div className="flex flex-col items-center gap-2 text-center">
-								<h3 className="font-medium text-sm">Tantangan pasca lulus</h3>
+								<h3 className="text-sm font-medium">Tantangan pasca lulus</h3>
 								<StatCounter value={40} suffix="%" />
 								<p className="text-sm leading-relaxed">
 									mengalami Academic Shock akibat tidak punya habit belajar mandiri.
@@ -114,7 +114,7 @@ export function Statistics() {
 					viewport={{ once: true }}
 					transition={{ delay: 0.2, duration: 0.3 }}
 				>
-					<h3 className="mx-auto mb-5 max-w-[80%] font-bold text-xl md:text-2xl xl:max-w-[65%]">
+					<h3 className="mx-auto mb-5 max-w-[80%] text-xl font-bold md:text-2xl xl:max-w-[65%]">
 						Akar masalahnya, banyak siswa terjebak dalam pola belajar yang keliru
 					</h3>
 					<div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-4">
@@ -123,7 +123,7 @@ export function Statistics() {
 								key={index.toString()}
 								className="md:12 flex h-11 items-center justify-center border border-tertiary-200 bg-tertiary-100"
 							>
-								<h4 className="font-medium text-base">{item.title}</h4>
+								<h4 className="text-base font-medium">{item.title}</h4>
 							</div>
 						))}
 					</div>
@@ -179,7 +179,7 @@ export function Statistics() {
 						</div>
 
 						<div className="relative z-10 text-center md:text-left">
-							<h3 className="mb-3 font-bold text-xl md:text-2xl">
+							<h3 className="mb-3 text-xl font-bold md:text-2xl">
 								Habitutor Hadir{" "}
 								<m.span
 									className="inline-block text-[var(--tt-color-yellow-inc-3)]"

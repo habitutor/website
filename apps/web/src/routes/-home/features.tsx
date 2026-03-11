@@ -77,12 +77,12 @@ export function Features() {
 
 							<div className="relative z-10 space-y-3 text-center md:text-left">
 								<m.h2
-									className="font-bold text-2xl md:text-3xl"
+									className="text-2xl font-bold md:text-3xl"
 									whileHover={{ rotate: [-1, 1, -1, 0], transition: { duration: 0.3 } }}
 								>
 									Bersama <span className="text-primary">Habitutor</span>
 								</m.h2>
-								<p className="text-foreground text-sm leading-relaxed">
+								<p className="text-sm leading-relaxed text-foreground">
 									Mulai dari 3 menit sehari. Habitutor{" "}
 									<span className="font-bold text-(--tt-color-yellow-dec-2)">membangun kebiasaan</span> lewat streak dan
 									latihan mini yang ringan.
@@ -109,7 +109,7 @@ export function Features() {
 				</div>
 
 				{/* Testimone Section */}
-				<div className="container relative mx-auto flex w-full max-w-4xl flex-col overflow-visible px-4">
+				<div className="relative container mx-auto flex w-full max-w-4xl flex-col overflow-visible px-4">
 					<MotionPulse>
 						<m.div
 							className="absolute -right-50 z-2 size-75 translate-y-1/2 rounded-full bg-primary-100"
@@ -157,10 +157,10 @@ export function Features() {
 						{...getFadeInUpWithDelay(0.5)}
 					>
 						<div className="mb-4 text-center">
-							<h2 className="font-bold text-2xl">
+							<h2 className="text-2xl font-bold">
 								Ruang Aman untuk <span className="text-primary-300">Bertanya & Tumbuh</span>
 							</h2>
-							<p className="font-medium text-sm">Ribuan siswa telah menemukan rumah kedua mereka di sini.</p>
+							<p className="text-sm font-medium">Ribuan siswa telah menemukan rumah kedua mereka di sini.</p>
 						</div>
 
 						<Image
@@ -237,7 +237,7 @@ export function Features() {
 							</m.div>
 
 							<div className="relative z-10 order-1 space-y-3 text-center md:order-2 md:text-right">
-								<h2 className="font-bold text-2xl md:text-3xl">
+								<h2 className="text-2xl font-bold md:text-3xl">
 									<m.span
 										className="inline-block text-primary"
 										whileHover={{ rotate: [-1, 1, -1, 0], transition: { duration: 0.3 } }}
@@ -251,7 +251,7 @@ export function Features() {
 										Strategi Praktis.
 									</m.span>
 								</h2>
-								<p className="text-foreground text-sm leading-relaxed">
+								<p className="text-sm leading-relaxed text-foreground">
 									Pembelajaran yang mudah diikuti dan dirancang membangun progres jangka panjang.
 								</p>
 							</div>

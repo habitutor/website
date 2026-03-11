@@ -202,7 +202,7 @@ export function QuestionForm({
 						<div className="space-y-3">
 							<Item variant="outline">
 								<ItemMedia variant="icon">
-									<span className="text-muted-foreground text-sm">ℹ️</span>
+									<span className="text-sm text-muted-foreground">ℹ️</span>
 								</ItemMedia>
 								<ItemContent>
 									<ItemDescription>
@@ -214,7 +214,7 @@ export function QuestionForm({
 							{answerOptions.map((option, index) => (
 								<div key={option.code} className="flex items-start gap-2">
 									<div className="mt-2 flex items-center gap-2">
-										<span className="font-medium text-sm">{option.code}.</span>
+										<span className="text-sm font-medium">{option.code}.</span>
 										<Checkbox
 											checked={option.isCorrect}
 											onCheckedChange={(checked) => updateAnswerOption(index, "isCorrect", !!checked)}

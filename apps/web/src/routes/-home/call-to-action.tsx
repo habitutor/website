@@ -44,9 +44,9 @@ export function CallToAction() {
 				</div>
 			</div>
 
-			<div className="container relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 py-2 pt-40 pb-26 text-center">
+			<div className="relative z-10 container mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 py-2 pt-40 pb-26 text-center">
 				<m.h2
-					className="text-pretty font-bold font-sans text-4xl"
+					className="font-sans text-4xl font-bold text-pretty"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.3 }}

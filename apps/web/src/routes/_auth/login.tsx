@@ -128,7 +128,7 @@ function SignInForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -151,14 +151,14 @@ function SignInForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
 								</div>
 							)}
 						</form.Field>
-						<Link to="/forgot-password" className="ml-auto w-fit text-primary text-xs underline">
+						<Link to="/forgot-password" className="ml-auto w-fit text-xs text-primary underline">
 							Lupa Password?
 						</Link>
 					</div>
@@ -174,7 +174,7 @@ function SignInForm() {
 
 				<div className="flex items-center gap-4 py-4">
 					<Separator className="flex-1" />
-					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
+					<span className="shrink-0 text-xs text-muted-foreground uppercase">atau</span>
 					<Separator className="flex-1" />
 				</div>
 

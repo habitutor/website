@@ -66,7 +66,7 @@ function RouteComponent() {
 				<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
 					<div className="flex flex-col items-center gap-2 text-center">
 						{" "}
-						<h1 className="font-bold text-3xl text-primary">Lupa Password</h1>
+						<h1 className="text-3xl font-bold text-primary">Lupa Password</h1>
 					</div>
 
 					{hasSubmitted ? (

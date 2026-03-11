@@ -98,8 +98,8 @@ function PracticePacksListPage() {
 			{data && filteredPacks.length === 0 && (
 				<div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
 					<Package className="mb-4 size-12 text-muted-foreground" />
-					<h3 className="mb-2 font-semibold text-lg">No practice packs found</h3>
-					<p className="mb-4 text-muted-foreground text-sm">
+					<h3 className="mb-2 text-lg font-semibold">No practice packs found</h3>
+					<p className="mb-4 text-sm text-muted-foreground">
 						{searchQuery ? "Try adjusting your search query" : "Get started by creating a new practice pack"}
 					</p>
 					{!searchQuery && (
@@ -238,14 +238,14 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 					className="flex flex-1 flex-col px-6 py-6"
 				>
 					<div className="mb-4 flex-1">
-						<h3 className="mb-2 font-bold text-lg tracking-tight group-hover:text-primary">{pack.title}</h3>
-						<p className="line-clamp-2 text-muted-foreground text-sm leading-relaxed">
+						<h3 className="mb-2 text-lg font-bold tracking-tight group-hover:text-primary">{pack.title}</h3>
+						<p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
 							{pack.description || "No description provided."}
 						</p>
 					</div>
 				</Link>
 
-				<div className="absolute top-4 right-4 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+				<div className="absolute top-4 right-4 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="ghost" size="icon" className="h-8 w-8 bg-background/80 backdrop-blur-sm">

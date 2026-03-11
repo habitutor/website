@@ -269,7 +269,7 @@ function RouteComponent() {
 	if (subtests.isError) {
 		return (
 			<AdminContainer>
-				<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
+				<p className="text-sm text-red-500">Error: {subtests.error.message}</p>
 			</AdminContainer>
 		);
 	}
@@ -340,7 +340,7 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-sm">
+										<p key={error?.message} className="text-sm text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -355,7 +355,7 @@ function RouteComponent() {
 										checked={field.state.value}
 										onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
 									/>
-									<Label htmlFor={field.name} className="font-normal text-sm">
+									<Label htmlFor={field.name} className="text-sm font-normal">
 										Buat catatan materi awal (minimal satu komponen per konten)
 									</Label>
 								</div>
@@ -404,7 +404,7 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-sm">
+										<p key={error?.message} className="text-sm text-red-500">
 											{error?.message}
 										</p>
 									))}

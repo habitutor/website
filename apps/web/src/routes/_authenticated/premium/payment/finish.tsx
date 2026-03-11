@@ -54,7 +54,7 @@ function RouteComponent() {
 			<div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-primary-300 p-8 shadow-lg">
 				<Loader />
 				<div className="text-center text-white">
-					<h1 className="font-bold text-2xl">Memperbarui akun premium...</h1>
+					<h1 className="text-2xl font-bold">Memperbarui akun premium...</h1>
 					<p className="mt-2 text-sm text-white/90">Kamu akan langsung dikembalikan ke halaman premium.</p>
 				</div>
 			</div>
