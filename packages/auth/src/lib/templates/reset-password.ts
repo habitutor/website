@@ -1,5 +1,5 @@
 export function generateResetPasswordEmail(userName: string, url: string, _token: string): string {
-	return `
+  return `
           <div style="font-family: sans-serif; line-height: 1.5; color: #333;">
             <h2>Halo ${userName},</h2>
             <p>Kami menerima permintaan untuk mengatur ulang kata sandi akun Habitutor Anda. Silakan klik tombol di bawah ini untuk melanjutkan:</p>

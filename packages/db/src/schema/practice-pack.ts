@@ -1,138 +1,138 @@
 import { relations } from "drizzle-orm";
 import {
-	boolean,
-	char,
-	index,
-	integer,
-	jsonb,
-	pgEnum,
-	pgTable,
-	primaryKey,
-	text,
-	timestamp,
-	unique,
+  boolean,
+  char,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { userFlashcardQuestionAnswer } from "./flashcard";
 
 export const practicePack = pgTable("practice_pack", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
-	title: text().notNull(),
-	description: text(),
-	createdAt: timestamp().defaultNow(),
-	updatedAt: timestamp()
-		.defaultNow()
-		.$onUpdate(() => /* @__PURE__ */ new Date()),
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  title: text().notNull(),
+  description: text(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp()
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date()),
 });
 
 export const practicePackRelations = relations(practicePack, ({ many }) => ({
-	questions: many(practicePackQuestions),
+  questions: many(practicePackQuestions),
 }));
 
 export const practicePackStatus = pgEnum("practice_pack_status", ["not_started", "ongoing", "finished"]);
 
 export const practicePackAttempt = pgTable(
-	"practice_pack_attempt",
-	{
-		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		userId: text()
-			.notNull()
-			.references(() => user.id, { onDelete: "set null" }),
-		practicePackId: integer()
-			.notNull()
-			.references(() => practicePack.id, { onDelete: "cascade" }),
-		startedAt: timestamp().notNull().defaultNow(),
-		completedAt: timestamp(),
-		status: practicePackStatus("practice_pack_status").notNull().default("ongoing"),
-	},
-	(t) => [
-		unique("user_attempt").on(t.userId, t.practicePackId),
-		index("idx_pp_attempt_user").on(t.userId),
-		index("idx_pp_attempt_pack").on(t.practicePackId),
-	],
+  "practice_pack_attempt",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "set null" }),
+    practicePackId: integer()
+      .notNull()
+      .references(() => practicePack.id, { onDelete: "cascade" }),
+    startedAt: timestamp().notNull().defaultNow(),
+    completedAt: timestamp(),
+    status: practicePackStatus("practice_pack_status").notNull().default("ongoing"),
+  },
+  (t) => [
+    unique("user_attempt").on(t.userId, t.practicePackId),
+    index("idx_pp_attempt_user").on(t.userId),
+    index("idx_pp_attempt_pack").on(t.practicePackId),
+  ],
 );
 
 export const practicePackQuestions = pgTable(
-	"practice_pack_questions",
-	{
-		practicePackId: integer()
-			.notNull()
-			.references(() => practicePack.id, { onDelete: "cascade" }),
-		questionId: integer()
-			.notNull()
-			.references(() => question.id, { onDelete: "cascade" }),
-		order: integer().default(1),
-	},
-	(table) => [primaryKey({ columns: [table.practicePackId, table.questionId] })],
+  "practice_pack_questions",
+  {
+    practicePackId: integer()
+      .notNull()
+      .references(() => practicePack.id, { onDelete: "cascade" }),
+    questionId: integer()
+      .notNull()
+      .references(() => question.id, { onDelete: "cascade" }),
+    order: integer().default(1),
+  },
+  (table) => [primaryKey({ columns: [table.practicePackId, table.questionId] })],
 );
 
 export const practicePackQuestionsRelations = relations(practicePackQuestions, ({ one }) => ({
-	practicePack: one(practicePack, {
-		fields: [practicePackQuestions.practicePackId],
-		references: [practicePack.id],
-	}),
-	question: one(question, {
-		fields: [practicePackQuestions.questionId],
-		references: [question.id],
-	}),
+  practicePack: one(practicePack, {
+    fields: [practicePackQuestions.practicePackId],
+    references: [practicePack.id],
+  }),
+  question: one(question, {
+    fields: [practicePackQuestions.questionId],
+    references: [question.id],
+  }),
 }));
 
 export const question = pgTable(
-	"question",
-	{
-		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		content: text().notNull(),
-		discussion: text().notNull(),
-		contentJson: jsonb(),
-		discussionJson: jsonb(),
-		isFlashcardQuestion: boolean().notNull().default(true),
-	},
-	(t) => [index("idx_question_flashcard").on(t.isFlashcardQuestion)],
+  "question",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    content: text().notNull(),
+    discussion: text().notNull(),
+    contentJson: jsonb(),
+    discussionJson: jsonb(),
+    isFlashcardQuestion: boolean().notNull().default(true),
+  },
+  (t) => [index("idx_question_flashcard").on(t.isFlashcardQuestion)],
 );
 
 export const questionRelations = relations(question, ({ many }) => ({
-	answerOptions: many(questionAnswerOption),
-	userFlashcards: many(userFlashcardQuestionAnswer),
-	practicePacks: many(practicePackQuestions),
+  answerOptions: many(questionAnswerOption),
+  userFlashcards: many(userFlashcardQuestionAnswer),
+  practicePacks: many(practicePackQuestions),
 }));
 
 export const questionAnswerOption = pgTable(
-	"question_answer_option",
-	{
-		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		code: char({ length: 1 }).notNull(),
-		questionId: integer()
-			.notNull()
-			.references(() => question.id, { onDelete: "cascade" }),
-		content: text().notNull(),
-		isCorrect: boolean().notNull().default(false),
-	},
-	(t) => [
-		unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code),
-		index("idx_answer_option_question").on(t.questionId),
-	],
+  "question_answer_option",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    code: char({ length: 1 }).notNull(),
+    questionId: integer()
+      .notNull()
+      .references(() => question.id, { onDelete: "cascade" }),
+    content: text().notNull(),
+    isCorrect: boolean().notNull().default(false),
+  },
+  (t) => [
+    unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code),
+    index("idx_answer_option_question").on(t.questionId),
+  ],
 );
 
 export const questionAnswerOptionRelations = relations(questionAnswerOption, ({ one }) => ({
-	question: one(question, {
-		fields: [questionAnswerOption.questionId],
-		references: [question.id],
-	}),
+  question: one(question, {
+    fields: [questionAnswerOption.questionId],
+    references: [question.id],
+  }),
 }));
 
 // we can save the user's responses with the table below
 export const practicePackUserAnswer = pgTable(
-	"practice_pack_user_answer",
-	{
-		attemptId: integer()
-			.notNull()
-			.references(() => practicePackAttempt.id, { onDelete: "cascade" }),
-		questionId: integer()
-			.notNull()
-			.references(() => question.id, { onDelete: "cascade" }),
-		selectedAnswerId: integer()
-			.notNull()
-			.references(() => questionAnswerOption.id, { onDelete: "set null" }),
-	},
-	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] }), index("idx_pp_user_answer_attempt").on(t.attemptId)],
+  "practice_pack_user_answer",
+  {
+    attemptId: integer()
+      .notNull()
+      .references(() => practicePackAttempt.id, { onDelete: "cascade" }),
+    questionId: integer()
+      .notNull()
+      .references(() => question.id, { onDelete: "cascade" }),
+    selectedAnswerId: integer()
+      .notNull()
+      .references(() => questionAnswerOption.id, { onDelete: "set null" }),
+  },
+  (t) => [primaryKey({ columns: [t.attemptId, t.questionId] }), index("idx_pp_user_answer_attempt").on(t.attemptId)],
 );

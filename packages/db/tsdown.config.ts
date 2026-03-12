@@ -1,8 +1,8 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-	entry: "src/**/*.ts",
-	sourcemap: true,
-	dts: true,
-	external: ["bun"],
+  entry: "src/**/*.ts",
+  sourcemap: true,
+  dts: true,
+  external: ["bun"],
 });
