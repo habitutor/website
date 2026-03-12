@@ -25,6 +25,8 @@
   "scripts": {
     "lint": "oxlint . && oxfmt --check .",
     "lint:fix": "oxlint --fix . && oxfmt --write .",
+    "lint:linter": "oxlint .",
+    "lint:formatter": "oxfmt --check .",
     "dev": "turbo dev",
     "build": "turbo build",
     "build:packages": "turbo build --filter='./packages/*'",

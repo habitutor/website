@@ -124,142 +124,142 @@ const reorderSubtests = admin
   });
 
 const createContent = admin
-	.route({
-		path: "/admin/content",
-		method: "POST",
-		tags: ["Admin - Content"],
-	})
-	.input(
-		type({
-			subtestId: "number",
-			type: "'material' | 'tips_and_trick'",
-			title: "string",
-			order: "number",
-			video: "object?",
-			note: "object?",
-			practiceQuestionIds: "number[]?",
-		}),
-	)
-	.output(
-		type({
-			message: "string",
-			contentId: "number",
-			createdMaterials: "object",
-		}),
-	)
-	.handler(async ({ input }) => {
-		const hasVideo = input.video !== undefined && input.video !== null;
-		const hasNote = input.note !== undefined && input.note !== null;
-		const hasPracticeQuestions =
-			input.practiceQuestionIds !== undefined &&
-			input.practiceQuestionIds !== null &&
-			input.practiceQuestionIds.length > 0;
+  .route({
+    path: "/admin/content",
+    method: "POST",
+    tags: ["Admin - Content"],
+  })
+  .input(
+    type({
+      subtestId: "number",
+      type: "'material' | 'tips_and_trick'",
+      title: "string",
+      order: "number",
+      video: "object?",
+      note: "object?",
+      practiceQuestionIds: "number[]?",
+    }),
+  )
+  .output(
+    type({
+      message: "string",
+      contentId: "number",
+      createdMaterials: "object",
+    }),
+  )
+  .handler(async ({ input }) => {
+    const hasVideo = input.video !== undefined && input.video !== null;
+    const hasNote = input.note !== undefined && input.note !== null;
+    const hasPracticeQuestions =
+      input.practiceQuestionIds !== undefined &&
+      input.practiceQuestionIds !== null &&
+      input.practiceQuestionIds.length > 0;
 
-		if (!hasVideo && !hasNote && !hasPracticeQuestions) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
-			});
-		}
+    if (!hasVideo && !hasNote && !hasPracticeQuestions) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
+      });
+    }
 
-		if (input.type === "tips_and_trick" && hasPracticeQuestions) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Tips & Trick tidak boleh memiliki latihan soal",
-			});
-		}
+    if (input.type === "tips_and_trick" && hasPracticeQuestions) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Tips & Trick tidak boleh memiliki latihan soal",
+      });
+    }
 
-		if (hasVideo) {
-			if (
-				typeof input.video !== "object" ||
-				!("title" in input.video) ||
-				!("videoUrl" in input.video) ||
-				!("content" in input.video) ||
-				typeof input.video.title !== "string" ||
-				typeof input.video.videoUrl !== "string" ||
-				!input.video.videoUrl.trim()
-			) {
-				throw new ORPCError("BAD_REQUEST", {
-					message: "Video harus memiliki title, videoUrl, dan content yang valid",
-				});
-			}
-		}
+    if (hasVideo) {
+      if (
+        typeof input.video !== "object" ||
+        !("title" in input.video) ||
+        !("videoUrl" in input.video) ||
+        !("content" in input.video) ||
+        typeof input.video.title !== "string" ||
+        typeof input.video.videoUrl !== "string" ||
+        !input.video.videoUrl.trim()
+      ) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Video harus memiliki title, videoUrl, dan content yang valid",
+        });
+      }
+    }
 
-		if (hasNote) {
-			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
-				throw new ORPCError("BAD_REQUEST", {
-					message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
-				});
-			}
-		}
+    if (hasNote) {
+      if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
+        });
+      }
+    }
 
-		const result = await db.transaction(async (tx) => {
-			const maxOrder = await adminSubtestRepo.getMaxContentOrder({
-				db: tx,
-				subtestId: input.subtestId,
-				type: input.type,
-			});
+    const result = await db.transaction(async (tx) => {
+      const maxOrder = await adminSubtestRepo.getMaxContentOrder({
+        db: tx,
+        subtestId: input.subtestId,
+        type: input.type,
+      });
 
-			const newContent = await adminSubtestRepo.createContentItem({
-				db: tx,
-				subtestId: input.subtestId,
-				type: input.type,
-				title: input.title,
-				order: maxOrder + 1,
-			});
+      const newContent = await adminSubtestRepo.createContentItem({
+        db: tx,
+        subtestId: input.subtestId,
+        type: input.type,
+        title: input.title,
+        order: maxOrder + 1,
+      });
 
-			if (!newContent)
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
-					message: "Gagal membuat konten",
-				});
+      if (!newContent)
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Gagal membuat konten",
+        });
 
-			const createdMaterials: {
-				video?: number;
-				note?: number;
-				practiceQuestions?: number;
-			} = {};
+      const createdMaterials: {
+        video?: number;
+        note?: number;
+        practiceQuestions?: number;
+      } = {};
 
-			if (hasVideo && input.video) {
-				const video = await adminSubtestRepo.upsertVideoMaterial({
-					db: tx,
-					contentItemId: newContent.id,
-					videoUrl: (input.video as { videoUrl: string }).videoUrl,
-					content: (input.video as { content: object }).content,
-				});
+      if (hasVideo && input.video) {
+        const video = await adminSubtestRepo.upsertVideoMaterial({
+          db: tx,
+          contentItemId: newContent.id,
+          videoUrl: (input.video as { videoUrl: string }).videoUrl,
+          content: (input.video as { content: object }).content,
+        });
 
-				if (video) createdMaterials.video = video.id;
-			}
+        if (video) createdMaterials.video = video.id;
+      }
 
-			if (hasNote && input.note) {
-				const note = await adminSubtestRepo.upsertNoteMaterial({
-					db: tx,
-					contentItemId: newContent.id,
-					content: (input.note as { content: object }).content,
-				});
+      if (hasNote && input.note) {
+        const note = await adminSubtestRepo.upsertNoteMaterial({
+          db: tx,
+          contentItemId: newContent.id,
+          content: (input.note as { content: object }).content,
+        });
 
-				if (note) createdMaterials.note = note.id;
-			}
+        if (note) createdMaterials.note = note.id;
+      }
 
-			if (hasPracticeQuestions && input.practiceQuestionIds && input.type === "material") {
-				await adminSubtestRepo.insertPracticeQuestions({
-					db: tx,
-					contentItemId: newContent.id,
-					questionIds: input.practiceQuestionIds,
-				});
+      if (hasPracticeQuestions && input.practiceQuestionIds && input.type === "material") {
+        await adminSubtestRepo.insertPracticeQuestions({
+          db: tx,
+          contentItemId: newContent.id,
+          questionIds: input.practiceQuestionIds,
+        });
 
-				createdMaterials.practiceQuestions = input.practiceQuestionIds.length;
-			}
+        createdMaterials.practiceQuestions = input.practiceQuestionIds.length;
+      }
 
-			return {
-				contentId: newContent.id,
-				createdMaterials,
-			};
-		});
+      return {
+        contentId: newContent.id,
+        createdMaterials,
+      };
+    });
 
-		return {
-			message: "Konten berhasil dibuat",
-			contentId: result.contentId,
-			createdMaterials: result.createdMaterials,
-		};
-	});
+    return {
+      message: "Konten berhasil dibuat",
+      contentId: result.contentId,
+      createdMaterials: result.createdMaterials,
+    };
+  });
 
 const updateContent = admin
   .route({

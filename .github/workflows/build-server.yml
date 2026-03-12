@@ -26,7 +26,7 @@ jobs:
       - name: Build packages
         run: bun build:packages
       - name: Lint
-        run: bun lint
+        run: bun lint:linter
       - name: Check types
         run: |
           echo "~/.bun/bin" >> $GITHUB_PATH
