@@ -203,7 +203,7 @@ const createContent = admin
 				subtestId: input.subtestId,
 				type: input.type,
 				title: input.title,
-			order: maxOrder + 1,
+				order: maxOrder + 1,
 			});
 
 			if (!newContent)
