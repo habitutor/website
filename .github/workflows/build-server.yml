@@ -1,5 +1,5 @@
 # For more details, read this: https://coolify.io/docs/github-actions
-name: Build Server Image 
+name: Build Server Image
 on:
   push:
     branches: ["main"]
@@ -25,8 +25,8 @@ jobs:
         run: bun install -g @typescript/native-preview
       - name: Build packages
         run: bun build:packages
-      - name: Lint 
-        run: bun lint
+      - name: Lint
+        run: bun lint:linter
       - name: Check types
         run: |
           echo "~/.bun/bin" >> $GITHUB_PATH
@@ -58,5 +58,5 @@ jobs:
             TURBO_TEAM=${{ secrets.TURBO_TEAM }}
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
       - name: Deploy to Coolify
-        run: | 
-         curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'

@@ -9,48 +9,48 @@ import { useEffect } from "react";
 import "./tiptap-styles.css";
 
 interface TiptapRendererProps {
-	content: unknown;
-	className?: string;
+  content: unknown;
+  className?: string;
 }
 
 export function TiptapRenderer({ content, className }: TiptapRendererProps) {
-	const editor = useEditor({
-		extensions: [
-			StarterKit,
-			Highlight,
-			Underline,
-			TextAlign.configure({
-				types: ["heading", "paragraph"],
-			}),
-			Link.configure({
-				openOnClick: true,
-				HTMLAttributes: {
-					class: "text-blue-600 underline hover:text-blue-800",
-				},
-			}),
-			Image.configure({
-				HTMLAttributes: {
-					class: "max-w-full h-auto rounded-lg",
-				},
-			}),
-		],
-		editable: false,
-		content: content as object,
-	});
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Highlight,
+      Underline,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Link.configure({
+        openOnClick: true,
+        HTMLAttributes: {
+          class: "text-blue-600 underline hover:text-blue-800",
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: "max-w-full h-auto rounded-lg",
+        },
+      }),
+    ],
+    editable: false,
+    content: content as object,
+  });
 
-	useEffect(() => {
-		if (editor && content) {
-			editor.commands.setContent(content as object, { emitUpdate: false });
-		}
-	}, [editor, content]);
+  useEffect(() => {
+    if (editor && content) {
+      editor.commands.setContent(content as object, { emitUpdate: false });
+    }
+  }, [editor, content]);
 
-	if (!editor) {
-		return null;
-	}
+  if (!editor) {
+    return null;
+  }
 
-	return (
-		<div className={className}>
-			<EditorContent editor={editor} />
-		</div>
-	);
+  return (
+    <div className={className}>
+      <EditorContent editor={editor} />
+    </div>
+  );
 }

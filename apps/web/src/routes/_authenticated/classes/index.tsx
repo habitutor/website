@@ -8,53 +8,53 @@ import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/")({
-	head: () => ({
-		meta: createMeta({
-			title: "Kelas",
-			description: "Upgrade ke premium untuk akses penuh ke semua fitur dan materi Habitutor.",
-			noIndex: true,
-		}),
-	}),
-	component: RouteComponent,
+  head: () => ({
+    meta: createMeta({
+      title: "Kelas",
+      description: "Upgrade ke premium untuk akses penuh ke semua fitur dan materi Habitutor.",
+      noIndex: true,
+    }),
+  }),
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-	const session = authClient.useSession();
-	const userIsPremium = session.data?.user?.isPremium ?? false;
-	const userRole = session.data?.user?.role;
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
+  const session = authClient.useSession();
+  const userIsPremium = session.data?.user?.isPremium ?? false;
+  const userRole = session.data?.user?.role;
+  const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
 
-	return (
-		<MotionStagger className="mt-4 sm:-mt-3">
-			<MotionStaggerItem>
-				<SubtestHeader />
-			</MotionStaggerItem>
+  return (
+    <MotionStagger className="mt-4 sm:-mt-3">
+      <MotionStaggerItem>
+        <SubtestHeader />
+      </MotionStaggerItem>
 
-			<hr className="my-3 sm:my-4" />
+      <hr className="my-3 sm:my-4" />
 
-			<MotionStaggerItem>
-				<div>
-					{subtests.isPending && (
-						<div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-							{Array.from({ length: 9 }).map((_, i) => (
-								<Skeleton key={i.toString()} className="h-40 w-full" />
-							))}
-						</div>
-					)}
+      <MotionStaggerItem>
+        <div>
+          {subtests.isPending && (
+            <div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <Skeleton key={i.toString()} className="h-40 w-full" />
+              ))}
+            </div>
+          )}
 
-					{subtests.isError && <p className="text-red-500">Error: {subtests.error.message}</p>}
+          {subtests.isError && <p className="text-red-500">Error: {subtests.error.message}</p>}
 
-					{subtests.data && subtests.data.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
+          {subtests.data && subtests.data.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
 
-					{subtests.data && subtests.data.data.length > 0 && (
-						<div className="grid h-full grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-							{subtests.data.data.map((subtest) => (
-								<SubtestCard key={subtest.id} subtest={subtest} userIsPremium={userIsPremium} userRole={userRole} />
-							))}
-						</div>
-					)}
-				</div>
-			</MotionStaggerItem>
-		</MotionStagger>
-	);
+          {subtests.data && subtests.data.data.length > 0 && (
+            <div className="grid h-full grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {subtests.data.data.map((subtest) => (
+                <SubtestCard key={subtest.id} subtest={subtest} userIsPremium={userIsPremium} userRole={userRole} />
+              ))}
+            </div>
+          )}
+        </div>
+      </MotionStaggerItem>
+    </MotionStagger>
+  );
 }

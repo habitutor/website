@@ -11,127 +11,127 @@ import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/practice-packs/create")({
-	component: CreatePracticePackPage,
+  component: CreatePracticePackPage,
 });
 
 function CreatePracticePackPage() {
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-	const createMutation = useMutation(
-		orpc.admin.practicePack.create.mutationOptions({
-			onSuccess: () => {
-				toast.success("Practice pack berhasil dibuat");
-				queryClient.invalidateQueries({
-					queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
-				});
-				navigate({ to: "/admin/practice-packs" });
-			},
-			onError: (error) => {
-				toast.error("Gagal membuat practice pack", {
-					description: error.message,
-				});
-			},
-		}),
-	);
+  const createMutation = useMutation(
+    orpc.admin.practicePack.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Practice pack berhasil dibuat");
+        queryClient.invalidateQueries({
+          queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
+        });
+        navigate({ to: "/admin/practice-packs" });
+      },
+      onError: (error) => {
+        toast.error("Gagal membuat practice pack", {
+          description: error.message,
+        });
+      },
+    }),
+  );
 
-	const form = useForm({
-		defaultValues: {
-			title: "",
-			description: "",
-		},
-		onSubmit: async ({ value }) => {
-			createMutation.mutate({
-				title: value.title,
-				description: value.description || undefined,
-			});
-		},
-		validators: {
-			onSubmit: type({
-				title: "string>0",
-				description: "string",
-			}),
-		},
-	});
+  const form = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+    },
+    onSubmit: async ({ value }) => {
+      createMutation.mutate({
+        title: value.title,
+        description: value.description || undefined,
+      });
+    },
+    validators: {
+      onSubmit: type({
+        title: "string>0",
+        description: "string",
+      }),
+    },
+  });
 
-	return (
-		<AdminContainer>
-			<AdminHeader title="Create Practice Pack" description="Buat paket latihan soal baru" />
+  return (
+    <AdminContainer>
+      <AdminHeader title="Create Practice Pack" description="Buat paket latihan soal baru" />
 
-			<Card className="w-full rounded-xl p-4 shadow-sm sm:max-w-2xl sm:p-6">
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						form.handleSubmit();
-					}}
-				>
-					<div className="space-y-4 sm:space-y-6">
-						<form.Field name="title">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>
-										Title <span className="text-destructive">*</span>
-									</Label>
-									<Input
-										id={field.name}
-										name={field.name}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										placeholder="e.g. Matematika Dasar"
-									/>
-									{field.state.meta.errors.map((error) => (
-										<p key={String(error)} className="text-destructive text-sm">
-											{String(error)}
-										</p>
-									))}
-								</div>
-							)}
-						</form.Field>
+      <Card className="w-full rounded-xl p-4 shadow-sm sm:max-w-2xl sm:p-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+        >
+          <div className="space-y-4 sm:space-y-6">
+            <form.Field name="title">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>
+                    Title <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="e.g. Matematika Dasar"
+                  />
+                  {field.state.meta.errors.map((error) => (
+                    <p key={String(error)} className="text-sm text-destructive">
+                      {String(error)}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </form.Field>
 
-						<form.Field name="description">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Description</Label>
-									<textarea
-										id={field.name}
-										name={field.name}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										placeholder="Describe what this practice pack is about..."
-										className="flex min-h-30 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-									/>
-									{field.state.meta.errors.map((error) => (
-										<p key={String(error)} className="text-destructive text-sm">
-											{String(error)}
-										</p>
-									))}
-								</div>
-							)}
-						</form.Field>
+            <form.Field name="description">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>Description</Label>
+                  <textarea
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Describe what this practice pack is about..."
+                    className="flex min-h-30 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  {field.state.meta.errors.map((error) => (
+                    <p key={String(error)} className="text-sm text-destructive">
+                      {String(error)}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </form.Field>
 
-						<div className="flex flex-col gap-4 sm:flex-row">
-							<form.Subscribe>
-								{(state) => (
-									<Button
-										type="submit"
-										disabled={!state.canSubmit || state.isSubmitting || createMutation.isPending}
-										className="w-full sm:w-auto"
-									>
-										{createMutation.isPending ? "Creating..." : "Create Practice Pack"}
-									</Button>
-								)}
-							</form.Subscribe>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <form.Subscribe>
+                {(state) => (
+                  <Button
+                    type="submit"
+                    disabled={!state.canSubmit || state.isSubmitting || createMutation.isPending}
+                    className="w-full sm:w-auto"
+                  >
+                    {createMutation.isPending ? "Creating..." : "Create Practice Pack"}
+                  </Button>
+                )}
+              </form.Subscribe>
 
-							<Button type="button" variant="outline" className="w-full sm:w-auto" asChild>
-								<Link to="/admin/practice-packs">Cancel</Link>
-							</Button>
-						</div>
-					</div>
-				</form>
-			</Card>
-		</AdminContainer>
-	);
+              <Button type="button" variant="outline" className="w-full sm:w-auto" asChild>
+                <Link to="/admin/practice-packs">Cancel</Link>
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Card>
+    </AdminContainer>
+  );
 }

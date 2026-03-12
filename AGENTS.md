@@ -39,24 +39,28 @@ turbo -F @habitutor/db <command>
 ## Code Style Guidelines
 
 ### Formatting
+
 - **Indentation**: Tabs (configured in biome.json)
 - **Line width**: 120 characters
 - **Quotes**: Double quotes for JavaScript/TypeScript
 - **Formatting tool**: Biome (run `bun lint:fix` before committing)
 
 ### TypeScript
+
 - **Strict mode**: Always enabled, use `@typescript/native-preview` for type checking
 - **Type inference**: No explicit types when inferrable (enforced by biome)
 - **As const**: Use `as const` assertions for literal types where needed
 - **Imports**: Use `type` keyword for type-only imports when beneficial
 
 ### Import Organization
+
 - Workspace packages: `@habitutor/package-name`
 - Catalog dependencies: Use `"catalog:"` in package.json
 - Relative imports: Use `@/` alias for app internal paths
 - Organize: External → Workspace → Relative
 
 ### React Components
+
 - Functional components only, no class components
 - TypeScript props interfaces, destructure props
 - Use Radix UI primitives as base for UI components
@@ -65,6 +69,7 @@ turbo -F @habitutor/db <command>
 - Patterns: Separate component and container logic when complex
 
 ### Naming Conventions
+
 - Components: PascalCase (`FlashcardCard`)
 - Functions/variables: camelCase (`getUserProgress`)
 - Types/interfaces: PascalCase (`UserProgress`)
@@ -72,6 +77,7 @@ turbo -F @habitutor/db <command>
 - Files: kebab-case for folders (`flashcard-card/`), `index.ts` for exports
 
 ### Database (Drizzle ORM)
+
 - Schema files in `packages/db/src/schema/`
 - Tables: camelCase with underscored columns (`user`, `email_verified`)
 - Relations: Define with explicit types
@@ -79,6 +85,7 @@ turbo -F @habitutor/db <command>
 - Queries: Use Drizzle query builder, prefer type-safe operations
 
 ### API Routes (ORPC)
+
 - Router files in `packages/api/src/routers/`
 - Define routes with explicit path, method, tags
 - Use Arktype for input/output validation (`type({...})`)
@@ -87,12 +94,14 @@ turbo -F @habitutor/db <command>
 - Transactions: Use `db.transaction(async (tx) => {...})` for multi-step ops
 
 ### Error Handling
+
 - Client errors: Use toast from sonner (`toast.error("message")`)
 - Server errors: Use ORPCError helpers in routes
 - Validation: Arktype types in route definitions catch schema errors early
 - Never log secrets or sensitive data
 
 ### File Structure
+
 ```
 packages/api/src/routers/
   feature-name.ts    # Individual router
@@ -108,6 +117,7 @@ apps/web/src/routes/
 ```
 
 ### Best Practices
+
 - Keep functions focused and under 50 lines when possible
 - Use custom hooks for reusable logic in `hooks/` directories
 - Avoid prop drilling - use context or state management (zustand)
@@ -117,6 +127,7 @@ apps/web/src/routes/
 - Run `bun lint:fix` and `bun check-types` before pushing
 
 ### Testing
+
 - Use Bun Test for unit and integration tests
 - Test files should be co-located with source files: `date.test.ts`
 - Test mocks and factories in `packages/api/src/__tests__/`
@@ -125,24 +136,28 @@ apps/web/src/routes/
 - Run `bun test` before pushing
 
 ### Environment Variables
+
 - Local dev: Use `.env` files in `apps/server/`
 - CI/CD: Set secrets in GitHub Actions or Coolify
 - Never commit `.env` files or secrets
 - Use environment-specific configs for staging/production
 
 ### Deployment
+
 - Apps containerized with Docker (see Dockerfiles in each app)
 - Built images pushed to GitHub Container Registry (ghcr.io)
 - Deployed via Coolify webhooks on push to main
 - Turbo remote caching enabled via TURBO_TOKEN and TURBO_TEAM
 
 ### CI/CD Workflows
+
 - `.github/workflows/migrate.yml` - Database migrations on main push
 - `.github/workflows/build-server.yml` - Build and deploy server image
 - `.github/workflows/build-web.yml` - Build and deploy web image (if exists)
 - Secrets managed in GitHub repository settings
 
 ### Git Workflow
+
 - Feature branches: `feature/description` or `fix/description`
 - Commit messages: Conventional Commits (feat, fix, refactor, etc.)
 - Pull requests required before merging to main

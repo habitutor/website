@@ -4,56 +4,56 @@ import { QuestionForm, type QuestionFormData } from "@/components/admin/question
 import { orpc } from "@/utils/orpc";
 
 interface CreateQuestionFormProps {
-	practicePackId: number;
-	onSuccess?: () => void;
-	onCancel?: () => void;
+  practicePackId: number;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
 export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: CreateQuestionFormProps) {
-	const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-	const createQuestionMutation = useMutation(orpc.admin.question.create.mutationOptions());
-	const createAnswerMutation = useMutation(orpc.admin.question.createAnswer.mutationOptions());
-	const addToPackMutation = useMutation(orpc.admin.practicePack.addQuestion.mutationOptions());
+  const createQuestionMutation = useMutation(orpc.admin.question.create.mutationOptions());
+  const createAnswerMutation = useMutation(orpc.admin.question.createAnswer.mutationOptions());
+  const addToPackMutation = useMutation(orpc.admin.practicePack.addQuestion.mutationOptions());
 
-	const isSubmitting =
-		createQuestionMutation.isPending || createAnswerMutation.isPending || addToPackMutation.isPending;
+  const isSubmitting =
+    createQuestionMutation.isPending || createAnswerMutation.isPending || addToPackMutation.isPending;
 
-	const handleSubmit = async (data: QuestionFormData) => {
-		const question = await createQuestionMutation.mutateAsync({
-			content: data.content,
-			discussion: data.discussion,
-			isFlashcardQuestion: data.isFlashcardQuestion,
-		});
+  const handleSubmit = async (data: QuestionFormData) => {
+    const question = await createQuestionMutation.mutateAsync({
+      content: data.content,
+      discussion: data.discussion,
+      isFlashcardQuestion: data.isFlashcardQuestion,
+    });
 
-		await Promise.all(
-			data.answerOptions.map((option) =>
-				createAnswerMutation.mutateAsync({
-					questionId: question.id,
-					code: option.code,
-					content: option.content,
-					isCorrect: option.isCorrect,
-				}),
-			),
-		);
+    await Promise.all(
+      data.answerOptions.map((option) =>
+        createAnswerMutation.mutateAsync({
+          questionId: question.id,
+          code: option.code,
+          content: option.content,
+          isCorrect: option.isCorrect,
+        }),
+      ),
+    );
 
-		await addToPackMutation.mutateAsync({
-			practicePackId,
-			questionId: question.id,
-		});
+    await addToPackMutation.mutateAsync({
+      practicePackId,
+      questionId: question.id,
+    });
 
-		toast.success("Question created successfully");
-		queryClient.invalidateQueries(orpc.admin.practicePack.getQuestions.queryOptions({ input: { id: practicePackId } }));
-		onSuccess?.();
-	};
+    toast.success("Question created successfully");
+    queryClient.invalidateQueries(orpc.admin.practicePack.getQuestions.queryOptions({ input: { id: practicePackId } }));
+    onSuccess?.();
+  };
 
-	return (
-		<QuestionForm
-			title="Create New Question"
-			onSubmit={handleSubmit}
-			onCancel={onCancel}
-			isSubmitting={isSubmitting}
-			submitLabel="Create Question"
-		/>
-	);
+  return (
+    <QuestionForm
+      title="Create New Question"
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      isSubmitting={isSubmitting}
+      submitLabel="Create Question"
+    />
+  );
 }

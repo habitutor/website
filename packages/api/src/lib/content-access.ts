@@ -16,17 +16,17 @@
  * @returns Whether the user can access the content
  */
 export function canAccessContent(
-	userIsPremium: boolean,
-	userRole: string | undefined,
-	subtestOrder: number,
-	contentOrder: number,
+  userIsPremium: boolean,
+  userRole: string | undefined,
+  subtestOrder: number,
+  contentOrder: number,
 ): boolean {
-	// Admin can access everything
-	if (userRole === "admin") return true;
-	// Premium users can access everything
-	if (userIsPremium) return true;
-	// Free users: only first content from first subtest
-	return isFirstSubtest(subtestOrder) && isFirstContent(contentOrder);
+  // Admin can access everything
+  if (userRole === "admin") return true;
+  // Premium users can access everything
+  if (userIsPremium) return true;
+  // Free users: only first content from first subtest
+  return isFirstSubtest(subtestOrder) && isFirstContent(contentOrder);
 }
 
 /**
@@ -34,7 +34,7 @@ export function canAccessContent(
  * @param subtestOrder - The order of the subtest
  */
 export function isFirstSubtest(subtestOrder: number): boolean {
-	return subtestOrder === 1;
+  return subtestOrder === 1;
 }
 
 /**
@@ -42,5 +42,5 @@ export function isFirstSubtest(subtestOrder: number): boolean {
  * @param contentOrder - The order of the content within its category
  */
 export function isFirstContent(contentOrder: number): boolean {
-	return contentOrder === 1;
+  return contentOrder === 1;
 }

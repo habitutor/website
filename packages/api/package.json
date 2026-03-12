@@ -1,41 +1,41 @@
 {
-	"name": "@habitutor/api",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.mts",
-			"default": "./dist/index.mjs"
-		},
-		"./*": {
-			"types": "./dist/*.d.mts",
-			"default": "./dist/*.mjs"
-		}
-	},
-	"type": "module",
-	"scripts": {
-		"build": "tsdown",
-		"check-types": "tsgo --noEmit",
-		"test": "bun test",
-		"test:watch": "bun test --watch"
-	},
-	"devDependencies": {
-		"@habitutor/config": "workspace:*",
-		"@types/midtrans-client": "^1.4.0",
-		"tsdown": "catalog:"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	},
-	"dependencies": {
-		"@orpc/server": "catalog:",
-		"@orpc/client": "catalog:",
-		"@orpc/openapi": "catalog:",
-		"@orpc/arktype": "catalog:",
-		"drizzle-orm": "catalog:",
-		"hono": "catalog:",
-		"dotenv": "catalog:",
-		"arktype": "catalog:",
-		"midtrans-client": "catalog:",
-		"@habitutor/auth": "workspace:*",
-		"@habitutor/db": "workspace:*"
-	}
+  "name": "@habitutor/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./*": {
+      "types": "./dist/*.d.mts",
+      "default": "./dist/*.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsgo --noEmit",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
+  },
+  "dependencies": {
+    "@habitutor/auth": "workspace:*",
+    "@habitutor/db": "workspace:*",
+    "@orpc/arktype": "catalog:",
+    "@orpc/client": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
+    "arktype": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "hono": "catalog:",
+    "midtrans-client": "catalog:"
+  },
+  "devDependencies": {
+    "@habitutor/config": "workspace:*",
+    "@types/midtrans-client": "^1.4.0",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
 }

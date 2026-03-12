@@ -9,18 +9,18 @@ import * as transaction from "./schema/transaction";
 const client = new SQL(process.env.DATABASE_URL || "");
 
 const schema = {
-	...practice,
-	...flashcard,
-	...transaction,
+  ...practice,
+  ...flashcard,
+  ...transaction,
 };
 
 export const db = drizzle({
-	client: client,
-	casing: "snake_case",
-	schema,
+  client: client,
+  casing: "snake_case",
+  schema,
 });
 
 export type Schema = typeof schema;
 export type DrizzleDatabase =
-	| typeof db
-	| PgTransaction<BunSQLQueryResultHKT, Schema, ExtractTablesWithRelations<Schema>>;
+  | typeof db
+  | PgTransaction<BunSQLQueryResultHKT, Schema, ExtractTablesWithRelations<Schema>>;
