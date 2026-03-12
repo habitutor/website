@@ -6,7 +6,7 @@ import {
 	subtest,
 	videoMaterial,
 } from "@habitutor/db/schema/subtest";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export const adminSubtestRepo = {
 	createSubtest: async ({
@@ -60,6 +60,26 @@ export const adminSubtestRepo = {
 
 	updateSubtestOrder: async ({ db = defaultDb, id, order }: { db?: DrizzleDatabase; id: number; order: number }) => {
 		return db.update(subtest).set({ order, updatedAt: new Date() }).where(eq(subtest.id, id));
+	},
+
+	getMaxContentOrder: async ({
+		db = defaultDb,
+		subtestId,
+		type,
+	}: {
+		db?: DrizzleDatabase;
+		subtestId: number;
+		type: "material" | "tips_and_trick";
+	}) => {
+		const [row] = await db
+			.select({
+				maxOrder: sql<number>`COALESCE(MAX(${contentItem.order}), 0)`,
+			})
+			.from(contentItem)
+			.where(and(eq(contentItem.subtestId, subtestId), eq(contentItem.type, type)))
+			.limit(1);
+
+		return row?.maxOrder ?? 0;
 	},
 
 	createContentItem: async ({

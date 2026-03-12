@@ -192,12 +192,18 @@ const createContent = admin
 		}
 
 		const result = await db.transaction(async (tx) => {
+			const maxOrder = await adminSubtestRepo.getMaxContentOrder({
+				db: tx,
+				subtestId: input.subtestId,
+				type: input.type,
+			});
+
 			const newContent = await adminSubtestRepo.createContentItem({
 				db: tx,
 				subtestId: input.subtestId,
 				type: input.type,
 				title: input.title,
-				order: input.order,
+			order: maxOrder + 1,
 			});
 
 			if (!newContent)
