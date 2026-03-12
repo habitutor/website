@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+
 import { $getSession } from "@/lib/get-user";
 
 export const Route = createFileRoute("/_auth")({

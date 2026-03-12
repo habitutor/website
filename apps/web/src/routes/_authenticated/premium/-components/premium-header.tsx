@@ -1,4 +1,5 @@
 import { Image } from "@unpic/react";
+
 import type { authClient } from "@/lib/auth-client";
 
 export function PremiumHeader({ session }: { session: typeof authClient.$Infer.Session | null }) {

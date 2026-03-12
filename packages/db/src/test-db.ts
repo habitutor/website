@@ -1,6 +1,8 @@
-import { SQL } from "bun";
 import type { BunSQLDatabase } from "drizzle-orm/bun-sql";
+
+import { SQL } from "bun";
 import { drizzle } from "drizzle-orm/bun-sql";
+
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
 import * as subtest from "./schema/subtest";

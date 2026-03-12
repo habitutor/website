@@ -17,6 +17,7 @@ import {
   useRole,
 } from "@floating-ui/react";
 import { cloneElement, createContext, forwardRef, isValidElement, useContext, useMemo, useState, version } from "react";
+
 import "@/components/tiptap-ui-primitive/tooltip/tooltip.scss";
 
 interface TooltipProviderProps {

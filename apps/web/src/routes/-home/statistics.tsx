@@ -1,5 +1,6 @@
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
+
 import { MotionPulse } from "@/components/motion";
 import { useAnimatedCounter } from "@/hooks/use-animations";
 

@@ -5,6 +5,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { lazy, Suspense, useState } from "react";
 import { toast } from "sonner";
+
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 
 const TiptapSimpleEditor = lazy(() => import("@/components/tiptap-simple-editor"));

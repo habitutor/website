@@ -12,9 +12,21 @@
   "bracketSameLine": false,
   "bracketSpacing": true,
   "sortTailwindcss": {
-    "stylesheet": "apps/web/src/index.css",
-    "functions": ["cn", "clsx"],
+    "attributes": ["className", "class"],
+    "stylesheet": "./apps/web/src/index.css",
+    "functions": ["cn", "clsx", "cva"],
     "preserveWhitespace": false
+  },
+  "sortImports": {
+    "groups": [
+      "type-import",
+      ["value-builtin", "value-external"],
+      "type-internal",
+      "value-internal",
+      ["type-parent", "type-sibling", "type-index"],
+      ["value-parent", "value-sibling", "value-index"],
+      "unknown"
+    ]
   },
   "ignorePatterns": [
     "**/.next",

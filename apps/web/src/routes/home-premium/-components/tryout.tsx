@@ -1,6 +1,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import * as m from "motion/react-m";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
+
 import { TryOutCard } from "@/components/pricing/tryout-card";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";

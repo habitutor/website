@@ -4,6 +4,9 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
+
+import type { BodyOutputs } from "@/utils/orpc";
+
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { ContentFilters, ContentList } from "@/components/classes";
 import {
@@ -29,7 +32,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchInput } from "@/components/ui/search-input";
-import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$shortName/")({

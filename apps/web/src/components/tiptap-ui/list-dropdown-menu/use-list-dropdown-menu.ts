@@ -1,5 +1,7 @@
 import type { Editor } from "@tiptap/react";
+
 import { useEffect, useMemo, useState } from "react";
+
 // --- Icons ---
 import { ListIcon } from "@/components/tiptap-icons/list-icon";
 import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";

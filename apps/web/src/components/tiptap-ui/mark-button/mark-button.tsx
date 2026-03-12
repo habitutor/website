@@ -1,11 +1,13 @@
 import { forwardRef, useCallback } from "react";
-// --- Tiptap UI ---
-import type { Mark, UseMarkConfig } from "@/components/tiptap-ui/mark-button";
-import { MARK_SHORTCUT_KEYS, useMark } from "@/components/tiptap-ui/mark-button";
-import { Badge } from "@/components/tiptap-ui-primitive/badge";
+
 // --- UI Primitives ---
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
+// --- Tiptap UI ---
+import type { Mark, UseMarkConfig } from "@/components/tiptap-ui/mark-button";
+
+import { Badge } from "@/components/tiptap-ui-primitive/badge";
 import { Button } from "@/components/tiptap-ui-primitive/button";
+import { MARK_SHORTCUT_KEYS, useMark } from "@/components/tiptap-ui/mark-button";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---

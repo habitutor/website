@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+
 import { user } from "./auth";
 import { question } from "./practice-pack";
 

@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import Header from "@/components/header";
 import { createMeta } from "@/lib/seo-utils";
+
 import { CallToAction } from "./-home/call-to-action";
 import { Features } from "./-home/features";
 import Footer from "./-home/footer";

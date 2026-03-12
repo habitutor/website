@@ -1,12 +1,16 @@
 import type { QueryClient } from "@tanstack/react-query";
+
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { Toaster } from "@/components/ui/sonner";
+
 import type { Session } from "@/lib/auth-client";
+import type { orpc } from "@/utils/orpc";
+
+import { Toaster } from "@/components/ui/sonner";
 import { MotionProvider } from "@/lib/motion";
 import { createMeta } from "@/lib/seo-utils";
-import type { orpc } from "@/utils/orpc";
+
 import appCss from "../index.css?url";
 
 export interface RouterAppContext {

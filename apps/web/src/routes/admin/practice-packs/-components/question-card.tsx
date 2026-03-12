@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,9 +23,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+
+import type { Question } from "./types";
+
 import { KeyboardShortcutsHint } from "./hooks/use-question-navigation";
 import { RemoveQuestionDialog } from "./remove-question-dialog";
-import type { Question } from "./types";
 
 type QuestionCardProps = {
   packId: number;

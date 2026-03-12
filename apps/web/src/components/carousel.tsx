@@ -1,6 +1,8 @@
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type React from "react";
+
+import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useEffect, useReducer } from "react";
+
 import { Container } from "./ui/container";
 
 export interface CarouselItem {

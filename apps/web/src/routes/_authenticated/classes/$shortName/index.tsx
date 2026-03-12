@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useCallback } from "react";
+
 import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
 import { SearchInput } from "@/components/ui/search-input";

@@ -1,4 +1,5 @@
 import * as m from "motion/react-m";
+
 import { MotionPulse } from "@/components/motion/motion-components";
 
 export function Hero() {

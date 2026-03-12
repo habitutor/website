@@ -1,11 +1,13 @@
 import type { appRouter } from "@habitutor/api/routers/index";
+import type { RouterClient } from "@orpc/server";
+
 import { createORPCClient, type InferClientBodyOutputs, isDefinedError } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { StandardRPCJsonSerializer } from "@orpc/client/standard";
-import type { RouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
 import { getApiBaseUrl } from "@/lib/api-base-url";
 
 const serializer = new StandardRPCJsonSerializer();

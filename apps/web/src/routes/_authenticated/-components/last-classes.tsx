@@ -1,6 +1,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+
 import { LastContentViewedCard } from "@/components/classes";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";

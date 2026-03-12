@@ -1,7 +1,9 @@
 import { Image } from "@unpic/react";
+
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
+
 import { DATA } from "./data";
 
 export default function Footer() {
