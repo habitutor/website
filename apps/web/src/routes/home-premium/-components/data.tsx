@@ -56,7 +56,7 @@ export const DATA = {
       price_full: "Rp149.000",
       suffix: "sampai SNBT",
       features: [
-        { label: "Akses Full Website", status: "included" },
+        { label: "Akses Full Website", status: "excluded" },
         { label: "1000+ Soal Dasar SNBT", status: "included" },
         { label: "250+ Video Materi", status: "included" },
         { label: "1000+ Latihan Soal", status: "included" },
@@ -64,7 +64,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "included" },
         { label: "Live Class (5x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "Try Out & Pembahasan", status: "limited", value: "10x" },
+        { label: "Try Out & Pembahasan", status: "limited", value: "3x" },
       ],
       cta: {
         label: "Mulai Sekarang",
@@ -76,7 +76,7 @@ export const DATA = {
       price_full: "Rp124.000",
       suffix: "sampai SNBT",
       features: [
-        { label: "Akses Full Website", status: "included" },
+        { label: "Akses Full Website", status: "excluded" },
         { label: "1000+ Soal Dasar SNBT", status: "included" },
         { label: "250+ Video Materi", status: "included" },
         { label: "1000+ Latihan Soal", status: "included" },
@@ -84,7 +84,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "included" },
         { label: "Live Class (3x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "Try Out & Pembahasan", status: "limited", value: "10x" },
+        { label: "Try Out & Pembahasan", status: "limited", value: "3x" },
       ],
       cta: {
         label: "Mulai Sekarang",
