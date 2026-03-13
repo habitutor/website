@@ -213,7 +213,7 @@ function PremiumCard({ data }: { data: PlanData }) {
             )}
           </p>
           <p className="relative z-1 text-sm font-normal text-white">
-            promo <span className="font-bold text-red-100">hemat 75%</span> hanya sampai 1 Maret
+            promo <span className="font-bold text-red-100">hemat 75%</span> hanya sampai 1 April
           </p>
         </div>
 

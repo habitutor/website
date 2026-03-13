@@ -13,8 +13,8 @@ export function Tryout() {
   return (
     <div className="container mx-auto items-center gap-8 space-y-6 px-4 md:px-0">
       <div className="relative z-10 flex h-full flex-col items-center justify-end">
-        <p className="text-center text-lg font-bold md:text-2xl">Ultimate Bundling & Privilege</p>
-        <p className="text-center text-sm md:text-lg">Paket yang paling worth it, Paling lengkap dan murah!!</p>
+        <p className="text-center text-lg font-bold md:text-2xl">Paket Try Out</p>
+        <p className="text-center text-sm md:text-lg">Mau ngerasain soal asli SNBT langsung? Cobain simulasi di Habitutor!</p>
       </div>
       {/* Main Plans Section */}
       <div className="w-full rounded-2xl border border-neutral-300 bg-neutral-100 p-6">
