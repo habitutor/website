@@ -1,4 +1,5 @@
 import type { auth } from "@habitutor/auth";
+
 import { Snap } from "midtrans-client";
 
 export const snap = new Snap({

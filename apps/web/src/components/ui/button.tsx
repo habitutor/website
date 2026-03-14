@@ -1,12 +1,13 @@
+import type * as React from "react";
+
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot as SlotPrimitive } from "radix-ui";
-import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>Link]:hover:cursor-pointer [&>a]:hover:cursor-pointer [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-semibold whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&>Link]:hover:cursor-pointer [&>a]:hover:cursor-pointer",
   {
     variants: {
       variant: {
@@ -21,7 +22,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         navbar:
-          "bg-inherit text-foreground hover:bg-primary/5 data-[active=true]:border-primary data-[active=true]:border-b-2 data-[active=true]:bg-primary/10",
+          "bg-inherit text-foreground hover:bg-primary/5 data-[active=true]:border-b-2 data-[active=true]:border-primary data-[active=true]:bg-primary/10",
         // Light Blue
         lightBlue: "bg-primary-300 text-white shadow-xs hover:bg-primary-300",
       },

@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import Header from "@/components/header";
+
 import { Bundling } from "./-components/bundling";
 import { CallToAction } from "./-components/call-to-action.tsx";
 import { Hero } from "./-components/hero";

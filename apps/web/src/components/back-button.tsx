@@ -1,7 +1,10 @@
+import type { VariantProps } from "class-variance-authority";
+
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import type { VariantProps } from "class-variance-authority";
+
 import { cn, type TRoutes } from "@/lib/utils";
+
 import { buttonVariants } from "./ui/button";
 
 export function BackButton({

@@ -1,9 +1,10 @@
-import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
+
+import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { useCallback, useEffect, useState } from "react";
+
 import { HeadingFiveIcon } from "@/components/tiptap-icons/heading-five-icon";
 import { HeadingFourIcon } from "@/components/tiptap-icons/heading-four-icon";
-
 // --- Icons ---
 import { HeadingOneIcon } from "@/components/tiptap-icons/heading-one-icon";
 import { HeadingSixIcon } from "@/components/tiptap-icons/heading-six-icon";

@@ -4,6 +4,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
+
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { TryOutCard } from "@/components/pricing/tryout-card";
 import { refreshAuthSession } from "@/lib/auth-session";
@@ -12,6 +13,7 @@ import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";
 import { client, orpc } from "@/utils/orpc";
+
 import { BundlingCard } from "./-components/bundling-card";
 import { PerintisClassroomCard } from "./-components/perintis-card";
 import { PremiumHeader } from "./-components/premium-header";

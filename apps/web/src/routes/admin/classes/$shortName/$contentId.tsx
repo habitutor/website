@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

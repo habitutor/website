@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { canAccessContent, isFirstContent, isFirstSubtest } from "./content-access";
 
 describe("canAccessContent", () => {

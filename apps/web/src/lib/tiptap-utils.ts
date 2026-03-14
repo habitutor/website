@@ -1,5 +1,6 @@
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { Transaction } from "@tiptap/pm/state";
+
 import { AllSelection, NodeSelection, Selection, TextSelection } from "@tiptap/pm/state";
 import { CellSelection, cellAround } from "@tiptap/pm/tables";
 import { type Editor, findParentNodeClosestToPos, type NodeWithPos } from "@tiptap/react";

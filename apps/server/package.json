@@ -6,7 +6,7 @@
     "build": "bun build --production --target=bun --minify --sourcemap --bytecode ./src/index.ts --outdir ./dist",
     "compile": "bun build --production --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
     "dev": "bun run --hot --port=3001 ./src/index.ts ",
-    "start": "bun ./dist/index.js",
+    "start": "bun ./dist/index.js --port=3001",
     "check-types": "tsgo --noEmit"
   },
   "dependencies": {

@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
 import { useCallback, useState } from "react";
+
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
+
 import { LastClasses } from "../-components/last-classes";
 import { UserProgress } from "../-components/user-progress";
 

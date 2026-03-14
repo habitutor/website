@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+
 import { AdminBreadcrumbs } from "@/components/admin/dashboard-layout";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";

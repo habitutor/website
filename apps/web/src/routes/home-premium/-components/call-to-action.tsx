@@ -2,6 +2,7 @@ import { WhatsappLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
+
 import { MotionPulse } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

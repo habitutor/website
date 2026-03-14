@@ -1,8 +1,10 @@
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
+
 import Carousel from "@/components/carousel";
 import { MotionPulse } from "@/components/motion";
 import { fadeInUp } from "@/lib/animation-variants";
+
 import { DATA } from "./data";
 
 const getFadeInViewWithDelay = (delay: number) => ({

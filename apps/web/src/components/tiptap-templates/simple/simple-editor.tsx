@@ -10,11 +10,12 @@ import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
 import { useEffect, useRef, useState } from "react";
+
+// --- Icons ---
+import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon";
+import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
+import { LinkIcon } from "@/components/tiptap-icons/link-icon";
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
-// --- UI Primitives ---
-import { Button } from "@/components/tiptap-ui-primitive/button";
-import { Spacer } from "@/components/tiptap-ui-primitive/spacer";
-import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@/components/tiptap-ui-primitive/toolbar";
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
 import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss";
@@ -22,11 +23,10 @@ import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
-
-// --- Icons ---
-import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon";
-import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
-import { LinkIcon } from "@/components/tiptap-icons/link-icon";
+// --- UI Primitives ---
+import { Button } from "@/components/tiptap-ui-primitive/button";
+import { Spacer } from "@/components/tiptap-ui-primitive/spacer";
+import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@/components/tiptap-ui-primitive/toolbar";
 // --- Components ---
 import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button";
 import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button";
@@ -47,7 +47,6 @@ import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
 // --- Hooks ---
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
 import { useWindowSize } from "@/hooks/use-window-size";
-
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 

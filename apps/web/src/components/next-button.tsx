@@ -1,6 +1,8 @@
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+
 import { cn } from "@/lib/utils";
+
 import { buttonVariants } from "./ui/button";
 
 export function NextButton({ to, className }: { to: string; className?: string }) {

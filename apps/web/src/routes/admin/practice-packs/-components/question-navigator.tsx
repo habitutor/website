@@ -1,6 +1,8 @@
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+
 import type { Question } from "./types";
 
 type QuestionNavigatorProps = {

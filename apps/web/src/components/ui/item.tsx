@@ -1,6 +1,8 @@
+import type * as React from "react";
+
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
-import type * as React from "react";
+
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +15,7 @@ function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Sepa
 }
 
 const itemVariants = cva(
-  "group/item flex flex-wrap items-center rounded-md border border-transparent text-sm outline-none transition-colors duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-accent/50",
+  "group/item flex flex-wrap items-center rounded-md border border-transparent text-sm transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-accent/50",
   {
     variants: {
       variant: {

@@ -2,9 +2,11 @@ import { ListIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
+
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
 import { authClient } from "@/lib/auth-client";
 import { DATA } from "@/routes/-home/data";
+
 import { Button } from "./ui/button";
 
 export default function Header() {

@@ -1,5 +1,6 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";

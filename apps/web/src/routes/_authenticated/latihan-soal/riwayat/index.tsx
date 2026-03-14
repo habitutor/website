@@ -1,6 +1,7 @@
 import { ArrowLeft, CalendarBlank as Calendar, Clock } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { orpc } from "@/utils/orpc";

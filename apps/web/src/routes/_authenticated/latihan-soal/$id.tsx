@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

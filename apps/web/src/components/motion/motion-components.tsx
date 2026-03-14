@@ -1,5 +1,7 @@
 import type { HTMLMotionProps } from "motion/react";
+
 import * as m from "motion/react-m";
+
 import { useInView } from "@/hooks/use-animations";
 import {
   bounce,

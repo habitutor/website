@@ -1,8 +1,11 @@
 import type { Editor } from "@tiptap/react";
+
 import { forwardRef, useCallback, useState } from "react";
+
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
+
 import { CornerDownLeftIcon } from "@/components/tiptap-icons/corner-down-left-icon";
 import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon";
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
 import { Button } from "@/components/tiptap-ui-primitive/button";
 import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card";
 import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input";

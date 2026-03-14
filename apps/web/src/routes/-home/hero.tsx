@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
+
 import { MotionFloat } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { bounce, fadeInUp } from "@/lib/animation-variants";

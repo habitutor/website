@@ -1,5 +1,6 @@
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+
 import { Badge } from "@/components/ui/badge";
 
 type UseQuestionNavigationOptions = {
