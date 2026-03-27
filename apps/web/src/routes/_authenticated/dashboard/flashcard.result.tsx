@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { isDefinedError } from "@orpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/dashboard/flashcard/result")({
@@ -11,10 +13,6 @@ export const Route = createFileRoute("/_authenticated/dashboard/flashcard/result
 });
 
 const STYLES = `
-  @keyframes shimmer {
-    0%   { background-position: -200% 0; }
-    100% { background-position:  200% 0; }
-  }
   @keyframes riseFromBottom {
     from { opacity: 0; transform: translateY(90px) scaleY(0.85); }
     to   { opacity: 1; transform: translateY(0)    scaleY(1); }
@@ -34,30 +32,37 @@ const STYLES = `
   }
 `;
 
-function Skeleton({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`rounded-lg ${className}`}
-      style={{
-        background: "linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)",
-        backgroundSize: "200% 100%",
-        animation: "shimmer 1.5s infinite",
-      }}
-    />
-  );
-}
+// ─── Types ───//
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.innerWidth < 640 : false
-  );
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
-  }, []);
-  return isMobile;
-}
+type AnswerOption = {
+  id: string;
+  code: string;
+  content: string;
+  isCorrect: boolean;
+};
+
+type AssignedQuestion = {
+  selectedAnswerId: string | null;
+  question: {
+    discussion: string;
+    answerOptions: AnswerOption[];
+  };
+};
+
+type FlashcardResult = {
+  streak: number;
+  correctAnswersCount: number;
+  questionsCount: number;
+  assignedQuestions: AssignedQuestion[];
+};
+
+type LeaderboardEntry = {
+  rank: number;
+  name: string;
+  score: string;
+  image?: string;
+  isCurrentUser?: boolean;
+};
 
 // ─── Podium ───//
 const PODIUM_CFG: Record<number, { blockH: number; avatarW: number; delay: string }> = {
@@ -74,7 +79,7 @@ const PODIUM_CFG_MOBILE: Record<number, { blockH: number; avatarW: number; delay
 
 const PODIUM_ORDER = [2, 1, 3];
 
-function PodiumItem({ player }: { player: any }) {
+function PodiumItem({ player }: { player: LeaderboardEntry }) {
   const isMobile = useIsMobile();
   const cfg = (isMobile ? PODIUM_CFG_MOBILE : PODIUM_CFG)[player.rank as 1 | 2 | 3];
   const circleSize = Math.round(cfg.avatarW * 0.85);
@@ -130,8 +135,8 @@ function PodiumItem({ player }: { player: any }) {
   );
 }
 
-function LeaderboardPodium({ top3 }: { top3: any[] }) {
-  const ordered = PODIUM_ORDER.map((r) => top3.find((p) => p.rank === r)).filter(Boolean);
+function LeaderboardPodium({ top3 }: { top3: LeaderboardEntry[] }) {
+  const ordered = PODIUM_ORDER.map((r) => top3.find((p) => p.rank === r)).filter((p): p is LeaderboardEntry => p !== undefined);
   return (
     <div className="flex items-end justify-center w-full gap-1">
       {ordered.map((p) => <PodiumItem key={p.rank} player={p} />)}
@@ -139,7 +144,7 @@ function LeaderboardPodium({ top3 }: { top3: any[] }) {
   );
 }
 
-function LeaderboardRow({ entry, index }: { entry: any; index: number }) {
+function LeaderboardRow({ entry, index }: { entry: LeaderboardEntry; index: number }) {
   return (
     <div
       className={`flex items-center gap-3 px-4 py-3 rounded-[5px] border ${
@@ -162,7 +167,7 @@ function LeaderboardRow({ entry, index }: { entry: any; index: number }) {
   );
 }
 
-function LeaderboardSection({ leaderboard, isPending }: { leaderboard: any[]; isPending: boolean }) {
+function LeaderboardSection({ leaderboard, isPending }: { leaderboard: LeaderboardEntry[]; isPending: boolean }) {
   const top3 = leaderboard.filter((p) => p.rank <= 3);
   const rest  = leaderboard.filter((p) => p.rank > 3);
 
@@ -191,10 +196,10 @@ function LeaderboardSection({ leaderboard, isPending }: { leaderboard: any[]; is
   );
 }
 
-function AnswerItem({ assignedQuestion }: { assignedQuestion: any }) {
+function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }) {
   const { question, selectedAnswerId } = assignedQuestion;
-  const correctAnswer = question.answerOptions.find((a: any) => a.isCorrect);
-  const userAnswer    = question.answerOptions.find((a: any) => a.id === selectedAnswerId);
+  const correctAnswer = question.answerOptions.find((a) => a.isCorrect);
+  const userAnswer    = question.answerOptions.find((a) => a.id === selectedAnswerId);
   const isCorrect     = correctAnswer?.id === userAnswer?.id;
 
   return (
@@ -265,7 +270,7 @@ function StreakBanner({ streak }: { streak?: number }) {
   );
 }
 
-function ResultsSection({ data, isPending }: { data: any; isPending: boolean }) {
+function ResultsSection({ data, isPending }: { data: FlashcardResult | undefined; isPending: boolean }) {
   const score = data
     ? Math.round((data.correctAnswersCount / (data.questionsCount || 5)) * 100)
     : 0;
@@ -293,7 +298,7 @@ function ResultsSection({ data, isPending }: { data: any; isPending: boolean }) 
           {isPending ? (
             <Skeleton className="h-72 w-full" />
           ) : (
-            data?.assignedQuestions.map((aq: any, i: number) => (
+            data?.assignedQuestions.map((aq, i) => (
               <AnswerItem key={i} assignedQuestion={aq} />
             ))
           )}
@@ -363,7 +368,7 @@ function RouteComponent() {
 
   const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions({ input: {} }));
 
-  const leaderboard = [
+  const leaderboard: LeaderboardEntry[] = [
     { rank: 1, name: "Ayasha Asek", score: "30.000", image: "/decorations/image1.png" },
     { rank: 2, name: "Ayasha Asek", score: "20.000", image: "/decorations/image2.png" },
     { rank: 3, name: "Ayasha Asek", score: "15.000", image: "/decorations/image3.png" },
@@ -415,7 +420,7 @@ function RouteComponent() {
       <div className=" min-h-screen pb-[100px]">
         <div className="max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           <LeaderboardSection leaderboard={leaderboard} isPending={lbPending} />
-          <ResultsSection data={data} isPending={isPending} />
+          <ResultsSection data={data as FlashcardResult | undefined} isPending={isPending} />
         </div>
       </div>
 

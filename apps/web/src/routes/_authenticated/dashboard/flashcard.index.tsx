@@ -36,7 +36,7 @@ export const useFlashcardPageStore = create<PageStore>()((set) => ({
 }));
 
 const BackgroundCircles = () => (
-	<div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+	<div className="hidden xl:block pointer-events-none fixed inset-0 z-0 overflow-hidden">
 		{/* Lingkaran 1 */}
 		<MotionPulse>
 			<m.div
