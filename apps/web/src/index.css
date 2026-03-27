@@ -107,6 +107,9 @@
   /* Background */
   --color-background: #f4faff;
 
+  /* Secondary Background */
+  --color-secondary-background: #FFFBF3;
+
   /* Primary */
   --color-primary-100: #91a3da;
   --color-primary-200: #5a74c8;

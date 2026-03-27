@@ -42,6 +42,7 @@ import { Route as AuthenticatedPremiumPaymentFinishRouteImport } from './routes/
 import { Route as AuthenticatedPremiumPaymentErrorRouteImport } from './routes/_authenticated/premium/payment/error'
 import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
 import { Route as AuthenticatedDashboardFlashcardResultRouteImport } from './routes/_authenticated/dashboard/flashcard.result'
+import { Route as AuthenticatedDashboardFlashcardIntroRouteImport } from './routes/_authenticated/dashboard/flashcard.intro'
 import { Route as AuthenticatedClassesShortNameContentIdRouteImport } from './routes/_authenticated/classes/$shortName/$contentId'
 import { Route as AdminClassesShortNameContentIdVideoRouteImport } from './routes/admin/classes/$shortName/$contentId.video'
 import { Route as AdminClassesShortNameContentIdNotesRouteImport } from './routes/admin/classes/$shortName/$contentId.notes'
@@ -230,6 +231,12 @@ const AuthenticatedDashboardFlashcardResultRoute =
     path: '/dashboard/flashcard/result',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDashboardFlashcardIntroRoute =
+  AuthenticatedDashboardFlashcardIntroRouteImport.update({
+    id: '/dashboard/flashcard/intro',
+    path: '/dashboard/flashcard/intro',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedClassesShortNameContentIdRoute =
   AuthenticatedClassesShortNameContentIdRouteImport.update({
     id: '/classes/$shortName/$contentId',
@@ -296,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/admin/questions': typeof AdminQuestionsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
+  '/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
@@ -335,6 +343,7 @@ export interface FileRoutesByTo {
   '/admin/questions': typeof AdminQuestionsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
+  '/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
@@ -378,6 +387,7 @@ export interface FileRoutesById {
   '/admin/questions/': typeof AdminQuestionsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/_authenticated/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
+  '/_authenticated/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/_authenticated/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/_authenticated/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
@@ -420,6 +430,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/users'
     | '/classes/$shortName/$contentId'
+    | '/dashboard/flashcard/intro'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
     | '/premium/payment/error'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/users'
     | '/classes/$shortName/$contentId'
+    | '/dashboard/flashcard/intro'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
     | '/premium/payment/error'
@@ -501,6 +513,7 @@ export interface FileRouteTypes {
     | '/admin/questions/'
     | '/admin/users/'
     | '/_authenticated/classes/$shortName/$contentId'
+    | '/_authenticated/dashboard/flashcard/intro'
     | '/_authenticated/dashboard/flashcard/result'
     | '/_authenticated/latihan-soal/riwayat/$id'
     | '/_authenticated/premium/payment/error'
@@ -759,6 +772,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardFlashcardResultRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/dashboard/flashcard/intro': {
+      id: '/_authenticated/dashboard/flashcard/intro'
+      path: '/dashboard/flashcard/intro'
+      fullPath: '/dashboard/flashcard/intro'
+      preLoaderRoute: typeof AuthenticatedDashboardFlashcardIntroRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/classes/$shortName/$contentId': {
       id: '/_authenticated/classes/$shortName/$contentId'
       path: '/classes/$shortName/$contentId'
@@ -856,6 +876,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPremiumIndexRoute: typeof AuthenticatedPremiumIndexRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
   AuthenticatedClassesShortNameContentIdRoute: typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
+  AuthenticatedDashboardFlashcardIntroRoute: typeof AuthenticatedDashboardFlashcardIntroRoute
   AuthenticatedDashboardFlashcardResultRoute: typeof AuthenticatedDashboardFlashcardResultRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
   AuthenticatedPremiumPaymentErrorRoute: typeof AuthenticatedPremiumPaymentErrorRoute
@@ -875,6 +896,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
   AuthenticatedClassesShortNameContentIdRoute:
     AuthenticatedClassesShortNameContentIdRouteWithChildren,
+  AuthenticatedDashboardFlashcardIntroRoute:
+    AuthenticatedDashboardFlashcardIntroRoute,
   AuthenticatedDashboardFlashcardResultRoute:
     AuthenticatedDashboardFlashcardResultRoute,
   AuthenticatedLatihanSoalRiwayatIdRoute:
