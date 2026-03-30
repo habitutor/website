@@ -25,10 +25,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/flashcard/")({
 interface PageStore {
   page: number;
   next: () => void;
+  reset: () => void;
 }
 export const useFlashcardPageStore = create<PageStore>()((set) => ({
   page: 1,
   next: () => set((state) => ({ page: state.page + 1 })),
+  reset: () => set({ page: 1 }),
 }));
 
 function RouteComponent() {
@@ -85,6 +87,7 @@ const StartCard = () => {
     orpc.flashcard.start.mutationOptions({
       onSuccess: () => {
         queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
+        useFlashcardPageStore.getState().reset();
       },
       onError: (error) => {
         if (isDefinedError(error) && error.code === "NOT_FOUND") {

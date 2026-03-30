@@ -54,8 +54,9 @@ export const flashcardRepo = {
 
   getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }) => {
     return await db
-      .select({ id: question.id })
+      .selectDistinct({ id: question.id })
       .from(question)
+      .innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
       .where(eq(question.isFlashcardQuestion, true))
       .orderBy(sql`RANDOM()`)
       .limit(limit);
