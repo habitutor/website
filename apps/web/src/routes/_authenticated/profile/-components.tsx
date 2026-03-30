@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
-import { ArrowLeftIcon, CheckIcon, Copy } from "lucide-react";
-import { motion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
+import { ArrowLeftIcon, CheckIcon, Copy } from "lucide-react";
+import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { MotionPulse } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MotionPulse } from "@/components/motion";
-import { Image } from "@unpic/react";
-import { cn } from "@/lib/utils";
 import { getAvatarId, getAvatarSrc } from "@/lib/avatar";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 const AVATAR = [
@@ -92,20 +92,14 @@ function AvatarItem({
       type="button"
       onClick={() => onSelect(avatar.id)}
       className={cn(
-        "relative flex cursor-pointer aspect-square w-21 h-21 items-end justify-center rounded-lg border-2 transition-all",
+        "relative flex aspect-square h-21 w-21 cursor-pointer items-end justify-center rounded-lg border-2 transition-all",
         avatar.className,
       )}
     >
-      <Image
-        src={avatar.src}
-        alt={avatar.label}
-        width={80}
-        height={80}
-        className={cn(avatar.imageClassName, "")}
-      />
+      <Image src={avatar.src} alt={avatar.label} width={80} height={80} className={cn(avatar.imageClassName, "")} />
 
       <div
-        className={`absolute left-1 top-1 flex size-5 items-center justify-center rounded-full border-2 text-white ${selected ? "bg-fourtiary-200 border-fourtiary-300" : "bg-transparent border-primary-background"}`}
+        className={`absolute top-1 left-1 flex size-5 items-center justify-center rounded-full border-2 text-white ${selected ? "border-fourtiary-300 bg-fourtiary-200" : "border-primary-background bg-transparent"}`}
       >
         {selected && <CheckIcon className="size-3" />}
       </div>
@@ -115,7 +109,7 @@ function AvatarItem({
 
 function SaveRow({ onSave }: { onSave: () => void }) {
   return (
-    <div className="flex shrink-0 flex-col gap-4 sticky md:pt-6 border-t">
+    <div className="sticky flex shrink-0 flex-col gap-4 border-t md:pt-6">
       <div className="flex justify-end">
         <Button onClick={onSave} className="w-full md:w-fit">
           Save Changes
@@ -136,9 +130,7 @@ export default function ProfilePage() {
     name: session?.user.name ?? "",
   });
   const [customize, setCustomize] = useState({ kampus: "", jurusan: "" });
-  const [selectedAvatar, setSelectedAvatar] = useState(() =>
-    getAvatarId(session?.user.image),
-  );
+  const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarId(session?.user.image));
   const [copied, setCopied] = useState(false);
   const referralCode = profileQuery.data?.referralCode ?? "N/A";
   const referralCount = profileQuery.data?.referralUsage ?? 0;
@@ -149,6 +141,7 @@ export default function ProfilePage() {
     if (profileData) {
       setFormData((prev) => ({
         ...prev,
+        name: profileData.name,
         phone: profileData.phoneNumber ?? "",
       }));
       setCustomize((prev) => ({
@@ -156,12 +149,11 @@ export default function ProfilePage() {
         kampus: profileData.dreamCampus ?? "",
         jurusan: profileData.dreamMajor ?? "",
       }));
+      setSelectedAvatar(getAvatarId(profileData.image));
     }
   }, [profileData]);
 
-  const avatarMutation = useMutation(
-    orpc.profile.updateAvatar.mutationOptions(),
-  );
+  const avatarMutation = useMutation(orpc.profile.updateAvatar.mutationOptions());
   const profileMutation = useMutation(orpc.profile.update.mutationOptions());
 
   const handleCopy = () => {
@@ -173,47 +165,52 @@ export default function ProfilePage() {
   const handleSave = async () => {
     const avatarId = String(selectedAvatar);
     const src = getAvatarSrc(avatarId);
+    const currentAvatarId = String(getAvatarId(profileData?.image ?? session?.user.image));
+    let avatarSaved = false;
+    let profileSaved = false;
 
-    try {
-      // Simpan avatar (hanya ID)
-      await avatarMutation.mutateAsync({ image: avatarId });
-    } catch (err) {
-      console.error("Avatar save error:", err);
-      toast.error("Gagal menyimpan avatar");
-      return;
+    if (avatarId !== currentAvatarId) {
+      try {
+        await avatarMutation.mutateAsync({ image: avatarId });
+        avatarSaved = true;
+      } catch (err) {
+        console.error("Avatar save error:", err);
+        toast.error("Gagal menyimpan avatar");
+      }
     }
 
     try {
-      // Simpan data profil (nama, telepon, kampus, jurusan)
       await profileMutation.mutateAsync({
         name: formData.name,
         phoneNumber: formData.phone,
         dreamCampus: customize.kampus,
         dreamMajor: customize.jurusan,
       });
+      profileSaved = true;
     } catch (err) {
       console.error("Profile save error:", err);
       toast.error("Gagal menyimpan data profil");
-      return;
     }
 
-    // Refresh data
-    queryClient.invalidateQueries({ queryKey: orpc.profile.get.key() });
+    await queryClient.invalidateQueries({ queryKey: orpc.profile.get.key() });
 
-    // Beritahu header via custom event
-    window.dispatchEvent(new CustomEvent("avatarChanged", { detail: { src } }));
+    if (avatarSaved) {
+      window.dispatchEvent(new CustomEvent("avatarChanged", { detail: { src, image: avatarId } }));
+    }
 
-    toast.success("Profil berhasil disimpan");
+    if (avatarSaved || profileSaved) {
+      toast.success("Profil berhasil disimpan");
+    }
   };
 
   return (
     <main>
       {/* Background dan dekorasi */}
-      <div className="relative pt-20 flex w-full justify-center items-start md:overflow-y-hidden bg-background">
+      <div className="relative flex w-full items-start justify-center bg-background pt-20 md:overflow-y-hidden">
         {/* Dekorasi bulatan */}
         <MotionPulse>
           <motion.div
-            className="pointer-events-none fixed left-5.5 top-101.5 z-0 hidden size-20 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+            className="pointer-events-none fixed top-101.5 left-5.5 z-0 hidden size-20 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -222,7 +219,7 @@ export default function ProfilePage() {
         </MotionPulse>
         <MotionPulse>
           <motion.div
-            className="pointer-events-none fixed right-0 top-135.5 z-0 hidden size-78.5 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+            className="pointer-events-none fixed top-135.5 right-0 z-0 hidden size-78.5 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -231,7 +228,7 @@ export default function ProfilePage() {
         </MotionPulse>
         <MotionPulse>
           <motion.div
-            className="pointer-events-none fixed -right-10.5 top-109 z-0 hidden size-32 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+            className="pointer-events-none fixed top-109 -right-10.5 z-0 hidden size-32 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -240,10 +237,10 @@ export default function ProfilePage() {
         </MotionPulse>
 
         {/* kartu */}
-        <main className="relative z-2 w-full space-y-6 md:h-[calc(100vh-80px)] items-center border-x border-neutral-300 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-6 py-10">
+        <main className="fade-in slide-in-from-bottom-6 relative z-2 w-full animate-in items-center space-y-6 border-neutral-300 border-x bg-white py-10 shadow-sm md:h-[calc(100vh-80px)]">
           {/* Tombol kembali */}
           <div className="hidden w-full px-12 md:block">
-            <Button className="h-8 rounded-md bg-primary-300 px-4 text-xs font-semibold text-white hover:bg-primary-400">
+            <Button className="h-8 rounded-md bg-primary-300 px-4 font-semibold text-white text-xs hover:bg-primary-400">
               <ArrowLeftIcon className="size-4" />
               Kembali
             </Button>
@@ -253,16 +250,16 @@ export default function ProfilePage() {
           <div className="relative w-full shrink-0 px-12 max-md:px-4">
             <div className="relative h-29.25 w-full overflow-visible rounded-[10px] border-2 border-tertiary-200 bg-tertiary-100 max-md:h-35">
               {/* Bulatan biru dalam banner */}
-              <div className="pointer-events-none absolute right-0 top-0 h-full w-70 overflow-hidden rounded-br-[10px] rounded-tr-[10px] max-md:bottom-0 max-md:top-auto max-md:h-46.25 max-md:w-45.75">
-                <div className="absolute -right-10.25 -top-11.75 size-77.5 rounded-full border-2 border-tertiary-400 bg-tertiary-300 max-md:-bottom-23 max-md:-right-13 max-md:top-auto max-md:size-45.75" />
+              <div className="pointer-events-none absolute top-0 right-0 h-full w-70 overflow-hidden rounded-tr-[10px] rounded-br-[10px] max-md:top-auto max-md:bottom-0 max-md:h-46.25 max-md:w-45.75">
+                <div className="absolute -top-11.75 -right-10.25 size-77.5 rounded-full border-2 border-tertiary-400 bg-tertiary-300 max-md:top-auto max-md:-right-13 max-md:-bottom-23 max-md:size-45.75" />
               </div>
 
               {/* Teks */}
-              <div className="p-4 md:py-5 md:px-6 ">
-                <h1 className="m-0 text-[28px] md:text-[34px] font-normal leading-[1.2] text-primary-300">
+              <div className="p-4 md:px-6 md:py-5">
+                <h1 className="m-0 font-normal text-[28px] text-primary-300 leading-[1.2] md:text-[34px]">
                   Halo, <span className="font-bold">{session?.user.name}!</span>
                 </h1>
-                <p className="m-0 text-[12px] text-primary-300 md:w-full w-2/3">
+                <p className="m-0 w-2/3 text-[12px] text-primary-300 md:w-full">
                   Lengkapi informasi profilmu di bawah ini
                 </p>
               </div>
@@ -270,7 +267,7 @@ export default function ProfilePage() {
               {/* Gambar tupai — key berubah tiap ganti avatar → re-mount → animasi ulang */}
               <div
                 key={selectedAvatar}
-                className="pointer-events-none absolute bottom-0 right-6 z-30 h-51.25 w-55.5 animate-in fade-in slide-in-from-bottom-6 max-md:right-2 max-md:h-26.5 max-md:w-28.75"
+                className="fade-in slide-in-from-bottom-6 pointer-events-none absolute right-6 bottom-0 z-30 h-51.25 w-55.5 animate-in max-md:right-2 max-md:h-26.5 max-md:w-28.75"
               >
                 <Image
                   src={`/avatar/profile/tupai-${selectedAvatar}.webp`}
@@ -278,8 +275,7 @@ export default function ProfilePage() {
                   layout="fullWidth"
                   className="h-full w-full object-contain object-bottom"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display =
-                      "none";
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
                   }}
                 />
               </div>
@@ -290,16 +286,10 @@ export default function ProfilePage() {
           <div className="relative flex w-full flex-1 flex-col gap-5 px-12 max-md:mt-6 max-md:gap-4 max-md:px-4">
             {/* Tabs */}
             <div className="flex shrink-0 gap-3">
-              <Button
-                variant={tab === "data" ? "default" : "outline"}
-                onClick={() => setTab("data")}
-              >
+              <Button variant={tab === "data" ? "default" : "outline"} onClick={() => setTab("data")}>
                 Data Dirimu
               </Button>
-              <Button
-                variant={tab === "customize" ? "default" : "outline"}
-                onClick={() => setTab("customize")}
-              >
+              <Button variant={tab === "customize" ? "default" : "outline"} onClick={() => setTab("customize")}>
                 Customize
               </Button>
             </div>
@@ -311,12 +301,7 @@ export default function ProfilePage() {
                 <div className="flex w-[48%] flex-col gap-3 max-md:w-full">
                   <div className="space-y-2">
                     <Label>Email</Label>
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      className="cursor-not-allowed bg-muted"
-                      disabled
-                    />
+                    <Input type="email" value={formData.email} className="cursor-not-allowed bg-muted" disabled />
                   </div>
                   <div className="space-y-2">
                     <Label>Nomor Telepon</Label>
@@ -324,9 +309,7 @@ export default function ProfilePage() {
                       type="tel"
                       value={formData.phone}
                       placeholder="Nomor Telepon"
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
@@ -335,45 +318,34 @@ export default function ProfilePage() {
                       type="text"
                       value={formData.name}
                       placeholder="Nama"
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
                   </div>
                 </div>
 
                 {/* Kanan: affiliate */}
                 <div className="flex flex-col gap-2 max-md:w-full">
-                  <div className="text-xs font-medium">
+                  <div className="font-medium text-xs">
                     Ajak Teman, Dapat <strong>Cashback 25%</strong>
                   </div>
                   <div className="flex h-23.5 items-stretch overflow-hidden rounded-lg border-2 border-secondary-600 bg-secondary-400">
                     <div className="flex flex-1 flex-col justify-center gap-1 pl-4">
-                      <span className="text-[10px] font-medium">
-                        Kode Affiliatemu
-                      </span>
-                      <span className="text-[28px] font-bold leading-10.5">
-                        {referralCode}
-                      </span>
+                      <span className="font-medium text-[10px]">Kode Affiliatemu</span>
+                      <span className="font-bold text-[28px] leading-10.5">{referralCode}</span>
                     </div>
                     <button
+                      type="button"
                       onClick={handleCopy}
-                      className="flex w-18 cursor-pointer shrink-0 items-center justify-center border-l-2 border-secondary-700 bg-secondary-600"
+                      className="flex w-18 shrink-0 cursor-pointer items-center justify-center border-secondary-700 border-l-2 bg-secondary-600"
                     >
-                      {copied ? (
-                        <CheckIcon className="size-5" />
-                      ) : (
-                        <Copy className="size-5" />
-                      )}
+                      {copied ? <CheckIcon className="size-5" /> : <Copy className="size-5" />}
                     </button>
                   </div>
                   <div className="flex gap-3 max-md:flex-col">
                     {/* Referral Terdaftar */}
                     <div className="flex w-27.5 shrink-0 items-center justify-center gap-1.5 rounded-lg border-2 border-tertiary-100 bg-background px-3 py-3.5 max-md:w-full max-md:justify-start">
-                      <span className="text-[20px] font-bold ">
-                        {referralCount}
-                      </span>
-                      <span className="whitespace-nowrap text-[9px] font-medium">
+                      <span className="font-bold text-[20px]">{referralCount}</span>
+                      <span className="whitespace-nowrap font-medium text-[9px]">
                         Referral
                         <br />
                         Terdaftar
@@ -381,22 +353,11 @@ export default function ProfilePage() {
                     </div>
                     {/* Terms and Conditions */}
                     <div className="flex flex-1 flex-col gap-1 rounded-[10px] border border-background bg-white px-3.5 py-3">
-                      <span className="text-[10px] font-bold">
-                        Terms and Conditions
-                      </span>
+                      <span className="font-bold text-[10px]">Terms and Conditions</span>
                       <ul className="m-0 list-disc pl-3.5 text-[10px] leading-3.75">
-                        <li>
-                          Cashback 25% berlaku untuk pembelian paket oleh teman
-                          (pengguna baru).
-                        </li>
-                        <li>
-                          Saldo akan masuk setelah transaksi teman
-                          terverifikasi.
-                        </li>
-                        <li>
-                          Habitutor berhak membatalkan reward jika ditemukan
-                          indikasi kecurangan.
-                        </li>
+                        <li>Cashback 25% berlaku untuk pembelian paket oleh teman (pengguna baru).</li>
+                        <li>Saldo akan masuk setelah transaksi teman terverifikasi.</li>
+                        <li>Habitutor berhak membatalkan reward jika ditemukan indikasi kecurangan.</li>
                       </ul>
                     </div>
                   </div>
@@ -406,18 +367,16 @@ export default function ProfilePage() {
 
             {/* TAB: Customize */}
             {tab === "customize" && (
-              <div className="flex w-full md:flex-row items-start gap-8 flex-col-reverse">
+              <div className="flex w-full flex-col-reverse items-start gap-8 md:flex-row">
                 {/* Kiri: fields */}
-                <div className="flex flex-1 shrink-0 flex-col gap-4 w-full">
+                <div className="flex w-full flex-1 shrink-0 flex-col gap-4">
                   <div className="space-y-2">
                     <Label>Pilih Kampus Impianmu</Label>
                     <Input
                       type="text"
                       value={customize.kampus}
                       placeholder="Kampus"
-                      onChange={(e) =>
-                        setCustomize({ ...customize, kampus: e.target.value })
-                      }
+                      onChange={(e) => setCustomize({ ...customize, kampus: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
@@ -438,8 +397,8 @@ export default function ProfilePage() {
 
                 {/* Kanan: avatar grid — fixed width agar tetap square */}
                 <div className="flex w-full shrink-0 flex-col gap-2.5 overflow-hidden md:w-117.5">
-                  <h2 className="text-xs font-semibold">Pilih Avatarmu</h2>
-                  <div className="flex w-full flex-row gap-2.5 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:pb-0 md:overflow-x-visible">
+                  <h2 className="font-semibold text-xs">Pilih Avatarmu</h2>
+                  <div className="flex w-full flex-row gap-2.5 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:overflow-x-visible md:pb-0">
                     {AVATAR.map((av) => (
                       <AvatarItem
                         key={av.id}

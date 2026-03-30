@@ -33,7 +33,9 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const { data, error } = useQuery(orpc.social.queryOptions());
+	const { data: profile } = useQuery(orpc.profile.get.queryOptions());
 	const [showDialog, setShowDialog] = useState(false);
+	const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
 
 	const handleSocialClick = (e: React.MouseEvent, socialLink?: string) => {
 		if (!socialLink || error) {
@@ -48,7 +50,7 @@ function RouteComponent() {
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Ups, belum premium!</DialogTitle>
-						<DialogDescription>Untuk bergabung bersama grup discord dan whatsapp, kamu perlu Premium</DialogDescription>
+						<DialogDescription>Untuk bergabung bersama grup whatsapp, kamu perlu Premium</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
 						<Button variant="outline" onClick={() => setShowDialog(false)}>
@@ -63,25 +65,16 @@ function RouteComponent() {
 
 			<MotionStagger className="relative z-10 flex flex-col gap-6">
 				<MotionStaggerItem>
-					<section className="flex w-full items-center justify-between gap-8 max-sm:flex-col-reverse max-sm:items-start">
+					<section className="flex w-full items-center justify-between gap-0 max-sm:flex-col-reverse max-sm:items-start">
 						<div className="flex items-center gap-2">
-							<motion.span
-								animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
-								transition={{
-									duration: 1.2,
-									ease: "easeInOut",
-									repeat: Number.POSITIVE_INFINITY,
-									repeatDelay: 3,
-								}}
-								className="inline-block origin-[70%_70%] text-5xl"
-							>
-								👋
-							</motion.span>
-							<div className="text-primary">
-								<h1 className="text-xl">
-									Halo, <strong>{session?.user.name.split(" ")[0]}</strong>
+							<img src="/avatar/profile/tupai-1.webp" alt="Tupai" className="h-auto w-40  object-cover" />
+							<div className="text-primary space-y-1">
+								<h1 className="text-4xl">
+									Halo, <strong>{session?.user.name.split(" ")[0]}!</strong>
 								</h1>
-								<p className="text-sm">Yuk lanjutkan perjalanan harimu</p>
+								<p className="">
+									<strong>{dreamText || "Dream major, dream campus"}</strong> menunggumu!
+								</p>
 							</div>
 						</div>
 
@@ -104,9 +97,6 @@ function RouteComponent() {
 							</a>
 						</div>
 					</section>
-				</MotionStaggerItem>
-
-				<MotionStaggerItem>
 					<UserProgress />
 				</MotionStaggerItem>
 				<MotionStaggerItem>
