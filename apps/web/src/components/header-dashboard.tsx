@@ -1,14 +1,8 @@
-import {
-  ArrowRightIcon,
-  ListIcon,
-  SignOutIcon,
-  SpinnerIcon,
-  XIcon,
-} from "@phosphor-icons/react";
+import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -46,36 +40,50 @@ const links = [
   },
 ] as const;
 
-export function HeaderDashboard({
-  session,
-}: {
-  session: typeof authClient.$Infer.Session | null;
-}) {
+export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
+
+  useEffect(() => {
+    setAvatarSrc(getAvatarSrc(session?.user.image));
+  }, [session?.user.image]);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<{ src?: string; image?: string }>;
+      if (customEvent.detail?.src) {
+        setAvatarSrc(customEvent.detail.src);
+        return;
+      }
+
+      if (customEvent.detail?.image) {
+        setAvatarSrc(getAvatarSrc(customEvent.detail.image));
+      }
+    };
+
+    window.addEventListener("avatarChanged", handler as EventListener);
+    return () => {
+      window.removeEventListener("avatarChanged", handler as EventListener);
+    };
+  }, []);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {!session?.user.isPremium &&
-        !location.pathname.startsWith("/classes/") && (
-          <div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
-            Dapatkan Semua Fitur dan Akses
-            <Button variant="default" size={"sm"} asChild>
-              <Link to="/premium">
-                Premium Sekarang <ArrowRightIcon />
-              </Link>
-            </Button>
-          </div>
-        )}
+      {!session?.user.isPremium && !location.pathname.startsWith("/classes/") && (
+        <div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
+          Dapatkan Semua Fitur dan Akses
+          <Button variant="default" size={"sm"} asChild>
+            <Link to="/premium">
+              Premium Sekarang <ArrowRightIcon />
+            </Link>
+          </Button>
+        </div>
+      )}
       <div className="flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
         <Link to="/" className="relative size-12">
-          <Image
-            src="/logo.svg"
-            alt="Habitutor Logo"
-            layout="fullWidth"
-            className="pointer-events-none select-none"
-          />
+          <Image src="/logo.svg" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
         </Link>
 
         <div className="hidden h-full items-center md:flex">
@@ -84,9 +92,7 @@ export function HeaderDashboard({
               key={link.to}
               variant={"navbar"}
               size={"full"}
-              data-active={
-                location.pathname.startsWith(link.to) ? "true" : "false"
-              }
+              data-active={location.pathname.startsWith(link.to) ? "true" : "false"}
               asChild
             >
               <Link to={link.to}>{link.name}</Link>
@@ -98,34 +104,25 @@ export function HeaderDashboard({
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2">
               {session?.user.isPremium && (
-                <Badge
-                  variant="secondary"
-                  className="bg-primary text-primary-foreground"
-                >
+                <Badge variant="secondary" className="bg-primary text-primary-foreground">
                   Premium
                 </Badge>
               )}
               <Avatar>
-                <AvatarImage
-                  src={getAvatarSrc(session?.user.image)}
-                  alt="User Profile Picture"
-                />
-                <AvatarFallback>
-                  {session?.user.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
+                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
+                <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => (window.location.href = `/profile`)}
+                onClick={() => {
+                  window.location.href = "/profile";
+                }}
               >
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => setOpen(true)}
-              >
+              <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                 <SignOutIcon />
                 Log Out
               </DropdownMenuItem>
@@ -133,12 +130,7 @@ export function HeaderDashboard({
           </DropdownMenu>
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(true)}
-        >
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
           <ListIcon className="size-6" />
         </Button>
       </div>
@@ -146,11 +138,7 @@ export function HeaderDashboard({
       {mobileMenuOpen && (
         <div className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white p-6 shadow-lg md:hidden">
           <div className="flex items-center justify-between">
-            <Link
-              to="/"
-              className="relative size-12"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link to="/" className="relative size-12" onClick={() => setMobileMenuOpen(false)}>
               <Image
                 src="/logo.svg"
                 alt="Habitutor Logo"
@@ -158,11 +146,7 @@ export function HeaderDashboard({
                 className="pointer-events-none select-none"
               />
             </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
               <XIcon className="size-6" />
             </Button>
           </div>
@@ -183,20 +167,12 @@ export function HeaderDashboard({
           <div className="mt-12">
             <div className="mb-4 flex items-center gap-3 px-4">
               <Avatar>
-                <AvatarImage
-                  src={getAvatarSrc(session?.user.image)}
-                  alt="User Profile Picture"
-                />
-                <AvatarFallback>
-                  {session?.user.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
+                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
+                <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span className="font-medium">{session?.user.name}</span>
               {session?.user.isPremium && (
-                <Badge
-                  variant="default"
-                  className="bg-primary text-primary-foreground"
-                >
+                <Badge variant="default" className="bg-primary text-primary-foreground">
                   Premium
                 </Badge>
               )}
@@ -221,13 +197,7 @@ export function HeaderDashboard({
   );
 }
 
-const LogoutDialog = ({
-  open,
-  onOpenChange,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) => {
+const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [pending, setPending] = useState(false);
@@ -237,9 +207,7 @@ const LogoutDialog = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Kamu akan dikeluarkan dan harus login kembali.
-          </AlertDialogDescription>
+          <AlertDialogDescription>Kamu akan dikeluarkan dan harus login kembali.</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Kembali</AlertDialogCancel>
