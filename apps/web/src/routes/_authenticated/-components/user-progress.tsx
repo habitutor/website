@@ -7,7 +7,7 @@ import { orpc } from "@/utils/orpc";
 
 export const UserProgress = () => {
 	return (
-		<section className="">
+		<section className="border p-4 md:p-10 bg-neutral-100 rounded-2xl">
 			<h2 className="mb-2 font-medium">Progres Kamu!</h2>
 			<div className="grid gap-2 sm:grid-cols-5">
 				<div className="space-y-2 sm:col-span-2">
@@ -32,7 +32,7 @@ const Material = () => {
 				<p className="font-bold">Materi Dipelajari</p>
 			</div>
 
-			<Button size="icon" className="z-10" asChild>
+			<Button size="icon" className="z-10 bg-tertiary-800" asChild>
 				<Link to="/classes">
 					<ArrowRightIcon weight="bold" />
 				</Link>
@@ -40,11 +40,11 @@ const Material = () => {
 
 			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-blue-300" />
 			<Image
-				src="/avatar/class-avatar.webp"
+				src="/avatar/profile/tupai-6.webp"
 				alt=""
 				width={75}
 				height={75}
-				className="absolute -right-[20%] -bottom-[30%] z-0 w-auto object-contain"
+				className="absolute -right-[20%] -bottom-[30%] h-auto w-55 z-0 object-contain"
 			/>
 		</div>
 	);
@@ -57,7 +57,7 @@ const Tryout = () => {
 				<h2 className="font-bold text-2xl">Kerjakan Tryout</h2>
 			</div>
 
-			<Button asChild size="icon" variant="secondary" className="z-10">
+			<Button asChild size="icon" variant="default" className="z-10 bg-fourtiary-400">
 				<a
 					href="https://www.anycademy.com"
 					rel="noopener noreferrer"
@@ -86,15 +86,43 @@ const Flashcard = () => {
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
+	const hasDoneToday = session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime();
+	const totalScore = 50000;
+
 	return (
-		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md bg-purple-900/90 p-4 text-white sm:col-span-3">
-			<div className="z-10 space-y-0.5">
-				<h4 className={"font-bold text-5xl sm:text-6xl"}>{session.user.flashcardStreak}</h4>
-				<p className="font-bold">Streak Brain Gym</p>
-			</div>
+		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md border border-primary-400 bg-primary-300 p-4 text-white sm:col-span-3">
+			{!hasDoneToday ? (
+				<div className="h-full justify-between flex flex-col">
+					<div className="bg-red-200 border rounded-sm border-red-400 px-4 py-2 md:text-sm text-xs md:whitespace-nowrap">
+						<p className="font-bold text-white">Streak kamu mati! yuk kejar lagi</p>
+					</div>
+					<div className="space-y-2">
+						<div className="z-10 space-y-0.5">
+							<h4 className={"font-bold text-4xl"}>{totalScore.toLocaleString("id-ID")}</h4>
+							<p className="font-bold">Skor saat ini</p>
+						</div>
+						<div className="z-10 space-y-0.5">
+							<h4 className={"font-bold text-4xl"}>{session.user.flashcardStreak}</h4>
+							<p className="font-bold">Streak Brain Gym</p>
+						</div>
+					</div>
+				</div>
+			) : (
+				<div className="space-y-2">
+					<div className="z-10 space-y-0.5">
+						<h4 className={"font-bold text-4xl"}>{totalScore.toLocaleString("id-ID")}</h4>
+						<p className="font-bold">Skor saat ini</p>
+					</div>
+					<div className="z-10 space-y-0.5">
+						<h4 className={"font-bold text-4xl"}>{session.user.flashcardStreak}</h4>
+						<p className="font-bold">Streak Brain Gym</p>
+					</div>
+				</div>
+			)}
 
 			<Button
 				size="lg"
+				variant="darkBlue"
 				className="z-10 max-sm:h-auto max-sm:text-wrap max-sm:py-1 max-sm:text-xs max-sm:has-[>svg]:px-2"
 				asChild
 			>
@@ -104,7 +132,7 @@ const Flashcard = () => {
 					</Link>
 				) : (
 					<Link to="/dashboard/flashcard">
-						Mainkan Flashcard Sekarang <ArrowRightIcon />
+						Mainkan Braingym <ArrowRightIcon />
 					</Link>
 				)}
 			</Button>
@@ -122,11 +150,11 @@ const Flashcard = () => {
 
 			<div className="absolute -bottom-1/2 -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10 sm:-bottom-[20%]" />
 			<Image
-				src="/avatar/cards.webp"
+				src="/avatar/brain-gym.webp"
 				alt=""
 				width={300}
 				height={300}
-				className="absolute right-0 -bottom-[5%] z-0 object-contain"
+				className="absolute -right-20 md:right-0 -bottom-[5%] z-0 object-contain"
 			/>
 		</div>
 	);
