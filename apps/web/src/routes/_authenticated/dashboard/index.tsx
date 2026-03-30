@@ -61,7 +61,7 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 
-			<MotionStagger className="flex flex-col gap-6">
+			<MotionStagger className="relative z-10 flex flex-col gap-6">
 				<MotionStaggerItem>
 					<section className="flex w-full items-center justify-between gap-8 max-sm:flex-col-reverse max-sm:items-start">
 						<div className="flex items-center gap-2">
@@ -85,23 +85,7 @@ function RouteComponent() {
 							</div>
 						</div>
 
-						<div className="grid grid-cols-2 gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
-							<a
-								href={data?.discord || "#"}
-								rel={data?.discord ? "noopener noreferrer" : undefined}
-								target={data?.discord ? "_blank" : undefined}
-								onClick={(e) => handleSocialClick(e, data?.discord ?? undefined)}
-								className="group relative overflow-clip bg-discord hover:bg-discord/80"
-							>
-								<p className="z-10">Join Discord</p>
-								<ArrowCircleRightIcon size={24} />
-								<Image
-									src="/icons/discord.svg"
-									width={70}
-									height={70}
-									className="absolute right-0 -bottom-[40%] opacity-50 transition-colors group-hover:-translate-y-1"
-								/>
-							</a>
+						<div className="grid grid-cols-1 gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
 							<a
 								href={data?.whatsapp || "#"}
 								rel={data?.whatsapp ? "noopener noreferrer" : undefined}
@@ -129,6 +113,10 @@ function RouteComponent() {
 					<LastClasses />
 				</MotionStaggerItem>
 			</MotionStagger>
+
+			<div className="pointer-events-none fixed right-0 bottom-0 left-0 z-0">
+				<img src="/dashboard-background.webp" alt="" className="block h-auto w-full" />
+			</div>
 		</>
 	);
 }
