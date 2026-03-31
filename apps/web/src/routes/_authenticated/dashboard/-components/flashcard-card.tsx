@@ -17,9 +17,6 @@ export const FlashcardCard = () => {
   const { data } = useQuery(orpc.flashcard.get.queryOptions());
   const saveAnswerMutation = useMutation(
     orpc.flashcard.save.mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: orpc.flashcard.get.key() });
-      },
       onError: (error) => {
         if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT")
           toast.error("Ups! Kamu sudah melewati batas waktu pengumpulan!");
@@ -72,6 +69,7 @@ export const FlashcardCard = () => {
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
       saveAnswerMutation.reset();
+      queryClient.invalidateQueries({ queryKey: orpc.flashcard.get.key() });
     } catch (error) {
       console.error(error);
     } finally {
