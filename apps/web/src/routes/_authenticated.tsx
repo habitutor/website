@@ -6,50 +6,50 @@ import { $getSession } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/_authenticated")({
-	head: () => ({
-		meta: createMeta({
-			title: "Dashboard",
-			description: "Dashboard persiapan SNBT/UTBK kamu.",
-			noIndex: true,
-		}),
-	}),
-	component: AuthedLayout,
-	beforeLoad: async ({ context, preload }) => {
-		if (preload) return;
-		const { session } = await $getSession(context.queryClient);
+  head: () => ({
+    meta: createMeta({
+      title: "Dashboard",
+      description: "Dashboard persiapan SNBT/UTBK kamu.",
+      noIndex: true,
+    }),
+  }),
+  component: AuthedLayout,
+  beforeLoad: async ({ context, preload }) => {
+    if (preload) return;
+    const { session } = await $getSession(context.queryClient);
 
-		return { session };
-	},
-	loader: ({ location, context }) => {
-		if (!context.session)
-			throw redirect({
-				to: "/login",
-				search: {
-					redirect: location.href,
-				},
-			});
-	},
+    return { session };
+  },
+  loader: ({ location, context }) => {
+    if (!context.session)
+      throw redirect({
+        to: "/login",
+        search: {
+          redirect: location.href,
+        },
+      });
+  },
 });
 
 function AuthedLayout() {
-	const context = Route.useRouteContext();
-	const location = useLocation();
-	const routerState = useRouterState();
-	const stablePathnameRef = useRef(location.pathname);
+  const context = Route.useRouteContext();
+  const location = useLocation();
+  const routerState = useRouterState();
+  const stablePathnameRef = useRef(location.pathname);
 
 	const isPending = routerState.isLoading || routerState.isTransitioning;
 
-	useEffect(() => {
-		if (!isPending) {
-			stablePathnameRef.current = location.pathname;
-		}
-	}, [location.pathname, isPending]);
+  useEffect(() => {
+    if (!isPending) {
+      stablePathnameRef.current = location.pathname;
+    }
+  }, [location.pathname, isPending]);
 
-	const pathname = isPending ? stablePathnameRef.current : location.pathname;
+  const pathname = isPending ? stablePathnameRef.current : location.pathname;
 
-	return (
-		<>
-			<HeaderDashboard session={context.session} />
+  return (
+    <>
+      <HeaderDashboard session={context.session} />
 
 			{/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
 				<Container className="flex flex-col gap-6 py-0">

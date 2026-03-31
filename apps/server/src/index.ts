@@ -31,61 +31,71 @@ app.use(
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
-	plugins: [
-		new OpenAPIReferencePlugin({
-			schemaConverters: [new ArkTypeToJsonSchemaConverter()],
-		}),
-	],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+  plugins: [
+    new OpenAPIReferencePlugin({
+      schemaConverters: [new ArkTypeToJsonSchemaConverter()],
+    }),
+  ],
+  interceptors: [
+    onError((error) => {
+      console.error(error);
+    }),
+  ],
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+  interceptors: [
+    onError((error) => {
+      console.error(error);
+    }),
+  ],
 });
 
 app.use("/*", async (c, next) => {
-	const context = await createContext({ context: c });
+  const context = await createContext({ context: c });
 
-	const rpcResult = await rpcHandler.handle(c.req.raw, {
-		prefix: "/rpc",
-		context: context,
-	});
+  const rpcResult = await rpcHandler.handle(c.req.raw, {
+    prefix: "/rpc",
+    context: context,
+  });
 
-	if (rpcResult.matched) {
-		return c.newResponse(rpcResult.response.body, rpcResult.response);
-	}
+  if (rpcResult.matched) {
+    return c.newResponse(rpcResult.response.body, rpcResult.response);
+  }
 
-	const apiResult = await apiHandler.handle(c.req.raw, {
-		prefix: "/api-reference",
-		context: context,
-	});
+  const url = new URL(c.req.url);
+  const pathname = url.pathname;
+  const isDocsPath = pathname === "/api-reference" || pathname === "/api-reference/";
+  const isSpecPath = pathname === "/api-reference/spec.json";
 
-	if (apiResult.matched) {
-		return c.newResponse(apiResult.response.body, apiResult.response);
-	}
+  if (isDocsPath || isSpecPath) {
+    if (!context.session?.user) return c.json({ error: "Unauthorized - Authentication required" }, 401);
+    if (context.session.user.role !== "admin") return c.json({ error: "Forbidden - Admin access required" }, 403);
+  }
 
-	await next();
+  const apiResult = await apiHandler.handle(c.req.raw, {
+    prefix: "/api-reference",
+    context: context,
+  });
+
+  if (apiResult.matched) {
+    return c.newResponse(apiResult.response.body, apiResult.response);
+  }
+
+  await next();
 });
 
 app.get("/", (c) => {
-	return c.text("OK");
+  return c.text("OK");
 });
 
 export default {
-	port: process.env.PORT || 3001,
-	fetch: (req: Request) => {
-		const url = new URL(req.url);
-		if (req.headers.get("x-forwarded-proto") === "https") {
-			url.protocol = "https:";
-		}
-		return app.fetch(new Request(url, req));
-	},
+  port: process.env.PORT || 3001,
+  fetch: (req: Request) => {
+    const url = new URL(req.url);
+    if (req.headers.get("x-forwarded-proto") === "https") {
+      url.protocol = "https:";
+    }
+    return app.fetch(new Request(url, req));
+  },
 };

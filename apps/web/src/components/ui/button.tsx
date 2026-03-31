@@ -42,45 +42,45 @@ const buttonVariants = cva(
 );
 
 function Button({
-	className,
-	variant,
-	size,
-	asChild = false,
-	isPending = false,
-	children,
-	disabled,
-	...props
+  className,
+  variant,
+  size,
+  asChild = false,
+  isPending = false,
+  children,
+  disabled,
+  ...props
 }: React.ComponentProps<"button"> &
-	VariantProps<typeof buttonVariants> & {
-		asChild?: boolean;
-		isPending?: boolean;
-	}) {
-	const Comp = asChild ? SlotPrimitive.Slot : "button";
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    isPending?: boolean;
+  }) {
+  const Comp = asChild ? SlotPrimitive.Slot : "button";
 
-	if (asChild) {
-		return (
-			<Comp
-				data-slot="button"
-				className={cn(buttonVariants({ variant, size, className }))}
-				disabled={disabled || isPending}
-				{...props}
-			>
-				{children}
-			</Comp>
-		);
-	}
+  if (asChild) {
+    return (
+      <Comp
+        data-slot="button"
+        className={cn(buttonVariants({ variant, size, className }))}
+        disabled={disabled || isPending}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  }
 
-	return (
-		<Comp
-			data-slot="button"
-			className={cn(buttonVariants({ variant, size, className }))}
-			disabled={disabled || isPending}
-			{...props}
-		>
-			{isPending && <SpinnerIcon className="animate-spin" />}
-			{children}
-		</Comp>
-	);
+  return (
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled || isPending}
+      {...props}
+    >
+      {isPending && <SpinnerIcon className="animate-spin" />}
+      {children}
+    </Comp>
+  );
 }
 
 export { Button, buttonVariants };

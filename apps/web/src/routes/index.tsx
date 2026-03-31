@@ -10,14 +10,14 @@ import { Statistics } from "./-home/statistics";
 import Testimone from "./-home/testimone";
 
 export const Route = createFileRoute("/")({
-	head: () => ({
-		meta: createMeta({
-			description:
-				"Ubah persiapan ujian SNBT/UTBK menjadi lebih mudah dan terstruktur dengan Habitutor. Materi lengkap, latihan soal interaktif, dan analisis progres belajar.",
-			image: "/og-image.png",
-		}),
-	}),
-	component: HomeComponent,
+  head: () => ({
+    meta: createMeta({
+      description:
+        "Ubah persiapan ujian SNBT/UTBK menjadi lebih mudah dan terstruktur dengan Habitutor. Materi lengkap, latihan soal interaktif, dan analisis progres belajar.",
+      image: "/og-image.png",
+    }),
+  }),
+  component: HomeComponent,
 });
 
 function HomeComponent() {

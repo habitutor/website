@@ -21,7 +21,7 @@ export const UserProgress = () => {
 };
 
 const Material = () => {
-	const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
+  const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
 
 	return (
 		<div className="relative flex min-h-30 w-full items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
@@ -51,11 +51,11 @@ const Material = () => {
 };
 
 const Tryout = () => {
-	return (
-		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
-			<div className="z-10 space-y-0.5">
-				<h2 className="font-bold text-2xl">Kerjakan Tryout</h2>
-			</div>
+  return (
+    <div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
+      <div className="z-10 space-y-0.5">
+        <h2 className="text-2xl font-bold">Kerjakan Tryout</h2>
+      </div>
 
 			<Button asChild size="icon" variant="default" className="z-10 bg-fourtiary-400">
 				<a
@@ -68,16 +68,16 @@ const Tryout = () => {
 				</a>
 			</Button>
 
-			<div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />
-			<Image
-				src="/avatar/tryout-avatar.webp"
-				alt=""
-				width={200}
-				height={200}
-				className="absolute -right-[10%] -bottom-[30%] z-0 object-contain"
-			/>
-		</div>
-	);
+      <div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />
+      <Image
+        src="/avatar/tryout-avatar.webp"
+        alt=""
+        width={200}
+        height={200}
+        className="absolute -right-[10%] -bottom-[30%] z-0 object-contain"
+      />
+    </div>
+  );
 };
 
 const Flashcard = () => {

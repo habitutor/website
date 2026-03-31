@@ -6,12 +6,12 @@ import { useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { useProcessReferralCode } from "@/hooks/use-process-referral-code";
 import { createMeta } from "@/lib/seo-utils";
@@ -23,14 +23,14 @@ import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
-	head: () => ({
-		meta: createMeta({
-			title: "Dashboard",
-			description: "Dashboard belajar Habitutor untuk persiapan SNBT/UTBK.",
-			noIndex: true,
-		}),
-	}),
-	component: RouteComponent,
+  head: () => ({
+    meta: createMeta({
+      title: "Dashboard",
+      description: "Dashboard belajar Habitutor untuk persiapan SNBT/UTBK.",
+      noIndex: true,
+    }),
+  }),
+  component: RouteComponent,
 });
 
 function RouteComponent() {
@@ -46,12 +46,15 @@ function RouteComponent() {
 	// Auto-process pending referral code saat user baru register
 	useProcessReferralCode();
 
-	const handleSocialClick = (e: React.MouseEvent, socialLink?: string) => {
-		if (!socialLink || error) {
-			e.preventDefault();
-			setShowDialog(true);
-		}
-	};
+  const handleSocialClick = useCallback(
+    (e: React.MouseEvent, socialLink?: string) => {
+      if (!socialLink || error) {
+        e.preventDefault();
+        setShowDialog(true);
+      }
+    },
+    [error],
+  );
 
 	return (
 		<>

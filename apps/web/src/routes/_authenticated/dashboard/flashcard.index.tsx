@@ -10,18 +10,18 @@ import Loader from "@/components/loader";
 import { MotionPulse } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { orpc } from "@/utils/orpc";
 import { FlashcardCard } from "./-components/flashcard-card";
 
 export const Route = createFileRoute("/_authenticated/dashboard/flashcard/")({
-	component: RouteComponent,
+  component: RouteComponent,
 });
 
 interface PageStore {
@@ -114,19 +114,19 @@ const BackgroundCircles = () => (
 );
 
 function RouteComponent() {
-	const { session } = useRouteContext({ from: "/_authenticated" });
-	const navigate = useNavigate();
-	const flashcard = useQuery(
-		orpc.flashcard.get.queryOptions({
-			retry: false,
-		}),
-	);
+  const { session } = useRouteContext({ from: "/_authenticated" });
+  const navigate = useNavigate();
+  const flashcard = useQuery(
+    orpc.flashcard.get.queryOptions({
+      retry: false,
+    }),
+  );
 
-	const [showPremiumDialog, setShowPremiumDialog] = useState(!session?.user.isPremium);
+  const [showPremiumDialog, setShowPremiumDialog] = useState(!session?.user.isPremium);
 
-	if (flashcard.isPending) {
-		return <Loader />;
-	}
+  if (flashcard.isPending) {
+    return <Loader />;
+  }
 
 	if (flashcard.data?.status === "not_started") {
 		return (
@@ -167,9 +167,9 @@ function RouteComponent() {
 		);
 	}
 
-	if (flashcard.data?.status === "submitted") {
-		navigate({ to: "/dashboard/flashcard/result" });
-	}
+  if (flashcard.data?.status === "submitted") {
+    navigate({ to: "/dashboard/flashcard/result" });
+  }
 
 	return (
 		<div className="relative">
@@ -292,15 +292,15 @@ const StartCard = () => {
 				</div>
 			</div>
 
-			<Button
-				onClick={() => {
-					startMutation.mutate({});
-				}}
-				disabled={startMutation.isPending}
-				className="ml-auto"
-			>
-				Mulai Sekarang
-			</Button>
-		</section>
-	);
+      <Button
+        onClick={() => {
+          startMutation.mutate({});
+        }}
+        disabled={startMutation.isPending}
+        className="ml-auto"
+      >
+        Mulai Sekarang
+      </Button>
+    </section>
+  );
 };

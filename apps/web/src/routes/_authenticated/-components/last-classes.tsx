@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
 export const LastClasses = () => {
-	const { data, isPending } = useQuery(orpc.subtest.getRecentViews.queryOptions());
+  const { data, isPending } = useQuery(orpc.subtest.getRecentViews.queryOptions());
 
 	if (isPending) {
 		return (

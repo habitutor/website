@@ -1,16 +1,16 @@
-import { admin } from "../../..";
+import { admin } from "../../../index";
 import { adminStatisticsRepo } from "./repo";
 
 const get = admin
-	.route({
-		path: "/admin/statistics",
-		method: "GET",
-		tags: ["Admin - Statistics"],
-	})
-	.handler(async () => {
-		return adminStatisticsRepo.getStats({});
-	});
+  .route({
+    path: "/admin/statistics",
+    method: "GET",
+    tags: ["Admin - Statistics"],
+  })
+  .handler(async () => {
+    return adminStatisticsRepo.getStats({});
+  });
 
 export const adminStatisticsRouter = {
-	get,
+  get,
 };

@@ -2,48 +2,48 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { contentItem, noteMaterial, recentContentView, subtest, userProgress, videoMaterial } from "../schema/subtest";
 
 const SUBTEST_DATA = [
-	{
-		name: "Kemampuan Penalaran Umum",
-		shortName: "PU",
-		description: "Mengukur kemampuan berpikir logis, analitis, dan kritis melalui penalaran deduktif dan induktif.",
-		order: 1,
-	},
-	{
-		name: "Pengetahuan dan Pemahaman Umum",
-		shortName: "PPU",
-		description: "Mengukur kemampuan memahami dan menganalisis informasi dari berbagai teks dan konteks.",
-		order: 2,
-	},
-	{
-		name: "Kemampuan Memahami Bacaan dan Menulis",
-		shortName: "PBM",
-		description: "Mengukur kemampuan memahami isi bacaan, menemukan ide pokok, dan menyusun kalimat yang efektif.",
-		order: 3,
-	},
-	{
-		name: "Pengetahuan Kuantitatif",
-		shortName: "PK",
-		description: "Mengukur kemampuan menggunakan konsep matematika dasar dan penalaran numerik.",
-		order: 4,
-	},
-	{
-		name: "Literasi dalam Bahasa Indonesia",
-		shortName: "LBI",
-		description: "Mengukur kemampuan memahami, menganalisis, dan mengevaluasi teks berbahasa Indonesia.",
-		order: 5,
-	},
-	{
-		name: "Literasi dalam Bahasa Inggris",
-		shortName: "LBing",
-		description: "Mengukur kemampuan memahami dan menganalisis teks berbahasa Inggris.",
-		order: 6,
-	},
-	{
-		name: "Penalaran Matematika",
-		shortName: "PM",
-		description: "Mengukur kemampuan penalaran dan pemecahan masalah menggunakan konsep matematika tingkat lanjut.",
-		order: 7,
-	},
+  {
+    name: "Kemampuan Penalaran Umum",
+    shortName: "PU",
+    description: "Mengukur kemampuan berpikir logis, analitis, dan kritis melalui penalaran deduktif dan induktif.",
+    order: 1,
+  },
+  {
+    name: "Pengetahuan dan Pemahaman Umum",
+    shortName: "PPU",
+    description: "Mengukur kemampuan memahami dan menganalisis informasi dari berbagai teks dan konteks.",
+    order: 2,
+  },
+  {
+    name: "Kemampuan Memahami Bacaan dan Menulis",
+    shortName: "PBM",
+    description: "Mengukur kemampuan memahami isi bacaan, menemukan ide pokok, dan menyusun kalimat yang efektif.",
+    order: 3,
+  },
+  {
+    name: "Pengetahuan Kuantitatif",
+    shortName: "PK",
+    description: "Mengukur kemampuan menggunakan konsep matematika dasar dan penalaran numerik.",
+    order: 4,
+  },
+  {
+    name: "Literasi dalam Bahasa Indonesia",
+    shortName: "LBI",
+    description: "Mengukur kemampuan memahami, menganalisis, dan mengevaluasi teks berbahasa Indonesia.",
+    order: 5,
+  },
+  {
+    name: "Literasi dalam Bahasa Inggris",
+    shortName: "LBing",
+    description: "Mengukur kemampuan memahami dan menganalisis teks berbahasa Inggris.",
+    order: 6,
+  },
+  {
+    name: "Penalaran Matematika",
+    shortName: "PM",
+    description: "Mengukur kemampuan penalaran dan pemecahan masalah menggunakan konsep matematika tingkat lanjut.",
+    order: 7,
+  },
 ];
 
 // const SAMPLE_CONTENT = [
@@ -718,104 +718,104 @@ const SUBTEST_DATA = [
 // ];
 
 export async function clearSubtest(db: NodePgDatabase) {
-	try {
-		await db.delete(userProgress);
-	} catch {
-		console.log("user_progress table not found, skipping clear");
-	}
+  try {
+    await db.delete(userProgress);
+  } catch {
+    console.log("user_progress table not found, skipping clear");
+  }
 
-	try {
-		await db.delete(recentContentView);
-	} catch {
-		console.log("recent_content_view table not found, skipping clear");
-	}
+  try {
+    await db.delete(recentContentView);
+  } catch {
+    console.log("recent_content_view table not found, skipping clear");
+  }
 
-	try {
-		await db.delete(videoMaterial);
-	} catch {
-		console.log("video_material table not found, skipping clear");
-	}
+  try {
+    await db.delete(videoMaterial);
+  } catch {
+    console.log("video_material table not found, skipping clear");
+  }
 
-	try {
-		await db.delete(noteMaterial);
-	} catch {
-		console.log("note_material table not found, skipping clear");
-	}
+  try {
+    await db.delete(noteMaterial);
+  } catch {
+    console.log("note_material table not found, skipping clear");
+  }
 
-	try {
-		await db.delete(contentItem);
-	} catch {
-		console.log("content_item table not found, skipping clear");
-	}
+  try {
+    await db.delete(contentItem);
+  } catch {
+    console.log("content_item table not found, skipping clear");
+  }
 
-	try {
-		await db.delete(subtest);
-	} catch {
-		console.log("subtest table not found, skipping clear");
-	}
+  try {
+    await db.delete(subtest);
+  } catch {
+    console.log("subtest table not found, skipping clear");
+  }
 }
 
 export async function seedSubtest(db: NodePgDatabase) {
-	await db.transaction(async (tx) => {
-		const insertedSubtests = await tx.insert(subtest).values(SUBTEST_DATA).returning({
-			id: subtest.id,
-			shortName: subtest.shortName,
-		});
+  await db.transaction(async (tx) => {
+    const insertedSubtests = await tx.insert(subtest).values(SUBTEST_DATA).returning({
+      id: subtest.id,
+      shortName: subtest.shortName,
+    });
 
-		console.log(`Subtest: ${insertedSubtests.length} created`);
+    console.log(`Subtest: ${insertedSubtests.length} created`);
 
-		// const contentItemIds: number[] = [];
+    // const contentItemIds: number[] = [];
 
-		// for (const sample of SAMPLE_CONTENT) {
-		// 	const targetSubtest = insertedSubtests.find((s) => s.shortName === sample.subtestShortName);
-		// 	if (!targetSubtest) continue;
+    // for (const sample of SAMPLE_CONTENT) {
+    // 	const targetSubtest = insertedSubtests.find((s) => s.shortName === sample.subtestShortName);
+    // 	if (!targetSubtest) continue;
 
-		// 	for (const content of sample.contents) {
-		// 		const [row] = await tx
-		// 			.insert(contentItem)
-		// 			.values({
-		// 				subtestId: targetSubtest.id,
-		// 				type: content.type,
-		// 				title: content.title,
-		// 				order: content.order,
-		// 			})
-		// 			.returning({ id: contentItem.id });
+    // 	for (const content of sample.contents) {
+    // 		const [row] = await tx
+    // 			.insert(contentItem)
+    // 			.values({
+    // 				subtestId: targetSubtest.id,
+    // 				type: content.type,
+    // 				title: content.title,
+    // 				order: content.order,
+    // 			})
+    // 			.returning({ id: contentItem.id });
 
-		// 		if (!row) throw new Error("Failed to insert content item");
+    // 		if (!row) throw new Error("Failed to insert content item");
 
-		// 		const contentItemId = row.id;
-		// 		contentItemIds.push(contentItemId);
+    // 		const contentItemId = row.id;
+    // 		contentItemIds.push(contentItemId);
 
-		// 		if (content.video) {
-		// 			const videoContent =
-		// 				"content" in content.video && content.video.content
-		// 					? content.video.content
-		// 					: {
-		// 							type: "doc",
-		// 							version: 1,
-		// 							content: [],
-		// 						};
+    // 		if (content.video) {
+    // 			const videoContent =
+    // 				"content" in content.video && content.video.content
+    // 					? content.video.content
+    // 					: {
+    // 							type: "doc",
+    // 							version: 1,
+    // 							content: [],
+    // 						};
 
-		// 			const serializedContent = JSON.parse(JSON.stringify(videoContent));
+    // 			const serializedContent = JSON.parse(JSON.stringify(videoContent));
 
-		// 			await tx.insert(videoMaterial).values({
-		// 				contentItemId,
-		// 				videoUrl: content.video.videoUrl,
-		// 				content: serializedContent,
-		// 			});
-		// 		}
+    // 			await tx.insert(videoMaterial).values({
+    // 				contentItemId,
+    // 				videoUrl: content.video.videoUrl,
+    // 				content: serializedContent,
+    // 			});
+    // 		}
 
-		// 		if (content.notes) {
-		// 			const serializedNotes = JSON.parse(JSON.stringify(content.notes));
+    // 		if (content.notes) {
+    // 			const serializedNotes = JSON.parse(JSON.stringify(content.notes));
 
-		// 			await tx.insert(noteMaterial).values({
-		// 				contentItemId,
-		// 				content: serializedNotes,
-		// 			});
-		// 		}
-		// 	}
-		// }
+    // 			await tx.insert(noteMaterial).values({
+    // 				contentItemId,
+    // 				content: serializedNotes,
+    // 			});
+    // 		}
+    // 	}
+    // }
 
-		// console.log("Content items created");
-	});
+    // console.log("Content items created");
+  });
 }

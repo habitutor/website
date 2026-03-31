@@ -21,9 +21,9 @@ export const transaction = pgTable(
 );
 
 export const product = pgTable("product", {
-	id: uuid().defaultRandom().primaryKey(),
-	name: text().notNull(),
-	slug: text().notNull().unique(),
-	price: decimal().notNull(),
-	type: typeEnum("type").notNull(),
+  id: uuid().defaultRandom().primaryKey(),
+  name: text().notNull(),
+  slug: text().notNull().unique(),
+  price: decimal().notNull(),
+  type: typeEnum("type").notNull(),
 });
