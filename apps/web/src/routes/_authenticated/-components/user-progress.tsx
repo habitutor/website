@@ -82,12 +82,13 @@ const Tryout = () => {
 
 const Flashcard = () => {
 	const { session } = useRouteContext({ from: "/_authenticated" });
+	const { data: totalScoreData } = useQuery(orpc.flashcard.totalScore.queryOptions());
 	if (!session) return null;
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
 	const hasDoneToday = session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime();
-	const totalScore = 50000;
+	const totalScore = totalScoreData?.totalScore ?? 0;
 
 	return (
 		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md border border-primary-400 bg-primary-300 p-4 text-white sm:col-span-3">

@@ -85,6 +85,20 @@
       "when": 1774934220000,
       "tag": "0011_quick_live_class_datetime",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1774938000000,
+      "tag": "0012_premium_user_total_score",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1774942934426,
+      "tag": "0013_silly_prima",
+      "breakpoints": true
     }
   ]
 }

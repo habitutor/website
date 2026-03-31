@@ -210,7 +210,8 @@ const StartCard = () => {
 	);
 
 	if (!session) navigate({ to: "/login" });
-
+	const { data: totalScoreData } = useQuery(orpc.flashcard.totalScore.queryOptions());
+	const totalScore = totalScoreData?.totalScore ?? 0;
 	return (
 		<section className="flex flex-col gap-4 rounded-md border bg-white p-4 sm:p-6">
 			<Button asChild className="w-fit">
@@ -231,7 +232,7 @@ const StartCard = () => {
 						</svg>
 					</div>
 					<p className="absolute font-bold left-[18px] sm:left-[22px] text-[28px] sm:text-[45px] leading-none text-white top-1/2 -translate-y-1/2 whitespace-nowrap">
-						{session?.user?.points ?? 5000}
+						{totalScore.toLocaleString("id-ID")}
 					</p>
 					<div className="absolute font-medium left-[120px] sm:left-[188px] text-[11px] sm:text-[18px] text-black top-1/2 -translate-y-1/2 whitespace-nowrap">
 						<p className="mb-0 leading-[1.5]">Capaianmu Sejauh</p>

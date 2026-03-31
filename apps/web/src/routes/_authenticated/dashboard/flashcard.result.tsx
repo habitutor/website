@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { isDefinedError } from "@orpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link, useRouteContext } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,10 +58,11 @@ type FlashcardResult = {
 
 type LeaderboardEntry = {
   rank: number;
+  userId: string;
   name: string;
-  score: string;
-  image?: string;
-  isCurrentUser?: boolean;
+  totalScore: number;
+  image: string | null | undefined;
+  isCurrentUser: boolean;
 };
 
 // ─── Podium ───//
@@ -73,8 +74,8 @@ const PODIUM_CFG: Record<number, { blockH: number; avatarW: number; delay: strin
 
 const PODIUM_CFG_MOBILE: Record<number, { blockH: number; avatarW: number; delay: string }> = {
   1: { blockH: 120, avatarW: 80, delay: "0.3s" },
-  2: { blockH: 100,  avatarW: 65, delay: "0.1s" },
-  3: { blockH: 80,  avatarW: 55, delay: "0.5s" },
+  2: { blockH: 100, avatarW: 65, delay: "0.1s" },
+  3: { blockH: 80, avatarW: 55, delay: "0.5s" },
 };
 
 const PODIUM_ORDER = [2, 1, 3];
@@ -111,7 +112,7 @@ function PodiumItem({ player }: { player: LeaderboardEntry }) {
           }}
         />
         <img
-          src={player.image}
+          src={player.image ?? "/default-avatar.png"}
           alt={player.name}
           className="relative w-full object-contain z-[6]"
           style={{
@@ -129,7 +130,7 @@ function PodiumItem({ player }: { player: LeaderboardEntry }) {
         }}
       >
         <p className="text-[11px] sm:text-[13px] font-semibold text-gray-800 leading-snug text-center">{player.name}</p>
-        <p className="text-[11px] sm:text-[13px] font-semibold text-gray-800 leading-snug text-center">{player.score}</p>
+        <p className="text-[11px] sm:text-[13px] font-semibold text-gray-800 leading-snug text-center">{player.totalScore}</p>
       </div>
     </div>
   );
@@ -147,29 +148,27 @@ function LeaderboardPodium({ top3 }: { top3: LeaderboardEntry[] }) {
 function LeaderboardRow({ entry, index }: { entry: LeaderboardEntry; index: number }) {
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-[5px] border ${
-        entry.isCurrentUser
-          ? "bg-[#d9effa] border-[#b3dff5]"
-          : "bg-white border-[#d2d2d2]"
-      }`}
+      className={`flex items-center gap-3 px-4 py-3 rounded-[5px] border ${entry.isCurrentUser
+        ? "bg-tertiary-100 border-tertiary-200"
+        : "bg-white border-neutral-300"
+        }`}
       style={{ animation: `fadeRow 0.45s cubic-bezier(0.22,1,0.36,1) ${0.55 + index * 0.07}s both` }}
     >
       <div
-        className={`w-[41px] h-[37px] rounded-[5px] border flex items-center justify-center shrink-0 ${
-          entry.isCurrentUser ? "bg-[#f4faff] border-[#b3dff5]" : "bg-white border-[#d2d2d2]"
-        }`}
+        className={`w-10.25 h-9.25 rounded-[5px] border flex items-center justify-center shrink-0 ${entry.isCurrentUser ? "bg-background border-tertiary-200" : "bg-white border-neutral-300"
+          }`}
       >
         <span className="text-[16px] font-medium text-[#606060]">{entry.rank}</span>
       </div>
       <span className="flex-1 text-[15px] text-gray-900">{entry.name}</span>
-      <span className="text-[15px] text-gray-900">{entry.score}</span>
+      <span className="text-[15px] text-gray-900">{entry.totalScore}</span>
     </div>
   );
 }
 
 function LeaderboardSection({ leaderboard, isPending }: { leaderboard: LeaderboardEntry[]; isPending: boolean }) {
   const top3 = leaderboard.filter((p) => p.rank <= 3);
-  const rest  = leaderboard.filter((p) => p.rank > 3);
+  const rest = leaderboard.filter((p) => p.rank > 3);
 
   if (isPending) {
     return (
@@ -178,6 +177,14 @@ function LeaderboardSection({ leaderboard, isPending }: { leaderboard: Leaderboa
         <Skeleton className="h-14 w-full" />
         <Skeleton className="h-14 w-full" />
         <Skeleton className="h-14 w-full" />
+      </div>
+    );
+  }
+
+  if (leaderboard.length === 0) {
+    return (
+      <div className="flex flex-col w-full bg-white rounded-xl border border-[#e8e8e8] p-8 items-center justify-center min-h-[300px]">
+        <p className="text-[16px] text-gray-500">Belum ada data</p>
       </div>
     );
   }
@@ -199,20 +206,18 @@ function LeaderboardSection({ leaderboard, isPending }: { leaderboard: Leaderboa
 function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }) {
   const { question, selectedAnswerId } = assignedQuestion;
   const correctAnswer = question.answerOptions.find((a) => a.isCorrect);
-  const userAnswer    = question.answerOptions.find((a) => a.id === selectedAnswerId);
-  const isCorrect     = correctAnswer?.id === userAnswer?.id;
+  const userAnswer = question.answerOptions.find((a) => a.id === selectedAnswerId);
+  const isCorrect = correctAnswer?.id === userAnswer?.id;
 
   return (
     <div className="w-full">
       <div
-        className={`flex items-center gap-5 px-5 py-4 rounded-t-[5px] ${
-          isCorrect ? "bg-[#76e8ac]" : "bg-[#febcc2]"
-        }`}
+        className={`flex items-center gap-5 px-5 py-4 rounded-t-[5px] ${isCorrect ? "bg-[#76e8ac]" : "bg-[#febcc2]"
+          }`}
       >
         <span
-          className={`border border-[#e8e8e8] rounded-[3.5px] px-2.5 py-1 text-[15px] font-semibold bg-white shrink-0 ${
-            isCorrect ? "text-[#1ca35b]" : "text-[#fb3748]"
-          }`}
+          className={`border border-[#e8e8e8] rounded-[3.5px] px-2.5 py-1 text-[15px] font-semibold bg-white shrink-0 ${isCorrect ? "text-[#1ca35b]" : "text-[#fb3748]"
+            }`}
         >
           {userAnswer?.code ?? "-"}
         </span>
@@ -222,12 +227,12 @@ function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }
         <span className="ml-auto shrink-0">
           {isCorrect ? (
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M4 11L9 16L18 6" stroke="#1CA35B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M4 11L9 16L18 6" stroke="#1CA35B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           ) : (
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="10" stroke="#FB3748" strokeWidth="2"/>
-              <path d="M7.5 7.5L14.5 14.5M14.5 7.5L7.5 14.5" stroke="#FB3748" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="11" cy="11" r="10" stroke="#FB3748" strokeWidth="2" />
+              <path d="M7.5 7.5L14.5 14.5M14.5 7.5L7.5 14.5" stroke="#FB3748" strokeWidth="2" strokeLinecap="round" />
             </svg>
           )}
         </span>
@@ -254,6 +259,9 @@ function StatCard({ label, value, total }: { label: string; value: number; total
 }
 
 function StreakBanner({ streak }: { streak?: number }) {
+  const { session } = useRouteContext({ from: "/_authenticated" });
+  if (!session) return null;
+
   return (
     <div
       className="relative overflow-hidden flex items-center gap-3 px-6 bg-[#1ca35b] rounded-lg shrink-0"
@@ -261,7 +269,7 @@ function StreakBanner({ streak }: { streak?: number }) {
     >
       <div className="absolute -right-8 top-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-[#32DC82] opacity-40 pointer-events-none" />
       <span className="relative z-10 text-[22px] font-bold text-[#f4faff] leading-none">
-        {streak?.toLocaleString("id") ?? "0"}
+        {session.user.flashcardStreak}
       </span>
       <span className="relative z-10 text-[18px] font-medium text-[#f4faff]">
         Streak Brain Gym Kamu!
@@ -363,23 +371,27 @@ function AlertDialog({ onClose }: { onClose: () => void }) {
 
 function RouteComponent() {
   const queryClient = useQueryClient();
-  const navigate    = useNavigate();
+  const navigate = useNavigate();
   const [showPremiumAlert, setShowPremiumAlert] = useState(false);
 
   const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions({ input: {} }));
+  const { data: leaderboardData, isPending: lbPending } = useQuery(orpc.flashcard.leaderboard.queryOptions());
 
-  const leaderboard: LeaderboardEntry[] = [
-    { rank: 1, name: "Ayasha Asek", score: "30.000", image: "/decorations/image1.png" },
-    { rank: 2, name: "Ayasha Asek", score: "20.000", image: "/decorations/image2.png" },
-    { rank: 3, name: "Ayasha Asek", score: "15.000", image: "/decorations/image3.png" },
-    { rank: 4, name: "Ayasha Asek", score: "12.000" },
-    { rank: 5, name: "Ayasha Asek", score: "10.000" },
-    { rank: 6, name: "Ayasha Asek", score: "10.000", isCurrentUser: true },
-    { rank: 7, name: "Ayasha Asek", score: "9.500" },
-    { rank: 8, name: "Ayasha Asek", score: "9.000" },
-    { rank: 9, name: "Ayasha Asek", score: "8.500" },
-  ];
-  const lbPending = false;
+  const leaderboard: LeaderboardEntry[] = (leaderboardData?.entries ?? []).map((entry) => ({
+    rank: entry.rank,
+    userId: entry.userId,
+    name: entry.name,
+    totalScore: entry.totalScore,
+    image:
+      entry.rank === 1
+        ? "/decorations/image1.png"
+        : entry.rank === 2
+          ? "/decorations/image2.png"
+          : entry.rank === 3
+            ? "/decorations/image3.png"
+            : undefined,
+    isCurrentUser: entry.isCurrentUser,
+  }));
 
   const startMutation = useMutation(
     orpc.flashcard.start.mutationOptions({
@@ -404,7 +416,7 @@ function RouteComponent() {
       <style>{STYLES}</style>
 
       {showPremiumAlert && <AlertDialog onClose={() => setShowPremiumAlert(false)} />}
-      
+
       {/* Background circle */}
       <div className="pointer-events-none fixed inset-0 z-[-1] overflow-hidden">
         <div
