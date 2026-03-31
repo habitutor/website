@@ -19,32 +19,26 @@ export function useAnimatedCounter(
 ): { ref: React.RefObject<HTMLSpanElement>; value: number } {
   const [value, setValue] = useState(0);
   const [ref, isInView] = useInView();
-  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
-    if (isInView && !hasStarted) {
-      setHasStarted(true);
-    }
-  }, [isInView, hasStarted]);
+    if (!isInView) return;
 
-  useEffect(() => {
-    if (!hasStarted) return;
-
-    const startTime = Date.now();
     let animationFrame: number;
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easeOut = 1 - (1 - progress) ** 3;
-      setValue(Math.floor(endValue * easeOut));
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
-      }
-    };
-
     const timeoutId = setTimeout(() => {
+      const startTime = Date.now();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - (1 - progress) ** 3;
+        setValue(Math.floor(endValue * easeOut));
+
+        if (progress < 1) {
+          animationFrame = requestAnimationFrame(animate);
+        }
+      };
+
       animationFrame = requestAnimationFrame(animate);
     }, delay);
 
@@ -52,7 +46,7 @@ export function useAnimatedCounter(
       clearTimeout(timeoutId);
       cancelAnimationFrame(animationFrame);
     };
-  }, [hasStarted, endValue, duration, delay]);
+  }, [isInView, endValue, duration, delay]);
 
   return { ref: ref as React.RefObject<HTMLSpanElement>, value };
 }
