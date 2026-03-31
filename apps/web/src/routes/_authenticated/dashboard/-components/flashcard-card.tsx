@@ -69,7 +69,7 @@ export const FlashcardCard = () => {
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
       saveAnswerMutation.reset();
-      queryClient.invalidateQueries({ queryKey: orpc.flashcard.get.key() });
+      queryClient.removeQueries({ queryKey: orpc.flashcard.get.key() });
     } catch (error) {
       console.error(error);
     } finally {

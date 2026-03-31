@@ -109,17 +109,6 @@ const Flashcard = () => {
             </Link>
           )}
         </Button>
-        {session.user.isPremium && session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() && (
-          <Button
-            size="lg"
-            className="z-10 max-sm:h-auto max-sm:py-1 max-sm:text-xs max-sm:text-wrap max-sm:has-[>svg]:px-2"
-            asChild
-          >
-            <Link to="/dashboard/flashcard">
-              Main Lagi <ArrowRightIcon />
-            </Link>
-          </Button>
-        )}
       </div>
 
       <div className="absolute -bottom-1/2 -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10 sm:-bottom-[20%]" />
