@@ -1,5 +1,6 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
+import { referralCode } from "@habitutor/db/schema/referral";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 export const adminUserRepo = {
@@ -22,12 +23,14 @@ export const adminUserRepo = {
         name: user.name,
         email: user.email,
         role: user.role,
+        referralUsage: referralCode.referralCount,
         isPremium: user.isPremium,
         premiumTier: user.premiumTier,
         premiumExpiresAt: user.premiumExpiresAt,
         createdAt: user.createdAt,
       })
       .from(user)
+      .leftJoin(referralCode, eq(user.id, referralCode.userId))
       .where(
         and(
           search.length > 0 ? or(ilike(user.name, `%${search}%`), ilike(user.email, `%${search}%`)) : undefined,

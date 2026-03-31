@@ -10,33 +10,33 @@ export const transactionRepo = {
     return prod;
   },
 
-	createTransaction: async ({
-		db = defaultDb,
-		id,
-		productId,
-		grossAmount,
-		userId,
-		referralCodeId,
-	}: {
-		db?: DrizzleDatabase;
-		id: string;
-		productId: string;
-		grossAmount: string;
-		userId: string;
-		referralCodeId?: string;
-	}) => {
-		const [tx] = await db
-			.insert(transaction)
-			.values({
-				id,
-				productId,
-				grossAmount,
-				userId,
-				referralCodeId,
-			})
-			.returning();
-		return tx;
-	},
+  createTransaction: async ({
+    db = defaultDb,
+    id,
+    productId,
+    grossAmount,
+    userId,
+    referralCodeId,
+  }: {
+    db?: DrizzleDatabase;
+    id: string;
+    productId: string;
+    grossAmount: string;
+    userId: string;
+    referralCodeId?: string;
+  }) => {
+    const [tx] = await db
+      .insert(transaction)
+      .values({
+        id,
+        productId,
+        grossAmount,
+        userId,
+        referralCodeId,
+      })
+      .returning();
+    return tx;
+  },
 
   getTransactionWithProduct: async ({ db = defaultDb, orderId }: { db?: DrizzleDatabase; orderId: string }) => {
     const [result] = await db

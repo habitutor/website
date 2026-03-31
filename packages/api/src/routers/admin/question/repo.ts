@@ -8,11 +8,13 @@ export const adminQuestionRepo = {
     limit,
     cursorId,
     search,
+    isFlashcardQuestion,
   }: {
     db?: DrizzleDatabase;
     limit: number;
     cursorId: number | null;
     search: string;
+    isFlashcardQuestion?: boolean;
   }) => {
     return db
       .select({
@@ -29,6 +31,7 @@ export const adminQuestionRepo = {
         and(
           search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
           cursorId ? sql`${question.id} < ${cursorId}` : undefined,
+          isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
         ),
       )
       .leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))

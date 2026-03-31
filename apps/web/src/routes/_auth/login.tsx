@@ -67,25 +67,25 @@ function SignInForm() {
             const session = await authClient.getSession();
             const user = session.data?.user as { role?: string } | undefined;
 
-						if (user?.role === "admin") {
-							navigate({ to: "/admin/dashboard" });
-						} else {
-							navigate({ to: "/dashboard" });
-						}
-					},
-					onError: (error: { error: { message: any; statusText: any } }) => {
-						toast.error(error.error.message || error.error.statusText);
-					},
-				},
-			);
-		},
-		validators: {
-			onSubmit: type({
-				email: "string.email",
-				password: "string",
-			}),
-		},
-	});
+            if (user?.role === "admin") {
+              navigate({ to: "/admin/dashboard" });
+            } else {
+              navigate({ to: "/dashboard" });
+            }
+          },
+          onError: (error: { error: { message: any; statusText: any } }) => {
+            toast.error(error.error.message || error.error.statusText);
+          },
+        },
+      );
+    },
+    validators: {
+      onSubmit: type({
+        email: "string.email",
+        password: "string",
+      }),
+    },
+  });
 
   if (isPending) {
     return <Loader />;

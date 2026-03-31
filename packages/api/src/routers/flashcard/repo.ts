@@ -54,13 +54,20 @@ export const flashcardRepo = {
   },
 
   getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }) => {
-    return await db
-      .selectDistinct({ id: question.id })
-      .from(question)
-      .innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
-      .where(eq(question.isFlashcardQuestion, true))
-      .orderBy(sql`RANDOM()`)
-      .limit(limit);
+    const result = await db.execute(sql<{ id: number }>`
+      SELECT q.id
+      FROM (
+        SELECT DISTINCT ${question.id} AS id
+        FROM ${question}
+        INNER JOIN ${questionAnswerOption}
+          ON ${questionAnswerOption.questionId} = ${question.id}
+        WHERE ${question.isFlashcardQuestion} = true
+      ) q
+      ORDER BY RANDOM()
+      LIMIT ${limit}
+    `);
+
+    return Array.isArray(result) ? result : ((result as unknown as { rows?: Array<{ id: number }> }).rows ?? []);
   },
 
   getQuestionsByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
@@ -72,19 +79,27 @@ export const flashcardRepo = {
     });
   },
 
-	insertQuestionAnswers: async ({
-		db = defaultDb,
-		answers,
-	}: {
-		db?: DrizzleDatabase;
-		answers: Array<{
-			attemptId: number;
-			assignedDate: Date;
-			questionId: number;
-		}>;
-	}) => {
-		return db.insert(userFlashcardQuestionAnswer).values(answers);
-	},
+  insertQuestionAnswers: async ({
+    db = defaultDb,
+    answers,
+  }: {
+    db?: DrizzleDatabase;
+    answers: Array<{
+      attemptId: number;
+      assignedDate: Date;
+      questionId: number;
+    }>;
+  }) => {
+    return db.insert(userFlashcardQuestionAnswer).values(answers);
+  },
+
+  countQuestionsForAttempt: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+    const [row] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(userFlashcardQuestionAnswer)
+      .where(eq(userFlashcardQuestionAnswer.attemptId, attemptId));
+    return row?.count ?? 0;
+  },
 
   getUnansweredQuestions: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
     return db.query.userFlashcardQuestionAnswer.findMany({
@@ -123,25 +138,25 @@ export const flashcardRepo = {
     return attempt;
   },
 
-	markAttemptSubmitted: async ({
-		db = defaultDb,
-		attemptId,
-		score,
-	}: {
-		db?: DrizzleDatabase;
-		attemptId: number;
-		score: number;
-	}) => {
-		const [attempt] = await db
-			.update(userFlashcardAttempt)
-			.set({ submittedAt: new Date(), score })
-			.where(eq(userFlashcardAttempt.id, attemptId))
-			.returning();
-		return attempt;
-	},
+  markAttemptSubmitted: async ({
+    db = defaultDb,
+    attemptId,
+    score,
+  }: {
+    db?: DrizzleDatabase;
+    attemptId: number;
+    score: number;
+  }) => {
+    const [attempt] = await db
+      .update(userFlashcardAttempt)
+      .set({ submittedAt: new Date(), score })
+      .where(eq(userFlashcardAttempt.id, attemptId))
+      .returning();
+    return attempt;
+  },
 
-	getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
-		const result = await db.execute(sql<{ score: number }>`
+  getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+    const result = await db.execute(sql<{ score: number }>`
       SELECT
         CASE
           WHEN COUNT(aq.question_id) > 0 THEN ROUND((COALESCE(SUM(CASE WHEN ao.is_correct THEN 1 ELSE 0 END), 0)::numeric * 100) / COUNT(aq.question_id))::int
@@ -152,10 +167,13 @@ export const flashcardRepo = {
       WHERE aq.attempt_id = ${attemptId}
     `);
 
-		const row = result.rows[0] as { score: number } | undefined;
+    const rows = Array.isArray(result)
+      ? (result as Array<{ score: number }>)
+      : ((result as unknown as { rows?: Array<{ score: number }> }).rows ?? []);
+    const row = rows[0];
 
-		return row?.score ?? 0;
-	},
+    return row?.score ?? 0;
+  },
 
   getAttemptForQuestion: async ({
     db = defaultDb,
@@ -273,50 +291,50 @@ export const flashcardRepo = {
     });
   },
 
-	getUserHistory: async ({
-		db = defaultDb,
-		userId,
-		limit = 50,
-	}: {
-		db?: DrizzleDatabase;
-		userId: string;
-		limit?: number;
-	}) => {
-		return db
-			.select({
-				id: userFlashcardAttempt.id,
-				startedAt: userFlashcardAttempt.startedAt,
-				submittedAt: userFlashcardAttempt.submittedAt,
-			})
-			.from(userFlashcardAttempt)
-			.where(eq(userFlashcardAttempt.userId, userId))
-			.orderBy(desc(userFlashcardAttempt.startedAt))
-			.limit(limit);
-	},
+  getUserHistory: async ({
+    db = defaultDb,
+    userId,
+    limit = 50,
+  }: {
+    db?: DrizzleDatabase;
+    userId: string;
+    limit?: number;
+  }) => {
+    return db
+      .select({
+        id: userFlashcardAttempt.id,
+        startedAt: userFlashcardAttempt.startedAt,
+        submittedAt: userFlashcardAttempt.submittedAt,
+      })
+      .from(userFlashcardAttempt)
+      .where(eq(userFlashcardAttempt.userId, userId))
+      .orderBy(desc(userFlashcardAttempt.startedAt))
+      .limit(limit);
+  },
 
-	getUserTotalScore: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
-		const [row] = await db.select({ totalScore: user.totalScore }).from(user).where(eq(user.id, userId)).limit(1);
+  getUserTotalScore: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+    const [row] = await db.select({ totalScore: user.totalScore }).from(user).where(eq(user.id, userId)).limit(1);
 
-		return row?.totalScore ?? 0;
-	},
+    return row?.totalScore ?? 0;
+  },
 
-	getLeaderboardWithCurrentUser: async ({
-		db = defaultDb,
-		currentUserId,
-		limit = 10,
-	}: {
-		db?: DrizzleDatabase;
-		currentUserId: string;
-		limit?: number;
-	}) => {
-		const result = await db.execute(
-			sql<{
-				userId: string;
-				name: string;
-				image: string | null;
-				totalScore: number;
-				rank: number;
-			}>`
+  getLeaderboardWithCurrentUser: async ({
+    db = defaultDb,
+    currentUserId,
+    limit = 10,
+  }: {
+    db?: DrizzleDatabase;
+    currentUserId: string;
+    limit?: number;
+  }) => {
+    const result = await db.execute(
+      sql<{
+        userId: string;
+        name: string;
+        image: string | null;
+        totalScore: number;
+        rank: number;
+      }>`
 				WITH ranked AS (
 					SELECT
 						u.id AS user_id,
@@ -325,7 +343,7 @@ export const flashcardRepo = {
 						u.total_score,
 						ROW_NUMBER() OVER (ORDER BY u.total_score DESC, u.name ASC, u.id ASC)::int AS rank
 					FROM ${user} u
-					WHERE u.is_premium = true
+          WHERE u.total_score > 0 OR u.id = ${currentUserId}
 				)
 				SELECT
 					user_id AS "userId",
@@ -339,8 +357,18 @@ export const flashcardRepo = {
 					CASE WHEN rank <= ${limit} THEN rank ELSE 999999 END,
 					rank
 			`,
-		);
+    );
 
-		return Array.isArray(result) ? result : (result.rows ?? []);
-	},
+    return Array.isArray(result)
+      ? result
+      : ((result as unknown as {
+          rows?: Array<{
+            userId: string;
+            name: string;
+            image: string | null;
+            totalScore: number;
+            rank: number;
+          }>;
+        }).rows ?? []);
+  },
 };

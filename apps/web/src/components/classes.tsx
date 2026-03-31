@@ -1,10 +1,10 @@
 import {
-	ArrowCircleRightIcon,
+  ArrowCircleRightIcon,
   ArrowRightIcon,
-	CalendarBlankIcon,
+  CalendarBlankIcon,
   CaretRightIcon,
   CheckCircleIcon,
-	ClockIcon,
+  ClockIcon,
   DotsNineIcon,
   ExamIcon,
   EyeIcon,
@@ -16,7 +16,7 @@ import {
   PlayCircleIcon,
   PlusIcon,
   TrashIcon,
-	UsersIcon,
+  UsersIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -48,13 +48,13 @@ export function SubtestHeader() {
         {/* TEXT — mobile top, desktop LEFT */}
         <div className="relative z-10 max-w-xl">
           <h1 className="text-[24px] leading-tight font-bold text-neutral-1000 sm:text-[30px]">{title}</h1>
-          <p className="mt-2 text-[14px] leading-[21px] text-neutral-1000">{description}</p>
+          <p className="mt-2 text-[14px] leading-5.25 text-neutral-1000">{description}</p>
         </div>
 
         {/* VISUAL */}
-        <div className="relative -mx-6 h-[110px] overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
+        <div className="relative -mx-6 h-27.5 overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
           {/* Ellipse */}
-          <div className="absolute top-10 right-4 bottom-0 size-[180px] rounded-full bg-tertiary-400 sm:top-2" />
+          <div className="absolute top-10 right-4 bottom-0 size-45 rounded-full bg-tertiary-400 sm:top-2" />
 
           {/* Avatar */}
           <Image
@@ -62,7 +62,7 @@ export function SubtestHeader() {
             alt="Subtest Header Avatar"
             width={260}
             height={260}
-            className="absolute right-0 size-[210px] -translate-y-10 object-cover select-none sm:bottom-0 sm:translate-y-1/2"
+            className="absolute right-0 size-52.5 -translate-y-10 object-cover select-none sm:bottom-0 sm:translate-y-1/2"
           />
         </div>
       </div>
@@ -212,7 +212,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
           >
             {subtest?.name}
           </h1>
-          <p className={cn("mt-2 text-[14px] leading-[21px]", forceTextWhite ? "text-white/90" : "text-neutral-1000")}>
+          <p className={cn("mt-2 text-[14px] leading-5.25", forceTextWhite ? "text-white/90" : "text-neutral-1000")}>
             {subtest?.description}
           </p>
         </div>
@@ -228,7 +228,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
             alt={`${subtest?.name} Avatar`}
             width={260}
             height={260}
-            className="absolute right-0 size-70 translate-x-1/8 -translate-y-15 object-cover select-none sm:bottom-0 sm:left-0 sm:size-90 sm:translate-x-1/6 sm:translate-y-1/2 sm:translate-y-[55%] sm:object-cover"
+            className="absolute right-0 size-70 translate-x-1/8 -translate-y-15 object-cover select-none sm:bottom-0 sm:left-0 sm:size-90 sm:translate-x-1/6 sm:translate-y-[55%] sm:object-cover"
           />
         </div>
       </div>
@@ -726,7 +726,7 @@ export function PracticeQuestionHeader({ content }: { content: string }) {
     <div className="relative overflow-hidden bg-tertiary-200">
       {/* Ellipse background (dekoratif): center vertically, stick to the right, with some overflow */}
       <div
-        className="absolute top-1/2 right-[-50px] size-[181px] -translate-y-1/2 rounded-full bg-tertiary-400"
+        className="absolute top-1/2 -right-12.5 size-45.25 -translate-y-1/2 rounded-full bg-tertiary-400"
         style={{ zIndex: 0 }}
       />
 
@@ -795,55 +795,55 @@ export function PracticeQuestion({
         <div>{question}</div>
       </div>
 
-			{/* Jawaban */}
-			<AnswerCollapsible title={answerTitle}>
-				<div className="text-muted-foreground text-sm">{answer}</div>
-			</AnswerCollapsible>
-		</div>
-	);
+      {/* Jawaban */}
+      <AnswerCollapsible title={answerTitle}>
+        <div className="text-sm text-muted-foreground">{answer}</div>
+      </AnswerCollapsible>
+    </div>
+  );
 }
 
 export function LiveClassCard({
-	title,
-	date,
-	time,
-	teacher,
-	link,
+  title,
+  date,
+  time,
+  teacher,
+  link,
 }: {
-	title: string;
-	date: string;
-	time: string;
-	teacher: string;
-	link: string;
+  title: string;
+  date: string;
+  time: string;
+  teacher: string;
+  link: string;
 }) {
-	const displayDate = /^\d{4}-\d{2}-\d{2}$/.test(date)
-		? `${date.slice(8, 10)}-${date.slice(5, 7)}-${date.slice(0, 4)}`
-		: date;
-	const displayTime = /^\d{2}:\d{2}:\d{2}$/.test(time) ? time.slice(0, 5) : time;
+  const displayDate = /^\d{4}-\d{2}-\d{2}$/.test(date)
+    ? `${date.slice(8, 10)}-${date.slice(5, 7)}-${date.slice(0, 4)}`
+    : date;
+  const displayTime = /^\d{2}:\d{2}:\d{2}$/.test(time) ? time.slice(0, 5) : time;
 
-	return (
-		<Card className="relative w-full gap-4 space-y-1 overflow-hidden rounded-[10px] border border-tertiary-200 bg-background p-4 sm:p-5 md:w-75">
-			<div className="flex w-full flex-row items-start justify-between gap-4">
-				<h3 className="font-bold text-lg">{title}</h3>
-				<a href={link} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-300 text-sm">
-					<ArrowCircleRightIcon size={24} className="text-tertiary-600" />
-				</a>
-			</div>
-			<div>
-				<div className="flex flex-row items-center gap-1">
-					<CalendarBlankIcon size={16} className="inline-block" />
-					<p className="text-sm">{displayDate}</p>
-				</div>
-				<div className="flex flex-row items-center gap-1">
-					<ClockIcon size={16} className="inline-block" />
-					<p className="text-sm">{displayTime}</p>
-				</div>
-				<div className="flex flex-row items-center gap-1">
-					<UsersIcon size={16} className="inline-block" />
-					<p className="text-sm">{teacher}</p>
-				</div>
-			</div>
-			<img src="/avatar/live-class-avatar.webp" alt="Live Class" className="absolute right-1 bottom-0" />
-		</Card>
-	);
+  return (
+    <Card className="relative w-full gap-4 space-y-1 overflow-hidden rounded-[10px] border border-tertiary-200 bg-background p-4 sm:p-5 md:w-75">
+      <div className="flex w-full flex-row items-start justify-between gap-4">
+        <h3 className="text-lg font-bold">{title}</h3>
+        <a href={link} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary-300">
+          <ArrowCircleRightIcon size={24} className="text-tertiary-600" />
+        </a>
+      </div>
+      <div>
+        <div className="flex flex-row items-center gap-1">
+          <CalendarBlankIcon size={16} className="inline-block" />
+          <p className="text-sm">{displayDate}</p>
+        </div>
+        <div className="flex flex-row items-center gap-1">
+          <ClockIcon size={16} className="inline-block" />
+          <p className="text-sm">{displayTime}</p>
+        </div>
+        <div className="flex flex-row items-center gap-1">
+          <UsersIcon size={16} className="inline-block" />
+          <p className="text-sm">{teacher}</p>
+        </div>
+      </div>
+      <img src="/avatar/live-class-avatar.webp" alt="Live Class" className="absolute right-1 bottom-0" />
+    </Card>
+  );
 }

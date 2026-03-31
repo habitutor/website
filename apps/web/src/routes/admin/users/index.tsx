@@ -128,6 +128,7 @@ function UsersTable({
     name: string;
     email: string;
     role: string | null;
+    referralUsage: number | null;
     isPremium: boolean | null;
     premiumExpiresAt: Date | null;
     createdAt: Date;
@@ -152,6 +153,7 @@ function UsersTable({
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
+            <TableHead>Referral Usage</TableHead>
             <TableHead>Premium Status</TableHead>
             <TableHead>Joined</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -179,6 +181,9 @@ function UsersTableSkeleton() {
           </TableCell>
           <TableCell>
             <Skeleton className="h-5 w-16" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-5 w-14" />
           </TableCell>
           <TableCell>
             <Skeleton className="h-5 w-20" />

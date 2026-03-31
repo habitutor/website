@@ -39,22 +39,24 @@ export const userFlashcardQuestionAnswerRelations = relations(userFlashcardQuest
 }));
 
 export const userFlashcardAttempt = pgTable(
-	"user_flashcard_attempt",
-	{
-		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		userId: text("user_id")
-			.notNull()
-			.references(() => user.id, { onDelete: "cascade" }),
-		date: date("date", { mode: "date" }).notNull().default(sql`CURRENT_DATE`),
-		startedAt: timestamp("started_at").notNull().defaultNow(),
-		deadline: timestamp().notNull(),
-		submittedAt: timestamp("submitted_at"),
-		score: integer().default(0),
-	},
-	(t) => [
-		index("idx_flashcard_attempt_user").on(t.userId),
-		index("idx_flashcard_attempt_user_started").on(t.userId, t.startedAt),
-	],
+  "user_flashcard_attempt",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    date: date("date", { mode: "date" })
+      .notNull()
+      .default(sql`CURRENT_DATE`),
+    startedAt: timestamp("started_at").notNull().defaultNow(),
+    deadline: timestamp().notNull(),
+    submittedAt: timestamp("submitted_at"),
+    score: integer().default(0),
+  },
+  (t) => [
+    index("idx_flashcard_attempt_user").on(t.userId),
+    index("idx_flashcard_attempt_user_started").on(t.userId, t.startedAt),
+  ],
 );
 
 export const userFlashcardAttemptRelations = relations(userFlashcardAttempt, ({ one, many }) => ({

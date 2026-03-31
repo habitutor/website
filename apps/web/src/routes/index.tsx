@@ -21,17 +21,17 @@ export const Route = createFileRoute("/")({
 });
 
 function HomeComponent() {
-	return (
-		<>
-			<Header />
-			<Hero />
-			<Testimone />
-			<Statistics />
-			<Features />
-			<Pricing />
-			<FAQ />
-			<CallToAction />
-			{/* <Footer /> */}
-		</>
-	);
+  return (
+    <>
+      <Header />
+      <Hero />
+      <Testimone />
+      <Statistics />
+      <Features />
+      <Pricing />
+      <FAQ />
+      <CallToAction />
+      {/* <Footer /> */}
+    </>
+  );
 }

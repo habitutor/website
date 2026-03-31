@@ -2,7 +2,6 @@ import { SQL } from "bun";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import { type BunSQLQueryResultHKT, drizzle } from "drizzle-orm/bun-sql";
 import type { PgTransaction } from "drizzle-orm/pg-core";
-import { Pool } from "pg";
 import * as dashboard from "./schema/dashboard";
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
@@ -12,11 +11,11 @@ import * as transaction from "./schema/transaction";
 const client = new SQL(process.env.DATABASE_URL || "");
 
 const schema = {
-	...practice,
-	...flashcard,
-	...dashboard,
-	...referral,
-	...transaction,
+  ...practice,
+  ...flashcard,
+  ...dashboard,
+  ...referral,
+  ...transaction,
 };
 
 export const db = drizzle({

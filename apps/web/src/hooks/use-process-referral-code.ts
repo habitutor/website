@@ -29,9 +29,7 @@ export function useProcessReferralCode() {
         }
       } catch (error) {
         console.error("[Referral] Error processing referral code:", error);
-        const errorMsg =
-          (error instanceof Error ? error.message : JSON.stringify(error)) ||
-          "Unknown error";
+        const errorMsg = (error instanceof Error ? error.message : JSON.stringify(error)) || "Unknown error";
         console.error("[Referral] Error details:", errorMsg);
         // Jangan toast di sini, biarkan mutation handler handle error
       }

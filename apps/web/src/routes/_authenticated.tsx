@@ -37,7 +37,7 @@ function AuthedLayout() {
   const routerState = useRouterState();
   const stablePathnameRef = useRef(location.pathname);
 
-	const isPending = routerState.isLoading || routerState.isTransitioning;
+  const isPending = routerState.isLoading || routerState.isTransitioning;
 
   useEffect(() => {
     if (!isPending) {
@@ -51,29 +51,29 @@ function AuthedLayout() {
     <>
       <HeaderDashboard session={context.session} />
 
-			{/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
-				<Container className="flex flex-col gap-6 py-0">
-					<Outlet />
-				</Container>
-			) : /^\/profile/.test(pathname) ? (
-				<Container
-					className={`flex flex-col gap-6 ${context.session?.user.isPremium ? "py-0" : "pt-18 pb-0 sm:pt-10"}`}
-				>
-					<Outlet />
-				</Container>
-			) : /^\/dashboard\/flashcard/.test(pathname) ? (
-				<div className="relative min-h-screen bg-[#FFFBF3]">
-					<Container
-						className={`relative z-10 flex flex-col gap-6 ${context.session?.user.isPremium ? "pt-30" : "pt-48 sm:pt-40"}`}
-					>
-						<Outlet />
-					</Container>
-				</div>
-			) : (
-				<Container className={`flex flex-col gap-6 ${context.session?.user.isPremium ? "pt-30" : "pt-48 sm:pt-40"}`}>
-					<Outlet />
-				</Container>
-			)}
-		</>
-	);
+      {/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
+        <Container className="flex flex-col gap-6 py-0">
+          <Outlet />
+        </Container>
+      ) : /^\/profile/.test(pathname) ? (
+        <Container
+          className={`flex flex-col gap-6 ${context.session?.user.isPremium ? "py-0" : "pt-18 pb-0 sm:pt-10"}`}
+        >
+          <Outlet />
+        </Container>
+      ) : /^\/dashboard\/flashcard/.test(pathname) ? (
+        <div className="relative min-h-screen bg-[#FFFBF3]">
+          <Container
+            className={`relative z-10 flex flex-col gap-6 ${context.session?.user.isPremium ? "pt-30" : "pt-48 sm:pt-40"}`}
+          >
+            <Outlet />
+          </Container>
+        </div>
+      ) : (
+        <Container className={`flex flex-col gap-6 ${context.session?.user.isPremium ? "pt-30" : "pt-48 sm:pt-40"}`}>
+          <Outlet />
+        </Container>
+      )}
+    </>
+  );
 }

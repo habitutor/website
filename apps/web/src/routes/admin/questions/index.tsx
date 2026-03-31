@@ -35,6 +35,7 @@ const questionsSearchSchema = type({
   "search?": "string",
   "cursor?": "string",
   "cursorHistory?": "string[]",
+  "flashcard?": "'true' | 'false'",
 });
 
 export const Route = createFileRoute("/admin/questions/")({
@@ -46,6 +47,7 @@ function QuestionsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
   const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
+  const flashcardParam = Route.useSearch({ select: (s) => s.flashcard ?? undefined });
   const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
@@ -95,12 +97,25 @@ function QuestionsPage() {
     });
   };
 
+  const handleFlashcardFilter = (value: "true" | "false" | undefined) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        flashcard: value,
+        cursor: undefined,
+        cursorHistory: undefined,
+      }),
+      replace: true,
+    });
+  };
+
   const { data, isLoading } = useQuery(
     orpc.admin.question.list.queryOptions({
       input: {
         limit,
         cursor: cursor ?? undefined,
         search: searchParam,
+        isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
       },
     }),
   );
@@ -122,6 +137,33 @@ function QuestionsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
           />
+        </div>
+        <div className="flex items-center gap-1 rounded-lg border p-1">
+          <Button
+            variant={flashcardParam === undefined ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-3 text-xs"
+            onClick={() => handleFlashcardFilter(undefined)}
+          >
+            All
+          </Button>
+          <Button
+            variant={flashcardParam === "true" ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-3 text-xs"
+            onClick={() => handleFlashcardFilter("true")}
+          >
+            <Cards className="mr-1.5 size-3" />
+            Flashcard
+          </Button>
+          <Button
+            variant={flashcardParam === "false" ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-3 text-xs"
+            onClick={() => handleFlashcardFilter("false")}
+          >
+            No Flashcard
+          </Button>
         </div>
       </div>
 

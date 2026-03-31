@@ -31,6 +31,7 @@ const list = admin
       "limit?": "number",
       "cursor?": "string",
       "search?": "string",
+      "isFlashcardQuestion?": "boolean",
     }),
   )
   .handler(async ({ input }) => {
@@ -42,6 +43,7 @@ const list = admin
       limit,
       cursorId: cursorData?.id ?? null,
       search,
+      isFlashcardQuestion: input.isFlashcardQuestion,
     });
 
     const hasMore = rawData.length > limit;

@@ -36,36 +36,36 @@ import { getAvatarSrc } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
 const adminNavLinks = [
-	{
-		name: "Dashboard",
-		to: "/admin/dashboard" as const,
-		icon: House,
-	},
-	{
-		name: "Practice Packs",
-		to: "/admin/practice-packs" as const,
-		icon: Package,
-	},
-	{
-		name: "Questions",
-		to: "/admin/questions" as const,
-		icon: Question,
-	},
-	{
-		name: "Classes",
-		to: "/admin/classes" as const,
-		icon: BooksIcon,
-	},
-	{
-		name: "Dashboard Content",
-		to: "/admin/dashboard-content" as const,
-		icon: Megaphone,
-	},
-	{
-		name: "Users",
-		to: "/admin/users" as const,
-		icon: User,
-	},
+  {
+    name: "Dashboard",
+    to: "/admin/dashboard" as const,
+    icon: House,
+  },
+  {
+    name: "Practice Packs",
+    to: "/admin/practice-packs" as const,
+    icon: Package,
+  },
+  {
+    name: "Questions",
+    to: "/admin/questions" as const,
+    icon: Question,
+  },
+  {
+    name: "Classes",
+    to: "/admin/classes" as const,
+    icon: BooksIcon,
+  },
+  {
+    name: "Dashboard Content",
+    to: "/admin/dashboard-content" as const,
+    icon: Megaphone,
+  },
+  {
+    name: "Users",
+    to: "/admin/users" as const,
+    icon: User,
+  },
 ];
 
 export function AdminSidebar() {
@@ -191,22 +191,22 @@ function SidebarUserProfile() {
 
   if (!user) return null;
 
-	return (
-		<div className="flex items-center gap-3 px-2 py-3">
-			<Avatar className="size-8 shrink-0">
-				<AvatarImage src={getAvatarSrc(user.image)} alt={user.name} />
-				<AvatarFallback className="bg-primary/10 text-primary text-sm">
-					{user.name.charAt(0).toUpperCase()}
-				</AvatarFallback>
-			</Avatar>
-			{state !== "collapsed" && (
-				<div className="flex min-w-0 flex-col">
-					<span className="truncate font-medium text-sm">{user.name}</span>
-					<span className="truncate text-muted-foreground text-xs">{user.email}</span>
-				</div>
-			)}
-		</div>
-	);
+  return (
+    <div className="flex items-center gap-3 px-2 py-3">
+      <Avatar className="size-8 shrink-0">
+        <AvatarImage src={getAvatarSrc(user.image)} alt={user.name} />
+        <AvatarFallback className="bg-primary/10 text-sm text-primary">
+          {user.name.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+      {state !== "collapsed" && (
+        <div className="flex min-w-0 flex-col">
+          <span className="truncate text-sm font-medium">{user.name}</span>
+          <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function SidebarLogo() {

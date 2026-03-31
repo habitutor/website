@@ -45,42 +45,42 @@ function SignUpForm() {
   });
   const { isPending } = authClient.useSession();
 
-	const form = useForm({
-		defaultValues: {
-			name: "",
-			email: "",
-			password: "",
-			confirm_password: "",
-			referralCode: "",
-		},
-		onSubmit: async ({ value }) => {
-			await authClient.signUp.email(
-				{
-					email: value.email,
-					password: value.password,
-					name: value.name,
-				},
-				{
-					onSuccess: () => {
-						// Store referral code di session storage, akan diproses di dashboard
-						if (value.referralCode.trim()) {
-							sessionStorage.setItem("pendingReferralCode", value.referralCode.trim());
-						}
-						navigate({
-							to: "/dashboard",
-						});
-					},
-				},
-			);
-		},
-		validators: {
-			onSubmit: type({
-				name: "string >= 2",
-				email: "string.email",
-				password: "string >= 8",
-			}),
-		},
-	});
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+      referralCode: "",
+    },
+    onSubmit: async ({ value }) => {
+      await authClient.signUp.email(
+        {
+          email: value.email,
+          password: value.password,
+          name: value.name,
+        },
+        {
+          onSuccess: () => {
+            // Store referral code di session storage, akan diproses di dashboard
+            if (value.referralCode.trim()) {
+              sessionStorage.setItem("pendingReferralCode", value.referralCode.trim());
+            }
+            navigate({
+              to: "/dashboard",
+            });
+          },
+        },
+      );
+    },
+    validators: {
+      onSubmit: type({
+        name: "string >= 2",
+        email: "string.email",
+        password: "string >= 8",
+      }),
+    },
+  });
 
   if (isPending) {
     return <Loader />;
@@ -176,56 +176,56 @@ function SignUpForm() {
             </form.Field>
           </div>
 
-					<div>
-						<form.Field
-							name="confirm_password"
-							validators={{
-								onChangeListenTo: ["password"],
-								onChange: ({ value, fieldApi }) => {
-									if (value !== fieldApi.form.getFieldValue("password"))
-										return "Password harus sama. Silakan cek ulang.";
-									return undefined;
-								},
-							}}
-						>
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Re-enter password</Label>
-									<Input
-										id={field.name}
-										name={field.name}
-										type="password"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-									{field.state.meta.errors.map((error) => (
-										<p key={error} className="text-red-500 text-xs">
-											{error}
-										</p>
-									))}
-								</div>
-							)}
-						</form.Field>
-					</div>
+          <div>
+            <form.Field
+              name="confirm_password"
+              validators={{
+                onChangeListenTo: ["password"],
+                onChange: ({ value, fieldApi }) => {
+                  if (value !== fieldApi.form.getFieldValue("password"))
+                    return "Password harus sama. Silakan cek ulang.";
+                  return undefined;
+                },
+              }}
+            >
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>Re-enter password</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors.map((error) => (
+                    <p key={error} className="text-xs text-red-500">
+                      {error}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </form.Field>
+          </div>
 
-					<div>
-						<form.Field name="referralCode">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Kode Referral (Opsional)</Label>
-									<Input
-										id={field.name}
-										name={field.name}
-										type="text"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</div>
-							)}
-						</form.Field>
-					</div>
+          <div>
+            <form.Field name="referralCode">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>Kode Referral (Opsional)</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="text"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                </div>
+              )}
+            </form.Field>
+          </div>
 
           <form.Subscribe>
             {(state) => (

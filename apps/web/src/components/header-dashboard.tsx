@@ -41,33 +41,33 @@ const links = [
 ] as const;
 
 export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
-	const location = useLocation();
-	const [open, setOpen] = useState(false);
-	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
 
-	useEffect(() => {
-		setAvatarSrc(getAvatarSrc(session?.user.image));
-	}, [session?.user.image]);
+  useEffect(() => {
+    setAvatarSrc(getAvatarSrc(session?.user.image));
+  }, [session?.user.image]);
 
-	useEffect(() => {
-		const handler = (event: Event) => {
-			const customEvent = event as CustomEvent<{ src?: string; image?: string }>;
-			if (customEvent.detail?.src) {
-				setAvatarSrc(customEvent.detail.src);
-				return;
-			}
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<{ src?: string; image?: string }>;
+      if (customEvent.detail?.src) {
+        setAvatarSrc(customEvent.detail.src);
+        return;
+      }
 
-			if (customEvent.detail?.image) {
-				setAvatarSrc(getAvatarSrc(customEvent.detail.image));
-			}
-		};
+      if (customEvent.detail?.image) {
+        setAvatarSrc(getAvatarSrc(customEvent.detail.image));
+      }
+    };
 
-		window.addEventListener("avatarChanged", handler as EventListener);
-		return () => {
-			window.removeEventListener("avatarChanged", handler as EventListener);
-		};
-	}, []);
+    window.addEventListener("avatarChanged", handler as EventListener);
+    return () => {
+      window.removeEventListener("avatarChanged", handler as EventListener);
+    };
+  }, []);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -100,35 +100,35 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           ))}
         </div>
 
-				<div className="hidden md:flex md:items-center md:gap-4">
-					<DropdownMenu>
-						<DropdownMenuTrigger className="flex items-center gap-2">
-							{session?.user.isPremium && (
-								<Badge variant="secondary" className="bg-primary text-primary-foreground">
-									Premium
-								</Badge>
-							)}
-							<Avatar>
-								<AvatarImage src={avatarSrc} alt="User Profile Picture" />
-								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
-							</Avatar>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
-							<DropdownMenuItem
-								onClick={() => {
-									window.location.href = "/profile";
-								}}
-							>
-								Profile
-							</DropdownMenuItem>
-							<DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
-								<SignOutIcon />
-								Log Out
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
+        <div className="hidden md:flex md:items-center md:gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2">
+              {session?.user.isPremium && (
+                <Badge variant="secondary" className="bg-primary text-primary-foreground">
+                  Premium
+                </Badge>
+              )}
+              <Avatar>
+                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
+                <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  window.location.href = "/profile";
+                }}
+              >
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
+                <SignOutIcon />
+                Log Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
           <ListIcon className="size-6" />
@@ -164,33 +164,33 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
             ))}
           </div>
 
-					<div className="mt-12">
-						<div className="mb-4 flex items-center gap-3 px-4">
-							<Avatar>
-								<AvatarImage src={avatarSrc} alt="User Profile Picture" />
-								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
-							</Avatar>
-							<span className="font-medium">{session?.user.name}</span>
-							{session?.user.isPremium && (
-								<Badge variant="default" className="bg-primary text-primary-foreground">
-									Premium
-								</Badge>
-							)}
-						</div>
-						<Button
-							variant="destructive"
-							className="w-full justify-start"
-							onClick={() => {
-								setMobileMenuOpen(false);
-								setOpen(true);
-							}}
-						>
-							<SignOutIcon className="mr-2" />
-							Log Out
-						</Button>
-					</div>
-				</div>
-			)}
+          <div className="mt-12">
+            <div className="mb-4 flex items-center gap-3 px-4">
+              <Avatar>
+                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
+                <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{session?.user.name}</span>
+              {session?.user.isPremium && (
+                <Badge variant="default" className="bg-primary text-primary-foreground">
+                  Premium
+                </Badge>
+              )}
+            </div>
+            <Button
+              variant="destructive"
+              className="w-full justify-start"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setOpen(true);
+              }}
+            >
+              <SignOutIcon className="mr-2" />
+              Log Out
+            </Button>
+          </div>
+        </div>
+      )}
 
       <LogoutDialog open={open} onOpenChange={setOpen} />
     </header>
