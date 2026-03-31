@@ -1,7 +1,7 @@
 import { Image } from "@unpic/react";
 import * as m from "motion/react-m";
 import { MotionPulse } from "@/components/motion";
-import { useAnimatedCounter } from "@/hooks/use-animations";
+import { NumberTicker } from "@/components/ui/number-ticker";
 
 const MIDDLE_STATISTIC_SECTION = [
   {
@@ -25,11 +25,9 @@ const MIDDLE_STATISTIC_SECTION = [
 ];
 
 function StatCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const { value: animatedValue, ref } = useAnimatedCounter(value, 1200, 0);
-
   return (
-    <span ref={ref} className="text-6xl font-bold text-primary-300">
-      {animatedValue}
+    <span className="text-6xl font-bold text-primary-300">
+      <NumberTicker value={value} className="text-6xl font-bold text-primary-300" />
       {suffix}
     </span>
   );

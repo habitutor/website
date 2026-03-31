@@ -7,7 +7,7 @@ import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { MotionFadeDown, MotionStagger, MotionStaggerItem } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAnimatedCounter } from "@/hooks/use-animations";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/dashboard/flashcard/result")({
@@ -19,7 +19,6 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions({ input: {} }));
   const scorePercent = data ? Math.round(((data.correctAnswersCount || 0) / (data.questionsCount || 5)) * 100) : 0;
-  const { ref: scoreRef, value: animatedScore } = useAnimatedCounter(scorePercent, 1500, 300);
 
   const startMutation = useMutation(
     orpc.flashcard.start.mutationOptions({
@@ -68,9 +67,7 @@ function RouteComponent() {
                 <Skeleton className="h-10 w-16" />
               ) : (
                 <>
-                  <span ref={scoreRef} className="mr-1 text-4xl font-bold text-primary">
-                    {animatedScore}
-                  </span>
+                  <NumberTicker value={scorePercent} className="mr-1 text-4xl font-bold text-primary" />
                   /100
                 </>
               )}

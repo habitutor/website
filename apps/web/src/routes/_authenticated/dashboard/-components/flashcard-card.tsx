@@ -142,9 +142,7 @@ export const FlashcardCard = () => {
               type="button"
               key={option.id}
               disabled={saveAnswerMutation.isPending || submitMutation.isPending || disableInteraction}
-              onClick={() =>
-                isLastQuestion ? handleLastAnswerSelect(option.id) : handleAnswerSelect(option.id)
-              }
+              onClick={() => (isLastQuestion ? handleLastAnswerSelect(option.id) : handleAnswerSelect(option.id))}
               animate={{ backgroundColor, borderColor, color: textColor }}
               transition={{ duration: 0.3 }}
               className={cn(
