@@ -18,6 +18,8 @@ import { orpc } from "@/utils/orpc";
 import { LastClasses } from "../-components/last-classes";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
+import { LiveClass } from "../-components/live-class";
+import { Announcement } from "../-components/announcement";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
 	head: () => ({
@@ -82,7 +84,7 @@ function RouteComponent() {
 							</div>
 						</div>
 
-						<div className="grid grid-cols-1 gap-2 max-sm:w-full [&>a]:flex [&>a]:justify-between [&>a]:gap-4 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
+						<div className="grid grid-cols-1 md:static fixed z-20 bottom-10 right-4 [&>a]:flex [&>a]:justify-between [&>a]:gap-10 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
 							<a
 								href={data?.whatsapp || "#"}
 								rel={data?.whatsapp ? "noopener noreferrer" : undefined}
@@ -90,19 +92,19 @@ function RouteComponent() {
 								onClick={(e) => handleSocialClick(e, data?.whatsapp ?? undefined)}
 								className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
 							>
-								<p className="z-10">Join Whatsapp</p>
+								<p className="z-10 w-[50%] md:w-full font-bold">Join Whatsapp</p>
 								<ArrowCircleRightIcon size={24} className="z-10" />
 								<Image
 									src="/icons/whatsapp.svg"
 									width={70}
 									height={70}
-									className="absolute right-0 -bottom-[40%] opacity-50 transition-transform group-hover:-translate-y-1"
+									className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
 								/>
 							</a>
 						</div>
 					</section>
 
-					{session?.user.isPremium && showPremiumBanner && (
+					{session?.user.isPremium && showPremiumBanner ? (
 						<div className="mb-6 gap-6 flex flex-col">
 							<div className="w-full relative overflow-hidden bg-secondary-400 p-4 md:p-6 flex-row flex justify-between items-end">
 								<button
@@ -133,8 +135,14 @@ function RouteComponent() {
 								<UserProgress />
 							</MotionStaggerItem>
 						</div>
+					) : (<UserProgress />
 					)}
-					<UserProgress />
+				</MotionStaggerItem>
+				<MotionStaggerItem>
+					<Announcement />
+				</MotionStaggerItem>
+				<MotionStaggerItem>
+					<LiveClass />
 				</MotionStaggerItem>
 				<MotionStaggerItem>
 					<LastClasses />
