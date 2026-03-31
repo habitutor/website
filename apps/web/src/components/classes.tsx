@@ -1,7 +1,10 @@
 import {
+	ArrowCircleRightIcon,
 	ArrowRightIcon,
+	CalendarBlankIcon,
 	CaretRightIcon,
 	CheckCircleIcon,
+	ClockIcon,
 	DotsNineIcon,
 	ExamIcon,
 	EyeIcon,
@@ -13,6 +16,8 @@ import {
 	PlayCircleIcon,
 	PlusIcon,
 	TrashIcon,
+	Users,
+	UsersIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -796,5 +801,44 @@ export function PracticeQuestion({
 				<div className="text-muted-foreground text-sm">{answer}</div>
 			</AnswerCollapsible>
 		</div>
+	);
+}
+
+export function LiveClassCard({
+	title,
+	date,
+	time,
+	teacher,
+	link }: {
+		title: string;
+		date: string;
+		time: string;
+		teacher: string;
+		link: string;
+	}) {
+	return (
+		<Card className="rounded-[10px] space-y-1 w-full md:w-75 bg-background border border-tertiary-200 gap-4 p-4 sm:p-5 relative overflow-hidden">
+			<div className="w-full flex flex-row justify-between gap-4 items-start">
+				<h3 className="text-lg font-bold">{title}</h3>
+				<a href={link} target="_blank" rel="noopener noreferrer" className="text-primary-300 font-medium text-sm">
+					<ArrowCircleRightIcon size={24} className="text-tertiary-600" />
+				</a>
+			</div>
+			<div>
+				<div className="flex flex-row items-center gap-1">
+					<CalendarBlankIcon size={16} className="inline-block" />
+					<p className="text-sm">{date}</p>
+				</div>
+				<div className="flex flex-row items-center gap-1">
+					<ClockIcon size={16} className="inline-block" />
+					<p className="text-sm">{time}</p>
+				</div>
+				<div className="flex flex-row items-center gap-1">
+					<UsersIcon size={16} className="inline-block" />
+					<p className="text-sm">{teacher}</p>
+				</div>
+			</div>
+			<img src="/avatar/live-class-avatar.webp" alt="Live Class" className="absolute bottom-0 right-1" />
+		</Card>
 	);
 }
