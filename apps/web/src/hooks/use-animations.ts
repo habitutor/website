@@ -19,9 +19,11 @@ export function useAnimatedCounter(
 ): { ref: React.RefObject<HTMLSpanElement>; value: number } {
   const [value, setValue] = useState(0);
   const [ref, isInView] = useInView();
+  const hasStarted = useRef(false);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!(isInView || endValue > 0) || hasStarted.current) return;
+    hasStarted.current = true;
 
     let animationFrame: number;
 
