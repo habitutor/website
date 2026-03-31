@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
+import { Announcement } from "../-components/announcement";
 import { LastClasses } from "../-components/last-classes";
+import { LiveClass } from "../-components/live-class";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
-import { LiveClass } from "../-components/live-class";
-import { Announcement } from "../-components/announcement";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
 	head: () => ({
@@ -36,6 +36,7 @@ function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const { data, error } = useQuery(orpc.social.queryOptions());
 	const { data: profile } = useQuery(orpc.profile.get.queryOptions());
+	const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
 	const [showDialog, setShowDialog] = useState(false);
 	const [showPremiumBanner, setShowPremiumBanner] = useState(true);
 	const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
@@ -84,7 +85,7 @@ function RouteComponent() {
 							</div>
 						</div>
 
-						<div className="grid grid-cols-1 md:static fixed z-20 bottom-10 right-4 [&>a]:flex [&>a]:justify-between [&>a]:gap-10 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
+						<div className="fixed right-4 bottom-10 z-20 grid grid-cols-1 md:static [&>a]:flex [&>a]:justify-between [&>a]:gap-10 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
 							<a
 								href={data?.whatsapp || "#"}
 								rel={data?.whatsapp ? "noopener noreferrer" : undefined}
@@ -92,7 +93,7 @@ function RouteComponent() {
 								onClick={(e) => handleSocialClick(e, data?.whatsapp ?? undefined)}
 								className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
 							>
-								<p className="z-10 w-[50%] md:w-full font-bold">Join Whatsapp</p>
+								<p className="z-10 w-[50%] font-bold md:w-full">Join Whatsapp</p>
 								<ArrowCircleRightIcon size={24} className="z-10" />
 								<Image
 									src="/icons/whatsapp.svg"
@@ -105,45 +106,51 @@ function RouteComponent() {
 					</section>
 
 					{session?.user.isPremium && showPremiumBanner ? (
-						<div className="mb-6 gap-6 flex flex-col">
-							<div className="w-full relative overflow-hidden bg-secondary-400 p-4 md:p-6 flex-row flex justify-between items-end">
+						<div className="mb-6 flex flex-col gap-6">
+							<div className="relative flex w-full flex-row items-end justify-between overflow-hidden bg-secondary-400 p-4 md:p-6">
 								<button
 									type="button"
 									onClick={() => setShowPremiumBanner(false)}
-									className="absolute right-0 p-2 z-10 hidden md:block top-0 text-secondary-1000 cursor-pointer"
+									className="absolute top-0 right-0 z-10 hidden cursor-pointer p-2 text-secondary-1000 md:block"
 									aria-label="Close banner"
 								>
 									<XIcon weight="bold" size={20} />
 								</button>
 								<div className="z-10">
-									<h5 className="md:text-2xl font-bold">Pindahkan ke Layar Utamamu!</h5>
-									<p className="md:text-base text-[10px]">Gunakan di Mobile. Akses kapanpun</p>
+									<h5 className="font-bold md:text-2xl">Pindahkan ke Layar Utamamu!</h5>
+									<p className="text-[10px] md:text-base">Gunakan di Mobile. Akses kapanpun</p>
 								</div>
-								<Button variant="default" size="icon" className="z-10 bg-secondary-1000 hover:bg-secondary-900" onClick={() => setPwaDialog(true)}>
+								<Button
+									variant="default"
+									size="icon"
+									className="z-10 bg-secondary-1000 hover:bg-secondary-900"
+									onClick={() => setPwaDialog(true)}
+								>
 									<ArrowRightIcon weight="bold" />
 								</Button>
-								<div className="md:h-18 h-8 absolute right-0 bottom-0 bg-secondary-600 w-20 md:w-60" />
+								<div className="absolute right-0 bottom-0 h-8 w-20 bg-secondary-600 md:h-18 md:w-60" />
 								<Image
 									src="/avatar/tutorial-avatar.webp"
 									alt=""
 									width={75}
 									height={75}
-									className="absolute md:block hidden -bottom-18 right-10 h-auto w-55 object-contain"
+									className="absolute right-10 -bottom-18 hidden h-auto w-55 object-contain md:block"
 								/>
 							</div>
 							<MotionStaggerItem>
 								<UserProgress />
 							</MotionStaggerItem>
 						</div>
-					) : (<UserProgress />
+					) : (
+						<UserProgress />
 					)}
 				</MotionStaggerItem>
 				<MotionStaggerItem>
-					<Announcement />
+					<Announcement announcements={dashboardContent?.announcements} />
 				</MotionStaggerItem>
 				{session?.user.isPremium && (
 					<MotionStaggerItem>
-						<LiveClass />
+						<LiveClass liveClasses={dashboardContent?.liveClasses} />
 					</MotionStaggerItem>
 				)}
 				<MotionStaggerItem>

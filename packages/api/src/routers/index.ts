@@ -1,11 +1,13 @@
 import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { pub } from "../index";
+import { adminDashboardContentRouter } from "./admin/dashboard-content";
 import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminQuestionRouter } from "./admin/question";
 import { adminStatisticsRouter } from "./admin/statistics";
 import { adminSubtestRouter } from "./admin/subtest";
 import { adminUserRouter } from "./admin/users";
+import { dashboardRouter } from "./dashboard";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
 import { profileRouter } from "./profile";
@@ -26,6 +28,7 @@ export const appRouter = {
       return { message: "OK" };
     }),
   social: socialRouter,
+  dashboard: dashboardRouter,
   profile: profileRouter,
   practicePack: practicePackRouter,
   flashcard: flashcardRouter,
@@ -36,6 +39,7 @@ export const appRouter = {
     question: adminQuestionRouter,
     subtest: adminSubtestRouter,
     users: adminUserRouter,
+    dashboardContent: adminDashboardContentRouter,
   },
   transaction: transactionRouter,
   referral: referralRouter,

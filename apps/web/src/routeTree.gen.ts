@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard-content'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
@@ -72,6 +73,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardContentRoute = AdminDashboardContentRouteImport.update({
+  id: '/dashboard-content',
+  path: '/dashboard-content',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
@@ -288,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin/': typeof AdminIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin': typeof AdminIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
@@ -372,6 +380,7 @@ export interface FileRoutesById {
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
@@ -415,6 +424,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/admin/dashboard'
+    | '/admin/dashboard-content'
     | '/admin/'
     | '/latihan-soal/$id'
     | '/admin/practice-packs/$id'
@@ -455,6 +465,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/admin/dashboard'
+    | '/admin/dashboard-content'
     | '/admin'
     | '/latihan-soal/$id'
     | '/admin/practice-packs/$id'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
     | '/_auth/register'
     | '/_auth/reset-password'
     | '/admin/dashboard'
+    | '/admin/dashboard-content'
     | '/admin/'
     | '/_authenticated/latihan-soal/$id'
     | '/admin/practice-packs/$id'
@@ -574,6 +586,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard-content': {
+      id: '/admin/dashboard-content'
+      path: '/dashboard-content'
+      fullPath: '/admin/dashboard-content'
+      preLoaderRoute: typeof AdminDashboardContentRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
@@ -942,6 +961,7 @@ const AdminClassesShortNameContentIdRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminDashboardContentRoute: typeof AdminDashboardContentRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPracticePacksIdRoute: typeof AdminPracticePacksIdRoute
   AdminPracticePacksCreateRoute: typeof AdminPracticePacksCreateRoute
@@ -956,6 +976,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminDashboardContentRoute: AdminDashboardContentRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminPracticePacksIdRoute: AdminPracticePacksIdRoute,
   AdminPracticePacksCreateRoute: AdminPracticePacksCreateRoute,
