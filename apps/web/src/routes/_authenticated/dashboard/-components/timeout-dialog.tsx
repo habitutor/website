@@ -12,17 +12,17 @@ export function TimeoutDialog({ open, onOpenChange }: { open: boolean; onOpenCha
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="w-fit max-w-none border-none p-0 shadow-lg">
-        <div className="flex flex-col items-start rounded-xl bg-white py-6 pr-9 pl-6">
-          <div className="flex flex-col items-end justify-center gap-6.75">
-            <div className="flex flex-col items-start gap-4">
-              <div className="flex items-center justify-center">
-                <p className="text-[18px] font-bold whitespace-nowrap text-[#18181b]">Waktu Habis!</p>
-              </div>
-              <div className="flex items-center justify-center">
-                <p className="text-[12px] font-medium whitespace-nowrap text-[#71717a]">
-                  Ups, waktu habis, yuk cek hasil flashcard
-                </p>
-              </div>
+				<div className="flex flex-col items-start rounded-[8px] bg-white py-[24px] pr-[36px] pl-[24px]">
+					<div className="flex flex-col items-end justify-center gap-[27px]">
+						<div className="flex flex-col items-start gap-[16px]">
+							<div className="flex items-center justify-center">
+								<p className="whitespace-nowrap font-bold text-[#18181b] text-[18px]">Waktu Habis!</p>
+							</div>
+							<div className="flex items-center justify-center">
+								<p className="whitespace-nowrap font-medium text-[#71717a] text-[12px]">
+									Ups, waktu habis, yuk cek hasil flashcard
+								</p>
+							</div>
             </div>
             <div className="flex items-start gap-2">
               <button

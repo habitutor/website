@@ -56,9 +56,9 @@ const subscribe = authed
       }
 
       const existingUsage = await referralRepo.getUserUsage({ userId: context.session.user.id });
-      if (existingUsage) {
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
-      }
+			if (existingUsage) {
+				throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
+			}
 
       validatedReferralCodeId = codeRecord.id;
       const discounted = Math.ceil(Number(grossAmount) * 0.75);

@@ -62,12 +62,9 @@ function SignUpForm() {
         },
         {
           onSuccess: () => {
-            // Store referral code di session storage, akan diproses di dashboard
-            if (value.referralCode.trim()) {
-              sessionStorage.setItem("pendingReferralCode", value.referralCode.trim());
-            }
+            const referralCode = value.referralCode.trim();
             navigate({
-              to: "/dashboard",
+              to: referralCode ? `/dashboard?referralCode=${encodeURIComponent(referralCode)}` : "/dashboard",
             });
           },
         },

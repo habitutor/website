@@ -1,5 +1,6 @@
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 
 type AnnouncementItem = {
   id: number;
@@ -43,7 +44,7 @@ export const Announcement = ({ announcements }: { announcements?: AnnouncementIt
       <div className="flex w-full flex-col gap-4 md:flex-row md:gap-6">
         <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-secondary-700 bg-secondary-400 p-4 pb-6 md:w-[55%]">
           <h3 className="relative z-10 w-full font-bold md:text-[22px]">{primaryAnnouncement.title}</h3>
-          <p className="w-fulll relative z-10 text-[10px] md:w-[70%] md:text-sm">{primaryAnnouncement.description}</p>
+          <p className="w-full relative z-10 text-[10px] md:w-[70%] md:text-sm">{primaryAnnouncement.description}</p>
           <div className="absolute -right-10 -bottom-20 h-42 w-42 rounded-full border border-secondary-700 bg-secondary-600 md:right-0" />
           <div className="absolute right-2 bottom-23 h-8 w-8 rounded-full border border-secondary-700 bg-secondary-600 md:right-4 md:bottom-22 md:h-11 md:w-11" />
         </div>
@@ -61,9 +62,9 @@ export const Announcement = ({ announcements }: { announcements?: AnnouncementIt
             className="absolute right-4 bottom-4 z-10 bg-red-300 hover:bg-red-400"
             asChild
           >
-            <a href={cashbackCtaLink}>
+            <Link to={cashbackCtaLink}>
               <ArrowRightIcon weight="bold" className="text-neutral-1000" />
-            </a>
+            </Link>
           </Button>
         </div>
       </div>

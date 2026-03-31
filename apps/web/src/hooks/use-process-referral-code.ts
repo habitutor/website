@@ -8,29 +8,25 @@ export function useProcessReferralCode() {
 
   useEffect(() => {
     const processPendingCode = async () => {
-      // Check jika ada pending referral code di session storage
-      const pendingCode = sessionStorage.getItem("pendingReferralCode");
+      const searchParams = new URLSearchParams(window.location.search);
+      const pendingCode = searchParams.get("referralCode")?.trim();
       if (!pendingCode) {
-        console.log("[Referral] No pending code in session storage");
         return;
       }
 
-      console.log("[Referral] Processing pending code:", pendingCode);
       try {
         const result = await mutation.mutateAsync({ code: pendingCode });
-        console.log("[Referral] API response:", result);
 
         if (result.success) {
           toast.success(result.message || "Kode referral berhasil digunakan!");
-          sessionStorage.removeItem("pendingReferralCode");
+          searchParams.delete("referralCode");
+          const queryString = searchParams.toString();
+          const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ""}${window.location.hash}`;
+          window.history.replaceState(null, "", nextUrl);
         } else {
           toast.error(result.message || "Gagal menggunakan kode referral.");
-          console.warn("[Referral] Failed:", result.message);
         }
       } catch (error) {
-        console.error("[Referral] Error processing referral code:", error);
-        const errorMsg = (error instanceof Error ? error.message : JSON.stringify(error)) || "Unknown error";
-        console.error("[Referral] Error details:", errorMsg);
         // Jangan toast di sini, biarkan mutation handler handle error
       }
     };
