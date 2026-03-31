@@ -7,7 +7,7 @@ import { orpc } from "@/utils/orpc";
 
 export const UserProgress = () => {
 	return (
-		<section className="border p-4 md:p-10 bg-neutral-100 rounded-2xl">
+		<section className="border p-4 w-full md:p-10 bg-neutral-100 rounded-2xl">
 			<h2 className="mb-2 font-medium">Progres Kamu!</h2>
 			<div className="grid gap-2 sm:grid-cols-5">
 				<div className="space-y-2 sm:col-span-2">
@@ -24,7 +24,7 @@ const Material = () => {
 	const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
 
 	return (
-		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
+		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip w-full rounded-md bg-blue-200 p-4 text-primary">
 			<div className="z-10 space-y-0.5">
 				<h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
 					{!isPending ? (data?.materialsCompleted ?? 0) : "..."}

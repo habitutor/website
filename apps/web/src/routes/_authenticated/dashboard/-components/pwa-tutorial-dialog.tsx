@@ -10,8 +10,12 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 
-export function PWATutorialDialog() {
-	const [pwaDialog, setPwaDialog] = useState(true);
+type PWATutorialDialogProps = {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+};
+
+export function PWATutorialDialog({ open, onOpenChange }: PWATutorialDialogProps) {
 	const [step, setStep] = useState(1);
 
 	const nextStep = () => { if (step < 3) setStep(step + 1); };
@@ -36,8 +40,8 @@ export function PWATutorialDialog() {
 	];
 
 	return (
-		<Dialog open={pwaDialog} onOpenChange={setPwaDialog}>
-			<DialogContent className="max-w-[95vw] sm:max-w-[456px] p-0 overflow-hidden gap-0">
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-[95vw] sm:max-w-114 p-0 overflow-hidden gap-0">
 				<div className="p-6">
 					<DialogHeader>
 						<DialogTitle className="text-left text-xl font-bold">
@@ -59,7 +63,7 @@ export function PWATutorialDialog() {
 					</DialogHeader>
 
 					<div className="flex flex-col items-start gap-4 pt-6">
-						<div className="relative aspect-[408/160] w-full overflow-hidden rounded-md border border-slate-100 bg-slate-50">
+						<div className="relative aspect-408/160 w-full overflow-hidden rounded-md border border-slate-100 bg-slate-50">
 							<Image
 								src={steps[step - 1].image}
 								layout="fullWidth"
@@ -77,14 +81,14 @@ export function PWATutorialDialog() {
 						variant="outline"
 						onClick={prevStep}
 						className={cn(
-							"h-10 px-6 font-medium transition-opacity bg-transparent border-[#E4E4E7] border-[1px] text-slate-600 hover:bg-transparent hover:text-slate-600 hover:border-[#E4E4E7]",
+							"h-10 px-6 font-medium transition-opacity bg-transparent border-[#E4E4E7] border text-slate-600 hover:bg-transparent hover:text-slate-600 hover:border-[#E4E4E7]",
 							step === 1 ? "pointer-events-none opacity-0" : "opacity-100"
 						)}
 					>
 						Previous
 					</Button>
 					<Button
-						onClick={() => (step === 3 ? setPwaDialog(false) : nextStep())}
+						onClick={() => (step === 3 ? onOpenChange(false) : nextStep())}
 						className="h-10 bg-[#3650A2] px-6 font-medium text-white hover:bg-[#2e448a]"
 					>
 						{step === 3 ? "Finish" : "Continue"}
