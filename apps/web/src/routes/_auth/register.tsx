@@ -3,7 +3,6 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
-import { toast } from "sonner";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +52,7 @@ function SignUpForm() {
 			email: "",
 			password: "",
 			confirm_password: "",
+			referralCode: "",
 		},
 		onSubmit: async ({ value }) => {
 			await authClient.signUp.email(
@@ -63,12 +63,13 @@ function SignUpForm() {
 				},
 				{
 					onSuccess: () => {
+						// Store referral code di session storage, akan diproses di dashboard
+						if (value.referralCode.trim()) {
+							sessionStorage.setItem("pendingReferralCode", value.referralCode.trim());
+						}
 						navigate({
 							to: "/dashboard",
 						});
-					},
-					onError: (error) => {
-						toast.error(error.error.message || error.error.statusText);
 					},
 				},
 			);
@@ -204,6 +205,24 @@ function SignUpForm() {
 											{error}
 										</p>
 									))}
+								</div>
+							)}
+						</form.Field>
+					</div>
+
+					<div>
+						<form.Field name="referralCode">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Kode Referral (Opsional)</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="text"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
 								</div>
 							)}
 						</form.Field>

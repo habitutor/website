@@ -1,5 +1,6 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
+import { referralCode } from "@habitutor/db/schema/referral";
 import { type } from "arktype";
 import { eq } from "drizzle-orm";
 import { authed } from "..";
@@ -30,12 +31,13 @@ const getProfile = authed
         name: user.name,
         image: user.image,
         phoneNumber: user.phoneNumber,
-        referralCode: user.referralCode,
+        referralCode: referralCode.code,
         referralUsage: user.referralUsage,
         dreamCampus: user.dreamCampus,
         dreamMajor: user.dreamMajor,
       })
       .from(user)
+      .leftJoin(referralCode, eq(user.id, referralCode.userId))
       .where(eq(user.id, id))
       .limit(1);
     return {

@@ -13,6 +13,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { useProcessReferralCode } from "@/hooks/use-process-referral-code";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { Announcement } from "../-components/announcement";
@@ -41,6 +42,9 @@ function RouteComponent() {
 	const [showPremiumBanner, setShowPremiumBanner] = useState(true);
 	const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
 	const [pwaDialog, setPwaDialog] = useState(false);
+
+	// Auto-process pending referral code saat user baru register
+	useProcessReferralCode();
 
 	const handleSocialClick = (e: React.MouseEvent, socialLink?: string) => {
 		if (!socialLink || error) {
