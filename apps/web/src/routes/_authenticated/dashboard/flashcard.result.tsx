@@ -131,8 +131,8 @@ function PodiumItem({ player }: { player: LeaderboardEntry }) {
           paddingTop: isMobile ? 20 : 32,
         }}
       >
-        <p className="text-center font-semibold text-[11px] text-gray-800 leading-snug sm:text-[13px]">{player.name}</p>
-        <p className="text-center font-semibold text-[11px] text-gray-800 leading-snug sm:text-[13px]">
+        <p className="text-center text-[11px] leading-snug font-semibold text-gray-800 sm:text-[13px]">{player.name}</p>
+        <p className="text-center text-[11px] leading-snug font-semibold text-gray-800 sm:text-[13px]">
           {player.totalScore}
         </p>
       </div>
@@ -156,15 +156,17 @@ function LeaderboardPodium({ top3 }: { top3: LeaderboardEntry[] }) {
 function LeaderboardRow({ entry, index }: { entry: LeaderboardEntry; index: number }) {
   return (
     <div
-      className={`flex items-center gap-3 rounded-[5px] border px-4 py-3 ${entry.isCurrentUser ? "border-tertiary-200 bg-tertiary-100" : "border-neutral-300 bg-white"
-        }`}
+      className={`flex items-center gap-3 rounded-[5px] border px-4 py-3 ${
+        entry.isCurrentUser ? "border-tertiary-200 bg-tertiary-100" : "border-neutral-300 bg-white"
+      }`}
       style={{ animation: `fadeRow 0.45s cubic-bezier(0.22,1,0.36,1) ${0.55 + index * 0.07}s both` }}
     >
       <div
-        className={`flex h-9.25 w-10.25 shrink-0 items-center justify-center rounded-[5px] border ${entry.isCurrentUser ? "border-tertiary-200 bg-background" : "border-neutral-300 bg-white"
-          }`}
+        className={`flex h-9.25 w-10.25 shrink-0 items-center justify-center rounded-[5px] border ${
+          entry.isCurrentUser ? "border-tertiary-200 bg-background" : "border-neutral-300 bg-white"
+        }`}
       >
-        <span className="font-medium text-[16px] text-neutral-800">{entry.rank}</span>
+        <span className="text-[16px] font-medium text-neutral-800">{entry.rank}</span>
       </div>
       <span className="flex-1 text-[15px] text-gray-900">{entry.name}</span>
       <span className="text-[15px] text-gray-900">{entry.totalScore}</span>
@@ -200,7 +202,7 @@ function LeaderboardSection({ leaderboard, isPending }: { leaderboard: Leaderboa
       <div className="rounded-t-xl px-4 pt-6">
         <LeaderboardPodium top3={top3} />
       </div>
-      <div className="flex max-h-95 flex-col gap-2 overflow-y-auto rounded-b-xl border border-neutral-200 border-t-0 bg-white px-4 py-4">
+      <div className="flex max-h-95 flex-col gap-2 overflow-y-auto rounded-b-xl border border-t-0 border-neutral-200 bg-white px-4 py-4">
         {rest.map((entry, i) => (
           <LeaderboardRow key={entry.rank} entry={entry} index={i} />
         ))}
@@ -221,8 +223,9 @@ function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }
         className={`flex items-center gap-5 rounded-t-[5px] px-5 py-4 ${isCorrect ? "bg-fourtiary-100" : "bg-red-100"}`}
       >
         <span
-          className={`shrink-0 rounded-[3.5px] border border-neutral-200 bg-white px-2.5 py-1 font-semibold text-[15px] ${isCorrect ? "text-fourtiary-300" : "text-red-300"
-            }`}
+          className={`shrink-0 rounded-[3.5px] border border-neutral-200 bg-white px-2.5 py-1 text-[15px] font-semibold ${
+            isCorrect ? "text-fourtiary-300" : "text-red-300"
+          }`}
         >
           {userAnswer?.code ?? "-"}
         </span>
@@ -242,7 +245,7 @@ function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }
           )}
         </span>
       </div>
-      <div className="mr-2 ml-2 rounded-b-[5px] border border-neutral-200 border-t-0 bg-white px-4 py-3 text-[#333] text-xs leading-relaxed">
+      <div className="mr-2 ml-2 rounded-b-[5px] border border-t-0 border-neutral-200 bg-white px-4 py-3 text-xs leading-relaxed text-[#333]">
         <TiptapRenderer content={question.discussion} />
       </div>
     </div>
@@ -252,12 +255,12 @@ function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }
 function StatCard({ label, value, total }: { label: string; value: number; total: number }) {
   return (
     <div className="flex min-w-30 flex-1 flex-col gap-2 rounded-[10px] border border-neutral-200 bg-white p-4">
-      <span className="self-start rounded-[5px] border border-neutral-200 px-3 py-2 font-medium text-[#333] text-[16px]">
+      <span className="self-start rounded-[5px] border border-neutral-200 px-3 py-2 text-[16px] font-medium text-[#333]">
         {label}
       </span>
       <div className="mt-2 flex items-end gap-1">
-        <span className="font-bold text-[56px] text-primary-300 leading-none">{value}</span>
-        <span className="mb-1 text-[#333] text-[16px]">/{total}</span>
+        <span className="text-[56px] leading-none font-bold text-primary-300">{value}</span>
+        <span className="mb-1 text-[16px] text-[#333]">/{total}</span>
       </div>
     </div>
   );
@@ -273,10 +276,10 @@ function StreakBanner() {
       style={{ minHeight: 48 }}
     >
       <div className="pointer-events-none absolute top-1/2 -right-8 h-48 w-48 -translate-y-1/2 rounded-full bg-[#32DC82] opacity-40" />
-      <span className="relative z-10 font-bold text-[22px] text-background leading-none">
+      <span className="relative z-10 text-[22px] leading-none font-bold text-background">
         {session.user.flashcardStreak}
       </span>
-      <span className="relative z-10 font-medium text-[18px] text-background">Streak Brain Gym Kamu!</span>
+      <span className="relative z-10 text-[18px] font-medium text-background">Streak Brain Gym Kamu!</span>
     </div>
   );
 }
@@ -302,7 +305,7 @@ function ResultsSection({ data, isPending }: { data: FlashcardResult | undefined
             <StatCard label="Benar" value={data?.correctAnswersCount ?? 0} total={data?.questionsCount ?? 5} />
           </div>
         )}
-        <h2 className="font-medium text-[#333] text-[20px]">Jawaban</h2>
+        <h2 className="text-[20px] font-medium text-[#333]">Jawaban</h2>
         <div className="flex flex-col gap-2.5">
           {isPending ? (
             <Skeleton className="h-72 w-full" />
@@ -317,7 +320,7 @@ function ResultsSection({ data, isPending }: { data: FlashcardResult | undefined
 
 function BottomBar({ onMainLagi, isLoading }: { onMainLagi: () => void; isLoading: boolean }) {
   return (
-    <div className="fixed right-0 bottom-0 left-0 z-50 flex h-22.75 items-center justify-end gap-4 border-neutral-500 border-t bg-white px-6">
+    <div className="fixed right-0 bottom-0 left-0 z-50 flex h-22.75 items-center justify-end gap-4 border-t border-neutral-500 bg-white px-6">
       <Link
         to="/dashboard"
         className="flex h-10.5 w-50 items-center justify-center rounded-lg border border-primary-300 text-[15px] text-primary-300 no-underline transition-colors hover:bg-blue-50"
@@ -341,8 +344,8 @@ function AlertDialog({ onClose }: { onClose: () => void }) {
       <div className="rounded-xl bg-white py-6 pr-9 pl-6">
         <div className="flex flex-col items-end gap-6.75">
           <div className="flex flex-col items-start gap-4">
-            <p className="whitespace-nowrap font-bold text-[#333] text-[18px] leading-normal">Ups, belum premium!</p>
-            <p className="w-76 font-medium text-[#71717a] text-[12px] leading-normal">
+            <p className="text-[18px] leading-normal font-bold whitespace-nowrap text-[#333]">Ups, belum premium!</p>
+            <p className="w-76 text-[12px] leading-normal font-medium text-[#71717a]">
               Untuk bermain di Brain Gym lebih dari sekali dalam satu hari, kamu perlu Premium
             </p>
           </div>
@@ -351,13 +354,13 @@ function AlertDialog({ onClose }: { onClose: () => void }) {
               onClick={onClose}
               className="flex h-10.25 w-19.25 items-center justify-center rounded-[6px] border border-[#e4e4e7] px-4 py-3"
             >
-              <span className="whitespace-nowrap font-medium text-[#333] text-[14px]">Cancel</span>
+              <span className="text-[14px] font-medium whitespace-nowrap text-[#333]">Cancel</span>
             </button>
             <Link
               to="/premium"
               className="flex items-center justify-center rounded-[6px] bg-primary-300 px-4 py-3 no-underline"
             >
-              <span className="whitespace-nowrap font-medium text-[14px] text-white">Premium Sekarang</span>
+              <span className="text-[14px] font-medium whitespace-nowrap text-white">Premium Sekarang</span>
             </Link>
           </div>
         </div>

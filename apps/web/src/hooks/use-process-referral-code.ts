@@ -27,7 +27,7 @@ export function useProcessReferralCode() {
           toast.error(result.message || "Gagal menggunakan kode referral.");
         }
       } catch (error) {
-        // Jangan toast di sini, biarkan mutation handler handle error
+        console.error("Error processing referral code:", error);
       }
     };
 

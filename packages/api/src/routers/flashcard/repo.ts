@@ -361,14 +361,16 @@ export const flashcardRepo = {
 
     return Array.isArray(result)
       ? result
-      : ((result as unknown as {
-          rows?: Array<{
-            userId: string;
-            name: string;
-            image: string | null;
-            totalScore: number;
-            rank: number;
-          }>;
-        }).rows ?? []);
+      : ((
+          result as unknown as {
+            rows?: Array<{
+              userId: string;
+              name: string;
+              image: string | null;
+              totalScore: number;
+              rank: number;
+            }>;
+          }
+        ).rows ?? []);
   },
 };

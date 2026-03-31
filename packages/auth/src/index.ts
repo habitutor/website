@@ -105,20 +105,20 @@ export const auth = betterAuth({
         input: false,
       },
       phoneNumber: {
-				type: "string",
-				validator: {
-					input: type("string"),
-				},
-				required: false,
-				defaultValue: null,
-				input: true,
-			},
-			referralCode: {
-				type: "string",
-				required: false,
-				input: false,
-			},
-			referralUsage: {
+        type: "string",
+        validator: {
+          input: type("string"),
+        },
+        required: false,
+        defaultValue: null,
+        input: true,
+      },
+      referralCode: {
+        type: "string",
+        required: false,
+        input: false,
+      },
+      referralUsage: {
         type: "number",
         required: false,
         defaultValue: 0,
