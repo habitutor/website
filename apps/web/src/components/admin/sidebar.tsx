@@ -1,19 +1,10 @@
 "use client";
 
-import {
-  BooksIcon,
-  House,
-  Package,
-  Question,
-  SignOut,
-  User,
-  UserSwitchIcon,
-} from "@phosphor-icons/react";
+import { BooksIcon, House, Megaphone, Package, Question, SignOut, User, UserSwitchIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
-import { getAvatarSrc } from "@/lib/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +32,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { getAvatarSrc } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
 const adminNavLinks = [
@@ -63,6 +55,11 @@ const adminNavLinks = [
     name: "Classes",
     to: "/admin/classes" as const,
     icon: BooksIcon,
+  },
+  {
+    name: "Dashboard Content",
+    to: "/admin/dashboard-content" as const,
+    icon: Megaphone,
   },
   {
     name: "Users",
@@ -91,16 +88,9 @@ export function AdminSidebar() {
 
                 return (
                   <SidebarMenuItem key={link.to}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={link.name}
-                    >
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={link.name}>
                       <Link to={link.to}>
-                        <Icon
-                          className="size-5"
-                          weight={isActive ? "fill" : "regular"}
-                        />
+                        <Icon className="size-5" weight={isActive ? "fill" : "regular"} />
                         <span>{link.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -144,13 +134,7 @@ export function AdminSidebar() {
   );
 }
 
-function LogoutDialog({
-  open,
-  onOpenChange,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
+function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -159,9 +143,7 @@ function LogoutDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Anda akan logout dari panel admin.
-          </AlertDialogDescription>
+          <AlertDialogDescription>Anda akan logout dari panel admin.</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Kembali</AlertDialogCancel>
@@ -197,10 +179,7 @@ function SidebarLogout() {
         <SignOut className="size-5" />
         <span>Logout</span>
       </SidebarMenuButton>
-      <LogoutDialog
-        open={logoutDialogOpen}
-        onOpenChange={setLogoutDialogOpen}
-      />
+      <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
     </>
   );
 }
@@ -223,9 +202,7 @@ function SidebarUserProfile() {
       {state !== "collapsed" && (
         <div className="flex min-w-0 flex-col">
           <span className="truncate font-medium text-sm">{user.name}</span>
-          <span className="truncate text-muted-foreground text-xs">
-            {user.email}
-          </span>
+          <span className="truncate text-muted-foreground text-xs">{user.email}</span>
         </div>
       )}
     </div>
@@ -237,12 +214,7 @@ function SidebarLogo() {
   const isCollapsed = state === "collapsed";
 
   return (
-    <div
-      className={cn(
-        "flex h-16 items-center",
-        isCollapsed ? "justify-center" : "border-b px-4",
-      )}
-    >
+    <div className={cn("flex h-16 items-center", isCollapsed ? "justify-center" : "border-b px-4")}>
       <Link
         to="/admin/dashboard"
         className={cn(

@@ -3,31 +3,37 @@ import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import { drizzle } from "drizzle-orm/node-postgres";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import { Pool } from "pg";
+import * as dashboard from "./schema/dashboard";
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
 import * as referral from "./schema/referral";
 import * as transaction from "./schema/transaction";
 
 const pool = new Pool({
-	connectionString: process.env.DATABASE_URL || "",
-	max: 20,
-	idleTimeoutMillis: 30000,
-	connectionTimeoutMillis: 10000,
+  connectionString: process.env.DATABASE_URL || "",
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
 const schema = {
-	...practice,
-	...flashcard,
-	...referral,
-	...transaction,
+  ...practice,
+  ...flashcard,
+  ...dashboard,
+  ...referral,
+  ...transaction,
 };
 
 export const db = drizzle(pool, {
-	casing: "snake_case",
-	schema,
+  casing: "snake_case",
+  schema,
 });
 
 export type Schema = typeof schema;
 export type DrizzleDatabase =
-	| typeof db
-	| PgTransaction<NodePgQueryResultHKT, Schema, ExtractTablesWithRelations<Schema>>;
+  | typeof db
+  | PgTransaction<
+      NodePgQueryResultHKT,
+      Schema,
+      ExtractTablesWithRelations<Schema>
+    >;

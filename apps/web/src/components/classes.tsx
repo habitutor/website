@@ -16,7 +16,6 @@ import {
 	PlayCircleIcon,
 	PlusIcon,
 	TrashIcon,
-	Users,
 	UsersIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -809,36 +808,40 @@ export function LiveClassCard({
 	date,
 	time,
 	teacher,
-	link }: {
-		title: string;
-		date: string;
-		time: string;
-		teacher: string;
-		link: string;
-	}) {
+	link,
+}: {
+	title: string;
+	date: string;
+	time: string;
+	teacher: string;
+	link: string;
+}) {
+	const displayDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date.slice(8, 10)}-${date.slice(5, 7)}-${date.slice(0, 4)}` : date;
+	const displayTime = /^\d{2}:\d{2}:\d{2}$/.test(time) ? time.slice(0, 5) : time;
+
 	return (
-		<Card className="rounded-[10px] space-y-1 w-full md:w-75 bg-background border border-tertiary-200 gap-4 p-4 sm:p-5 relative overflow-hidden">
-			<div className="w-full flex flex-row justify-between gap-4 items-start">
-				<h3 className="text-lg font-bold">{title}</h3>
-				<a href={link} target="_blank" rel="noopener noreferrer" className="text-primary-300 font-medium text-sm">
+		<Card className="relative w-full gap-4 space-y-1 overflow-hidden rounded-[10px] border border-tertiary-200 bg-background p-4 sm:p-5 md:w-75">
+			<div className="flex w-full flex-row items-start justify-between gap-4">
+				<h3 className="font-bold text-lg">{title}</h3>
+				<a href={link} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-300 text-sm">
 					<ArrowCircleRightIcon size={24} className="text-tertiary-600" />
 				</a>
 			</div>
 			<div>
 				<div className="flex flex-row items-center gap-1">
 					<CalendarBlankIcon size={16} className="inline-block" />
-					<p className="text-sm">{date}</p>
+					<p className="text-sm">{displayDate}</p>
 				</div>
 				<div className="flex flex-row items-center gap-1">
 					<ClockIcon size={16} className="inline-block" />
-					<p className="text-sm">{time}</p>
+					<p className="text-sm">{displayTime}</p>
 				</div>
 				<div className="flex flex-row items-center gap-1">
 					<UsersIcon size={16} className="inline-block" />
 					<p className="text-sm">{teacher}</p>
 				</div>
 			</div>
-			<img src="/avatar/live-class-avatar.webp" alt="Live Class" className="absolute bottom-0 right-1" />
+			<img src="/avatar/live-class-avatar.webp" alt="Live Class" className="absolute right-1 bottom-0" />
 		</Card>
 	);
 }
