@@ -7,7 +7,7 @@ import { orpc } from "@/utils/orpc";
 
 export const UserProgress = () => {
 	return (
-		<section className="border p-4 w-full md:p-10 bg-neutral-100 rounded-2xl">
+		<section className="w-full rounded-2xl border bg-neutral-100 p-4 md:p-10">
 			<h2 className="mb-2 font-medium">Progres Kamu!</h2>
 			<div className="grid gap-4 sm:grid-cols-5">
 				<div className="space-y-4 sm:col-span-2">
@@ -24,7 +24,7 @@ const Material = () => {
 	const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
 
 	return (
-		<div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip w-full rounded-md bg-blue-200 p-4 text-primary">
+		<div className="relative flex min-h-30 w-full items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
 			<div className="z-10 space-y-0.5">
 				<h4 className={`font-bold text-4xl sm:text-5xl ${isPending && "animate-pulse"}`}>
 					{!isPending ? (data?.materialsCompleted ?? 0) : "..."}
@@ -44,7 +44,7 @@ const Material = () => {
 				alt=""
 				width={75}
 				height={75}
-				className="absolute -right-[20%] -bottom-[30%] h-auto w-55 z-0 object-contain"
+				className="absolute -right-[20%] -bottom-[30%] z-0 h-auto w-55 object-contain"
 			/>
 		</div>
 	);
@@ -93,8 +93,8 @@ const Flashcard = () => {
 	return (
 		<div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md border border-primary-400 bg-primary-300 p-4 text-white sm:col-span-3">
 			{!hasDoneToday ? (
-				<div className="h-full justify-between flex flex-col">
-					<div className="bg-red-200 border rounded-sm border-red-400 px-4 py-2 md:text-sm text-xs md:whitespace-nowrap">
+				<div className="flex h-full flex-col justify-between">
+					<div className="rounded-sm border border-red-400 bg-red-200 px-4 py-2 text-xs md:whitespace-nowrap md:text-sm">
 						<p className="font-bold text-white">Streak kamu mati! yuk kejar lagi</p>
 					</div>
 					<div className="space-y-2">
@@ -121,7 +121,7 @@ const Flashcard = () => {
 				</div>
 			)}
 
-			<div className="z-10 justify-end flex flex-col md:flex-row gap-2">
+			<div className="z-10 flex flex-col justify-end gap-2 md:flex-row">
 				<Button
 					size="lg"
 					variant="darkBlue"
@@ -158,7 +158,7 @@ const Flashcard = () => {
 				alt=""
 				width={300}
 				height={300}
-				className="absolute -right-20 md:right-0 -bottom-[5%] z-0 object-contain"
+				className="absolute -right-20 -bottom-[5%] z-0 object-contain md:right-0"
 			/>
 		</div>
 	);

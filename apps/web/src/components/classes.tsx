@@ -816,7 +816,9 @@ export function LiveClassCard({
 	teacher: string;
 	link: string;
 }) {
-	const displayDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date.slice(8, 10)}-${date.slice(5, 7)}-${date.slice(0, 4)}` : date;
+	const displayDate = /^\d{4}-\d{2}-\d{2}$/.test(date)
+		? `${date.slice(8, 10)}-${date.slice(5, 7)}-${date.slice(0, 4)}`
+		: date;
 	const displayTime = /^\d{2}:\d{2}:\d{2}$/.test(time) ? time.slice(0, 5) : time;
 
 	return (

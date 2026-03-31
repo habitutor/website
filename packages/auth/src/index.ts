@@ -8,8 +8,7 @@ import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
-const REFERRAL_CODE_CHARS =
-	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
+const REFERRAL_CODE_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
 const REFERRAL_CODE_LENGTH = 11;
 
 function generateReferralCodeString(): string {
@@ -20,11 +19,7 @@ function generateReferralCodeString(): string {
 }
 
 async function createReferralCodeForUser(userId: string) {
-	const existing = await db
-		.select()
-		.from(referralCode)
-		.where(eq(referralCode.userId, userId))
-		.limit(1);
+	const existing = await db.select().from(referralCode).where(eq(referralCode.userId, userId)).limit(1);
 
 	if (existing[0]) return;
 

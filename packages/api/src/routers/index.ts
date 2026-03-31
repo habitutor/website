@@ -17,32 +17,32 @@ import { subtestRouter } from "./subtest";
 import { transactionRouter } from "./transaction";
 
 export const appRouter = {
-  healthCheck: pub
-    .route({
-      path: "/healthcheck",
-      method: "GET",
-      tags: ["Uncategorized"],
-    })
-    .output(type({ message: "string" }))
-    .handler(() => {
-      return { message: "OK" };
-    }),
-  social: socialRouter,
-  dashboard: dashboardRouter,
-  profile: profileRouter,
-  practicePack: practicePackRouter,
-  flashcard: flashcardRouter,
-  subtest: subtestRouter,
-  admin: {
-    statistics: adminStatisticsRouter,
-    practicePack: adminPracticePackRouter,
-    question: adminQuestionRouter,
-    subtest: adminSubtestRouter,
-    users: adminUserRouter,
-    dashboardContent: adminDashboardContentRouter,
-  },
-  transaction: transactionRouter,
-  referral: referralRouter,
+	healthCheck: pub
+		.route({
+			path: "/healthcheck",
+			method: "GET",
+			tags: ["Uncategorized"],
+		})
+		.output(type({ message: "string" }))
+		.handler(() => {
+			return { message: "OK" };
+		}),
+	social: socialRouter,
+	dashboard: dashboardRouter,
+	profile: profileRouter,
+	practicePack: practicePackRouter,
+	flashcard: flashcardRouter,
+	subtest: subtestRouter,
+	admin: {
+		statistics: adminStatisticsRouter,
+		practicePack: adminPracticePackRouter,
+		question: adminQuestionRouter,
+		subtest: adminSubtestRouter,
+		users: adminUserRouter,
+		dashboardContent: adminDashboardContentRouter,
+	},
+	transaction: transactionRouter,
+	referral: referralRouter,
 };
 
 export type AppRouter = typeof appRouter;

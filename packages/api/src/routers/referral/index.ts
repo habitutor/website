@@ -95,7 +95,7 @@ const use = authed
       "message?": "string",
     }),
   )
-  .handler(async ({ input, context, errors }) => {
+  .handler(async ({ input, context }) => {
     const userId = context.session.user.id;
     const code = input.code.trim();
 

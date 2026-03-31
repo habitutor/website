@@ -60,13 +60,7 @@ export const FlashcardCard = () => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies
 	useEffect(() => {
-		if (
-			hasStartedCountdown &&
-			data?.status === "ongoing" &&
-			hours === "00" &&
-			minutes === "00" &&
-			seconds === "00"
-		) {
+		if (hasStartedCountdown && data?.status === "ongoing" && hours === "00" && minutes === "00" && seconds === "00") {
 			setTimeoutDialogOpen(true);
 		}
 	}, [hasStartedCountdown, data?.status, hours, minutes, seconds]);
@@ -119,11 +113,11 @@ export const FlashcardCard = () => {
 	}
 
 	return (
-		<div className="rounded-md border bg-white p-4 sm:p-6 flex flex-col gap-4">
+		<div className="flex flex-col gap-4 rounded-md border bg-white p-4 sm:p-6">
 			{/* Timer Bar  */}
-			<div className="relative flex items-center overflow-clip rounded-[5px] border border-green-700 bg-green-500 h-[58px] w-full px-6">
-				<div className="pointer-events-none absolute -left-8 top-1/2 -translate-y-1/2 size-[100px] rounded-full bg-green-700 opacity-60" />
-				<p className="relative z-10 font-bold text-2xl text-white ml-auto tracking-widest">
+			<div className="relative flex h-[58px] w-full items-center overflow-clip rounded-[5px] border border-green-700 bg-green-500 px-6">
+				<div className="pointer-events-none absolute top-1/2 -left-8 size-[100px] -translate-y-1/2 rounded-full bg-green-700 opacity-60" />
+				<p className="relative z-10 ml-auto font-bold text-2xl text-white tracking-widest">
 					{hours}:{minutes}:{seconds}
 				</p>
 			</div>
@@ -136,17 +130,17 @@ export const FlashcardCard = () => {
 				transition={{ duration: 0.4, ease: "easeOut" }}
 				className="grid grid-cols-1 gap-4 sm:grid-cols-2"
 			>
-			{/* Question Card - yellow style */}
-				<div className="relative flex h-full flex-col gap-2 rounded-[10px] border border-[#fdc10e] bg-[#feeaae] p-4 overflow-hidden min-h-[435px]">
+				{/* Question Card - yellow style */}
+				<div className="relative flex h-full min-h-[435px] flex-col gap-2 overflow-hidden rounded-[10px] border border-[#fdc10e] bg-[#feeaae] p-4">
 					<h1 className="font-medium text-[18px]">Brain Gym {currentPage}</h1>
-					<div className="h-full rounded-[5px] border border-[#e8e8e8] bg-white p-4 pb-[160px] sm:pb-4 text-foreground">
+					<div className="h-full rounded-[5px] border border-[#e8e8e8] bg-white p-4 pb-[160px] text-foreground sm:pb-4">
 						<TiptapRenderer content={data?.assignedQuestions[currentPage - 1]?.question.content} />
 					</div>
 					{/* Decoration image */}
 					<img
 						src="/decorations/image 25.png"
 						alt=""
-						className="absolute bottom-0 right-0 w-auto h-[200px] object-contain pointer-events-none"
+						className="pointer-events-none absolute right-0 bottom-0 h-[200px] w-auto object-contain"
 					/>
 				</div>
 
@@ -186,13 +180,13 @@ export const FlashcardCard = () => {
 								transition={{ duration: 0.3 }}
 								className={cn(
 									"inline-flex items-center gap-3 rounded-[5px] border p-4 text-start",
-									!hasChecked && "hover:bg-[#f4faff] cursor-pointer",
+									!hasChecked && "cursor-pointer hover:bg-[#f4faff]",
 									hasChecked && "cursor-default",
 								)}
 							>
 								<span
 									className={cn(
-										"rounded-[5px] border border-foreground/20 px-2 py-0.5 font-medium text-neutrals-500 text-sm transition-colors duration-300 shrink-0",
+										"shrink-0 rounded-[5px] border border-foreground/20 px-2 py-0.5 font-medium text-neutrals-500 text-sm transition-colors duration-300",
 										isCorrect && "border-green-800 bg-green-500 text-white",
 										isWrong && "border-red-500 bg-red-500 text-white",
 										!hasChecked && isSelected && "border-[#3650a2] bg-[#3650a2] text-white",
@@ -209,11 +203,7 @@ export const FlashcardCard = () => {
 										opacity: isCorrect || isWrong ? 1 : 0,
 										scale: isCorrect || isWrong ? 1 : 0.5,
 									}}
-									className={cn(
-										"ml-auto shrink-0",
-										isCorrect && "text-green-800",
-										isWrong && "text-red-500",
-									)}
+									className={cn("ml-auto shrink-0", isCorrect && "text-green-800", isWrong && "text-red-500")}
 								>
 									{isCorrect ? <CheckIcon weight="bold" size={18} /> : isWrong ? <XIcon size={18} /> : null}
 								</m.span>
@@ -228,10 +218,10 @@ export const FlashcardCard = () => {
 							onClick={handleCheckAnswer}
 							disabled={selectedAnswerId === null || disableInteraction || hasChecked}
 							className={cn(
-								"w-full bg-[#fdcc36] border border-[#fdc10e] rounded-[8px] px-6 py-2.5 font-semibold text-[#333] text-[15px] shadow-sm transition-all",
-								(selectedAnswerId === null || hasChecked)
-									? "opacity-40 cursor-not-allowed"
-									: "hover:bg-[#fdc10e] cursor-pointer hover:shadow-md",
+								"w-full rounded-[8px] border border-[#fdc10e] bg-[#fdcc36] px-6 py-2.5 font-semibold text-[#333] text-[15px] shadow-sm transition-all",
+								selectedAnswerId === null || hasChecked
+									? "cursor-not-allowed opacity-40"
+									: "cursor-pointer hover:bg-[#fdc10e] hover:shadow-md",
 							)}
 						>
 							Check Jawaban!
