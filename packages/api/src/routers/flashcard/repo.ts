@@ -81,6 +81,14 @@ export const flashcardRepo = {
     return db.insert(userFlashcardQuestionAnswer).values(answers);
   },
 
+  countQuestionsForAttempt: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+    const [row] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(userFlashcardQuestionAnswer)
+      .where(eq(userFlashcardQuestionAnswer.attemptId, attemptId));
+    return row?.count ?? 0;
+  },
+
   getUnansweredQuestions: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
     return db.query.userFlashcardQuestionAnswer.findMany({
       where: and(

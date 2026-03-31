@@ -10,14 +10,16 @@ import { refreshAuthSession } from "@/lib/auth-session";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
-import { useFlashcardPageStore } from "../flashcard.index";
 import { TimeoutDialog } from "./timeout-dialog";
 
 export const FlashcardCard = () => {
-  const { data } = useQuery(orpc.flashcard.get.queryOptions());
   const queryClient = useQueryClient();
+  const { data } = useQuery(orpc.flashcard.get.queryOptions());
   const saveAnswerMutation = useMutation(
     orpc.flashcard.save.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: orpc.flashcard.get.key() });
+      },
       onError: (error) => {
         if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT")
           toast.error("Ups! Kamu sudah melewati batas waktu pengumpulan!");
@@ -36,7 +38,6 @@ export const FlashcardCard = () => {
     }),
   );
   const navigate = useNavigate();
-  const { page: currentPage, next: nextPage } = useFlashcardPageStore();
   const [timeoutDialogOpen, setTimeoutDialogOpen] = useState(false);
   const [, hours, minutes, seconds] = useCountdown((data?.status !== "not_started" && data?.deadline) || 0);
   const [disableInteraction, setDisableInteraction] = useState(false);
@@ -53,15 +54,16 @@ export const FlashcardCard = () => {
     if (data?.status === "ongoing" && hours === "00" && minutes === "00" && seconds === "00") handleSubmit();
   }, [data?.status, hours, minutes, seconds, handleSubmit]);
 
-  // to satisfy typescript, this has been handled in parent component
-  if (data?.status === "not_started") return null;
+  if (!data || data.status === "not_started") return null;
+
+  const currentPage = (data.totalQuestionsCount ?? 0) - (data.assignedQuestions.length ?? 0) + 1;
+  const currentQuestion = data.assignedQuestions[0];
+  const isLastQuestion = data.assignedQuestions.length <= 1;
 
   const handleAnswerSelect = async (answerId: number) => {
-    if (!data || data.assignedQuestions.length === 0) return;
-    const questionData = data.assignedQuestions[currentPage - 1];
-    if (!questionData) return;
+    if (!data || !currentQuestion || isLastQuestion) return;
     setDisableInteraction(true);
-    const questionId = questionData.question.id;
+    const questionId = currentQuestion.question.id;
     try {
       await saveAnswerMutation.mutateAsync({
         questionId,
@@ -69,12 +71,26 @@ export const FlashcardCard = () => {
       });
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
+      saveAnswerMutation.reset();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDisableInteraction(false);
+    }
+  };
 
-      if (currentPage === data?.assignedQuestions.length) {
-        handleSubmit();
-      } else {
-        nextPage();
-      }
+  const handleLastAnswerSelect = async (answerId: number) => {
+    if (!data || !currentQuestion) return;
+    setDisableInteraction(true);
+    const questionId = currentQuestion.question.id;
+    try {
+      await saveAnswerMutation.mutateAsync({
+        questionId,
+        answerId,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      handleSubmit();
     } catch (error) {
       console.error(error);
     } finally {
@@ -84,7 +100,7 @@ export const FlashcardCard = () => {
 
   return (
     <m.div
-      key={currentPage}
+      key={currentQuestion?.question.id}
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -93,7 +109,7 @@ export const FlashcardCard = () => {
       <div className="flex h-full flex-col gap-2 rounded-md border bg-secondary p-4 backdrop-sepia-100">
         <h1 className="font-medium">Brain Gym {currentPage}</h1>
         <div className="h-full rounded-sm border border-accent bg-background p-4 text-foreground">
-          <TiptapRenderer content={data?.assignedQuestions[currentPage - 1]?.question.content} />
+          <TiptapRenderer content={currentQuestion?.question.content} />
         </div>
       </div>
 
@@ -105,24 +121,21 @@ export const FlashcardCard = () => {
           </p>
         </div>
 
-        {data?.assignedQuestions[currentPage - 1]?.question.answerOptions.map((option) => {
+        {currentQuestion?.question.answerOptions.map((option) => {
           const isUserAnswer = saveAnswerMutation.data?.userAnswerId === option.id;
           const isCorrect = saveAnswerMutation.data?.correctAnswerId === option.id;
           const isWrong = saveAnswerMutation.data?.correctAnswerId !== option.id;
 
-          // --- DEFINE COLORS FOR MOTION ---
-          // You can use Hex, RGB, or HSL here.
-          // Adjust these default values to match your 'secondary' variable if needed.
           let backgroundColor = "#ffffff";
-          let borderColor = "#e5e7eb"; // gray-200 equivalent
+          let borderColor = "#e5e7eb";
           let textColor = "#000000";
 
           if (isCorrect) {
-            backgroundColor = "rgba(187, 247, 208, 0.6)"; // green-200/60
-            borderColor = "#166534"; // green-800
+            backgroundColor = "rgba(187, 247, 208, 0.6)";
+            borderColor = "#166534";
           } else if (isUserAnswer && isWrong) {
-            backgroundColor = "rgba(254, 202, 202, 0.2)"; // red-200/20
-            borderColor = "#ef4444"; // red-500
+            backgroundColor = "rgba(254, 202, 202, 0.2)";
+            borderColor = "#ef4444";
             textColor = "#ef4444";
           }
 
@@ -130,15 +143,14 @@ export const FlashcardCard = () => {
             <m.button
               type="button"
               key={option.id}
-              disabled={saveAnswerMutation.isPending || disableInteraction}
-              onClick={() => handleAnswerSelect(option.id)}
-              // --- MOTION ANIMATION PROP ---
-              // This forces the color change even if the element is disabled
+              disabled={saveAnswerMutation.isPending || submitMutation.isPending || disableInteraction}
+              onClick={() =>
+                isLastQuestion ? handleLastAnswerSelect(option.id) : handleAnswerSelect(option.id)
+              }
               animate={{ backgroundColor, borderColor, color: textColor }}
               transition={{ duration: 0.3 }}
               className={cn(
                 "inline-flex items-center gap-3 rounded-md border p-4 text-start transition-opacity",
-                // Only apply hover effect if NO result is showing yet
                 !saveAnswerMutation.data && "hover:bg-secondary/5",
               )}
             >
@@ -154,7 +166,6 @@ export const FlashcardCard = () => {
 
               <TiptapRenderer content={option.content} />
 
-              {/* Animated Icon */}
               <m.span
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{

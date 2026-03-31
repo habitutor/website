@@ -88,6 +88,7 @@ const get = authed
     if (!attempt) return { status };
 
     const assignedQuestionsRaw = await flashcardRepo.getUnansweredQuestions({ attemptId: attempt.id });
+    const totalQuestionsCount = await flashcardRepo.countQuestionsForAttempt({ attemptId: attempt.id });
 
     const assignedQuestions = assignedQuestionsRaw.map((aq) => ({
       ...aq,
@@ -106,6 +107,7 @@ const get = authed
     return {
       ...attempt,
       assignedQuestions,
+      totalQuestionsCount,
       status,
     };
   });

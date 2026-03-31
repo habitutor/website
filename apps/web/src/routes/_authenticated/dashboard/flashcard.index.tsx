@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { create } from "zustand";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,17 +20,6 @@ import { FlashcardCard } from "./-components/flashcard-card";
 export const Route = createFileRoute("/_authenticated/dashboard/flashcard/")({
   component: RouteComponent,
 });
-
-interface PageStore {
-  page: number;
-  next: () => void;
-  reset: () => void;
-}
-export const useFlashcardPageStore = create<PageStore>()((set) => ({
-  page: 1,
-  next: () => set((state) => ({ page: state.page + 1 })),
-  reset: () => set({ page: 1 }),
-}));
 
 function RouteComponent() {
   const { session } = useRouteContext({ from: "/_authenticated" });
@@ -87,7 +75,6 @@ const StartCard = () => {
     orpc.flashcard.start.mutationOptions({
       onSuccess: () => {
         queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
-        useFlashcardPageStore.getState().reset();
       },
       onError: (error) => {
         if (isDefinedError(error) && error.code === "NOT_FOUND") {

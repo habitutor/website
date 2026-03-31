@@ -4,8 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { MotionFadeDown, MotionStagger, MotionStaggerItem } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAnimatedCounter } from "@/hooks/use-animations";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/dashboard/flashcard/result")({
@@ -16,6 +18,8 @@ function RouteComponent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions({ input: {} }));
+  const scorePercent = data ? Math.round(((data.correctAnswersCount || 0) / (data.questionsCount || 5)) * 100) : 0;
+  const { ref: scoreRef, value: animatedScore } = useAnimatedCounter(scorePercent, 1500, 300);
 
   const startMutation = useMutation(
     orpc.flashcard.start.mutationOptions({
@@ -48,45 +52,51 @@ function RouteComponent() {
         </Button>
       </div>
 
-      <div className="relative flex items-end overflow-clip bg-green-700 p-4">
-        <div className="pointer-events-none absolute top-1/2 -right-30 z-0 size-60 -translate-y-1/2 rounded-full bg-green-500" />
-        <h1 className="relative z-10 my-auto text-xl font-normal text-white">Brain Gym</h1>
-      </div>
-
-      <div className="flex gap-2 max-sm:flex-col [&>div]:min-w-46">
-        <div className="flex flex-col gap-2 rounded-md border p-4">
-          <p>Hasil</p>
-          <p>
-            {isPending ? (
-              <Skeleton className="h-10 w-16" />
-            ) : (
-              <>
-                <span className="mr-1 text-4xl font-bold text-primary">
-                  {((data?.correctAnswersCount || 0) / (data?.questionsCount || 5)) * 100}
-                </span>
-                /100
-              </>
-            )}
-          </p>
+      <MotionFadeDown>
+        <div className="relative flex items-end overflow-clip bg-green-700 p-4">
+          <div className="pointer-events-none absolute top-1/2 -right-30 z-0 size-60 -translate-y-1/2 rounded-full bg-green-500" />
+          <h1 className="relative z-10 my-auto text-xl font-normal text-white">Brain Gym</h1>
         </div>
+      </MotionFadeDown>
 
-        <div className="flex flex-col gap-2 rounded-md border p-4">
-          <p>Benar</p>
-          <p>
-            {isPending ? (
-              <Skeleton className="h-10 w-16" />
-            ) : (
-              <>
-                <span className="mr-1 text-4xl font-bold text-primary">{data?.correctAnswersCount}</span>/
-                {data?.questionsCount}
-              </>
-            )}
-          </p>
-        </div>
-      </div>
+      <MotionStagger className="flex gap-2 max-sm:flex-col [&>div]:min-w-46">
+        <MotionStaggerItem>
+          <div className="flex flex-col gap-2 rounded-md border p-4">
+            <p>Hasil</p>
+            <p>
+              {isPending ? (
+                <Skeleton className="h-10 w-16" />
+              ) : (
+                <>
+                  <span ref={scoreRef} className="mr-1 text-4xl font-bold text-primary">
+                    {animatedScore}
+                  </span>
+                  /100
+                </>
+              )}
+            </p>
+          </div>
+        </MotionStaggerItem>
+
+        <MotionStaggerItem>
+          <div className="flex flex-col gap-2 rounded-md border p-4">
+            <p>Benar</p>
+            <p>
+              {isPending ? (
+                <Skeleton className="h-10 w-16" />
+              ) : (
+                <>
+                  <span className="mr-1 text-4xl font-bold text-primary">{data?.correctAnswersCount}</span>/
+                  {data?.questionsCount}
+                </>
+              )}
+            </p>
+          </div>
+        </MotionStaggerItem>
+      </MotionStagger>
 
       <h2 className="font-medium">Jawaban</h2>
-      <div className="flex flex-col gap-4">
+      <MotionStagger className="flex flex-col gap-4">
         {isPending ? (
           <Skeleton className="h-120 w-full" />
         ) : (
@@ -98,25 +108,27 @@ function RouteComponent() {
             const isCorrect = correctAnswer?.id === userAnswer?.id;
 
             return (
-              <div key={assignedQuestion.selectedAnswerId}>
-                <div
-                  className={`flex items-center gap-4 rounded-sm p-4 text-sm ${isCorrect ? "bg-green-200 text-green-500" : "bg-red-200 text-red-500"}`}
-                >
-                  <span className={"rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"}>
-                    {userAnswer?.code || "-"}
-                  </span>
-                  <span className={isCorrect ? "text-green-900" : ""}>
-                    {userAnswer ? <TiptapRenderer content={userAnswer.content} /> : "Tidak menjawab"}
-                  </span>
+              <MotionStaggerItem key={assignedQuestion.selectedAnswerId}>
+                <div>
+                  <div
+                    className={`flex items-center gap-4 rounded-sm p-4 text-sm ${isCorrect ? "bg-green-200 text-green-500" : "bg-red-200 text-red-500"}`}
+                  >
+                    <span className={"rounded-xs border border-accent bg-white px-2.5 py-0.5 font-semibold"}>
+                      {userAnswer?.code || "-"}
+                    </span>
+                    <span className={isCorrect ? "text-green-900" : ""}>
+                      {userAnswer ? <TiptapRenderer content={userAnswer.content} /> : "Tidak menjawab"}
+                    </span>
+                  </div>
+                  <div className="mx-4 rounded-b-sm border bg-white px-4 py-2 text-xs">
+                    <TiptapRenderer content={assignedQuestion.question.discussion} />
+                  </div>
                 </div>
-                <div className="mx-4 rounded-b-sm border bg-white px-4 py-2 text-xs">
-                  <TiptapRenderer content={assignedQuestion.question.discussion} />
-                </div>
-              </div>
+              </MotionStaggerItem>
             );
           })
         )}
-      </div>
+      </MotionStagger>
     </section>
   );
 }
