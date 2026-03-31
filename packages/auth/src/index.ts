@@ -113,7 +113,7 @@ export const auth = betterAuth({
 				defaultValue: null,
 				input: true,
 			},
-			referralCodes: {
+			referralCode: {
 				type: "string",
 				required: false,
 				input: false,
