@@ -151,7 +151,7 @@ export function Hero() {
           <Link to="/login" className={cn(buttonVariants({ variant: "lightBlue" }), "w-full md:w-fit")}>
             Mulai Belajar Sekarang
           </Link>
-          <Link to="/dashboard" className={cn(buttonVariants({ variant: "outline" }), "w-full md:w-fit")}>
+          <Link to="/" className={cn(buttonVariants({ variant: "outline" }), "w-full md:w-fit")}>
             Cara Kerjanya
           </Link>
         </motion.div>

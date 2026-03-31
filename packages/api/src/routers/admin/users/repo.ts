@@ -24,6 +24,7 @@ export const adminUserRepo = {
         email: user.email,
         role: user.role,
         referralUsage: referralCode.referralCount,
+        phoneNumber: user.phoneNumber,
         isPremium: user.isPremium,
         premiumTier: user.premiumTier,
         premiumExpiresAt: user.premiumExpiresAt,

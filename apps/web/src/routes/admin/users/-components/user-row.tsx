@@ -18,6 +18,7 @@ interface User {
   email: string;
   role: string | null;
   referralUsage: number | null;
+  phoneNumber: string | null;
   isPremium: boolean | null;
   premiumExpiresAt: Date | null;
   createdAt: Date;
@@ -47,6 +48,7 @@ export function UserRow({ user }: UserRowProps) {
           </span>
         </TableCell>
         <TableCell className="font-medium">{user.referralUsage ?? 0}</TableCell>
+        <TableCell className="font-medium">{user.phoneNumber ?? "N/A"}</TableCell>
         <TableCell>
           {isPremium ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">

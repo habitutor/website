@@ -268,7 +268,7 @@ export const DATA = {
       {
         label: "WhatsApp",
         icon: WhatsappLogoIcon,
-        url: "https://wa.me/6283854264330",
+        url: "https://wa.me/6281212686307",
       },
       // {
       // 	label: "Discord",
