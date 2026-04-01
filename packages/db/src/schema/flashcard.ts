@@ -14,8 +14,8 @@ export const userFlashcardQuestionAnswer = pgTable(
     attemptId: integer().references(() => userFlashcardAttempt.id, {
       onDelete: "set null",
     }),
-    answeredAt: timestamp(),
-    createdAt: timestamp().notNull().defaultNow(),
+    answeredAt: timestamp("answered_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (t) => [
     primaryKey({ columns: [t.attemptId, t.assignedDate, t.questionId] }),
@@ -49,7 +49,7 @@ export const userFlashcardAttempt = pgTable(
       .notNull()
       .default(sql`CURRENT_DATE`),
     startedAt: timestamp("started_at").notNull().defaultNow(),
-    deadline: timestamp().notNull(),
+    deadline: timestamp("deadline").notNull(),
     submittedAt: timestamp("submitted_at"),
     score: integer().default(0),
   },

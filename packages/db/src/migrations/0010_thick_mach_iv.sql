@@ -27,10 +27,10 @@ CREATE TABLE "dashboard_live_class" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "referral_code" text;--> statement-breakpoint
-ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "referral_usage" integer DEFAULT 0;--> statement-breakpoint
-ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "dream_campus" text;--> statement-breakpoint
-ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "dream_major" text;--> statement-breakpoint
+ALTER TABLE "user" ADD COLUMN "referral_code" text;--> statement-breakpoint
+ALTER TABLE "user" ADD COLUMN "referral_usage" integer DEFAULT 0;--> statement-breakpoint
+ALTER TABLE "user" ADD COLUMN "dream_campus" text;--> statement-breakpoint
+ALTER TABLE "user" ADD COLUMN "dream_major" text;--> statement-breakpoint
 CREATE INDEX "idx_dashboard_announcement_published_order" ON "dashboard_announcement" USING btree ("is_published","order");--> statement-breakpoint
 CREATE INDEX "idx_dashboard_announcement_variant" ON "dashboard_announcement" USING btree ("variant");--> statement-breakpoint
 CREATE INDEX "idx_dashboard_live_class_published_order" ON "dashboard_live_class" USING btree ("is_published","order");--> statement-breakpoint

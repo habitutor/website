@@ -1,8 +1,10 @@
 import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
+import { toast } from "sonner";
 import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +25,7 @@ export const Route = createFileRoute("/_auth/register")({
 
 function RouteComponent() {
   return (
-    <main className="relative flex min-h-screen w-full flex-col items-center justify-center px-4">
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-y-auto px-4 py-16 md:justify-center">
       <Button
         asChild
         variant="outline"
@@ -43,37 +45,46 @@ function SignUpForm() {
   const navigate = useNavigate({
     from: "/",
   });
+  const queryClient = useQueryClient();
   const { isPending } = authClient.useSession();
 
   const form = useForm({
     defaultValues: {
       name: "",
       email: "",
+      phoneNumber: "",
       password: "",
       confirm_password: "",
       referralCode: "",
     },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email(
+      const normalizedPhoneNumber = value.phoneNumber.trim();
+      const result = await authClient.signUp.email(
         {
           email: value.email,
           password: value.password,
           name: value.name,
+          phoneNumber: normalizedPhoneNumber.length > 0 ? normalizedPhoneNumber : undefined,
         },
-        {
-          onSuccess: () => {
-            const referralCode = value.referralCode.trim();
-            navigate({
-              to: referralCode ? `/dashboard?referralCode=${encodeURIComponent(referralCode)}` : "/dashboard",
-            });
-          },
-        },
+        {},
       );
+
+      if (result.error) {
+        toast.error(result.error.message || result.error.statusText || "Gagal mendaftar");
+        return;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["auth", "getSession"] });
+      const referralCode = value.referralCode.trim();
+      navigate({
+        to: referralCode ? `/dashboard?referralCode=${encodeURIComponent(referralCode)}` : "/dashboard",
+      });
     },
     validators: {
       onSubmit: type({
         name: "string >= 2",
         email: "string.email",
+        "phoneNumber?": "string",
         password: "string >= 8",
       }),
     },
@@ -136,6 +147,29 @@ function SignUpForm() {
                     id={field.name}
                     name={field.name}
                     type="email"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors.map((error) => (
+                    <p key={error?.message} className="text-red-500">
+                      {error?.message}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </form.Field>
+          </div>
+
+          <div>
+            <form.Field name="phoneNumber">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>Nomor HP</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="tel"
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}

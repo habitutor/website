@@ -62,7 +62,7 @@ const updateProfile = authed
   .input(
     type({
       "name?": "string",
-      "phoneNumber?": "string",
+      "phoneNumber?": "string | null",
       "dreamCampus?": "string",
       "dreamMajor?": "string",
     }),
@@ -75,7 +75,10 @@ const updateProfile = authed
   .handler(async ({ input, context }) => {
     const updates: Partial<typeof user.$inferInsert> = {};
     if (input.name !== undefined) updates.name = input.name;
-    if (input.phoneNumber !== undefined) updates.phoneNumber = input.phoneNumber;
+    if (input.phoneNumber !== undefined) {
+      const normalizedPhone = typeof input.phoneNumber === "string" ? input.phoneNumber.trim() : input.phoneNumber;
+      updates.phoneNumber = normalizedPhone === "" ? null : normalizedPhone;
+    }
     if (input.dreamCampus !== undefined) updates.dreamCampus = input.dreamCampus;
     if (input.dreamMajor !== undefined) updates.dreamMajor = input.dreamMajor;
     if (Object.keys(updates).length > 0) {

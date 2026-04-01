@@ -107,7 +107,7 @@ export const auth = betterAuth({
       phoneNumber: {
         type: "string",
         validator: {
-          input: type("string"),
+          input: type("string | null"),
         },
         required: false,
         defaultValue: null,

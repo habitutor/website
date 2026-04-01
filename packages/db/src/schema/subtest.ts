@@ -12,8 +12,8 @@ export const subtest = pgTable("subtest", {
   shortName: text("short_name").notNull().unique(),
   description: text(),
   order: integer().notNull().default(1),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp().notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 /*
@@ -34,8 +34,8 @@ export const contentItem = pgTable(
     type: contentTypeEnum("type").notNull(),
     title: text().notNull(),
     order: integer().notNull(),
-    createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (t) => [unique("unique_content_order").on(t.subtestId, t.type, t.order)],
 );
@@ -51,8 +51,8 @@ export const videoMaterial = pgTable("video_material", {
     .references(() => contentItem.id, { onDelete: "cascade" }),
   videoUrl: text().notNull(), // YouTube URL
   content: jsonb().notNull(),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp().notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const noteMaterial = pgTable("note_material", {
@@ -62,8 +62,8 @@ export const noteMaterial = pgTable("note_material", {
     .unique() // one-to-one
     .references(() => contentItem.id, { onDelete: "cascade" }),
   content: jsonb().notNull(), // Lexical/rich text JSON
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp().notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const contentPracticeQuestions = pgTable(
@@ -101,9 +101,9 @@ export const userProgress = pgTable(
     videoCompleted: boolean().notNull().default(false),
     noteCompleted: boolean().notNull().default(false),
     practiceQuestionsCompleted: boolean().notNull().default(false),
-    lastViewedAt: timestamp().notNull().defaultNow(),
-    createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow(),
+    lastViewedAt: timestamp("last_viewed_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (t) => [
     // One progress record per user per content
@@ -127,7 +127,7 @@ export const recentContentView = pgTable(
     contentItemId: integer()
       .notNull()
       .references(() => contentItem.id, { onDelete: "cascade" }),
-    viewedAt: timestamp().notNull().defaultNow(),
+    viewedAt: timestamp("viewed_at").notNull().defaultNow(),
   },
   (t) => [index("idx_recent_view_user_time").on(t.userId, t.viewedAt)],
 );
