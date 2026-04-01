@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { ArrowLeftIcon, CheckIcon, Copy } from "lucide-react";
+import { ArrowLeftIcon, CheckIcon, CopyIcon } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -338,7 +338,7 @@ export default function ProfilePage() {
                       onClick={handleCopy}
                       className="flex w-18 shrink-0 cursor-pointer items-center justify-center border-l-2 border-secondary-700 bg-secondary-600"
                     >
-                      {copied ? <CheckIcon className="size-5" /> : <Copy className="size-5" />}
+                      {copied ? <CheckIcon className="size-5" /> : <CopyIcon className="size-5" />}
                     </button>
                   </div>
                   <div className="flex gap-3 max-md:flex-col">

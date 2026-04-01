@@ -167,7 +167,7 @@ export function DashboardContentAdminPage() {
             </div>
           </div>
           <Button
-            onClick={() => createLiveClassMutation.mutate(liveClassForm as any)}
+            onClick={() => createLiveClassMutation.mutate(liveClassForm)}
             disabled={createLiveClassMutation.isPending || !isLiveClassFormValid}
           >
             <Plus className="mr-2 size-4" /> Tambah Live Class

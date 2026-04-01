@@ -127,11 +127,11 @@ const use = authed
     try {
       await db.transaction(async (tx) => {
         await referralRepo.incrementReferralCount({
-          db: tx as any,
+          db: tx,
           referralCodeId: codeRecord.id,
         });
         await referralRepo.createUsage({
-          db: tx as any,
+          db: tx,
           userId,
           referralCodeId: codeRecord.id,
           transactionId: undefined,

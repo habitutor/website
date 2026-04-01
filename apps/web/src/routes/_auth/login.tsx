@@ -73,7 +73,7 @@ function SignInForm() {
               navigate({ to: "/dashboard" });
             }
           },
-          onError: (error: { error: { message: any; statusText: any } }) => {
+          onError: (error) => {
             toast.error(error.error.message || error.error.statusText);
           },
         },
