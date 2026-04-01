@@ -17,7 +17,7 @@ export function Features() {
         transition={{ duration: 0.3, delay: 0 }}
         className="text-center text-2xl font-bold md:text-[34px]"
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit
+Kenapa Harus Berjuang Bareng <span className="text-primary-300">Habitutor</span>?
       </motion.h2>
       <div className="container mx-auto flex w-full flex-col gap-3 px-4 md:grid md:grid-cols-6">
         {!isMobile && (

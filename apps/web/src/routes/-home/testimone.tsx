@@ -12,7 +12,7 @@ export default function Testimone() {
         viewport={{ once: true }}
         transition={{ delay: 0.5, duration: 0.3 }}
       >
-        <h2 className="text-2xl font-bold">Testimony Lorem Ipsum</h2>
+        <h2 className="text-2xl font-bold">Testimoni Bersama Habitutor</h2>
 
         {/* <Image
 							src="/avatar/testimone-avatar.webp"

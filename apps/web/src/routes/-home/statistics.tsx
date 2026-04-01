@@ -58,7 +58,7 @@ export function Statistics() {
             transition={{ delay: 0.5, duration: 0.3 }}
           >
             <h2 className="text-center text-2xl font-bold *:text-pretty lg:text-4xl">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit
+              Ngerasa Persiapan SNBT Kamu <span className="text-primary-300">Masih Gini-Gini Aja</span>?
             </h2>
             <div className="z-3 mt-8 grid w-full grid-cols-2 gap-6 lg:gap-10">
               <div className="flex w-fit flex-row items-center gap-2 rounded-[7px] border-2 border-red-200 bg-red-100 px-4 py-2 shadow-sm md:translate-x-10 xl:translate-x-20">
