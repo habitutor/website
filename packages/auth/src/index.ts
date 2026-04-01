@@ -19,23 +19,12 @@ function generateReferralCodeString(): string {
 }
 
 async function createReferralCodeForUser(userId: string) {
-  const existing = await db.select().from(referralCode).where(eq(referralCode.userId, userId)).limit(1);
+  const code = generateReferralCodeString();
 
-  if (existing[0]) return;
-
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const code = generateReferralCodeString();
-
-    const [result] = await db
-      .insert(referralCode)
-      .values({ code, userId })
-      .onConflictDoNothing({ target: referralCode.code })
-      .returning();
-
-    if (result) return;
-  }
-
-  console.error(`Failed to generate referral code for user ${userId}`);
+  await db
+    .insert(referralCode)
+    .values({ code, userId })
+    .onConflictDoNothing({ target: referralCode.code });
 }
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");
