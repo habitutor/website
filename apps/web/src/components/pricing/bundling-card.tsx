@@ -1,53 +1,43 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import * as m from "motion/react-m";
+import { motion } from "motion/react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface BundlingFeature {
+interface PricingFeature {
   label: string;
   status: string;
-  value?: string;
 }
 
-interface PremiumPlanData {
+interface PricingData {
   label: string;
-  original_price: string;
-  price_now: string;
-  suffix?: string;
-  percentage: string;
-  promo_end: string;
-  features: BundlingFeature[];
-  cta: { label: string; url: string };
-}
-
-interface BasicPlanData {
-  label: string;
+  original_price?: string;
+  price_now?: string;
   price_monthly?: string;
-  price_full: string;
-  suffix?: string;
-  features: BundlingFeature[];
-  cta: { label: string; url: string };
+  price_full?: string;
+  features: readonly PricingFeature[];
+  cta: {
+    label: string;
+    url: string;
+  };
 }
 
-interface BundlingCardColors {
-  bg?: string;
-  border?: string;
-  text?: string;
-  price?: string;
-  promo?: string;
-  header?: string;
-  circle?: string;
-  button?: string;
-  checkBadge?: string;
-  limitedBadge?: string;
-  medalBadge?: string;
-  divider?: string;
+interface BundlingCardProps {
+  data: PricingData;
+  variant: "basic" | "premium";
+  span?: boolean;
+  colors?: {
+    bg?: string;
+    text?: string;
+    price?: string;
+    header?: string;
+    circle?: string;
+    button?: string;
+    checkBadge?: string;
+    limitedBadge?: string;
+    medalBadge?: string;
+  };
 }
-
-type BundlingCardProps =
-  | { data: PremiumPlanData; variant: "premium"; span?: boolean; colors?: BundlingCardColors }
-  | { data: BasicPlanData; variant: "basic"; span?: boolean; colors?: BundlingCardColors };
 
 export function BundlingCard({ data, variant, span, colors }: BundlingCardProps) {
   const isPremium = variant === "premium";
@@ -58,35 +48,33 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
       bg: "bg-primary-300",
       text: "text-white",
       price: "text-white",
-      promo: "",
       header: "bg-primary-500 border-neutral-1000",
       circle: "bg-primary-400 border-primary-500",
       button: "bg-primary-500 hover:bg-primary-600 text-white",
       checkBadge: "bg-secondary-200",
       medalBadge: "bg-secondary-700",
-      divider: "border-white",
     };
 
     const premiumColors = { ...defaultPremiumColors, ...colors };
 
     return (
-      <m.div
+      <motion.div
         className={cn(
-          "relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl shadow-lg md:max-w-none",
+          "relative flex h-131.25 w-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-lg",
           premiumColors.bg,
           premiumColors.text,
         )}
       >
-        <div className={cn("absolute -right-12 -bottom-20 z-1 size-45 rounded-full border-2", premiumColors.circle)} />
+        <div className={cn("absolute -right-12 -bottom-20 z-0 size-45 rounded-full border-2", premiumColors.circle)} />
         <div
           className={cn(
-            "absolute bottom-13 left-1/2 z-1 size-9 -translate-x-1/2 rounded-full border-2",
+            "absolute bottom-13 left-1/2 z-0 size-9 -translate-x-1/2 rounded-full border-2",
             premiumColors.circle,
           )}
         />
         <div
           className={cn(
-            "relative z-10 flex items-center justify-between rounded-t-2xl border-2 px-6 py-4 text-neutral-100",
+            "relative z-10 flex items-center justify-between rounded-t-2xl border-2 px-6 py-4",
             premiumColors.header,
           )}
         >
@@ -97,24 +85,23 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             </span>
           )}
         </div>
-        <div className={cn("relative z-10 border-2 border-b-0 px-6 py-4", premiumColors.border)}>
-          <div className={cn("relative inline-block text-base font-bold", premiumColors.text)}>
+        <div className="relative z-10 border-2 border-b-0 border-primary-400 px-6 py-4">
+          <div className={cn("relative inline-block text-base font-bold", premiumColors.price)}>
             {data.original_price}
             <span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-red-400" />
           </div>
           <div className="flex items-baseline gap-1">
-            <p className={cn("text-3xl font-black", premiumColors.price)}>{data.price_now}</p>
-            <span className="text-[10px] whitespace-nowrap">sampai SNBT</span>
+            <p className="text-3xl font-black text-[#FEEAAE]">{data.price_now}</p>
+            <span className="text-[10px]">sampai SNBT</span>
           </div>
-          <p className={cn("text-[12px]")}>
-            promo <span className={cn("font-bold", premiumColors.promo)}>hemat {data.percentage}</span> sampai{" "}
-            {data.promo_end}
+          <p className="text-[12px]">
+            promo <span className="font-bold text-[#FFBABA]">hemat 75%</span> sampai 1 Maret
           </p>
-          <hr className={cn("mt-4", premiumColors.divider)} />
+          <hr className="mt-4 border-white/10" />
         </div>
-        <div className={cn("relative z-10 flex-1 border-x-2 px-6 pb-4", premiumColors.border)}>
+        <div className={cn("relative z-10 flex-1 border-x-2 border-primary-400 px-6 pb-4", premiumColors.bg)}>
           <ul className="mt-4 space-y-2">
-            {data.features.map((feature) => (
+            {data.features.map((feature: PricingFeature) => (
               <li key={feature.label} className="flex items-center gap-2 text-xs">
                 <FeatureIcon status={feature.status} premium colors={premiumColors} />
                 <span>{feature.label}</span>
@@ -122,21 +109,21 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             ))}
           </ul>
         </div>
-        <div className={cn("relative z-10 border-2 border-t-0 p-6", premiumColors.border)}>
+        <div className="relative z-10 border-2 border-t-0 border-primary-400 p-6">
           <Link
             to={data.cta.url as string}
-            className={cn(buttonVariants({ size: "sm" }), "w-full border", premiumColors.button)}
+            className={cn(buttonVariants({ size: "sm" }), "w-full", premiumColors.button)}
           >
             {data.cta.label} <ArrowRightIcon size={16} weight="bold" />
           </Link>
         </div>
-      </m.div>
+      </motion.div>
     );
   }
 
   return (
-    <m.div className="relative flex h-131.25 w-full max-w-110 shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm md:max-w-none">
-      <div className={cn("absolute -right-12 -bottom-20 z-1 size-45 rounded-full border-2", colors?.circle)} />
+    <motion.div className="relative flex h-131.25 w-full shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className={cn("absolute -right-12 -bottom-20 z-0 size-45 rounded-full border-2", colors?.circle)} />
       <div
         className={cn("absolute bottom-13 left-1/2 z-0 size-9 -translate-x-1/2 rounded-full border-2", colors?.circle)}
       />
@@ -158,7 +145,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
       </div>
       <div className="relative z-10 flex-1 border-x-2 border-neutral-200 px-6 pb-4">
         <ul className="mt-2 space-y-2">
-          {data.features.map((feature) => (
+          {data.features.map((feature: PricingFeature) => (
             <li key={feature.label} className="flex items-center gap-2 text-xs">
               <FeatureIcon status={feature.status} />
               <span className={cn(feature.status === "excluded" && "text-neutral-1000")}>{feature.label}</span>
@@ -174,11 +161,19 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
           {data.cta.label} <ArrowRightIcon size={16} weight="bold" />
         </Link>
       </div>
-    </m.div>
+    </motion.div>
   );
 }
 
-function FeatureIcon({ status, premium, colors }: { status: string; premium?: boolean; colors?: BundlingCardColors }) {
+function FeatureIcon({
+  status,
+  premium,
+  colors,
+}: {
+  status: string;
+  premium?: boolean;
+  colors?: BundlingCardProps["colors"];
+}) {
   const base = "flex size-4 items-center justify-center rounded-full p-0.5 text-white";
   if (status === "included")
     return (

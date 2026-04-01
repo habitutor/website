@@ -22,7 +22,7 @@ app.use(
       "https://habitutor.id",
       "https://api.habitutor.id",
     ],
-    allowMethods: ["GET", "POST", "PATCH", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),

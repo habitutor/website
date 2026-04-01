@@ -2,32 +2,38 @@ import { relations } from "drizzle-orm";
 import { boolean, index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
-  id: text().primaryKey(),
-  name: text().notNull(),
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: boolean().default(false).notNull(),
-  image: text(),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp()
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  image: text("image"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
-  role: text().default("user"),
-  isPremium: boolean().default(false),
-  premiumTier: text(),
-  flashcardStreak: integer().default(0),
-  lastCompletedFlashcardAt: timestamp(),
-  premiumExpiresAt: timestamp(),
+  role: text("role").default("user"),
+  isPremium: boolean("is_premium").default(false),
+  premiumTier: text("premium_tier"),
+  flashcardStreak: integer("flashcard_streak").default(0),
+  totalScore: integer("total_score").default(0).notNull(),
+  lastCompletedFlashcardAt: timestamp("last_completed_flashcard_at"),
+  premiumExpiresAt: timestamp("premium_expires_at"),
+  phoneNumber: text("phone_number"),
+  referralCode: text("referral_code"),
+  referralUsage: integer("referral_usage").default(0),
+  dreamCampus: text("dream_campus"),
+  dreamMajor: text("dream_major"),
 });
 
 export const session = pgTable(
   "session",
   {
     id: text().primaryKey(),
-    expiresAt: timestamp().notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
     token: text("token").notNull().unique(),
-    createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp()
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
     ipAddress: text(),
@@ -51,12 +57,12 @@ export const account = pgTable(
     accessToken: text(),
     refreshToken: text(),
     idToken: text(),
-    accessTokenExpiresAt: timestamp(),
-    refreshTokenExpiresAt: timestamp(),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
     scope: text(),
     password: text(),
-    createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp()
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
@@ -69,9 +75,9 @@ export const verification = pgTable(
     id: text().primaryKey(),
     identifier: text().notNull(),
     value: text().notNull(),
-    expiresAt: timestamp().notNull(),
-    createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp()
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),

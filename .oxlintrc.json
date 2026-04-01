@@ -8,7 +8,8 @@
     "oxc/sort-imports": "warn",
     "no-param-reassign": "error",
     "prefer-const": "error",
-    "no-unused-vars": "error"
+    "no-unused-vars": "error",
+    "typescript/no-explicit-any": "error"
   },
   "plugins": ["react", "typescript", "oxc"],
   "ignorePatterns": [

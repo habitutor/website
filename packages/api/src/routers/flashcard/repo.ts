@@ -1,4 +1,5 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
+import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
 import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
@@ -53,13 +54,20 @@ export const flashcardRepo = {
   },
 
   getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }) => {
-    return await db
-      .select({ id: question.id })
-      .from(question)
-      .innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
-      .where(eq(question.isFlashcardQuestion, true))
-      .orderBy(sql`RANDOM()`)
-      .limit(limit);
+    const result = await db.execute(sql<{ id: number }>`
+      SELECT q.id
+      FROM (
+        SELECT DISTINCT ${question.id} AS id
+        FROM ${question}
+        INNER JOIN ${questionAnswerOption}
+          ON ${questionAnswerOption.questionId} = ${question.id}
+        WHERE ${question.isFlashcardQuestion} = true
+      ) q
+      ORDER BY RANDOM()
+      LIMIT ${limit}
+    `);
+
+    return Array.isArray(result) ? result : ((result as unknown as { rows?: Array<{ id: number }> }).rows ?? []);
   },
 
   getQuestionsByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
@@ -76,7 +84,11 @@ export const flashcardRepo = {
     answers,
   }: {
     db?: DrizzleDatabase;
-    answers: Array<{ attemptId: number; assignedDate: Date; questionId: number }>;
+    answers: Array<{
+      attemptId: number;
+      assignedDate: Date;
+      questionId: number;
+    }>;
   }) => {
     return db.insert(userFlashcardQuestionAnswer).values(answers);
   },
@@ -126,13 +138,41 @@ export const flashcardRepo = {
     return attempt;
   },
 
-  markAttemptSubmitted: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+  markAttemptSubmitted: async ({
+    db = defaultDb,
+    attemptId,
+    score,
+  }: {
+    db?: DrizzleDatabase;
+    attemptId: number;
+    score: number;
+  }) => {
     const [attempt] = await db
       .update(userFlashcardAttempt)
-      .set({ submittedAt: new Date() })
+      .set({ submittedAt: new Date(), score })
       .where(eq(userFlashcardAttempt.id, attemptId))
       .returning();
     return attempt;
+  },
+
+  getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+    const result = await db.execute(sql<{ score: number }>`
+      SELECT
+        CASE
+          WHEN COUNT(aq.question_id) > 0 THEN ROUND((COALESCE(SUM(CASE WHEN ao.is_correct THEN 1 ELSE 0 END), 0)::numeric * 100) / COUNT(aq.question_id))::int
+          ELSE 0
+        END AS score
+      FROM ${userFlashcardQuestionAnswer} aq
+      LEFT JOIN ${questionAnswerOption} ao ON ao.id = aq.selected_answer_id
+      WHERE aq.attempt_id = ${attemptId}
+    `);
+
+    const rows = Array.isArray(result)
+      ? (result as Array<{ score: number }>)
+      : ((result as unknown as { rows?: Array<{ score: number }> }).rows ?? []);
+    const row = rows[0];
+
+    return row?.score ?? 0;
   },
 
   getAttemptForQuestion: async ({
@@ -270,5 +310,67 @@ export const flashcardRepo = {
       .where(eq(userFlashcardAttempt.userId, userId))
       .orderBy(desc(userFlashcardAttempt.startedAt))
       .limit(limit);
+  },
+
+  getUserTotalScore: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+    const [row] = await db.select({ totalScore: user.totalScore }).from(user).where(eq(user.id, userId)).limit(1);
+
+    return row?.totalScore ?? 0;
+  },
+
+  getLeaderboardWithCurrentUser: async ({
+    db = defaultDb,
+    currentUserId,
+    limit = 10,
+  }: {
+    db?: DrizzleDatabase;
+    currentUserId: string;
+    limit?: number;
+  }) => {
+    const result = await db.execute(
+      sql<{
+        userId: string;
+        name: string;
+        image: string | null;
+        totalScore: number;
+        rank: number;
+      }>`
+				WITH ranked AS (
+					SELECT
+						u.id AS user_id,
+						u.name,
+						u.image,
+						u.total_score,
+						ROW_NUMBER() OVER (ORDER BY u.total_score DESC, u.name ASC, u.id ASC)::int AS rank
+					FROM ${user} u
+          WHERE u.total_score > 0 OR u.id = ${currentUserId}
+				)
+				SELECT
+					user_id AS "userId",
+					name,
+					image,
+					total_score AS "totalScore",
+					rank
+				FROM ranked
+				WHERE rank <= ${limit} OR user_id = ${currentUserId}
+				ORDER BY
+					CASE WHEN rank <= ${limit} THEN rank ELSE 999999 END,
+					rank
+			`,
+    );
+
+    return Array.isArray(result)
+      ? result
+      : ((
+          result as unknown as {
+            rows?: Array<{
+              userId: string;
+              name: string;
+              image: string | null;
+              totalScore: number;
+              rank: number;
+            }>;
+          }
+        ).rows ?? []);
   },
 };

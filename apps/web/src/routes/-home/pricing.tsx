@@ -1,267 +1,222 @@
-import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
-import { Link } from "@tanstack/react-router";
-import * as m from "motion/react-m";
-import { buttonVariants } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
+import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import { motion } from "motion/react";
+import { type ReactNode, useEffect, useState } from "react";
+import { BundlingCard } from "@/components/pricing/bundling-card";
+import { TryOutCard } from "@/components/pricing/tryout-card";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
 
 export function Pricing() {
   const { plans } = DATA.pricing;
-
   const planEntries = Object.values(plans);
-
   const tryout = Object.values(DATA.pricing_tryout);
 
-  return (
-    <Container className="items-center gap-8 2xl:max-w-340">
-      <div className="space-y-2 text-center *:text-pretty">
-        <h2 className="text-2xl font-bold sm:text-3xl">
-          Investasi Cerdas untuk Hasil yang <span className="text-primary-300">Maksimal</span>
-        </h2>
-        <p className="text-sm font-medium text-pretty md:text-base">
-          Dapatkan materi lengkap plus strategi rahasia dari kakak-kakak TOP PTN!
-        </p>
-      </div>
+  const basicHeaderStyles = [
+    "bg-tertiary-100 border-tertiary-200",
+    "bg-tertiary-300 border-tertiary-400",
+    "bg-tertiary-500 border-tertiary-600",
+  ];
+  const basicCircleStyles = [
+    "bg-tertiary-100 border-tertiary-200",
+    "bg-tertiary-300 border-tertiary-400",
+    "bg-tertiary-500 border-tertiary-600",
+  ];
 
-      <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 2xl:grid-cols-4">
-        {planEntries.map((plan, index) =>
-          index === planEntries.length - 1 ? (
-            <PremiumCard key={plan.label} data={plan} />
-          ) : (
-            <BasicCard key={plan.label} data={plan} />
-          ),
-        )}
-      </div>
-
-      {/* Paket Try Out */}
-      <div className="flex max-w-250 flex-col items-center justify-center gap-8">
-        <div className="flex h-11 w-full items-center justify-center rounded-2xl border border-neutral-200 bg-tertiary-100 text-center *:text-pretty">
-          <h3 className="text-base font-bold">Paket Try Out</h3>
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3">
-          {tryout.map((plan) => (
-            <TryOutCard key={plan.label} data={plan} />
-          ))}
-        </div>
-      </div>
-
-      {/* cta */}
-      <Link to="/home-premium" className={cn(buttonVariants({ size: "lg", variant: "default" }))}>
-        Lihat Semua Paket Kami!
-      </Link>
-    </Container>
+  const mobilePlanCards = planEntries.map((plan, index) =>
+    index === planEntries.length - 1 ? (
+      <BundlingCard
+        key={plan.label}
+        data={plan}
+        variant="premium"
+        span
+        colors={{
+          bg: "bg-primary-300",
+          text: "text-neutral-100",
+          price: "text-neutral-100",
+          header: "bg-primary-500 border-neutral-1000",
+          circle: "bg-primary-400 border-primary-500",
+          button: "bg-primary-500 hover:bg-primary-600 text-neutral-100",
+          checkBadge: "bg-secondary-200",
+          medalBadge: "bg-secondary-700 text-neutral-100",
+        }}
+      />
+    ) : (
+      <BundlingCard
+        key={plan.label}
+        data={plan}
+        variant="basic"
+        colors={{
+          header: basicHeaderStyles[index],
+          circle: basicCircleStyles[index],
+        }}
+      />
+    ),
   );
-}
 
-type TryOutCardData = {
-  readonly label: string;
-  readonly price?: string;
-  readonly features: readonly string[];
-  readonly cta: { readonly label: string; readonly url: string };
-};
-
-function TryOutCard({ data }: { data: TryOutCardData }) {
-  return (
-    <m.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm 2xl:min-w-80"
-    >
-      {/* Top */}
-      <div className="space-y-2 border-b bg-background p-6">
-        <h3 className="text-base font-medium">{data.label}</h3>
-
-        {data.price && <p className="text-3xl font-bold text-primary-300">{data.price}</p>}
-      </div>
-
-      {/* Features */}
-      <ul className="mt-4 space-y-2 px-6">
-        {data.features.map((feature) => (
-          <li key={feature} className="flex items-center gap-2 text-sm">
-            <FeatureIcon status="included" />
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* CTA */}
-      <div className="p-6">
-        <Link to={data.cta.url as string} className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full")}>
-          {data.cta.label}
-          <ArrowRightIcon size={16} weight="bold" />
-        </Link>
-      </div>
-    </m.div>
-  );
-}
-
-type PlanFeature = {
-  readonly label: string;
-  readonly status: "included" | "excluded" | "limited";
-  readonly value?: string;
-};
-
-type PlanData =
-  | {
-      readonly label: string;
-      readonly price_monthly?: string;
-      readonly price_full?: string;
-      readonly suffix?: string;
-      readonly features: readonly PlanFeature[];
-      readonly cta: { readonly label: string; readonly url: string };
-    }
-  | {
-      readonly label: string;
-      readonly original_price: string;
-      readonly price_now: string;
-      readonly suffix?: string;
-      readonly features: readonly PlanFeature[];
-      readonly cta: { readonly label: string; readonly url: string };
-    };
-
-function BasicCard({ data }: { data: PlanData }) {
-  const isBasicPlan = "price_monthly" in data || "price_full" in data;
-  if (!isBasicPlan) return null;
+  const mobileTryoutCards = tryout.map((plan) => <TryOutCard key={plan.label} data={plan} />);
 
   return (
-    <m.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-b-neutral-200 bg-white shadow-sm"
-    >
-      {/* Top */}
-      <div className="relative h-38 space-y-2 border-b border-neutral-200 p-6">
-        <h3 className="text-base font-medium">{data.label}</h3>
-
-        <div>
-          {"price_monthly" in data && data.price_monthly && (
-            <p className="relative z-1 text-sm font-semibold">
-              {data.price_monthly} <span className="font-normal">/ bulan</span>
-            </p>
-          )}
-
-          {"price_full" in data && data.price_full && (
-            <p
-              className={cn(
-                "relative z-1 text-3xl font-bold text-wrap text-primary-300",
-                data.label === "Mentoring Privilege" ? "text-black" : "",
-              )}
-            >
-              {data.price_full}
-              {"suffix" in data && data.suffix && (
-                <span className="ml-1 text-sm font-normal text-black">{data.suffix}</span>
-              )}
-            </p>
-          )}
+    <div className="flex border-2 border-secondary-100 bg-[#FFFCF3] py-16">
+      <div className="container mx-auto items-center gap-8 space-y-11 px-4">
+        <div className="space-y-2 text-center *:text-pretty">
+          <h2 className="text-2xl font-extrabold sm:text-3xl">
+            Investasi Cerdas untuk Hasil yang <span className="text-primary-300">Maksimal</span>
+          </h2>
+          <p className="text-sm font-medium text-pretty md:text-lg">
+            Dapatkan materi lengkap plus strategi rahasia dari kakak-kakak TOP PTN!
+          </p>
         </div>
 
-        <div className="absolute top-0 right-0 z-0 aspect-square h-[140%] translate-x-1/2 -translate-y-1/2 rounded-full bg-tertiary-100" />
-      </div>
+        {/* Main Plans Section */}
+        <div className="w-full">
+          <MobileCarousel items={mobilePlanCards} paginationLabel="Paket Belajar" />
 
-      {/* Features */}
-      <ul className="mt-4 space-y-2 px-6">
-        {data.features.map((feature) => (
-          <li key={feature.label} className="flex items-center gap-2 text-sm">
-            <FeatureIcon status={feature.status} />
-            <span className={cn(feature.status === "excluded" && "text-neutral-400 line-through")}>
-              {feature.value && `${feature.value} `}
-              {feature.label}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="p-6">
-        <Link to={data.cta.url as string} className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full")}>
-          {data.cta.label}
-          <ArrowRightIcon size={16} weight="bold" />
-        </Link>
-      </div>
-    </m.div>
-  );
-}
-
-function PremiumCard({ data }: { data: PlanData }) {
-  const isPremiumPlan = "original_price" in data && "price_now" in data;
-  if (!isPremiumPlan) return null;
-
-  return (
-    <m.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="flex flex-col justify-between overflow-hidden rounded-2xl shadow-sm"
-    >
-      {/* Top */}
-      <div className="relative h-38 overflow-hidden bg-primary-300 p-6">
-        <div className="absolute top-6 right-6 z-50 flex items-center justify-center rounded-sm bg-primary-100 p-1.25 text-sm text-neutral-100">
-          <p className="-mt-0.75">Paling Lengkap!</p>
-        </div>
-        <h3 className="text-base font-medium text-white">{data.label}</h3>
-        <div className="relative inline-block text-base font-bold text-white">
-          {data.original_price}
-
-          <span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-[2px] w-full -rotate-6 bg-red-400" />
-        </div>
-
-        <div>
-          <p className="relative z-1 flex flex-row items-end text-3xl font-bold text-secondary-200">
-            {data.price_now}
-            {"suffix" in data && data.suffix && (
-              <span className="ml-1 text-sm font-normal whitespace-nowrap text-white">{data.suffix}</span>
+          <div className="hidden w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+            {planEntries.map((plan, index) =>
+              index === planEntries.length - 1 ? (
+                <BundlingCard
+                  key={plan.label}
+                  data={plan}
+                  variant="premium"
+                  span
+                  colors={{
+                    bg: "bg-primary-300",
+                    text: "text-neutral-100",
+                    price: "text-neutral-100",
+                    header: "bg-primary-500 border-neutral-1000",
+                    circle: "bg-primary-400 border-primary-500",
+                    button: "bg-primary-500 hover:bg-primary-600 text-neutral-100",
+                    checkBadge: "bg-secondary-200",
+                    medalBadge: "bg-secondary-700 text-neutral-100",
+                  }}
+                />
+              ) : (
+                <BundlingCard
+                  key={plan.label}
+                  data={plan}
+                  variant="basic"
+                  colors={{
+                    header: basicHeaderStyles[index],
+                    circle: basicCircleStyles[index],
+                  }}
+                />
+              ),
             )}
-          </p>
-          <p className="relative z-1 text-sm font-normal text-white">
-            promo <span className="font-bold text-red-100">hemat 75%</span> hanya sampai 1 April
-          </p>
+          </div>
         </div>
 
-        <div className="absolute right-0 bottom-0 z-0 aspect-square h-[140%] translate-x-1/2 translate-y-1/2 rounded-full bg-primary-400" />
-      </div>
+        {/* Paket Try Out Section */}
+        <div className="flex w-full flex-col items-center justify-center gap-11">
+          <div className="flex h-11 w-full items-center justify-center rounded-2xl border border-[#FEE086] bg-[#FEEAAE] text-center *:text-pretty">
+            <h3 className="text-base font-bold">Paket Try Out</h3>
+          </div>
 
-      {/* Features */}
-      <ul className="mt-4 space-y-2 px-6">
-        {data.features.map((feature) => (
-          <li key={feature.label} className="flex items-center gap-2 text-sm">
-            <FeatureIcon status={feature.status} />
-            <span>
-              {feature.value && `${feature.value} `}
-              {feature.label}
-            </span>
-          </li>
-        ))}
-      </ul>
+          <div className="w-full">
+            <MobileCarousel items={mobileTryoutCards} paginationLabel="Paket Try Out" />
 
-      <div className="p-6">
-        <Link
-          to={data.cta.url as string}
-          className={cn(buttonVariants({ size: "sm", variant: "darkBlue" }), "w-full font-normal")}
-        >
-          {data.cta.label}
-          <ArrowRightIcon size={16} weight="bold" />
-        </Link>
+            <div className="hidden w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+              {tryout.map((plan) => (
+                <TryOutCard key={plan.label} data={plan} />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </m.div>
+    </div>
   );
 }
 
-function FeatureIcon({ status }: { status: "included" | "excluded" | "limited" }) {
-  if (status === "included")
-    return (
-      <div className="flex size-4 items-center justify-center rounded-full bg-primary-300 p-0.5 text-white">
-        <CheckIcon weight="bold" />
-      </div>
-    );
-  if (status === "limited")
-    return (
-      <div className="flex size-4 items-center justify-center rounded-full bg-secondary-700 p-0.5 text-white">
-        <MedalIcon />
-      </div>
-    );
+function MobileCarousel({ items, paginationLabel }: { items: ReactNode[]; paginationLabel: string }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const totalItems = items.length;
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === totalItems - 1;
+
+  const goPrev = () => {
+    if (isFirst) return;
+    setCurrentIndex((prev) => prev - 1);
+  };
+
+  const goNext = () => {
+    if (isLast) return;
+    setCurrentIndex((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    if (currentIndex > totalItems - 1) {
+      setCurrentIndex(Math.max(0, totalItems - 1));
+    }
+  }, [currentIndex, totalItems]);
+
+  if (totalItems === 0) return null;
+
   return (
-    <div className="flex size-4 items-center justify-center rounded-full bg-neutral-500 p-0.5 text-white">
-      <XIcon weight="bold" />
+    <div className="w-full space-y-4 sm:hidden">
+      <div className="relative">
+        <button
+          type="button"
+          onClick={goPrev}
+          disabled={isFirst}
+          aria-label={`Sebelumnya ${paginationLabel}`}
+          className="absolute top-1/2 left-0 z-40 ml-2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-lg bg-primary-200 p-2 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ArrowLeftIcon size={22} />
+        </button>
+
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={isLast}
+          aria-label={`Selanjutnya ${paginationLabel}`}
+          className="absolute top-1/2 right-0 z-40 mr-2 flex translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-lg bg-primary-200 p-2 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ArrowRightIcon size={22} />
+        </button>
+
+        <div className="overflow-hidden px-8">
+          <motion.div
+            className="flex"
+            animate={{ x: `-${currentIndex * 100}%` }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.08}
+            onDragEnd={(_, info) => {
+              const dragThreshold = 50;
+
+              if (info.offset.x <= -dragThreshold && !isLast) {
+                goNext();
+                return;
+              }
+
+              if (info.offset.x >= dragThreshold && !isFirst) {
+                goPrev();
+              }
+            }}
+          >
+            {items.map((item, index) => (
+              <div key={`${paginationLabel}-${index}`} className="w-full shrink-0 pr-2.5 pl-2.5">
+                {item}
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-2">
+        {items.map((_, index) => (
+          <button
+            key={`${paginationLabel}-dot-${index}`}
+            type="button"
+            onClick={() => setCurrentIndex(index)}
+            aria-label={`${paginationLabel} ${index + 1}`}
+            className={cn(
+              "h-2.5 w-2.5 rounded-full transition-all duration-200",
+              currentIndex === index ? "bg-primary-300" : "bg-primary-100",
+            )}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "user_flashcard_attempt" ADD COLUMN "score" integer DEFAULT 0;

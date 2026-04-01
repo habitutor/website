@@ -19,8 +19,8 @@ export const practicePack = pgTable("practice_pack", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   title: text().notNull(),
   description: text(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp()
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date()),
 });
@@ -41,8 +41,8 @@ export const practicePackAttempt = pgTable(
     practicePackId: integer()
       .notNull()
       .references(() => practicePack.id, { onDelete: "cascade" }),
-    startedAt: timestamp().notNull().defaultNow(),
-    completedAt: timestamp(),
+    startedAt: timestamp("started_at").notNull().defaultNow(),
+    completedAt: timestamp("completed_at"),
     status: practicePackStatus("practice_pack_status").notNull().default("ongoing"),
   },
   (t) => [

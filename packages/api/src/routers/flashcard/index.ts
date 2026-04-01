@@ -15,6 +15,7 @@ import {
 import { flashcardRepo } from "./repo";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
+const FLASHCARD_QUESTION_LIMIT = 5;
 const GRACE_PERIOD_SECONDS = 5;
 
 const start = authed
@@ -29,8 +30,15 @@ const start = authed
     const isPremium = context.session.user.isPremium;
 
     return db.transaction(async (tx) => {
-      const latestAttempt = await flashcardRepo.getLatestAttempt({ db: tx, userId: context.session.user.id });
-      const shouldBlock = shouldBlockStartSession({ latestAttempt, isPremium, today });
+      const latestAttempt = await flashcardRepo.getLatestAttempt({
+        db: tx,
+        userId: context.session.user.id,
+      });
+      const shouldBlock = shouldBlockStartSession({
+        latestAttempt,
+        isPremium,
+        today,
+      });
 
       if (shouldBlock && !isPremium)
         throw errors.UNPROCESSABLE_CONTENT({
@@ -42,16 +50,23 @@ const start = authed
           message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
         });
 
-      const attempt = await flashcardRepo.createAttempt({ db: tx, userId: context.session.user.id, deadline });
+      const attempt = await flashcardRepo.createAttempt({
+        db: tx,
+        userId: context.session.user.id,
+        deadline,
+      });
 
       if (!attempt)
         throw errors.INTERNAL_SERVER_ERROR({
           message: "Gagal membuat sesi flashcard.",
         });
 
-      const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({ db: tx });
+      const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
+        db: tx,
+        limit: FLASHCARD_QUESTION_LIMIT,
+      });
 
-      if (randomQuestionIds.length < 5)
+      if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
         throw errors.NOT_FOUND({
           message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
         });
@@ -60,6 +75,11 @@ const start = authed
         db: tx,
         ids: randomQuestionIds.map((q) => q.id),
       });
+
+      if (availableQuestions.length < FLASHCARD_QUESTION_LIMIT)
+        throw errors.NOT_FOUND({
+          message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+        });
 
       await flashcardRepo.insertQuestionAnswers({
         db: tx,
@@ -83,7 +103,9 @@ const get = authed
   .handler(async ({ context }) => {
     let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
-    const attempt = await flashcardRepo.getLatestAttempt({ userId: context.session.user.id });
+    const attempt = await flashcardRepo.getLatestAttempt({
+      userId: context.session.user.id,
+    });
 
     if (!attempt) return { status };
 
@@ -124,6 +146,7 @@ const submit = authed
       lastCompletedFlashcardAt: context.session.user.lastCompletedFlashcardAt,
       today,
     });
+    const hasDoneToday = !shouldIncrementStreak;
 
     const latestAttempt = await flashcardRepo.getLatestAttemptForToday({
       userId: context.session.user.id,
@@ -151,11 +174,31 @@ const submit = authed
     }
 
     await db.transaction(async (tx) => {
-      await flashcardRepo.markAttemptSubmitted({ db: tx, attemptId: latestAttempt.id });
-      if (shouldIncrementStreak)
+      const attemptScore = await flashcardRepo.getAttemptScore({
+        db: tx,
+        attemptId: latestAttempt.id,
+      });
+
+      await flashcardRepo.markAttemptSubmitted({
+        db: tx,
+        attemptId: latestAttempt.id,
+        score: attemptScore,
+      });
+
+      if (!hasDoneToday)
         await tx
           .update(user)
-          .set({ flashcardStreak: sql`${user.flashcardStreak} + 1`, lastCompletedFlashcardAt: new Date() })
+          .set({
+            flashcardStreak: sql`${user.flashcardStreak} + 1`,
+            totalScore: sql`${user.totalScore} + ${attemptScore}`,
+            lastCompletedFlashcardAt: new Date(),
+          })
+          .where(eq(user.id, context.session.user.id));
+
+      if (hasDoneToday)
+        await tx
+          .update(user)
+          .set({ totalScore: sql`${user.totalScore} + ${attemptScore}` })
           .where(eq(user.id, context.session.user.id));
     });
 
@@ -198,7 +241,9 @@ const save = authed
       });
     }
 
-    const answers = await flashcardRepo.getAnswersForQuestion({ questionId: input.questionId });
+    const answers = await flashcardRepo.getAnswersForQuestion({
+      questionId: input.questionId,
+    });
 
     if (!answers || answers.length === 0) {
       throw errors.NOT_FOUND();
@@ -242,7 +287,9 @@ const result = authed
         message: "Anda belom mengerjakan flashcard hari ini.",
       });
 
-    const assignedQuestions = await flashcardRepo.getAttemptQuestionAnswers({ attemptId: attempt.id });
+    const assignedQuestions = await flashcardRepo.getAttemptQuestionAnswers({
+      attemptId: attempt.id,
+    });
 
     const formattedQuestions = assignedQuestions.map((aq) => ({
       ...aq,
@@ -260,7 +307,7 @@ const result = authed
     const correct = countCorrectAnswers(formattedQuestions);
 
     return {
-      ...attempt,
+      streak: context.session.user.flashcardStreak,
       assignedQuestions: formattedQuestions,
       correctAnswersCount: correct,
       questionsCount: formattedQuestions.length,
@@ -277,6 +324,86 @@ const history = premium
     return flashcardRepo.getUserHistory({ userId: context.session.user.id });
   });
 
+const totalScore = authed
+  .route({
+    path: "/flashcard/total-score",
+    method: "POST",
+    tags: ["Flashcard"],
+  })
+  .output(
+    type({
+      totalScore: "number",
+    }),
+  )
+  .handler(async ({ context }) => {
+    const totalScore = await flashcardRepo.getUserTotalScore({
+      userId: context.session.user.id,
+    });
+
+    return { totalScore };
+  });
+
+// const leaderboard = authed
+//   .route({
+//     path: "/flashcard/leaderboard",
+//     method: "POST",
+//     tags: ["Flashcard"],
+//   })
+//   // .output(...) <- comment dulu output validator
+//   .handler(async ({ context }) => {
+//     const entries = await flashcardRepo.getLeaderboardWithCurrentUser({
+//       currentUserId: context.session.user.id,
+//       limit: 10,
+//     });
+
+//     return {
+//       entries: entries.map((entry) => ({
+//         rank: Number(entry.rank),
+//         userId: entry.userId,
+//         name: entry.name,
+//         image: entry.image,
+//         totalScore: entry.totalScore,
+//         isCurrentUser: entry.userId === context.session.user.id,
+//       })),
+//     };
+//   });
+
+const leaderboard = authed
+  .route({
+    path: "/flashcard/leaderboard",
+    method: "GET",
+    tags: ["Flashcard"],
+  })
+  .output(
+    type({
+      entries: type({
+        rank: "number",
+        userId: "string",
+        name: "string",
+        "image?": "string | null",
+        totalScore: "number",
+        isCurrentUser: "boolean",
+      }).array(),
+    }),
+  )
+  .handler(async ({ context }) => {
+    const entries = await flashcardRepo.getLeaderboardWithCurrentUser({
+      currentUserId: context.session.user.id,
+      limit: 10,
+    });
+
+    return {
+      entries: entries.map((entry: (typeof entries)[number]) => ({
+        rank: Number(entry.rank),
+        userId: entry.userId,
+        name: entry.name,
+        image: entry.image,
+        totalScore: entry.totalScore,
+        isCurrentUser: entry.userId === context.session.user.id,
+      })),
+    };
+  });
+
 export const flashcardRouter = {
   start,
   get,
@@ -284,4 +411,6 @@ export const flashcardRouter = {
   save,
   result,
   history,
+  totalScore,
+  leaderboard,
 };

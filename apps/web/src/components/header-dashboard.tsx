@@ -2,7 +2,7 @@ import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phos
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { authClient } from "@/lib/auth-client";
+import { getAvatarSrc } from "@/lib/avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -43,6 +44,30 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
+
+  useEffect(() => {
+    setAvatarSrc(getAvatarSrc(session?.user.image));
+  }, [session?.user.image]);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<{ src?: string; image?: string }>;
+      if (customEvent.detail?.src) {
+        setAvatarSrc(customEvent.detail.src);
+        return;
+      }
+
+      if (customEvent.detail?.image) {
+        setAvatarSrc(getAvatarSrc(customEvent.detail.image));
+      }
+    };
+
+    window.addEventListener("avatarChanged", handler as EventListener);
+    return () => {
+      window.removeEventListener("avatarChanged", handler as EventListener);
+    };
+  }, []);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -84,12 +109,19 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 </Badge>
               )}
               <Avatar>
-                <AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
+                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
                 <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  window.location.href = "/profile";
+                }}
+              >
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                 <SignOutIcon />
                 Log Out
@@ -135,7 +167,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           <div className="mt-12">
             <div className="mb-4 flex items-center gap-3 px-4">
               <Avatar>
-                <AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
+                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
                 <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span className="font-medium">{session?.user.name}</span>

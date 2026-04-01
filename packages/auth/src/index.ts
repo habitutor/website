@@ -4,6 +4,7 @@ import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
+import { referral } from "./lib/referral";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");
@@ -28,6 +29,7 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+
   user: {
     additionalFields: {
       role: {
@@ -44,15 +46,6 @@ export const auth = betterAuth({
           input: type("boolean"),
         },
         defaultValue: false,
-        input: false,
-      },
-      premiumTier: {
-        type: "string",
-        validator: {
-          input: type("'premium' | 'premium2' | null"),
-        },
-        required: false,
-        defaultValue: null,
         input: false,
       },
       flashcardStreak: {
@@ -80,9 +73,43 @@ export const auth = betterAuth({
         defaultValue: null,
         input: false,
       },
+      phoneNumber: {
+        type: "string",
+        validator: {
+          input: type("string | null"),
+        },
+        required: false,
+        defaultValue: null,
+        input: true,
+      },
+      referralCode: {
+        type: "string",
+        required: false,
+        input: false,
+      },
+      referralUsage: {
+        type: "number",
+        required: false,
+        defaultValue: 0,
+        input: false,
+      },
+      dreamCampus: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
+      dreamMajor: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
     },
   },
+
   trustedOrigins,
+
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url, token }) => {
@@ -98,6 +125,7 @@ export const auth = betterAuth({
         });
     },
   },
+
   socialProviders: {
     google: {
       clientId: (process.env.GOOGLE_CLIENT_ID as string)?.trim(),
@@ -106,14 +134,27 @@ export const auth = betterAuth({
       prompt: "select_account consent",
     },
   },
+
   session: {
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60,
     },
   },
+
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
+
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          await referral.createForUser(user.id);
+        },
+      },
+    },
+  },
+
   advanced: {
     defaultCookieAttributes: {
       sameSite: "Lax",

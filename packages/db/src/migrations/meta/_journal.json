@@ -52,17 +52,45 @@
       "breakpoints": true
     },
     {
-      "idx": 7,
-      "version": "7",
-      "when": 1772966400000,
-      "tag": "0007_backfill_premium_tier",
-      "breakpoints": true
-    },
-    {
       "idx": 8,
       "version": "7",
       "when": 1773112887005,
       "tag": "0008_loving_stepford_cuckoos",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774930624746,
+      "tag": "0010_thick_mach_iv",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1774934220000,
+      "tag": "0011_quick_live_class_datetime",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1774938000000,
+      "tag": "0012_premium_user_total_score",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1774942934426,
+      "tag": "0013_silly_prima",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1775019500000,
+      "tag": "0014_add_user_phone_number",
       "breakpoints": true
     }
   ]

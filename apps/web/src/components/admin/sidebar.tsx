@@ -1,4 +1,6 @@
-import { BooksIcon, House, Package, Question, SignOut, User, UserSwitchIcon } from "@phosphor-icons/react";
+"use client";
+
+import { BooksIcon, House, Megaphone, Package, Question, SignOut, User, UserSwitchIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -30,6 +32,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { getAvatarSrc } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
 const adminNavLinks = [
@@ -52,6 +55,11 @@ const adminNavLinks = [
     name: "Classes",
     to: "/admin/classes" as const,
     icon: BooksIcon,
+  },
+  {
+    name: "Dashboard Content",
+    to: "/admin/dashboard-content" as const,
+    icon: Megaphone,
   },
   {
     name: "Users",
@@ -186,7 +194,7 @@ function SidebarUserProfile() {
   return (
     <div className="flex items-center gap-3 px-2 py-3">
       <Avatar className="size-8 shrink-0">
-        <AvatarImage src={user.image ?? undefined} alt={user.name} />
+        <AvatarImage src={getAvatarSrc(user.image)} alt={user.name} />
         <AvatarFallback className="bg-primary/10 text-sm text-primary">
           {user.name.charAt(0).toUpperCase()}
         </AvatarFallback>

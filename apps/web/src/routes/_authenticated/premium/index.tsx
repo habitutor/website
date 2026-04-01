@@ -26,13 +26,13 @@ function sleep(milliseconds: number) {
 async function waitForPremiumActivation(orderId: string) {
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
-      const syncResult = await client.transaction.syncStatus({ orderId });
+      const syncResult = await client.transaction.getStatus({ orderId });
 
       if (syncResult?.status === "success") {
         return true;
       }
 
-      if (syncResult?.status === "failed" || syncResult?.status === "not_found") {
+      if (syncResult?.status === "failed") {
         return false;
       }
     } catch (error) {

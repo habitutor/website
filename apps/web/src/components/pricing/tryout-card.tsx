@@ -1,33 +1,36 @@
 import { ArrowRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import * as m from "motion/react-m";
+import { motion } from "motion/react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface TryOutCardData {
+interface TryOutPricingData {
   label: string;
   price?: string;
-  features: string[];
+  price_full?: string;
+  features: readonly string[];
   cta: {
     label: string;
     url: string;
   };
 }
 
-export function TryOutCard({ data }: { data: TryOutCardData }) {
+export function TryOutCard({ data }: { data: TryOutPricingData }) {
+  const displayPrice = data.price_full ?? data.price;
+
   return (
-    <m.div
+    <motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="relative flex h-100 w-full flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm"
+      className="relative flex h-100 w-full flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm 2xl:min-w-80"
     >
       <div className="space-y-2 border-b bg-background p-6">
         <h3 className="text-sm font-medium text-neutral-1000">{data.label}</h3>
-        {data.price && <p className="text-3xl font-bold text-primary-300">{data.price}</p>}
+        {displayPrice && <p className="text-3xl font-bold text-primary-300">{displayPrice}</p>}
       </div>
       <ul className="mt-4 flex-1 space-y-2 px-6">
-        {data.features.map((feature: string) => (
+        {data.features.map((feature) => (
           <li key={feature} className="flex items-center gap-2 text-sm">
             <div className="flex size-4 items-center justify-center rounded-full bg-primary-300 p-0.5 text-white">
               <CheckIcon weight="bold" />
@@ -42,6 +45,6 @@ export function TryOutCard({ data }: { data: TryOutCardData }) {
           <ArrowRightIcon size={16} weight="bold" />
         </Link>
       </div>
-    </m.div>
+    </motion.div>
   );
 }

@@ -15,8 +15,14 @@ export function createTestUser(overrides?: Partial<UserSelect>): UserSelect {
     isPremium: false,
     premiumTier: "premium1",
     flashcardStreak: 0,
+    totalScore: 0,
     lastCompletedFlashcardAt: null,
     premiumExpiresAt: null,
+    phoneNumber: null,
+    referralCode: null,
+    referralUsage: 0,
+    dreamCampus: null,
+    dreamMajor: null,
     ...overrides,
   };
 }

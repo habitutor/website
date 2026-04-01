@@ -21,8 +21,7 @@ const defaultOptions: ThrottleSettings = {
  * @param options The throttle options
  */
 
-// biome-ignore lint/suspicious/noExplicitAny: any is used to allow any function to be throttled
-export function useThrottledCallback<T extends (...args: any[]) => any>(
+export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
   fn: T,
   wait = 250,
   dependencies: React.DependencyList = [],

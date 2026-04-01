@@ -155,6 +155,7 @@
         "arktype": "catalog:",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
+        "drizzle-orm": "catalog:",
         "resend": "^6.6.0",
       },
       "devDependencies": {

@@ -1,199 +1,131 @@
+import {
+  ArrowUpLeftIcon,
+  BookOpenIcon,
+  CloudLightningIcon,
+  FileIcon,
+  ShieldCheckIcon,
+  SmileySadIcon,
+} from "@phosphor-icons/react";
 import { Image } from "@unpic/react";
-import * as m from "motion/react-m";
-import { MotionPulse } from "@/components/motion";
-import { NumberTicker } from "@/components/ui/number-ticker";
-
-const MIDDLE_STATISTIC_SECTION = [
-  {
-    title: "Belajar Tanpa Arah",
-  },
-  {
-    title: "Buta Pola Soal SNBT",
-  },
-  {
-    title: "Mudah Burnout & Stres",
-  },
-  {
-    title: "Skor Try Out Stagnan",
-  },
-  {
-    title: "Materi Tidak Lengkap",
-  },
-  {
-    title: "Bingung Memilih Jurusan",
-  },
-];
-
-function StatCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
-  return (
-    <span className="text-6xl font-bold text-primary-300">
-      <NumberTicker value={value} className="text-6xl font-bold text-primary-300" />
-      {suffix}
-    </span>
-  );
-}
+import { motion } from "motion/react";
 
 export function Statistics() {
   return (
-    <section className="overflow-x-hidden bg-background py-16">
-      <div className="container mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
-        <div className="relative">
-          <MotionPulse>
-            <m.div
-              className="absolute -top-12 -left-16 z-0 size-20 rounded-full bg-yellow-100 md:size-28"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1, duration: 0.3 }}
-            />
-          </MotionPulse>
-          <MotionPulse>
-            <m.div
-              className="absolute -right-35 -bottom-50 z-0 size-56 rounded-full bg-tertiary-100 md:size-64"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-            />
-          </MotionPulse>
-
-          <m.div
-            className="relative overflow-hidden rounded-2xl bg-neutral-100 p-8 pb-40 shadow-sm md:pb-8 md:pl-56"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-          >
-            <div className="absolute -bottom-24 -left-24 z-0">
-              <Image
-                src="/decorations/dark-blue-double-circle.webp"
-                alt=""
-                layout="constrained"
-                width={120}
-                height={120}
-                className="h-auto w-64"
-              />
-            </div>
-            <div className="absolute bottom-4 -left-6 -mb-8 -ml-4 md:-bottom-12 md:-left-3 md:mb-8 md:-ml-6">
-              <Image
-                src="/avatar/study-avatar.webp"
-                alt=""
-                layout="constrained"
-                width={200}
-                height={200}
-                className="h-auto w-40"
-              />
-            </div>
-
-            <div className="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-2">
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h3 className="text-sm font-medium">Fokus Lulus PTN tetapi</h3>
-                <StatCounter value={87} suffix="%" />
-                <p className="text-sm leading-relaxed">
-                  Mahasiswa salah jurusan. Akibat belajar tanpa fondasi yang benar.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h3 className="text-sm font-medium">Tantangan pasca lulus</h3>
-                <StatCounter value={40} suffix="%" />
-                <p className="text-sm leading-relaxed">
-                  mengalami Academic Shock akibat tidak punya habit belajar mandiri.
-                </p>
-              </div>
-            </div>
-          </m.div>
-        </div>
-
-        <m.div
-          className="relative overflow-hidden rounded-2xl border border-primary-100 bg-background p-8 pt-5 text-center shadow-sm *:text-pretty"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+    <section className="relative flex flex-col items-center justify-center overflow-visible bg-neutral-100">
+      <div className="items-centerlg:gap-20 relative container flex w-full flex-col gap-40">
+        <motion.div
+          className="pointer-events-none absolute -top-20 left-0 hidden size-50 rounded-full border-2 border-tertiary-200 bg-background lg:block"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-        >
-          <h3 className="mx-auto mb-5 max-w-[80%] text-xl font-bold md:text-2xl xl:max-w-[65%]">
-            Akar masalahnya, banyak siswa terjebak dalam pola belajar yang keliru
-          </h3>
-          <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-4">
-            {MIDDLE_STATISTIC_SECTION.map((item, index) => (
-              <div
-                key={index.toString()}
-                className="md:12 flex h-11 items-center justify-center border border-tertiary-200 bg-tertiary-100"
-              >
-                <h4 className="text-base font-medium">{item.title}</h4>
-              </div>
-            ))}
-          </div>
-        </m.div>
+          transition={{ delay: 0.9, duration: 0.3 }}
+        />
+        <motion.div
+          className="pointer-events-none absolute top-0 right-0 hidden size-50 rounded-full border-2 border-tertiary-200 bg-background lg:block"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.9, duration: 0.3 }}
+        />
 
-        <div className="relative w-full">
-          <MotionPulse>
-            <m.div
-              className="absolute -top-24 -right-10 z-20 md:-top-28 md:-right-20"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.3 }}
-            >
+        <div className="relative container flex w-full flex-col items-center gap-40 px-4 lg:gap-20">
+          <motion.div
+            className="pointer-events-none absolute -bottom-10 left-40 hidden size-80 rounded-full border-t-2 border-tertiary-200 bg-linear-to-b from-background to-transparent lg:block"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.9, duration: 0.3 }}
+          />
+          <motion.div
+            className="pointer-events-none absolute right-35 -bottom-10 hidden size-80 rounded-full border-t-2 border-tertiary-200 bg-linear-to-b from-background to-transparent lg:block"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.9, duration: 0.3 }}
+          />
+          <motion.div
+            className="pointer-events-none absolute bottom-0 size-73 rounded-full bg-linear-to-b from-secondary-200 from-50% to-transparent to-50% md:-bottom-20 lg:top-60 lg:size-156"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.9, duration: 0.3 }}
+          />
+          <motion.div
+            className="z-10 flex w-full flex-col items-center justify-center gap-2 lg:gap-10"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5, duration: 0.3 }}
+          >
+            <h2 className="text-center text-2xl font-bold *:text-pretty lg:text-4xl">
+              Ngerasa Persiapan SNBT Kamu <span className="text-primary-300">Masih Gini-Gini Aja</span>?
+            </h2>
+            <div className="z-3 mt-8 grid w-full grid-cols-2 gap-6 lg:gap-10">
+              <div className="flex w-fit flex-row items-center gap-2 rounded-[7px] border-2 border-red-200 bg-red-100 px-4 py-2 shadow-sm md:translate-x-10 xl:translate-x-20">
+                <BookOpenIcon className="size-7" />
+                <p className="font-medium lg:text-[20px]">Materi Tidak Lengkap</p>
+              </div>
+              <div className="flex w-fit flex-row items-center gap-2 rounded-[7px] border-2 border-red-200 bg-red-100 px-4 py-2 shadow-sm md:translate-x-30 xl:translate-x-70">
+                <ShieldCheckIcon className="size-7" />
+                <p className="font-medium lg:text-[20px]">Skor TryOut Stagnan</p>
+              </div>
+              <div className="flex w-fit flex-row items-center gap-2 rounded-[7px] border-2 border-red-200 bg-red-100 px-4 py-2 shadow-sm md:translate-x-20 xl:translate-x-55">
+                <CloudLightningIcon className="size-7" />
+                <p className="font-medium lg:text-[20px]">Mudah Burnout & Stress</p>
+              </div>
+              <div className="flex w-fit flex-row items-center gap-2 rounded-[7px] border-2 border-red-200 bg-red-100 px-4 py-2 shadow-sm md:translate-x-20 xl:translate-x-50">
+                <SmileySadIcon className="size-7" />
+                <p className="font-medium lg:text-[20px]">Bingung Memilih Jurusan</p>
+              </div>
+              <div className="flex w-fit flex-row items-center gap-2 rounded-[7px] border-2 border-red-200 bg-red-100 px-4 py-2 shadow-sm md:translate-x-10 xl:translate-x-30">
+                <ArrowUpLeftIcon className="size-7" />
+                <p className="font-medium lg:text-[20px]">Belajar Tanpa Arah</p>
+              </div>
+              <div className="flex w-fit flex-row items-center gap-2 rounded-[7px] border-2 border-red-200 bg-red-100 px-4 py-2 shadow-sm md:translate-x-20 xl:translate-x-80">
+                <FileIcon className="size-7" />
+                <p className="font-medium lg:text-[20px]">Buta Soal Pola SNBT</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <Image
+            src="/avatar/testimone-avatar.webp"
+            alt=""
+            width={600}
+            height={600}
+            className="absolute bottom-30 z-2 w-50 lg:top-25 lg:bottom-20 lg:w-95"
+          />
+          <div className="flex w-full flex-col items-center justify-center gap-2 lg:gap-10">
+            <div className="relative z-2 flex w-full flex-col gap-4 overflow-hidden rounded-2xl border-2 border-primary-400 bg-primary-300 px-1 py-8 text-neutral-100 lg:w-7/10 lg:px-10">
+              <p className="z-2 text-center text-xl font-bold lg:text-3xl">
+                Putus <span className="text-secondary-200 italic">Rantai Belajar Salah</span>, Bangun{" "}
+                <span className="text-secondary-200 italic">Fondasi</span> Nilai Maksimal.
+              </p>
+              <p className="z-2 text-center text-sm lg:px-38 lg:text-[18px]">
+                Dapatkan fasilitas lengkap untuk membentuk Study Habit serta mental tangguh hingga dunia kampus.
+              </p>
               <Image
-                src="/decorations/acorn.webp"
+                src="/decorations/pencil.webp"
                 alt=""
                 layout="constrained"
                 width={200}
                 height={200}
-                className="h-auto w-24 md:w-32"
+                className="absolute -right-20 hidden -scale-x-100 lg:block"
               />
-            </m.div>
-          </MotionPulse>
-
-          <m.div
-            className="relative overflow-hidden rounded-2xl bg-primary-300 p-6 pb-12 text-white md:p-8 md:pr-80 md:pb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-          >
-            <div className="absolute -right-8 -bottom-8 hidden md:block">
               <Image
-                src="/avatar/climb-avatar-2.webp"
+                src="/decorations/acorn-2.webp"
                 alt=""
                 layout="constrained"
-                width={300}
-                height={300}
-                className="h-auto w-72 opacity-90"
+                width={130}
+                height={130}
+                className="absolute bottom-0.5 left-0.5 hidden rounded-2xl lg:block"
               />
             </div>
-
-            <div className="absolute -bottom-24 -left-10 z-0">
-              <Image
-                src="/decorations/dark-blue-double-circle.webp"
-                alt=""
-                layout="constrained"
-                width={120}
-                height={120}
-                className="h-auto w-64 -rotate-70 opacity-30"
-              />
-            </div>
-
-            <div className="relative z-10 text-center md:text-left">
-              <h3 className="mb-3 text-xl font-bold md:text-2xl">
-                Habitutor Hadir{" "}
-                <m.span
-                  className="inline-block text-[var(--tt-color-yellow-inc-3)]"
-                  whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-                >
-                  Membangun Fondasi
-                </m.span>
-                , Bukan Sekadar Mengejar Nilai.
-              </h3>
-              <p className="text-sm leading-relaxed md:text-base">
-                Tak cuma latihan soal. Kami bangun Study Habit & mental hingga kuliah.
-              </p>
-            </div>
-          </m.div>
+          </div>
         </div>
       </div>
+      {/* v */}
+      <div className="absolute inset-0 inset-y-0 z-0 bg-tertiary-100 [clip-path:polygon(100%_100%,0%_100%,100%_64%,100%_100%,0_100%,0_64%)] sm:[clip-path:polygon(49%_100%,49%_100%,100%_38%,100%_100%,0_100%,0_38%)]" />
     </section>
   );
 }

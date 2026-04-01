@@ -14,8 +14,8 @@ export const userFlashcardQuestionAnswer = pgTable(
     attemptId: integer().references(() => userFlashcardAttempt.id, {
       onDelete: "set null",
     }),
-    answeredAt: timestamp(),
-    createdAt: timestamp().notNull().defaultNow(),
+    answeredAt: timestamp("answered_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (t) => [
     primaryKey({ columns: [t.attemptId, t.assignedDate, t.questionId] }),
@@ -42,15 +42,16 @@ export const userFlashcardAttempt = pgTable(
   "user_flashcard_attempt",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    userId: text()
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    date: date({ mode: "date" })
+    date: date("date", { mode: "date" })
       .notNull()
       .default(sql`CURRENT_DATE`),
-    startedAt: timestamp().notNull().defaultNow(),
-    deadline: timestamp().notNull(),
-    submittedAt: timestamp(),
+    startedAt: timestamp("started_at").notNull().defaultNow(),
+    deadline: timestamp("deadline").notNull(),
+    submittedAt: timestamp("submitted_at"),
+    score: integer().default(0),
   },
   (t) => [
     index("idx_flashcard_attempt_user").on(t.userId),

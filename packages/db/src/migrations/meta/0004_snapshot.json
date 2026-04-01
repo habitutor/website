@@ -1,5 +1,5 @@
 {
-  "id": "fbe8ba78-e38a-43b6-9f41-0ffbbb3b9f3f",
+  "id": "955d681b-558d-4c22-a7fb-a2281dd345f3",
   "prevId": "03971f09-7de0-4ecb-8aa6-07c92e9f9e33",
   "version": "7",
   "dialect": "postgresql",
@@ -307,6 +307,12 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "referral_code": {
+          "name": "referral_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -318,6 +324,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "email"
+          ]
+        },
+        "user_referral_code_unique": {
+          "name": "user_referral_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "referral_code"
           ]
         }
       },
