@@ -68,7 +68,7 @@ export const referralRepo = {
     transactionId?: string | null;
     cashbackAmount?: string | null;
   }) => {
-    const values: any = { userId, referralCodeId };
+    const values: typeof referralUsage.$inferInsert = { userId, referralCodeId };
     if (transactionId) values.transactionId = transactionId;
     if (cashbackAmount) values.cashbackAmount = cashbackAmount;
 

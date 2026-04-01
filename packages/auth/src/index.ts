@@ -4,7 +4,6 @@ import { referralCode } from "@habitutor/db/schema/referral";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
@@ -19,12 +18,22 @@ function generateReferralCodeString(): string {
 }
 
 async function createReferralCodeForUser(userId: string) {
-  const code = generateReferralCodeString();
-
-  await db
-    .insert(referralCode)
-    .values({ code, userId })
-    .onConflictDoNothing({ target: referralCode.code });
+  const maxRetries = 5;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const code = generateReferralCodeString();
+    try {
+      const [result] = await db
+        .insert(referralCode)
+        .values({ code, userId })
+        .onConflictDoNothing({ target: referralCode.code })
+        .returning();
+      if (result) return;
+      // Code collision — retry with a new code
+    } catch {
+      // userId unique constraint hit (race condition) — user already has a code
+      return;
+    }
+  }
 }
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");

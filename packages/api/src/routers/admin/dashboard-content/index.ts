@@ -52,8 +52,6 @@ const createLiveClass = admin
       teacher: "string",
       link: "string",
       access: "'3x' | '5x'",
-      "order?": "number",
-      "isPublished?": "boolean",
     }),
   )
   .handler(async ({ input }) => {
@@ -107,8 +105,6 @@ const updateLiveClass = admin
       teacher: "string",
       link: "string",
       access: "'3x' | '5x'",
-      "order?": "number",
-      "isPublished?": "boolean",
     }),
   )
   .handler(async ({ input }) => {
