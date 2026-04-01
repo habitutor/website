@@ -1,10 +1,12 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { type ReactNode, useEffect, useState } from "react";
 import { BundlingCard } from "@/components/pricing/bundling-card";
 import { TryOutCard } from "@/components/pricing/tryout-card";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
+import { Button } from "@/components/ui/button";
 
 export function Pricing() {
   const { plans } = DATA.pricing;
@@ -121,6 +123,10 @@ export function Pricing() {
             </div>
           </div>
         </div>
+
+        <Link to={"/home-premium"} className="flex items-center justify-center">
+          <Button>Lihat Semua Paket Kami!</Button>
+        </Link>
       </div>
     </div>
   );

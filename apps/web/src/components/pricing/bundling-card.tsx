@@ -95,7 +95,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             <span className="text-[10px]">sampai SNBT</span>
           </div>
           <p className="text-[12px]">
-            promo <span className="font-bold text-[#FFBABA]">hemat 75%</span> sampai 1 Maret
+            promo <span className="font-bold text-[#FFBABA]">hemat 75%</span> sampai 1 Mei
           </p>
           <hr className="mt-4 border-white/10" />
         </div>

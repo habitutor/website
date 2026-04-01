@@ -3,11 +3,11 @@ export const DATA = {
     ultimate_bundling1: {
       label: "Ultimate Bundling",
       badge: "Paling Lengkap",
-      price_now: "Rp249.000",
+      price_now: "Rp149.000",
       original_price: "Rp1.000.000",
       suffix: "sampai SNBT",
       percentage: "75%",
-      promo_end: "1 April",
+      promo_end: "1 Mei",
       features: [
         { label: "Akses Full Website", status: "included" },
         { label: "1000+ Soal Dasar SNBT", status: "included" },

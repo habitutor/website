@@ -203,7 +203,7 @@ export const DATA = {
       ultimate_bundling: {
         label: "Ultimate Bundling",
         badge: "Paling Lengkap",
-        price_now: "Rp249.000",
+        price_now: "Rp149.000",
         original_price: "Rp1.000.000",
         suffix: "sampai SNBT",
         features: [

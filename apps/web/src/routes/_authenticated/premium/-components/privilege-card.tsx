@@ -48,7 +48,7 @@ export function PrivilegeCard({ variant }: PrivilegeCardProps) {
   const colors = privilegeColors[variant];
 
   return (
-    <div className="relative flex h-fit min-h-110 w-full max-w-110 flex-col justify-between overflow-hidden rounded-2xl shadow-sm">
+    <div className="relative flex h-fit min-h-110 w-full flex-col justify-between overflow-hidden rounded-2xl shadow-sm">
       <div className={cn("absolute -right-12 -bottom-20 z-1 size-45 rounded-full border-2", colors.circle)} />
       <div
         className={cn("absolute bottom-13 left-1/2 z-0 size-9 -translate-x-1/2 rounded-full border-2", colors.circle)}

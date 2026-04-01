@@ -84,7 +84,7 @@ export function BundlingCard({
   return (
     <div
       className={cn(
-        "relative flex h-fit min-h-110 w-full max-w-110 flex-col justify-between overflow-hidden rounded-2xl shadow-sm",
+        "relative flex h-fit min-h-110 w-full flex-col justify-between overflow-hidden rounded-2xl shadow-sm",
         colors.bg,
       )}
     >
