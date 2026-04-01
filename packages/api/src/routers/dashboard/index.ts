@@ -35,24 +35,22 @@ const content = authed
     const role = (context.session.user.role ?? "user").toLowerCase().trim();
     const isAdmin = role === "admin";
     const isPremium = Boolean(context.session.user.isPremium);
+    const isPremium2Role = role.includes("premium2");
 
     await dashboardRepo.cleanupExpiredLiveClasses({});
 
     const announcements = await dashboardRepo.listPublishedAnnouncements({});
 
-    if (!isAdmin && !isPremium) {
+    const canSeeLiveClass = isAdmin || isPremium || isPremium2Role;
+
+    if (!canSeeLiveClass) {
       return {
         announcements,
         liveClasses: [],
       };
     }
 
-    const latestTier = await dashboardRepo.getUserSubscriptionTier({
-      userId: context.session.user.id,
-    });
-    const isPremiumTier = latestTier === "premium";
-    const isPremium2Role = role.includes("premium2");
-    const canAccessFiveX = isAdmin || (!isPremium2Role && isPremiumTier);
+    const canAccessFiveX = isAdmin || (isPremium && !isPremium2Role);
 
     const liveClasses = await dashboardRepo.listLiveClasses({
       onlyThreeX: !canAccessFiveX,

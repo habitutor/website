@@ -40,7 +40,7 @@ export const LiveClass = ({ liveClasses }: { liveClasses?: LiveClassItem[] }) =>
   };
 
   const visible = getVisible();
-  const cardWidth = containerWidth < 640 ? Math.max(containerWidth, 0) : 304;
+  const cardWidth = containerWidth < 640 ? Math.max(containerWidth, 300) : 304;
   const maxIndex = Math.max(0, items.length - visible);
 
   const next = () => {

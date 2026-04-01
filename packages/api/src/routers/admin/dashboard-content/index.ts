@@ -18,6 +18,11 @@ const normalizeTimeInput = (value: string) => {
   return null;
 };
 
+const toScheduleDate = (date: string, time: string) => {
+  const scheduledAt = new Date(`${date}T${time}:00`);
+  return Number.isNaN(scheduledAt.getTime()) ? null : scheduledAt;
+};
+
 const list = admin
   .route({
     path: "/admin/dashboard-content",
@@ -26,6 +31,7 @@ const list = admin
   })
   .handler(async () => {
     await adminDashboardContentRepo.cleanupExpiredLiveClasses({});
+    await adminDashboardContentRepo.ensurePrimaryAnnouncement({});
 
     const [liveClasses, announcements] = await Promise.all([
       adminDashboardContentRepo.listLiveClasses({}),
@@ -58,6 +64,13 @@ const createLiveClass = admin
     const normalizedDate = normalizeDateInput(input.date);
     const normalizedTime = normalizeTimeInput(input.time);
 
+    const existingLiveClassCount = await adminDashboardContentRepo.countLiveClasses({});
+    if (existingLiveClassCount >= 10) {
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        message: "Maksimal 10 live class. Hapus kelas lama sebelum menambahkan yang baru.",
+      });
+    }
+
     if (!input.title.trim() || !input.teacher.trim() || !input.link.trim()) {
       throw new ORPCError("UNPROCESSABLE_CONTENT", {
         message: "Semua field live class wajib diisi",
@@ -67,6 +80,13 @@ const createLiveClass = admin
     if (!normalizedDate || !normalizedTime) {
       throw new ORPCError("UNPROCESSABLE_CONTENT", {
         message: "Format tanggal/waktu tidak valid",
+      });
+    }
+
+    const scheduledAt = toScheduleDate(normalizedDate, normalizedTime);
+    if (!scheduledAt || scheduledAt <= new Date()) {
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        message: "Tanggal dan waktu live class harus di masa depan",
       });
     }
 
@@ -121,6 +141,13 @@ const updateLiveClass = admin
     if (!normalizedDate || !normalizedTime) {
       throw new ORPCError("UNPROCESSABLE_CONTENT", {
         message: "Format tanggal/waktu tidak valid",
+      });
+    }
+
+    const scheduledAt = toScheduleDate(normalizedDate, normalizedTime);
+    if (!scheduledAt || scheduledAt <= new Date()) {
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        message: "Tanggal dan waktu live class harus di masa depan",
       });
     }
 
@@ -179,15 +206,16 @@ const createAnnouncement = admin
     }),
   )
   .handler(async ({ input }) => {
-    const row = await adminDashboardContentRepo.createAnnouncement({
+    if (!input.title.trim() || !input.description.trim()) {
+      throw new ORPCError("UNPROCESSABLE_CONTENT", {
+        message: "Judul dan deskripsi announcement wajib diisi",
+      });
+    }
+
+    const row = await adminDashboardContentRepo.upsertPrimaryAnnouncement({
       input: {
         title: input.title,
         description: input.description,
-        variant: "primary",
-        ctaLink: null,
-        ctaLabel: null,
-        order: 1,
-        isPublished: true,
       },
     });
 

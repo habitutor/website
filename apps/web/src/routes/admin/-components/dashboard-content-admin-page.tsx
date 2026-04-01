@@ -22,8 +22,6 @@ export function DashboardContentAdminPage() {
     teacher: "",
     link: "",
     access: "3x" as AccessType,
-    order: 1,
-    isPublished: true,
   });
 
   const contentQuery = useQuery(orpc.admin.dashboardContent.list.queryOptions());
@@ -64,8 +62,6 @@ export function DashboardContentAdminPage() {
           teacher: "",
           link: "",
           access: "3x",
-          order: 1,
-          isPublished: true,
         });
       },
       onError: (error) => {
@@ -120,7 +116,7 @@ export function DashboardContentAdminPage() {
       </div>
 
       {activeTab === "live-class" ? (
-        <Card className="space-y-4 p-6">
+        <Card className="space-y-2 p-6">
           <h3 className="text-lg font-semibold">Tambah Live Class</h3>
           <div className="grid gap-3 md:grid-cols-2">
             <Input
@@ -167,7 +163,16 @@ export function DashboardContentAdminPage() {
             </div>
           </div>
           <Button
-            onClick={() => createLiveClassMutation.mutate(liveClassForm)}
+            onClick={() =>
+              createLiveClassMutation.mutate({
+                title: liveClassForm.title,
+                date: liveClassForm.date,
+                time: liveClassForm.time,
+                teacher: liveClassForm.teacher,
+                link: liveClassForm.link,
+                access: liveClassForm.access,
+              })
+            }
             disabled={createLiveClassMutation.isPending || !isLiveClassFormValid}
           >
             <Plus className="mr-2 size-4" /> Tambah Live Class
@@ -180,11 +185,8 @@ export function DashboardContentAdminPage() {
           </div>
         </Card>
       ) : (
-        <Card className="space-y-4 p-6">
+        <Card className="space-y-2 p-6">
           <h3 className="text-lg font-semibold">Announcement</h3>
-          <p className="text-sm text-muted-foreground">
-            Hanya satu announcement utama yang bisa diubah. Promo cashback bersifat tetap.
-          </p>
           {primaryAnnouncement ? (
             <div className="space-y-3">
               <Input

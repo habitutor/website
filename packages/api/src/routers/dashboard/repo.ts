@@ -1,7 +1,6 @@
-import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
+import { and, asc, desc, type DrizzleDatabase, db as defaultDb, eq, sql } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 import { product, transaction } from "@habitutor/db/schema/transaction";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 export const dashboardRepo = {
   cleanupExpiredLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
@@ -21,7 +20,8 @@ export const dashboardRepo = {
       })
       .from(dashboardAnnouncement)
       .where(and(eq(dashboardAnnouncement.isPublished, true), eq(dashboardAnnouncement.variant, "primary")))
-      .orderBy(asc(dashboardAnnouncement.order), asc(dashboardAnnouncement.id));
+      .orderBy(asc(dashboardAnnouncement.order), asc(dashboardAnnouncement.id))
+      .limit(1);
   },
 
   getUserSubscriptionTier: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {

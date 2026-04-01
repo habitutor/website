@@ -1,8 +1,27 @@
-import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
+import { asc, type DrizzleDatabase, db as defaultDb, eq, sql } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
-import { asc, eq, sql } from "drizzle-orm";
 
 export const adminDashboardContentRepo = {
+  ensurePrimaryAnnouncement: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
+    const existing = await adminDashboardContentRepo.getPrimaryAnnouncement({ db });
+    if (existing) return existing;
+
+    const [row] = await db
+      .insert(dashboardAnnouncement)
+      .values({
+        title: "Lorem ipsum dolor sit amet, consectetur.",
+        description:
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor.",
+        variant: "primary",
+        ctaLink: null,
+        ctaLabel: null,
+        isPublished: true,
+        order: 1,
+      })
+      .returning();
+    return row;
+  },
+
   cleanupExpiredLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     await db.delete(dashboardLiveClass).where(sql`(${dashboardLiveClass.date} + ${dashboardLiveClass.time}) < now()`);
   },
@@ -23,6 +42,13 @@ export const adminDashboardContentRepo = {
       .orderBy(asc(dashboardLiveClass.order), asc(dashboardLiveClass.id));
   },
 
+  countLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
+    const rows = await db.query.dashboardLiveClass.findMany({
+      columns: { id: true },
+    });
+    return rows.length;
+  },
+
   createLiveClass: async ({
     db = defaultDb,
     input,
@@ -37,6 +63,12 @@ export const adminDashboardContentRepo = {
       access: "3x" | "5x";
     };
   }) => {
+    const existingRows = await db.query.dashboardLiveClass.findMany({
+      columns: { order: true },
+    });
+
+    const nextOrder = existingRows.length > 0 ? Math.max(...existingRows.map((row) => row.order)) + 1 : 1;
+
     const [row] = await db
       .insert(dashboardLiveClass)
       .values({
@@ -47,7 +79,7 @@ export const adminDashboardContentRepo = {
         link: input.link,
         access: input.access,
         isPublished: true,
-        order: 1,
+        order: nextOrder,
       })
       .returning();
     return row;
@@ -107,6 +139,15 @@ export const adminDashboardContentRepo = {
     return row;
   },
 
+  getPrimaryAnnouncement: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
+    const [row] = await db
+      .select()
+      .from(dashboardAnnouncement)
+      .where(eq(dashboardAnnouncement.variant, "primary"))
+      .orderBy(asc(dashboardAnnouncement.order), asc(dashboardAnnouncement.id));
+    return row;
+  },
+
   createAnnouncement: async ({
     db = defaultDb,
     input,
@@ -123,6 +164,47 @@ export const adminDashboardContentRepo = {
     };
   }) => {
     const [row] = await db.insert(dashboardAnnouncement).values(input).returning();
+    return row;
+  },
+
+  upsertPrimaryAnnouncement: async ({
+    db = defaultDb,
+    input,
+  }: {
+    db?: DrizzleDatabase;
+    input: {
+      title: string;
+      description: string;
+    };
+  }) => {
+    const existingPrimary = await adminDashboardContentRepo.getPrimaryAnnouncement({ db });
+
+    if (existingPrimary) {
+      const [row] = await db
+        .update(dashboardAnnouncement)
+        .set({
+          title: input.title,
+          description: input.description,
+          updatedAt: new Date(),
+        })
+        .where(eq(dashboardAnnouncement.id, existingPrimary.id))
+        .returning();
+      return row;
+    }
+
+    const [row] = await db
+      .insert(dashboardAnnouncement)
+      .values({
+        title: input.title,
+        description: input.description,
+        variant: "primary",
+        ctaLink: null,
+        ctaLabel: null,
+        isPublished: true,
+        order: 1,
+      })
+      .returning();
+
     return row;
   },
 
