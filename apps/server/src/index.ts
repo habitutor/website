@@ -1,5 +1,6 @@
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
+import { logger } from "@habitutor/shared";
 import { auth } from "@habitutor/auth";
 import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConverter } from "@orpc/arktype";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
@@ -8,11 +9,11 @@ import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
+import { logger as honoLogger } from "hono/logger";
 
 const app = new Hono();
 
-app.use(logger());
+app.use(honoLogger());
 app.use(
   "/*",
   cors({
@@ -38,7 +39,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
   ],
   interceptors: [
     onError((error) => {
-      console.error(error);
+      logger.error(error instanceof Error ? error : String(error));
     }),
   ],
 });
@@ -46,7 +47,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 export const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
     onError((error) => {
-      console.error(error);
+      logger.error(error instanceof Error ? error : String(error));
     }),
   ],
 });

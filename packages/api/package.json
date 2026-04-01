@@ -20,6 +20,7 @@
   "dependencies": {
     "@habitutor/auth": "workspace:*",
     "@habitutor/db": "workspace:*",
+    "@habitutor/shared": "workspace:*",
     "@orpc/arktype": "catalog:",
     "@orpc/client": "catalog:",
     "@orpc/openapi": "catalog:",

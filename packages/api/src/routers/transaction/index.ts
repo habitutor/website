@@ -3,6 +3,7 @@ import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
 import { PREMIUM_DEADLINE } from "../../lib/constants";
+import { logger } from "@habitutor/shared";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
@@ -111,7 +112,7 @@ const notification = pub
     );
 
     if (!statusResponse.ok) {
-      console.error(`Midtrans API error: ${statusResponse.status}`);
+      logger.error("Midtrans API error", { status: statusResponse.status });
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to verify transaction status",
       });
@@ -127,7 +128,7 @@ const notification = pub
     const existingTransaction = await transactionRepo.getTransactionWithProduct({ orderId: order_id });
 
     if (!existingTransaction) {
-      console.error(`Transaction not found for order ID: ${order_id}`);
+      logger.error("Transaction not found", { orderId: order_id });
       return { status: "not_found" };
     }
 
@@ -136,7 +137,7 @@ const notification = pub
       existingTransaction.prodType === "subscription" && existingTransaction.prodSlug === "premium";
 
     if (tx.paidAt) {
-      console.log(`Transaction ${order_id} already processed`);
+      logger.info("Transaction already processed", { orderId: order_id });
       return { status: "already_processed" };
     }
 

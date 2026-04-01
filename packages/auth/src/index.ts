@@ -1,4 +1,5 @@
 import { db } from "@habitutor/db";
+import { logger } from "@habitutor/shared";
 import * as schema from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
@@ -121,7 +122,7 @@ export const auth = betterAuth({
           html: generateResetPasswordEmail(user.name, url, token),
         })
         .catch((error) => {
-          console.error("Failed to send password reset email:", error);
+          logger.error("Failed to send password reset email", { error });
         });
     },
   },

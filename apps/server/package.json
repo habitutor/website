@@ -12,6 +12,7 @@
   "dependencies": {
     "@habitutor/api": "workspace:*",
     "@habitutor/auth": "workspace:*",
+    "@habitutor/shared": "workspace:*",
     "@orpc/arktype": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",

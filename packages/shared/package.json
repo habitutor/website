@@ -1,5 +1,5 @@
 {
-  "name": "@habitutor/auth",
+  "name": "@habitutor/shared",
   "type": "module",
   "exports": {
     ".": {
@@ -13,17 +13,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "auth:generate": "bunx @better-auth/cli@latest generate --output ../db/src/schema/auth.ts --config ./src/index.ts --yes",
     "check-types": "tsgo --noEmit"
-  },
-  "dependencies": {
-    "@habitutor/db": "workspace:*",
-    "@habitutor/shared": "workspace:*",
-    "arktype": "catalog:",
-    "better-auth": "catalog:",
-    "dotenv": "catalog:",
-    "drizzle-orm": "catalog:",
-    "resend": "^6.6.0"
   },
   "devDependencies": {
     "@habitutor/config": "workspace:*",

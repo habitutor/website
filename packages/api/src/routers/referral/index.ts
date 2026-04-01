@@ -1,6 +1,7 @@
 import { db } from "@habitutor/db";
 import { type } from "arktype";
 import { authed } from "../..";
+import { logger } from "@habitutor/shared";
 import { referralRepo } from "./repo";
 
 const getMyCode = authed
@@ -142,7 +143,7 @@ const use = authed
       return { success: true, message: "Kode referral berhasil digunakan!" };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Unknown error";
-      console.error("[Referral] Error using referral code:", errorMsg, error);
+      logger.error(error instanceof Error ? error : new Error(errorMsg), { errorMsg });
 
       if (errorMsg.includes("unique") || errorMsg.includes("duplicate")) {
         return {

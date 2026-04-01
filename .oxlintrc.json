@@ -5,7 +5,6 @@
   },
   "rules": {
     "react-hooks/exhaustive-deps": "warn",
-    "oxc/sort-imports": "warn",
     "no-param-reassign": "error",
     "prefer-const": "error",
     "no-unused-vars": "error",
