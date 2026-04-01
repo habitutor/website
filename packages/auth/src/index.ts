@@ -1,40 +1,11 @@
 import { db } from "@habitutor/db";
 import * as schema from "@habitutor/db/schema/auth";
-import { referralCode } from "@habitutor/db/schema/referral";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
+import { referrals } from "./lib/referrals";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
-
-const REFERRAL_CODE_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
-const REFERRAL_CODE_LENGTH = 11;
-
-function generateReferralCodeString(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(REFERRAL_CODE_LENGTH));
-  return Array.from(bytes)
-    .map((byte) => REFERRAL_CODE_CHARS[byte % REFERRAL_CODE_CHARS.length])
-    .join("");
-}
-
-async function createReferralCodeForUser(userId: string) {
-  const maxRetries = 5;
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const code = generateReferralCodeString();
-    try {
-      const [result] = await db
-        .insert(referralCode)
-        .values({ code, userId })
-        .onConflictDoNothing({ target: referralCode.code })
-        .returning();
-      if (result) return;
-      // Code collision — retry with a new code
-    } catch {
-      // userId unique constraint hit (race condition) — user already has a code
-      return;
-    }
-  }
-}
 
 export const resend = new Resend(process.env.RESEND_API_KEY || "");
 const localDevOrigins = [
@@ -178,7 +149,7 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          await createReferralCodeForUser(user.id);
+          await referrals.createForUser(user.id);
         },
       },
     },
