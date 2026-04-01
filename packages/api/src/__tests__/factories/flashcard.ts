@@ -11,6 +11,7 @@ export function createTestFlashcardAttempt(overrides?: Partial<FlashcardAttempt>
     startedAt: new Date(),
     deadline: new Date(Date.now() + 10 * 60 * 1000),
     submittedAt: null,
+    score: 0,
     ...overrides,
   };
 }

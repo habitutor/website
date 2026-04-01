@@ -27,7 +27,7 @@ function RouteComponent() {
 
     const refreshPremiumState = async () => {
       try {
-        await client.transaction.syncStatus({ orderId: order_id });
+        await client.transaction.getStatus({ orderId: order_id });
       } catch (error) {
         console.error("Failed to sync premium state after payment finish", error);
       }

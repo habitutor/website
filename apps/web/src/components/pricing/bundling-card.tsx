@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface PricingFeature {
   label: string;
-  status: "included" | "excluded" | "limited";
+  status: string;
 }
 
 interface PricingData {
@@ -14,7 +14,7 @@ interface PricingData {
   original_price?: string;
   price_now?: string;
   price_monthly?: string;
-  price_full: string;
+  price_full?: string;
   features: readonly PricingFeature[];
   cta: {
     label: string;
@@ -170,7 +170,7 @@ function FeatureIcon({
   premium,
   colors,
 }: {
-  status: "included" | "excluded" | "limited";
+  status: string;
   premium?: boolean;
   colors?: BundlingCardProps["colors"];
 }) {
