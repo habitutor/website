@@ -141,7 +141,7 @@ const use = authed
 
       return { success: true, message: "Kode referral berhasil digunakan!" };
     } catch (error) {
-      const errorMsg = (error as any)?.message || "Unknown error";
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
       console.error("[Referral] Error using referral code:", errorMsg, error);
 
       if (errorMsg.includes("unique") || errorMsg.includes("duplicate")) {

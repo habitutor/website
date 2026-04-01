@@ -25,6 +25,6 @@ async function createForUser(userId: string) {
   }
 }
 
-export const referrals = {
+export const referral = {
   createForUser,
 };
