@@ -74,6 +74,15 @@ export const auth = betterAuth({
         defaultValue: null,
         input: false,
       },
+      premiumTier: {
+        type: "string",
+        validator: {
+          input: type('"premium" | "premium2" | null'),
+        },
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
       phoneNumber: {
         type: "string",
         validator: {

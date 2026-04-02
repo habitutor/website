@@ -18,6 +18,28 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
     premiumTier?: "premium" | "premium2" | null;
   };
 
+  const [dbUser] = await db
+    .select({
+      isPremium: user.isPremium,
+      premiumTier: user.premiumTier,
+      premiumExpiresAt: user.premiumExpiresAt,
+    })
+    .from(user)
+    .where(eq(user.id, sessionUser.id))
+    .limit(1);
+
+  if (dbUser) {
+    const dbIsPremium = dbUser.isPremium ?? false;
+    context.session.user.isPremium = dbIsPremium;
+    sessionUser.isPremium = dbIsPremium;
+    sessionUser.premiumExpiresAt = dbUser.premiumExpiresAt;
+    sessionUser.premiumTier = dbIsPremium
+      ? dbUser.premiumTier === "premium2"
+        ? "premium2"
+        : "premium"
+      : null;
+  }
+
   // Reset user data based on expiry
   if (
     sessionUser.flashcardStreak > 0 &&
@@ -42,6 +64,7 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
       })
       .then(() => {
         context.session!.user.isPremium = false;
+        sessionUser.premiumExpiresAt = null;
         sessionUser.premiumTier = null;
       });
   }
@@ -61,6 +84,7 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
         premiumExpiresAt: sessionUser.premiumExpiresAt ?? null,
       })
       .then(() => {
+        context.session!.user.isPremium = true;
         sessionUser.premiumTier = DEFAULT_PREMIUM_TIER;
       });
   }

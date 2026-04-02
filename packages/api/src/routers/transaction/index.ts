@@ -16,7 +16,7 @@ const subscribe = authed
   })
   .input(
     type({
-      name: "'premium' | 'basic'",
+      name: "'premium' | 'premium2' | 'basic'",
       "referralCode?": "string",
     }),
   )
@@ -27,9 +27,9 @@ const subscribe = authed
     }),
   )
   .handler(async ({ input, context, errors }) => {
-    if (input.name === "premium" && context.session.user.isPremium)
+    if ((input.name === "premium" || input.name === "premium2") && context.session.user.isPremium)
       throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-    if (input.name === "premium" && Date.now() > PREMIUM_DEADLINE.getTime())
+    if ((input.name === "premium" || input.name === "premium2") && Date.now() > PREMIUM_DEADLINE.getTime())
       throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
 
     const plan = await transactionRepo.getProductBySlug({ slug: input.name });
@@ -134,7 +134,8 @@ const notification = pub
 
     const tx = existingTransaction.tx;
     const isPremiumSubscription =
-      existingTransaction.prodType === "subscription" && existingTransaction.prodSlug === "premium";
+      existingTransaction.prodType === "subscription" &&
+      (existingTransaction.prodSlug === "premium" || existingTransaction.prodSlug === "premium2");
 
     if (tx.paidAt) {
       logger.info("Transaction already processed", { orderId: order_id });
@@ -154,10 +155,13 @@ const notification = pub
           });
 
           if (isPremiumSubscription && tx.userId) {
+            const premiumTier = existingTransaction.prodSlug === "premium2" ? "premium2" : "premium";
+
             await transactionRepo.updateUserPremium({
               db: trx,
               userId: tx.userId,
               isPremium: true,
+              premiumTier,
               premiumExpiresAt: PREMIUM_DEADLINE,
             });
           }

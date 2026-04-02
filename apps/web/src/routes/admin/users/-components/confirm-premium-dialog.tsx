@@ -55,6 +55,7 @@ export function ConfirmPremiumDialog({ user, open, onOpenChange, selectedDate, o
     mutation.mutate({
       id: user.id,
       isPremium: true,
+      premiumTier: "premium",
       premiumExpiresAt: selectedDate.toISOString(),
     });
   };
@@ -84,10 +85,8 @@ export function ConfirmPremiumDialog({ user, open, onOpenChange, selectedDate, o
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => onOpenChange(false)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button onClick={handleConfirm} disabled={mutation.isPending}>
-              {mutation.isPending ? "Updating..." : "Confirm"}
-            </Button>
+          <AlertDialogAction onClick={handleConfirm} isPending={mutation.isPending}>
+            {mutation.isPending ? "Updating..." : "Confirm"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
