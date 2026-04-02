@@ -28,6 +28,8 @@ interface BundlingCardProps {
   span?: boolean;
   colors?: {
     bg?: string;
+    border?: string;
+    title?: string;
     text?: string;
     price?: string;
     header?: string;
@@ -78,28 +80,28 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             premiumColors.header,
           )}
         >
-          <h3 className="text-base font-bold">{data.label}</h3>
+          <h3 className={cn("text-base font-bold", premiumColors.title)}>{data.label}</h3>
           {span && (
             <span className="rounded-xl bg-red-100 px-2 py-0.5 text-[10px] font-medium text-black uppercase">
               Terlengkap!
             </span>
           )}
         </div>
-        <div className="relative z-10 border-2 border-b-0 border-primary-400 px-6 py-4">
+        <div className={cn("relative z-10 border-2 border-b-0 border-primary-400 px-6 py-4", premiumColors.border)}>
           <div className={cn("relative inline-block text-base font-bold", premiumColors.price)}>
             {data.original_price}
             <span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-red-400" />
           </div>
           <div className="flex items-baseline gap-1">
-            <p className="text-3xl font-black text-[#FEEAAE]">{data.price_now}</p>
+            <p className="text-3xl font-black">{data.price_now}</p>
             <span className="text-[10px]">sampai SNBT</span>
           </div>
           <p className="text-[12px]">
-            promo <span className="font-bold text-[#FFBABA]">hemat 75%</span> sampai 1 Mei
+            promo <span className="font-bold text-red-300">hemat 75%</span> sampai 1 Mei
           </p>
           <hr className="mt-4 border-white/10" />
         </div>
-        <div className={cn("relative z-10 flex-1 border-x-2 border-primary-400 px-6 pb-4", premiumColors.bg)}>
+        <div className={cn("relative z-10 flex-1 border-x-2 border-primary-400 px-6 pb-4", premiumColors.border, premiumColors.bg)}>
           <ul className="mt-4 space-y-2">
             {data.features.map((feature: PricingFeature) => (
               <li key={feature.label} className="flex items-center gap-2 text-xs">
@@ -109,7 +111,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             ))}
           </ul>
         </div>
-        <div className="relative z-10 border-2 border-t-0 border-primary-400 p-6">
+        <div className={cn("relative z-10 border-2 border-t-0 border-primary-400 p-6", premiumColors.border)}>
           <Link
             to={data.cta.url as string}
             className={cn(buttonVariants({ size: "sm" }), "w-full", premiumColors.button)}

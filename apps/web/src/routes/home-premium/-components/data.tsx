@@ -3,7 +3,7 @@ export const DATA = {
     ultimate_bundling1: {
       label: "Ultimate Bundling",
       badge: "Paling Lengkap",
-      price_now: "Rp149.000",
+      price_now: "Rp199.000",
       original_price: "Rp1.000.000",
       suffix: "sampai SNBT",
       percentage: "75%",
@@ -27,7 +27,7 @@ export const DATA = {
 
     ultimate_bundling2: {
       label: "Ultimate Bundling",
-      price_now: "Rp199.000",
+      price_now: "Rp149.000",
       original_price: "Rp1.000.000",
       suffix: "sampai SNBT",
       percentage: "80%",
@@ -53,7 +53,7 @@ export const DATA = {
   basic: {
     privilege1: {
       label: "Privilege 01",
-      price_full: "Rp149.000",
+      price_full: "Rp125.000",
       suffix: "sampai SNBT",
       features: [
         { label: "Akses Full Website", status: "excluded" },
@@ -73,7 +73,7 @@ export const DATA = {
     },
     privilege2: {
       label: "Privilege 02",
-      price_full: "Rp124.000",
+      price_full: "Rp99.000",
       suffix: "sampai SNBT",
       features: [
         { label: "Akses Full Website", status: "excluded" },
