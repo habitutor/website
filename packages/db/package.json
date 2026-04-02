@@ -26,7 +26,6 @@
     "db:seed": "bun run src/seed/index.ts"
   },
   "dependencies": {
-    "arktype": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:"
   },

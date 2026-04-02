@@ -17,11 +17,7 @@
     "@orpc/arktype": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
-    "arktype": "catalog:",
-    "better-auth": "catalog:",
-    "dotenv": "catalog:",
-    "hono": "catalog:",
-    "midtrans-client": "catalog:"
+    "hono": "catalog:"
   },
   "devDependencies": {
     "@habitutor/config": "workspace:*",
