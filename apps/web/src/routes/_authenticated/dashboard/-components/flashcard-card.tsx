@@ -72,7 +72,7 @@ export const FlashcardCard = () => {
 
   const handleSubmit = () => {
     submitMutation.mutate({});
-    queryClient.removeQueries({ queryKey: ["auth", "getSession", "flashcard"] });
+    queryClient.removeQueries({ queryKey: orpc.flashcard.result.queryKey({ input: {} }) });
     navigate({ to: "/dashboard/flashcard/result" });
   };
 
@@ -110,7 +110,7 @@ export const FlashcardCard = () => {
       {/* Timer Bar  */}
       <div className="relative flex h-14.5 w-full items-center overflow-clip rounded-[5px] border border-green-700 bg-green-500 px-6">
         <div className="pointer-events-none absolute top-1/2 -left-8 size-25 -translate-y-1/2 rounded-full bg-green-700 opacity-60" />
-        <p className="relative z-10 ml-auto text-2xl font-bold tracking-widest text-white">
+        <p className="relative z-10 ml-auto text-2xl font-bold tracking-widest text-white tabular-nums">
           {hours}:{minutes}:{seconds}
         </p>
       </div>
