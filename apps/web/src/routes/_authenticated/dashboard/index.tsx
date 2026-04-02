@@ -38,13 +38,15 @@ function RouteComponent() {
   const { data, error } = useQuery(orpc.social.queryOptions());
   const { data: profile } = useQuery(orpc.profile.get.queryOptions());
   useQuery(orpc.dashboard.content.queryOptions());
+
   const [showDialog, setShowDialog] = useState(false);
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
   const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
   const [pwaDialog, setPwaDialog] = useState(false);
 
   // Auto-process pending referral code saat user baru register
-  useProcessReferralCode();
+  // Ini kode sampah anjing rusak
+  // useProcessReferralCode();
 
   const handleSocialClick = useCallback(
     (e: React.MouseEvent, socialLink?: string) => {
