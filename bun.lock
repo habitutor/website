@@ -32,7 +32,7 @@
       },
       "devDependencies": {
         "@habitutor/config": "workspace:*",
-        "@types/node": "^24.10.8",
+        "@types/bun": "latest",
         "tsdown": "catalog:",
         "typescript": "catalog:",
       },
