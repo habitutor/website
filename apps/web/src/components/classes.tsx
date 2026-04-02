@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
-import { canAccessContent, isSubtestPremium } from "@/lib/premium-config";
+import { canAccessContent, isSubtestPremium } from "@habitutor/shared";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import { orpc } from "@/utils/orpc";

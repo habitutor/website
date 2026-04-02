@@ -1,12 +1,10 @@
 /**
- * Premium content access configuration
- * Client-side helpers that mirror server-side logic
- *
- * IMPORTANT: These are for UI display only. Server-side validation is the source of truth.
+ * Content access control helpers
+ * Centralized logic for determining content access based on premium status and role
  */
 
 /**
- * Check if a user can access specific content
+ * Check if a user can access specific content detail (video, notes, practice questions)
  * - Admin users can access all content
  * - Premium users can access all content
  * - Free users can only access: first subtest (order=1) AND first content per category (order=1)

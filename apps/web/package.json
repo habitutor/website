@@ -13,6 +13,7 @@
     "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "@habitutor/api": "workspace:*",
     "@habitutor/auth": "workspace:*",
+    "@habitutor/shared": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/tanstack-query": "^1.13.13",
