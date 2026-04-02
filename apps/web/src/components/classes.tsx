@@ -19,6 +19,7 @@ import {
   UsersIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Image } from "@unpic/react";
 import { Reorder, useDragControls } from "motion/react";
 import * as m from "motion/react-m";
@@ -26,9 +27,11 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Skeleton } from "@/components/ui/skeleton";
 import { canAccessContent, isSubtestPremium } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
+import { orpc } from "@/utils/orpc";
 import type { BodyOutputs } from "@/utils/orpc";
 import { BackButton } from "./back-button";
 import { buttonVariants } from "./ui/button";
@@ -185,12 +188,18 @@ export function SubtestCard({
   );
 }
 
-export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
+export function ClassHeader({ shortName }: { shortName: string }) {
   const isAdmin = useIsAdmin();
-  const shortName = subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
-  const backgroundClass = subtestCardBackground[shortName] || "bg-secondary-400";
-  const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
-  const avatarSrc = subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
+  const { data: subtestData, isPending } = useQuery(
+    orpc.subtest.getSubtestByShortName.queryOptions({
+      input: { shortName },
+    }),
+  );
+  const subtest = subtestData?.subtest;
+  const normalizedShortName = subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
+  const backgroundClass = subtestCardBackground[normalizedShortName] || "bg-secondary-400";
+  const patternClass = subtestCardPattern[normalizedShortName] || "bg-secondary-600";
+  const avatarSrc = subtestCardAvatar[normalizedShortName] || "/avatar/subtest-pu-avatar.webp";
 
   const forceTextWhite = backgroundClass.includes("text-white");
 
@@ -204,17 +213,28 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
       <div className="grid grid-cols-1 px-6 pt-4 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:pb-10 md:grid-cols-5">
         {/* TEXT — mobile top, desktop LEFT */}
         <div className={cn("relative z-10 max-w-xl md:col-span-3", forceTextWhite && "text-white")}>
-          <h1
-            className={cn(
-              "text-[24px] leading-tight font-bold sm:text-[30px]",
-              forceTextWhite ? "text-white" : "text-neutral-1000",
-            )}
-          >
-            {subtest?.name}
-          </h1>
-          <p className={cn("mt-2 text-[14px] leading-5.25", forceTextWhite ? "text-white/90" : "text-neutral-1000")}>
-            {subtest?.description}
-          </p>
+          {isPending ? (
+            <>
+              <Skeleton className={cn("mb-2 h-8 w-3/4", forceTextWhite && "bg-white/20")} />
+              <Skeleton className={cn("h-4 w-full", forceTextWhite && "bg-white/20")} />
+            </>
+          ) : (
+            <>
+              <h1
+                className={cn(
+                  "text-[24px] leading-tight font-bold sm:text-[30px]",
+                  forceTextWhite ? "text-white" : "text-neutral-1000",
+                )}
+              >
+                {subtest?.name}
+              </h1>
+              <p
+                className={cn("mt-2 text-[14px] leading-5.25", forceTextWhite ? "text-white/90" : "text-neutral-1000")}
+              >
+                {subtest?.description}
+              </p>
+            </>
+          )}
         </div>
 
         {/* VISUAL */}

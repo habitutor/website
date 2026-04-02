@@ -1,6 +1,8 @@
 import { ArrowRightIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
+import { orpc } from "@/utils/orpc";
 
 type AnnouncementItem = {
   id: number;
@@ -33,7 +35,9 @@ const CASHBACK: AnnouncementItem = {
   order: 2,
 };
 
-export const Announcement = ({ announcements }: { announcements?: AnnouncementItem[] }) => {
+export const Announcement = () => {
+  const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
+  const announcements = dashboardContent?.announcements;
   const primaryAnnouncement = announcements?.find((item) => item.variant === "primary") ?? DUMMY_PRIMARY;
   const cashbackAnnouncement = CASHBACK;
   const cashbackCtaLink = CASHBACK.ctaLink || "/profile";

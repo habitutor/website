@@ -37,7 +37,7 @@ function RouteComponent() {
   const { session } = Route.useRouteContext();
   const { data, error } = useQuery(orpc.social.queryOptions());
   const { data: profile } = useQuery(orpc.profile.get.queryOptions());
-  const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
+  useQuery(orpc.dashboard.content.queryOptions());
   const [showDialog, setShowDialog] = useState(false);
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
   const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
@@ -153,11 +153,11 @@ function RouteComponent() {
           )}
         </MotionStaggerItem>
         <MotionStaggerItem>
-          <Announcement announcements={dashboardContent?.announcements} />
+          <Announcement />
         </MotionStaggerItem>
         {session?.user.isPremium && (
           <MotionStaggerItem>
-            <LiveClass liveClasses={dashboardContent?.liveClasses} />
+            <LiveClass />
           </MotionStaggerItem>
         )}
         <MotionStaggerItem>

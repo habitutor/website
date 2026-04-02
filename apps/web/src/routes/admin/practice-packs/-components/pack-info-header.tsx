@@ -67,7 +67,7 @@ export function PackInfoHeader({ packId, backTo }: PackInfoHeaderProps) {
         </div>
         <div className="flex shrink-0 gap-2">
           <EditPackDialog
-            pack={pack}
+            packId={packId}
             trigger={
               <Button variant="ghost" size="icon">
                 <PencilSimpleIcon className="size-4" />

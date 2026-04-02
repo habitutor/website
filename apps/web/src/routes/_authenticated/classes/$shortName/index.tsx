@@ -98,7 +98,7 @@ function RouteComponent() {
 
   return (
     <div className="mt-2 space-y-4">
-      <ClassHeader subtest={matchedClass} />
+      <ClassHeader shortName={shortName} />
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <ContentFilters

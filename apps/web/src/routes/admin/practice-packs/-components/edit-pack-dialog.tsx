@@ -1,6 +1,6 @@
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,20 +24,20 @@ const formValidator = type({
   "description?": "string",
 });
 
-type PracticePack = {
-  id: number;
-  title: string;
-  description: string | null;
-};
-
 type EditPackDialogProps = {
-  pack: PracticePack;
+  packId: number;
   trigger?: React.ReactNode;
 };
 
-export function EditPackDialog({ pack, trigger }: EditPackDialogProps) {
+export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  const { data: pack } = useQuery(
+    orpc.admin.practicePack.get.queryOptions({
+      input: { id: packId },
+    }),
+  );
 
   const updateMutation = useMutation(
     orpc.admin.practicePack.update.mutationOptions({
@@ -46,7 +46,7 @@ export function EditPackDialog({ pack, trigger }: EditPackDialogProps) {
         queryClient.invalidateQueries({
           queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
         });
-        queryClient.invalidateQueries(orpc.admin.practicePack.get.queryOptions({ input: { id: pack.id } }));
+        queryClient.invalidateQueries(orpc.admin.practicePack.get.queryOptions({ input: { id: packId } }));
         setOpen(false);
       },
       onError: (error) => {
@@ -59,8 +59,8 @@ export function EditPackDialog({ pack, trigger }: EditPackDialogProps) {
 
   const form = useForm({
     defaultValues: {
-      title: pack.title,
-      description: pack.description || "",
+      title: pack?.title ?? "",
+      description: pack?.description ?? "",
     },
     onSubmit: async ({ value }) => {
       const validation = formValidator(value);
@@ -70,7 +70,7 @@ export function EditPackDialog({ pack, trigger }: EditPackDialogProps) {
       }
 
       updateMutation.mutate({
-        id: pack.id,
+        id: packId,
         title: value.title,
         description: value.description || undefined,
       });
@@ -86,62 +86,73 @@ export function EditPackDialog({ pack, trigger }: EditPackDialogProps) {
           <DialogDescription>Update the title and description for this practice pack.</DialogDescription>
         </DialogHeader>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-          className="space-y-4"
-        >
-          <form.Field name="title">
-            {(field) => (
-              <div>
-                <Label htmlFor="edit-title">Title *</Label>
-                <Input
-                  id="edit-title"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Practice pack title"
-                  className="mt-2"
-                  autoFocus
-                />
-              </div>
-            )}
-          </form.Field>
-
-          <form.Field name="description">
-            {(field) => (
-              <div>
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea
-                  id="edit-description"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Optional description"
-                  className="mt-2"
-                />
-              </div>
-            )}
-          </form.Field>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={updateMutation.isPending}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? (
-                <>
-                  <SpinnerIcon className="animate-spin" />
-                  Saving…
-                </>
-              ) : (
-                "Save Changes"
+        {pack ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="space-y-4"
+          >
+            <form.Field name="title">
+              {(field) => (
+                <div>
+                  <Label htmlFor="edit-title">Title *</Label>
+                  <Input
+                    id="edit-title"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Practice pack title"
+                    className="mt-2"
+                    autoFocus
+                  />
+                </div>
               )}
-            </Button>
-          </DialogFooter>
-        </form>
+            </form.Field>
+
+            <form.Field name="description">
+              {(field) => (
+                <div>
+                  <Label htmlFor="edit-description">Description</Label>
+                  <Textarea
+                    id="edit-description"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Optional description"
+                    className="mt-2"
+                  />
+                </div>
+              )}
+            </form.Field>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={updateMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? (
+                  <>
+                    <SpinnerIcon className="animate-spin" />
+                    Saving…
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center justify-center space-y-4 py-8">
+            <p className="text-destructive">Practice pack not found</p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

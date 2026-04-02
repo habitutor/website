@@ -1,19 +1,12 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { LiveClassCard } from "@/components/classes";
+import { orpc } from "@/utils/orpc";
 
-type LiveClassItem = {
-  id: number;
-  title: string;
-  date: string;
-  time: string;
-  teacher: string;
-  link: string;
-  access: "3x" | "5x";
-};
-
-export const LiveClass = ({ liveClasses }: { liveClasses?: LiveClassItem[] }) => {
-  const items = liveClasses ?? [];
+export const LiveClass = () => {
+  const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
+  const items = dashboardContent?.liveClasses ?? [];
   const [current, setCurrent] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);

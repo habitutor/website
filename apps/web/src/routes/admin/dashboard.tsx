@@ -11,8 +11,6 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 function AdminDashboard() {
-  const { data: stats, isLoading } = useQuery(orpc.admin.statistics.get.queryOptions());
-
   return (
     <AdminContainer>
       <AdminHeader title="Admin Dashboard" description="Selamat datang di panel admin Habitutor" />
@@ -20,24 +18,21 @@ function AdminDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         <StatsCard
           title="Total Users"
-          value={stats?.totalUsers}
-          isLoading={isLoading}
+          statKey="totalUsers"
           icon={Users}
           className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-background"
           iconClassName="text-blue-500"
         />
         <StatsCard
           title="Practice Packs"
-          value={stats?.totalPracticePacks}
-          isLoading={isLoading}
+          statKey="totalPracticePacks"
           icon={Package}
           className="bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-background"
           iconClassName="text-purple-500"
         />
         <StatsCard
           title="Total Questions"
-          value={stats?.totalQuestions}
-          isLoading={isLoading}
+          statKey="totalQuestions"
           icon={Question}
           className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-background"
           iconClassName="text-orange-500"
@@ -49,19 +44,20 @@ function AdminDashboard() {
 
 function StatsCard({
   title,
-  value,
-  isLoading,
+  statKey,
   icon: Icon,
   className,
   iconClassName,
 }: {
   title: string;
-  value?: number;
-  isLoading: boolean;
+  statKey: "totalUsers" | "totalPracticePacks" | "totalQuestions";
   icon: React.ElementType;
   className?: string;
   iconClassName?: string;
 }) {
+  const { data: stats, isPending } = useQuery(orpc.admin.statistics.get.queryOptions());
+  const value = stats?.[statKey];
+
   return (
     <Card className={`overflow-hidden transition-all hover:shadow-md ${className}`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -69,7 +65,7 @@ function StatsCard({
         <Icon className={`size-4 ${iconClassName}`} weight="bold" />
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <Skeleton className="h-8 w-20" />
         ) : (
           <div className="text-2xl font-bold sm:text-3xl">{value?.toLocaleString() || 0}</div>
