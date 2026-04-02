@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { getStartOfDay } from "@habitutor/shared";
 
-
 describe("getStartOfDay", () => {
   test("sets hours, minutes, seconds, and milliseconds to 0", () => {
     const date = new Date("2026-02-17T15:30:45.123");
