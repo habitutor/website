@@ -302,20 +302,20 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin/': typeof AdminIndexRoute
-  '/home-premium': typeof HomePremiumIndexRoute
+  '/home-premium/': typeof HomePremiumIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
   '/admin/questions/$id': typeof AdminQuestionsIdRoute
-  '/classes': typeof AuthenticatedClassesIndexRoute
-  '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
-  '/premium': typeof AuthenticatedPremiumIndexRoute
-  '/profile': typeof AuthenticatedProfileIndexRoute
-  '/admin/classes': typeof AdminClassesIndexRoute
-  '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
-  '/admin/questions': typeof AdminQuestionsIndexRoute
-  '/admin/users': typeof AdminUsersIndexRoute
+  '/classes/': typeof AuthenticatedClassesIndexRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
+  '/premium/': typeof AuthenticatedPremiumIndexRoute
+  '/profile/': typeof AuthenticatedProfileIndexRoute
+  '/admin/classes/': typeof AdminClassesIndexRoute
+  '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
+  '/admin/questions/': typeof AdminQuestionsIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   '/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
@@ -324,10 +324,10 @@ export interface FileRoutesByFullPath {
   '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/$shortName/$contentId': typeof AdminClassesShortNameContentIdRouteWithChildren
-  '/classes/$shortName': typeof AuthenticatedClassesShortNameIndexRoute
-  '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
-  '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
-  '/admin/classes/$shortName': typeof AdminClassesShortNameIndexRoute
+  '/classes/$shortName/': typeof AuthenticatedClassesShortNameIndexRoute
+  '/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
+  '/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
+  '/admin/classes/$shortName/': typeof AdminClassesShortNameIndexRoute
   '/classes/$shortName/$contentId/latihan-soal': typeof AuthenticatedClassesShortNameContentIdLatihanSoalRoute
   '/classes/$shortName/$contentId/notes': typeof AuthenticatedClassesShortNameContentIdNotesRoute
   '/classes/$shortName/$contentId/video': typeof AuthenticatedClassesShortNameContentIdVideoRoute
@@ -435,20 +435,20 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dashboard-content'
     | '/admin/'
-    | '/home-premium'
+    | '/home-premium/'
     | '/latihan-soal/$id'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
     | '/admin/questions/$id'
-    | '/classes'
-    | '/dashboard'
-    | '/latihan-soal'
-    | '/premium'
-    | '/profile'
-    | '/admin/classes'
-    | '/admin/practice-packs'
-    | '/admin/questions'
-    | '/admin/users'
+    | '/classes/'
+    | '/dashboard/'
+    | '/latihan-soal/'
+    | '/premium/'
+    | '/profile/'
+    | '/admin/classes/'
+    | '/admin/practice-packs/'
+    | '/admin/questions/'
+    | '/admin/users/'
     | '/classes/$shortName/$contentId'
     | '/dashboard/flashcard/intro'
     | '/dashboard/flashcard/result'
@@ -457,10 +457,10 @@ export interface FileRouteTypes {
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
     | '/admin/classes/$shortName/$contentId'
-    | '/classes/$shortName'
-    | '/dashboard/flashcard'
-    | '/latihan-soal/riwayat'
-    | '/admin/classes/$shortName'
+    | '/classes/$shortName/'
+    | '/dashboard/flashcard/'
+    | '/latihan-soal/riwayat/'
+    | '/admin/classes/$shortName/'
     | '/classes/$shortName/$contentId/latihan-soal'
     | '/classes/$shortName/$contentId/notes'
     | '/classes/$shortName/$contentId/video'
@@ -576,14 +576,14 @@ declare module '@tanstack/react-router' {
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -597,7 +597,7 @@ declare module '@tanstack/react-router' {
     '/home-premium/': {
       id: '/home-premium/'
       path: '/home-premium'
-      fullPath: '/home-premium'
+      fullPath: '/home-premium/'
       preLoaderRoute: typeof HomePremiumIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -653,63 +653,63 @@ declare module '@tanstack/react-router' {
     '/admin/users/': {
       id: '/admin/users/'
       path: '/users'
-      fullPath: '/admin/users'
+      fullPath: '/admin/users/'
       preLoaderRoute: typeof AdminUsersIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/questions/': {
       id: '/admin/questions/'
       path: '/questions'
-      fullPath: '/admin/questions'
+      fullPath: '/admin/questions/'
       preLoaderRoute: typeof AdminQuestionsIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/practice-packs/': {
       id: '/admin/practice-packs/'
       path: '/practice-packs'
-      fullPath: '/admin/practice-packs'
+      fullPath: '/admin/practice-packs/'
       preLoaderRoute: typeof AdminPracticePacksIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/classes/': {
       id: '/admin/classes/'
       path: '/classes'
-      fullPath: '/admin/classes'
+      fullPath: '/admin/classes/'
       preLoaderRoute: typeof AdminClassesIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_authenticated/profile/': {
       id: '/_authenticated/profile/'
       path: '/profile'
-      fullPath: '/profile'
+      fullPath: '/profile/'
       preLoaderRoute: typeof AuthenticatedProfileIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/premium/': {
       id: '/_authenticated/premium/'
       path: '/premium'
-      fullPath: '/premium'
+      fullPath: '/premium/'
       preLoaderRoute: typeof AuthenticatedPremiumIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/latihan-soal/': {
       id: '/_authenticated/latihan-soal/'
       path: '/latihan-soal'
-      fullPath: '/latihan-soal'
+      fullPath: '/latihan-soal/'
       preLoaderRoute: typeof AuthenticatedLatihanSoalIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/dashboard'
-      fullPath: '/dashboard'
+      fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/classes/': {
       id: '/_authenticated/classes/'
       path: '/classes'
-      fullPath: '/classes'
+      fullPath: '/classes/'
       preLoaderRoute: typeof AuthenticatedClassesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
@@ -744,28 +744,28 @@ declare module '@tanstack/react-router' {
     '/admin/classes/$shortName/': {
       id: '/admin/classes/$shortName/'
       path: '/classes/$shortName'
-      fullPath: '/admin/classes/$shortName'
+      fullPath: '/admin/classes/$shortName/'
       preLoaderRoute: typeof AdminClassesShortNameIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_authenticated/latihan-soal/riwayat/': {
       id: '/_authenticated/latihan-soal/riwayat/'
       path: '/latihan-soal/riwayat'
-      fullPath: '/latihan-soal/riwayat'
+      fullPath: '/latihan-soal/riwayat/'
       preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/flashcard/': {
       id: '/_authenticated/dashboard/flashcard/'
       path: '/dashboard/flashcard'
-      fullPath: '/dashboard/flashcard'
+      fullPath: '/dashboard/flashcard/'
       preLoaderRoute: typeof AuthenticatedDashboardFlashcardIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/classes/$shortName/': {
       id: '/_authenticated/classes/$shortName/'
       path: '/classes/$shortName'
-      fullPath: '/classes/$shortName'
+      fullPath: '/classes/$shortName/'
       preLoaderRoute: typeof AuthenticatedClassesShortNameIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
