@@ -37,7 +37,6 @@ function RouteComponent() {
       if (isCancelled) return;
 
       await navigate({ to: "/premium", replace: true });
-      window.location.replace("/premium");
     };
 
     void refreshPremiumState();

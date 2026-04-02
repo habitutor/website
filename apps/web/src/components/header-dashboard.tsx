@@ -115,12 +115,8 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  window.location.href = "/profile";
-                }}
-              >
-                Profile
+              <DropdownMenuItem asChild>
+                <Link to="/profile">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                 <SignOutIcon />

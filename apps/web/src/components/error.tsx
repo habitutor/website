@@ -1,9 +1,12 @@
 import { WarningOctagonIcon } from "@phosphor-icons/react";
+import { useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
 export default function ErrorComponent({ error }: { error: Error }) {
+  const router = useRouter();
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -28,14 +31,14 @@ export default function ErrorComponent({ error }: { error: Error }) {
           <Button
             variant="outline"
             onClick={() => {
-              window.location.reload();
+              router.invalidate();
             }}
           >
             Coba Lagi
           </Button>
           <Button
             onClick={() => {
-              window.location.href = "/";
+              router.navigate({ to: "/" });
             }}
           >
             Kembali ke Beranda
