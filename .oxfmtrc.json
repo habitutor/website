@@ -34,6 +34,7 @@
     "**/.svelte-kit",
     "**/worker-configuration.d.ts",
     "**/migrations",
+    "**/legacy-migrations",
     "**/.source",
     "**/*.scss",
     "**/*.css"

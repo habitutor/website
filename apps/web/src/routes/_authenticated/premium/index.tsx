@@ -1,6 +1,6 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { isValidElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -69,6 +69,7 @@ function RouteComponent() {
   const sessionUser = session?.user as { isPremium?: boolean; premiumTier?: BundlingVariant | null } | undefined;
   const isPremium = sessionUser?.isPremium ?? false;
   const currentTier = isPremium ? (sessionUser?.premiumTier ?? "premium") : null;
+  const navigate = useNavigate();
 
   useMidtransScript();
 
@@ -79,7 +80,7 @@ function RouteComponent() {
       await refreshAuthSession({
         invalidateRouter,
       });
-      window.location.replace("/premium");
+      navigate({ to: "/premium" });
     };
 
     if (window.snap) {
@@ -107,7 +108,7 @@ function RouteComponent() {
     if (paymentRedirectUrl) {
       window.location.href = paymentRedirectUrl;
     }
-  }, [invalidateRouter, paymentOrderId, paymentRedirectUrl, paymentToken]);
+  }, [invalidateRouter, navigate, paymentOrderId, paymentRedirectUrl, paymentToken]);
 
   const handleSubscribe = (variant: BundlingVariant) => {
     if (transactionMutation.isPending) return;

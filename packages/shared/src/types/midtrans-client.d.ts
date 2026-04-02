@@ -10,6 +10,8 @@ declare module "midtrans-client" {
     clientKey: string;
   }
 
+  export type SnapOptions = SnapConfig;
+
   export interface TransactionNotificationResponse {
     order_id: string;
     transaction_status: string;

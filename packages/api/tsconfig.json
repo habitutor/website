@@ -7,5 +7,6 @@
     "sourceMap": true,
     "outDir": "dist",
     "composite": true
-  }
+  },
+  "include": ["src/**/*", "../shared/src/types/midtrans-client.d.ts"]
 }

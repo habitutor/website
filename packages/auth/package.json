@@ -21,15 +21,14 @@
     "@habitutor/shared": "workspace:*",
     "arktype": "catalog:",
     "better-auth": "catalog:",
-    "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
-    "resend": "^6.6.0"
+    "resend": "^6.10.0"
   },
   "devDependencies": {
     "@habitutor/config": "workspace:*",
     "tsdown": "catalog:"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^6.0.2"
   }
 }

@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "bun build --production --target=bun --minify --sourcemap --bytecode ./src/index.ts --outdir ./dist",
+    "build:local": "bun build --target=bun --minify --sourcemap --bytecode ./src/index.ts --outdir ./dist",
     "compile": "bun build --production --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
     "dev": "bun run --hot --port=3001 ./src/index.ts ",
     "start": "bun ./dist/index.js",
@@ -16,15 +17,11 @@
     "@orpc/arktype": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
-    "arktype": "catalog:",
-    "better-auth": "catalog:",
-    "dotenv": "catalog:",
-    "hono": "catalog:",
-    "midtrans-client": "catalog:"
+    "hono": "catalog:"
   },
   "devDependencies": {
     "@habitutor/config": "workspace:*",
-    "@types/node": "^24.10.8",
+    "@types/bun": "latest",
     "tsdown": "catalog:",
     "typescript": "catalog:"
   }

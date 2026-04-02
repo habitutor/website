@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "../../packages/shared/src/types/midtrans-client.d.ts"],
   "exclude": ["node_modules", ".output", ".tanstack", ".turbo"],
   "compilerOptions": {
     "target": "ES2022",

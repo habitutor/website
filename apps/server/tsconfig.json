@@ -11,5 +11,6 @@
     },
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
-  }
+  },
+  "include": ["src/**/*", "../../packages/shared/src/types/midtrans-client.d.ts"]
 }

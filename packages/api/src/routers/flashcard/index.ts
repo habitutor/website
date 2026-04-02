@@ -3,8 +3,7 @@ import { user } from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
 import { authed, premium } from "../../index";
-import { convertToTiptap } from "../../lib/tiptap";
-import { getStartOfDay } from "../../utils/date";
+import { convertToTiptap, getStartOfDay } from "@habitutor/shared";
 import {
   countCorrectAnswers,
   isAttemptExpired,

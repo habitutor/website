@@ -1,8 +1,7 @@
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { authed, authedRateLimited } from "../../index";
-import { canAccessContent } from "../../lib/content-access";
-import { convertToTiptap } from "../../lib/tiptap";
+import { canAccessContent, convertToTiptap } from "@habitutor/shared";
 import { subtestRepo } from "./repo";
 
 const listSubtests = authed

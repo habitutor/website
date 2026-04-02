@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import YouTubePlayer from "@/components/youtube-player";
 import { orpc } from "@/utils/orpc";
-import { extractYouTubeId } from "@/utils/youtube";
+import { extractYouTubeId } from "@habitutor/shared";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/video")({
   component: RouteComponent,

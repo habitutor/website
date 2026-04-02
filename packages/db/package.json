@@ -26,17 +26,16 @@
     "db:seed": "bun run src/seed/index.ts"
   },
   "dependencies": {
-    "arktype": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@habitutor/config": "workspace:*",
-    "drizzle-kit": "^0.31.8",
+    "drizzle-kit": "^0.31.10",
     "drizzle-seed": "^0.3.1",
     "tsdown": "catalog:"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^6.0.2"
   }
 }

@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { admin } from "../../../index";
-import { convertToTiptap } from "../../../lib/tiptap";
+import { convertToTiptap } from "@habitutor/shared";
 import { adminQuestionRepo } from "./repo";
 
 interface CursorData {
