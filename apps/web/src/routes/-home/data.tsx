@@ -290,33 +290,27 @@ export const DATA = {
   faq: [
     {
       id: 1,
-      question: "Bagaimana cara akses TryOut UTBK?",
+      question: "Apa yang membedakan dengan tempat lain?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Kami di sini menggunakan pendekatan habit belajar dan self development, kami tidak hanya ingin siswa fokus lolos ptn tapi juga bisa berkembang kedepannya",
     },
     {
       id: 2,
-      question: "Bagaimana cara akses TryOut UTBK?",
+      question: "Apakah benar try out nya menggunakan soal asli langsung?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Benar, kami menggunakan soal asli 2023-2025 untuk membantu siswa memiliki pengetahuan gambaran soal asli nanti",
     },
     {
       id: 3,
-      question: "Berapa kali bisa mengerjakan TryOut?",
+      question: "Di mana mengerjakan TryOut?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Kami masih menggunakan ekstensi dari platform try out lain karena alasan tertentu, kamu bisa mengerjakan juga secara gratis dari mengeklik bagian &quot;Kerjakan Try Out&quot; di bagian dashboard Habitutor",
     },
     {
       id: 4,
-      question: "Di mana lihat hasil TryOut?",
+      question: "Metodenya seperti apa?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 5,
-      question: "Bagaimana cara akses TryOut UTBK?",
-      answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Belajar menggunakan website dan zoom! untuk waktu sekarang ini, kami memfokuskan di bagian materi prioritas dan mendorong siswa untuk melakukan belajar aktif",
     },
   ],
 } as const;
