@@ -37,7 +37,7 @@ export const practicePackAttempt = pgTable(
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     userId: text()
       .notNull()
-      .references(() => user.id, { onDelete: "set null" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     practicePackId: integer()
       .notNull()
       .references(() => practicePack.id, { onDelete: "cascade" }),
@@ -132,7 +132,7 @@ export const practicePackUserAnswer = pgTable(
       .references(() => question.id, { onDelete: "cascade" }),
     selectedAnswerId: integer()
       .notNull()
-      .references(() => questionAnswerOption.id, { onDelete: "set null" }),
+      .references(() => questionAnswerOption.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.attemptId, t.questionId] }), index("idx_pp_user_answer_attempt").on(t.attemptId)],
 );

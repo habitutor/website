@@ -13,7 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useProcessReferralCode } from "@/hooks/use-process-referral-code";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { Announcement } from "../-components/announcement";
