@@ -15,6 +15,7 @@ const subscribe = authed
     tags: ["Payment", "Subscription"],
   })
   .input(
+    //add premium2 tier on input validation
     type({
       name: "'premium' | 'premium2' | 'basic'",
       "referralCode?": "string",
