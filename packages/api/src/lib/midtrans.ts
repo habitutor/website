@@ -10,22 +10,24 @@ export const snap = new Snap({
 export async function createSubscriptionTransaction({
   id,
   name,
-  price,
+  grossAmount,
   session,
 }: {
   id: string;
   name: string;
-  price: string;
+  grossAmount: number;
   session: typeof auth.$Infer.Session;
 }) {
+  const normalizedGrossAmount = Math.round(grossAmount);
+
   const params = {
     transaction_details: {
       order_id: id,
-      gross_amount: price,
+      gross_amount: normalizedGrossAmount,
     },
     item_details: [
       {
-        price: price,
+        price: normalizedGrossAmount,
         quantity: 1,
         name: name,
       },

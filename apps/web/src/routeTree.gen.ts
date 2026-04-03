@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HomePremiumIndexRouteImport } from './routes/home-premium/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminReferralsRouteImport } from './routes/admin/referrals'
 import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard-content'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
@@ -79,6 +80,11 @@ const HomePremiumIndexRoute = HomePremiumIndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReferralsRoute = AdminReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardContentRoute = AdminDashboardContentRouteImport.update({
@@ -301,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/referrals': typeof AdminReferralsRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
@@ -343,6 +350,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/referrals': typeof AdminReferralsRoute
   '/admin': typeof AdminIndexRoute
   '/home-premium': typeof HomePremiumIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
@@ -389,6 +397,7 @@ export interface FileRoutesById {
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/referrals': typeof AdminReferralsRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
@@ -434,6 +443,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/referrals'
     | '/admin/'
     | '/home-premium/'
     | '/latihan-soal/$id'
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/referrals'
     | '/admin'
     | '/home-premium'
     | '/latihan-soal/$id'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/_auth/reset-password'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/referrals'
     | '/admin/'
     | '/home-premium/'
     | '/_authenticated/latihan-soal/$id'
@@ -606,6 +618,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/referrals': {
+      id: '/admin/referrals'
+      path: '/referrals'
+      fullPath: '/admin/referrals'
+      preLoaderRoute: typeof AdminReferralsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/dashboard-content': {
@@ -982,6 +1001,7 @@ const AdminClassesShortNameContentIdRouteWithChildren =
 interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboardContentRoute: typeof AdminDashboardContentRoute
+  AdminReferralsRoute: typeof AdminReferralsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPracticePacksIdRoute: typeof AdminPracticePacksIdRoute
   AdminPracticePacksCreateRoute: typeof AdminPracticePacksCreateRoute
@@ -997,6 +1017,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboardContentRoute: AdminDashboardContentRoute,
+  AdminReferralsRoute: AdminReferralsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminPracticePacksIdRoute: AdminPracticePacksIdRoute,
   AdminPracticePacksCreateRoute: AdminPracticePacksCreateRoute,

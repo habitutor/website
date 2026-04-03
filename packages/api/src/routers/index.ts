@@ -4,6 +4,7 @@ import { pub } from "../index";
 import { adminDashboardContentRouter } from "./admin/dashboard-content";
 import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminQuestionRouter } from "./admin/question";
+import { adminReferralRouter } from "./admin/referrals";
 import { adminStatisticsRouter } from "./admin/statistics";
 import { adminSubtestRouter } from "./admin/subtest";
 import { adminUserRouter } from "./admin/users";
@@ -39,6 +40,7 @@ export const appRouter = {
     question: adminQuestionRouter,
     subtest: adminSubtestRouter,
     users: adminUserRouter,
+    referrals: adminReferralRouter,
     dashboardContent: adminDashboardContentRouter,
   },
   transaction: transactionRouter,

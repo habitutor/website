@@ -3,7 +3,6 @@ import { user } from "@habitutor/db/schema/auth";
 import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { o } from "../lib/orpc";
-import { DEFAULT_PREMIUM_TIER, shouldBackfillPremiumTier } from "../routers/transaction/premium-tier";
 import { transactionRepo } from "../routers/transaction/repo";
 
 export const requireAdmin = o.middleware(async ({ context, next }) => {
@@ -14,27 +13,7 @@ export const requireAdmin = o.middleware(async ({ context, next }) => {
 
 export const requireAuth = o.middleware(async ({ context, next, errors }) => {
   if (!context.session?.user) throw errors.UNAUTHORIZED();
-  const sessionUser = context.session.user as typeof context.session.user & {
-    premiumTier?: "premium" | "premium2" | null;
-  };
-
-  const [dbUser] = await db
-    .select({
-      isPremium: user.isPremium,
-      premiumTier: user.premiumTier,
-      premiumExpiresAt: user.premiumExpiresAt,
-    })
-    .from(user)
-    .where(eq(user.id, sessionUser.id))
-    .limit(1);
-
-  if (dbUser) {
-    const dbIsPremium = dbUser.isPremium ?? false;
-    context.session.user.isPremium = dbIsPremium;
-    sessionUser.isPremium = dbIsPremium;
-    sessionUser.premiumExpiresAt = dbUser.premiumExpiresAt;
-    sessionUser.premiumTier = dbIsPremium ? (dbUser.premiumTier === "premium2" ? "premium2" : "premium") : null;
-  }
+  const sessionUser = context.session.user as typeof context.session.user;
 
   // Reset user data based on expiry
   if (
@@ -62,26 +41,6 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
         context.session!.user.isPremium = false;
         sessionUser.premiumExpiresAt = null;
         sessionUser.premiumTier = null;
-      });
-  }
-
-  if (
-    shouldBackfillPremiumTier({
-      isPremium: sessionUser.isPremium,
-      premiumTier: sessionUser.premiumTier,
-      premiumExpiresAt: sessionUser.premiumExpiresAt ?? null,
-    })
-  ) {
-    await transactionRepo
-      .updateUserPremium({
-        userId: sessionUser.id,
-        isPremium: true,
-        premiumTier: null,
-        premiumExpiresAt: sessionUser.premiumExpiresAt ?? null,
-      })
-      .then(() => {
-        context.session!.user.isPremium = true;
-        sessionUser.premiumTier = DEFAULT_PREMIUM_TIER;
       });
   }
 

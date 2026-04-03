@@ -8,6 +8,168 @@ import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
 
+type MidtransStatusResponse = {
+  transaction_status: string;
+  fraud_status: string;
+};
+
+async function fetchMidtransTransactionStatus(orderId: string): Promise<MidtransStatusResponse> {
+  const serverKey = process.env.MIDTRANS_SERVER_KEY || "";
+  const auth = Buffer.from(`${serverKey}:`).toString("base64");
+
+  const statusResponse = await fetch(
+    `https://api${process.env.NODE_ENV === "production" ? "" : ".sandbox"}.midtrans.com/v2/${orderId}/status`,
+    {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!statusResponse.ok) {
+    logger.error("Midtrans API error", { status: statusResponse.status, orderId });
+    throw new ORPCError("INTERNAL_SERVER_ERROR", {
+      message: "Failed to verify transaction status",
+    });
+  }
+
+  return (await statusResponse.json()) as MidtransStatusResponse;
+}
+
+async function markTransactionAsSuccess(orderId: string) {
+  const existingTransaction = await transactionRepo.getTransactionWithProduct({ orderId });
+
+  if (!existingTransaction) {
+    return null;
+  }
+
+  const tx = existingTransaction.tx;
+  const paidAt = tx.paidAt ?? new Date();
+  const isPremiumSubscription =
+    existingTransaction.prodType === "subscription" &&
+    (existingTransaction.prodSlug === "premium" || existingTransaction.prodSlug === "premium2");
+
+  await db.transaction(async (trx) => {
+    await transactionRepo.updateTransactionStatus({
+      db: trx,
+      orderId,
+      status: "success",
+      paidAt,
+    });
+
+    if (isPremiumSubscription && tx.userId) {
+      const premiumTier = existingTransaction.prodSlug === "premium2" ? "premium2" : "premium";
+
+      await transactionRepo.updateUserPremium({
+        db: trx,
+        userId: tx.userId,
+        isPremium: true,
+        premiumTier,
+        premiumExpiresAt: PREMIUM_DEADLINE,
+      });
+    }
+
+    if (tx.referralCodeId && tx.userId) {
+      const alreadyRecorded = await referralRepo.getUsageByTransactionId({
+        db: trx,
+        transactionId: orderId,
+      });
+
+      if (!alreadyRecorded) {
+        const originalProduct = await transactionRepo.getProductBySlug({
+          db: trx,
+          slug: existingTransaction.prodSlug,
+        });
+        const cashback = originalProduct ? String(Math.floor(Number(originalProduct.price) * 0.25)) : "0";
+
+        try {
+          const linkedUsage = await referralRepo.attachPendingUsageToTransaction({
+            db: trx,
+            userId: tx.userId,
+            referralCodeId: tx.referralCodeId,
+            transactionId: orderId,
+            cashbackAmount: cashback,
+          });
+
+          if (!linkedUsage) {
+            await referralRepo.createUsage({
+              db: trx,
+              userId: tx.userId,
+              referralCodeId: tx.referralCodeId,
+              transactionId: orderId,
+              cashbackAmount: cashback,
+            });
+            await referralRepo.incrementReferralCount({
+              db: trx,
+              referralCodeId: tx.referralCodeId,
+            });
+          }
+        } catch (err) {
+          // Unique constraint violation means referral was already recorded
+          const isUniqueViolation = err instanceof Error && "code" in err && (err as { code: string }).code === "23505";
+          if (!isUniqueViolation) throw err;
+        }
+      }
+    }
+  });
+
+  const updatedTx = await transactionRepo.getTransactionById({ orderId });
+
+  return {
+    status: "success" as const,
+    paidAt: updatedTx?.paidAt ?? paidAt,
+  };
+}
+
+async function syncTransactionStatus(orderId: string) {
+  const tx = await transactionRepo.getTransactionById({ orderId });
+
+  if (!tx) {
+    return null;
+  }
+
+  if (tx.status === "success" && tx.paidAt) {
+    return {
+      status: tx.status,
+      paidAt: tx.paidAt,
+    };
+  }
+
+  const statusData = await fetchMidtransTransactionStatus(orderId);
+  const transactionStatus = statusData.transaction_status;
+  const fraudStatus = statusData.fraud_status;
+
+  if (transactionStatus === "capture" || transactionStatus === "settlement") {
+    const isValid = transactionStatus === "capture" ? fraudStatus === "accept" : true;
+    if (isValid) {
+      return await markTransactionAsSuccess(orderId);
+    }
+  }
+
+  if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
+    const updatedTx = await transactionRepo.updateTransactionStatus({
+      orderId,
+      status: "failed",
+    });
+
+    return {
+      status: updatedTx?.status ?? "failed",
+      paidAt: updatedTx?.paidAt ?? null,
+    };
+  }
+
+  const updatedTx = await transactionRepo.updateTransactionStatus({
+    orderId,
+    status: "pending",
+  });
+
+  return {
+    status: updatedTx?.status ?? "pending",
+    paidAt: updatedTx?.paidAt ?? null,
+  };
+}
+
 const subscribe = authed
   .route({
     path: "/subscribe",
@@ -25,6 +187,7 @@ const subscribe = authed
     type({
       token: "string",
       redirectUrl: "string",
+      orderId: "string",
     }),
   )
   .handler(async ({ input, context, errors }) => {
@@ -37,7 +200,8 @@ const subscribe = authed
     if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
     let grossAmount = plan.price;
-    let validatedReferralCodeId: string | undefined;
+    const existingUsage = await referralRepo.getUserUsage({ userId: context.session.user.id });
+    let appliedReferralCodeId: string | undefined;
 
     if (input.referralCode) {
       const code = input.referralCode.trim();
@@ -57,12 +221,23 @@ const subscribe = authed
         });
       }
 
-      const existingUsage = await referralRepo.getUserUsage({ userId: context.session.user.id });
       if (existingUsage) {
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
+        const isSameCode = existingUsage.referralCodeId === codeRecord.id;
+        const isPendingTransaction = !existingUsage.transactionId;
+
+        if (!isSameCode || !isPendingTransaction) {
+          throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
+        }
       }
 
-      validatedReferralCodeId = codeRecord.id;
+      appliedReferralCodeId = codeRecord.id;
+    } else if (existingUsage && !existingUsage.transactionId) {
+      // Referral submitted during registration should be applied automatically
+      // to the first paid transaction.
+      appliedReferralCodeId = existingUsage.referralCodeId;
+    }
+
+    if (appliedReferralCodeId) {
       const discounted = Math.ceil(Number(grossAmount) * 0.75);
       grossAmount = String(discounted);
     }
@@ -74,17 +249,22 @@ const subscribe = authed
       productId: plan.id,
       grossAmount: String(grossAmount),
       userId: context.session.user.id,
-      referralCodeId: validatedReferralCodeId,
+      referralCodeId: appliedReferralCodeId,
     });
     if (!createdTransaction)
       throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
 
-    return await createSubscriptionTransaction({
+    const payment = await createSubscriptionTransaction({
       id: orderId,
       session: context.session,
       name: plan.name,
-      price: grossAmount,
+      grossAmount: Number(grossAmount),
     });
+
+    return {
+      ...payment,
+      orderId,
+    };
   });
 
 const notification = pub
@@ -99,118 +279,11 @@ const notification = pub
       order_id: string;
     };
 
-    const serverKey = process.env.MIDTRANS_SERVER_KEY || "";
-    const auth = Buffer.from(`${serverKey}:`).toString("base64");
+    const syncResult = await syncTransactionStatus(order_id);
 
-    const statusResponse = await fetch(
-      `https://api${process.env.NODE_ENV === "production" ? "" : ".sandbox"}.midtrans.com/v2/${order_id}/status`,
-      {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
-    if (!statusResponse.ok) {
-      logger.error("Midtrans API error", { status: statusResponse.status });
-      throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Failed to verify transaction status",
-      });
-    }
-
-    const statusData = (await statusResponse.json()) as {
-      transaction_status: string;
-      fraud_status: string;
-    };
-    const transactionStatus = statusData.transaction_status;
-    const fraudStatus = statusData.fraud_status;
-
-    const existingTransaction = await transactionRepo.getTransactionWithProduct({ orderId: order_id });
-
-    if (!existingTransaction) {
+    if (!syncResult) {
       logger.error("Transaction not found", { orderId: order_id });
       return { status: "not_found" };
-    }
-
-    const tx = existingTransaction.tx;
-    const isPremiumSubscription =
-      existingTransaction.prodType === "subscription" &&
-      (existingTransaction.prodSlug === "premium" || existingTransaction.prodSlug === "premium2");
-
-    if (tx.paidAt) {
-      logger.info("Transaction already processed", { orderId: order_id });
-      return { status: "already_processed" };
-    }
-
-    if (transactionStatus === "capture" || transactionStatus === "settlement") {
-      const isValid = transactionStatus === "capture" ? fraudStatus === "accept" : true;
-
-      if (isValid) {
-        await db.transaction(async (trx) => {
-          await transactionRepo.updateTransactionStatus({
-            db: trx,
-            orderId: order_id,
-            status: "success",
-            paidAt: new Date(),
-          });
-
-          if (isPremiumSubscription && tx.userId) {
-            const premiumTier = existingTransaction.prodSlug === "premium2" ? "premium2" : "premium";
-
-            await transactionRepo.updateUserPremium({
-              db: trx,
-              userId: tx.userId,
-              isPremium: true,
-              premiumTier,
-              premiumExpiresAt: PREMIUM_DEADLINE,
-            });
-          }
-
-          if (tx.referralCodeId && tx.userId) {
-            const alreadyRecorded = await referralRepo.getUsageByTransactionId({
-              db: trx,
-              transactionId: order_id,
-            });
-            if (!alreadyRecorded) {
-              const originalProduct = await transactionRepo.getProductBySlug({
-                db: trx,
-                slug: existingTransaction.prodSlug,
-              });
-              const cashback = originalProduct ? String(Math.floor(Number(originalProduct.price) * 0.25)) : "0";
-
-              try {
-                await referralRepo.createUsage({
-                  db: trx,
-                  userId: tx.userId,
-                  referralCodeId: tx.referralCodeId,
-                  transactionId: order_id,
-                  cashbackAmount: cashback,
-                });
-                await referralRepo.incrementReferralCount({
-                  db: trx,
-                  referralCodeId: tx.referralCodeId,
-                });
-              } catch (err) {
-                // Unique constraint violation means referral was already recorded
-                const isUniqueViolation =
-                  err instanceof Error && "code" in err && (err as { code: string }).code === "23505";
-                if (!isUniqueViolation) throw err;
-              }
-            }
-          }
-        });
-      }
-    } else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
-      await transactionRepo.updateTransactionStatus({
-        orderId: order_id,
-        status: "failed",
-      });
-    } else if (transactionStatus === "pending") {
-      await transactionRepo.updateTransactionStatus({
-        orderId: order_id,
-        status: "pending",
-      });
     }
 
     return { status: "ok" };
@@ -223,7 +296,7 @@ const getStatus = authed
     tags: ["Payment"],
   })
   .input(type({ orderId: "string" }))
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context, errors }) => {
     const tx = await transactionRepo.getTransactionById({
       orderId: input.orderId,
     });
@@ -234,9 +307,22 @@ const getStatus = authed
       });
     }
 
+    if (context.session.user.role !== "admin" && tx.userId !== context.session.user.id) {
+      throw errors.FORBIDDEN({
+        message: "Kamu tidak memiliki akses ke transaksi ini.",
+      });
+    }
+
+    const syncResult = await syncTransactionStatus(input.orderId);
+    if (!syncResult) {
+      throw new ORPCError("NOT_FOUND", {
+        message: "Transaction not found",
+      });
+    }
+
     return {
-      status: tx.status,
-      paidAt: tx.paidAt,
+      status: syncResult.status,
+      paidAt: syncResult.paidAt,
     };
   });
 

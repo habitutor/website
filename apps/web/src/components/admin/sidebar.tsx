@@ -1,6 +1,16 @@
 "use client";
 
-import { BooksIcon, House, Megaphone, Package, Question, SignOut, User, UserSwitchIcon } from "@phosphor-icons/react";
+import {
+  BooksIcon,
+  House,
+  Megaphone,
+  Package,
+  Question,
+  SignOut,
+  TicketIcon,
+  User,
+  UserSwitchIcon,
+} from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -65,6 +75,11 @@ const adminNavLinks = [
     name: "Users",
     to: "/admin/users" as const,
     icon: User,
+  },
+  {
+    name: "Referral Transactions",
+    to: "/admin/referrals" as const,
+    icon: TicketIcon,
   },
 ];
 

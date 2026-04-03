@@ -1,7 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { referralCode, referralUsage } from "@habitutor/db/schema/referral";
 import { transaction } from "@habitutor/db/schema/transaction";
-import { eq, sql } from "drizzle-orm";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 
 const REFERRAL_CODE_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
 const REFERRAL_CODE_LENGTH = 11;
@@ -117,5 +117,120 @@ export const referralRepo = {
       .where(eq(referralUsage.transactionId, transactionId))
       .limit(1);
     return result;
+  },
+
+  attachPendingUsageToTransaction: async ({
+    db = defaultDb,
+    userId,
+    referralCodeId,
+    transactionId,
+    cashbackAmount,
+  }: {
+    db?: DrizzleDatabase;
+    userId: string;
+    referralCodeId: string;
+    transactionId: string;
+    cashbackAmount: string;
+  }) => {
+    const [updated] = await db
+      .update(referralUsage)
+      .set({
+        transactionId,
+        cashbackAmount,
+      })
+      .where(
+        and(
+          eq(referralUsage.userId, userId),
+          eq(referralUsage.referralCodeId, referralCodeId),
+          sql`${referralUsage.transactionId} is null`,
+        ),
+      )
+      .returning();
+
+    return updated;
+  },
+
+  listAdminReferralTransactions: async ({
+    db = defaultDb,
+    limit,
+    cursorCreatedAt,
+    cursorId,
+    search,
+  }: {
+    db?: DrizzleDatabase;
+    limit: number;
+    cursorCreatedAt: Date | null;
+    cursorId: string | null;
+    search: string;
+  }) => {
+    const likeKeyword = `%${search}%`;
+
+    return db
+      .select({
+        usageId: referralUsage.id,
+        usedAt: referralUsage.createdAt,
+        transactionId: referralUsage.transactionId,
+        transactionStatus: transaction.status,
+        transactionGrossAmount: transaction.grossAmount,
+        cashbackAmount: referralUsage.cashbackAmount,
+        paidAt: transaction.paidAt,
+        referralCode: referralCode.code,
+        usedByUserId: referralUsage.userId,
+        usedByName: sql<string>`(
+          select u.name
+          from "user" u
+          where u.id = ${referralUsage.userId}
+          limit 1
+        )`,
+        usedByEmail: sql<string>`(
+          select u.email
+          from "user" u
+          where u.id = ${referralUsage.userId}
+          limit 1
+        )`,
+        ownerUserId: referralCode.userId,
+        ownerName: sql<string>`(
+          select u.name
+          from "user" u
+          where u.id = ${referralCode.userId}
+          limit 1
+        )`,
+        ownerEmail: sql<string>`(
+          select u.email
+          from "user" u
+          where u.id = ${referralCode.userId}
+          limit 1
+        )`,
+      })
+      .from(referralUsage)
+      .innerJoin(referralCode, eq(referralUsage.referralCodeId, referralCode.id))
+      .innerJoin(transaction, eq(referralUsage.transactionId, transaction.id))
+      .where(
+        and(
+          search.length > 0
+            ? or(
+                sql`${referralCode.code} ilike ${likeKeyword}`,
+                sql`exists (
+                  select 1
+                  from "user" used_u
+                  where used_u.id = ${referralUsage.userId}
+                    and (used_u.name ilike ${likeKeyword} or used_u.email ilike ${likeKeyword})
+                )`,
+                sql`exists (
+                  select 1
+                  from "user" owner_u
+                  where owner_u.id = ${referralCode.userId}
+                    and (owner_u.name ilike ${likeKeyword} or owner_u.email ilike ${likeKeyword})
+                )`,
+                sql`${referralUsage.transactionId} ilike ${likeKeyword}`,
+              )
+            : undefined,
+          cursorCreatedAt && cursorId
+            ? sql`(${referralUsage.createdAt}, ${referralUsage.id}) < (${cursorCreatedAt}, ${cursorId})`
+            : undefined,
+        ),
+      )
+      .orderBy(desc(referralUsage.createdAt), desc(referralUsage.id))
+      .limit(limit + 1);
   },
 };
