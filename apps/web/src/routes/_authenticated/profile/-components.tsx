@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { ArrowLeftIcon, CheckIcon, CopyIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, CheckIcon, CopyIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -132,7 +132,9 @@ export default function ProfilePage() {
   const [customize, setCustomize] = useState({ kampus: "", jurusan: "" });
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarId(session?.user.image));
   const [copied, setCopied] = useState(false);
-  const referralCode = profileQuery.data?.referralCode ?? "N/A";
+  const referralCode = profileQuery.data?.referralCode ?? null;
+  const displayReferralCode = referralCode ?? "Belum punya kode";
+  const hasReferralCode = Boolean(referralCode);
   const referralCount = profileQuery.data?.referralUsage ?? 0;
 
   // Sync phone from API once loaded
@@ -155,11 +157,33 @@ export default function ProfilePage() {
 
   const avatarMutation = useMutation(orpc.profile.updateAvatar.mutationOptions());
   const profileMutation = useMutation(orpc.profile.update.mutationOptions());
+  const generateReferralMutation = useMutation({
+    mutationFn: async () => queryClient.fetchQuery(orpc.referral.getMyCode.queryOptions()),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: orpc.profile.get.key() });
+      toast.success("Kode referral berhasil dibuat");
+    },
+    onError: () => {
+      toast.error("Gagal membuat kode referral");
+    },
+  });
 
   const handleCopy = () => {
+    if (!referralCode) return;
+
     navigator.clipboard.writeText(referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleReferralButtonClick = () => {
+    if (hasReferralCode) {
+      handleCopy();
+      return;
+    }
+
+    if (generateReferralMutation.isPending) return;
+    generateReferralMutation.mutate();
   };
 
   const handleSave = async () => {
@@ -331,14 +355,25 @@ export default function ProfilePage() {
                   <div className="flex h-23.5 items-stretch overflow-hidden rounded-lg border-2 border-secondary-600 bg-secondary-400">
                     <div className="flex flex-1 flex-col justify-center gap-1 pl-4">
                       <span className="text-[10px] font-medium">Kode Affiliatemu</span>
-                      <span className="text-[28px] leading-10.5 font-bold">{referralCode}</span>
+                      <span className="text-[28px] leading-10.5 font-bold">{displayReferralCode}</span>
                     </div>
                     <button
                       type="button"
-                      onClick={handleCopy}
+                      onClick={handleReferralButtonClick}
+                      disabled={generateReferralMutation.isPending}
                       className="flex w-18 shrink-0 cursor-pointer items-center justify-center border-l-2 border-secondary-700 bg-secondary-600"
                     >
-                      {copied ? <CheckIcon className="size-5" /> : <CopyIcon className="size-5" />}
+                      {generateReferralMutation.isPending ? (
+                        <SpinnerIcon className="size-5 animate-spin" />
+                      ) : hasReferralCode ? (
+                        copied ? (
+                          <CheckIcon className="size-5" />
+                        ) : (
+                          <CopyIcon className="size-5" />
+                        )
+                      ) : (
+                        <span className="text-xs font-semibold">Generate</span>
+                      )}
                     </button>
                   </div>
                   <div className="flex gap-3 max-md:flex-col">
