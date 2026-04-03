@@ -33,11 +33,7 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
     context.session.user.isPremium = dbIsPremium;
     sessionUser.isPremium = dbIsPremium;
     sessionUser.premiumExpiresAt = dbUser.premiumExpiresAt;
-    sessionUser.premiumTier = dbIsPremium
-      ? dbUser.premiumTier === "premium2"
-        ? "premium2"
-        : "premium"
-      : null;
+    sessionUser.premiumTier = dbIsPremium ? (dbUser.premiumTier === "premium2" ? "premium2" : "premium") : null;
   }
 
   // Reset user data based on expiry

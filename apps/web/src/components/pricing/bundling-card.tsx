@@ -101,7 +101,13 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
           </p>
           <hr className="mt-4 border-white/10" />
         </div>
-        <div className={cn("relative z-10 flex-1 border-x-2 border-primary-400 px-6 pb-4", premiumColors.border, premiumColors.bg)}>
+        <div
+          className={cn(
+            "relative z-10 flex-1 border-x-2 border-primary-400 px-6 pb-4",
+            premiumColors.border,
+            premiumColors.bg,
+          )}
+        >
           <ul className="mt-4 space-y-2">
             {data.features.map((feature: PricingFeature) => (
               <li key={feature.label} className="flex items-center gap-2 text-xs">
