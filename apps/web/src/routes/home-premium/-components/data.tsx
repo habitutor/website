@@ -17,7 +17,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "included" },
         { label: "Live Class (5x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "15x Try Out & Pembahasan", status: "limited", value: "15x" },
+        // { label: "15x Try Out & Pembahasan", status: "limited", value: "15x" },
       ],
       cta: {
         label: "Langganan Sekarang",
@@ -41,7 +41,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "included" },
         { label: "Live Class (3x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "10x Try Out & Pembahasan", status: "limited", value: "10x" },
+        // { label: "10x Try Out & Pembahasan", status: "limited", value: "10x" },
       ],
       cta: {
         label: "Langganan Sekarang",
@@ -64,7 +64,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "included" },
         { label: "Live Class (5x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "3x Try Out & Pembahasan", status: "limited", value: "3x" },
+        // { label: "3x Try Out & Pembahasan", status: "limited", value: "3x" },
       ],
       cta: {
         label: "Mulai Sekarang",
@@ -84,7 +84,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "included" },
         { label: "Live Class (3x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "3x Try Out & Pembahasan", status: "limited", value: "3x" },
+        // { label: "3x Try Out & Pembahasan", status: "limited", value: "3x" },
       ],
       cta: {
         label: "Mulai Sekarang",
@@ -107,7 +107,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "excluded" },
         { label: "Live Class (5x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "Try Out & Pembahasan", status: "excluded" },
+        // { label: "Try Out & Pembahasan", status: "excluded" },
       ],
       cta: {
         label: "Mulai Sekarang",
@@ -128,7 +128,7 @@ export const DATA = {
         { label: "Matrikulasi Subtest", status: "excluded" },
         { label: "Live Class (3x/Minggu)", status: "included" },
         { label: "Mentor UI, ITB, UGM", status: "included" },
-        { label: "Try Out & Pembahasan", status: "excluded" },
+        // { label: "Try Out & Pembahasan", status: "excluded" },
       ],
       cta: {
         label: "Mulai Sekarang",
@@ -151,7 +151,7 @@ export const DATA = {
       { label: "Matrikulasi Subtest", status: "included" },
       { label: "Live Class (3x/Minggu)", status: "excluded" },
       { label: "Mentor UI, ITB, UGM", status: "excluded" },
-      { label: "3x Try Out & Pembahasan", status: "limited", value: "3x" },
+      // { label: "3x Try Out & Pembahasan", status: "limited", value: "3x" },
     ],
     cta: {
       label: "Mulai Sekarang",

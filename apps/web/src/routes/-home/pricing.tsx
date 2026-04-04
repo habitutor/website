@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { type ReactNode, useEffect, useState } from "react";
 import { BundlingCard } from "@/components/pricing/bundling-card";
-import { TryOutCard } from "@/components/pricing/tryout-card";
+// import { TryOutCard } from "@/components/pricing/tryout-card";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 export function Pricing() {
   const { plans } = DATA.pricing;
   const planEntries = Object.values(plans);
-  const tryout = Object.values(DATA.pricing_tryout);
+  // const tryout = Object.values(DATA.pricing_tryout);
 
   const basicHeaderStyles = [
     "bg-tertiary-100 border-tertiary-200",
@@ -55,7 +55,7 @@ export function Pricing() {
     ),
   );
 
-  const mobileTryoutCards = tryout.map((plan) => <TryOutCard key={plan.label} data={plan} />);
+  // const mobileTryoutCards = tryout.map((plan) => <TryOutCard key={plan.label} data={plan} />);
 
   return (
     <div className="flex border-2 border-secondary-100 bg-[#FFFCF3] py-16">
@@ -108,7 +108,7 @@ export function Pricing() {
         </div>
 
         {/* Paket Try Out Section */}
-        <div className="flex w-full flex-col items-center justify-center gap-11">
+        {/* <div className="flex w-full flex-col items-center justify-center gap-11">
           <div className="flex h-11 w-full items-center justify-center rounded-2xl border border-[#FEE086] bg-[#FEEAAE] text-center *:text-pretty">
             <h3 className="text-base font-bold">Paket Try Out</h3>
           </div>
@@ -122,7 +122,7 @@ export function Pricing() {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
         <Link to={"/home-premium"} className="flex items-center justify-center">
           <Button>Lihat Semua Paket Kami!</Button>
