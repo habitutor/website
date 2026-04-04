@@ -6,6 +6,77 @@ import {
   questionAnswerOption,
 } from "@habitutor/db/schema/practice-pack";
 import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { convertToTiptap } from "../../../lib/tiptap";
+
+type PackQuestionRow = {
+  questionId: number;
+  questionOrder: number | null;
+  questionContent: string;
+  questionDiscussion: string;
+  questionContentJson: unknown;
+  questionDiscussionJson: unknown;
+  questionIsFlashcard: boolean | null;
+  answerId: number;
+  answerContent: string;
+  answerCode: string;
+  answerIsCorrect: boolean | null;
+};
+
+function toTiptapDoc(contentJson: unknown, fallback: string): Record<string, unknown> {
+  if (contentJson && typeof contentJson === "object") {
+    return contentJson as Record<string, unknown>;
+  }
+  return convertToTiptap(fallback) as Record<string, unknown>;
+}
+
+export function formatPackQuestions(rows: PackQuestionRow[]) {
+  const questionMap = new Map<
+    number,
+    {
+      id: number;
+      order: number;
+      content: Record<string, unknown>;
+      discussion: Record<string, unknown>;
+      isFlashcard: boolean;
+      answers: Array<{ id: number; content: string; code: string; isCorrect: boolean }>;
+    }
+  >();
+
+  for (const row of rows) {
+    if (!questionMap.has(row.questionId)) {
+      questionMap.set(row.questionId, {
+        id: row.questionId,
+        order: row.questionOrder ?? 1,
+        content: toTiptapDoc(row.questionContentJson, row.questionContent),
+        discussion: toTiptapDoc(row.questionDiscussionJson, row.questionDiscussion),
+        isFlashcard: row.questionIsFlashcard ?? true,
+        answers: [],
+      });
+    }
+
+    const questionEntry = questionMap.get(row.questionId);
+    if (!questionEntry) {
+      continue;
+    }
+
+    questionEntry.answers.push({
+      id: row.answerId,
+      content: row.answerContent,
+      code: row.answerCode,
+      isCorrect: row.answerIsCorrect ?? false,
+    });
+  }
+
+  return Array.from(questionMap.values())
+    .map((question) => ({
+      ...question,
+      answers: question.answers.sort((a, b) => a.code.localeCompare(b.code)),
+    }))
+    .sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.id - b.id;
+    });
+}
 
 export const adminPracticePackRepo = {
   list: async ({

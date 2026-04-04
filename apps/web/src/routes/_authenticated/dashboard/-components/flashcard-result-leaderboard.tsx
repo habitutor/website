@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/browser/use-mobile";
 import { orpc } from "@/utils/orpc";
 import { PODIUM_CFG, PODIUM_CFG_MOBILE, PODIUM_ORDER } from "./flashcard-result-animations";
 

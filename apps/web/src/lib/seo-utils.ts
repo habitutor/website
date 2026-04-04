@@ -8,19 +8,6 @@ export interface MetaProps {
   canonical?: string;
 }
 
-export interface JsonLdProps {
-  "@context": string;
-  "@type": string;
-  [key: string]: unknown;
-}
-
-export function createJsonLd(data: JsonLdProps) {
-  return {
-    type: "application/ld+json",
-    children: JSON.stringify(data),
-  };
-}
-
 export function createMeta({ title, description, image, noIndex, canonical }: MetaProps = {}) {
   const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.name;
   const metaDescription = description || siteConfig.description;
@@ -50,44 +37,4 @@ export function createMeta({ title, description, image, noIndex, canonical }: Me
     ...(canonical ? [{ rel: "canonical", href: canonical }] : []),
     ...(noIndex ? [{ name: "robots", content: "noindex, nofollow" }] : []),
   ];
-}
-
-export function createOrganizationSchema() {
-  return createJsonLd({
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: siteConfig.name,
-    url: siteConfig.url,
-    description: siteConfig.description,
-    logo: `${siteConfig.url}/logo.svg`,
-    sameAs: [],
-  });
-}
-
-export function createWebSiteSchema() {
-  return createJsonLd({
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: siteConfig.name,
-    url: siteConfig.url,
-    description: siteConfig.description,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${siteConfig.url}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
-  });
-}
-
-export function createBreadcrumbSchema(items: Array<{ name: string; item: string }>) {
-  return createJsonLd({
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: item.item,
-    })),
-  });
 }

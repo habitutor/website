@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
-import { useProcessReferralCode } from "@/hooks/use-process-referral-code";
+import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
 import { Announcement } from "../-components/announcement";
 import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 
 function RouteComponent() {
   const { session } = Route.useRouteContext();
-  const { data, error } = useQuery(orpc.social.queryOptions());
+  const { data, error } = useQuery(orpc.social.get.queryOptions());
   const { data: profile } = useQuery(orpc.profile.me.queryOptions());
   useQuery(orpc.dashboard.content.queryOptions());
 

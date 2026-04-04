@@ -1,3 +1,5 @@
+import { isAdminRole } from "./auth-domain";
+
 /**
  * Content access control helpers
  * Centralized logic for determining content access based on premium status and role
@@ -22,7 +24,7 @@ export function canAccessContent(
   contentOrder: number,
 ): boolean {
   // Admin can access everything
-  if (userRole === "admin") return true;
+  if (isAdminRole(userRole)) return true;
   // Premium users can access everything
   if (userIsPremium) return true;
   // Free users: only first content from first subtest
@@ -55,6 +57,6 @@ export function isFirstContent(contentOrder: number): boolean {
  */
 export function isSubtestPremium(subtestOrder: number, userRole?: string, userIsPremium?: boolean): boolean {
   // Admin and premium users see no lock
-  if (userRole === "admin" || userIsPremium) return false;
+  if (isAdminRole(userRole) || userIsPremium) return false;
   return subtestOrder !== 1;
 }

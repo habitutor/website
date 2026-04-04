@@ -24,9 +24,9 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 
 // --- Icons ---
-import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon";
-import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
-import { LinkIcon } from "@/components/tiptap-icons/link-icon";
+import { ArrowLeftIcon } from "@/components/tiptap-icons";
+import { HighlighterIcon } from "@/components/tiptap-icons";
+import { LinkIcon } from "@/components/tiptap-icons";
 // --- Components ---
 import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button";
 import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button";
@@ -43,10 +43,10 @@ import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu";
 import { MarkButton } from "@/components/tiptap-ui/mark-button";
 import { TextAlignButton } from "@/components/tiptap-ui/text-align-button";
 import { UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button";
-import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
+import { useCursorVisibility } from "@/hooks/editor/use-cursor-visibility";
 // --- Hooks ---
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-import { useWindowSize } from "@/hooks/use-window-size";
+import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
+import { useWindowSize } from "@/hooks/browser/use-window-size";
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";

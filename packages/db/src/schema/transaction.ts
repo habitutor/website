@@ -1,5 +1,5 @@
 import { decimal, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { user } from "./auth";
+import { user } from "./user";
 import { referralCode } from "./referral";
 
 export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"]);

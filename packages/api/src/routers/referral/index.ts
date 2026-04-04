@@ -45,41 +45,32 @@ const validate = authed
   .output(
     type({
       valid: "boolean",
-      "message?": "string",
     }),
   )
-  .handler(async ({ input, context }) => {
+  .handler(async ({ input, context, errors }) => {
     const userId = context.session.user.id;
     const code = input.code.trim();
+    const validation = await referralRepo.validateCodeForUser({ userId, code });
 
-    if (code.length !== 11) {
-      return { valid: false, message: "Kode referral harus 11 karakter." };
-    }
-
-    const codeRecord = await referralRepo.getCodeByCode({ code });
-    if (!codeRecord) {
-      return { valid: false, message: "Kode referral tidak ditemukan." };
-    }
-
-    if (codeRecord.userId === userId) {
-      return {
-        valid: false,
-        message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
-      };
-    }
-
-    const existingUsage = await referralRepo.getUserUsage({ userId });
-    if (existingUsage) {
-      return {
-        valid: false,
-        message: "Kamu sudah pernah menggunakan kode referral.",
-      };
+    if (!validation.ok) {
+      if (validation.reason === "invalid_length") {
+        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
+      }
+      if (validation.reason === "not_found") {
+        throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
+      }
+      if (validation.reason === "own_code") {
+        throw errors.UNPROCESSABLE_CONTENT({
+          message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
+        });
+      }
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
     }
 
     return { valid: true };
   });
 
-const use = authed
+const applyReferralCode = authed
   .route({
     path: "/referral/use",
     method: "POST",
@@ -93,35 +84,27 @@ const use = authed
   .output(
     type({
       success: "boolean",
-      "message?": "string",
+      message: "string",
     }),
   )
-  .handler(async ({ input, context }) => {
+  .handler(async ({ input, context, errors }) => {
     const userId = context.session.user.id;
     const code = input.code.trim();
+    const validation = await referralRepo.validateCodeForUser({ userId, code });
 
-    if (!code || code.length !== 11) {
-      return { success: false, message: "Kode referral tidak valid." };
-    }
-
-    const codeRecord = await referralRepo.getCodeByCode({ code });
-    if (!codeRecord) {
-      return { success: false, message: "Kode referral tidak ditemukan." };
-    }
-
-    if (codeRecord.userId === userId) {
-      return {
-        success: false,
-        message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
-      };
-    }
-
-    const existingUsage = await referralRepo.getUserUsage({ userId });
-    if (existingUsage) {
-      return {
-        success: false,
-        message: "Kamu sudah pernah menggunakan kode referral.",
-      };
+    if (!validation.ok) {
+      if (validation.reason === "invalid_length") {
+        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral tidak valid." });
+      }
+      if (validation.reason === "not_found") {
+        throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
+      }
+      if (validation.reason === "own_code") {
+        throw errors.UNPROCESSABLE_CONTENT({
+          message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
+        });
+      }
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
     }
 
     // Increment referral count dan create usage record dengan transaction
@@ -129,12 +112,12 @@ const use = authed
       await db.transaction(async (tx) => {
         await referralRepo.incrementReferralCount({
           db: tx,
-          referralCodeId: codeRecord.id,
+          referralCodeId: validation.codeRecord.id,
         });
         await referralRepo.createUsage({
           db: tx,
           userId,
-          referralCodeId: codeRecord.id,
+          referralCodeId: validation.codeRecord.id,
           transactionId: undefined,
           cashbackAmount: undefined,
         });
@@ -142,24 +125,22 @@ const use = authed
 
       return { success: true, message: "Kode referral berhasil digunakan!" };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Unknown error";
-      logger.error(error instanceof Error ? error : new Error(errorMsg), { errorMsg });
-
-      if (errorMsg.includes("unique") || errorMsg.includes("duplicate")) {
-        return {
-          success: false,
-          message: "Kamu sudah pernah menggunakan kode referral.",
-        };
+      if (error instanceof Error && "code" in error && (error as { code: string }).code === "23505") {
+        throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
       }
-      return {
-        success: false,
+      logger.error(error instanceof Error ? error : new Error("Unknown referral use failure"), {
+        userId,
+        referralCodeId: validation.codeRecord.id,
+      });
+      throw errors.INTERNAL_SERVER_ERROR({
         message: "Terjadi kesalahan saat memproses kode referral.",
-      };
+      });
     }
   });
 
 export const referralRouter = {
   code: getMyCode,
   validate,
-  use,
+  apply: applyReferralCode,
+  use: applyReferralCode,
 };

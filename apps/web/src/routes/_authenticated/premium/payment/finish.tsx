@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import Loader from "@/components/loader";
+import Loader from "@/components/feedback/loader";
 import { Container } from "@/components/ui/container";
 import { refreshAuthSession } from "@/lib/auth-session";
 import { client } from "@/utils/orpc";

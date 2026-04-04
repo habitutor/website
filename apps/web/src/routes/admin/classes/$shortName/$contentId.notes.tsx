@@ -2,11 +2,10 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-
-const TiptapSimpleEditor = lazy(() => import("@/components/tiptap-simple-editor"));
+import { TiptapSimpleEditor } from "./-components/lazy-tiptap-simple-editor";
 
 import {
   AlertDialog,

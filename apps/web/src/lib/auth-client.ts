@@ -8,7 +8,7 @@ export const authClient = createAuthClient({
   fetchOptions: {
     credentials: "include",
   },
-  plugins: [inferAdditionalFields<typeof auth>()],
+  plugins: [inferAdditionalFields<auth>()],
 });
 
 export type Session = typeof authClient.$Infer.Session;

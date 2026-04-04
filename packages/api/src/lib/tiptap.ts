@@ -1,8 +1,14 @@
+import { logger } from "@habitutor/shared";
+
 export function convertToTiptap(text: string) {
   try {
     const parsed = JSON.parse(text);
     if (parsed && parsed.type === "doc") return parsed;
-  } catch {}
+  } catch (error) {
+    logger.warn("Failed to parse tiptap JSON, falling back to plain text document", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 
   return {
     type: "doc",
@@ -13,8 +19,4 @@ export function convertToTiptap(text: string) {
       },
     ],
   };
-}
-
-export function escapeLikePattern(value: string): string {
-  return value.replace(/[%_\\]/g, (char) => `\\${char}`);
 }

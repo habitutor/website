@@ -40,8 +40,17 @@ function cleanupExpiredEntries() {
   }
 }
 
-// Run cleanup every 5 minutes
-setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+let cleanupIntervalStarted = false;
+
+function ensureCleanupInterval() {
+  if (cleanupIntervalStarted) {
+    return;
+  }
+
+  const timer = setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+  timer.unref?.();
+  cleanupIntervalStarted = true;
+}
 
 /**
  * Get rate limit key for a user and endpoint
@@ -112,6 +121,8 @@ function checkRateLimit(
  * Applies different limits for free and premium users
  */
 export const rateLimit = o.middleware(async ({ context, next, path }) => {
+  ensureCleanupInterval();
+
   // Skip rate limiting if no user session (will be caught by auth middleware)
   if (!context.session?.user) {
     return next();

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useThrottledCallback } from "@/hooks/use-throttled-callback";
+import { useThrottledCallback } from "@/hooks/timing/use-throttled-callback";
 
 export interface WindowSizeState {
   /**

@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
+import { useCursorPagination } from "@/hooks/data/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 
 interface AddExistingQuestionModalProps {

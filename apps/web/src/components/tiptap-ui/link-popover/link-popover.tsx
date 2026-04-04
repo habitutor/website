@@ -1,10 +1,10 @@
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useCallback, useEffect, useState } from "react";
 // --- Icons ---
-import { CornerDownLeftIcon } from "@/components/tiptap-icons/corner-down-left-icon";
-import { ExternalLinkIcon } from "@/components/tiptap-icons/external-link-icon";
-import { LinkIcon } from "@/components/tiptap-icons/link-icon";
-import { TrashIcon } from "@/components/tiptap-icons/trash-icon";
+import { CornerDownLeftIcon } from "@/components/tiptap-icons";
+import { ExternalLinkIcon } from "@/components/tiptap-icons";
+import { LinkIcon } from "@/components/tiptap-icons";
+import { TrashIcon } from "@/components/tiptap-icons";
 // --- Tiptap UI ---
 import type { UseLinkPopoverConfig } from "@/components/tiptap-ui/link-popover";
 import { useLinkPopover } from "@/components/tiptap-ui/link-popover";
@@ -16,8 +16,8 @@ import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover";
 import { Separator } from "@/components/tiptap-ui-primitive/separator";
 // --- Hooks ---
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 
 export interface LinkMainProps {
   /**

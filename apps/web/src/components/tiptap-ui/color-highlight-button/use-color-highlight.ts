@@ -2,10 +2,10 @@ import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 // --- Icons ---
-import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
+import { HighlighterIcon } from "@/components/tiptap-icons";
+import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
 import { isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 

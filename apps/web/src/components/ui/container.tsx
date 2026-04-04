@@ -1,4 +1,4 @@
-import { Slot } from "radix-ui";
+import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
 export const Container = ({
@@ -10,7 +10,7 @@ export const Container = ({
   asChild?: boolean;
   children?: React.ReactNode;
 }) => {
-  const Comp = asChild ? Slot.Slot : "main";
+  const Comp = asChild ? Slot : "main";
 
   return (
     <Comp className={cn("mx-auto flex w-full max-w-300 flex-col gap-4 px-4 py-8 md:px-8", className)}>{children}</Comp>

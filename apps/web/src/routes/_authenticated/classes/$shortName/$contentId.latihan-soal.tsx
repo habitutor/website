@@ -3,7 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useEffect } from "react";
 import { PracticeQuestion, PracticeQuestionHeader } from "@/components/classes";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/latihan-soal")({

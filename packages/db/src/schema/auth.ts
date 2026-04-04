@@ -1,31 +1,8 @@
 import { relations } from "drizzle-orm";
-import { boolean, index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { referralCode, referralUsage } from "./referral";
+import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { user } from "./user";
 
-export const user = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").default(false).notNull(),
-  image: text("image"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  role: text("role").default("user"),
-  isPremium: boolean("is_premium").default(false),
-  premiumTier: text("premium_tier"),
-  flashcardStreak: integer("flashcard_streak").default(0),
-  totalScore: integer("total_score").default(0).notNull(),
-  lastCompletedFlashcardAt: timestamp("last_completed_flashcard_at"),
-  premiumExpiresAt: timestamp("premium_expires_at"),
-  phoneNumber: text("phone_number"),
-  referralCode: text("referral_code"),
-  referralUsage: integer("referral_usage").default(0),
-  dreamCampus: text("dream_campus"),
-  dreamMajor: text("dream_major"),
-});
+export { user } from "./user";
 
 export const session = pgTable(
   "session",
@@ -86,17 +63,9 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const userRelations = relations(user, ({ many, one }) => ({
+export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
-  referralCodeData: one(referralCode, {
-    fields: [user.id],
-    references: [referralCode.userId],
-  }),
-  referralUsageData: one(referralUsage, {
-    fields: [user.id],
-    references: [referralUsage.userId],
-  }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({

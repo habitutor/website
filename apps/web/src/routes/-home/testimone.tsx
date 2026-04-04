@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import Carousel from "@/components/testimone-carousel";
+import Carousel from "@/components/home/testimone-carousel";
 import { DATA } from "./data";
 
 export default function Testimone() {

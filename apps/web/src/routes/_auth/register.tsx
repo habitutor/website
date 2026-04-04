@@ -5,7 +5,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
-import Loader from "@/components/loader";
+import Loader from "@/components/feedback/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,16 +53,26 @@ function SignUpForm() {
       name: "",
       email: "",
       phoneNumber: "",
-      password: "",
-      confirm_password: "",
+      accountPassphrase: "",
+      confirmAccountPassphrase: "",
       referralCode: "",
     },
     onSubmit: async ({ value }) => {
+      if (value.accountPassphrase.length < 8) {
+        toast.error("Password minimal 8 karakter");
+        return;
+      }
+
+      if (value.accountPassphrase !== value.confirmAccountPassphrase) {
+        toast.error("Password harus sama. Silakan cek ulang.");
+        return;
+      }
+
       const normalizedPhoneNumber = value.phoneNumber.trim();
       const result = await authClient.signUp.email(
         {
           email: value.email,
-          password: value.password,
+          password: value.accountPassphrase,
           name: value.name,
           phoneNumber: normalizedPhoneNumber.length > 0 ? normalizedPhoneNumber : undefined,
         },
@@ -85,7 +95,8 @@ function SignUpForm() {
         name: "string >= 2",
         email: "string.email",
         "phoneNumber?": "string",
-        password: "string >= 8",
+        accountPassphrase: "string >= 8",
+        confirmAccountPassphrase: "string >= 8",
       }),
     },
   });
@@ -185,7 +196,7 @@ function SignUpForm() {
           </div>
 
           <div>
-            <form.Field name="password">
+            <form.Field name="accountPassphrase">
               {(field) => (
                 <div className="space-y-2">
                   <Label htmlFor={field.name}>Password</Label>
@@ -209,11 +220,11 @@ function SignUpForm() {
 
           <div>
             <form.Field
-              name="confirm_password"
+              name="confirmAccountPassphrase"
               validators={{
-                onChangeListenTo: ["password"],
+                onChangeListenTo: ["accountPassphrase"],
                 onChange: ({ value, fieldApi }) => {
-                  if (value !== fieldApi.form.getFieldValue("password"))
+                  if (value !== fieldApi.form.getFieldValue("accountPassphrase"))
                     return "Password harus sama. Silakan cek ulang.";
                   return undefined;
                 },
@@ -230,9 +241,9 @@ function SignUpForm() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
-                  {field.state.meta.errors.map((error) => (
-                    <p key={error} className="text-xs text-red-500">
-                      {error}
+                  {field.state.meta.errors.map((error, index) => (
+                    <p key={`${field.name}-${index}`} className="text-xs text-red-500">
+                      {typeof error === "string" ? error : error?.message}
                     </p>
                   ))}
                 </div>

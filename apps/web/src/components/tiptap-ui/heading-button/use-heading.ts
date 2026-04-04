@@ -1,16 +1,16 @@
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-import { HeadingFiveIcon } from "@/components/tiptap-icons/heading-five-icon";
-import { HeadingFourIcon } from "@/components/tiptap-icons/heading-four-icon";
+import { HeadingFiveIcon } from "@/components/tiptap-icons";
+import { HeadingFourIcon } from "@/components/tiptap-icons";
 
 // --- Icons ---
-import { HeadingOneIcon } from "@/components/tiptap-icons/heading-one-icon";
-import { HeadingSixIcon } from "@/components/tiptap-icons/heading-six-icon";
-import { HeadingThreeIcon } from "@/components/tiptap-icons/heading-three-icon";
-import { HeadingTwoIcon } from "@/components/tiptap-icons/heading-two-icon";
+import { HeadingOneIcon } from "@/components/tiptap-icons";
+import { HeadingSixIcon } from "@/components/tiptap-icons";
+import { HeadingThreeIcon } from "@/components/tiptap-icons";
+import { HeadingTwoIcon } from "@/components/tiptap-icons";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
 import {
   findNodePosition,

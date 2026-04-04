@@ -1,11 +1,18 @@
 import type { auth } from "@habitutor/auth";
 import { Snap } from "midtrans-client";
 
-export const snap = new Snap({
-  isProduction: process.env.NODE_ENV === "production",
-  serverKey: process.env.MIDTRANS_SERVER_KEY || "",
-  clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
-});
+let snapClient: Snap | null = null;
+
+function getSnap() {
+  if (!snapClient) {
+    snapClient = new Snap({
+      isProduction: process.env.NODE_ENV === "production",
+      serverKey: process.env.MIDTRANS_SERVER_KEY || "",
+      clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
+    });
+  }
+  return snapClient;
+}
 
 export async function createSubscriptionTransaction({
   id,
@@ -16,7 +23,7 @@ export async function createSubscriptionTransaction({
   id: string;
   name: string;
   grossAmount: number;
-  session: typeof auth.$Infer.Session;
+  session: auth["$Infer"]["Session"];
 }) {
   const normalizedGrossAmount = Math.round(grossAmount);
 
@@ -44,7 +51,7 @@ export async function createSubscriptionTransaction({
     },
   };
 
-  const snapTransaction = await snap.createTransaction(params);
+  const snapTransaction = await getSnap().createTransaction(params);
 
   return {
     token: snapTransaction.token,

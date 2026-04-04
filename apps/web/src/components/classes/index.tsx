@@ -33,8 +33,8 @@ import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import { orpc } from "@/utils/orpc";
 import type { BodyOutputs } from "@/utils/orpc";
-import { BackButton } from "./back-button";
-import { buttonVariants } from "./ui/button";
+import { BackButton } from "@/components/navigation/back-button";
+import { buttonVariants } from "@/components/ui/button";
 
 export function SubtestHeader() {
   const isAdmin = useIsAdmin();

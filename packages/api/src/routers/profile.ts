@@ -5,6 +5,15 @@ import { type } from "arktype";
 import { eq } from "drizzle-orm";
 import { authed } from "..";
 
+const LEGACY_AVATAR_PATH_PATTERN = /\/avatar\/profile\/tupai-(\d+)\.webp$/;
+
+function toCanonicalAvatarId(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (/^\d+$/.test(value)) return value;
+  const match = value.match(LEGACY_AVATAR_PATH_PATTERN);
+  return match ? match[1]! : null;
+}
+
 const getProfile = authed
   .route({
     path: "/profile",
@@ -19,7 +28,7 @@ const getProfile = authed
       "phoneNumber?": "string | null",
       "image?": "string | null",
       "referralCode?": "string | null",
-      "referralUsage?": "number | null",
+      referralUsage: "number",
       "dreamCampus?": "string | null",
       "dreamMajor?": "string | null",
     }),
@@ -40,12 +49,18 @@ const getProfile = authed
       .leftJoin(referralCode, eq(user.id, referralCode.userId))
       .where(eq(user.id, id))
       .limit(1);
+
+    const canonicalImage = toCanonicalAvatarId(row?.image);
+    if (row?.image && canonicalImage && canonicalImage !== row.image) {
+      await db.update(user).set({ image: canonicalImage }).where(eq(user.id, id));
+    }
+
     return {
       id,
       name: row?.name ?? context.session.user.name,
       email,
       phoneNumber: row?.phoneNumber ?? null,
-      image: row?.image ?? null,
+      image: canonicalImage,
       referralCode: row?.referralCode ?? null,
       referralUsage: row?.referralUsage ?? 0,
       dreamCampus: row?.dreamCampus ?? null,
@@ -104,9 +119,7 @@ const updateAvatar = authed
     }),
   )
   .handler(async ({ input, context }) => {
-    // Store only the avatar ID (e.g. "3"), strip legacy path if provided
-    const match = input.image.match(/tupai-(\d+)/);
-    const avatarId = match ? match[1]! : input.image;
+    const avatarId = input.image.trim();
     await db.update(user).set({ image: avatarId }).where(eq(user.id, context.session.user.id));
     return { image: avatarId };
   });

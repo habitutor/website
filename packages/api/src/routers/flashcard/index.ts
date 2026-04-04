@@ -3,7 +3,8 @@ import { user } from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
 import { authed, premium } from "../../index";
-import { convertToTiptap, getStartOfDay } from "@habitutor/shared";
+import { getStartOfDay } from "@habitutor/shared";
+import { convertToTiptap } from "../../lib/tiptap";
 import {
   countCorrectAnswers,
   isAttemptExpired,
@@ -34,7 +35,7 @@ const start = authed
         userId: context.session.user.id,
       });
       const shouldBlock = shouldBlockStartSession({
-        latestAttempt,
+        latestAttempt: latestAttempt ?? undefined,
         isPremium,
         today,
       });
@@ -103,13 +104,14 @@ const get = authed
     let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
     const attempt = await flashcardRepo.getLatestAttempt({
+      db,
       userId: context.session.user.id,
     });
 
     if (!attempt) return { status };
 
-    const assignedQuestionsRaw = await flashcardRepo.getUnansweredQuestions({ attemptId: attempt.id });
-    const totalQuestionsCount = await flashcardRepo.countQuestionsForAttempt({ attemptId: attempt.id });
+    const assignedQuestionsRaw = await flashcardRepo.getUnansweredQuestions({ db, attemptId: attempt.id });
+    const totalQuestionsCount = await flashcardRepo.countQuestionsForAttempt({ db, attemptId: attempt.id });
 
     const assignedQuestions = assignedQuestionsRaw.map((aq) => ({
       ...aq,
@@ -148,6 +150,7 @@ const submit = authed
     const hasDoneToday = !shouldIncrementStreak;
 
     const latestAttempt = await flashcardRepo.getLatestAttemptForToday({
+      db,
       userId: context.session.user.id,
       today,
     });
@@ -227,6 +230,7 @@ const save = authed
     const today = getStartOfDay();
 
     const attempt = await flashcardRepo.getAttemptForQuestion({
+      db,
       userId: context.session.user.id,
       questionId: input.questionId,
       today,
@@ -241,6 +245,7 @@ const save = authed
     }
 
     const answers = await flashcardRepo.getAnswersForQuestion({
+      db,
       questionId: input.questionId,
     });
 
@@ -251,6 +256,7 @@ const save = authed
     if (!resolvedAnswer) throw errors.NOT_FOUND();
 
     await flashcardRepo.updateQuestionAnswer({
+      db,
       questionId: input.questionId,
       attemptId: attempt.id,
       selectedAnswerId: input.answerId,
@@ -277,6 +283,7 @@ const result = authed
   )
   .handler(async ({ context, errors, input }) => {
     const attempt = await flashcardRepo.getAttemptWithOptionalId({
+      db,
       userId: context.session.user.id,
       attemptId: input.id,
     });
@@ -287,6 +294,7 @@ const result = authed
       });
 
     const assignedQuestions = await flashcardRepo.getAttemptQuestionAnswers({
+      db,
       attemptId: attempt.id,
     });
 
@@ -320,7 +328,7 @@ const history = premium
     tags: ["Flashcard"],
   })
   .handler(async ({ context }) => {
-    return flashcardRepo.getUserHistory({ userId: context.session.user.id });
+    return flashcardRepo.getUserHistory({ db, userId: context.session.user.id });
   });
 
 const totalScore = authed
@@ -336,36 +344,12 @@ const totalScore = authed
   )
   .handler(async ({ context }) => {
     const totalScore = await flashcardRepo.getUserTotalScore({
+      db,
       userId: context.session.user.id,
     });
 
     return { totalScore };
   });
-
-// const leaderboard = authed
-//   .route({
-//     path: "/flashcard/leaderboard",
-//     method: "POST",
-//     tags: ["Flashcard"],
-//   })
-//   // .output(...) <- comment dulu output validator
-//   .handler(async ({ context }) => {
-//     const entries = await flashcardRepo.getLeaderboardWithCurrentUser({
-//       currentUserId: context.session.user.id,
-//       limit: 10,
-//     });
-
-//     return {
-//       entries: entries.map((entry) => ({
-//         rank: Number(entry.rank),
-//         userId: entry.userId,
-//         name: entry.name,
-//         image: entry.image,
-//         totalScore: entry.totalScore,
-//         isCurrentUser: entry.userId === context.session.user.id,
-//       })),
-//     };
-//   });
 
 const leaderboard = authed
   .route({
@@ -387,6 +371,7 @@ const leaderboard = authed
   )
   .handler(async ({ context }) => {
     const entries = await flashcardRepo.getLeaderboardWithCurrentUser({
+      db,
       currentUserId: context.session.user.id,
       limit: 10,
     });
@@ -405,6 +390,10 @@ const leaderboard = authed
 
 export const flashcardRouter = {
   start,
+  get,
+  save,
+  totalScore,
+  // Legacy aliases kept for compatibility
   session: get,
   submit,
   answer: save,

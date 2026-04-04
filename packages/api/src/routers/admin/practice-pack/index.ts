@@ -1,8 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { admin } from "../../../index";
-import { convertToTiptap } from "@habitutor/shared";
-import { adminPracticePackRepo } from "./repo";
+import { adminPracticePackRepo, formatPackQuestions } from "./repo";
 
 const list = admin
   .route({
@@ -230,49 +229,7 @@ const getQuestions = admin
       return { questions: [] };
     }
 
-    const questionMap = new Map<
-      number,
-      {
-        id: number;
-        order: number;
-        content: unknown;
-        discussion: unknown;
-        isFlashcard: boolean;
-        answers: Array<{ id: number; content: string; code: string; isCorrect: boolean }>;
-      }
-    >();
-
-    for (const row of rows) {
-      if (!questionMap.has(row.questionId)) {
-        questionMap.set(row.questionId, {
-          id: row.questionId,
-          order: row.questionOrder ?? 1,
-          content: row.questionContentJson || convertToTiptap(row.questionContent),
-          discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
-          isFlashcard: row.questionIsFlashcard ?? true,
-          answers: [],
-        });
-      }
-
-      questionMap.get(row.questionId)?.answers.push({
-        id: row.answerId,
-        content: row.answerContent,
-        code: row.answerCode,
-        isCorrect: row.answerIsCorrect ?? false,
-      });
-    }
-
-    const questions = Array.from(questionMap.values())
-      .map((q) => ({
-        ...q,
-        answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
-      }))
-      .sort((a, b) => {
-        if (a.order !== b.order) return a.order - b.order;
-        return a.id - b.id;
-      });
-
-    return { questions };
+    return { questions: formatPackQuestions(rows) };
   });
 
 const toggleAvailableForFlashcard = admin

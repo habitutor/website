@@ -1,8 +1,10 @@
 import { SQL } from "bun";
 import type { BunSQLDatabase } from "drizzle-orm/bun-sql";
 import { drizzle } from "drizzle-orm/bun-sql";
+import * as auth from "./schema/auth";
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
+import * as question from "./schema/question";
 import * as subtest from "./schema/subtest";
 import * as transaction from "./schema/transaction";
 
@@ -13,7 +15,9 @@ let client: SQL | null = null;
 let testDb: BunSQLDatabase<typeof schema> | null = null;
 
 const schema = {
+  ...auth,
   ...practice,
+  ...question,
   ...flashcard,
   ...transaction,
   ...subtest,

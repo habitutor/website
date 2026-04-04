@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import { authed } from "../../index";
 
-export const socialRouter = authed
+const get = authed
   .route({
     path: "/socials",
     method: "GET",
@@ -28,3 +28,7 @@ export const socialRouter = authed
       discord: process.env.DISCORD_LINK as string,
     };
   });
+
+export const socialRouter = {
+  get,
+};

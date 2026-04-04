@@ -5,7 +5,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-const TiptapSimpleEditor = lazy(() => import("@/components/tiptap-simple-editor"));
+const TiptapSimpleEditor = lazy(() => import("@/components/tiptap/simple-editor"));
 
 import { RequiredMarker } from "@/components/forms/required-marker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { decimal, index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { user } from "./auth";
+import { user } from "./user";
 
 export const referralCode = pgTable(
   "referral_code",

@@ -1,9 +1,10 @@
 import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
+import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared";
+import { logger } from "@habitutor/shared";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
 import { PREMIUM_DEADLINE } from "../../lib/constants";
-import { logger } from "@habitutor/shared";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
@@ -48,7 +49,8 @@ async function markTransactionAsSuccess(orderId: string) {
   const paidAt = tx.paidAt ?? new Date();
   const isPremiumSubscription =
     existingTransaction.prodType === "subscription" &&
-    (existingTransaction.prodSlug === "premium" || existingTransaction.prodSlug === "premium2");
+    (existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM ||
+      existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM_2);
 
   await db.transaction(async (trx) => {
     await transactionRepo.updateTransactionStatus({
@@ -59,7 +61,8 @@ async function markTransactionAsSuccess(orderId: string) {
     });
 
     if (isPremiumSubscription && tx.userId) {
-      const premiumTier = existingTransaction.prodSlug === "premium2" ? "premium2" : "premium";
+      const premiumTier =
+        existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM_2 ? PREMIUM_TIERS.PREMIUM_2 : PREMIUM_TIERS.PREMIUM;
 
       await transactionRepo.updateUserPremium({
         db: trx,
@@ -191,9 +194,11 @@ const subscribe = authed
     }),
   )
   .handler(async ({ input, context, errors }) => {
-    if ((input.name === "premium" || input.name === "premium2") && context.session.user.isPremium)
+    const isPremiumPlanName = input.name === PREMIUM_TIERS.PREMIUM || input.name === PREMIUM_TIERS.PREMIUM_2;
+
+    if (isPremiumPlanName && context.session.user.isPremium)
       throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-    if ((input.name === "premium" || input.name === "premium2") && Date.now() > PREMIUM_DEADLINE.getTime())
+    if (isPremiumPlanName && Date.now() > PREMIUM_DEADLINE.getTime())
       throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
 
     const plan = await transactionRepo.getProductBySlug({ slug: input.name });
@@ -205,32 +210,28 @@ const subscribe = authed
 
     if (input.referralCode) {
       const code = input.referralCode.trim();
+      const validation = await referralRepo.validateCodeForUser({
+        userId: context.session.user.id,
+        code,
+        allowPendingSameCode: true,
+      });
 
-      if (code.length !== 11) {
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
-      }
-
-      const codeRecord = await referralRepo.getCodeByCode({ code });
-      if (!codeRecord) {
-        throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
-      }
-
-      if (codeRecord.userId === context.session.user.id) {
-        throw errors.UNPROCESSABLE_CONTENT({
-          message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
-        });
-      }
-
-      if (existingUsage) {
-        const isSameCode = existingUsage.referralCodeId === codeRecord.id;
-        const isPendingTransaction = !existingUsage.transactionId;
-
-        if (!isSameCode || !isPendingTransaction) {
-          throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
+      if (!validation.ok) {
+        if (validation.reason === "invalid_length") {
+          throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
         }
+        if (validation.reason === "not_found") {
+          throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
+        }
+        if (validation.reason === "own_code") {
+          throw errors.UNPROCESSABLE_CONTENT({
+            message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
+          });
+        }
+        throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
       }
 
-      appliedReferralCodeId = codeRecord.id;
+      appliedReferralCodeId = validation.codeRecord.id;
     } else if (existingUsage && !existingUsage.transactionId) {
       // Referral submitted during registration should be applied automatically
       // to the first paid transaction.
@@ -302,12 +303,10 @@ const getStatus = authed
     });
 
     if (!tx) {
-      throw new ORPCError("NOT_FOUND", {
-        message: "Transaction not found",
-      });
+      throw errors.NOT_FOUND({ message: "Transaction not found" });
     }
 
-    if (context.session.user.role !== "admin" && tx.userId !== context.session.user.id) {
+    if (!isAdminRole(context.session.user.role) && tx.userId !== context.session.user.id) {
       throw errors.FORBIDDEN({
         message: "Kamu tidak memiliki akses ke transaksi ini.",
       });
@@ -315,9 +314,7 @@ const getStatus = authed
 
     const syncResult = await syncTransactionStatus(input.orderId);
     if (!syncResult) {
-      throw new ORPCError("NOT_FOUND", {
-        message: "Transaction not found",
-      });
+      throw errors.NOT_FOUND({ message: "Transaction not found" });
     }
 
     return {

@@ -718,41 +718,30 @@ const SUBTEST_DATA = [
 // ];
 
 export async function clearSubtest(db: NodePgDatabase) {
-  try {
-    await db.delete(userProgress);
-  } catch {
-    console.log("user_progress table not found, skipping clear");
-  }
+  const isMissingTableError = (error: unknown) => {
+    if (!(error instanceof Error)) return false;
+    if ("code" in error && (error as { code?: string }).code === "42P01") return true;
+    return error.message.toLowerCase().includes("does not exist");
+  };
 
-  try {
-    await db.delete(recentContentView);
-  } catch {
-    console.log("recent_content_view table not found, skipping clear");
-  }
+  const deleteIfPresent = async (label: string, deleter: () => Promise<unknown>) => {
+    try {
+      await deleter();
+    } catch (error) {
+      if (isMissingTableError(error)) {
+        console.warn(`${label} table not found, skipping clear`);
+        return;
+      }
+      throw error;
+    }
+  };
 
-  try {
-    await db.delete(videoMaterial);
-  } catch {
-    console.log("video_material table not found, skipping clear");
-  }
-
-  try {
-    await db.delete(noteMaterial);
-  } catch {
-    console.log("note_material table not found, skipping clear");
-  }
-
-  try {
-    await db.delete(contentItem);
-  } catch {
-    console.log("content_item table not found, skipping clear");
-  }
-
-  try {
-    await db.delete(subtest);
-  } catch {
-    console.log("subtest table not found, skipping clear");
-  }
+  await deleteIfPresent("user_progress", () => db.delete(userProgress));
+  await deleteIfPresent("recent_content_view", () => db.delete(recentContentView));
+  await deleteIfPresent("video_material", () => db.delete(videoMaterial));
+  await deleteIfPresent("note_material", () => db.delete(noteMaterial));
+  await deleteIfPresent("content_item", () => db.delete(contentItem));
+  await deleteIfPresent("subtest", () => db.delete(subtest));
 }
 
 export async function seedSubtest(db: NodePgDatabase) {

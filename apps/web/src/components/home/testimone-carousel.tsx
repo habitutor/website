@@ -5,7 +5,7 @@ import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Container } from "./ui/container";
+import { Container } from "@/components/ui/container";
 
 export interface CarouselItem {
   id: string | number;

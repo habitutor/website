@@ -1,9 +1,9 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
-import Loader from "./components/loader";
+import Loader from "./components/feedback/loader";
 import "./index.css";
 import { QueryClientProvider } from "@tanstack/react-query";
-import ErrorComponent from "./components/error";
-import NotFound from "./components/not-found";
+import ErrorComponent from "./components/feedback/error";
+import NotFound from "./components/feedback/not-found";
 import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
 

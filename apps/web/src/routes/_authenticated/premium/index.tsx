@@ -1,15 +1,13 @@
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import * as m from "motion/react-m";
-import { isValidElement, type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
+import { MobileCarousel } from "@/components/pricing/mobile-carousel";
 import { TryOutCard } from "@/components/pricing/tryout-card";
 import { refreshAuthSession } from "@/lib/auth-session";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
-import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";
 import { client, orpc } from "@/utils/orpc";
 import { BundlingCard } from "./-components/bundling-card";
@@ -193,7 +191,7 @@ function RouteComponent() {
               Paket yang paling worth it!!! Paling lengkap + murah!!
             </span>
           </div>
-          <MobileCarousel items={bundlingCards} paginationLabel="Ultimate Bundling" />
+          <MobileCarousel items={bundlingCards} paginationLabel="Ultimate Bundling" itemClassName="w-full shrink-0" />
           <div className="hidden gap-6 sm:grid sm:grid-cols-2">{bundlingCards}</div>
         </div>
       </MotionStaggerItem>
@@ -206,7 +204,7 @@ function RouteComponent() {
               Pilihan paket belajar yang lebih ringan dengan benefit terarah.
             </span>
           </div>
-          <MobileCarousel items={privilegeCards} paginationLabel="Privilege" />
+          <MobileCarousel items={privilegeCards} paginationLabel="Privilege" itemClassName="w-full shrink-0" />
           <div className="hidden gap-6 sm:grid sm:grid-cols-2">{privilegeCards}</div>
         </div>
       </MotionStaggerItem>
@@ -219,7 +217,11 @@ function RouteComponent() {
               Pilihan belajar bertahap dengan isi dan warna yang sama seperti section perintis.
             </span>
           </div>
-          <MobileCarousel items={perintisCards} paginationLabel="Perintis dan Classroom" />
+          <MobileCarousel
+            items={perintisCards}
+            paginationLabel="Perintis dan Classroom"
+            itemClassName="w-full shrink-0"
+          />
           <div className="hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-3">{perintisCards}</div>
         </div>
       </MotionStaggerItem>
@@ -232,108 +234,10 @@ function RouteComponent() {
               Pilih paket try out sesuai intensitas latihan yang kamu butuhkan.
             </span>
           </div>
-          <MobileCarousel items={tryoutCards} paginationLabel="Paket Try Out" />
+          <MobileCarousel items={tryoutCards} paginationLabel="Paket Try Out" itemClassName="w-full shrink-0" />
           <div className="hidden gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">{tryoutCards}</div>
         </div>
       </MotionStaggerItem>
     </MotionStagger>
-  );
-}
-
-function MobileCarousel({ items, paginationLabel }: { items: ReactNode[]; paginationLabel: string }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const totalItems = items.length;
-  const isFirst = currentIndex === 0;
-  const isLast = currentIndex === totalItems - 1;
-  const itemKeys = items.map((item, index) =>
-    isValidElement(item) && item.key != null ? String(item.key) : `${paginationLabel}-item-${index}`,
-  );
-
-  const goPrev = () => {
-    if (isFirst) return;
-    setCurrentIndex((prev) => prev - 1);
-  };
-
-  const goNext = () => {
-    if (isLast) return;
-    setCurrentIndex((prev) => prev + 1);
-  };
-
-  useEffect(() => {
-    if (currentIndex > totalItems - 1) {
-      setCurrentIndex(Math.max(0, totalItems - 1));
-    }
-  }, [currentIndex, totalItems]);
-
-  if (totalItems === 0) return null;
-
-  return (
-    <div className="w-full space-y-4 sm:hidden">
-      <div className="relative">
-        <button
-          type="button"
-          onClick={goPrev}
-          disabled={isFirst}
-          aria-label={`Sebelumnya ${paginationLabel}`}
-          className="absolute top-1/2 left-0 z-40 ml-2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-lg bg-primary-200 p-2 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <ArrowLeftIcon size={22} />
-        </button>
-
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={isLast}
-          aria-label={`Selanjutnya ${paginationLabel}`}
-          className="absolute top-1/2 right-0 z-40 mr-2 flex translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-lg bg-primary-200 p-2 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <ArrowRightIcon size={22} />
-        </button>
-
-        <div className="overflow-hidden">
-          <m.div
-            className="flex"
-            animate={{ x: `-${currentIndex * 100}%` }}
-            transition={{ duration: 0.35, ease: "easeInOut" }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.08}
-            onDragEnd={(_, info) => {
-              const dragThreshold = 50;
-
-              if (info.offset.x <= -dragThreshold && !isLast) {
-                goNext();
-                return;
-              }
-
-              if (info.offset.x >= dragThreshold && !isFirst) {
-                goPrev();
-              }
-            }}
-          >
-            {items.map((item, index) => (
-              <div key={itemKeys[index]} className="w-full shrink-0">
-                {item}
-              </div>
-            ))}
-          </m.div>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-center gap-2">
-        {items.map((_, index) => (
-          <button
-            key={`${itemKeys[index]}-dot`}
-            type="button"
-            onClick={() => setCurrentIndex(index)}
-            aria-label={`${paginationLabel} ${index + 1}`}
-            className={cn(
-              "h-2.5 w-2.5 rounded-full transition-all duration-200",
-              currentIndex === index ? "bg-primary-300" : "bg-primary-100",
-            )}
-          />
-        ))}
-      </div>
-    </div>
   );
 }
