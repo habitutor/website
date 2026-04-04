@@ -34,7 +34,7 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
   const queryClient = useQueryClient();
 
   const { data: pack } = useQuery(
-    orpc.admin.practicePack.get.queryOptions({
+    orpc.admin.practicePack.find.queryOptions({
       input: { id: packId },
     }),
   );
@@ -46,7 +46,7 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
         queryClient.invalidateQueries({
           queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
         });
-        queryClient.invalidateQueries(orpc.admin.practicePack.get.queryOptions({ input: { id: packId } }));
+        queryClient.invalidateQueries(orpc.admin.practicePack.find.queryOptions({ input: { id: packId } }));
         setOpen(false);
       },
       onError: (error) => {

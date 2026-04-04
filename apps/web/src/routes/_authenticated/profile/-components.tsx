@@ -122,7 +122,7 @@ function SaveRow({ onSave }: { onSave: () => void }) {
 export default function ProfilePage() {
   const { session } = useRouteContext({ from: "/_authenticated" });
   const queryClient = useQueryClient();
-  const profileQuery = useQuery(orpc.profile.get.queryOptions());
+  const profileQuery = useQuery(orpc.profile.me.queryOptions());
   const [tab, setTab] = useState<"data" | "customize">("data");
   const [formData, setFormData] = useState({
     email: session?.user.email,
@@ -155,7 +155,7 @@ export default function ProfilePage() {
     }
   }, [profileData]);
 
-  const avatarMutation = useMutation(orpc.profile.updateAvatar.mutationOptions());
+  const avatarMutation = useMutation(orpc.profile.avatar.update.mutationOptions());
   const profileMutation = useMutation(orpc.profile.update.mutationOptions());
   const generateReferralMutation = useMutation({
     mutationFn: async () => queryClient.fetchQuery(orpc.referral.getMyCode.queryOptions()),
@@ -216,7 +216,7 @@ export default function ProfilePage() {
       toast.error("Gagal menyimpan data profil");
     }
 
-    await queryClient.invalidateQueries({ queryKey: orpc.profile.get.key() });
+    await queryClient.invalidateQueries({ queryKey: orpc.profile.me.key() });
 
     if (avatarSaved) {
       window.dispatchEvent(new CustomEvent("avatarChanged", { detail: { src, image: avatarId } }));

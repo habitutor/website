@@ -13,8 +13,8 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
   const queryClient = useQueryClient();
 
   const createQuestionMutation = useMutation(orpc.admin.question.create.mutationOptions());
-  const createAnswerMutation = useMutation(orpc.admin.question.createAnswer.mutationOptions());
-  const addToPackMutation = useMutation(orpc.admin.practicePack.addQuestion.mutationOptions());
+  const createAnswerMutation = useMutation(orpc.admin.question.answer.create.mutationOptions());
+  const addToPackMutation = useMutation(orpc.admin.practicePack.question.add.mutationOptions());
 
   const isSubmitting =
     createQuestionMutation.isPending || createAnswerMutation.isPending || addToPackMutation.isPending;
@@ -43,7 +43,9 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
     });
 
     toast.success("Question created successfully");
-    queryClient.invalidateQueries(orpc.admin.practicePack.getQuestions.queryOptions({ input: { id: practicePackId } }));
+    queryClient.invalidateQueries(
+      orpc.admin.practicePack.question.list.queryOptions({ input: { id: practicePackId } }),
+    );
     onSuccess?.();
   };
 

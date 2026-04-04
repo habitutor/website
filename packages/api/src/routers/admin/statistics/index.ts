@@ -12,5 +12,5 @@ const get = admin
   });
 
 export const adminStatisticsRouter = {
-  get,
+  stats: get,
 };

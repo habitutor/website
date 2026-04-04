@@ -28,11 +28,11 @@ export function AddExistingQuestionModal({
   );
 
   const addMutation = useMutation(
-    orpc.admin.practicePack.addQuestion.mutationOptions({
+    orpc.admin.practicePack.question.add.mutationOptions({
       onSuccess: () => {
         toast.success("Question added to pack");
         queryClient.invalidateQueries(
-          orpc.admin.practicePack.getQuestions.queryOptions({
+          orpc.admin.practicePack.question.list.queryOptions({
             input: { id: practicePackId },
           }),
         );

@@ -55,7 +55,7 @@ function StatsCard({
   className?: string;
   iconClassName?: string;
 }) {
-  const { data: stats, isPending } = useQuery(orpc.admin.statistics.get.queryOptions());
+  const { data: stats, isPending } = useQuery(orpc.admin.statistics.stats.queryOptions());
   const value = stats?.[statKey];
 
   return (

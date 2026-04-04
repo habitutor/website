@@ -53,12 +53,12 @@ function RouteComponent() {
   }, [initialAnswers]);
 
   const saveMutation = useDebouncedMutation(
-    orpc.practicePack.saveAnswer.mutationOptions(),
+    orpc.practicePack.answer.mutationOptions(),
     500, // 500ms delay
   );
 
   const submitMutation = useMutation(
-    orpc.practicePack.submitAttempt.mutationOptions({
+    orpc.practicePack.submit.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({

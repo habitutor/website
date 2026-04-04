@@ -50,7 +50,7 @@ const PacketCard = (props: {
 }) => {
   const navigate = useNavigate();
   const startMutation = useMutation(
-    orpc.practicePack.startAttempt.mutationOptions({
+    orpc.practicePack.start.mutationOptions({
       onSuccess: (data, pack) => {
         toast.success(data.message);
         navigate({

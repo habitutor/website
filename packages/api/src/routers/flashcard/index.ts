@@ -405,11 +405,11 @@ const leaderboard = authed
 
 export const flashcardRouter = {
   start,
-  get,
+  session: get,
   submit,
-  save,
+  answer: save,
   result,
   history,
-  totalScore,
+  score: totalScore,
   leaderboard,
 };

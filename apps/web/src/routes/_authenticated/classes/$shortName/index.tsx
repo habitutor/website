@@ -65,7 +65,7 @@ function RouteComponent() {
   );
 
   const data = useQuery(
-    orpc.subtest.getSubtestByShortName.queryOptions({
+    orpc.subtest.byShortName.queryOptions({
       input: {
         shortName,
         category: activeFilter === "all" ? undefined : activeFilter,

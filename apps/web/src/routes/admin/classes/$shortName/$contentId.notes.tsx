@@ -31,17 +31,17 @@ function RouteComponent() {
   const queryClient = useQueryClient();
 
   const content = useQuery(
-    orpc.subtest.getContentById.queryOptions({
+    orpc.subtest.content.find.queryOptions({
       input: { contentId: Number(contentId) },
     }),
   );
 
   const saveMutation = useMutation(
-    orpc.admin.subtest.upsertNote.mutationOptions({
+    orpc.admin.subtest.content.note.update.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({
-          queryKey: orpc.subtest.getContentById.queryKey({
+          queryKey: orpc.subtest.content.find.queryKey({
             input: { contentId: Number(contentId) },
           }),
         });
@@ -53,11 +53,11 @@ function RouteComponent() {
   );
 
   const deleteMutation = useMutation(
-    orpc.admin.subtest.deleteNote.mutationOptions({
+    orpc.admin.subtest.content.note.remove.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({
-          queryKey: orpc.subtest.getContentById.queryKey({
+          queryKey: orpc.subtest.content.find.queryKey({
             input: { contentId: Number(contentId) },
           }),
         });

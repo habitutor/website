@@ -14,7 +14,7 @@ export function FlashcardResultBottomBar() {
   const startMutation = useMutation(
     orpc.flashcard.start.mutationOptions({
       onSuccess: () => {
-        queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
+        queryClient.resetQueries({ queryKey: orpc.flashcard.session.key() });
         navigate({ to: "/dashboard/flashcard" });
       },
       onError: (error) => {

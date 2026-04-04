@@ -22,7 +22,7 @@ function RouteComponent() {
   const { id } = Route.useParams();
 
   const history = useQuery(
-    orpc.practicePack.historyByPack.queryOptions({
+    orpc.practicePack.historyDetail.queryOptions({
       input: {
         id: id,
       },

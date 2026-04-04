@@ -26,7 +26,7 @@ function sleep(milliseconds: number) {
 async function waitForPremiumActivation(orderId: string) {
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
-      const syncResult = await client.transaction.getStatus({ orderId });
+      const syncResult = await client.transaction.status({ orderId });
 
       if (syncResult?.status === "success") {
         return true;

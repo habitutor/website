@@ -17,16 +17,16 @@ export function PackInfoHeader({ packId, backTo }: PackInfoHeaderProps) {
   const queryClient = useQueryClient();
 
   const { data: pack, isPending } = useQuery(
-    orpc.admin.practicePack.get.queryOptions({
+    orpc.admin.practicePack.find.queryOptions({
       input: { id: packId },
     }),
   );
 
   const toggleFlashcardMutation = useMutation(
-    orpc.admin.practicePack.toggleAvailableForFlashcard.mutationOptions({
+    orpc.admin.practicePack.toggleFlashcard.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
-        queryClient.invalidateQueries(orpc.admin.practicePack.getQuestions.queryOptions({ input: { id: packId } }));
+        queryClient.invalidateQueries(orpc.admin.practicePack.question.list.queryOptions({ input: { id: packId } }));
       },
       onError: (error) => {
         toast.error("Failed to update flashcard status", { description: String(error) });

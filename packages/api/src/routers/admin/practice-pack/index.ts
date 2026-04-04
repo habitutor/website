@@ -327,13 +327,15 @@ const toggleAvailableForFlashcard = admin
 
 export const adminPracticePackRouter = {
   list,
-  get,
+  find: get,
   create,
   update,
-  delete: delete_,
-  addQuestion,
-  removeQuestion,
-  reorderQuestion,
-  getQuestions,
-  toggleAvailableForFlashcard,
+  remove: delete_,
+  question: {
+    list: getQuestions,
+    add: addQuestion,
+    remove: removeQuestion,
+    reorder: reorderQuestion,
+  },
+  toggleFlashcard: toggleAvailableForFlashcard,
 };

@@ -41,7 +41,7 @@ export const Route = createFileRoute("/admin/classes/$shortName/")({
   component: RouteComponent,
 });
 
-type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
+type ContentListItem = NonNullable<BodyOutputs["subtest"]["content"]["list"]>[number];
 
 type Search = {
   q?: string;
@@ -91,11 +91,11 @@ function RouteComponent() {
     navigate({ search: cleanSearch });
   };
 
-  const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
+  const subtests = useQuery(orpc.subtest.list.queryOptions({ input: {} }));
   const matchedClass = subtests.data?.data?.find((item) => item.shortName?.toLowerCase() === shortName);
 
   const contents = useQuery(
-    orpc.subtest.listContentByCategory.queryOptions({
+    orpc.subtest.content.list.queryOptions({
       input: (() => {
         const input: {
           subtestId: number;
@@ -121,7 +121,7 @@ function RouteComponent() {
   );
 
   const createMutation = useMutation(
-    orpc.admin.subtest.createContent.mutationOptions({
+    orpc.admin.subtest.content.create.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries();
@@ -134,7 +134,7 @@ function RouteComponent() {
   );
 
   const updateMutation = useMutation(
-    orpc.admin.subtest.updateContent.mutationOptions({
+    orpc.admin.subtest.content.update.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries();
@@ -148,7 +148,7 @@ function RouteComponent() {
   );
 
   const deleteMutation = useMutation(
-    orpc.admin.subtest.deleteContent.mutationOptions({
+    orpc.admin.subtest.content.remove.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries();
@@ -162,7 +162,7 @@ function RouteComponent() {
   );
 
   const reorderMutation = useMutation(
-    orpc.admin.subtest.reorderContent.mutationOptions({
+    orpc.admin.subtest.content.reorder.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries();

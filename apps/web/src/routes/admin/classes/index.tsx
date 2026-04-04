@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin/classes/")({
 });
 
 function RouteComponent() {
-  const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
+  const subtests = useQuery(orpc.subtest.list.queryOptions({ input: {} }));
 
   return (
     <AdminContainer>

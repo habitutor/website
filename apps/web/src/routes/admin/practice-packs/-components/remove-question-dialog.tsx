@@ -35,11 +35,11 @@ export function RemoveQuestionDialog({
   const setOpen = onOpenChange ?? setUncontrolledOpen;
 
   const removeMutation = useMutation(
-    orpc.admin.practicePack.removeQuestion.mutationOptions({
+    orpc.admin.practicePack.question.remove.mutationOptions({
       onSuccess: () => {
         toast.success("Question removed from pack");
         queryClient.invalidateQueries(
-          orpc.admin.practicePack.getQuestions.queryOptions({
+          orpc.admin.practicePack.question.list.queryOptions({
             input: { id: packId },
           }),
         );

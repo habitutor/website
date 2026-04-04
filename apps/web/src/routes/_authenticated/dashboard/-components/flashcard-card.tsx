@@ -14,11 +14,11 @@ import { TimeoutDialog } from "./timeout-dialog";
 
 export const FlashcardCard = () => {
   const queryClient = useQueryClient();
-  const { data } = useQuery(orpc.flashcard.get.queryOptions());
+  const { data } = useQuery(orpc.flashcard.session.queryOptions());
   const navigate = useNavigate();
 
   const saveAnswerMutation = useMutation(
-    orpc.flashcard.save.mutationOptions({
+    orpc.flashcard.answer.mutationOptions({
       onError: (error) => {
         if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") {
           toast.error("Ups! Kamu sudah melewati batas waktu pengumpulan!");
@@ -97,7 +97,7 @@ export const FlashcardCard = () => {
       saveAnswerMutation.reset();
       setHasChecked(false);
       setSelectedAnswerId(null);
-      queryClient.removeQueries({ queryKey: orpc.flashcard.get.key() });
+      queryClient.removeQueries({ queryKey: orpc.flashcard.session.key() });
     } catch (error) {
       console.error(error);
     } finally {

@@ -46,7 +46,7 @@ function RouteComponent() {
   const debouncedSearch = useDebounceValue(searchQuery, 300);
 
   const content = useQuery(
-    orpc.subtest.getContentById.queryOptions({
+    orpc.subtest.content.find.queryOptions({
       input: { contentId: Number(contentId) },
     }),
   );
@@ -62,7 +62,7 @@ function RouteComponent() {
   );
 
   const packQuestions = useQuery(
-    orpc.admin.practicePack.getQuestions.queryOptions({
+    orpc.admin.practicePack.question.list.queryOptions({
       input: { id: selectedPackId! },
       enabled: selectedPackId !== null,
     }),
@@ -87,11 +87,11 @@ function RouteComponent() {
   }, [content.data, isInitialized]);
 
   const saveMutation = useMutation(
-    orpc.admin.subtest.linkPracticeQuestions.mutationOptions({
+    orpc.admin.subtest.content.question.link.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({
-          queryKey: orpc.subtest.getContentById.queryKey({
+          queryKey: orpc.subtest.content.find.queryKey({
             input: { contentId: Number(contentId) },
           }),
         });
@@ -103,11 +103,11 @@ function RouteComponent() {
   );
 
   const deleteMutation = useMutation(
-    orpc.admin.subtest.unlinkPracticeQuestions.mutationOptions({
+    orpc.admin.subtest.content.question.unlink.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({
-          queryKey: orpc.subtest.getContentById.queryKey({
+          queryKey: orpc.subtest.content.find.queryKey({
             input: { contentId: Number(contentId) },
           }),
         });

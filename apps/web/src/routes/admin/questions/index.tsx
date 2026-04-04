@@ -264,7 +264,7 @@ function QuestionCard({
   const navigate = useNavigate();
 
   const deleteMutation = useMutation(
-    orpc.admin.question.delete.mutationOptions({
+    orpc.admin.question.remove.mutationOptions({
       onSuccess: () => {
         toast.success("Question deleted successfully");
         queryClient.invalidateQueries({

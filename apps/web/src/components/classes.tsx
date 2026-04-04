@@ -103,7 +103,7 @@ const subtestCardAvatar = {
   pm: "/avatar/subtest-pm-avatar.webp",
 } as const;
 
-type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>["data"][number];
+type SubtestListItem = NonNullable<BodyOutputs["subtest"]["list"]>["data"][number];
 
 export function SubtestCard({
   subtest,
@@ -191,7 +191,7 @@ export function SubtestCard({
 export function ClassHeader({ shortName }: { shortName: string }) {
   const isAdmin = useIsAdmin();
   const { data: subtestData, isPending } = useQuery(
-    orpc.subtest.getSubtestByShortName.queryOptions({
+    orpc.subtest.byShortName.queryOptions({
       input: { shortName },
     }),
   );
@@ -256,7 +256,7 @@ export function ClassHeader({ shortName }: { shortName: string }) {
   );
 }
 
-type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
+type ContentListItem = NonNullable<BodyOutputs["subtest"]["content"]["list"]>[number];
 
 type ContentActionItem = {
   hasVideo: boolean;

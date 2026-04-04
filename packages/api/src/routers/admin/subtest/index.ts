@@ -539,18 +539,28 @@ const unlinkPracticeQuestions = admin
   });
 
 export const adminSubtestRouter = {
-  createSubtest,
-  updateSubtest,
-  deleteSubtest,
-  reorderSubtests,
-  createContent,
-  updateContent,
-  deleteContent,
-  reorderContent,
-  upsertVideo,
-  deleteVideo,
-  upsertNote,
-  deleteNote,
-  linkPracticeQuestions,
-  unlinkPracticeQuestions,
+  subtest: {
+    create: createSubtest,
+    update: updateSubtest,
+    remove: deleteSubtest,
+    reorder: reorderSubtests,
+  },
+  content: {
+    create: createContent,
+    update: updateContent,
+    remove: deleteContent,
+    reorder: reorderContent,
+    video: {
+      update: upsertVideo,
+      remove: deleteVideo,
+    },
+    note: {
+      update: upsertNote,
+      remove: deleteNote,
+    },
+    question: {
+      link: linkPracticeQuestions,
+      unlink: unlinkPracticeQuestions,
+    },
+  },
 };

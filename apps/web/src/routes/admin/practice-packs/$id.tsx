@@ -22,7 +22,7 @@ function PracticePackDetailPage() {
   const [showAddExisting, setShowAddExisting] = useState(false);
 
   const { data } = useQuery(
-    orpc.admin.practicePack.getQuestions.queryOptions({
+    orpc.admin.practicePack.question.list.queryOptions({
       input: { id: packId },
     }),
   );

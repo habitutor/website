@@ -77,7 +77,7 @@ function UsersPage() {
   };
 
   const { data, isPending } = useQuery(
-    orpc.admin.users.listUsers.queryOptions({
+    orpc.admin.user.list.queryOptions({
       input: {
         limit,
         cursor: cursor ?? undefined,

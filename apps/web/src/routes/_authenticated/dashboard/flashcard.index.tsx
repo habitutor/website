@@ -117,7 +117,7 @@ function RouteComponent() {
   const { session } = useRouteContext({ from: "/_authenticated" });
   const navigate = useNavigate();
   const flashcard = useQuery(
-    orpc.flashcard.get.queryOptions({
+    orpc.flashcard.session.queryOptions({
       retry: false,
     }),
   );
@@ -188,7 +188,7 @@ const StartCard = () => {
   const startMutation = useMutation(
     orpc.flashcard.start.mutationOptions({
       onSuccess: () => {
-        queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
+        queryClient.resetQueries({ queryKey: orpc.flashcard.session.key() });
         navigate({ to: "/dashboard/flashcard/intro" });
       },
       onError: (error) => {
@@ -202,7 +202,7 @@ const StartCard = () => {
   );
 
   if (!session) navigate({ to: "/login" });
-  const { data: totalScoreData } = useQuery(orpc.flashcard.totalScore.queryOptions());
+  const { data: totalScoreData } = useQuery(orpc.flashcard.score.queryOptions());
   const totalScore = totalScoreData?.totalScore ?? 0;
   return (
     <section className="flex flex-col gap-4 rounded-md border bg-white p-4 sm:p-6">

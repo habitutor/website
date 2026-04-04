@@ -319,10 +319,14 @@ const deleteAnnouncement = admin
 
 export const adminDashboardContentRouter = {
   list,
-  createLiveClass,
-  updateLiveClass,
-  deleteLiveClass,
-  createAnnouncement,
-  updateAnnouncement,
-  deleteAnnouncement,
+  liveClass: {
+    create: createLiveClass,
+    update: updateLiveClass,
+    remove: deleteLiveClass,
+  },
+  announcement: {
+    create: createAnnouncement,
+    update: updateAnnouncement,
+    remove: deleteAnnouncement,
+  },
 };

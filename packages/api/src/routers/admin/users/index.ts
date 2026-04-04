@@ -120,6 +120,6 @@ const updateUserPremium = admin
   });
 
 export const adminUserRouter = {
-  listUsers,
-  updateUserPremium,
+  list: listUsers,
+  premium: { update: updateUserPremium },
 };

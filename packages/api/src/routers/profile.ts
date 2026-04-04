@@ -112,7 +112,7 @@ const updateAvatar = authed
   });
 
 export const profileRouter = {
-  get: getProfile,
+  me: getProfile,
   update: updateProfile,
-  updateAvatar,
+  avatar: { update: updateAvatar },
 };

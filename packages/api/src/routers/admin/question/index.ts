@@ -332,12 +332,14 @@ const deleteAnswer = admin
 
 export const adminQuestionRouter = {
   list,
-  get,
+  find: get,
   create,
   update,
-  delete: delete_,
-  bulkUpdateFlashcard,
-  createAnswer,
-  updateAnswer,
-  deleteAnswer,
+  remove: delete_,
+  bulkFlashcard: bulkUpdateFlashcard,
+  answer: {
+    create: createAnswer,
+    update: updateAnswer,
+    remove: deleteAnswer,
+  },
 };

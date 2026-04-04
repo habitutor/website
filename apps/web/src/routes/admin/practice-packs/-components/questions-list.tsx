@@ -19,7 +19,7 @@ export function QuestionsList({ packId, onCreateNew, onAddExisting }: QuestionsL
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const { data, isLoading } = useQuery(
-    orpc.admin.practicePack.getQuestions.queryOptions({
+    orpc.admin.practicePack.question.list.queryOptions({
       input: { id: packId },
     }),
   );

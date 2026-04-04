@@ -21,7 +21,7 @@ export const UserProgress = () => {
 };
 
 const Material = () => {
-  const { data, isPending } = useQuery(orpc.subtest.getProgressStats.queryOptions());
+  const { data, isPending } = useQuery(orpc.subtest.content.stats.queryOptions());
 
   return (
     <div className="relative flex min-h-30 w-full items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
@@ -82,7 +82,7 @@ const Tryout = () => {
 
 const Flashcard = () => {
   const { session } = useRouteContext({ from: "/_authenticated" });
-  const { data: totalScoreData } = useQuery(orpc.flashcard.totalScore.queryOptions());
+  const { data: totalScoreData } = useQuery(orpc.flashcard.score.queryOptions());
   if (!session) return null;
   const today = new Date();
   today.setHours(0, 0, 0, 0);

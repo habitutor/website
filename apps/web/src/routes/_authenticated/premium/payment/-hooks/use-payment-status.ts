@@ -14,7 +14,7 @@ export function usePaymentStatus(
   const navigate = useNavigate();
 
   const { data, isLoading, error } = useQuery({
-    ...orpc.transaction.getStatus.queryOptions({ input: { orderId: order_id ?? "" } }),
+    ...orpc.transaction.status.queryOptions({ input: { orderId: order_id ?? "" } }),
     enabled: !!order_id,
     retry: false,
   });

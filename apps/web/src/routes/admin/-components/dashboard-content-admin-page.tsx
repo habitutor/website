@@ -51,7 +51,7 @@ export function DashboardContentAdminPage() {
     liveClassForm.link.trim() !== "";
 
   const createLiveClassMutation = useMutation(
-    orpc.admin.dashboardContent.createLiveClass.mutationOptions({
+    orpc.admin.dashboardContent.liveClass.create.mutationOptions({
       onSuccess: async () => {
         toast.success("Live class berhasil dibuat");
         await queryClient.invalidateQueries(orpc.admin.dashboardContent.list.queryOptions());
@@ -71,7 +71,7 @@ export function DashboardContentAdminPage() {
   );
 
   const deleteLiveClassMutation = useMutation(
-    orpc.admin.dashboardContent.deleteLiveClass.mutationOptions({
+    orpc.admin.dashboardContent.liveClass.remove.mutationOptions({
       onSuccess: async () => {
         toast.success("Live class berhasil dihapus");
         await queryClient.invalidateQueries(orpc.admin.dashboardContent.list.queryOptions());
@@ -83,7 +83,7 @@ export function DashboardContentAdminPage() {
   );
 
   const updateAnnouncementMutation = useMutation(
-    orpc.admin.dashboardContent.updateAnnouncement.mutationOptions({
+    orpc.admin.dashboardContent.announcement.update.mutationOptions({
       onSuccess: async () => {
         toast.success("Announcement berhasil diperbarui");
         await queryClient.invalidateQueries(orpc.admin.dashboardContent.list.queryOptions());

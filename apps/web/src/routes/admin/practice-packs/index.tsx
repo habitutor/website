@@ -207,7 +207,7 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
   const navigate = useNavigate();
 
   const deleteMutation = useMutation(
-    orpc.admin.practicePack.delete.mutationOptions({
+    orpc.admin.practicePack.remove.mutationOptions({
       onSuccess: () => {
         toast.success("Practice pack berhasil dihapus");
         queryClient.invalidateQueries({

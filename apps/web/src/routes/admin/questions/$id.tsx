@@ -21,15 +21,15 @@ function QuestionEditPage() {
   const navigate = useNavigate();
 
   const { data: question, isLoading } = useQuery(
-    orpc.admin.question.get.queryOptions({
+    orpc.admin.question.find.queryOptions({
       input: { id: questionId },
     }),
   );
 
   const updateQuestionMutation = useMutation(orpc.admin.question.update.mutationOptions());
-  const updateAnswerMutation = useMutation(orpc.admin.question.updateAnswer.mutationOptions());
-  const createAnswerMutation = useMutation(orpc.admin.question.createAnswer.mutationOptions());
-  const deleteAnswerMutation = useMutation(orpc.admin.question.deleteAnswer.mutationOptions());
+  const updateAnswerMutation = useMutation(orpc.admin.question.answer.update.mutationOptions());
+  const createAnswerMutation = useMutation(orpc.admin.question.answer.create.mutationOptions());
+  const deleteAnswerMutation = useMutation(orpc.admin.question.answer.remove.mutationOptions());
 
   const isSubmitting =
     updateQuestionMutation.isPending ||
@@ -70,7 +70,7 @@ function QuestionEditPage() {
     );
 
     toast.success("Question updated successfully");
-    queryClient.invalidateQueries(orpc.admin.question.get.queryOptions({ input: { id: questionId } }));
+    queryClient.invalidateQueries(orpc.admin.question.find.queryOptions({ input: { id: questionId } }));
     queryClient.invalidateQueries({ queryKey: orpc.admin.question.list.queryKey({ input: {} }) });
 
     setTimeout(() => {

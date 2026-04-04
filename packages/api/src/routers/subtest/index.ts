@@ -279,12 +279,14 @@ const getProgressStats = authed
   });
 
 export const subtestRouter = {
-  listSubtests,
-  getSubtestByShortName,
-  listContentByCategory,
-  getContentById,
-  trackView,
-  getRecentViews,
-  updateProgress,
-  getProgressStats,
+  list: listSubtests,
+  byShortName: getSubtestByShortName,
+  content: {
+    list: listContentByCategory,
+    find: getContentById,
+    trackView,
+    recent: getRecentViews,
+    progress: updateProgress,
+    stats: getProgressStats,
+  },
 };

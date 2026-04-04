@@ -22,7 +22,7 @@ function RouteComponent() {
   const session = authClient.useSession();
   const userIsPremium = session.data?.user?.isPremium ?? false;
   const userRole = session.data?.user?.role;
-  const subtests = useQuery(orpc.subtest.listSubtests.queryOptions({ input: {} }));
+  const subtests = useQuery(orpc.subtest.list.queryOptions({ input: {} }));
 
   return (
     <MotionStagger className="mt-4 sm:-mt-3">

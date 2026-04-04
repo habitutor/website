@@ -159,7 +159,7 @@ const use = authed
   });
 
 export const referralRouter = {
-  getMyCode,
+  code: getMyCode,
   validate,
   use,
 };

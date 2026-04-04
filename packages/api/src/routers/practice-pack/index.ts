@@ -306,9 +306,9 @@ const historyByPack = authed
 export const practicePackRouter = {
   list,
   find,
-  startAttempt,
-  submitAttempt,
-  saveAnswer,
+  start: startAttempt,
+  answer: saveAnswer,
+  submit: submitAttempt,
   history,
-  historyByPack,
+  historyDetail: historyByPack,
 };

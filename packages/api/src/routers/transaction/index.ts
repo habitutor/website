@@ -328,6 +328,6 @@ const getStatus = authed
 
 export const transactionRouter = {
   subscribe,
-  notification,
-  getStatus,
+  webhook: notification,
+  status: getStatus,
 };

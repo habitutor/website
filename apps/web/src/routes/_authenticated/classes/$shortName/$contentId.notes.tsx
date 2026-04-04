@@ -14,16 +14,16 @@ function RouteComponent() {
   const queryClient = useQueryClient();
 
   const content = useQuery(
-    orpc.subtest.getContentById.queryOptions({
+    orpc.subtest.content.find.queryOptions({
       input: { contentId: Number(contentId) },
     }),
   );
 
   const updateProgressMutation = useMutation(
-    orpc.subtest.updateProgress.mutationOptions({
+    orpc.subtest.content.progress.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.subtest.getProgressStats.key(),
+          queryKey: orpc.subtest.content.stats.key(),
         });
       },
     }),
