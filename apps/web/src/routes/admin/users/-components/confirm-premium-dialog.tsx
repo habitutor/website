@@ -32,15 +32,15 @@ export function ConfirmPremiumDialog({ user, open, onOpenChange, selectedDate, o
   const isPremium = user.isPremium ?? false;
 
   const mutation = useMutation(
-    orpc.admin.user.premium.update.mutationOptions({
+    orpc.admin.users.premium.update.mutationOptions({
       onSuccess: () => {
         toast.success(isPremium ? `Premium status updated for ${user.name}` : `Premium granted to ${user.name}`);
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.user.list.queryKey({ input: {} }),
+          queryKey: orpc.admin.users.list.queryKey({ input: {} }),
         });
         onSuccess();
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast.error("Failed to update premium status", {
           description: error.message,
         });

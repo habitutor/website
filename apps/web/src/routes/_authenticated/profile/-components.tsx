@@ -158,9 +158,9 @@ export default function ProfilePage() {
   const avatarMutation = useMutation(orpc.profile.avatar.update.mutationOptions());
   const profileMutation = useMutation(orpc.profile.update.mutationOptions());
   const generateReferralMutation = useMutation({
-    mutationFn: async () => queryClient.fetchQuery(orpc.referral.getMyCode.queryOptions()),
+    mutationFn: async () => queryClient.fetchQuery(orpc.referral.code.queryOptions()),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: orpc.profile.get.key() });
+      await queryClient.invalidateQueries({ queryKey: orpc.profile.me.key() });
       toast.success("Kode referral berhasil dibuat");
     },
     onError: () => {
