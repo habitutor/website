@@ -131,7 +131,7 @@ export function removeHighlight(editor: Editor | null): boolean {
 /**
  * Determines if the highlight button should be shown
  */
-export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
+function shouldShowColorHighlightButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
   const { editor, hideWhenUnavailable } = props;
 
   if (!editor || !editor.isEditable) return false;
@@ -158,7 +158,7 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, hideWhenUnavailable }));
+      setIsVisible(shouldShowColorHighlightButton({ editor, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

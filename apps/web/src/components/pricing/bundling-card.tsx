@@ -111,7 +111,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
           <ul className="mt-4 space-y-2">
             {data.features.map((feature: PricingFeature) => (
               <li key={feature.label} className="flex items-center gap-2 text-xs">
-                <FeatureIcon status={feature.status} premium colors={premiumColors} />
+                <PricingFeatureIcon status={feature.status} premium colors={premiumColors} />
                 <span>{feature.label}</span>
               </li>
             ))}
@@ -155,7 +155,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
         <ul className="mt-2 space-y-2">
           {data.features.map((feature: PricingFeature) => (
             <li key={feature.label} className="flex items-center gap-2 text-xs">
-              <FeatureIcon status={feature.status} />
+              <PricingFeatureIcon status={feature.status} />
               <span className={cn(feature.status === "excluded" && "text-neutral-1000")}>{feature.label}</span>
             </li>
           ))}
@@ -173,7 +173,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
   );
 }
 
-function FeatureIcon({
+function PricingFeatureIcon({
   status,
   premium,
   colors,

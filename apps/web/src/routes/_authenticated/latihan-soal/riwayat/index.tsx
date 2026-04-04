@@ -5,6 +5,34 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { orpc } from "@/utils/orpc";
 
+type AttemptStatus = "finished" | "ongoing" | "not_started" | (string & {});
+
+export function formatAttemptDate(date: string | Date, withTime = false) {
+  return new Date(date).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    ...(withTime
+      ? {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      : undefined),
+  });
+}
+
+export function getAttemptStatusLabel(status: AttemptStatus) {
+  if (status === "finished") return "Selesai";
+  if (status === "ongoing") return "Sedang Dikerjakan";
+  return "Belum Dimulai";
+}
+
+export function getAttemptStatusClassName(status: AttemptStatus) {
+  if (status === "finished") return "text-green-600";
+  if (status === "ongoing") return "text-yellow-600";
+  return "text-gray-600";
+}
+
 export const Route = createFileRoute("/_authenticated/latihan-soal/riwayat/")({
   component: RouteComponent,
 });
@@ -43,47 +71,19 @@ function RouteComponent() {
                   {attempt.startedAt && (
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      <span>
-                        Dimulai:{" "}
-                        {new Date(attempt.startedAt).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </span>
+                      <span>Dimulai: {formatAttemptDate(attempt.startedAt)}</span>
                     </div>
                   )}
                   {attempt.completedAt && (
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      <span>
-                        Selesai:{" "}
-                        {new Date(attempt.completedAt).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                      <span>Selesai: {formatAttemptDate(attempt.completedAt, true)}</span>
                     </div>
                   )}
                   <div>
                     Status:{" "}
-                    <span
-                      className={
-                        attempt.status === "finished"
-                          ? "text-green-600"
-                          : attempt.status === "ongoing"
-                            ? "text-yellow-600"
-                            : "text-gray-600"
-                      }
-                    >
-                      {attempt.status === "finished"
-                        ? "Selesai"
-                        : attempt.status === "ongoing"
-                          ? "Sedang Dikerjakan"
-                          : "Belum Dimulai"}
+                    <span className={getAttemptStatusClassName(attempt.status)}>
+                      {getAttemptStatusLabel(attempt.status)}
                     </span>
                   </div>
                 </div>

@@ -86,7 +86,7 @@ export function PerintisClassroomCard({ variant }: PerintisClassroomCardProps) {
         <ul className="mt-2 space-y-2">
           {data.features.map((feature) => (
             <li key={feature.label} className="flex items-center gap-2 text-xs">
-              <FeatureIcon status={feature.status} />
+              <PerintisClassroomFeatureIcon status={feature.status} />
               <span className={cn(feature.status === "excluded" && "text-neutral-1000")}>{feature.label}</span>
             </li>
           ))}
@@ -105,7 +105,7 @@ export function PerintisClassroomCard({ variant }: PerintisClassroomCardProps) {
   );
 }
 
-function FeatureIcon({ status }: { status: string }) {
+function PerintisClassroomFeatureIcon({ status }: { status: string }) {
   const base = "flex size-4 items-center justify-center rounded-full p-0.5 text-white flex-shrink-0";
 
   if (status === "included") {

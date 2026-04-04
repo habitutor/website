@@ -31,6 +31,10 @@ export const appRouter = {
   social: socialRouter,
   dashboard: dashboardRouter,
   profile: profileRouter,
+  // Learning feature boundaries:
+  // - subtest: curriculum + content navigation
+  // - practicePack: structured pack attempts (start/save/submit/history)
+  // - flashcard: short daily retention sessions with streak logic
   practicePack: practicePackRouter,
   flashcard: flashcardRouter,
   subtest: subtestRouter,

@@ -89,7 +89,7 @@ export function toggleMark(editor: Editor | null, type: Mark): boolean {
 /**
  * Determines if the mark button should be shown
  */
-export function shouldShowButton(props: { editor: Editor | null; type: Mark; hideWhenUnavailable: boolean }): boolean {
+function shouldShowMarkButton(props: { editor: Editor | null; type: Mark; hideWhenUnavailable: boolean }): boolean {
   const { editor, type, hideWhenUnavailable } = props;
 
   if (!editor || !editor.isEditable) return false;
@@ -158,7 +158,7 @@ export function useMark(config: UseMarkConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, type, hideWhenUnavailable }));
+      setIsVisible(shouldShowMarkButton({ editor, type, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

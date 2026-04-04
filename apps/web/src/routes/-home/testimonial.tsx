@@ -1,8 +1,8 @@
 import { motion } from "motion/react";
-import Carousel from "@/components/home/testimone-carousel";
+import Carousel from "@/components/home/testimonial-carousel";
 import { DATA } from "./data";
 
-export default function Testimone() {
+export default function Testimonial() {
   return (
     <section className="items-center bg-neutral-100">
       <motion.div
@@ -23,7 +23,7 @@ export default function Testimone() {
 						/> */}
 
         <Carousel
-          items={[...DATA.testimone]}
+          items={[...DATA.testimonials]}
           showNavigation={true}
           showDots={true}
           autoPlay={true}

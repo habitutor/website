@@ -1,4 +1,4 @@
-import { db } from "@habitutor/db";
+import { getDb } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared";
 import { logger } from "@habitutor/shared";
@@ -6,6 +6,7 @@ import { type } from "arktype";
 import { authed, pub } from "../../index";
 import { PREMIUM_DEADLINE } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
+import { resolveSubscriptionReferralCode } from "../referral/policy";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
 
@@ -52,7 +53,7 @@ async function markTransactionAsSuccess(orderId: string) {
     (existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM ||
       existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM_2);
 
-  await db.transaction(async (trx) => {
+  await getDb().transaction(async (trx) => {
     await transactionRepo.updateTransactionStatus({
       db: trx,
       orderId,
@@ -205,38 +206,11 @@ const subscribe = authed
     if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
     let grossAmount = plan.price;
-    const existingUsage = await referralRepo.getUserUsage({ userId: context.session.user.id });
-    let appliedReferralCodeId: string | undefined;
-
-    if (input.referralCode) {
-      const code = input.referralCode.trim();
-      const validation = await referralRepo.validateCodeForUser({
-        userId: context.session.user.id,
-        code,
-        allowPendingSameCode: true,
-      });
-
-      if (!validation.ok) {
-        if (validation.reason === "invalid_length") {
-          throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
-        }
-        if (validation.reason === "not_found") {
-          throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
-        }
-        if (validation.reason === "own_code") {
-          throw errors.UNPROCESSABLE_CONTENT({
-            message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
-          });
-        }
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
-      }
-
-      appliedReferralCodeId = validation.codeRecord.id;
-    } else if (existingUsage && !existingUsage.transactionId) {
-      // Referral submitted during registration should be applied automatically
-      // to the first paid transaction.
-      appliedReferralCodeId = existingUsage.referralCodeId;
-    }
+    const appliedReferralCodeId = await resolveSubscriptionReferralCode({
+      userId: context.session.user.id,
+      referralCodeInput: input.referralCode,
+      errors,
+    });
 
     if (appliedReferralCodeId) {
       const discounted = Math.ceil(Number(grossAmount) * 0.75);

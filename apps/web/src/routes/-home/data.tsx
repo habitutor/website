@@ -1,7 +1,7 @@
 import { InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 
 export const DATA = {
-  testimone: [
+  testimonials: [
     {
       id: 1,
       name: "Alumni Batch 2025",

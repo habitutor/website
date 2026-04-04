@@ -1,10 +1,11 @@
-import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
-import { practicePackQuestions, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { practicePackQuestions } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 export const adminQuestionRepo = {
   list: async ({
-    db = defaultDb,
+    db = getDb(),
     limit,
     cursorId,
     search,
@@ -40,7 +41,7 @@ export const adminQuestionRepo = {
       .limit(limit + 1);
   },
 
-  getById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
+  getById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
     return db.query.question.findFirst({
       where: eq(question.id, id),
       with: {
@@ -52,7 +53,7 @@ export const adminQuestionRepo = {
   },
 
   create: async ({
-    db = defaultDb,
+    db = getDb(),
     content,
     discussion,
     contentJson,
@@ -80,7 +81,7 @@ export const adminQuestionRepo = {
   },
 
   update: async ({
-    db = defaultDb,
+    db = getDb(),
     id,
     data,
   }: {
@@ -98,17 +99,17 @@ export const adminQuestionRepo = {
     return q;
   },
 
-  delete: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
+  delete: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
     const [q] = await db.delete(question).where(eq(question.id, id)).returning();
     return q;
   },
 
-  getByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
+  getByIds: async ({ db = getDb(), ids }: { db?: DrizzleDatabase; ids: number[] }) => {
     return db.select({ id: question.id }).from(question).where(inArray(question.id, ids));
   },
 
   bulkUpdateFlashcard: async ({
-    db = defaultDb,
+    db = getDb(),
     ids,
     isFlashcard,
   }: {
@@ -119,13 +120,13 @@ export const adminQuestionRepo = {
     return db.update(question).set({ isFlashcardQuestion: isFlashcard }).where(inArray(question.id, ids));
   },
 
-  getQuestionById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
+  getQuestionById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
     const [q] = await db.select().from(question).where(eq(question.id, id)).limit(1);
     return q;
   },
 
   createAnswer: async ({
-    db = defaultDb,
+    db = getDb(),
     questionId,
     content,
     isCorrect,
@@ -150,7 +151,7 @@ export const adminQuestionRepo = {
   },
 
   updateAnswer: async ({
-    db = defaultDb,
+    db = getDb(),
     id,
     content,
     isCorrect,
@@ -168,7 +169,7 @@ export const adminQuestionRepo = {
     return answer;
   },
 
-  deleteAnswer: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
+  deleteAnswer: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
     const [answer] = await db.delete(questionAnswerOption).where(eq(questionAnswerOption.id, id)).returning();
     return answer;
   },

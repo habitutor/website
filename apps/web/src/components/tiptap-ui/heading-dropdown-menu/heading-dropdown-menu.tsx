@@ -31,6 +31,10 @@ export interface HeadingDropdownMenuProps extends Omit<ButtonProps, "type">, Use
   onOpenChange?: (isOpen: boolean) => void;
 }
 
+export function canToggleHeadingDropdown(props: { hasEditor: boolean; canToggle: boolean }) {
+  return props.hasEditor && props.canToggle;
+}
+
 /**
  * Dropdown menu component for selecting heading levels in a Tiptap editor.
  *
@@ -58,7 +62,7 @@ export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdown
 
     const handleOpenChange = useCallback(
       (open: boolean) => {
-        if (!editor || !canToggle) return;
+        if (!canToggleHeadingDropdown({ hasEditor: Boolean(editor), canToggle })) return;
         setIsOpen(open);
         onOpenChange?.(open);
       },

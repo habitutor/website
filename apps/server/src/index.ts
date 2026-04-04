@@ -94,13 +94,17 @@ app.get("/", (c) => {
   return c.text("OK");
 });
 
+export function normalizeForwardedRequest(req: Request) {
+  const url = new URL(req.url);
+  if (req.headers.get("x-forwarded-proto") === "https") {
+    url.protocol = "https:";
+  }
+  return new Request(url, req);
+}
+
 export default {
   port: process.env.PORT || 3001,
   fetch: (req: Request) => {
-    const url = new URL(req.url);
-    if (req.headers.get("x-forwarded-proto") === "https") {
-      url.protocol = "https:";
-    }
-    return app.fetch(new Request(url, req));
+    return app.fetch(normalizeForwardedRequest(req));
   },
 };

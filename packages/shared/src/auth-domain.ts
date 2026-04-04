@@ -1,9 +1,5 @@
-export const ROLES = {
-  ADMIN: "admin",
-  USER: "user",
-} as const;
-
-export type Role = (typeof ROLES)[keyof typeof ROLES];
+import { ROLES } from "./roles";
+export { ROLES, type Role } from "./roles";
 
 export const PREMIUM_TIERS = {
   PREMIUM: "premium",

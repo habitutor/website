@@ -1,7 +1,8 @@
-import { db } from "@habitutor/db";
+import { getDb } from "@habitutor/db";
 import { type } from "arktype";
 import { authed } from "../..";
 import { logger } from "@habitutor/shared";
+import { ensureReferralCodeUsableForUser, REFERRAL_VALIDATION_MESSAGES } from "./policy";
 import { referralRepo } from "./repo";
 
 const getMyCode = authed
@@ -50,22 +51,13 @@ const validate = authed
   .handler(async ({ input, context, errors }) => {
     const userId = context.session.user.id;
     const code = input.code.trim();
-    const validation = await referralRepo.validateCodeForUser({ userId, code });
 
-    if (!validation.ok) {
-      if (validation.reason === "invalid_length") {
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
-      }
-      if (validation.reason === "not_found") {
-        throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
-      }
-      if (validation.reason === "own_code") {
-        throw errors.UNPROCESSABLE_CONTENT({
-          message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
-        });
-      }
-      throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
-    }
+    await ensureReferralCodeUsableForUser({
+      userId,
+      code,
+      errors,
+      messages: REFERRAL_VALIDATION_MESSAGES.standard,
+    });
 
     return { valid: true };
   });
@@ -90,26 +82,16 @@ const applyReferralCode = authed
   .handler(async ({ input, context, errors }) => {
     const userId = context.session.user.id;
     const code = input.code.trim();
-    const validation = await referralRepo.validateCodeForUser({ userId, code });
-
-    if (!validation.ok) {
-      if (validation.reason === "invalid_length") {
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral tidak valid." });
-      }
-      if (validation.reason === "not_found") {
-        throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
-      }
-      if (validation.reason === "own_code") {
-        throw errors.UNPROCESSABLE_CONTENT({
-          message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
-        });
-      }
-      throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
-    }
+    const validation = await ensureReferralCodeUsableForUser({
+      userId,
+      code,
+      errors,
+      messages: REFERRAL_VALIDATION_MESSAGES.referralUse,
+    });
 
     // Increment referral count dan create usage record dengan transaction
     try {
-      await db.transaction(async (tx) => {
+      await getDb().transaction(async (tx) => {
         await referralRepo.incrementReferralCount({
           db: tx,
           referralCodeId: validation.codeRecord.id,

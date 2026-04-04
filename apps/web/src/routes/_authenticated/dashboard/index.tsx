@@ -21,6 +21,7 @@ import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
+import { shouldRequirePremiumDialog } from "./social-access";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -48,7 +49,7 @@ function RouteComponent() {
 
   const handleSocialClick = useCallback(
     (e: React.MouseEvent, socialLink?: string) => {
-      if (!socialLink || error) {
+      if (shouldRequirePremiumDialog({ socialLink, hasError: Boolean(error) })) {
         e.preventDefault();
         setShowDialog(true);
       }

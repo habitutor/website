@@ -23,10 +23,8 @@ async function main() {
 
   const db = drizzle(process.env.DATABASE_URL);
 
-  // await clearPractice(db);
   await clearSubtest(db);
   await seedSubtest(db);
-  // await seedPractice(db);
 
   console.log("Seed completed");
 

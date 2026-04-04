@@ -7,7 +7,7 @@ import { Features } from "./-home/features";
 import { Hero } from "./-home/hero";
 import { Pricing } from "./-home/pricing";
 import { Statistics } from "./-home/statistics";
-import Testimone from "./-home/testimone";
+import Testimonial from "./-home/testimonial";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,7 +25,7 @@ function HomeComponent() {
     <>
       <Header />
       <Hero />
-      <Testimone />
+      <Testimonial />
       <Statistics />
       <Features />
       <Pricing />

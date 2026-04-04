@@ -1,17 +1,17 @@
-import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
+import { type DrizzleDatabase, getDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { product, transaction } from "@habitutor/db/schema/transaction";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
-  getProductBySlug: async ({ db = defaultDb, slug }: { db?: DrizzleDatabase; slug: string }) => {
+  getProductBySlug: async ({ db = getDb(), slug }: { db?: DrizzleDatabase; slug: string }) => {
     const [prod] = await db.select().from(product).where(eq(product.slug, slug)).limit(1);
-    return prod;
+    return prod ?? null;
   },
 
   createTransaction: async ({
-    db = defaultDb,
+    db = getDb(),
     id,
     productId,
     grossAmount,
@@ -35,10 +35,10 @@ export const transactionRepo = {
         referralCodeId,
       })
       .returning();
-    return tx;
+    return tx ?? null;
   },
 
-  getTransactionWithProduct: async ({ db = defaultDb, orderId }: { db?: DrizzleDatabase; orderId: string }) => {
+  getTransactionWithProduct: async ({ db = getDb(), orderId }: { db?: DrizzleDatabase; orderId: string }) => {
     const [result] = await db
       .select({
         tx: transaction,
@@ -49,11 +49,11 @@ export const transactionRepo = {
       .innerJoin(product, eq(transaction.productId, product.id))
       .where(eq(transaction.id, orderId))
       .limit(1);
-    return result;
+    return result ?? null;
   },
 
   getLatestSuccessfulPremiumTierByUserId: async ({
-    db = defaultDb,
+    db = getDb(),
     userId,
   }: {
     db?: DrizzleDatabase;
@@ -77,7 +77,7 @@ export const transactionRepo = {
   },
 
   updateTransactionStatus: async ({
-    db = defaultDb,
+    db = getDb(),
     orderId,
     status,
     paidAt,
@@ -95,11 +95,11 @@ export const transactionRepo = {
       })
       .where(eq(transaction.id, orderId))
       .returning();
-    return tx;
+    return tx ?? null;
   },
 
   updateUserPremium: async ({
-    db = defaultDb,
+    db = getDb(),
     userId,
     isPremium,
     premiumTier,
@@ -130,11 +130,11 @@ export const transactionRepo = {
     await db.execute(sql`UPDATE "user" SET ${sql.join(updates, sql`, `)} WHERE id = ${userId}`);
 
     const [updatedUser] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
-    return updatedUser;
+    return updatedUser ?? null;
   },
 
-  getTransactionById: async ({ db = defaultDb, orderId }: { db?: DrizzleDatabase; orderId: string }) => {
+  getTransactionById: async ({ db = getDb(), orderId }: { db?: DrizzleDatabase; orderId: string }) => {
     const txs = await db.select().from(transaction).where(eq(transaction.id, orderId)).limit(1);
-    return txs[0];
+    return txs[0] ?? null;
   },
 };

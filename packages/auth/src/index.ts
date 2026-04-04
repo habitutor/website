@@ -1,5 +1,5 @@
-import { db } from "@habitutor/db";
-import { logger } from "@habitutor/shared";
+import { getDb } from "@habitutor/db";
+import { ROLES, logger } from "@habitutor/shared";
 import * as schema from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
@@ -15,6 +15,7 @@ const localDevOrigins = [
   "http://127.0.0.1:5173",
 ];
 let resendClient: Resend | null = null;
+const roleInputSchema = `"${ROLES.USER}" | "${ROLES.ADMIN}"` as const;
 
 function getResendClient() {
   if (!resendClient) {
@@ -35,9 +36,13 @@ function getTrustedOrigins() {
   );
 }
 
+function logResetPasswordDeliveryFailure() {
+  logger.error("Failed to send reset email");
+}
+
 function createAuth() {
   return betterAuth({
-    database: drizzleAdapter(db, {
+    database: drizzleAdapter(getDb(), {
       provider: "pg",
       schema,
     }),
@@ -47,9 +52,9 @@ function createAuth() {
         role: {
           type: "string",
           validator: {
-            input: type('"user" | "admin"'),
+            input: type(roleInputSchema),
           },
-          defaultValue: "user",
+          defaultValue: ROLES.USER,
           input: false,
         },
         isPremium: {
@@ -141,9 +146,7 @@ function createAuth() {
             subject: "Pesan Otomatis: Permintaan Pengaturan Ulang Kata Sandi",
             html: generateResetPasswordEmail(user.name, url, token),
           })
-          .catch(() => {
-            logger.error("Failed to send reset email");
-          });
+          .catch(logResetPasswordDeliveryFailure);
       },
     },
 

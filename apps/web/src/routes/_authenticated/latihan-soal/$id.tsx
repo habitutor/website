@@ -36,7 +36,7 @@ function RouteComponent() {
     if (!pack.data?.questions) return {};
     const savedAnswers: Record<number, number> = {};
     pack.data.questions.forEach((q) => {
-      if (q.selectedAnswerId !== null) {
+      if (q.selectedAnswerId !== null && q.selectedAnswerId !== undefined) {
         savedAnswers[q.id] = q.selectedAnswerId;
       }
     });

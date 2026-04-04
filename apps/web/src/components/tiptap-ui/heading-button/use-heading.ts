@@ -172,7 +172,7 @@ export function toggleHeading(editor: Editor | null, level: Level | Level[]): bo
 /**
  * Determines if the heading button should be shown
  */
-export function shouldShowButton(props: {
+export function shouldShowHeadingButton(props: {
   editor: Editor | null;
   level?: Level | Level[];
   hideWhenUnavailable: boolean;
@@ -250,7 +250,7 @@ export function useHeading(config: UseHeadingConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, level, hideWhenUnavailable }));
+      setIsVisible(shouldShowHeadingButton({ editor, level, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

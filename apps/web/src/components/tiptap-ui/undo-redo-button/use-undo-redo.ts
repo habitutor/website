@@ -72,7 +72,7 @@ export function executeUndoRedoAction(editor: Editor | null, action: UndoRedoAct
 /**
  * Determines if the history button should be shown
  */
-export function shouldShowButton(props: {
+function shouldShowUndoRedoButton(props: {
   editor: Editor | null;
   hideWhenUnavailable: boolean;
   action: UndoRedoAction;
@@ -135,7 +135,7 @@ export function useUndoRedo(config: UseUndoRedoConfig) {
     if (!editor) return;
 
     const handleUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, hideWhenUnavailable, action }));
+      setIsVisible(shouldShowUndoRedoButton({ editor, hideWhenUnavailable, action }));
     };
 
     handleUpdate();

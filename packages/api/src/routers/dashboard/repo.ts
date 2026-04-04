@@ -1,13 +1,13 @@
-import { and, asc, desc, type DrizzleDatabase, db as defaultDb, eq, sql } from "@habitutor/db";
+import { and, asc, desc, type DrizzleDatabase, getDb, eq, sql } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 import { product, transaction } from "@habitutor/db/schema/transaction";
 
 export const dashboardRepo = {
-  cleanupExpiredLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
+  cleanupExpiredLiveClasses: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
     await db.delete(dashboardLiveClass).where(sql`(${dashboardLiveClass.date} + ${dashboardLiveClass.time}) < now()`);
   },
 
-  listPublishedAnnouncements: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
+  listPublishedAnnouncements: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
     return db
       .select({
         id: dashboardAnnouncement.id,
@@ -24,7 +24,7 @@ export const dashboardRepo = {
       .limit(1);
   },
 
-  getUserSubscriptionTier: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+  getUserSubscriptionTier: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [row] = await db
       .select({ slug: product.slug })
       .from(transaction)
@@ -36,7 +36,7 @@ export const dashboardRepo = {
     return row?.slug ?? null;
   },
 
-  listLiveClasses: async ({ db = defaultDb, onlyThreeX }: { db?: DrizzleDatabase; onlyThreeX: boolean }) => {
+  listLiveClasses: async ({ db = getDb(), onlyThreeX }: { db?: DrizzleDatabase; onlyThreeX: boolean }) => {
     return db
       .select({
         id: dashboardLiveClass.id,

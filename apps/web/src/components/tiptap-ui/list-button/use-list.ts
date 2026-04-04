@@ -198,11 +198,7 @@ export function toggleList(editor: Editor | null, type: ListType): boolean {
 /**
  * Determines if the list button should be shown
  */
-export function shouldShowButton(props: {
-  editor: Editor | null;
-  type: ListType;
-  hideWhenUnavailable: boolean;
-}): boolean {
+function shouldShowListButton(props: { editor: Editor | null; type: ListType; hideWhenUnavailable: boolean }): boolean {
   const { editor, type, hideWhenUnavailable } = props;
 
   if (!editor || !editor.isEditable) return false;
@@ -264,7 +260,7 @@ export function useList(config: UseListConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, type, hideWhenUnavailable }));
+      setIsVisible(shouldShowListButton({ editor, type, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

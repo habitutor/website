@@ -17,6 +17,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "../ui/separator";
 
 const ANSWER_CODES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] as const;
+const MIN_ANSWER_OPTIONS = 2;
+const MAX_ANSWER_OPTIONS = 10;
 
 export type AnswerOption = {
   id?: number;
@@ -48,6 +50,101 @@ const DEFAULT_ANSWER_OPTIONS: AnswerOption[] = [
   { code: "D", content: "", isCorrect: false },
 ];
 
+type QuestionFormValidationResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+type AnswerOptionsUpdateResult =
+  | {
+      ok: true;
+      answerOptions: AnswerOption[];
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export function validateQuestionFormSubmission(
+  value: Pick<QuestionFormData, "content" | "discussion">,
+  answerOptions: AnswerOption[],
+): QuestionFormValidationResult {
+  const validation = type({
+    content: "object",
+    discussion: "object",
+  })(value);
+
+  if (validation instanceof type.errors) {
+    return { ok: false, error: "Please fill all required fields" };
+  }
+
+  if (answerOptions.some((option) => !option.content.trim())) {
+    return { ok: false, error: "All answer options must have content" };
+  }
+
+  if (!answerOptions.some((option) => option.isCorrect)) {
+    return { ok: false, error: "Please mark at least one answer as correct" };
+  }
+
+  if (answerOptions.length < MIN_ANSWER_OPTIONS) {
+    return { ok: false, error: "Please add at least 2 answer options" };
+  }
+
+  return { ok: true };
+}
+
+export function addAnswerOption(answerOptions: AnswerOption[]): AnswerOptionsUpdateResult {
+  if (answerOptions.length >= MAX_ANSWER_OPTIONS) {
+    return { ok: false, error: "Maximum 10 answer options allowed" };
+  }
+
+  const nextCode = ANSWER_CODES[answerOptions.length];
+  if (!nextCode) {
+    return { ok: false, error: "Maximum 10 answer options allowed" };
+  }
+
+  return {
+    ok: true,
+    answerOptions: [...answerOptions, { code: nextCode, content: "", isCorrect: false }],
+  };
+}
+
+export function removeAnswerOption(answerOptions: AnswerOption[], index: number): AnswerOptionsUpdateResult {
+  if (answerOptions.length <= MIN_ANSWER_OPTIONS) {
+    return { ok: false, error: "Minimum 2 answer options required" };
+  }
+
+  const newOptions = answerOptions.filter((_, i) => i !== index);
+  return {
+    ok: true,
+    answerOptions: newOptions.map((option, idx) => {
+      const code = ANSWER_CODES[idx];
+      if (!code) return option;
+      return {
+        ...option,
+        code,
+      };
+    }),
+  };
+}
+
+export function updateAnswerOption(
+  answerOptions: AnswerOption[],
+  index: number,
+  field: keyof AnswerOption,
+  value: string | boolean,
+) {
+  const newOptions = [...answerOptions];
+  const currentOption = newOptions[index];
+  if (!currentOption) return answerOptions;
+  newOptions[index] = { ...currentOption, [field]: value };
+  return newOptions;
+}
+
 export function QuestionForm({
   title,
   initialData,
@@ -65,30 +162,9 @@ export function QuestionForm({
       isFlashcardQuestion: initialData?.isFlashcardQuestion ?? true,
     },
     onSubmit: async ({ value }) => {
-      const validation = type({
-        content: "object",
-        discussion: "object",
-      })(value);
-
-      if (validation instanceof type.errors) {
-        toast.error("Please fill all required fields");
-        return;
-      }
-
-      const hasEmptyContent = answerOptions.some((option) => !option.content.trim());
-      if (hasEmptyContent) {
-        toast.error("All answer options must have content");
-        return;
-      }
-
-      const hasCorrectAnswer = answerOptions.some((option) => option.isCorrect);
-      if (!hasCorrectAnswer) {
-        toast.error("Please mark at least one answer as correct");
-        return;
-      }
-
-      if (answerOptions.length < 2) {
-        toast.error("Please add at least 2 answer options");
+      const validation = validateQuestionFormSubmission(value, answerOptions);
+      if (!validation.ok) {
+        toast.error(validation.error);
         return;
       }
 
@@ -107,39 +183,26 @@ export function QuestionForm({
     }
   }, [initialData?.answerOptions]);
 
-  const addAnswerOption = () => {
-    if (answerOptions.length >= 10) {
-      toast.error("Maximum 10 answer options allowed");
+  const handleAddAnswerOption = () => {
+    const result = addAnswerOption(answerOptions);
+    if (!result.ok) {
+      toast.error(result.error);
       return;
     }
-    const nextCode = ANSWER_CODES[answerOptions.length];
-    if (!nextCode) return;
-    setAnswerOptions([...answerOptions, { code: nextCode, content: "", isCorrect: false }]);
+    setAnswerOptions(result.answerOptions);
   };
 
-  const removeAnswerOption = (index: number) => {
-    if (answerOptions.length <= 2) {
-      toast.error("Minimum 2 answer options required");
+  const handleRemoveAnswerOption = (index: number) => {
+    const result = removeAnswerOption(answerOptions, index);
+    if (!result.ok) {
+      toast.error(result.error);
       return;
     }
-    const newOptions = answerOptions.filter((_, i) => i !== index);
-    const reassignedOptions = newOptions.map((option, idx) => {
-      const code = ANSWER_CODES[idx];
-      if (!code) return option;
-      return {
-        ...option,
-        code,
-      };
-    });
-    setAnswerOptions(reassignedOptions);
+    setAnswerOptions(result.answerOptions);
   };
 
-  const updateAnswerOption = (index: number, field: keyof AnswerOption, value: string | boolean) => {
-    const newOptions = [...answerOptions];
-    const currentOption = newOptions[index];
-    if (!currentOption) return;
-    newOptions[index] = { ...currentOption, [field]: value };
-    setAnswerOptions(newOptions);
+  const handleUpdateAnswerOption = (index: number, field: keyof AnswerOption, value: string | boolean) => {
+    setAnswerOptions(updateAnswerOption(answerOptions, index, field, value));
   };
 
   return (
@@ -217,12 +280,12 @@ export function QuestionForm({
                     <span className="text-sm font-medium">{option.code}.</span>
                     <Checkbox
                       checked={option.isCorrect}
-                      onCheckedChange={(checked) => updateAnswerOption(index, "isCorrect", !!checked)}
+                      onCheckedChange={(checked) => handleUpdateAnswerOption(index, "isCorrect", !!checked)}
                     />
                   </div>
                   <Input
                     value={option.content}
-                    onChange={(e) => updateAnswerOption(index, "content", e.target.value)}
+                    onChange={(e) => handleUpdateAnswerOption(index, "content", e.target.value)}
                     placeholder={`Option ${option.code}`}
                     className="flex-1"
                   />
@@ -231,7 +294,7 @@ export function QuestionForm({
                       type="button"
                       size="icon"
                       variant="ghost"
-                      onClick={() => removeAnswerOption(index)}
+                      onClick={() => handleRemoveAnswerOption(index)}
                       className="mt-1 size-8 shrink-0"
                     >
                       <XIcon className="size-4" />
@@ -245,8 +308,8 @@ export function QuestionForm({
               type="button"
               size="sm"
               variant="outline"
-              onClick={addAnswerOption}
-              disabled={answerOptions.length >= 10}
+              onClick={handleAddAnswerOption}
+              disabled={answerOptions.length >= MAX_ANSWER_OPTIONS}
               className="mt-2 w-fit border"
             >
               <PlusIcon className="size-4" />

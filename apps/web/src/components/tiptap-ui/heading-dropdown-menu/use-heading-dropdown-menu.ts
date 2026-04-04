@@ -8,7 +8,7 @@ import {
   headingIcons,
   isHeadingActive,
   type Level,
-  shouldShowButton,
+  shouldShowHeadingButton,
 } from "@/components/tiptap-ui/heading-button";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
@@ -94,7 +94,7 @@ export function useHeadingDropdownMenu(config?: UseHeadingDropdownMenuConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, hideWhenUnavailable, level: levels }));
+      setIsVisible(shouldShowHeadingButton({ editor, hideWhenUnavailable, level: levels }));
     };
 
     handleSelectionUpdate();

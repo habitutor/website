@@ -13,7 +13,12 @@ const ROUTE_LABELS: Record<string, string> = {
   create: "Create",
 };
 
-function generateBreadcrumbs(pathname: string, matches: ReturnType<typeof useMatches>) {
+type BreadcrumbRouteMatch = {
+  pathname: string;
+  routeId?: string;
+};
+
+export function generateBreadcrumbs(pathname: string, matches: BreadcrumbRouteMatch[]) {
   const segments = pathname.split("/").filter(Boolean);
   const breadcrumbs: Array<{ label: string; href?: string }> = [{ label: "Admin", href: "/admin/dashboard" }];
 

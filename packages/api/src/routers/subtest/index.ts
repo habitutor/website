@@ -5,6 +5,11 @@ import { canAccessContent } from "@habitutor/shared";
 import { convertToTiptap } from "../../lib/tiptap";
 import { subtestRepo } from "./repo";
 
+/**
+ * Subtest domain owns curriculum/subtest catalog and content sequencing
+ * (materials, notes, tips, and question-content linkage), not attempt sessions.
+ */
+
 const listSubtests = authed
   .route({
     path: "/subtests",

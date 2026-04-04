@@ -1,4 +1,5 @@
 import { ListIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
+import { isAdminRole } from "@habitutor/shared";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
@@ -17,7 +18,7 @@ export default function Header() {
       <Button variant={"outline"} className="w-full border-0 md:w-auto" asChild>
         <Link to="/home-premium">Premium</Link>
       </Button>
-      {session.data.user.role === "admin" && (
+      {isAdminRole(session.data.user.role) && (
         <Button variant={"default"} className="w-full md:w-auto" asChild>
           <Link to="/admin/dashboard">Admin</Link>
         </Button>

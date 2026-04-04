@@ -1,12 +1,18 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
 
+type NavigateToResult = (args: { to: "/dashboard/flashcard/result" }) => void;
+
+export function finishFlashcardTimeout(props: { onOpenChange: (open: boolean) => void; navigate: NavigateToResult }) {
+  props.onOpenChange(false);
+  props.navigate({ to: "/dashboard/flashcard/result" });
+}
+
 export function TimeoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const navigate = useNavigate();
 
   const handleFinish = () => {
-    onOpenChange(false);
-    navigate({ to: "/dashboard/flashcard/result" });
+    finishFlashcardTimeout({ onOpenChange, navigate });
   };
 
   return (

@@ -126,7 +126,7 @@ export function toggleCodeBlock(editor: Editor | null): boolean {
 /**
  * Determines if the code block button should be shown
  */
-export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
+function shouldShowCodeBlockButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
   const { editor, hideWhenUnavailable } = props;
 
   if (!editor || !editor.isEditable) return false;
@@ -194,7 +194,7 @@ export function useCodeBlock(config?: UseCodeBlockConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, hideWhenUnavailable }));
+      setIsVisible(shouldShowCodeBlockButton({ editor, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

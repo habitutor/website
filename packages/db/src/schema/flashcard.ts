@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { date, index, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { question, questionAnswerOption } from "./question";
 import { user } from "./user";
@@ -23,21 +23,6 @@ export const userFlashcardQuestionAnswer = pgTable(
   ],
 );
 
-export const userFlashcardQuestionAnswerRelations = relations(userFlashcardQuestionAnswer, ({ one }) => ({
-  question: one(question, {
-    fields: [userFlashcardQuestionAnswer.questionId],
-    references: [question.id],
-  }),
-  selectedAnswer: one(questionAnswerOption, {
-    fields: [userFlashcardQuestionAnswer.selectedAnswerId],
-    references: [questionAnswerOption.id],
-  }),
-  attempt: one(userFlashcardAttempt, {
-    fields: [userFlashcardQuestionAnswer.attemptId],
-    references: [userFlashcardAttempt.id],
-  }),
-}));
-
 export const userFlashcardAttempt = pgTable(
   "user_flashcard_attempt",
   {
@@ -58,11 +43,3 @@ export const userFlashcardAttempt = pgTable(
     index("idx_flashcard_attempt_user_started").on(t.userId, t.startedAt),
   ],
 );
-
-export const userFlashcardAttemptRelations = relations(userFlashcardAttempt, ({ one, many }) => ({
-  user: one(user, {
-    fields: [userFlashcardAttempt.userId],
-    references: [user.id],
-  }),
-  assignedQuestions: many(userFlashcardQuestionAnswer),
-}));

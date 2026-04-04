@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
+import { getPostLoginRedirectPath } from "./auth-routing";
 
 export const Route = createFileRoute("/_auth/login")({
   head: () => ({
@@ -66,12 +67,7 @@ function SignInForm() {
 
             const session = await authClient.getSession();
             const user = session.data?.user as { role?: string } | undefined;
-
-            if (user?.role === "admin") {
-              navigate({ to: "/admin/dashboard" });
-            } else {
-              navigate({ to: "/dashboard" });
-            }
+            navigate({ to: getPostLoginRedirectPath(user?.role) });
           },
           onError: (error) => {
             toast.error(error.error.message || error.error.statusText);

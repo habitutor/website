@@ -1,4 +1,4 @@
-import { db } from "@habitutor/db";
+import { getDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { referralCode } from "@habitutor/db/schema/referral";
 import { type } from "arktype";
@@ -35,7 +35,7 @@ const getProfile = authed
   )
   .handler(async ({ context }) => {
     const { id, email } = context.session.user;
-    const [row] = await db
+    const [row] = await getDb()
       .select({
         name: user.name,
         image: user.image,
@@ -52,7 +52,7 @@ const getProfile = authed
 
     const canonicalImage = toCanonicalAvatarId(row?.image);
     if (row?.image && canonicalImage && canonicalImage !== row.image) {
-      await db.update(user).set({ image: canonicalImage }).where(eq(user.id, id));
+      await getDb().update(user).set({ image: canonicalImage }).where(eq(user.id, id));
     }
 
     return {
@@ -97,7 +97,7 @@ const updateProfile = authed
     if (input.dreamCampus !== undefined) updates.dreamCampus = input.dreamCampus;
     if (input.dreamMajor !== undefined) updates.dreamMajor = input.dreamMajor;
     if (Object.keys(updates).length > 0) {
-      await db.update(user).set(updates).where(eq(user.id, context.session.user.id));
+      await getDb().update(user).set(updates).where(eq(user.id, context.session.user.id));
     }
     return { success: true };
   });
@@ -120,7 +120,7 @@ const updateAvatar = authed
   )
   .handler(async ({ input, context }) => {
     const avatarId = input.image.trim();
-    await db.update(user).set({ image: avatarId }).where(eq(user.id, context.session.user.id));
+    await getDb().update(user).set({ image: avatarId }).where(eq(user.id, context.session.user.id));
     return { image: avatarId };
   });
 

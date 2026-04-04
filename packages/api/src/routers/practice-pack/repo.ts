@@ -1,12 +1,11 @@
-import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
+import { type DrizzleDatabase, getDb } from "@habitutor/db";
 import {
   practicePack,
   practicePackAttempt,
   practicePackQuestions,
   practicePackUserAnswer,
-  question,
-  questionAnswerOption,
 } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, count, desc, eq } from "drizzle-orm";
 import type { Question } from "../../types/practice-pack";
 import { convertToTiptap } from "../../lib/tiptap";
@@ -75,7 +74,7 @@ function buildQuestionMapBase(
 }
 
 export const practicePackRepo = {
-  listWithAttempts: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+  listWithAttempts: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
     return db
       .select({
         id: practicePack.id,
@@ -93,7 +92,7 @@ export const practicePackRepo = {
   },
 
   findWithQuestions: async ({
-    db = defaultDb,
+    db = getDb(),
     packId,
     userId,
   }: {
@@ -133,15 +132,7 @@ export const practicePackRepo = {
       .where(and(eq(practicePack.id, packId), eq(practicePackAttempt.userId, userId)));
   },
 
-  createAttempt: async ({
-    db = defaultDb,
-    packId,
-    userId,
-  }: {
-    db?: DrizzleDatabase;
-    packId: number;
-    userId: string;
-  }) => {
+  createAttempt: async ({ db = getDb(), packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
     const [attempt] = await db
       .insert(practicePackAttempt)
       .values({
@@ -153,7 +144,7 @@ export const practicePackRepo = {
     return attempt ?? null;
   },
 
-  getAttempt: async ({ db = defaultDb, packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
+  getAttempt: async ({ db = getDb(), packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
     const [attempt] = await db
       .select({
         id: practicePackAttempt.id,
@@ -167,7 +158,7 @@ export const practicePackRepo = {
   },
 
   saveAnswer: async ({
-    db = defaultDb,
+    db = getDb(),
     attemptId,
     questionId,
     selectedAnswerId,
@@ -190,15 +181,7 @@ export const practicePackRepo = {
       });
   },
 
-  submitAttempt: async ({
-    db = defaultDb,
-    packId,
-    userId,
-  }: {
-    db?: DrizzleDatabase;
-    packId: number;
-    userId: string;
-  }) => {
+  submitAttempt: async ({ db = getDb(), packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
     const [attempt] = await db
       .update(practicePackAttempt)
       .set({
@@ -210,7 +193,7 @@ export const practicePackRepo = {
     return attempt ?? null;
   },
 
-  countAttempts: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+  countAttempts: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [result] = await db
       .select({ count: count() })
       .from(practicePackAttempt)
@@ -219,7 +202,7 @@ export const practicePackRepo = {
   },
 
   getHistory: async ({
-    db = defaultDb,
+    db = getDb(),
     userId,
     limit,
     offset,
@@ -244,7 +227,7 @@ export const practicePackRepo = {
   },
 
   findHistoryByPack: async ({
-    db = defaultDb,
+    db = getDb(),
     packId,
     userId,
   }: {
@@ -302,9 +285,9 @@ export function buildHistoryQuestionMap(
 }
 
 export function formatQuestions(rows: QuestionMapRow[]): Question[] {
-  return Array.from(buildQuestionMap(rows).values()).sort((a, b) => a.order - b.order);
+  return Array.from(buildQuestionMap(rows).values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
 export function formatHistoryQuestions(rows: HistoryQuestionMapRow[]): (Question & { userAnswerIsCorrect: boolean })[] {
-  return Array.from(buildHistoryQuestionMap(rows).values()).sort((a, b) => a.order - b.order);
+  return Array.from(buildHistoryQuestionMap(rows).values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }

@@ -43,6 +43,11 @@ export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
   portal?: boolean;
 }
 
+export function applyListDropdownOpenChange(open: boolean, onOpenChange?: (isOpen: boolean) => void) {
+  onOpenChange?.(open);
+  return open;
+}
+
 export function ListDropdownMenu({
   editor: providedEditor,
   types = ["bulletList", "orderedList", "taskList"],
@@ -62,8 +67,7 @@ export function ListDropdownMenu({
 
   const handleOnOpenChange = useCallback(
     (open: boolean) => {
-      setIsOpen(open);
-      onOpenChange?.(open);
+      setIsOpen(applyListDropdownOpenChange(open, onOpenChange));
     },
     [onOpenChange],
   );
