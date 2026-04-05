@@ -5,7 +5,7 @@ import { ArrowLeftIcon, CheckIcon, CopyIcon, SpinnerIcon } from "@phosphor-icons
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MotionPulse } from "@/components/motion";
+import { MotionPulse } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

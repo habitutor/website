@@ -1,4 +1,4 @@
-import { isAdminRole } from "@habitutor/shared";
+import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { ORPCError } from "@orpc/server";
 import { o } from "../lib/orpc";
 

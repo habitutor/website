@@ -1,7 +1,7 @@
 import { db } from "@habitutor/db";
 import { type } from "arktype";
 import { authed } from "../..";
-import { logger } from "@habitutor/shared";
+import { logger } from "@habitutor/shared/logger";
 import { referralRepo } from "./repo";
 
 const getMyCode = authed

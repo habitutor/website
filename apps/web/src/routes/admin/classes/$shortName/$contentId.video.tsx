@@ -26,7 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import YouTubePlayer from "@/components/media/youtube-player";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { orpc } from "@/utils/orpc";
-import { extractYouTubeId } from "@habitutor/shared";
+import { extractYouTubeId } from "@habitutor/shared/youtube";
 
 export const Route = createFileRoute("/admin/classes/$shortName/$contentId/video")({
   component: RouteComponent,

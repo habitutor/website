@@ -14,7 +14,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Reorder, useDragControls } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { canAccessContent } from "@habitutor/shared";
+import { canAccessContent } from "@habitutor/shared/content-access";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";

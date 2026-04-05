@@ -1,7 +1,7 @@
 import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
-import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared";
-import { logger } from "@habitutor/shared";
+import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared/auth-domain";
+import { logger } from "@habitutor/shared/logger";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
 import { PREMIUM_DEADLINE } from "../../lib/constants";

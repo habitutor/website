@@ -1,4 +1,5 @@
-import { and, asc, desc, type DrizzleDatabase, db as defaultDb, eq, sql } from "@habitutor/db";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 import { product, transaction } from "@habitutor/db/schema/transaction";
 

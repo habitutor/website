@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { PREMIUM_TIERS } from "@habitutor/shared";
+import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { type } from "arktype";
 import { admin } from "../../../index";
 import { adminUserRepo } from "./repo";

@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared";
+import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared/auth-domain";
 import { authed } from "../..";
 import { dashboardRepo } from "./repo";
 

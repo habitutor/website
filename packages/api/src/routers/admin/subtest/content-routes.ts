@@ -1,4 +1,4 @@
-import { getDb } from "@habitutor/db";
+import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { admin } from "../../../index";
@@ -72,7 +72,7 @@ export const createContent = admin
       }
     }
 
-    const result = await getDb().transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       const maxOrder = await adminSubtestRepo.getMaxContentOrder({
         db: tx,
         subtestId: input.subtestId,
@@ -224,7 +224,7 @@ export const reorderContent = admin
       }
     }
 
-    await getDb().transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       for (const [i, item] of items.entries()) {
         await adminSubtestRepo.updateContentOrder({
           db: tx,

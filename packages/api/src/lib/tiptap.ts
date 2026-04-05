@@ -1,4 +1,4 @@
-import { logger } from "@habitutor/shared";
+import { logger } from "@habitutor/shared/logger";
 
 export function convertToTiptap(text: string) {
   try {

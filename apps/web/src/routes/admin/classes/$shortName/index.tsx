@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import { ContentFilters, ContentList } from "@/components/classes";
+import { ContentFilters, ContentList } from "@/components/classes/content";
 import { SearchInput } from "@/components/ui/search-input";
 import { orpc } from "@/utils/orpc";
 import { ContentDialogs, useContentDialogs } from "./content-dialogs";

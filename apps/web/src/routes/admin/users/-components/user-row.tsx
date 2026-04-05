@@ -1,5 +1,5 @@
 import { Crown, DotsThree } from "@phosphor-icons/react";
-import { ROLES } from "@habitutor/shared";
+import { ROLES } from "@habitutor/shared/auth-domain";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 import { ListIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
-import { isAdminRole } from "@habitutor/shared";
+import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";

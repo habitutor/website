@@ -1,4 +1,4 @@
-import { PREMIUM_TIERS, type PremiumTier, isPremiumTier } from "@habitutor/shared";
+import { PREMIUM_TIERS, type PremiumTier, isPremiumTier } from "@habitutor/shared/auth-domain";
 
 export const DEFAULT_PREMIUM_TIER = PREMIUM_TIERS.PREMIUM;
 

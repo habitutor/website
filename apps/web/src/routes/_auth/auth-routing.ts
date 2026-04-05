@@ -1,4 +1,4 @@
-import { isAdminRole } from "@habitutor/shared";
+import { isAdminRole } from "@habitutor/shared/auth-domain";
 
 export function getPostLoginRedirectPath(role?: string | null) {
   return isAdminRole(role) ? "/admin/dashboard" : "/dashboard";

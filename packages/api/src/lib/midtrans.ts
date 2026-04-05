@@ -1,4 +1,4 @@
-import type { auth } from "@habitutor/auth";
+import type { AuthInstance } from "@habitutor/auth";
 import { Snap } from "midtrans-client";
 
 let snapClient: Snap | null = null;
@@ -23,7 +23,7 @@ export async function createSubscriptionTransaction({
   id: string;
   name: string;
   grossAmount: number;
-  session: auth["$Infer"]["Session"];
+  session: AuthInstance["$Infer"]["Session"];
 }) {
   const normalizedGrossAmount = Math.round(grossAmount);
 

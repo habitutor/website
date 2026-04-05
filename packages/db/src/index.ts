@@ -1,5 +1,5 @@
 import { SQL } from "bun";
-import { config as loadEnv } from "dotenv";
+import { config } from "dotenv";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import { type BunSQLQueryResultHKT, drizzle } from "drizzle-orm/bun-sql";
 import type { PgTransaction } from "drizzle-orm/pg-core";
@@ -23,9 +23,9 @@ const schema = {
 
 function loadDatabaseUrl() {
   if (!process.env.DATABASE_URL) {
-    loadEnv({ quiet: true });
-    loadEnv({ path: "apps/server/.env", quiet: true });
-    loadEnv({ path: "apps/server/.env.local", quiet: true });
+    config({ quiet: true });
+    config({ path: "apps/server/.env", quiet: true });
+    config({ path: "apps/server/.env.local", quiet: true });
   }
 }
 
@@ -42,24 +42,9 @@ function createDb() {
 
 type DbClient = ReturnType<typeof createDb>;
 
-let dbInstance: DbClient | null = null;
-
-export function getDb() {
-  if (!dbInstance) {
-    dbInstance = createDb();
-  }
-  return dbInstance;
-}
-
-export const db: DbClient = new Proxy({} as DbClient, {
-  get(_, property, receiver) {
-    return Reflect.get(getDb(), property, receiver);
-  },
-});
-
-export { and, asc, count, desc, eq, sql } from "drizzle-orm";
+export const db = createDb();
 
 export type Schema = typeof schema;
 export type DrizzleDatabase =
-  | typeof db
+  | DbClient
   | PgTransaction<BunSQLQueryResultHKT, Schema, ExtractTablesWithRelations<Schema>>;

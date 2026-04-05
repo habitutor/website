@@ -2,7 +2,7 @@ import { ArrowRightIcon, LockIcon, LockKeyIcon, PencilSimpleIcon } from "@phosph
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { isSubtestPremium } from "@habitutor/shared";
+import { isSubtestPremium } from "@habitutor/shared/content-access";
 import { BackButton } from "@/components/navigation/back-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -231,5 +231,3 @@ export function ClassHeader({ shortName }: { shortName: string }) {
     </div>
   );
 }
-export { ContentFilters, LastContentViewedCard, ContentList } from "./content";
-export { PracticeQuestionHeader, AnswerCollapsible, PracticeQuestion, LiveClassCard } from "./practice";

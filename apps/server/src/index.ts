@@ -1,7 +1,8 @@
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
-import { isAdminRole, logger } from "@habitutor/shared";
-import { getAuth } from "@habitutor/auth";
+import { isAdminRole } from "@habitutor/shared/auth-domain";
+import { logger } from "@habitutor/shared/logger";
+import { auth } from "@habitutor/auth";
 import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConverter } from "@orpc/arktype";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
@@ -29,7 +30,7 @@ app.use(
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => getAuth().handler(c.req.raw));
+app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.use("/api-reference/*", async (c, next) => {
   const context = await createContext({ context: c });

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useEffect } from "react";
-import { PracticeQuestion, PracticeQuestionHeader } from "@/components/classes";
+import { PracticeQuestion, PracticeQuestionHeader } from "@/components/classes/practice";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { orpc } from "@/utils/orpc";
 
