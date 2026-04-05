@@ -29,69 +29,67 @@ const start = authed
     const today = getStartOfDay();
     const isPremium = context.session.user.isPremium;
 
-    return db.transaction(async (tx) => {
-      const latestAttempt = await flashcardRepo.getLatestAttempt({
-        db: tx,
-        userId: context.session.user.id,
-      });
-      const shouldBlock = shouldBlockStartSession({
-        latestAttempt: latestAttempt ?? undefined,
-        isPremium,
-        today,
-      });
-
-      if (shouldBlock && !isPremium)
-        throw errors.UNPROCESSABLE_CONTENT({
-          message: "Kamu sudah memulai sesi flashcard hari ini.",
-        });
-
-      if (shouldBlock && isPremium)
-        throw errors.UNPROCESSABLE_CONTENT({
-          message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
-        });
-
-      const attempt = await flashcardRepo.createAttempt({
-        db: tx,
-        userId: context.session.user.id,
-        deadline,
-      });
-
-      if (!attempt)
-        throw errors.INTERNAL_SERVER_ERROR({
-          message: "Gagal membuat sesi flashcard.",
-        });
-
-      const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
-        db: tx,
-        limit: FLASHCARD_QUESTION_LIMIT,
-      });
-
-      if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
-        throw errors.NOT_FOUND({
-          message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
-        });
-
-      const availableQuestions = await flashcardRepo.getQuestionsByIds({
-        db: tx,
-        ids: randomQuestionIds.map((q) => q.id),
-      });
-
-      if (availableQuestions.length < FLASHCARD_QUESTION_LIMIT)
-        throw errors.NOT_FOUND({
-          message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
-        });
-
-      await flashcardRepo.insertQuestionAnswers({
-        db: tx,
-        answers: availableQuestions.map((q: { id: number }) => ({
-          attemptId: attempt.id,
-          assignedDate: today,
-          questionId: q.id,
-        })),
-      });
-
-      return "Sukses memulai sesi flashcard!";
+    const latestAttempt = await flashcardRepo.getLatestAttempt({
+      db,
+      userId: context.session.user.id,
     });
+    const shouldBlock = shouldBlockStartSession({
+      latestAttempt: latestAttempt ?? undefined,
+      isPremium,
+      today,
+    });
+
+    if (shouldBlock && !isPremium)
+      throw errors.UNPROCESSABLE_CONTENT({
+        message: "Kamu sudah memulai sesi flashcard hari ini.",
+      });
+
+    if (shouldBlock && isPremium)
+      throw errors.UNPROCESSABLE_CONTENT({
+        message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
+      });
+
+    const attempt = await flashcardRepo.createAttempt({
+      db,
+      userId: context.session.user.id,
+      deadline,
+    });
+
+    if (!attempt)
+      throw errors.INTERNAL_SERVER_ERROR({
+        message: "Gagal membuat sesi flashcard.",
+      });
+
+    const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
+      db,
+      limit: FLASHCARD_QUESTION_LIMIT,
+    });
+
+    if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
+      throw errors.NOT_FOUND({
+        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+      });
+
+    const availableQuestions = await flashcardRepo.getQuestionsByIds({
+      db,
+      ids: randomQuestionIds.map((q) => q.id),
+    });
+
+    if (availableQuestions.length < FLASHCARD_QUESTION_LIMIT)
+      throw errors.NOT_FOUND({
+        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+      });
+
+    await flashcardRepo.insertQuestionAnswers({
+      db,
+      answers: availableQuestions.map((q) => ({
+        attemptId: attempt.id,
+        assignedDate: today,
+        questionId: q.id,
+      })),
+    });
+
+    return "Sukses memulai sesi flashcard!";
   });
 
 const get = authed
