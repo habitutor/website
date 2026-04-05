@@ -1,4 +1,4 @@
-import { getDb } from "@habitutor/db";
+import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
@@ -13,11 +13,6 @@ import {
   shouldIncrementFlashcardStreak,
 } from "./logic";
 import { flashcardRepo } from "./repo";
-
-/**
- * Flashcard domain owns short daily retention sessions (limited cards, streak rules,
- * and premium gating) rather than broad pack/subtest navigation.
- */
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 const FLASHCARD_QUESTION_LIMIT = 5;
@@ -34,7 +29,7 @@ const start = authed
     const today = getStartOfDay();
     const isPremium = context.session.user.isPremium;
 
-    return getDb().transaction(async (tx) => {
+    return db.transaction(async (tx) => {
       const latestAttempt = await flashcardRepo.getLatestAttempt({
         db: tx,
         userId: context.session.user.id,
@@ -109,14 +104,14 @@ const get = authed
     let status: "not_started" | "ongoing" | "submitted" = "not_started";
 
     const attempt = await flashcardRepo.getLatestAttempt({
-      db: getDb(),
+      db,
       userId: context.session.user.id,
     });
 
     if (!attempt) return { status };
 
-    const assignedQuestionsRaw = await flashcardRepo.getUnansweredQuestions({ db: getDb(), attemptId: attempt.id });
-    const totalQuestionsCount = await flashcardRepo.countQuestionsForAttempt({ db: getDb(), attemptId: attempt.id });
+    const assignedQuestionsRaw = await flashcardRepo.getUnansweredQuestions({ db, attemptId: attempt.id });
+    const totalQuestionsCount = await flashcardRepo.countQuestionsForAttempt({ db, attemptId: attempt.id });
 
     const assignedQuestions = assignedQuestionsRaw.map((aq) => ({
       ...aq,
@@ -155,7 +150,7 @@ const submit = authed
     const hasDoneToday = !shouldIncrementStreak;
 
     const latestAttempt = await flashcardRepo.getLatestAttemptForToday({
-      db: getDb(),
+      db,
       userId: context.session.user.id,
       today,
     });
@@ -180,7 +175,7 @@ const submit = authed
       });
     }
 
-    await getDb().transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       const attemptScore = await flashcardRepo.getAttemptScore({
         db: tx,
         attemptId: latestAttempt.id,
@@ -235,7 +230,7 @@ const save = authed
     const today = getStartOfDay();
 
     const attempt = await flashcardRepo.getAttemptForQuestion({
-      db: getDb(),
+      db,
       userId: context.session.user.id,
       questionId: input.questionId,
       today,
@@ -250,7 +245,7 @@ const save = authed
     }
 
     const answers = await flashcardRepo.getAnswersForQuestion({
-      db: getDb(),
+      db,
       questionId: input.questionId,
     });
 
@@ -261,7 +256,7 @@ const save = authed
     if (!resolvedAnswer) throw errors.NOT_FOUND();
 
     await flashcardRepo.updateQuestionAnswer({
-      db: getDb(),
+      db,
       questionId: input.questionId,
       attemptId: attempt.id,
       selectedAnswerId: input.answerId,
@@ -288,7 +283,7 @@ const result = authed
   )
   .handler(async ({ context, errors, input }) => {
     const attempt = await flashcardRepo.getAttemptWithOptionalId({
-      db: getDb(),
+      db,
       userId: context.session.user.id,
       attemptId: input.id,
     });
@@ -299,7 +294,7 @@ const result = authed
       });
 
     const assignedQuestions = await flashcardRepo.getAttemptQuestionAnswers({
-      db: getDb(),
+      db,
       attemptId: attempt.id,
     });
 
@@ -333,7 +328,7 @@ const history = premium
     tags: ["Flashcard"],
   })
   .handler(async ({ context }) => {
-    return flashcardRepo.getUserHistory({ db: getDb(), userId: context.session.user.id });
+    return flashcardRepo.getUserHistory({ db, userId: context.session.user.id });
   });
 
 const totalScore = authed
@@ -349,7 +344,7 @@ const totalScore = authed
   )
   .handler(async ({ context }) => {
     const totalScore = await flashcardRepo.getUserTotalScore({
-      db: getDb(),
+      db,
       userId: context.session.user.id,
     });
 
@@ -376,7 +371,7 @@ const leaderboard = authed
   )
   .handler(async ({ context }) => {
     const entries = await flashcardRepo.getLeaderboardWithCurrentUser({
-      db: getDb(),
+      db,
       currentUserId: context.session.user.id,
       limit: 10,
     });

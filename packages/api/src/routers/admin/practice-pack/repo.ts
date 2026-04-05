@@ -1,4 +1,4 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePack, practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
@@ -76,7 +76,7 @@ export function formatPackQuestions(rows: PackQuestionRow[]) {
 
 export const adminPracticePackRepo = {
   list: async ({
-    db = getDb(),
+    db = defaultDb,
     limit,
     offset,
     search,
@@ -101,7 +101,7 @@ export const adminPracticePackRepo = {
     return filteredQuery.limit(limit).offset(offset).orderBy(practicePack.id);
   },
 
-  count: async ({ db = getDb(), search }: { db?: DrizzleDatabase; search: string }) => {
+  count: async ({ db = defaultDb, search }: { db?: DrizzleDatabase; search: string }) => {
     const [result] = search
       ? await db
           .select({ count: count() })
@@ -111,7 +111,7 @@ export const adminPracticePackRepo = {
     return result?.count ?? 0;
   },
 
-  getById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  getById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [pack] = await db
       .select({
         id: practicePack.id,
@@ -125,7 +125,7 @@ export const adminPracticePackRepo = {
   },
 
   create: async ({
-    db = getDb(),
+    db = defaultDb,
     title,
     description,
   }: {
@@ -138,7 +138,7 @@ export const adminPracticePackRepo = {
   },
 
   update: async ({
-    db = getDb(),
+    db = defaultDb,
     id,
     title,
     description,
@@ -152,22 +152,22 @@ export const adminPracticePackRepo = {
     return pack;
   },
 
-  delete: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  delete: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [pack] = await db.delete(practicePack).where(eq(practicePack.id, id)).returning();
     return pack;
   },
 
-  getPracticePackById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  getPracticePackById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [pack] = await db.select().from(practicePack).where(eq(practicePack.id, id)).limit(1);
     return pack;
   },
 
-  getQuestionById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  getQuestionById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [q] = await db.select().from(question).where(eq(question.id, id)).limit(1);
     return q;
   },
 
-  getMaxQuestionOrder: async ({ db = getDb(), practicePackId }: { db?: DrizzleDatabase; practicePackId: number }) => {
+  getMaxQuestionOrder: async ({ db = defaultDb, practicePackId }: { db?: DrizzleDatabase; practicePackId: number }) => {
     const [result] = await db
       .select({ maxOrder: sql<number>`COALESCE(MAX(${practicePackQuestions.order}), 0)` })
       .from(practicePackQuestions)
@@ -176,7 +176,7 @@ export const adminPracticePackRepo = {
   },
 
   addQuestion: async ({
-    db = getDb(),
+    db = defaultDb,
     practicePackId,
     questionId,
     order,
@@ -197,7 +197,7 @@ export const adminPracticePackRepo = {
   },
 
   removeQuestion: async ({
-    db = getDb(),
+    db = defaultDb,
     practicePackId,
     questionId,
   }: {
@@ -213,7 +213,7 @@ export const adminPracticePackRepo = {
   },
 
   updateQuestionOrder: async ({
-    db = getDb(),
+    db = defaultDb,
     practicePackId,
     questionId,
     order,
@@ -231,7 +231,7 @@ export const adminPracticePackRepo = {
       );
   },
 
-  getQuestionsForPack: async ({ db = getDb(), packId }: { db?: DrizzleDatabase; packId: number }) => {
+  getQuestionsForPack: async ({ db = defaultDb, packId }: { db?: DrizzleDatabase; packId: number }) => {
     return db
       .select({
         questionId: practicePackQuestions.questionId,
@@ -253,7 +253,7 @@ export const adminPracticePackRepo = {
       .where(eq(practicePack.id, packId));
   },
 
-  getQuestionIdsForPack: async ({ db = getDb(), packId }: { db?: DrizzleDatabase; packId: number }) => {
+  getQuestionIdsForPack: async ({ db = defaultDb, packId }: { db?: DrizzleDatabase; packId: number }) => {
     return db
       .select({ questionId: practicePackQuestions.questionId })
       .from(practicePackQuestions)
@@ -261,7 +261,7 @@ export const adminPracticePackRepo = {
   },
 
   updateQuestionsFlashcard: async ({
-    db = getDb(),
+    db = defaultDb,
     questionIds,
     isFlashcardQuestion,
   }: {

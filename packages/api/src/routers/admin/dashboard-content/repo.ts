@@ -1,8 +1,8 @@
-import { asc, type DrizzleDatabase, getDb, eq, sql } from "@habitutor/db";
+import { asc, type DrizzleDatabase, db as defaultDb, eq, sql } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 
 export const adminDashboardContentRepo = {
-  ensurePrimaryAnnouncement: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
+  ensurePrimaryAnnouncement: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     const existing = await adminDashboardContentRepo.getPrimaryAnnouncement({ db });
     if (existing) return existing;
 
@@ -22,11 +22,11 @@ export const adminDashboardContentRepo = {
     return row;
   },
 
-  cleanupExpiredLiveClasses: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
+  cleanupExpiredLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     await db.delete(dashboardLiveClass).where(sql`(${dashboardLiveClass.date} + ${dashboardLiveClass.time}) < now()`);
   },
 
-  listLiveClasses: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
+  listLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     return db
       .select({
         id: dashboardLiveClass.id,
@@ -42,7 +42,7 @@ export const adminDashboardContentRepo = {
       .orderBy(asc(dashboardLiveClass.order), asc(dashboardLiveClass.id));
   },
 
-  countLiveClasses: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
+  countLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     const rows = await db.query.dashboardLiveClass.findMany({
       columns: { id: true },
     });
@@ -50,7 +50,7 @@ export const adminDashboardContentRepo = {
   },
 
   createLiveClass: async ({
-    db = getDb(),
+    db = defaultDb,
     input,
   }: {
     db?: DrizzleDatabase;
@@ -86,7 +86,7 @@ export const adminDashboardContentRepo = {
   },
 
   updateLiveClass: async ({
-    db = getDb(),
+    db = defaultDb,
     id,
     input,
   }: {
@@ -122,24 +122,24 @@ export const adminDashboardContentRepo = {
     return row;
   },
 
-  deleteLiveClass: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  deleteLiveClass: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [row] = await db.delete(dashboardLiveClass).where(eq(dashboardLiveClass.id, id)).returning();
     return row;
   },
 
-  listAnnouncements: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
+  listAnnouncements: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     return db
       .select()
       .from(dashboardAnnouncement)
       .orderBy(asc(dashboardAnnouncement.order), asc(dashboardAnnouncement.id));
   },
 
-  getAnnouncementById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  getAnnouncementById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [row] = await db.select().from(dashboardAnnouncement).where(eq(dashboardAnnouncement.id, id));
     return row;
   },
 
-  getPrimaryAnnouncement: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
+  getPrimaryAnnouncement: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     const [row] = await db
       .select()
       .from(dashboardAnnouncement)
@@ -149,7 +149,7 @@ export const adminDashboardContentRepo = {
   },
 
   createAnnouncement: async ({
-    db = getDb(),
+    db = defaultDb,
     input,
   }: {
     db?: DrizzleDatabase;
@@ -168,7 +168,7 @@ export const adminDashboardContentRepo = {
   },
 
   upsertPrimaryAnnouncement: async ({
-    db = getDb(),
+    db = defaultDb,
     input,
   }: {
     db?: DrizzleDatabase;
@@ -209,7 +209,7 @@ export const adminDashboardContentRepo = {
   },
 
   updateAnnouncement: async ({
-    db = getDb(),
+    db = defaultDb,
     id,
     input,
   }: {
@@ -233,7 +233,7 @@ export const adminDashboardContentRepo = {
     return row;
   },
 
-  deleteAnnouncement: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  deleteAnnouncement: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [row] = await db.delete(dashboardAnnouncement).where(eq(dashboardAnnouncement.id, id)).returning();
     return row;
   },

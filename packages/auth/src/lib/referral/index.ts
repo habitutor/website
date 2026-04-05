@@ -1,4 +1,4 @@
-import { getDb } from "@habitutor/db";
+import { db } from "@habitutor/db";
 import { referralCode } from "@habitutor/db/schema/referral";
 
 const CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
@@ -22,7 +22,7 @@ async function createForUser(userId: string) {
   let attempts = 0;
   while (true) {
     const code = generateCodeString();
-    const [result] = await getDb()
+    const [result] = await db
       .insert(referralCode)
       .values({ code, userId })
       .onConflictDoNothing({ target: referralCode.code })

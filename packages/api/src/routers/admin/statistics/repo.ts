@@ -1,11 +1,11 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { practicePack } from "@habitutor/db/schema/practice-pack";
 import { question } from "@habitutor/db/schema/question";
 import { count } from "drizzle-orm";
 
 export const adminStatisticsRepo = {
-  getStats: async ({ db = getDb() }: { db?: DrizzleDatabase }) => {
+  getStats: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     const [totalUsers] = await db.select({ count: count() }).from(user);
     const [totalPacks] = await db.select({ count: count() }).from(practicePack);
     const [totalQuestions] = await db.select({ count: count() }).from(question);

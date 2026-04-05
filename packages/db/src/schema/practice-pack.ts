@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { index, integer, pgEnum, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { question, questionAnswerOption } from "./question";
 import { user } from "./user";
@@ -11,6 +12,10 @@ export const practicePack = pgTable("practice_pack", {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date()),
 });
+
+export const practicePackRelations = relations(practicePack, ({ many }) => ({
+  questions: many(practicePackQuestions),
+}));
 
 export const practicePackStatus = pgEnum("practice_pack_status", ["not_started", "ongoing", "finished"]);
 
@@ -49,6 +54,29 @@ export const practicePackQuestions = pgTable(
   (table) => [primaryKey({ columns: [table.practicePackId, table.questionId] })],
 );
 
+export const practicePackQuestionsRelations = relations(practicePackQuestions, ({ one }) => ({
+  practicePack: one(practicePack, {
+    fields: [practicePackQuestions.practicePackId],
+    references: [practicePack.id],
+  }),
+  question: one(question, {
+    fields: [practicePackQuestions.questionId],
+    references: [question.id],
+  }),
+}));
+
+export const questionRelations = relations(question, ({ many }) => ({
+  answerOptions: many(questionAnswerOption),
+  practicePacks: many(practicePackQuestions),
+}));
+
+export const questionAnswerOptionRelations = relations(questionAnswerOption, ({ one }) => ({
+  question: one(question, {
+    fields: [questionAnswerOption.questionId],
+    references: [question.id],
+  }),
+}));
+
 // we can save the user's responses with the table below
 export const practicePackUserAnswer = pgTable(
   "practice_pack_user_answer",
@@ -65,3 +93,5 @@ export const practicePackUserAnswer = pgTable(
   },
   (t) => [primaryKey({ columns: [t.attemptId, t.questionId] }), index("idx_pp_user_answer_attempt").on(t.attemptId)],
 );
+
+export { question, questionAnswerOption } from "./question";

@@ -1,4 +1,4 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import {
   contentItem,
   contentPracticeQuestions,
@@ -10,7 +10,7 @@ import { and, eq, sql } from "drizzle-orm";
 
 export const adminSubtestRepo = {
   createSubtest: async ({
-    db = getDb(),
+    db = defaultDb,
     name,
     shortName,
     description,
@@ -35,7 +35,7 @@ export const adminSubtestRepo = {
   },
 
   updateSubtest: async ({
-    db = getDb(),
+    db = defaultDb,
     id,
     data,
   }: {
@@ -53,17 +53,17 @@ export const adminSubtestRepo = {
     return updated;
   },
 
-  deleteSubtest: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  deleteSubtest: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [deleted] = await db.delete(subtest).where(eq(subtest.id, id)).returning();
     return deleted;
   },
 
-  updateSubtestOrder: async ({ db = getDb(), id, order }: { db?: DrizzleDatabase; id: number; order: number }) => {
+  updateSubtestOrder: async ({ db = defaultDb, id, order }: { db?: DrizzleDatabase; id: number; order: number }) => {
     return db.update(subtest).set({ order, updatedAt: new Date() }).where(eq(subtest.id, id));
   },
 
   getMaxContentOrder: async ({
-    db = getDb(),
+    db = defaultDb,
     subtestId,
     type,
   }: {
@@ -83,7 +83,7 @@ export const adminSubtestRepo = {
   },
 
   createContentItem: async ({
-    db = getDb(),
+    db = defaultDb,
     subtestId,
     type,
     title,
@@ -108,7 +108,7 @@ export const adminSubtestRepo = {
   },
 
   updateContentItem: async ({
-    db = getDb(),
+    db = defaultDb,
     id,
     data,
   }: {
@@ -120,13 +120,13 @@ export const adminSubtestRepo = {
     return updated;
   },
 
-  deleteContentItem: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  deleteContentItem: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, id)).returning();
     return deleted;
   },
 
   updateContentOrder: async ({
-    db = getDb(),
+    db = defaultDb,
     id,
     order,
     subtestId,
@@ -144,12 +144,12 @@ export const adminSubtestRepo = {
       .where(and(eq(contentItem.id, id), eq(contentItem.subtestId, subtestId), eq(contentItem.type, type)));
   },
 
-  getContentItemById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  getContentItemById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, id)).limit(1);
     return item;
   },
 
-  getContentItemWithDetails: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: number }) => {
+  getContentItemWithDetails: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [item] = await db
       .select({ id: contentItem.id, type: contentItem.type })
       .from(contentItem)
@@ -159,7 +159,7 @@ export const adminSubtestRepo = {
   },
 
   upsertVideoMaterial: async ({
-    db = getDb(),
+    db = defaultDb,
     contentItemId,
     videoUrl,
     content,
@@ -188,13 +188,13 @@ export const adminSubtestRepo = {
     return video;
   },
 
-  deleteVideoMaterial: async ({ db = getDb(), contentItemId }: { db?: DrizzleDatabase; contentItemId: number }) => {
+  deleteVideoMaterial: async ({ db = defaultDb, contentItemId }: { db?: DrizzleDatabase; contentItemId: number }) => {
     const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, contentItemId)).returning();
     return deleted;
   },
 
   upsertNoteMaterial: async ({
-    db = getDb(),
+    db = defaultDb,
     contentItemId,
     content,
   }: {
@@ -219,17 +219,23 @@ export const adminSubtestRepo = {
     return note;
   },
 
-  deleteNoteMaterial: async ({ db = getDb(), contentItemId }: { db?: DrizzleDatabase; contentItemId: number }) => {
+  deleteNoteMaterial: async ({ db = defaultDb, contentItemId }: { db?: DrizzleDatabase; contentItemId: number }) => {
     const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, contentItemId)).returning();
     return deleted;
   },
 
-  deletePracticeQuestions: async ({ db = getDb(), contentItemId }: { db?: DrizzleDatabase; contentItemId: number }) => {
+  deletePracticeQuestions: async ({
+    db = defaultDb,
+    contentItemId,
+  }: {
+    db?: DrizzleDatabase;
+    contentItemId: number;
+  }) => {
     return db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, contentItemId));
   },
 
   insertPracticeQuestions: async ({
-    db = getDb(),
+    db = defaultDb,
     contentItemId,
     questionIds,
   }: {

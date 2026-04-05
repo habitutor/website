@@ -1,4 +1,4 @@
-import { getDb } from "@habitutor/db";
+import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
@@ -17,7 +17,7 @@ export const syncSessionLifecycle = o.middleware(async ({ context, next }) => {
     sessionUser.lastCompletedFlashcardAt &&
     Date.now() - sessionUser.lastCompletedFlashcardAt.getTime() >= 2 * 24 * 3600 * 1000
   ) {
-    await getDb().update(user).set({ flashcardStreak: 0 }).where(eq(user.id, sessionUser.id));
+    await db.update(user).set({ flashcardStreak: 0 }).where(eq(user.id, sessionUser.id));
     sessionUser.flashcardStreak = 0;
   }
 

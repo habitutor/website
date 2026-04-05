@@ -6,9 +6,7 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import * as auth from "./schema/auth";
 import * as dashboard from "./schema/dashboard";
 import * as flashcard from "./schema/flashcard";
-import * as flashcardRelations from "./schema/flashcard-relations";
 import * as practice from "./schema/practice-pack";
-import * as practiceRelations from "./schema/practice-pack-relations";
 import * as question from "./schema/question";
 import * as referral from "./schema/referral";
 import * as transaction from "./schema/transaction";
@@ -18,8 +16,6 @@ const schema = {
   ...practice,
   ...question,
   ...flashcard,
-  ...practiceRelations,
-  ...flashcardRelations,
   ...dashboard,
   ...referral,
   ...transaction,
@@ -55,9 +51,15 @@ export function getDb() {
   return dbInstance;
 }
 
+export const db: DbClient = new Proxy({} as DbClient, {
+  get(_, property, receiver) {
+    return Reflect.get(getDb(), property, receiver);
+  },
+});
+
 export { and, asc, count, desc, eq, sql } from "drizzle-orm";
 
 export type Schema = typeof schema;
 export type DrizzleDatabase =
-  | DbClient
+  | typeof db
   | PgTransaction<BunSQLQueryResultHKT, Schema, ExtractTablesWithRelations<Schema>>;

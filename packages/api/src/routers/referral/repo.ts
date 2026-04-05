@@ -1,4 +1,4 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { referralCode, referralUsage } from "@habitutor/db/schema/referral";
 import { transaction } from "@habitutor/db/schema/transaction";
 import { and, desc, eq, or, sql } from "drizzle-orm";
@@ -27,23 +27,23 @@ function generateCode(): string {
 }
 
 export const referralRepo = {
-  getCodeByUserId: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  getCodeByUserId: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [result] = await db.select().from(referralCode).where(eq(referralCode.userId, userId)).limit(1);
-    return result ?? null;
+    return result;
   },
 
-  getCodeByCode: async ({ db = getDb(), code }: { db?: DrizzleDatabase; code: string }) => {
+  getCodeByCode: async ({ db = defaultDb, code }: { db?: DrizzleDatabase; code: string }) => {
     const [result] = await db.select().from(referralCode).where(eq(referralCode.code, code)).limit(1);
-    return result ?? null;
+    return result;
   },
 
-  getUserUsage: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  getUserUsage: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [result] = await db.select().from(referralUsage).where(eq(referralUsage.userId, userId)).limit(1);
-    return result ?? null;
+    return result;
   },
 
   validateCodeForUser: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     code,
     allowPendingSameCode = false,
@@ -80,7 +80,7 @@ export const referralRepo = {
   },
 
   generateAndStoreCode: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
   }: {
     db?: DrizzleDatabase;
@@ -106,7 +106,7 @@ export const referralRepo = {
   },
 
   createUsage: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     referralCodeId,
     transactionId,
@@ -123,11 +123,11 @@ export const referralRepo = {
     if (cashbackAmount) values.cashbackAmount = cashbackAmount;
 
     const [result] = await db.insert(referralUsage).values(values).returning();
-    return result ?? null;
+    return result;
   },
 
   incrementReferralCount: async ({
-    db = getDb(),
+    db = defaultDb,
     referralCodeId,
   }: {
     db?: DrizzleDatabase;
@@ -140,7 +140,7 @@ export const referralRepo = {
   },
 
   getTransactionReferralCodeId: async ({
-    db = getDb(),
+    db = defaultDb,
     transactionId,
   }: {
     db?: DrizzleDatabase;
@@ -154,17 +154,23 @@ export const referralRepo = {
     return result?.referralCodeId;
   },
 
-  getUsageByTransactionId: async ({ db = getDb(), transactionId }: { db?: DrizzleDatabase; transactionId: string }) => {
+  getUsageByTransactionId: async ({
+    db = defaultDb,
+    transactionId,
+  }: {
+    db?: DrizzleDatabase;
+    transactionId: string;
+  }) => {
     const [result] = await db
       .select()
       .from(referralUsage)
       .where(eq(referralUsage.transactionId, transactionId))
       .limit(1);
-    return result ?? null;
+    return result;
   },
 
   attachPendingUsageToTransaction: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     referralCodeId,
     transactionId,
@@ -191,11 +197,11 @@ export const referralRepo = {
       )
       .returning();
 
-    return updated ?? null;
+    return updated;
   },
 
   listAdminReferralTransactions: async ({
-    db = getDb(),
+    db = defaultDb,
     limit,
     cursorCreatedAt,
     cursorId,

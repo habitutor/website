@@ -1,11 +1,11 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { referralCode } from "@habitutor/db/schema/referral";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 export const adminUserRepo = {
   list: async ({
-    db = getDb(),
+    db = defaultDb,
     limit,
     cursorCreatedAt,
     cursorId,
@@ -44,13 +44,13 @@ export const adminUserRepo = {
       .limit(limit + 1);
   },
 
-  getById: async ({ db = getDb(), id }: { db?: DrizzleDatabase; id: string }) => {
+  getById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: string }) => {
     const [u] = await db.select().from(user).where(eq(user.id, id)).limit(1);
     return u;
   },
 
   updatePremium: async ({
-    db = getDb(),
+    db = defaultDb,
     id,
     isPremium,
     premiumTier,

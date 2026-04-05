@@ -1,4 +1,4 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import {
   contentItem,
@@ -24,7 +24,7 @@ type RecentContentView = {
 };
 
 export const subtestRepo = {
-  listSubtests: async ({ db = getDb(), limit, offset }: { db?: DrizzleDatabase; limit: number; offset: number }) => {
+  listSubtests: async ({ db = defaultDb, limit, offset }: { db?: DrizzleDatabase; limit: number; offset: number }) => {
     return db
       .select({
         id: subtest.id,
@@ -42,7 +42,7 @@ export const subtestRepo = {
       .offset(offset);
   },
 
-  getSubtestByShortName: async ({ db = getDb(), shortName }: { db?: DrizzleDatabase; shortName: string }) => {
+  getSubtestByShortName: async ({ db = defaultDb, shortName }: { db?: DrizzleDatabase; shortName: string }) => {
     const [result] = await db
       .select({
         id: subtest.id,
@@ -61,13 +61,13 @@ export const subtestRepo = {
     return result;
   },
 
-  getSubtestOrder: async ({ db = getDb(), subtestId }: { db?: DrizzleDatabase; subtestId: number }) => {
+  getSubtestOrder: async ({ db = defaultDb, subtestId }: { db?: DrizzleDatabase; subtestId: number }) => {
     const [result] = await db.select({ order: subtest.order }).from(subtest).where(eq(subtest.id, subtestId)).limit(1);
     return result;
   },
 
   listContentByCategory: async ({
-    db = getDb(),
+    db = defaultDb,
     subtestId,
     category,
     search,
@@ -123,7 +123,7 @@ export const subtestRepo = {
       );
   },
 
-  getContentWithMaterials: async ({ db = getDb(), contentId }: { db?: DrizzleDatabase; contentId: number }) => {
+  getContentWithMaterials: async ({ db = defaultDb, contentId }: { db?: DrizzleDatabase; contentId: number }) => {
     const [row] = await db
       .select({
         id: contentItem.id,
@@ -147,7 +147,13 @@ export const subtestRepo = {
     return row;
   },
 
-  getPracticeQuestionsForContent: async ({ db = getDb(), contentId }: { db?: DrizzleDatabase; contentId: number }) => {
+  getPracticeQuestionsForContent: async ({
+    db = defaultDb,
+    contentId,
+  }: {
+    db?: DrizzleDatabase;
+    contentId: number;
+  }) => {
     return db
       .select({
         questionId: contentPracticeQuestions.questionId,
@@ -168,7 +174,7 @@ export const subtestRepo = {
       .orderBy(contentPracticeQuestions.order, questionAnswerOption.code);
   },
 
-  getContentById: async ({ db = getDb(), contentId }: { db?: DrizzleDatabase; contentId: number }) => {
+  getContentById: async ({ db = defaultDb, contentId }: { db?: DrizzleDatabase; contentId: number }) => {
     const [item] = await db
       .select({ id: contentItem.id })
       .from(contentItem)
@@ -178,7 +184,7 @@ export const subtestRepo = {
   },
 
   recordContentView: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     contentItemId,
   }: {
@@ -208,7 +214,7 @@ export const subtestRepo = {
 		`);
   },
 
-  getRecentContentViews: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  getRecentContentViews: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const views = await db.execute<{
       viewedAt: Date;
       contentId: number;
@@ -251,7 +257,7 @@ export const subtestRepo = {
   },
 
   upsertUserProgress: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     contentItemId,
     videoCompleted,
@@ -293,7 +299,7 @@ export const subtestRepo = {
       });
   },
 
-  getProgressStats: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  getProgressStats: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [stats] = await db
       .select({
         materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,

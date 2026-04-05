@@ -1,4 +1,4 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import {
   practicePack,
   practicePackAttempt,
@@ -74,7 +74,7 @@ function buildQuestionMapBase(
 }
 
 export const practicePackRepo = {
-  listWithAttempts: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  listWithAttempts: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     return db
       .select({
         id: practicePack.id,
@@ -92,7 +92,7 @@ export const practicePackRepo = {
   },
 
   findWithQuestions: async ({
-    db = getDb(),
+    db = defaultDb,
     packId,
     userId,
   }: {
@@ -132,7 +132,15 @@ export const practicePackRepo = {
       .where(and(eq(practicePack.id, packId), eq(practicePackAttempt.userId, userId)));
   },
 
-  createAttempt: async ({ db = getDb(), packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
+  createAttempt: async ({
+    db = defaultDb,
+    packId,
+    userId,
+  }: {
+    db?: DrizzleDatabase;
+    packId: number;
+    userId: string;
+  }) => {
     const [attempt] = await db
       .insert(practicePackAttempt)
       .values({
@@ -144,7 +152,7 @@ export const practicePackRepo = {
     return attempt ?? null;
   },
 
-  getAttempt: async ({ db = getDb(), packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
+  getAttempt: async ({ db = defaultDb, packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
     const [attempt] = await db
       .select({
         id: practicePackAttempt.id,
@@ -158,7 +166,7 @@ export const practicePackRepo = {
   },
 
   saveAnswer: async ({
-    db = getDb(),
+    db = defaultDb,
     attemptId,
     questionId,
     selectedAnswerId,
@@ -181,7 +189,15 @@ export const practicePackRepo = {
       });
   },
 
-  submitAttempt: async ({ db = getDb(), packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
+  submitAttempt: async ({
+    db = defaultDb,
+    packId,
+    userId,
+  }: {
+    db?: DrizzleDatabase;
+    packId: number;
+    userId: string;
+  }) => {
     const [attempt] = await db
       .update(practicePackAttempt)
       .set({
@@ -193,7 +209,7 @@ export const practicePackRepo = {
     return attempt ?? null;
   },
 
-  countAttempts: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  countAttempts: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [result] = await db
       .select({ count: count() })
       .from(practicePackAttempt)
@@ -202,7 +218,7 @@ export const practicePackRepo = {
   },
 
   getHistory: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     limit,
     offset,
@@ -227,7 +243,7 @@ export const practicePackRepo = {
   },
 
   findHistoryByPack: async ({
-    db = getDb(),
+    db = defaultDb,
     packId,
     userId,
   }: {

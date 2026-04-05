@@ -1,4 +1,4 @@
-import { type DrizzleDatabase, getDb } from "@habitutor/db";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
@@ -19,7 +19,7 @@ function extractExecuteRows<T>(result: ExecuteRowsResult<T>): T[] {
 }
 
 export const flashcardRepo = {
-  getLatestAttempt: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  getLatestAttempt: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [attempt] = await db
       .select()
       .from(userFlashcardAttempt)
@@ -30,7 +30,7 @@ export const flashcardRepo = {
   },
 
   getLatestAttemptForToday: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     today,
   }: {
@@ -48,7 +48,7 @@ export const flashcardRepo = {
   },
 
   createAttempt: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     deadline,
   }: {
@@ -67,7 +67,7 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getRandomFlashcardQuestionIds: async ({ db = getDb(), limit = 5 }: { db?: DrizzleDatabase; limit?: number }) => {
+  getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }) => {
     const result = await db.execute(sql<{ id: number }>`
       SELECT q.id
       FROM (
@@ -84,7 +84,7 @@ export const flashcardRepo = {
     return extractExecuteRows(result);
   },
 
-  getQuestionsByIds: async ({ db = getDb(), ids }: { db?: DrizzleDatabase; ids: number[] }) => {
+  getQuestionsByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
     return db.query.question.findMany({
       where: inArray(question.id, ids),
       with: {
@@ -94,7 +94,7 @@ export const flashcardRepo = {
   },
 
   insertQuestionAnswers: async ({
-    db = getDb(),
+    db = defaultDb,
     answers,
   }: {
     db?: DrizzleDatabase;
@@ -107,7 +107,7 @@ export const flashcardRepo = {
     return db.insert(userFlashcardQuestionAnswer).values(answers);
   },
 
-  countQuestionsForAttempt: async ({ db = getDb(), attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+  countQuestionsForAttempt: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
     const [row] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(userFlashcardQuestionAnswer)
@@ -115,7 +115,7 @@ export const flashcardRepo = {
     return row?.count ?? 0;
   },
 
-  getUnansweredQuestions: async ({ db = getDb(), attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+  getUnansweredQuestions: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
     return db.query.userFlashcardQuestionAnswer.findMany({
       where: and(
         eq(userFlashcardQuestionAnswer.attemptId, attemptId),
@@ -143,7 +143,7 @@ export const flashcardRepo = {
     });
   },
 
-  getAttemptById: async ({ db = getDb(), attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+  getAttemptById: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
     const [attempt] = await db
       .select()
       .from(userFlashcardAttempt)
@@ -153,7 +153,7 @@ export const flashcardRepo = {
   },
 
   markAttemptSubmitted: async ({
-    db = getDb(),
+    db = defaultDb,
     attemptId,
     score,
   }: {
@@ -169,7 +169,7 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getAttemptScore: async ({ db = getDb(), attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+  getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
     const result = await db.execute(sql<{ score: number }>`
       SELECT
         CASE
@@ -188,7 +188,7 @@ export const flashcardRepo = {
   },
 
   getAttemptForQuestion: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     questionId,
     today,
@@ -217,7 +217,7 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getAnswersForQuestion: async ({ db = getDb(), questionId }: { db?: DrizzleDatabase; questionId: number }) => {
+  getAnswersForQuestion: async ({ db = defaultDb, questionId }: { db?: DrizzleDatabase; questionId: number }) => {
     return db
       .select({
         id: questionAnswerOption.id,
@@ -228,7 +228,7 @@ export const flashcardRepo = {
   },
 
   updateQuestionAnswer: async ({
-    db = getDb(),
+    db = defaultDb,
     questionId,
     attemptId,
     selectedAnswerId,
@@ -253,7 +253,7 @@ export const flashcardRepo = {
   },
 
   getAttemptWithOptionalId: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     attemptId,
   }: {
@@ -272,7 +272,7 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getAttemptQuestionAnswers: async ({ db = getDb(), attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+  getAttemptQuestionAnswers: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
     return db.query.userFlashcardQuestionAnswer.findMany({
       where: eq(userFlashcardQuestionAnswer.attemptId, attemptId),
       columns: {
@@ -304,7 +304,7 @@ export const flashcardRepo = {
   },
 
   getUserHistory: async ({
-    db = getDb(),
+    db = defaultDb,
     userId,
     limit = 50,
   }: {
@@ -324,14 +324,14 @@ export const flashcardRepo = {
       .limit(limit);
   },
 
-  getUserTotalScore: async ({ db = getDb(), userId }: { db?: DrizzleDatabase; userId: string }) => {
+  getUserTotalScore: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [row] = await db.select({ totalScore: user.totalScore }).from(user).where(eq(user.id, userId)).limit(1);
 
     return row?.totalScore ?? 0;
   },
 
   getLeaderboardWithCurrentUser: async ({
-    db = getDb(),
+    db = defaultDb,
     currentUserId,
     limit = 10,
   }: {
