@@ -44,7 +44,7 @@ export const Announcement = () => {
 
   return (
     <section className="w-full rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Berita khusus untukmu</h2>
+      <h2 className="mb-2 font-medium">Tips SNBT khusus untukmu</h2>
       <div className="flex w-full flex-col gap-4 md:flex-row md:gap-6">
         <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-secondary-700 bg-secondary-400 p-4 pb-6 md:w-[55%]">
           <h3 className="relative z-10 w-full font-bold md:text-[22px]">{primaryAnnouncement.title}</h3>
