@@ -70,10 +70,15 @@ export const FlashcardCard = () => {
   const currentQuestion = data.assignedQuestions[0];
   const isLastQuestion = data.assignedQuestions.length <= 1;
 
-  const handleSubmit = () => {
-    submitMutation.mutate({});
-    queryClient.removeQueries({ queryKey: orpc.flashcard.result.queryKey({ input: {} }) });
-    navigate({ to: "/dashboard/flashcard/result" });
+  const handleSubmit = async () => {
+    try {
+      await submitMutation.mutateAsync({});
+      await queryClient.invalidateQueries({ queryKey: orpc.flashcard.session.key() });
+      queryClient.removeQueries({ queryKey: orpc.flashcard.result.queryKey({ input: {} }) });
+      navigate({ to: "/dashboard/flashcard/result" });
+    } catch {
+      // Error handling is managed in submit mutation callbacks.
+    }
   };
 
   const handleCheckAnswer = async () => {
@@ -90,7 +95,7 @@ export const FlashcardCard = () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       if (isLastQuestion) {
-        handleSubmit();
+        await handleSubmit();
         return;
       }
 

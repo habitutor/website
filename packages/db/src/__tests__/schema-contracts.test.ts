@@ -6,10 +6,10 @@ import {
   practicePackQuestions,
   practicePackStatus,
   practicePackUserAnswer,
-} from "./practice-pack";
-import { question, questionAnswerOption } from "./question";
-import { contentItem, subtest } from "./subtest";
-import { user } from "./user";
+} from "../schema/practice-pack";
+import { question, questionAnswerOption } from "../schema/question";
+import { contentItem, subtest } from "../schema/subtest";
+import { user } from "../schema/user";
 
 describe("schema contract boundaries", () => {
   test("keeps stable learning-domain table names", () => {

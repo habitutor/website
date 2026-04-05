@@ -23,7 +23,12 @@ export function FlashcardResultBottomBar() {
             description: "Silahkan coba lagi dalam beberapa saat.",
           });
         } else if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") {
-          setShowPremiumAlert(true);
+          if (error.message.includes("memulai sesi flashcard hari ini")) {
+            setShowPremiumAlert(true);
+            return;
+          }
+
+          toast.error(error.message || "Permintaan tidak dapat diproses.");
         }
       },
     }),

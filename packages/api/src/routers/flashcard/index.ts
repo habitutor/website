@@ -37,6 +37,8 @@ const start = authed
       latestAttempt: latestAttempt ?? undefined,
       isPremium,
       today,
+      now: Date.now(),
+      gracePeriodSeconds: GRACE_PERIOD_SECONDS,
     });
 
     if (shouldBlock && !isPremium)
@@ -44,10 +46,10 @@ const start = authed
         message: "Kamu sudah memulai sesi flashcard hari ini.",
       });
 
-    if (shouldBlock && isPremium)
-      throw errors.UNPROCESSABLE_CONTENT({
-        message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
-      });
+    // if (shouldBlock && isPremium)
+    //   throw errors.UNPROCESSABLE_CONTENT({
+    //     message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
+    //   });
 
     const attempt = await flashcardRepo.createAttempt({
       db,

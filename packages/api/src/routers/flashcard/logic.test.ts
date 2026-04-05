@@ -17,8 +17,11 @@ describe("flashcard start logic", () => {
       shouldBlockStartSession({
         isPremium: false,
         today,
+        now: new Date("2026-03-10T02:10:00.000Z").getTime(),
+        gracePeriodSeconds: GRACE_PERIOD_SECONDS,
         latestAttempt: {
           startedAt: new Date("2026-03-10T02:00:00.000Z"),
+          deadline: new Date("2026-03-10T02:10:00.000Z"),
           submittedAt: null,
         },
       }),
@@ -30,8 +33,11 @@ describe("flashcard start logic", () => {
       shouldBlockStartSession({
         isPremium: true,
         today,
+        now: new Date("2026-03-10T02:05:00.000Z").getTime(),
+        gracePeriodSeconds: GRACE_PERIOD_SECONDS,
         latestAttempt: {
           startedAt: new Date("2026-03-10T02:00:00.000Z"),
+          deadline: new Date("2026-03-10T02:10:00.000Z"),
           submittedAt: null,
         },
       }),
@@ -41,9 +47,28 @@ describe("flashcard start logic", () => {
       shouldBlockStartSession({
         isPremium: true,
         today,
+        now: new Date("2026-03-10T02:12:00.000Z").getTime(),
+        gracePeriodSeconds: GRACE_PERIOD_SECONDS,
         latestAttempt: {
           startedAt: new Date("2026-03-10T02:00:00.000Z"),
+          deadline: new Date("2026-03-10T02:10:00.000Z"),
           submittedAt: new Date("2026-03-10T02:10:00.000Z"),
+        },
+      }),
+    ).toBe(false);
+  });
+
+  test("does not block premium user when previous attempt is expired but not submitted", () => {
+    expect(
+      shouldBlockStartSession({
+        isPremium: true,
+        today,
+        now: new Date("2026-03-10T02:10:06.000Z").getTime(),
+        gracePeriodSeconds: GRACE_PERIOD_SECONDS,
+        latestAttempt: {
+          startedAt: new Date("2026-03-10T02:00:00.000Z"),
+          deadline: new Date("2026-03-10T02:10:00.000Z"),
+          submittedAt: null,
         },
       }),
     ).toBe(false);
@@ -54,8 +79,11 @@ describe("flashcard start logic", () => {
       shouldBlockStartSession({
         isPremium: false,
         today,
+        now: new Date("2026-03-10T00:00:00.000Z").getTime(),
+        gracePeriodSeconds: GRACE_PERIOD_SECONDS,
         latestAttempt: {
           startedAt: new Date("2026-03-09T23:59:59.000Z"),
+          deadline: new Date("2026-03-10T00:09:59.000Z"),
           submittedAt: null,
         },
       }),

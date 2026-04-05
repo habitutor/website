@@ -22,6 +22,8 @@ export function FlashcardStartCard() {
           toast.error("Ups! Kamu sudah mengerjakan semua Brain Gym yang tersedia!", {
             description: "Silahkan coba lagi dalam beberapa saat.",
           });
+        } else if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") {
+          toast.error(error.message || "Permintaan tidak dapat diproses.");
         }
       },
     }),

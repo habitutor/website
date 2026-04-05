@@ -1,5 +1,6 @@
 type AttemptLike = {
   startedAt: Date;
+  deadline: Date;
   submittedAt: Date | null;
 };
 
@@ -19,15 +20,25 @@ export function shouldBlockStartSession({
   latestAttempt,
   isPremium,
   today,
+  now,
+  gracePeriodSeconds,
 }: {
   latestAttempt: AttemptLike | undefined;
   isPremium: boolean;
   today: Date;
+  now: number;
+  gracePeriodSeconds: number;
 }): boolean {
   if (!latestAttempt) return false;
   const isAttemptToday = latestAttempt.startedAt.getTime() >= today.getTime();
   if (!isAttemptToday) return false;
   if (!isPremium) return true;
+  const expired = isAttemptExpired({
+    deadline: latestAttempt.deadline,
+    now,
+    gracePeriodSeconds,
+  });
+  if (expired) return false;
   return !latestAttempt.submittedAt;
 }
 
