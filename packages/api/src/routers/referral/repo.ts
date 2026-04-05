@@ -47,7 +47,6 @@ export const referralRepo = {
           .returning();
         if (result) return result;
       } catch {
-        // Retry on conflict (e.g., userId already has a code from a race condition)
         const existing = await db.select().from(referralCode).where(eq(referralCode.userId, userId)).limit(1);
         if (existing[0]) return existing[0];
       }
