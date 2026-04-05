@@ -5,7 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { refreshAuthSession } from "@/lib/auth-session";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";

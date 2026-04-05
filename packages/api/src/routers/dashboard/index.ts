@@ -1,4 +1,5 @@
 import { type } from "arktype";
+import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared/auth-domain";
 import { authed } from "../..";
 import { dashboardRepo } from "./repo";
 
@@ -32,16 +33,15 @@ const content = authed
     }),
   )
   .handler(async ({ context }) => {
-    const role = (context.session.user.role ?? "user").toLowerCase().trim();
-    const isAdmin = role === "admin";
+    const isAdmin = isAdminRole(context.session.user.role);
     const isPremium = Boolean(context.session.user.isPremium);
-    const isPremium2Role = role.includes("premium2");
+    const isPremiumTier2 = context.session.user.premiumTier === PREMIUM_TIERS.PREMIUM_2;
 
     await dashboardRepo.cleanupExpiredLiveClasses({});
 
     const announcements = await dashboardRepo.listPublishedAnnouncements({});
 
-    const canSeeLiveClass = isAdmin || isPremium || isPremium2Role;
+    const canSeeLiveClass = isAdmin || isPremium;
 
     if (!canSeeLiveClass) {
       return {
@@ -50,7 +50,7 @@ const content = authed
       };
     }
 
-    const canAccessFiveX = isAdmin || (isPremium && !isPremium2Role);
+    const canAccessFiveX = isAdmin || (isPremium && !isPremiumTier2);
 
     const liveClasses = await dashboardRepo.listLiveClasses({
       onlyThreeX: !canAccessFiveX,

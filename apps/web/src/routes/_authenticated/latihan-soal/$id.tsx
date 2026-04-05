@@ -2,12 +2,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Label } from "@/components/ui/label";
-import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
+import { useDebouncedMutation } from "@/hooks/timing/use-debounced-mutation";
 import { orpc, queryClient } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/latihan-soal/$id")({
@@ -36,7 +36,7 @@ function RouteComponent() {
     if (!pack.data?.questions) return {};
     const savedAnswers: Record<number, number> = {};
     pack.data.questions.forEach((q) => {
-      if (q.selectedAnswerId !== null) {
+      if (q.selectedAnswerId !== null && q.selectedAnswerId !== undefined) {
         savedAnswers[q.id] = q.selectedAnswerId;
       }
     });

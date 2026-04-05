@@ -1,4 +1,5 @@
 import { ORPCError } from "@orpc/server";
+import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { type } from "arktype";
 import { admin } from "../../../index";
 import { adminUserRepo } from "./repo";
@@ -99,7 +100,7 @@ const updateUserPremium = admin
     const updatedUser = await adminUserRepo.updatePremium({
       id: input.id,
       isPremium: input.isPremium,
-      premiumTier: input.isPremium ? (input.premiumTier ?? "premium") : null,
+      premiumTier: input.isPremium ? (input.premiumTier ?? PREMIUM_TIERS.PREMIUM) : null,
       premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null,
     });
 

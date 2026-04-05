@@ -1,5 +1,6 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
-import { practicePackQuestions, question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { practicePackQuestions } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 export const adminQuestionRepo = {

@@ -1,9 +1,9 @@
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
+import { db } from "@habitutor/db";
 import { authed } from "../../index";
-import { convertToTiptap } from "@habitutor/shared";
 import type { Question } from "../../types/practice-pack";
-import { buildHistoryQuestionMap, buildQuestionMap, practicePackRepo } from "./repo";
+import { formatHistoryQuestions, formatQuestions, practicePackRepo } from "./repo";
 
 const list = authed
   .route({
@@ -12,7 +12,7 @@ const list = authed
     tags: ["Practice Packs"],
   })
   .handler(async ({ context }) => {
-    const attempts = await practicePackRepo.listWithAttempts({ userId: context.session.user.id });
+    const attempts = await practicePackRepo.listWithAttempts({ db, userId: context.session.user.id });
 
     if (!attempts)
       throw new ORPCError("NOT_FOUND", {
@@ -30,7 +30,7 @@ const find = authed
   })
   .input(type({ id: "number" }))
   .handler(async ({ input, context }) => {
-    const rows = await practicePackRepo.findWithQuestions({ packId: input.id, userId: context.session.user.id });
+    const rows = await practicePackRepo.findWithQuestions({ db, packId: input.id, userId: context.session.user.id });
 
     if (rows.length === 0 || !rows[0])
       throw new ORPCError("NOT_FOUND", {
@@ -46,51 +46,19 @@ const find = authed
       questions: [] as Question[],
     };
 
-    const questionMap = buildQuestionMap(
-      rows.map(
-        (row: {
-          questionId: number;
-          questionOrder: number | null;
-          questionContent: string;
-          questionContentJson: unknown;
-          questionDiscussion: string;
-          questionDiscussionJson: unknown;
-          answerId: number;
-          answerContent: string;
-          userSelectedAnswerId: number | null;
-        }) => ({
-          questionId: row.questionId,
-          questionOrder: row.questionOrder,
-          questionContent: row.questionContent,
-          questionContentJson: row.questionContentJson,
-          questionDiscussion: row.questionDiscussion,
-          questionDiscussionJson: row.questionDiscussionJson,
-          answerId: row.answerId,
-          answerContent: row.answerContent,
-          selectedAnswerId: row.userSelectedAnswerId,
-        }),
-      ),
+    pack.questions = formatQuestions(
+      rows.map((row) => ({
+        questionId: row.questionId,
+        questionOrder: row.questionOrder,
+        questionContent: row.questionContent,
+        questionContentJson: row.questionContentJson,
+        questionDiscussion: row.questionDiscussion,
+        questionDiscussionJson: row.questionDiscussionJson,
+        answerId: row.answerId,
+        answerContent: row.answerContent,
+        selectedAnswerId: row.userSelectedAnswerId,
+      })),
     );
-
-    for (const [id, q] of questionMap) {
-      questionMap.set(id, {
-        ...q,
-        content:
-          q.content ||
-          convertToTiptap(
-            rows.find((r: { questionId: number; questionContent: string }) => r.questionId === id)?.questionContent ||
-              "",
-          ),
-        discussion:
-          q.discussion ||
-          convertToTiptap(
-            rows.find((r: { questionId: number; questionDiscussion: string }) => r.questionId === id)
-              ?.questionDiscussion || "",
-          ),
-      });
-    }
-
-    pack.questions = Array.from(questionMap.values()).sort((a, b) => a.order - b.order);
 
     return pack;
   });
@@ -104,7 +72,7 @@ const startAttempt = authed
   .input(type({ id: "number" }))
   .output(type({ message: "string", attemptId: "number" }))
   .handler(async ({ input, context }) => {
-    const attempt = await practicePackRepo.createAttempt({ packId: input.id, userId: context.session.user.id });
+    const attempt = await practicePackRepo.createAttempt({ db, packId: input.id, userId: context.session.user.id });
 
     if (!attempt)
       throw new ORPCError("NOT_FOUND", {
@@ -137,6 +105,7 @@ const saveAnswer = authed
   )
   .handler(async ({ input, context }) => {
     const currentAttempt = await practicePackRepo.getAttempt({
+      db,
       packId: input.id,
       userId: context.session.user.id,
     });
@@ -146,17 +115,13 @@ const saveAnswer = authed
         message: "Gagal menemukan sesi pengerjaan latihan soal",
       });
 
-    if (currentAttempt.userId !== context.session.user.id)
-      throw new ORPCError("UNAUTHORIZED", {
-        message: "Sesi pengerjaan latihan soal ini bukan milikmu",
-      });
-
     if (currentAttempt.status !== "ongoing")
       throw new ORPCError("UNPROCESSABLE_CONTENT", {
         message: "Tidak bisa menyimpan jawaban pada latihan soal yang tidak sedang berlangsung",
       });
 
     await practicePackRepo.saveAnswer({
+      db,
       attemptId: currentAttempt.id,
       questionId: input.questionId,
       selectedAnswerId: input.selectedAnswerId,
@@ -178,7 +143,7 @@ const submitAttempt = authed
   )
   .output(type({ message: "string" }))
   .handler(async ({ context, input }) => {
-    const attempt = await practicePackRepo.submitAttempt({ packId: input.id, userId: context.session.user.id });
+    const attempt = await practicePackRepo.submitAttempt({ db, packId: input.id, userId: context.session.user.id });
 
     if (!attempt)
       throw new ORPCError("NOT_FOUND", {
@@ -206,9 +171,10 @@ const history = authed
     const limit = Math.min(input.limit ?? 20, 100);
     const offset = input.offset ?? 0;
 
-    const total = await practicePackRepo.countAttempts({ userId: context.session.user.id });
+    const total = await practicePackRepo.countAttempts({ db, userId: context.session.user.id });
 
     const attempts = await practicePackRepo.getHistory({
+      db,
       userId: context.session.user.id,
       limit,
       offset,
@@ -237,7 +203,7 @@ const historyByPack = authed
     }),
   )
   .handler(async ({ input, context }) => {
-    const rows = await practicePackRepo.findHistoryByPack({ packId: input.id, userId: context.session.user.id });
+    const rows = await practicePackRepo.findHistoryByPack({ db, packId: input.id, userId: context.session.user.id });
 
     if (rows.length === 0 || !rows[0])
       throw new ORPCError("NOT_FOUND", {
@@ -252,59 +218,30 @@ const historyByPack = authed
       questions: [] as (Question & { userAnswerIsCorrect: boolean })[],
     };
 
-    const questionMap = buildHistoryQuestionMap(
-      rows.map(
-        (row: {
-          questionId: number;
-          questionOrder: number | null;
-          questionContent: string;
-          questionContentJson: unknown;
-          questionDiscussion: string;
-          questionDiscussionJson: unknown;
-          answerId: number;
-          answerContent: string;
-          answerIsCorrect: boolean | null;
-          userSelectedAnswerId: number | null;
-        }) => ({
-          questionId: row.questionId,
-          questionOrder: row.questionOrder,
-          questionContent: row.questionContent,
-          questionContentJson: row.questionContentJson,
-          questionDiscussion: row.questionDiscussion,
-          questionDiscussionJson: row.questionDiscussionJson,
-          answerId: row.answerId,
-          answerContent: row.answerContent,
-          answerIsCorrect: row.answerIsCorrect,
-          selectedAnswerId: row.userSelectedAnswerId,
-        }),
-      ),
+    pack.questions = formatHistoryQuestions(
+      rows.map((row) => ({
+        questionId: row.questionId,
+        questionOrder: row.questionOrder,
+        questionContent: row.questionContent,
+        questionContentJson: row.questionContentJson,
+        questionDiscussion: row.questionDiscussion,
+        questionDiscussionJson: row.questionDiscussionJson,
+        answerId: row.answerId,
+        answerContent: row.answerContent,
+        answerIsCorrect: row.answerIsCorrect,
+        selectedAnswerId: row.userSelectedAnswerId,
+      })),
     );
-
-    for (const [id, q] of questionMap) {
-      questionMap.set(id, {
-        ...q,
-        content:
-          q.content ||
-          convertToTiptap(
-            rows.find((r: { questionId: number; questionContent: string }) => r.questionId === id)?.questionContent ||
-              "",
-          ),
-        discussion:
-          q.discussion ||
-          convertToTiptap(
-            rows.find((r: { questionId: number; questionDiscussion: string }) => r.questionId === id)
-              ?.questionDiscussion || "",
-          ),
-      });
-    }
-
-    pack.questions = Array.from(questionMap.values()).sort((a, b) => a.order - b.order);
 
     return pack;
   });
 
 export const practicePackRouter = {
   list,
+  get: find,
+  save: saveAnswer,
+  historyByPack,
+  // Legacy aliases kept for compatibility
   find,
   start: startAttempt,
   answer: saveAnswer,

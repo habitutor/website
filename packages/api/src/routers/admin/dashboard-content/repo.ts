@@ -1,4 +1,5 @@
-import { asc, type DrizzleDatabase, db as defaultDb, eq, sql } from "@habitutor/db";
+import { asc, eq, sql } from "drizzle-orm";
+import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 
 export const adminDashboardContentRepo = {

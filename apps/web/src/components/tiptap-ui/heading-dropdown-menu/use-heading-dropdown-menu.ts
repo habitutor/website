@@ -1,17 +1,17 @@
 import type { Editor } from "@tiptap/react";
 import { useEffect, useState } from "react";
 // --- Icons ---
-import { HeadingIcon } from "@/components/tiptap-icons/heading-icon";
+import { HeadingIcon } from "@/components/tiptap-icons";
 // --- Tiptap UI ---
 import {
   canToggle,
   headingIcons,
   isHeadingActive,
   type Level,
-  shouldShowButton,
+  shouldShowHeadingButton,
 } from "@/components/tiptap-ui/heading-button";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 
 /**
  * Configuration for the heading dropdown menu functionality
@@ -94,7 +94,7 @@ export function useHeadingDropdownMenu(config?: UseHeadingDropdownMenuConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, hideWhenUnavailable, level: levels }));
+      setIsVisible(shouldShowHeadingButton({ editor, hideWhenUnavailable, level: levels }));
     };
 
     handleSelectionUpdate();

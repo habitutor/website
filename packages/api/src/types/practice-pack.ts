@@ -1,14 +1,5 @@
-export type Question = {
-  id: number;
-  order: number;
-  content: Record<string, unknown>;
-  discussion: Record<string, unknown>;
-  selectedAnswerId: number | null;
-  answers: Answer[];
-};
-
-export type Answer = {
-  id: number;
-  content: string;
-  isCorrect?: boolean;
-};
+export type {
+  PracticePackAnswer as Answer,
+  PracticePackQuestion as Question,
+  PracticePackQuestionForRemoval as QuestionForRemoval,
+} from "@habitutor/shared/types/practice-pack";

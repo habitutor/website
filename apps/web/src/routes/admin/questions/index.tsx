@@ -5,7 +5,7 @@ import { type } from "arktype";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/renderer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDebounceValue } from "@/hooks/use-debounce-value";
+import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 

@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { AdminBreadcrumbs } from "@/components/admin/dashboard-layout";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/admin")({
           redirect: location.href,
         },
       });
-    if (context.session.user.role !== "admin")
+    if (!isAdminRole(context.session.user.role))
       throw redirect({
         to: "/dashboard",
         search: {

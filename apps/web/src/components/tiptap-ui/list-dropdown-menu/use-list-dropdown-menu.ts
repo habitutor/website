@@ -1,13 +1,13 @@
 import type { Editor } from "@tiptap/react";
 import { useEffect, useMemo, useState } from "react";
 // --- Icons ---
-import { ListIcon } from "@/components/tiptap-icons/list-icon";
-import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";
-import { ListTodoIcon } from "@/components/tiptap-icons/list-todo-icon";
+import { ListIcon } from "@/components/tiptap-icons";
+import { ListOrderedIcon } from "@/components/tiptap-icons";
+import { ListTodoIcon } from "@/components/tiptap-icons";
 // --- Tiptap UI ---
 import { canToggleList, isListActive, type ListType, listIcons } from "@/components/tiptap-ui/list-button";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
 import { isNodeInSchema } from "@/lib/tiptap-utils";
 

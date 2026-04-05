@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
-import Loader from "@/components/loader";
+import Loader from "@/components/feedback/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,17 +40,17 @@ function ResetPasswordForm() {
 
   const form = useForm({
     defaultValues: {
-      newPassword: "",
-      confirmPassword: "",
+      nextPassphrase: "",
+      confirmNextPassphrase: "",
     },
     onSubmit: async ({ value }) => {
-      if (value.newPassword !== value.confirmPassword) {
+      if (value.nextPassphrase !== value.confirmNextPassphrase) {
         toast.error("Password tidak sama");
         return;
       }
       await authClient.resetPassword(
         {
-          newPassword: value.newPassword,
+          newPassword: value.nextPassphrase,
           token: search.token,
         },
         {
@@ -66,8 +66,8 @@ function ResetPasswordForm() {
     },
     validators: {
       onSubmit: type({
-        newPassword: "string >= 8",
-        confirmPassword: "string >= 8",
+        nextPassphrase: "string >= 8",
+        confirmNextPassphrase: "string >= 8",
       }),
     },
   });
@@ -98,7 +98,7 @@ function ResetPasswordForm() {
           className="mt-8 space-y-4"
         >
           <div>
-            <form.Field name="newPassword">
+            <form.Field name="nextPassphrase">
               {(field) => (
                 <div className="space-y-2">
                   <Label htmlFor={field.name}>Password Baru</Label>
@@ -122,7 +122,7 @@ function ResetPasswordForm() {
           </div>
 
           <div>
-            <form.Field name="confirmPassword">
+            <form.Field name="confirmNextPassphrase">
               {(field) => (
                 <div className="space-y-2">
                   <Label htmlFor={field.name}>Konfirmasi Password</Label>

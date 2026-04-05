@@ -130,7 +130,7 @@ export function BundlingCard({
         <ul className={cn("mt-2 grid grid-cols-2 gap-2")}>
           {data.features.map((feature) => (
             <li key={feature.label} className="flex items-center gap-2 text-xs">
-              <FeatureIcon status={feature.status} variant={variant} />
+              <PremiumBundlingFeatureIcon status={feature.status} variant={variant} />
               <span className={cn(colors.text, feature.status === "excluded" && "line-through opacity-60")}>
                 {feature.label}
               </span>
@@ -155,7 +155,7 @@ export function BundlingCard({
   );
 }
 
-function FeatureIcon({ status, variant }: { status: string; variant: "premium" | "premium2" }) {
+function PremiumBundlingFeatureIcon({ status, variant }: { status: string; variant: "premium" | "premium2" }) {
   const base = "flex size-4 items-center justify-center rounded-full p-0.5 text-white flex-shrink-0";
   const colors = bundlingColors[variant];
 

@@ -1,7 +1,7 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useState } from "react";
 // --- Icons ---
-import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon";
+import { ChevronDownIcon } from "@/components/tiptap-icons";
 // --- Tiptap UI ---
 import { ListButton, type ListType } from "@/components/tiptap-ui/list-button";
 import { useListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu";
@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/tiptap-ui-primitive/dropdown-menu";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 
 export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
   /**
@@ -43,6 +43,11 @@ export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
   portal?: boolean;
 }
 
+export function applyListDropdownOpenChange(open: boolean, onOpenChange?: (isOpen: boolean) => void) {
+  onOpenChange?.(open);
+  return open;
+}
+
 export function ListDropdownMenu({
   editor: providedEditor,
   types = ["bulletList", "orderedList", "taskList"],
@@ -62,8 +67,7 @@ export function ListDropdownMenu({
 
   const handleOnOpenChange = useCallback(
     (open: boolean) => {
-      setIsOpen(open);
-      onOpenChange?.(open);
+      setIsOpen(applyListDropdownOpenChange(open, onOpenChange));
     },
     [onOpenChange],
   );

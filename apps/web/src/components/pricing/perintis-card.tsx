@@ -1,6 +1,6 @@
 import { ArrowRightIcon, CheckIcon, MedalIcon, XIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import * as m from "motion/react-m";
+import { motion } from "motion/react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
   const cardColors = { ...defaultColors, ...colors };
 
   return (
-    <m.div
+    <motion.div
       className={cn(
         "relative flex h-fit min-h-110 w-full flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-sm",
       )}
@@ -93,7 +93,7 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
         <ul className={cn("mt-2 grid grid-cols-2 gap-2")}>
           {data.features.map((feature) => (
             <li key={feature.label} className="flex items-center gap-2 text-xs">
-              <FeatureIcon status={feature.status} colors={cardColors} />
+              <PerintisFeatureIcon status={feature.status} colors={cardColors} />
               <span className={cn("text-neutral-1000", feature.status === "excluded" && "line-through opacity-60")}>
                 {feature.label}
               </span>
@@ -111,11 +111,11 @@ export function PerintisCard({ data, colors }: PerintisCardProps) {
           {data.cta.label} <ArrowRightIcon size={16} weight="bold" />
         </Link>
       </div>
-    </m.div>
+    </motion.div>
   );
 }
 
-function FeatureIcon({ status, colors }: { status: string; colors?: PerintisCardColors }) {
+function PerintisFeatureIcon({ status, colors }: { status: string; colors?: PerintisCardColors }) {
   const base = "flex size-4 items-center justify-center rounded-full p-0.5 text-white flex-shrink-0";
 
   if (status === "included")

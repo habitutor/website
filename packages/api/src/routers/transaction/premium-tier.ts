@@ -1,6 +1,6 @@
-export const DEFAULT_PREMIUM_TIER = "premium" as const;
+import { PREMIUM_TIERS, type PremiumTier, isPremiumTier } from "@habitutor/shared/auth-domain";
 
-export type PremiumTier = "premium" | "premium2";
+export const DEFAULT_PREMIUM_TIER = PREMIUM_TIERS.PREMIUM;
 
 export function shouldBackfillPremiumTier({
   isPremium,
@@ -31,7 +31,7 @@ export function resolvePremiumTierForUpdate({
     return premiumTier === undefined ? undefined : null;
   }
 
-  if (premiumTier === "premium" || premiumTier === "premium2") {
+  if (isPremiumTier(premiumTier)) {
     return premiumTier;
   }
 

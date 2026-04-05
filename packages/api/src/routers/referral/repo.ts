@@ -6,6 +6,19 @@ import { and, desc, eq, or, sql } from "drizzle-orm";
 const REFERRAL_CODE_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
 const REFERRAL_CODE_LENGTH = 11;
 
+export type ReferralValidationReason = "invalid_length" | "not_found" | "own_code" | "already_used";
+
+type ReferralValidationResult =
+  | {
+      ok: true;
+      codeRecord: typeof referralCode.$inferSelect;
+      existingUsage?: typeof referralUsage.$inferSelect;
+    }
+  | {
+      ok: false;
+      reason: ReferralValidationReason;
+    };
+
 function generateCode(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(REFERRAL_CODE_LENGTH));
   return Array.from(bytes)
@@ -27,6 +40,43 @@ export const referralRepo = {
   getUserUsage: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [result] = await db.select().from(referralUsage).where(eq(referralUsage.userId, userId)).limit(1);
     return result;
+  },
+
+  validateCodeForUser: async ({
+    db = defaultDb,
+    userId,
+    code,
+    allowPendingSameCode = false,
+  }: {
+    db?: DrizzleDatabase;
+    userId: string;
+    code: string;
+    allowPendingSameCode?: boolean;
+  }): Promise<ReferralValidationResult> => {
+    if (code.length !== REFERRAL_CODE_LENGTH) {
+      return { ok: false, reason: "invalid_length" };
+    }
+
+    const codeRecord = await referralRepo.getCodeByCode({ db, code });
+    if (!codeRecord) {
+      return { ok: false, reason: "not_found" };
+    }
+
+    if (codeRecord.userId === userId) {
+      return { ok: false, reason: "own_code" };
+    }
+
+    const existingUsage = await referralRepo.getUserUsage({ db, userId });
+    if (existingUsage) {
+      const canReusePendingSameCode =
+        allowPendingSameCode && existingUsage.referralCodeId === codeRecord.id && existingUsage.transactionId == null;
+
+      if (!canReusePendingSameCode) {
+        return { ok: false, reason: "already_used" };
+      }
+    }
+
+    return { ok: true, codeRecord, existingUsage: existingUsage ?? undefined };
   },
 
   generateAndStoreCode: async ({

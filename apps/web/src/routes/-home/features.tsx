@@ -1,8 +1,8 @@
 import { Image } from "@unpic/react";
 import { motion } from "motion/react";
-import Carousel from "@/components/mentor-carousel";
-import { MotionPulse } from "@/components/motion";
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
+import Carousel from "@/components/home/mentor-carousel";
+import { MotionPulse } from "@/components/motion/motion-components";
+import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
 import { DATA } from "./data";
 
 export function Features() {

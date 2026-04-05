@@ -1,12 +1,12 @@
 import type { ChainedCommands, Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 // --- Icons ---
-import { AlignCenterIcon } from "@/components/tiptap-icons/align-center-icon";
-import { AlignJustifyIcon } from "@/components/tiptap-icons/align-justify-icon";
-import { AlignLeftIcon } from "@/components/tiptap-icons/align-left-icon";
-import { AlignRightIcon } from "@/components/tiptap-icons/align-right-icon";
+import { AlignCenterIcon } from "@/components/tiptap-icons";
+import { AlignJustifyIcon } from "@/components/tiptap-icons";
+import { AlignLeftIcon } from "@/components/tiptap-icons";
+import { AlignRightIcon } from "@/components/tiptap-icons";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
 import { isExtensionAvailable, isNodeTypeSelected } from "@/lib/tiptap-utils";
 
@@ -99,7 +99,7 @@ export function setTextAlign(editor: Editor | null, align: TextAlign): boolean {
 /**
  * Determines if the text align button should be shown
  */
-export function shouldShowButton(props: {
+function shouldShowTextAlignButton(props: {
   editor: Editor | null;
   hideWhenUnavailable: boolean;
   align: TextAlign;
@@ -165,7 +165,7 @@ export function useTextAlign(config: UseTextAlignConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, align, hideWhenUnavailable }));
+      setIsVisible(shouldShowTextAlignButton({ editor, align, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

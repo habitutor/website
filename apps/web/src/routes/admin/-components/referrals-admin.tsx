@@ -6,7 +6,7 @@ import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useDebounceValue } from "@/hooks/use-debounce-value";
+import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { client } from "@/utils/orpc";
 import { CursorPagination } from "../users/-components/pagination";
 

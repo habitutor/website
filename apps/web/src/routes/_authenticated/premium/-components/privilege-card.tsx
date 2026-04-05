@@ -75,7 +75,7 @@ export function PrivilegeCard({ variant }: PrivilegeCardProps) {
         <ul className={cn("mt-2 grid grid-cols-2 gap-2")}>
           {data.features.map((feature) => (
             <li key={feature.label} className="flex items-center gap-2 text-xs">
-              <FeatureIcon status={feature.status} />
+              <PrivilegeFeatureIcon status={feature.status} />
               <span className={cn(feature.status === "excluded" && "line-through opacity-60")}>{feature.label}</span>
             </li>
           ))}
@@ -94,7 +94,7 @@ export function PrivilegeCard({ variant }: PrivilegeCardProps) {
   );
 }
 
-function FeatureIcon({ status }: { status: string }) {
+function PrivilegeFeatureIcon({ status }: { status: string }) {
   const base = "flex size-4 items-center justify-center rounded-full p-0.5 text-white";
 
   if (status === "included")

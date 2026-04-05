@@ -15,12 +15,13 @@ import {
 } from "@/components/ui/dialog";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
-import { useProcessReferralCode } from "@/hooks/use-process-referral-code";
+import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
 import { Announcement } from "../-components/announcement";
 import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
+import { shouldRequirePremiumDialog } from "./social-access";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 
 function RouteComponent() {
   const { session } = Route.useRouteContext();
-  const { data, error } = useQuery(orpc.social.queryOptions());
+  const { data, error } = useQuery(orpc.social.get.queryOptions());
   const { data: profile } = useQuery(orpc.profile.me.queryOptions());
   useQuery(orpc.dashboard.content.queryOptions());
 
@@ -48,7 +49,7 @@ function RouteComponent() {
 
   const handleSocialClick = useCallback(
     (e: React.MouseEvent, socialLink?: string) => {
-      if (!socialLink || error) {
+      if (shouldRequirePremiumDialog({ socialLink, hasError: Boolean(error) })) {
         e.preventDefault();
         setShowDialog(true);
       }

@@ -1,10 +1,10 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 // --- Icons ---
-import { Redo2Icon } from "@/components/tiptap-icons/redo2-icon";
-import { Undo2Icon } from "@/components/tiptap-icons/undo2-icon";
+import { Redo2Icon } from "@/components/tiptap-icons";
+import { Undo2Icon } from "@/components/tiptap-icons";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
 import { isNodeTypeSelected } from "@/lib/tiptap-utils";
 
@@ -72,7 +72,7 @@ export function executeUndoRedoAction(editor: Editor | null, action: UndoRedoAct
 /**
  * Determines if the history button should be shown
  */
-export function shouldShowButton(props: {
+function shouldShowUndoRedoButton(props: {
   editor: Editor | null;
   hideWhenUnavailable: boolean;
   action: UndoRedoAction;
@@ -135,7 +135,7 @@ export function useUndoRedo(config: UseUndoRedoConfig) {
     if (!editor) return;
 
     const handleUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, hideWhenUnavailable, action }));
+      setIsVisible(shouldShowUndoRedoButton({ editor, hideWhenUnavailable, action }));
     };
 
     handleUpdate();

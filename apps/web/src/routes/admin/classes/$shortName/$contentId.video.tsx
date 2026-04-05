@@ -3,11 +3,10 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
-import { lazy, Suspense, useState } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-
-const TiptapSimpleEditor = lazy(() => import("@/components/tiptap-simple-editor"));
+import { TiptapSimpleEditor } from "./-components/lazy-tiptap-simple-editor";
 
 import {
   AlertDialog,
@@ -24,10 +23,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import YouTubePlayer from "@/components/youtube-player";
-import { useDebounceValue } from "@/hooks/use-debounce-value";
+import YouTubePlayer from "@/components/media/youtube-player";
+import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { orpc } from "@/utils/orpc";
-import { extractYouTubeId } from "@habitutor/shared";
+import { extractYouTubeId } from "@habitutor/shared/youtube";
 
 export const Route = createFileRoute("/admin/classes/$shortName/$contentId/video")({
   component: RouteComponent,

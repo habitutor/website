@@ -1,4 +1,4 @@
-import type { auth } from "@habitutor/auth";
+import type { AuthInstance } from "@habitutor/auth";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { getApiBaseUrl } from "./api-base-url";
@@ -8,7 +8,7 @@ export const authClient = createAuthClient({
   fetchOptions: {
     credentials: "include",
   },
-  plugins: [inferAdditionalFields<typeof auth>()],
+  plugins: [inferAdditionalFields<AuthInstance>()],
 });
 
 export type Session = typeof authClient.$Infer.Session;

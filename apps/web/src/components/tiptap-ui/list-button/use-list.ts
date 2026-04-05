@@ -2,11 +2,11 @@ import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 // --- Icons ---
-import { ListIcon } from "@/components/tiptap-icons/list-icon";
-import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";
-import { ListTodoIcon } from "@/components/tiptap-icons/list-todo-icon";
+import { ListIcon } from "@/components/tiptap-icons";
+import { ListOrderedIcon } from "@/components/tiptap-icons";
+import { ListTodoIcon } from "@/components/tiptap-icons";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 
 // --- Lib ---
 import {
@@ -198,11 +198,7 @@ export function toggleList(editor: Editor | null, type: ListType): boolean {
 /**
  * Determines if the list button should be shown
  */
-export function shouldShowButton(props: {
-  editor: Editor | null;
-  type: ListType;
-  hideWhenUnavailable: boolean;
-}): boolean {
+function shouldShowListButton(props: { editor: Editor | null; type: ListType; hideWhenUnavailable: boolean }): boolean {
   const { editor, type, hideWhenUnavailable } = props;
 
   if (!editor || !editor.isEditable) return false;
@@ -264,7 +260,7 @@ export function useList(config: UseListConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, type, hideWhenUnavailable }));
+      setIsVisible(shouldShowListButton({ editor, type, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

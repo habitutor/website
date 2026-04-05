@@ -1,8 +1,14 @@
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { authed, authedRateLimited } from "../../index";
-import { canAccessContent, convertToTiptap } from "@habitutor/shared";
+import { canAccessContent } from "@habitutor/shared/content-access";
+import { convertToTiptap } from "../../lib/tiptap";
 import { subtestRepo } from "./repo";
+
+/**
+ * Subtest domain owns curriculum/subtest catalog and content sequencing
+ * (materials, notes, tips, and question-content linkage), not attempt sessions.
+ */
 
 const listSubtests = authed
   .route({

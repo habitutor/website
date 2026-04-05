@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 

@@ -10,7 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

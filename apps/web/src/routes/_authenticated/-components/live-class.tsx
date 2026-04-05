@@ -1,7 +1,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { LiveClassCard } from "@/components/classes";
+import { LiveClassCard } from "@/components/classes/practice";
 import { orpc } from "@/utils/orpc";
 
 export const LiveClass = () => {

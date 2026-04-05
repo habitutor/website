@@ -1,5 +1,5 @@
 import { db } from "@habitutor/db";
-import { logger } from "@habitutor/shared";
+import { logger } from "@habitutor/shared/logger";
 import * as schema from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
@@ -8,13 +8,13 @@ import { Resend } from "resend";
 import { referral } from "./lib/referral";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
-export const resend = new Resend(process.env.RESEND_API_KEY || "");
 const localDevOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 ];
+
 const trustedOrigins = Array.from(
   new Set([
     process.env.CORS_ORIGIN || "http://localhost:3000",
@@ -24,6 +24,8 @@ const trustedOrigins = Array.from(
     "https://api.habitutor.id",
   ]),
 );
+
+const resendClient = new Resend(process.env.RESEND_API_KEY || "Re_api_key");
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -123,15 +125,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url, token }) => {
-      resend.emails
+      resendClient.emails
         .send({
           from: "Habitutor <noreply@habitutor.id>",
           to: user.email,
           subject: "Pesan Otomatis: Permintaan Pengaturan Ulang Kata Sandi",
           html: generateResetPasswordEmail(user.name, url, token),
         })
-        .catch((error) => {
-          logger.error("Failed to send password reset email", { error });
+        .catch(() => {
+          logger.error("Failed to send reset email");
         });
     },
   },
@@ -179,3 +181,5 @@ export const auth = betterAuth({
     }),
   },
 });
+
+export type AuthInstance = typeof auth;

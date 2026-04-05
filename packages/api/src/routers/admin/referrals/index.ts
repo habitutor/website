@@ -3,16 +3,16 @@ import { type } from "arktype";
 import { admin } from "../../../index";
 import { referralRepo } from "../../referral/repo";
 
-interface CursorData {
+export interface CursorData {
   createdAt: string;
   id: string;
 }
 
-function encodeCursor(data: CursorData): string {
+export function encodeCursor(data: CursorData): string {
   return Buffer.from(JSON.stringify(data)).toString("base64url");
 }
 
-function decodeCursor(cursor: string): CursorData {
+export function decodeCursor(cursor: string): CursorData {
   try {
     return JSON.parse(Buffer.from(cursor, "base64url").toString());
   } catch {

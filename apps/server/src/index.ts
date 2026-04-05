@@ -1,6 +1,7 @@
 import { createContext } from "@habitutor/api/context";
 import { appRouter } from "@habitutor/api/routers/index";
-import { logger } from "@habitutor/shared";
+import { isAdminRole } from "@habitutor/shared/auth-domain";
+import { logger } from "@habitutor/shared/logger";
 import { auth } from "@habitutor/auth";
 import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConverter } from "@orpc/arktype";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
@@ -30,6 +31,20 @@ app.use(
 );
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+
+app.use("/api-reference/*", async (c, next) => {
+  const context = await createContext({ context: c });
+
+  if (!context.session?.user) {
+    return c.json({ error: "Unauthorized - Authentication required" }, 401);
+  }
+
+  if (!isAdminRole(context.session.user.role)) {
+    return c.json({ error: "Forbidden - Admin access required" }, 403);
+  }
+
+  await next();
+});
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [
@@ -64,16 +79,6 @@ app.use("/*", async (c, next) => {
     return c.newResponse(rpcResult.response.body, rpcResult.response);
   }
 
-  const url = new URL(c.req.url);
-  const pathname = url.pathname;
-  const isDocsPath = pathname === "/api-reference" || pathname === "/api-reference/";
-  const isSpecPath = pathname === "/api-reference/spec.json";
-
-  if (isDocsPath || isSpecPath) {
-    if (!context.session?.user) return c.json({ error: "Unauthorized - Authentication required" }, 401);
-    if (context.session.user.role !== "admin") return c.json({ error: "Forbidden - Admin access required" }, 403);
-  }
-
   const apiResult = await apiHandler.handle(c.req.raw, {
     prefix: "/api-reference",
     context: context,
@@ -90,13 +95,17 @@ app.get("/", (c) => {
   return c.text("OK");
 });
 
+export function normalizeForwardedRequest(req: Request) {
+  const url = new URL(req.url);
+  if (req.headers.get("x-forwarded-proto") === "https") {
+    url.protocol = "https:";
+  }
+  return new Request(url, req);
+}
+
 export default {
   port: process.env.PORT || 3001,
   fetch: (req: Request) => {
-    const url = new URL(req.url);
-    if (req.headers.get("x-forwarded-proto") === "https") {
-      url.protocol = "https:";
-    }
-    return app.fetch(new Request(url, req));
+    return app.fetch(normalizeForwardedRequest(req));
   },
 };

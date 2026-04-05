@@ -28,7 +28,9 @@ export function useMidtransScript() {
     scriptTag.setAttribute("data-client-key", myMidtransClientKey);
     document.body.appendChild(scriptTag);
     return () => {
-      document.body.removeChild(scriptTag);
+      if (document.body.contains(scriptTag)) {
+        document.body.removeChild(scriptTag);
+      }
     };
   }, []);
 }

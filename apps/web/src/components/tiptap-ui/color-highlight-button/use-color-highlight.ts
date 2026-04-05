@@ -2,10 +2,10 @@ import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 // --- Icons ---
-import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
+import { HighlighterIcon } from "@/components/tiptap-icons";
+import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
 import { isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 
@@ -131,7 +131,7 @@ export function removeHighlight(editor: Editor | null): boolean {
 /**
  * Determines if the highlight button should be shown
  */
-export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
+function shouldShowColorHighlightButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
   const { editor, hideWhenUnavailable } = props;
 
   if (!editor || !editor.isEditable) return false;
@@ -158,7 +158,7 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, hideWhenUnavailable }));
+      setIsVisible(shouldShowColorHighlightButton({ editor, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

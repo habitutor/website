@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { canAccessContent, isFirstContent, isFirstSubtest } from "@habitutor/shared";
+import { canAccessContent, isFirstContent, isFirstSubtest } from "@habitutor/shared/content-access";
 
 describe("canAccessContent", () => {
   describe("admin access", () => {

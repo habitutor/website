@@ -3,7 +3,7 @@ import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import { MotionPulse } from "@/components/motion/motion-components";
 import { buttonVariants } from "@/components/ui/button";
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
+import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
 import { cn } from "@/lib/utils";
 
 const bars = [

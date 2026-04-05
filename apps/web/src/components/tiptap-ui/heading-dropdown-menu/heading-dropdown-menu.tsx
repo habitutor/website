@@ -1,7 +1,7 @@
 import { forwardRef, useCallback, useState } from "react";
 
 // --- Icons ---
-import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon";
+import { ChevronDownIcon } from "@/components/tiptap-icons";
 // --- Tiptap UI ---
 import { HeadingButton } from "@/components/tiptap-ui/heading-button";
 import type { UseHeadingDropdownMenuConfig } from "@/components/tiptap-ui/heading-dropdown-menu";
@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/tiptap-ui-primitive/dropdown-menu";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 
 export interface HeadingDropdownMenuProps extends Omit<ButtonProps, "type">, UseHeadingDropdownMenuConfig {
   /**
@@ -29,6 +29,10 @@ export interface HeadingDropdownMenuProps extends Omit<ButtonProps, "type">, Use
    * Callback for when the dropdown opens or closes
    */
   onOpenChange?: (isOpen: boolean) => void;
+}
+
+export function canToggleHeadingDropdown(props: { hasEditor: boolean; canToggle: boolean }) {
+  return props.hasEditor && props.canToggle;
 }
 
 /**
@@ -58,7 +62,7 @@ export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdown
 
     const handleOpenChange = useCallback(
       (open: boolean) => {
-        if (!editor || !canToggle) return;
+        if (!canToggleHeadingDropdown({ hasEditor: Boolean(editor), canToggle })) return;
         setIsOpen(open);
         onOpenChange?.(open);
       },

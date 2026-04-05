@@ -1,19 +1,7 @@
 import { relations } from "drizzle-orm";
-import {
-  boolean,
-  char,
-  index,
-  integer,
-  jsonb,
-  pgEnum,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  unique,
-} from "drizzle-orm/pg-core";
-import { user } from "./auth";
-import { userFlashcardQuestionAnswer } from "./flashcard";
+import { index, integer, pgEnum, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { question, questionAnswerOption } from "./question";
+import { user } from "./user";
 
 export const practicePack = pgTable("practice_pack", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -77,41 +65,10 @@ export const practicePackQuestionsRelations = relations(practicePackQuestions, (
   }),
 }));
 
-export const question = pgTable(
-  "question",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    content: text().notNull(),
-    discussion: text().notNull(),
-    contentJson: jsonb(),
-    discussionJson: jsonb(),
-    isFlashcardQuestion: boolean().notNull().default(true),
-  },
-  (t) => [index("idx_question_flashcard").on(t.isFlashcardQuestion)],
-);
-
 export const questionRelations = relations(question, ({ many }) => ({
   answerOptions: many(questionAnswerOption),
-  userFlashcards: many(userFlashcardQuestionAnswer),
   practicePacks: many(practicePackQuestions),
 }));
-
-export const questionAnswerOption = pgTable(
-  "question_answer_option",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    code: char({ length: 1 }).notNull(),
-    questionId: integer()
-      .notNull()
-      .references(() => question.id, { onDelete: "cascade" }),
-    content: text().notNull(),
-    isCorrect: boolean().notNull().default(false),
-  },
-  (t) => [
-    unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code),
-    index("idx_answer_option_question").on(t.questionId),
-  ],
-);
 
 export const questionAnswerOptionRelations = relations(questionAnswerOption, ({ one }) => ({
   question: one(question, {
@@ -136,3 +93,5 @@ export const practicePackUserAnswer = pgTable(
   },
   (t) => [primaryKey({ columns: [t.attemptId, t.questionId] }), index("idx_pp_user_answer_attempt").on(t.attemptId)],
 );
+
+export { question, questionAnswerOption } from "./question";

@@ -1,6 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
-import { practicePack, question } from "@habitutor/db/schema/practice-pack";
+import { practicePack } from "@habitutor/db/schema/practice-pack";
+import { question } from "@habitutor/db/schema/question";
 import { count } from "drizzle-orm";
 
 export const adminStatisticsRepo = {

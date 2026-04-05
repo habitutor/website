@@ -1,8 +1,22 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
-import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
+
+type ExecuteRowsResult<T> = T[] | { rows?: T[] };
+
+function extractExecuteRows<T>(result: ExecuteRowsResult<T>): T[] {
+  if (Array.isArray(result)) {
+    return result;
+  }
+
+  if (result && typeof result === "object" && "rows" in result && Array.isArray(result.rows)) {
+    return result.rows;
+  }
+
+  return [];
+}
 
 export const flashcardRepo = {
   getLatestAttempt: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
@@ -12,7 +26,7 @@ export const flashcardRepo = {
       .where(eq(userFlashcardAttempt.userId, userId))
       .orderBy(desc(userFlashcardAttempt.startedAt))
       .limit(1);
-    return attempt;
+    return attempt ?? null;
   },
 
   getLatestAttemptForToday: async ({
@@ -30,7 +44,7 @@ export const flashcardRepo = {
       .where(and(eq(userFlashcardAttempt.userId, userId), gte(userFlashcardAttempt.startedAt, today)))
       .orderBy(desc(userFlashcardAttempt.startedAt))
       .limit(1);
-    return attempt;
+    return attempt ?? null;
   },
 
   createAttempt: async ({
@@ -50,7 +64,7 @@ export const flashcardRepo = {
         deadline,
       })
       .returning();
-    return attempt;
+    return attempt ?? null;
   },
 
   getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }) => {
@@ -67,7 +81,7 @@ export const flashcardRepo = {
       LIMIT ${limit}
     `);
 
-    return Array.isArray(result) ? result : ((result as unknown as { rows?: Array<{ id: number }> }).rows ?? []);
+    return extractExecuteRows(result);
   },
 
   getQuestionsByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
@@ -135,7 +149,7 @@ export const flashcardRepo = {
       .from(userFlashcardAttempt)
       .where(eq(userFlashcardAttempt.id, attemptId))
       .limit(1);
-    return attempt;
+    return attempt ?? null;
   },
 
   markAttemptSubmitted: async ({
@@ -152,7 +166,7 @@ export const flashcardRepo = {
       .set({ submittedAt: new Date(), score })
       .where(eq(userFlashcardAttempt.id, attemptId))
       .returning();
-    return attempt;
+    return attempt ?? null;
   },
 
   getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
@@ -167,9 +181,7 @@ export const flashcardRepo = {
       WHERE aq.attempt_id = ${attemptId}
     `);
 
-    const rows = Array.isArray(result)
-      ? (result as Array<{ score: number }>)
-      : ((result as unknown as { rows?: Array<{ score: number }> }).rows ?? []);
+    const rows = extractExecuteRows(result);
     const row = rows[0];
 
     return row?.score ?? 0;
@@ -202,7 +214,7 @@ export const flashcardRepo = {
       )
       .orderBy(desc(userFlashcardAttempt.startedAt))
       .limit(1);
-    return attempt;
+    return attempt ?? null;
   },
 
   getAnswersForQuestion: async ({ db = defaultDb, questionId }: { db?: DrizzleDatabase; questionId: number }) => {
@@ -257,7 +269,7 @@ export const flashcardRepo = {
       )
       .orderBy(desc(userFlashcardAttempt.startedAt))
       .limit(1);
-    return attempt;
+    return attempt ?? null;
   },
 
   getAttemptQuestionAnswers: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
@@ -359,18 +371,6 @@ export const flashcardRepo = {
 			`,
     );
 
-    return Array.isArray(result)
-      ? result
-      : ((
-          result as unknown as {
-            rows?: Array<{
-              userId: string;
-              name: string;
-              image: string | null;
-              totalScore: number;
-              rank: number;
-            }>;
-          }
-        ).rows ?? []);
+    return extractExecuteRows(result);
   },
 };

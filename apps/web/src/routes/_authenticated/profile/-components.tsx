@@ -5,7 +5,7 @@ import { ArrowLeftIcon, CheckIcon, CopyIcon, SpinnerIcon } from "@phosphor-icons
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MotionPulse } from "@/components/motion";
+import { MotionPulse } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -107,7 +107,7 @@ function AvatarItem({
   );
 }
 
-function SaveRow({ onSave }: { onSave: () => void }) {
+function SaveRow({ onSave }: { onSave: () => void | Promise<void> }) {
   return (
     <div className="sticky flex shrink-0 flex-col gap-4 border-t md:pt-6">
       <div className="flex justify-end">
@@ -187,42 +187,54 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    const avatarId = String(selectedAvatar);
-    const src = getAvatarSrc(avatarId);
-    const currentAvatarId = String(getAvatarId(profileData?.image ?? session?.user.image));
-    let avatarSaved = false;
-    let profileSaved = false;
+    const nextAvatarId = selectedAvatar;
+    const currentAvatarId = getAvatarId(profileData?.image ?? session?.user.image);
 
-    if (avatarId !== currentAvatarId) {
-      try {
-        await avatarMutation.mutateAsync({ image: avatarId });
-        avatarSaved = true;
-      } catch (err) {
-        console.error("Avatar save error:", err);
-        toast.error("Gagal menyimpan avatar");
+    const saveAvatar = async () => {
+      if (nextAvatarId === currentAvatarId) {
+        return { saved: false, avatarId: null as string | null, avatarSrc: null as string | null };
       }
-    }
 
-    try {
-      await profileMutation.mutateAsync({
-        name: formData.name,
-        phoneNumber: formData.phone,
-        dreamCampus: customize.kampus,
-        dreamMajor: customize.jurusan,
-      });
-      profileSaved = true;
-    } catch (err) {
-      console.error("Profile save error:", err);
-      toast.error("Gagal menyimpan data profil");
-    }
+      try {
+        await avatarMutation.mutateAsync({ image: String(nextAvatarId) });
+        return {
+          saved: true,
+          avatarId: String(nextAvatarId),
+          avatarSrc: getAvatarSrc(nextAvatarId),
+        };
+      } catch {
+        toast.error("Gagal menyimpan avatar");
+        return { saved: false, avatarId: null, avatarSrc: null };
+      }
+    };
+
+    const saveProfileDetails = async () => {
+      try {
+        await profileMutation.mutateAsync({
+          name: formData.name,
+          phoneNumber: formData.phone,
+          dreamCampus: customize.kampus,
+          dreamMajor: customize.jurusan,
+        });
+        return true;
+      } catch {
+        toast.error("Gagal menyimpan data profil");
+        return false;
+      }
+    };
+
+    const avatarResult = await saveAvatar();
+    const profileSaved = await saveProfileDetails();
 
     await queryClient.invalidateQueries({ queryKey: orpc.profile.me.key() });
 
-    if (avatarSaved) {
-      window.dispatchEvent(new CustomEvent("avatarChanged", { detail: { src, image: avatarId } }));
+    if (avatarResult.saved && avatarResult.avatarSrc && avatarResult.avatarId) {
+      window.dispatchEvent(
+        new CustomEvent("avatarChanged", { detail: { src: avatarResult.avatarSrc, image: avatarResult.avatarId } }),
+      );
     }
 
-    if (avatarSaved || profileSaved) {
+    if (avatarResult.saved || profileSaved) {
       toast.success("Profil berhasil disimpan");
     }
   };

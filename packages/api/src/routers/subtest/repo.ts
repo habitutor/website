@@ -1,5 +1,5 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
-import { question, questionAnswerOption } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import {
   contentItem,
   contentPracticeQuestions,

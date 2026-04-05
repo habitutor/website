@@ -6,8 +6,20 @@ import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminQuestionRouter } from "./admin/question";
 import { adminReferralRouter } from "./admin/referrals";
 import { adminStatisticsRouter } from "./admin/statistics";
-import { adminSubtestRouter } from "./admin/subtest";
 import { adminUserRouter } from "./admin/users";
+import {
+  createContent,
+  deleteContent,
+  deleteNote,
+  deleteVideo,
+  linkPracticeQuestions,
+  reorderContent,
+  unlinkPracticeQuestions,
+  updateContent,
+  upsertNote,
+  upsertVideo,
+} from "./admin/subtest/content-routes";
+import { createSubtest, deleteSubtest, reorderSubtests, updateSubtest } from "./admin/subtest/subtest-routes";
 import { dashboardRouter } from "./dashboard";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
@@ -31,6 +43,10 @@ export const appRouter = {
   social: socialRouter,
   dashboard: dashboardRouter,
   profile: profileRouter,
+  // Learning feature boundaries:
+  // - subtest: curriculum + content navigation
+  // - practicePack: structured pack attempts (start/save/submit/history)
+  // - flashcard: short daily retention sessions with streak logic
   practicePack: practicePackRouter,
   flashcard: flashcardRouter,
   subtest: subtestRouter,
@@ -38,7 +54,32 @@ export const appRouter = {
     statistics: adminStatisticsRouter,
     practicePack: adminPracticePackRouter,
     question: adminQuestionRouter,
-    subtest: adminSubtestRouter,
+    subtest: {
+      subtest: {
+        create: createSubtest,
+        update: updateSubtest,
+        remove: deleteSubtest,
+        reorder: reorderSubtests,
+      },
+      content: {
+        create: createContent,
+        update: updateContent,
+        remove: deleteContent,
+        reorder: reorderContent,
+        video: {
+          update: upsertVideo,
+          remove: deleteVideo,
+        },
+        note: {
+          update: upsertNote,
+          remove: deleteNote,
+        },
+        question: {
+          link: linkPracticeQuestions,
+          unlink: unlinkPracticeQuestions,
+        },
+      },
+    },
     users: adminUserRouter,
     referrals: adminReferralRouter,
     dashboardContent: adminDashboardContentRouter,

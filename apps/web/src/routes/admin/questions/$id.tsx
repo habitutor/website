@@ -2,17 +2,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import { type AnswerOption, QuestionForm, type QuestionFormData } from "@/components/admin/question-form";
+import { QuestionForm, type QuestionFormData } from "@/components/admin/question-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { getInitialAnswerOptions, syncQuestionAndAnswers } from "./question-edit-helpers";
 
 export const Route = createFileRoute("/admin/questions/$id")({
   component: QuestionEditPage,
 });
-
-const ANSWER_CODES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"] as const;
-const CODE_ORDER = new Map<string, number>(ANSWER_CODES.map((code, i) => [code, i]));
 
 function QuestionEditPage() {
   const { id } = Route.useParams();
@@ -38,36 +36,21 @@ function QuestionEditPage() {
     deleteAnswerMutation.isPending;
 
   const handleSubmit = async (data: QuestionFormData) => {
-    await updateQuestionMutation.mutateAsync({
-      id: questionId,
-      content: data.content,
-      discussion: data.discussion,
-      isFlashcardQuestion: data.isFlashcardQuestion,
+    await syncQuestionAndAnswers({
+      questionId,
+      question,
+      data,
+      updateQuestion: () =>
+        updateQuestionMutation.mutateAsync({
+          id: questionId,
+          content: data.content,
+          discussion: data.discussion,
+          isFlashcardQuestion: data.isFlashcardQuestion,
+        }),
+      updateAnswer: (payload) => updateAnswerMutation.mutateAsync(payload),
+      createAnswer: (payload) => createAnswerMutation.mutateAsync(payload),
+      deleteAnswer: (payload) => deleteAnswerMutation.mutateAsync(payload),
     });
-
-    const existingAnswerIds = new Set(question?.answers.map((a) => a.id) ?? []);
-    const currentAnswerIds = new Set(data.answerOptions.map((a) => a.id).filter(Boolean));
-
-    const answersToDelete = question?.answers.filter((a) => !currentAnswerIds.has(a.id)) ?? [];
-    await Promise.all(answersToDelete.map((a) => deleteAnswerMutation.mutateAsync({ id: a.id })));
-
-    await Promise.all(
-      data.answerOptions.map((option) => {
-        if (option.id && existingAnswerIds.has(option.id)) {
-          return updateAnswerMutation.mutateAsync({
-            id: option.id,
-            content: option.content,
-            isCorrect: option.isCorrect,
-          });
-        }
-        return createAnswerMutation.mutateAsync({
-          questionId,
-          code: option.code,
-          content: option.content,
-          isCorrect: option.isCorrect,
-        });
-      }),
-    );
 
     toast.success("Question updated successfully");
     queryClient.invalidateQueries(orpc.admin.question.find.queryOptions({ input: { id: questionId } }));
@@ -80,23 +63,6 @@ function QuestionEditPage() {
 
   const handleCancel = () => {
     navigate({ to: "/admin/questions" });
-  };
-
-  const getInitialAnswerOptions = (): AnswerOption[] => {
-    if (!question) return [];
-
-    const sortedAnswers = [...question.answers].sort((a, b) => {
-      const codeA = CODE_ORDER.get(a.code) ?? 0;
-      const codeB = CODE_ORDER.get(b.code) ?? 0;
-      return codeA - codeB;
-    });
-
-    return sortedAnswers.map((ans) => ({
-      id: ans.id,
-      code: ans.code,
-      content: ans.content,
-      isCorrect: ans.isCorrect,
-    }));
   };
 
   if (Number.isNaN(questionId)) throw notFound();
@@ -149,7 +115,7 @@ function QuestionEditPage() {
           content: question.content,
           discussion: question.discussion,
           isFlashcardQuestion: question.isFlashcardQuestion,
-          answerOptions: getInitialAnswerOptions(),
+          answerOptions: getInitialAnswerOptions(question),
         }}
         onSubmit={handleSubmit}
         onCancel={handleCancel}

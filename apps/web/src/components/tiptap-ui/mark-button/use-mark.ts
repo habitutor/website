@@ -1,15 +1,15 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 // --- Icons ---
-import { BoldIcon } from "@/components/tiptap-icons/bold-icon";
-import { Code2Icon } from "@/components/tiptap-icons/code2-icon";
-import { ItalicIcon } from "@/components/tiptap-icons/italic-icon";
-import { StrikeIcon } from "@/components/tiptap-icons/strike-icon";
-import { SubscriptIcon } from "@/components/tiptap-icons/subscript-icon";
-import { SuperscriptIcon } from "@/components/tiptap-icons/superscript-icon";
-import { UnderlineIcon } from "@/components/tiptap-icons/underline-icon";
+import { BoldIcon } from "@/components/tiptap-icons";
+import { Code2Icon } from "@/components/tiptap-icons";
+import { ItalicIcon } from "@/components/tiptap-icons";
+import { StrikeIcon } from "@/components/tiptap-icons";
+import { SubscriptIcon } from "@/components/tiptap-icons";
+import { SuperscriptIcon } from "@/components/tiptap-icons";
+import { UnderlineIcon } from "@/components/tiptap-icons";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
 import { isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 
@@ -89,7 +89,7 @@ export function toggleMark(editor: Editor | null, type: Mark): boolean {
 /**
  * Determines if the mark button should be shown
  */
-export function shouldShowButton(props: { editor: Editor | null; type: Mark; hideWhenUnavailable: boolean }): boolean {
+function shouldShowMarkButton(props: { editor: Editor | null; type: Mark; hideWhenUnavailable: boolean }): boolean {
   const { editor, type, hideWhenUnavailable } = props;
 
   if (!editor || !editor.isEditable) return false;
@@ -158,7 +158,7 @@ export function useMark(config: UseMarkConfig) {
     if (!editor) return;
 
     const handleSelectionUpdate = () => {
-      setIsVisible(shouldShowButton({ editor, type, hideWhenUnavailable }));
+      setIsVisible(shouldShowMarkButton({ editor, type, hideWhenUnavailable }));
     };
 
     handleSelectionUpdate();

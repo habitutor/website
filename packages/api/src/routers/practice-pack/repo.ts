@@ -4,11 +4,74 @@ import {
   practicePackAttempt,
   practicePackQuestions,
   practicePackUserAnswer,
-  question,
-  questionAnswerOption,
 } from "@habitutor/db/schema/practice-pack";
+import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, count, desc, eq } from "drizzle-orm";
 import type { Question } from "../../types/practice-pack";
+import { convertToTiptap } from "../../lib/tiptap";
+
+type QuestionMapRow = {
+  questionId: number;
+  questionOrder: number | null;
+  questionContent: string;
+  questionContentJson: unknown;
+  questionDiscussion: string;
+  questionDiscussionJson: unknown;
+  answerId: number;
+  answerContent: string;
+  selectedAnswerId?: number | null;
+  answerIsCorrect?: boolean | null;
+};
+
+type HistoryQuestionMapRow = QuestionMapRow & {
+  selectedAnswerId: number | null;
+  answerIsCorrect: boolean | null;
+};
+
+function toTiptapDoc(contentJson: unknown, fallback: string): Record<string, unknown> {
+  if (contentJson && typeof contentJson === "object") {
+    return contentJson as Record<string, unknown>;
+  }
+  return convertToTiptap(fallback) as Record<string, unknown>;
+}
+
+function buildQuestionMapBase(
+  rows: QuestionMapRow[],
+  includeCorrectness: boolean,
+): Map<number, Question & { userAnswerIsCorrect?: boolean }> {
+  const questionMap = new Map<number, Question & { userAnswerIsCorrect?: boolean }>();
+
+  for (const row of rows) {
+    if (!questionMap.has(row.questionId)) {
+      questionMap.set(row.questionId, {
+        id: row.questionId,
+        order: row.questionOrder ?? 1,
+        content: toTiptapDoc(row.questionContentJson, row.questionContent),
+        discussion: toTiptapDoc(row.questionDiscussionJson, row.questionDiscussion),
+        selectedAnswerId: row.selectedAnswerId ?? null,
+        userAnswerIsCorrect: includeCorrectness ? false : undefined,
+        answers: [],
+      });
+    }
+
+    const currentQuestion = questionMap.get(row.questionId);
+    if (!currentQuestion) {
+      continue;
+    }
+
+    currentQuestion.answers.push({
+      id: row.answerId,
+      content: row.answerContent,
+      isCorrect: includeCorrectness ? (row.answerIsCorrect ?? undefined) : undefined,
+    });
+
+    if (includeCorrectness && row.selectedAnswerId === row.answerId && row.answerIsCorrect === true) {
+      currentQuestion.userAnswerIsCorrect = true;
+    }
+  }
+
+  return questionMap;
+}
 
 export const practicePackRepo = {
   listWithAttempts: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
@@ -86,7 +149,7 @@ export const practicePackRepo = {
       })
       .onConflictDoNothing()
       .returning();
-    return attempt;
+    return attempt ?? null;
   },
 
   getAttempt: async ({ db = defaultDb, packId, userId }: { db?: DrizzleDatabase; packId: number; userId: string }) => {
@@ -99,7 +162,7 @@ export const practicePackRepo = {
       .from(practicePackAttempt)
       .where(and(eq(practicePackAttempt.practicePackId, packId), eq(practicePackAttempt.userId, userId)))
       .limit(1);
-    return attempt;
+    return attempt ?? null;
   },
 
   saveAnswer: async ({
@@ -143,7 +206,7 @@ export const practicePackRepo = {
       })
       .where(and(eq(practicePackAttempt.practicePackId, packId), eq(practicePackAttempt.userId, userId)))
       .returning();
-    return attempt;
+    return attempt ?? null;
   },
 
   countAttempts: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
@@ -227,86 +290,20 @@ export const practicePackRepo = {
   },
 };
 
-export function buildQuestionMap(
-  rows: Array<{
-    questionId: number;
-    questionOrder: number | null;
-    questionContent: string;
-    questionContentJson: unknown;
-    questionDiscussion: string;
-    questionDiscussionJson: unknown;
-    answerId: number;
-    answerContent: string;
-    selectedAnswerId?: number | null;
-    answerIsCorrect?: boolean | null;
-  }>,
-): Map<number, Question & { userAnswerIsCorrect?: boolean }> {
-  const questionMap = new Map<number, Question & { userAnswerIsCorrect?: boolean }>();
-
-  for (const row of rows) {
-    if (!questionMap.has(row.questionId)) {
-      questionMap.set(row.questionId, {
-        id: row.questionId,
-        order: row.questionOrder ?? 1,
-        content: (row.questionContentJson || row.questionContent) as Record<string, unknown>,
-        discussion: (row.questionDiscussionJson || row.questionDiscussion) as Record<string, unknown>,
-        selectedAnswerId: row.selectedAnswerId ?? null,
-        answers: [],
-      });
-    }
-
-    questionMap.get(row.questionId)?.answers.push({
-      id: row.answerId,
-      content: row.answerContent,
-    });
-  }
-
-  return questionMap;
+export function buildQuestionMap(rows: QuestionMapRow[]): Map<number, Question & { userAnswerIsCorrect?: boolean }> {
+  return buildQuestionMapBase(rows, false);
 }
 
 export function buildHistoryQuestionMap(
-  rows: Array<{
-    questionId: number;
-    questionOrder: number | null;
-    questionContent: string;
-    questionContentJson: unknown;
-    questionDiscussion: string;
-    questionDiscussionJson: unknown;
-    answerId: number;
-    answerContent: string;
-    answerIsCorrect: boolean | null;
-    selectedAnswerId: number | null;
-  }>,
+  rows: HistoryQuestionMapRow[],
 ): Map<number, Question & { userAnswerIsCorrect: boolean }> {
-  const questionMap = new Map<number, Question & { userAnswerIsCorrect: boolean }>();
+  return buildQuestionMapBase(rows, true) as Map<number, Question & { userAnswerIsCorrect: boolean }>;
+}
 
-  for (const row of rows) {
-    if (!questionMap.has(row.questionId)) {
-      const userAnswerIsCorrect =
-        row.selectedAnswerId !== null && row.answerIsCorrect === true && row.selectedAnswerId === row.answerId;
+export function formatQuestions(rows: QuestionMapRow[]): Question[] {
+  return Array.from(buildQuestionMap(rows).values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
 
-      questionMap.set(row.questionId, {
-        id: row.questionId,
-        order: row.questionOrder ?? 1,
-        content: (row.questionContentJson || row.questionContent) as Record<string, unknown>,
-        discussion: (row.questionDiscussionJson || row.questionDiscussion) as Record<string, unknown>,
-        selectedAnswerId: row.selectedAnswerId ?? null,
-        userAnswerIsCorrect,
-        answers: [],
-      });
-    }
-
-    const q = questionMap.get(row.questionId);
-    q?.answers.push({
-      id: row.answerId,
-      content: row.answerContent,
-      isCorrect: row.answerIsCorrect ?? undefined,
-    });
-
-    if (q && row.selectedAnswerId === row.answerId && row.answerIsCorrect === true) {
-      q.userAnswerIsCorrect = true;
-    }
-  }
-
-  return questionMap;
+export function formatHistoryQuestions(rows: HistoryQuestionMapRow[]): (Question & { userAnswerIsCorrect: boolean })[] {
+  return Array.from(buildHistoryQuestionMap(rows).values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
