@@ -15,6 +15,7 @@ interface PricingData {
   price_now?: string;
   price_monthly?: string;
   price_full?: string;
+  percentage?: string;
   features: readonly PricingFeature[];
   cta: {
     label: string;
@@ -97,7 +98,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
             <span className="text-[10px]">sampai SNBT</span>
           </div>
           <p className="text-[12px]">
-            promo <span className="font-bold text-red-300">hemat 75%</span> sampai 1 Mei
+            promo <span className="font-bold text-red-300">hemat {data.percentage}</span> sampai 1 Mei
           </p>
           <hr className="mt-4 border-white/10" />
         </div>

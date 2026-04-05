@@ -3,10 +3,10 @@ export const DATA = {
     ultimate_bundling1: {
       label: "Ultimate Bundling",
       badge: "Paling Lengkap",
-      price_now: "Rp199.000",
+      price_now: "Rp99.000",
       original_price: "Rp1.000.000",
       suffix: "sampai SNBT",
-      percentage: "75%",
+      percentage: "90%",
       promo_end: "1 Mei",
       features: [
         { label: "Akses Full Website", status: "included" },
@@ -27,10 +27,10 @@ export const DATA = {
 
     ultimate_bundling2: {
       label: "Ultimate Bundling",
-      price_now: "Rp149.000",
+      price_now: "Rp75.000",
       original_price: "Rp1.000.000",
       suffix: "sampai SNBT",
-      percentage: "80%",
+      percentage: "90%",
       promo_end: "1 April",
       features: [
         { label: "Akses Full Website", status: "included" },
@@ -139,8 +139,7 @@ export const DATA = {
 
   classroom: {
     label: "Classroom",
-    price_monthly: "Rp50.000",
-    price_full: "Rp99.000",
+    price_full: "Rp35.000",
     suffix: "sampai SNBT",
     features: [
       { label: "Akses Full Website", status: "excluded" },

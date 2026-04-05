@@ -137,8 +137,7 @@ export const DATA = {
     plans: {
       classroom: {
         label: "Classroom",
-        price_monthly: "Rp50.000",
-        price_full: "Rp99.000",
+        price_full: "Rp35.000",
         suffix: "sampai SNBT",
         features: [
           { label: "Akses Full Website", status: "excluded" },
@@ -153,7 +152,7 @@ export const DATA = {
         ],
         cta: {
           label: "Mulai Sekarang",
-          url: "http://lynk.id/habitutor/64p096g69747",
+          url: "https://lynk.id/habitutor/64p096g69747",
         },
       },
 
@@ -203,7 +202,7 @@ export const DATA = {
       ultimate_bundling: {
         label: "Ultimate Bundling",
         badge: "Paling Lengkap",
-        price_now: "Rp199.000",
+        price_now: "Rp99.000",
         original_price: "Rp1.000.000",
         suffix: "sampai SNBT",
         features: [
