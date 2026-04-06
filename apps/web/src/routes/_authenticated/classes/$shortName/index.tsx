@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
+import { PageContent } from "../../-components/page-content";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/")({
   params: {
@@ -88,17 +89,10 @@ function RouteComponent() {
     );
   }
 
-  if (data.isError) {
-    return (
-      <Container className="pt-12">
-        <p className="text-sm text-red-500">Error: {data.error.message}</p>
-      </Container>
-    );
-  }
   if (!matchedClass) return notFound();
 
   return (
-    <div className="mt-2 space-y-4">
+    <PageContent className="mt-4 space-y-4 sm:-mt-3">
       <ClassHeader shortName={shortName} />
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -128,6 +122,6 @@ function RouteComponent() {
           shortName={shortName}
         />
       </div>
-    </div>
+    </PageContent>
   );
 }

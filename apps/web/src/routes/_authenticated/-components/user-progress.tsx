@@ -4,11 +4,12 @@ import { Link, useRouteContext } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
+import { DashboardCard, DashboardCardTitle } from "./dashboard-card";
 
 export const UserProgress = () => {
   return (
-    <section className="w-full rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Progres Kamu!</h2>
+    <DashboardCard className="w-full">
+      <DashboardCardTitle>Progress Kamu!</DashboardCardTitle>
       <div className="grid gap-4 sm:grid-cols-5">
         <div className="space-y-4 sm:col-span-2">
           <Material />
@@ -16,7 +17,7 @@ export const UserProgress = () => {
         </div>
         <Flashcard />
       </div>
-    </section>
+    </DashboardCard>
   );
 };
 

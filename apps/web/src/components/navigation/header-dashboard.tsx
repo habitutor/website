@@ -1,4 +1,4 @@
-import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, UserIcon, XIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -20,6 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
@@ -71,7 +72,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {!session?.user.isPremium && !location.pathname.startsWith("/classes/") && (
+      {!session?.user.isPremium && (
         <div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
           Dapatkan Semua Fitur dan Akses
           <Button variant="default" size={"sm"} asChild>
@@ -113,11 +114,15 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuContent align="end" className="w-50">
               <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <Link to="/profile">Profile</Link>
+                <Link to="/profile">
+                  <UserIcon />
+                  Profile
+                </Link>
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                 <SignOutIcon />
                 Log Out

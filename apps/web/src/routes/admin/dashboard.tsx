@@ -1,4 +1,4 @@
-import { Package, Question, Users } from "@phosphor-icons/react";
+import { PackageIcon, QuestionIcon, UsersIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
@@ -19,22 +19,22 @@ function AdminDashboard() {
         <StatsCard
           title="Total Users"
           statKey="totalUsers"
-          icon={Users}
-          className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-background"
+          icon={UsersIcon}
+          className="bg-linear-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-background"
           iconClassName="text-blue-500"
         />
         <StatsCard
           title="Practice Packs"
           statKey="totalPracticePacks"
-          icon={Package}
-          className="bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-background"
+          icon={PackageIcon}
+          className="bg-linear-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-background"
           iconClassName="text-purple-500"
         />
         <StatsCard
           title="Total Questions"
           statKey="totalQuestions"
-          icon={Question}
-          className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-background"
+          icon={QuestionIcon}
+          className="bg-linear-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-background"
           iconClassName="text-orange-500"
         />
       </div>

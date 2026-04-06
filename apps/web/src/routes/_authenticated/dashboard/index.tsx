@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useCallback, useState } from "react";
-import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
+import { MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +19,7 @@ import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
 import { Announcement } from "../-components/announcement";
 import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
+import { PageContent } from "../-components/page-content";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
 import { shouldRequirePremiumDialog } from "./-social-access";
@@ -77,7 +78,7 @@ function RouteComponent() {
 
       <PWATutorialDialog open={pwaDialog} onOpenChange={setPwaDialog} />
 
-      <MotionStagger className="relative z-10 flex flex-col gap-6">
+      <PageContent>
         <MotionStaggerItem>
           <section className="flex w-full items-center justify-between gap-0 max-sm:flex-col-reverse max-sm:items-start">
             <div className="flex items-center gap-2">
@@ -163,7 +164,7 @@ function RouteComponent() {
         <MotionStaggerItem>
           <LastClasses />
         </MotionStaggerItem>
-      </MotionStagger>
+      </PageContent>
 
       <div className="pointer-events-none fixed right-0 bottom-0 left-0 z-0">
         <img src="/dashboard-background.webp" alt="" className="block h-auto w-full" />

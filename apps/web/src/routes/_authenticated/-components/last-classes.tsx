@@ -4,26 +4,27 @@ import { Link } from "@tanstack/react-router";
 import { LastContentViewedCard } from "@/components/classes/content";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
+import { DashboardCard, DashboardCardTitle } from "./dashboard-card";
 
 export const LastClasses = () => {
   const { data, isPending } = useQuery(orpc.subtest.content.recent.queryOptions());
 
   if (isPending) {
     return (
-      <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-        <h2 className="mb-2 font-medium">Kelas terakhirmu</h2>
+      <DashboardCard>
+        <DashboardCardTitle>Kelas terakhirmu</DashboardCardTitle>
         <div className="animate-pulse space-y-2">
           <div className="h-32 rounded-md bg-neutral-200" />
           <div className="h-32 rounded-md bg-neutral-200" />
         </div>
-      </section>
+      </DashboardCard>
     );
   }
 
   if (!data || data.length === 0) {
     return (
-      <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-        <h2 className="font-medium">Kelas terakhirmu</h2>
+      <DashboardCard>
+        <DashboardCardTitle className="mb-0">Kelas terakhirmu</DashboardCardTitle>
         <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
           <img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
           <p className="text-2xl font-bold text-black">Kamu belum melihat kelas apapun</p>
@@ -33,13 +34,13 @@ export const LastClasses = () => {
             </Link>
           </Button>
         </div>
-      </section>
+      </DashboardCard>
     );
   }
 
   return (
-    <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Kelas terakhirmu</h2>
+    <DashboardCard>
+      <DashboardCardTitle>Kelas terakhirmu</DashboardCardTitle>
       <div className="space-y-2">
         {data.map((view, idx) => (
           <LastContentViewedCard
@@ -56,6 +57,6 @@ export const LastClasses = () => {
           />
         ))}
       </div>
-    </section>
+    </DashboardCard>
   );
 };
