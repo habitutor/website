@@ -1,9 +1,26 @@
 import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
+import { logger } from "@habitutor/shared/logger";
 import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { o } from "../lib/orpc";
 import { transactionRepo } from "../routers/transaction/repo";
+import { reconcileLatestPendingTransaction } from "../routers/transaction/sync";
+
+const RECONCILE_COOLDOWN_MS = 30 * 1000;
+const lastReconcileByUser = new Map<string, number>();
+
+function shouldReconcileNow(userId: string): boolean {
+  const now = Date.now();
+  const lastRunAt = lastReconcileByUser.get(userId) ?? 0;
+
+  if (now - lastRunAt < RECONCILE_COOLDOWN_MS) {
+    return false;
+  }
+
+  lastReconcileByUser.set(userId, now);
+  return true;
+}
 
 export const syncSessionLifecycle = o.middleware(async ({ context, next }) => {
   if (!context.session?.user) {
@@ -31,6 +48,33 @@ export const syncSessionLifecycle = o.middleware(async ({ context, next }) => {
     sessionUser.isPremium = false;
     sessionUser.premiumExpiresAt = null;
     sessionUser.premiumTier = null;
+  }
+
+  if (!sessionUser.isPremium && shouldReconcileNow(sessionUser.id)) {
+    try {
+      await reconcileLatestPendingTransaction(sessionUser.id);
+
+      const [latestUserState] = await db
+        .select({
+          isPremium: user.isPremium,
+          premiumTier: user.premiumTier,
+          premiumExpiresAt: user.premiumExpiresAt,
+        })
+        .from(user)
+        .where(eq(user.id, sessionUser.id))
+        .limit(1);
+
+      if (latestUserState?.isPremium) {
+        sessionUser.isPremium = latestUserState.isPremium;
+        sessionUser.premiumTier = latestUserState.premiumTier;
+        sessionUser.premiumExpiresAt = latestUserState.premiumExpiresAt;
+      }
+    } catch (error) {
+      logger.error("Failed to reconcile pending transaction during session lifecycle", {
+        userId: sessionUser.id,
+        error,
+      });
+    }
   }
 
   return next({
