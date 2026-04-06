@@ -277,6 +277,7 @@ export const flashcardRepo = {
       where: eq(userFlashcardQuestionAnswer.attemptId, attemptId),
       columns: {
         selectedAnswerId: true,
+        questionId: true,
       },
       with: {
         question: {

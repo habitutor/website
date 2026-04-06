@@ -41,15 +41,10 @@ const start = authed
       gracePeriodSeconds: GRACE_PERIOD_SECONDS,
     });
 
-    if (shouldBlock && !isPremium)
+    if (shouldBlock)
       throw errors.UNPROCESSABLE_CONTENT({
         message: "Kamu sudah memulai sesi flashcard hari ini.",
       });
-
-    // if (shouldBlock && isPremium)
-    //   throw errors.UNPROCESSABLE_CONTENT({
-    //     message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
-    //   });
 
     const attempt = await flashcardRepo.createAttempt({
       db,
@@ -318,6 +313,7 @@ const result = authed
       assignedQuestions: formattedQuestions,
       correctAnswersCount: correct,
       questionsCount: formattedQuestions.length,
+      attemptId: attempt.id,
     };
   });
 
