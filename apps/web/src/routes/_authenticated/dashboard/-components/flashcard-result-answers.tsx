@@ -1,8 +1,11 @@
+import { FlagIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useRouteContext } from "@tanstack/react-router";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { FeedbackReportDialog } from "./feedback-report-dialog";
 
 type AnswerOption = {
   id: number;
@@ -12,51 +15,89 @@ type AnswerOption = {
 };
 
 type AssignedQuestion = {
+  questionId: number;
   selectedAnswerId: number | null;
   question: {
+    id: number;
     discussion: string;
     answerOptions: AnswerOption[];
   };
 };
 
-function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }) {
-  const { question, selectedAnswerId } = assignedQuestion;
+interface AnswerItemProps {
+  assignedQuestion: AssignedQuestion;
+  attemptId?: number;
+  onReportClick?: (questionId: number, selectedAnswerId: number | null) => void;
+}
+
+function AnswerItem({ assignedQuestion, attemptId, onReportClick }: AnswerItemProps) {
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const { question, selectedAnswerId, questionId } = assignedQuestion;
   const correctAnswer = question.answerOptions.find((a) => a.isCorrect);
   const userAnswer = question.answerOptions.find((a) => a.id === selectedAnswerId);
   const isCorrect = correctAnswer?.id === userAnswer?.id;
 
+  const handleReportClick = () => {
+    setFeedbackDialogOpen(true);
+    onReportClick?.(questionId, selectedAnswerId);
+  };
+
   return (
-    <div className="w-full">
-      <div
-        className={`flex items-center gap-5 rounded-t-[5px] px-5 py-4 ${isCorrect ? "bg-fourtiary-100" : "bg-red-100"}`}
-      >
-        <span
-          className={`shrink-0 rounded-[3.5px] border border-neutral-200 bg-white px-2.5 py-1 text-[15px] font-semibold ${
-            isCorrect ? "text-fourtiary-300" : "text-red-300"
-          }`}
+    <>
+      <div className="w-full">
+        <div
+          className={`flex items-center gap-5 rounded-t-[5px] px-5 py-4 ${isCorrect ? "bg-fourtiary-100" : "bg-red-100"}`}
         >
-          {userAnswer?.code ?? "-"}
-        </span>
-        <span className={`flex-1 text-[15px] ${isCorrect ? "text-fourtiary-300" : "text-red-300"}`}>
-          {userAnswer ? <TiptapRenderer content={userAnswer.content} /> : "Tidak menjawab"}
-        </span>
-        <span className="ml-auto shrink-0">
-          {isCorrect ? (
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M4 11L9 16L18 6" stroke="#1CA35B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          ) : (
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="10" stroke="#FB3748" strokeWidth="2" />
-              <path d="M7.5 7.5L14.5 14.5M14.5 7.5L7.5 14.5" stroke="#FB3748" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          )}
-        </span>
+          <span
+            className={`shrink-0 rounded-[3.5px] border border-neutral-200 bg-white px-2.5 py-1 text-[15px] font-semibold ${
+              isCorrect ? "text-fourtiary-300" : "text-red-300"
+            }`}
+          >
+            {userAnswer?.code ?? "-"}
+          </span>
+          <span className={`flex-1 text-[15px] ${isCorrect ? "text-fourtiary-300" : "text-red-300"}`}>
+            {userAnswer ? <TiptapRenderer content={userAnswer.content} /> : "Tidak menjawab"}
+          </span>
+          <button
+            type="button"
+            onClick={handleReportClick}
+            className="ml-2 rounded-lg p-1 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-600"
+            aria-label="Laporkan masalah"
+          >
+            <FlagIcon size={18} weight="bold" />
+          </button>
+          <span className="ml-auto shrink-0">
+            {isCorrect ? (
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path
+                  d="M4 11L9 16L18 6"
+                  stroke="#1CA35B"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="11" r="10" stroke="#FB3748" strokeWidth="2" />
+                <path d="M7.5 7.5L14.5 14.5M14.5 7.5L7.5 14.5" stroke="#FB3748" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            )}
+          </span>
+        </div>
+        <div className="mr-2 ml-2 rounded-b-[5px] border border-t-0 border-neutral-200 bg-white px-4 py-3 text-xs leading-relaxed text-[#333]">
+          <TiptapRenderer content={question.discussion} />
+        </div>
       </div>
-      <div className="mr-2 ml-2 rounded-b-[5px] border border-t-0 border-neutral-200 bg-white px-4 py-3 text-xs leading-relaxed text-[#333]">
-        <TiptapRenderer content={question.discussion} />
-      </div>
-    </div>
+      <FeedbackReportDialog
+        open={feedbackDialogOpen}
+        onOpenChange={setFeedbackDialogOpen}
+        questionId={questionId}
+        selectedAnswerId={selectedAnswerId ?? undefined}
+        attemptId={attemptId}
+        path="/dashboard/flashcard/result"
+      />
+    </>
   );
 }
 
@@ -96,6 +137,10 @@ export function ResultsSection() {
   const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions({ input: {} }));
   const score = data ? Math.round((data.correctAnswersCount / (data.questionsCount || 5)) * 100) : 0;
 
+  const handleReportClick = (_questionId: number, _selectedAnswerId: number | null) => {
+    // Could open a global feedback dialog here if needed
+  };
+
   return (
     <div
       className="flex w-full flex-col rounded-[10px] border border-neutral-300 bg-white px-4 pt-4"
@@ -119,7 +164,9 @@ export function ResultsSection() {
           {isPending ? (
             <Skeleton className="h-72 w-full" />
           ) : (
-            data?.assignedQuestions.map((aq, i) => <AnswerItem key={i} assignedQuestion={aq} />)
+            data?.assignedQuestions.map((aq, i) => (
+              <AnswerItem key={i} assignedQuestion={aq} attemptId={data?.attemptId} onReportClick={handleReportClick} />
+            ))
           )}
         </div>
       </div>

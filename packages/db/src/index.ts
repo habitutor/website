@@ -10,6 +10,7 @@ import * as practice from "./schema/practice-pack";
 import * as question from "./schema/question";
 import * as referral from "./schema/referral";
 import * as transaction from "./schema/transaction";
+import * as feedback from "./schema/feedback";
 
 const schema = {
   ...auth,
@@ -19,6 +20,7 @@ const schema = {
   ...dashboard,
   ...referral,
   ...transaction,
+  ...feedback,
 };
 
 function loadDatabaseUrl() {
@@ -43,6 +45,19 @@ function createDb() {
 type DbClient = ReturnType<typeof createDb>;
 
 export const db = createDb();
+
+// Alias for consistency with repo patterns
+export const defaultDb = db;
+
+// Export schema modules for convenience
+export * from "./schema/auth";
+export * from "./schema/dashboard";
+export * from "./schema/flashcard";
+export * from "./schema/practice-pack";
+export * from "./schema/question";
+export * from "./schema/referral";
+export * from "./schema/transaction";
+export * from "./schema/feedback";
 
 export type Schema = typeof schema;
 export type DrizzleDatabase =

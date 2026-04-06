@@ -1,0 +1,170 @@
+import { type } from "arktype";
+import { admin, authed } from "../../index";
+import { feedbackRepo } from "./repo";
+
+const createInputSchema = type({
+  "category?": "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other",
+  description: "string",
+  "path?": "string",
+  "questionId?": "number",
+  "selectedAnswerId?": "number",
+  "attemptId?": "number",
+});
+
+const listByUserInputSchema = type({
+  "limit?": "number",
+  "cursor?": "number",
+});
+
+const listForAdminInputSchema = type({
+  "limit?": "number",
+  "afterCursor?": "number",
+  "beforeCursor?": "number",
+  "status?": "open" | "in_review" | "resolved" | "dismissed",
+  "category?": "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other",
+  "priority?": "p0" | "p1" | "p2" | "p3",
+});
+
+const create = authed
+  .route({
+    path: "/feedback",
+    method: "POST",
+    tags: ["Feedback"],
+  })
+  .input(createInputSchema)
+  .handler(async ({ context, input }) => {
+    const feedback = await feedbackRepo.create({
+      userId: context.session.user.id,
+      path: input.path,
+      questionId: input.questionId,
+      category: input.category ?? "other",
+      description: input.description,
+      selectedAnswerId: input.selectedAnswerId,
+      attemptId: input.attemptId,
+    });
+    return { id: feedback.id, message: "Laporan berhasil dikirim!" };
+  });
+
+const listMine = authed
+  .route({
+    path: "/feedback/mine",
+    method: "GET",
+    tags: ["Feedback"],
+  })
+  .input(listByUserInputSchema)
+  .handler(async ({ context, input }) => {
+    return await feedbackRepo.listByUser({
+      userId: context.session.user.id,
+      limit: input.limit,
+      cursorId: input.cursor,
+    });
+  });
+
+const markSeen = authed
+  .route({
+    path: "/feedback/mark-seen",
+    method: "POST",
+    tags: ["Feedback"],
+  })
+  .input(type({ ids: "number[]" }))
+  .handler(async ({ input }) => {
+    await feedbackRepo.markSeen({ ids: input.ids });
+    return { success: true };
+  });
+
+const unseenResolvedCount = authed
+  .route({
+    path: "/feedback/unseen-resolved-count",
+    method: "GET",
+    tags: ["Feedback"],
+  })
+  .handler(async ({ context }) => {
+    const count = await feedbackRepo.countUnseenResolved({
+      userId: context.session.user.id,
+    });
+    return { count };
+  });
+
+// Admin routes
+const adminList = admin
+  .route({
+    path: "/feedback",
+    method: "GET",
+    tags: ["Admin Feedback"],
+  })
+  .input(listForAdminInputSchema)
+  .handler(async ({ input }) => {
+    return await feedbackRepo.listForAdmin({
+      limit: input.limit,
+      afterCursor: input.afterCursor,
+      beforeCursor: input.beforeCursor,
+      status: input.status,
+      category: input.category,
+      priority: input.priority,
+    });
+  });
+
+const adminFind = admin
+  .route({
+    path: "/feedback/:id",
+    method: "GET",
+    tags: ["Admin Feedback"],
+  })
+  .input(type({ id: "number" }))
+  .handler(async ({ input }) => {
+    const feedback = await feedbackRepo.getById({ id: input.id });
+    if (!feedback) {
+      throw new Error("Feedback not found");
+    }
+    return feedback;
+  });
+
+const adminUpdate = admin
+  .route({
+    path: "/feedback/:id",
+    method: "PATCH",
+    tags: ["Admin Feedback"],
+  })
+  .input(
+    type({
+      id: "number",
+      status: "open" | "in_review" | "resolved" | "dismissed",
+      "priority?": "p0" | "p1" | "p2" | "p3",
+      "adminNotes?": "string",
+    }),
+  )
+  .handler(async ({ context, input }) => {
+    await feedbackRepo.update({
+      id: input.id,
+      status: input.status,
+      priority: input.priority,
+      adminNotes: input.adminNotes,
+      resolvedBy: context.session.user.id,
+    });
+    return { success: true };
+  });
+
+const adminCountOpen = admin
+  .route({
+    path: "/feedback/count-open",
+    method: "GET",
+    tags: ["Admin Feedback"],
+  })
+  .handler(async () => {
+    const count = await feedbackRepo.countOpen({});
+    return { count };
+  });
+
+export const feedbackRouter = {
+  create,
+  listMine,
+  markSeen,
+  unseenResolvedCount,
+};
+
+export const adminFeedbackRouter = {
+  list: adminList,
+  find: adminFind,
+  update: adminUpdate,
+  countOpen: adminCountOpen,
+};

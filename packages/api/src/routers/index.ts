@@ -28,6 +28,7 @@ import { referralRouter } from "./referral";
 import { socialRouter } from "./social";
 import { subtestRouter } from "./subtest";
 import { transactionRouter } from "./transaction";
+import { feedbackRouter, adminFeedbackRouter } from "./feedback";
 
 export const appRouter = {
   healthCheck: pub
@@ -50,6 +51,7 @@ export const appRouter = {
   practicePack: practicePackRouter,
   flashcard: flashcardRouter,
   subtest: subtestRouter,
+  feedback: feedbackRouter,
   admin: {
     statistics: adminStatisticsRouter,
     practicePack: adminPracticePackRouter,
@@ -83,6 +85,7 @@ export const appRouter = {
     users: adminUserRouter,
     referrals: adminReferralRouter,
     dashboardContent: adminDashboardContentRouter,
+    feedback: adminFeedbackRouter,
   },
   transaction: transactionRouter,
   referral: referralRouter,
