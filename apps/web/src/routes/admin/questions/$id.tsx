@@ -6,7 +6,7 @@ import { QuestionForm, type QuestionFormData } from "@/components/admin/question
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
-import { getInitialAnswerOptions, syncQuestionAndAnswers } from "./question-edit-helpers";
+import { getInitialAnswerOptions, syncQuestionAndAnswers } from "./-question-edit-helpers";
 
 export const Route = createFileRoute("/admin/questions/$id")({
   component: QuestionEditPage,

@@ -21,7 +21,7 @@ import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
-import { shouldRequirePremiumDialog } from "./social-access";
+import { shouldRequirePremiumDialog } from "./-social-access";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({

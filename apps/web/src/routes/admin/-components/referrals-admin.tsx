@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { client } from "@/utils/orpc";
-import { CursorPagination } from "../users/-components/pagination";
+import { CursorPagination } from "@/components/admin/pagination";
 
 type ReferralTransactionRow = {
   usageId: string;

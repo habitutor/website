@@ -8,6 +8,7 @@ const ROUTE_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   "practice-packs": "Practice Packs",
   questions: "Question Bank",
+  feedback: "Feedback",
   classes: "Classes",
   users: "Users",
   create: "Create",

@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, gte, lt, sql } from "drizzle-orm";
 import type { DrizzleDatabase } from "@habitutor/db";
 import { db as defaultDb } from "@habitutor/db";
 import { feedbackReport } from "@habitutor/db";
@@ -57,34 +57,27 @@ export const feedbackRepo = {
     category?: string | null;
     priority?: string | null;
   }) => {
-    const conditions = [];
-
-    if (status) {
-      conditions.push(eq(feedbackReport.status, status));
-    }
-    if (category) {
-      conditions.push(eq(feedbackReport.category, category as typeof feedbackReport.enum));
-    }
-    if (priority) {
-      conditions.push(eq(feedbackReport.priority, priority as typeof feedbackReport.enum));
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
     let data;
     let hasNext = false;
     let hasPrevious = false;
 
     if (beforeCursor !== null && beforeCursor !== undefined) {
-      // Backward pagination
-      const backwardWhereClause = whereClause
-        ? and(whereClause, lte(feedbackReport.id, beforeCursor))
-        : lte(feedbackReport.id, beforeCursor);
-
       const items = await db
         .select()
         .from(feedbackReport)
-        .where(backwardWhereClause)
+        .where(
+          and(
+            status ? eq(feedbackReport.status, status) : undefined,
+            category
+              ? eq(
+                  feedbackReport.category,
+                  category as "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other",
+                )
+              : undefined,
+            priority ? eq(feedbackReport.priority, priority as "p0" | "p1" | "p2" | "p3") : undefined,
+            lt(feedbackReport.id, beforeCursor),
+          ),
+        )
         .orderBy(desc(feedbackReport.id))
         .limit(limit + 1);
 
@@ -94,22 +87,24 @@ export const feedbackRepo = {
       }
 
       data = items.reverse();
+      hasNext = true;
     } else {
-      // Forward pagination
-      const cursorCondition =
-        afterCursor !== null && afterCursor !== undefined ? gte(feedbackReport.id, afterCursor) : undefined;
-
-      const forwardWhereClause =
-        cursorCondition !== undefined
-          ? whereClause !== undefined
-            ? and(whereClause, cursorCondition)
-            : cursorCondition
-          : whereClause;
-
       const items = await db
         .select()
         .from(feedbackReport)
-        .where(forwardWhereClause)
+        .where(
+          and(
+            status ? eq(feedbackReport.status, status) : undefined,
+            category
+              ? eq(
+                  feedbackReport.category,
+                  category as "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other",
+                )
+              : undefined,
+            priority ? eq(feedbackReport.priority, priority as "p0" | "p1" | "p2" | "p3") : undefined,
+            afterCursor !== null && afterCursor !== undefined ? gt(feedbackReport.id, afterCursor) : undefined,
+          ),
+        )
         .orderBy(asc(feedbackReport.id))
         .limit(limit + 1);
 
@@ -119,12 +114,15 @@ export const feedbackRepo = {
       }
 
       data = items;
+      if (afterCursor !== null && afterCursor !== undefined) {
+        hasPrevious = true;
+      }
     }
 
     return {
       data,
-      nextCursor: hasNext ? data[data.length - 1].id : null,
-      prevCursor: hasPrevious ? data[0].id : null,
+      nextCursor: hasNext && data.length > 0 ? data[data.length - 1]!.id : null,
+      prevCursor: hasPrevious && data.length > 0 ? data[0]!.id : null,
       hasNext,
       hasPrevious,
     };
@@ -150,25 +148,20 @@ export const feedbackRepo = {
     adminNotes?: string | null;
     resolvedBy?: string | null;
   }) => {
-    const updateData: Record<string, unknown> = {};
-
-    if (status !== undefined && status !== null) {
-      updateData.status = status;
-      if (status === "resolved" || status === "dismissed") {
-        updateData.resolvedAt = new Date();
-      }
-    }
-    if (priority !== undefined) {
-      updateData.priority = priority;
-    }
-    if (adminNotes !== undefined) {
-      updateData.adminNotes = adminNotes;
-    }
-    if (resolvedBy !== undefined) {
-      updateData.resolvedBy = resolvedBy;
-    }
-
-    const [feedback] = await db.update(feedbackReport).set(updateData).where(eq(feedbackReport.id, id)).returning();
+    const [feedback] = await db
+      .update(feedbackReport)
+      .set({
+        ...(status !== undefined &&
+          status !== null && {
+            status,
+            resolvedAt: status === "resolved" || status === "dismissed" ? new Date() : undefined,
+          }),
+        ...(priority !== undefined && { priority }),
+        ...(adminNotes !== undefined && { adminNotes }),
+        ...(resolvedBy !== undefined && { resolvedBy }),
+      })
+      .where(eq(feedbackReport.id, id))
+      .returning();
     return feedback;
   },
 
@@ -183,14 +176,14 @@ export const feedbackRepo = {
     limit?: number;
     cursorId?: number | null;
   }) => {
-    const whereClause = cursorId
-      ? and(eq(feedbackReport.userId, userId), gte(feedbackReport.id, cursorId))
-      : eq(feedbackReport.userId, userId);
-
     const items = await db
       .select()
       .from(feedbackReport)
-      .where(whereClause)
+      .where(
+        cursorId
+          ? and(eq(feedbackReport.userId, userId), gte(feedbackReport.id, cursorId))
+          : eq(feedbackReport.userId, userId),
+      )
       .orderBy(desc(feedbackReport.id))
       .limit(limit + 1);
 
@@ -201,7 +194,7 @@ export const feedbackRepo = {
 
     return {
       data: items,
-      nextCursor: hasMore ? items[items.length - 1].id : null,
+      nextCursor: hasMore ? items[items.length - 1]!.id : null,
     };
   },
 

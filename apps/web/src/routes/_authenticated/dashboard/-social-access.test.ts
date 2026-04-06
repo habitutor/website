@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { shouldRequirePremiumDialog } from "./social-access";
+import { shouldRequirePremiumDialog } from "./-social-access";
 
 describe("shouldRequirePremiumDialog", () => {
   test("requires dialog when social link is missing", () => {

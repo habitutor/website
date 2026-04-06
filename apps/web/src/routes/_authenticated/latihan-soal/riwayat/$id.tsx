@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Container } from "@/components/ui/container";
 import { orpc } from "@/utils/orpc";
-import { PracticeHistoryDetailView } from "./$id-detail-view";
+import { PracticeHistoryDetailView } from "./-$id-detail-view";
 
 export function parsePracticeHistoryParams(rawParams: { id: string }) {
   return { id: Number(rawParams.id) };

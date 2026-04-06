@@ -4,7 +4,7 @@ import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout
 import { ContentFilters, ContentList } from "@/components/classes/content";
 import { SearchInput } from "@/components/ui/search-input";
 import { orpc } from "@/utils/orpc";
-import { ContentDialogs, useContentDialogs } from "./content-dialogs";
+import { ContentDialogs, useContentDialogs } from "./-content-dialogs";
 
 export const Route = createFileRoute("/admin/classes/$shortName/")({
   params: {

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
-import { getPostLoginRedirectPath } from "./auth-routing";
+import { getPostLoginRedirectPath } from "./-auth-routing";
 
 export const Route = createFileRoute("/_auth/login")({
   head: () => ({

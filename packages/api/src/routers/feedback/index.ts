@@ -1,29 +1,7 @@
 import { type } from "arktype";
 import { admin, authed } from "../../index";
 import { feedbackRepo } from "./repo";
-
-const createInputSchema = type({
-  "category?": "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other",
-  description: "string",
-  "path?": "string",
-  "questionId?": "number",
-  "selectedAnswerId?": "number",
-  "attemptId?": "number",
-});
-
-const listByUserInputSchema = type({
-  "limit?": "number",
-  "cursor?": "number",
-});
-
-const listForAdminInputSchema = type({
-  "limit?": "number",
-  "afterCursor?": "number",
-  "beforeCursor?": "number",
-  "status?": "open" | "in_review" | "resolved" | "dismissed",
-  "category?": "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other",
-  "priority?": "p0" | "p1" | "p2" | "p3",
-});
+import { createFeedbackInputSchema, listFeedbackByUserInputSchema, listFeedbackForAdminInputSchema } from "./schema";
 
 const create = authed
   .route({
@@ -31,8 +9,8 @@ const create = authed
     method: "POST",
     tags: ["Feedback"],
   })
-  .input(createInputSchema)
-  .handler(async ({ context, input }) => {
+  .input(createFeedbackInputSchema)
+  .handler(async ({ context, input, errors }) => {
     const feedback = await feedbackRepo.create({
       userId: context.session.user.id,
       path: input.path,
@@ -42,6 +20,7 @@ const create = authed
       selectedAnswerId: input.selectedAnswerId,
       attemptId: input.attemptId,
     });
+    if (!feedback) throw errors.UNPROCESSABLE_CONTENT();
     return { id: feedback.id, message: "Laporan berhasil dikirim!" };
   });
 
@@ -51,7 +30,7 @@ const listMine = authed
     method: "GET",
     tags: ["Feedback"],
   })
-  .input(listByUserInputSchema)
+  .input(listFeedbackByUserInputSchema)
   .handler(async ({ context, input }) => {
     return await feedbackRepo.listByUser({
       userId: context.session.user.id,
@@ -92,7 +71,7 @@ const adminList = admin
     method: "GET",
     tags: ["Admin Feedback"],
   })
-  .input(listForAdminInputSchema)
+  .input(listFeedbackForAdminInputSchema)
   .handler(async ({ input }) => {
     return await feedbackRepo.listForAdmin({
       limit: input.limit,
@@ -111,11 +90,9 @@ const adminFind = admin
     tags: ["Admin Feedback"],
   })
   .input(type({ id: "number" }))
-  .handler(async ({ input }) => {
+  .handler(async ({ input, errors }) => {
     const feedback = await feedbackRepo.getById({ id: input.id });
-    if (!feedback) {
-      throw new Error("Feedback not found");
-    }
+    if (!feedback) throw errors.NOT_FOUND();
     return feedback;
   });
 
@@ -128,8 +105,8 @@ const adminUpdate = admin
   .input(
     type({
       id: "number",
-      status: "open" | "in_review" | "resolved" | "dismissed",
-      "priority?": "p0" | "p1" | "p2" | "p3",
+      status: "'open' | 'in_review' | 'resolved' | 'dismissed'",
+      "priority?": "'p0' | 'p1' | 'p2' | 'p3'",
       "adminNotes?": "string",
     }),
   )

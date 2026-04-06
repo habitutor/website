@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
-import { getPostRegisterRedirectPath } from "./auth-routing";
+import { getPostRegisterRedirectPath } from "./-auth-routing";
 
 export function SignUpForm() {
   const navigate = useNavigate({

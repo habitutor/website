@@ -46,44 +46,46 @@ const start = authed
         message: "Kamu sudah memulai sesi flashcard hari ini.",
       });
 
-    const attempt = await flashcardRepo.createAttempt({
-      db,
-      userId: context.session.user.id,
-      deadline,
-    });
-
-    if (!attempt)
-      throw errors.INTERNAL_SERVER_ERROR({
-        message: "Gagal membuat sesi flashcard.",
+    await db.transaction(async (tx) => {
+      const attempt = await flashcardRepo.createAttempt({
+        db: tx,
+        userId: context.session.user.id,
+        deadline,
       });
 
-    const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
-      db,
-      limit: FLASHCARD_QUESTION_LIMIT,
-    });
+      if (!attempt)
+        throw errors.INTERNAL_SERVER_ERROR({
+          message: "Gagal membuat sesi flashcard.",
+        });
 
-    if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
-      throw errors.NOT_FOUND({
-        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+      const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
+        db: tx,
+        limit: FLASHCARD_QUESTION_LIMIT,
       });
 
-    const availableQuestions = await flashcardRepo.getQuestionsByIds({
-      db,
-      ids: randomQuestionIds.map((q) => q.id),
-    });
+      if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
+        throw errors.NOT_FOUND({
+          message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+        });
 
-    if (availableQuestions.length < FLASHCARD_QUESTION_LIMIT)
-      throw errors.NOT_FOUND({
-        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+      const availableQuestions = await flashcardRepo.getQuestionsByIds({
+        db: tx,
+        ids: randomQuestionIds.map((q) => q.id),
       });
 
-    await flashcardRepo.insertQuestionAnswers({
-      db,
-      answers: availableQuestions.map((q) => ({
-        attemptId: attempt.id,
-        assignedDate: today,
-        questionId: q.id,
-      })),
+      if (availableQuestions.length < FLASHCARD_QUESTION_LIMIT)
+        throw errors.NOT_FOUND({
+          message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+        });
+
+      await flashcardRepo.insertQuestionAnswers({
+        db: tx,
+        answers: availableQuestions.map((q) => ({
+          attemptId: attempt.id,
+          assignedDate: today,
+          questionId: q.id,
+        })),
+      });
     });
 
     return "Sukses memulai sesi flashcard!";

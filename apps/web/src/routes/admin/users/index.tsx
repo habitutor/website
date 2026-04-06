@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { orpc } from "@/utils/orpc";
-import { CursorPagination } from "./-components/pagination";
+import { CursorPagination } from "@/components/admin/pagination";
 import { UserRow } from "./-components/user-row";
 
 const usersSearchSchema = type({

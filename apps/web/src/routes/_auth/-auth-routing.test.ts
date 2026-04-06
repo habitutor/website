@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { getPostLoginRedirectPath, getPostRegisterRedirectPath } from "./auth-routing";
+import { getPostLoginRedirectPath, getPostRegisterRedirectPath } from "./-auth-routing";
 
 describe("getPostLoginRedirectPath", () => {
   test("routes admin to admin dashboard", () => {

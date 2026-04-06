@@ -2,6 +2,7 @@
 
 import {
   BooksIcon,
+  ChatCircleIcon,
   House,
   Megaphone,
   Package,
@@ -60,6 +61,11 @@ const adminNavLinks = [
     name: "Questions",
     to: "/admin/questions" as const,
     icon: Question,
+  },
+  {
+    name: "Feedback",
+    to: "/admin/feedback" as const,
+    icon: ChatCircleIcon,
   },
   {
     name: "Classes",
