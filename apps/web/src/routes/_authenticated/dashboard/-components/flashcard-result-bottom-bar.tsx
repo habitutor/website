@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 import { FlashcardResultPremiumDialog } from "./flashcard-result-premium-dialog";
+import { Button } from "@/components/ui/button";
 
 export function FlashcardResultBottomBar() {
   const queryClient = useQueryClient();
@@ -38,20 +39,13 @@ export function FlashcardResultBottomBar() {
     <>
       {showPremiumAlert && <FlashcardResultPremiumDialog onClose={() => setShowPremiumAlert(false)} />}
 
-      <div className="fixed right-0 bottom-0 left-0 z-50 flex h-22.75 items-center justify-end gap-4 border-t border-neutral-500 bg-white px-6">
-        <Link
-          to="/dashboard"
-          className="flex h-10.5 w-50 items-center justify-center rounded-lg border border-primary-300 text-[15px] text-primary-300 no-underline transition-colors hover:bg-blue-50"
-        >
-          Selesaikan
-        </Link>
-        <button
-          onClick={() => startMutation.mutate({})}
-          disabled={startMutation.isPending}
-          className="h-10.5 w-50 rounded-lg border border-primary-300 bg-primary-300 text-[15px] text-white transition-colors hover:bg-[#2d4082] disabled:cursor-not-allowed disabled:opacity-60"
-        >
+      <div className="fixed right-0 bottom-0 left-0 z-50 flex h-18 items-center justify-end gap-4 border-t border-neutral-200 bg-white px-6">
+        <Button asChild variant="secondaryOutline" size="lg">
+          <Link to="/dashboard">Selesaikan</Link>
+        </Button>
+        <Button onClick={() => startMutation.mutate({})} isPending={startMutation.isPending} size="lg">
           {startMutation.isPending ? "Memulai..." : "Main Lagi!"}
-        </button>
+        </Button>
       </div>
     </>
   );
