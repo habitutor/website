@@ -113,6 +113,12 @@ const get = authed
     const assignedQuestionsRaw = await flashcardRepo.getUnansweredQuestions({ db, attemptId: attempt.id });
     const totalQuestionsCount = await flashcardRepo.countQuestionsForAttempt({ db, attemptId: attempt.id });
 
+    const isOngoingAttempt = !attempt.submittedAt;
+    const isExpiredOngoingAttempt =
+      isOngoingAttempt &&
+      isAttemptExpired({ deadline: attempt.deadline, now: Date.now(), gracePeriodSeconds: GRACE_PERIOD_SECONDS });
+    const isFinishedWithoutSubmit = isOngoingAttempt && assignedQuestionsRaw.length === 0;
+
     const assignedQuestions = assignedQuestionsRaw.map((aq) => ({
       ...aq,
       question: {
@@ -125,7 +131,7 @@ const get = authed
       },
     }));
 
-    status = attempt.submittedAt ? "submitted" : "ongoing";
+    status = attempt.submittedAt || isExpiredOngoingAttempt || isFinishedWithoutSubmit ? "submitted" : "ongoing";
 
     return {
       ...attempt,
