@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { ArrowLeftIcon, CheckIcon, CopyIcon, SpinnerIcon } from "@phosphor-icons/react";
@@ -122,7 +122,7 @@ function SaveRow({ onSave }: { onSave: () => void | Promise<void> }) {
 export default function ProfilePage() {
   const { session } = useRouteContext({ from: "/_authenticated" });
   const queryClient = useQueryClient();
-  const profileQuery = useQuery(orpc.profile.me.queryOptions());
+  const profile = session?.user;
   const [tab, setTab] = useState<"data" | "customize">("data");
   const [formData, setFormData] = useState({
     email: session?.user.email,
@@ -132,28 +132,26 @@ export default function ProfilePage() {
   const [customize, setCustomize] = useState({ kampus: "", jurusan: "" });
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarId(session?.user.image));
   const [copied, setCopied] = useState(false);
-  const referralCode = profileQuery.data?.referralCode ?? null;
+  const referralCode = profile?.referralCode ?? null;
   const displayReferralCode = referralCode ?? "Belum punya kode";
   const hasReferralCode = Boolean(referralCode);
-  const referralCount = profileQuery.data?.referralUsage ?? 0;
+  const referralCount = profile?.referralUsage ?? 0;
 
-  // Sync phone from API once loaded
-  const profileData = profileQuery.data;
   useEffect(() => {
-    if (profileData) {
+    if (profile) {
       setFormData((prev) => ({
         ...prev,
-        name: profileData.name,
-        phone: profileData.phoneNumber ?? "",
+        name: profile.name,
+        phone: profile.phoneNumber ?? "",
       }));
       setCustomize((prev) => ({
         ...prev,
-        kampus: profileData.dreamCampus ?? "",
-        jurusan: profileData.dreamMajor ?? "",
+        kampus: profile.dreamCampus ?? "",
+        jurusan: profile.dreamMajor ?? "",
       }));
-      setSelectedAvatar(getAvatarId(profileData.image));
+      setSelectedAvatar(getAvatarId(profile.image));
     }
-  }, [profileData]);
+  }, [profile]);
 
   const avatarMutation = useMutation(orpc.profile.avatar.update.mutationOptions());
   const profileMutation = useMutation(orpc.profile.update.mutationOptions());
@@ -188,7 +186,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     const nextAvatarId = selectedAvatar;
-    const currentAvatarId = getAvatarId(profileData?.image ?? session?.user.image);
+    const currentAvatarId = getAvatarId(profile?.image ?? session?.user.image);
 
     const saveAvatar = async () => {
       if (nextAvatarId === currentAvatarId) {

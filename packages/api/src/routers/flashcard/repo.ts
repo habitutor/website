@@ -325,12 +325,6 @@ export const flashcardRepo = {
       .limit(limit);
   },
 
-  getUserTotalScore: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
-    const [row] = await db.select({ totalScore: user.totalScore }).from(user).where(eq(user.id, userId)).limit(1);
-
-    return row?.totalScore ?? 0;
-  },
-
   getLeaderboardWithCurrentUser: async ({
     db = defaultDb,
     currentUserId,

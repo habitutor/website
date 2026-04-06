@@ -329,26 +329,6 @@ const history = premium
     return flashcardRepo.getUserHistory({ db, userId: context.session.user.id });
   });
 
-const totalScore = authed
-  .route({
-    path: "/flashcard/total-score",
-    method: "POST",
-    tags: ["Flashcard"],
-  })
-  .output(
-    type({
-      totalScore: "number",
-    }),
-  )
-  .handler(async ({ context }) => {
-    const totalScore = await flashcardRepo.getUserTotalScore({
-      db,
-      userId: context.session.user.id,
-    });
-
-    return { totalScore };
-  });
-
 const leaderboard = authed
   .route({
     path: "/flashcard/leaderboard",
@@ -390,13 +370,11 @@ export const flashcardRouter = {
   start,
   get,
   save,
-  totalScore,
   // Legacy aliases kept for compatibility
   session: get,
   submit,
   answer: save,
   result,
   history,
-  score: totalScore,
   leaderboard,
 };

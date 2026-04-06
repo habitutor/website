@@ -1,6 +1,6 @@
 import { isDefinedError } from "@orpc/client";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -28,8 +28,7 @@ export function FlashcardStartCard() {
       },
     }),
   );
-  const { data: totalScoreData } = useQuery(orpc.flashcard.score.queryOptions());
-  const totalScore = totalScoreData?.totalScore ?? 0;
+  const totalScore = session?.user.totalScore ?? 0;
 
   useEffect(() => {
     if (!session) {

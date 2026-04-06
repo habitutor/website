@@ -37,8 +37,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 function RouteComponent() {
   const { session } = Route.useRouteContext();
   const { data, error } = useQuery(orpc.social.get.queryOptions());
-  const { data: profile } = useQuery(orpc.profile.me.queryOptions());
-  useQuery(orpc.dashboard.content.queryOptions());
+  const profile = session?.user;
 
   const [showDialog, setShowDialog] = useState(false);
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
