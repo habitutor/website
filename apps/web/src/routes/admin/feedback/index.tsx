@@ -1,6 +1,6 @@
 import { ChatCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { CursorPagination } from "@/components/admin/pagination";
@@ -147,6 +147,7 @@ function FeedbackTable({
   }>;
   isPending: boolean;
 }) {
+  const navigate = useNavigate();
   if (!isPending && feedbacks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
@@ -168,7 +169,6 @@ function FeedbackTable({
             <TableHead className="w-24">Priority</TableHead>
             <TableHead className="w-28">Status</TableHead>
             <TableHead className="w-32">Created</TableHead>
-            <TableHead className="w-20 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -176,12 +176,16 @@ function FeedbackTable({
             <FeedbackTableSkeleton />
           ) : (
             feedbacks.map((fb) => (
-              <TableRow key={fb.id}>
+              <TableRow
+                key={fb.id}
+                className="group cursor-pointer"
+                onClick={() => navigate({ to: "/admin/feedback/$id", params: { id: fb.id.toString() } })}
+              >
                 <TableCell className="font-mono text-xs">{fb.id}</TableCell>
                 <TableCell>
                   <CategoryBadge category={fb.category} />
                 </TableCell>
-                <TableCell className="max-w-xs truncate text-sm">{fb.description}</TableCell>
+                <TableCell className="max-w-xs truncate text-sm group-hover:underline">{fb.description}</TableCell>
                 <TableCell>
                   <PriorityBadge priority={fb.priority} />
                 </TableCell>
@@ -190,13 +194,6 @@ function FeedbackTable({
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
                   {new Date(fb.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/admin/feedback/$id" params={{ id: fb.id.toString() }}>
-                      View
-                    </Link>
-                  </Button>
                 </TableCell>
               </TableRow>
             ))
@@ -230,9 +227,6 @@ function FeedbackTableSkeleton() {
           </TableCell>
           <TableCell>
             <Skeleton className="h-5 w-24" />
-          </TableCell>
-          <TableCell className="text-right">
-            <Skeleton className="ml-auto h-8 w-16" />
           </TableCell>
         </TableRow>
       ))}

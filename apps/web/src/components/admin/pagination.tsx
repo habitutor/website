@@ -1,4 +1,4 @@
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 
 interface CursorPaginationProps {
@@ -25,13 +25,13 @@ export function CursorPagination({
         onClick={onPrevious}
         className="h-9 px-4"
       >
-        <CaretLeft className="mr-2 size-4" />
+        <CaretLeftIcon className="mr-2 size-4" />
         Previous
       </Button>
 
       <Button variant="outline" size="sm" disabled={!hasNext || isLoading} onClick={onNext} className="h-9 px-4">
         Next
-        <CaretRight className="ml-2 size-4" />
+        <CaretRightIcon className="ml-2 size-4" />
       </Button>
     </div>
   );

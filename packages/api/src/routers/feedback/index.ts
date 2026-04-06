@@ -105,7 +105,7 @@ const adminUpdate = admin
   .input(
     type({
       id: "number",
-      status: "'open' | 'in_review' | 'resolved' | 'dismissed'",
+      "status?": "'open' | 'in_review' | 'resolved' | 'dismissed'",
       "priority?": "'p0' | 'p1' | 'p2' | 'p3'",
       "adminNotes?": "string",
     }),
@@ -116,7 +116,7 @@ const adminUpdate = admin
       status: input.status,
       priority: input.priority,
       adminNotes: input.adminNotes,
-      resolvedBy: context.session.user.id,
+      ...(input.status && { resolvedBy: context.session.user.id }),
     });
     return { success: true };
   });

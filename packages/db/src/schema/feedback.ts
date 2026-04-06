@@ -2,6 +2,8 @@ import { pgEnum, pgTable, timestamp, text, integer, index } from "drizzle-orm/pg
 
 export const feedbackStatusEnum = pgEnum("feedback_status", ["open", "in_review", "resolved", "dismissed"]);
 
+export type FeedbackStatus = (typeof feedbackStatusEnum.enumValues)[number];
+
 export const feedbackCategoryEnum = pgEnum("feedback_category", [
   "wrong_answer",
   "bug_in_question",

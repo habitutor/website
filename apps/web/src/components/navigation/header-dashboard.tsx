@@ -113,7 +113,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link to="/profile">Profile</Link>

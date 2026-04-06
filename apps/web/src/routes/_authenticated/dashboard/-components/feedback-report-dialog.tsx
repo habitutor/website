@@ -1,4 +1,3 @@
-import { FlagIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -6,17 +5,18 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
 
 type FeedbackCategory = "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other";
 
-const categoryLabels: Record<FeedbackCategory, { label: string; icon: string }> = {
-  wrong_answer: { label: "Jawaban Salah", icon: "✗" },
-  bug_in_question: { label: "Error di Soal", icon: "🐛" },
-  unclear_discussion: { label: "Pembahasan Kurang Jelas", icon: "❓" },
-  missing_option: { label: "Opsi Jawaban Kurang", icon: "➕" },
-  other: { label: "Lainnya", icon: "📝" },
+const categoryLabels: Record<FeedbackCategory, string> = {
+  wrong_answer: "Jawaban Salah",
+  bug_in_question: "Error di Soal",
+  unclear_discussion: "Pembahasan Kurang Jelas",
+  missing_option: "Opsi Jawaban Kurang",
+  other: "Lainnya",
 };
 
 interface FeedbackReportDialogProps {
@@ -30,7 +30,6 @@ interface FeedbackReportDialogProps {
 
 function FeedbackForm({
   onSubmit,
-  onCancel,
   isSubmitting,
   category,
   setCategory,
@@ -39,7 +38,6 @@ function FeedbackForm({
   className,
 }: {
   onSubmit: () => void;
-  onCancel: () => void;
   isSubmitting: boolean;
   category: FeedbackCategory;
   setCategory: (cat: FeedbackCategory) => void;
@@ -53,26 +51,18 @@ function FeedbackForm({
         {/* Category Picker */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Kategori Masalah</label>
-          <div className="grid grid-cols-2 gap-2">
-            {(Object.keys(categoryLabels) as FeedbackCategory[]).map((cat) => {
-              const isSelected = category === cat;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategory(cat)}
-                  className={`flex items-center gap-2 rounded-lg border p-3 text-sm transition-all ${
-                    isSelected
-                      ? "bg-primary-50 text-primary-700 border-primary-300"
-                      : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <span className="text-lg">{categoryLabels[cat].icon}</span>
-                  <span className="text-left">{categoryLabels[cat].label}</span>
-                </button>
-              );
-            })}
-          </div>
+          <Select value={category} onValueChange={(val) => setCategory(val as FeedbackCategory)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Pilih kategori" />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.keys(categoryLabels) as FeedbackCategory[]).map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {categoryLabels[cat]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Description */}
@@ -86,18 +76,28 @@ function FeedbackForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             minLength={10}
+            maxLength={250}
             rows={4}
             className="resize-none"
           />
-          <p className="text-xs text-gray-500">Minimal 10 karakter</p>
+          <p
+            className={`text-xs ${description.length > 0 && (description.length < 10 || description.length > 250) ? "text-red-500" : "text-gray-500"}`}
+          >
+            {description.length}/250 karakter
+          </p>
         </div>
+
+        <p className="text-xs text-muted-foreground">
+          Laporan kamu sangat membantu kami untuk memperbaiki kualitas soal dan pembahasan. Setiap masukan akan ditinjau
+          oleh tim kami.
+        </p>
       </div>
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Batal
-        </Button>
-        <Button onClick={onSubmit} disabled={isSubmitting || description.trim().length < 10}>
+        <Button
+          onClick={onSubmit}
+          disabled={isSubmitting || description.trim().length < 10 || description.length > 250}
+        >
           {isSubmitting ? "Mengirim..." : "Kirim Laporan"}
         </Button>
       </div>
@@ -140,6 +140,11 @@ export function FeedbackReportDialog({
       return;
     }
 
+    if (description.length > 250) {
+      toast.error("Deskripsi tidak boleh lebih dari 250 karakter.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await mutation.mutateAsync({
@@ -168,17 +173,13 @@ export function FeedbackReportDialog({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FlagIcon className="size-5 text-orange-500" />
-              Laporkan Masalah Soal
-            </DialogTitle>
+            <DialogTitle className="">Laporkan Masalah Soal</DialogTitle>
             <DialogDescription>
               Bantu kami meningkatkan kualitas soal dengan melaporkan masalah yang kamu temukan.
             </DialogDescription>
           </DialogHeader>
           <FeedbackForm
             onSubmit={handleSubmit}
-            onCancel={() => handleOpenChange(false)}
             isSubmitting={isSubmitting}
             category={category}
             setCategory={setCategory}
@@ -194,17 +195,13 @@ export function FeedbackReportDialog({
     <Drawer open={open} onOpenChange={handleOpenChange}>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle className="flex items-center gap-2">
-            <FlagIcon className="size-5 text-orange-500" />
-            Laporkan Masalah Soal
-          </DrawerTitle>
+          <DrawerTitle className="">Laporkan Masalah Soal</DrawerTitle>
           <DrawerDescription>
             Bantu kami meningkatkan kualitas soal dengan melaporkan masalah yang kamu temukan.
           </DrawerDescription>
         </DrawerHeader>
         <FeedbackForm
           onSubmit={handleSubmit}
-          onCancel={() => handleOpenChange(false)}
           isSubmitting={isSubmitting}
           category={category}
           setCategory={setCategory}
