@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 
 export const DashboardCard = ({ className, ...props }: ComponentProps<"section">) => (
-  <section className={cn("rounded-2xl border bg-neutral-100 shadow-sm p-4 md:px-8 md:py-6", className)} {...props} />
+  <section className={cn("rounded-2xl border bg-neutral-100 p-4 shadow-sm md:px-8 md:py-6", className)} {...props} />
 );
 
 export const DashboardCardTitle = ({ className, ...props }: ComponentProps<"h2">) => (

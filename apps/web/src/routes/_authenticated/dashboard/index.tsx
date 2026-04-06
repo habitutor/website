@@ -1,18 +1,11 @@
 import { ArrowCircleRightIcon, ArrowRightIcon, XIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useCallback, useState } from "react";
 import { MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { NotPremiumDialog } from "@/components/ui/not-premium-dialog";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
@@ -59,22 +52,7 @@ function RouteComponent() {
 
   return (
     <>
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ups, belum premium!</DialogTitle>
-            <DialogDescription>Untuk bergabung bersama grup whatsapp, kamu perlu Premium</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>
-              Cancel
-            </Button>
-            <Link to="/premium">
-              <Button>Continue</Button>
-            </Link>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <NotPremiumDialog open={showDialog} onOpenChange={setShowDialog} />
 
       <PWATutorialDialog open={pwaDialog} onOpenChange={setPwaDialog} />
 

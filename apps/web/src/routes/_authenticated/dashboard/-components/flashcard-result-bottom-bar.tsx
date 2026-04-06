@@ -3,9 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { orpc } from "@/utils/orpc";
-import { FlashcardResultPremiumDialog } from "./flashcard-result-premium-dialog";
+import { NotPremiumDialog } from "@/components/ui/not-premium-dialog";
 import { Button } from "@/components/ui/button";
+import { orpc } from "@/utils/orpc";
 
 export function FlashcardResultBottomBar() {
   const queryClient = useQueryClient();
@@ -37,7 +37,7 @@ export function FlashcardResultBottomBar() {
 
   return (
     <>
-      {showPremiumAlert && <FlashcardResultPremiumDialog onClose={() => setShowPremiumAlert(false)} />}
+      <NotPremiumDialog open={showPremiumAlert} onOpenChange={setShowPremiumAlert} />
 
       <div className="fixed right-0 bottom-0 left-0 z-50 flex h-18 items-center justify-end gap-4 border-t border-neutral-200 bg-white px-6">
         <Button asChild variant="secondaryOutline" size="lg">

@@ -211,7 +211,13 @@ export default function Loader() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-2 p-8">
-      <Image src="/logo.svg" alt="Habitutor Logo" width={100} height={100} className="pointer-events-none animate-pulse select-none" />
+      <Image
+        src="/logo.svg"
+        alt="Habitutor Logo"
+        width={100}
+        height={100}
+        className="pointer-events-none animate-pulse select-none"
+      />
       <p className="text-sm font-medium text-muted-foreground">
         {text}
         <AnimatedDots />

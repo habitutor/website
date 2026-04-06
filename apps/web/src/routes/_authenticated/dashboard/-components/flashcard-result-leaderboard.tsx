@@ -43,7 +43,7 @@ function PodiumItem({ player }: { player: LeaderboardEntry }) {
 
   return (
     <div
-      className="flex z-20 flex-col items-center"
+      className="z-20 flex flex-col items-center"
       style={{
         flex: "0 0 auto",
         width: player.rank === 1 ? cfg.avatarW + 24 : cfg.avatarW + 16,
@@ -112,13 +112,15 @@ function LeaderboardPodium({ top3 }: { top3: LeaderboardEntry[] }) {
 function LeaderboardRow({ entry, index }: { entry: LeaderboardEntry; index: number }) {
   return (
     <div
-      className={`flex items-center gap-3 rounded-[5px] border px-4 py-3 ${entry.isCurrentUser ? "border-tertiary-200 bg-tertiary-100" : "border-neutral-300 bg-white"
-        }`}
+      className={`flex items-center gap-3 rounded-[5px] border px-4 py-3 ${
+        entry.isCurrentUser ? "border-tertiary-200 bg-tertiary-100" : "border-neutral-300 bg-white"
+      }`}
       style={{ animation: `fadeRow 0.45s cubic-bezier(0.22,1,0.36,1) ${0.55 + index * 0.07}s both` }}
     >
       <div
-        className={`flex h-9.25 w-10.25 shrink-0 items-center justify-center rounded-[5px] border ${entry.isCurrentUser ? "border-tertiary-200 bg-background" : "border-neutral-300 bg-white"
-          }`}
+        className={`flex h-9.25 w-10.25 shrink-0 items-center justify-center rounded-[5px] border ${
+          entry.isCurrentUser ? "border-tertiary-200 bg-background" : "border-neutral-300 bg-white"
+        }`}
       >
         <span className="text-[16px] font-medium text-neutral-800">{entry.rank}</span>
       </div>
