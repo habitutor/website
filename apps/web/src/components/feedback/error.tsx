@@ -19,7 +19,7 @@ export default function ErrorComponent({ error }: { error: Error }) {
         </div>
         <h1 className="mt-4 text-3xl font-bold text-neutral-1000">Terjadi Kesalahan</h1>
         <p className="mt-2 max-w-md text-neutral-600">
-          Maaf, sepertinya terjadi masalah saat memuat halaman ini. Silakan coba lagi nanti atau hubungi bantuan jika
+          Maaf, sepertinya terjadi masalah saat memuat halaman ini. Silakan <strong>coba lagi</strong> atau hubungi bantuan jika
           masalah berlanjut.
         </p>
         {process.env.NODE_ENV === "development" && (
