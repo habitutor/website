@@ -67,11 +67,17 @@ function QuestionEditPage() {
 
   if (Number.isNaN(questionId)) throw notFound();
 
-  if (isLoading) {
-    return (
-      <AdminContainer>
-        <AdminHeader title="Edit Question" description="Update question content and answer options" />
+  if (!isLoading && !question) throw notFound();
 
+  return (
+    <AdminContainer>
+      <AdminHeader
+        title="Edit Question"
+        description="Update question content and answer options"
+        backTo="/admin/questions"
+      />
+
+      {isLoading ? (
         <Card className="overflow-hidden rounded-xl py-0 shadow-sm">
           <CardHeader className="bg-muted/30 py-4">
             <Skeleton className="h-6 w-36" />
@@ -95,33 +101,21 @@ function QuestionEditPage() {
             </div>
           </CardContent>
         </Card>
-      </AdminContainer>
-    );
-  }
-
-  if (!question) throw notFound();
-
-  return (
-    <AdminContainer>
-      <AdminHeader
-        title="Edit Question"
-        description="Update question content and answer options"
-        backTo="/admin/questions"
-      />
-
-      <QuestionForm
-        title="Question Details"
-        initialData={{
-          content: question.content,
-          discussion: question.discussion,
-          isFlashcardQuestion: question.isFlashcardQuestion,
-          answerOptions: getInitialAnswerOptions(question),
-        }}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSubmitting={isSubmitting}
-        submitLabel="Save Changes"
-      />
+      ) : (
+        <QuestionForm
+          title="Question Details"
+          initialData={{
+            content: question!.content,
+            discussion: question!.discussion,
+            isFlashcardQuestion: question!.isFlashcardQuestion,
+            answerOptions: getInitialAnswerOptions(question!),
+          }}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSubmitting={isSubmitting}
+          submitLabel="Save Changes"
+        />
+      )}
     </AdminContainer>
   );
 }
