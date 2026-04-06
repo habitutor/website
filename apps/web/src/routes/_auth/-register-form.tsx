@@ -1,13 +1,14 @@
-import { GoogleLogoIcon } from "@phosphor-icons/react";
+import { GoogleLogoIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
-import { toast } from "sonner";
+import { useState } from "react";
 import Loader from "@/components/feedback/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Item, ItemContent, ItemDescription, ItemMedia } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
@@ -19,6 +20,7 @@ export function SignUpForm() {
   });
   const queryClient = useQueryClient();
   const { isPending } = authClient.useSession();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -30,13 +32,15 @@ export function SignUpForm() {
       referralCode: "",
     },
     onSubmit: async ({ value }) => {
+      setError(null);
+
       if (value.accountPassphrase.length < 8) {
-        toast.error("Password minimal 8 karakter");
+        setError("Password minimal 8 karakter");
         return;
       }
 
       if (value.accountPassphrase !== value.confirmAccountPassphrase) {
-        toast.error("Password harus sama. Silakan cek ulang.");
+        setError("Password harus sama. Silakan cek ulang.");
         return;
       }
 
@@ -52,7 +56,7 @@ export function SignUpForm() {
       );
 
       if (result.error) {
-        toast.error(result.error.message || result.error.statusText || "Gagal mendaftar");
+        setError(result.error.message || result.error.statusText || "Gagal mendaftar");
         return;
       }
 
@@ -77,7 +81,7 @@ export function SignUpForm() {
   }
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative mt-20 w-full max-w-md sm:mt-24">
       <div className="absolute -top-8 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2">
         <Image src="/avatar/login-avatar.webp" alt="Study Avatar" width={120} height={120} />
       </div>
@@ -90,6 +94,7 @@ export function SignUpForm() {
         </div>
 
         <form
+          onChange={() => setError(null)}
           onSubmit={(event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -269,6 +274,17 @@ export function SignUpForm() {
           Daftar dengan Google
         </Button>
       </div>
+
+      {error && (
+        <Item variant="destructive" size="sm" className="mt-3">
+          <ItemMedia variant="destructive">
+            <WarningCircleIcon className="text-destructive" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemDescription className="text-destructive">{error}</ItemDescription>
+          </ItemContent>
+        </Item>
+      )}
 
       <p className="mt-4 text-center text-sm">
         Sudah punya akun?{" "}
