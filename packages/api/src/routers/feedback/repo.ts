@@ -1,7 +1,7 @@
 import { and, asc, count, desc, eq, gt, gte, lt, sql } from "drizzle-orm";
-import type { DrizzleDatabase, FeedbackStatus } from "@habitutor/db";
+import type { DrizzleDatabase } from "@habitutor/db";
 import { db as defaultDb } from "@habitutor/db";
-import { feedbackReport } from "@habitutor/db";
+import { type FeedbackStatus, feedbackReport } from "@habitutor/db/schema/feedback";
 
 export const feedbackRepo = {
   create: async ({

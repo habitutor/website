@@ -1,20 +1,20 @@
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useCallback, useEffect, useState } from "react";
 // --- Icons ---
-import { CornerDownLeftIcon } from "@/components/tiptap-icons";
-import { ExternalLinkIcon } from "@/components/tiptap-icons";
-import { LinkIcon } from "@/components/tiptap-icons";
-import { TrashIcon } from "@/components/tiptap-icons";
+import { CornerDownLeftIcon } from "@/components/tiptap-icons/actions/corner-down-left-icon";
+import { ExternalLinkIcon } from "@/components/tiptap-icons/actions/external-link-icon";
+import { LinkIcon } from "@/components/tiptap-icons/actions/link-icon";
+import { TrashIcon } from "@/components/tiptap-icons/actions/trash-icon";
 // --- Tiptap UI ---
-import type { UseLinkPopoverConfig } from "@/components/tiptap-ui/link-popover";
-import { useLinkPopover } from "@/components/tiptap-ui/link-popover";
+import type { UseLinkPopoverConfig } from "./use-link-popover";
+import { useLinkPopover } from "./use-link-popover";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button";
-import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card";
-import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover";
-import { Separator } from "@/components/tiptap-ui-primitive/separator";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button/button";
+import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card/card";
+import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover/popover";
+import { Separator } from "@/components/tiptap-ui-primitive/separator/separator";
 // --- Hooks ---
 import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";

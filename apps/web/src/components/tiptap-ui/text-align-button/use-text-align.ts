@@ -1,10 +1,10 @@
 import type { ChainedCommands, Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 // --- Icons ---
-import { AlignCenterIcon } from "@/components/tiptap-icons";
-import { AlignJustifyIcon } from "@/components/tiptap-icons";
-import { AlignLeftIcon } from "@/components/tiptap-icons";
-import { AlignRightIcon } from "@/components/tiptap-icons";
+import { AlignCenterIcon } from "@/components/tiptap-icons/alignment/align-center-icon";
+import { AlignJustifyIcon } from "@/components/tiptap-icons/alignment/align-justify-icon";
+import { AlignLeftIcon } from "@/components/tiptap-icons/alignment/align-left-icon";
+import { AlignRightIcon } from "@/components/tiptap-icons/alignment/align-right-icon";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---

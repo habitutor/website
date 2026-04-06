@@ -1,11 +1,11 @@
 import { forwardRef, useCallback } from "react";
 // --- Tiptap UI ---
-import type { UseCodeBlockConfig } from "@/components/tiptap-ui/code-block-button";
-import { CODE_BLOCK_SHORTCUT_KEY, useCodeBlock } from "@/components/tiptap-ui/code-block-button";
-import { Badge } from "@/components/tiptap-ui-primitive/badge";
+import type { UseCodeBlockConfig } from "./use-code-block";
+import { CODE_BLOCK_SHORTCUT_KEY, useCodeBlock } from "./use-code-block";
+import { Badge } from "@/components/tiptap-ui-primitive/badge/badge";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button } from "@/components/tiptap-ui-primitive/button";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button } from "@/components/tiptap-ui-primitive/button/button";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---

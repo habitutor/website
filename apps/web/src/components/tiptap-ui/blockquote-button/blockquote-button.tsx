@@ -1,12 +1,12 @@
 import { forwardRef, useCallback } from "react";
 
 // --- Tiptap UI ---
-import type { UseBlockquoteConfig } from "@/components/tiptap-ui/blockquote-button";
-import { BLOCKQUOTE_SHORTCUT_KEY, useBlockquote } from "@/components/tiptap-ui/blockquote-button";
-import { Badge } from "@/components/tiptap-ui-primitive/badge";
+import type { UseBlockquoteConfig } from "./use-blockquote";
+import { BLOCKQUOTE_SHORTCUT_KEY, useBlockquote } from "./use-blockquote";
+import { Badge } from "@/components/tiptap-ui-primitive/badge/badge";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button } from "@/components/tiptap-ui-primitive/button";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button } from "@/components/tiptap-ui-primitive/button/button";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---

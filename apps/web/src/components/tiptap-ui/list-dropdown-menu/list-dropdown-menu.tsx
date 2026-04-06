@@ -1,20 +1,21 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useState } from "react";
 // --- Icons ---
-import { ChevronDownIcon } from "@/components/tiptap-icons";
+import { ChevronDownIcon } from "@/components/tiptap-icons/actions/chevron-down-icon";
 // --- Tiptap UI ---
-import { ListButton, type ListType } from "@/components/tiptap-ui/list-button";
+import { ListButton } from "@/components/tiptap-ui/list-button/list-button";
+import type { ListType } from "@/components/tiptap-ui/list-button/use-list";
 import { useListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button";
-import { Card, CardBody } from "@/components/tiptap-ui-primitive/card";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button/button";
+import { Card, CardBody } from "@/components/tiptap-ui-primitive/card/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/tiptap-ui-primitive/dropdown-menu";
+} from "@/components/tiptap-ui-primitive/dropdown-menu/dropdown-menu";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 

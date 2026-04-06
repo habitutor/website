@@ -1,7 +1,7 @@
 import type { Editor } from "@tiptap/react";
 import { useEffect, useState } from "react";
 // --- Icons ---
-import { HeadingIcon } from "@/components/tiptap-icons";
+import { HeadingIcon } from "@/components/tiptap-icons/headings/heading-icon";
 // --- Tiptap UI ---
 import {
   canToggle,
@@ -9,7 +9,7 @@ import {
   isHeadingActive,
   type Level,
   shouldShowHeadingButton,
-} from "@/components/tiptap-ui/heading-button";
+} from "@/components/tiptap-ui/heading-button/use-heading";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 

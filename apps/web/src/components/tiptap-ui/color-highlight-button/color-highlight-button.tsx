@@ -1,11 +1,11 @@
 import { forwardRef, useCallback, useMemo } from "react";
 // --- Tiptap UI ---
-import type { UseColorHighlightConfig } from "@/components/tiptap-ui/color-highlight-button";
-import { COLOR_HIGHLIGHT_SHORTCUT_KEY, useColorHighlight } from "@/components/tiptap-ui/color-highlight-button";
-import { Badge } from "@/components/tiptap-ui-primitive/badge";
+import type { UseColorHighlightConfig } from "./use-color-highlight";
+import { COLOR_HIGHLIGHT_SHORTCUT_KEY, useColorHighlight } from "./use-color-highlight";
+import { Badge } from "@/components/tiptap-ui-primitive/badge/badge";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button } from "@/components/tiptap-ui-primitive/button";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button } from "@/components/tiptap-ui-primitive/button/button";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---
