@@ -274,16 +274,29 @@ const notification = pub
     method: "POST",
     tags: ["Payment", "Webhook"],
   })
-  .input(type({} as Record<string, unknown>))
+  .input(
+    type({
+      order_id: "string",
+      "transaction_status?": "string",
+      "fraud_status?": "string",
+    }),
+  )
   .handler(async ({ input }) => {
-    const { order_id } = input as {
-      order_id: string;
-    };
+    const orderId = input.order_id;
 
-    const syncResult = await syncTransactionStatus(order_id);
+    if (
+      input.transaction_status &&
+      (input.transaction_status === "settlement" ||
+        (input.transaction_status === "capture" && input.fraud_status === "accept"))
+    ) {
+      await markTransactionAsSuccess(orderId);
+      return { status: "ok" };
+    }
+
+    const syncResult = await syncTransactionStatus(orderId);
 
     if (!syncResult) {
-      logger.error("Transaction not found", { orderId: order_id });
+      logger.error("Transaction not found", { orderId });
       return { status: "not_found" };
     }
 
