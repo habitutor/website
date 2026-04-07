@@ -76,6 +76,27 @@ export const transactionRepo = {
     return null;
   },
 
+  getLatestPendingSubscriptionByUserId: async ({
+    db = defaultDb,
+    userId,
+  }: {
+    db?: DrizzleDatabase;
+    userId: string;
+  }) => {
+    const [result] = await db
+      .select({
+        id: transaction.id,
+        orderedAt: transaction.orderedAt,
+      })
+      .from(transaction)
+      .innerJoin(product, eq(transaction.productId, product.id))
+      .where(and(eq(transaction.userId, userId), eq(transaction.status, "pending"), eq(product.type, "subscription")))
+      .orderBy(desc(transaction.orderedAt))
+      .limit(1);
+
+    return result ?? null;
+  },
+
   updateTransactionStatus: async ({
     db = defaultDb,
     orderId,
