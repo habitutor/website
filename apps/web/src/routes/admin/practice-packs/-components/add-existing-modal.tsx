@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCursorPagination } from "@/hooks/data/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 
 interface AddExistingQuestionModalProps {
@@ -17,13 +17,14 @@ export function AddExistingQuestionModal({
   existingQuestionIds,
   onClose,
 }: AddExistingQuestionModalProps) {
-  const { cursor, handleNext, handlePrevious, hasPrevious } = useCursorPagination();
+  const [after, setAfter] = useState<string | undefined>(undefined);
+  const [prevCursors, setPrevCursors] = useState<string[]>([]);
   const limit = 10;
   const queryClient = useQueryClient();
 
   const { data, isPending } = useQuery(
     orpc.admin.question.list.queryOptions({
-      input: { limit, cursor: cursor ?? undefined },
+      input: { limit, after },
     }),
   );
 
@@ -47,6 +48,7 @@ export function AddExistingQuestionModal({
 
   const questions = data?.data || [];
   const hasMore = data?.hasMore || false;
+  const hasPrevious = data?.hasPrevious || false;
   const nextCursor = data?.nextCursor || null;
   const availableQuestions = questions.filter((q) => !existingQuestionIds.includes(q.id));
 
@@ -55,6 +57,22 @@ export function AddExistingQuestionModal({
       practicePackId,
       questionId,
     });
+  };
+
+  const handleNext = () => {
+    if (nextCursor) {
+      if (after) setPrevCursors((p) => [...p, after]);
+      setAfter(nextCursor);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (prevCursors.length > 0) {
+      setAfter(prevCursors[prevCursors.length - 1]);
+      setPrevCursors((p) => p.slice(0, -1));
+    } else {
+      setAfter(undefined);
+    }
   };
 
   if (isPending) return null;
@@ -95,12 +113,7 @@ export function AddExistingQuestionModal({
             <Button variant="outline" size="sm" disabled={!hasPrevious || isPending} onClick={handlePrevious}>
               Previous
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!hasMore || isPending}
-              onClick={() => nextCursor && handleNext(nextCursor)}
-            >
+            <Button variant="outline" size="sm" disabled={!hasMore || isPending} onClick={handleNext}>
               Next
             </Button>
           </div>

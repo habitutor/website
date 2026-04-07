@@ -4,8 +4,8 @@ import { ReferralsAdminPage } from "./-components/referrals-admin";
 
 const referralSearchSchema = type({
   "search?": "string",
-  "cursor?": "string",
-  "cursorHistory?": "string[]",
+  "after?": "string",
+  "before?": "string",
 });
 
 export const Route = createFileRoute("/admin/referrals")({
@@ -15,53 +15,39 @@ export const Route = createFileRoute("/admin/referrals")({
 
 function RouteComponent() {
   const navigate = Route.useNavigate();
-  const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
+  const after = Route.useSearch({ select: (s) => s.after ?? null });
+  const before = Route.useSearch({ select: (s) => s.before ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
-  const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const handleSearchChange = (value: string) => {
     navigate({
       search: (prev) => ({
         ...prev,
         search: value || undefined,
-        cursor: undefined,
-        cursorHistory: undefined,
+        after: undefined,
+        before: undefined,
       }),
       replace: true,
     });
   };
 
-  const handleNext = (nextCursor: string) => {
+  const handleNext = (nextAfter: string) => {
     navigate({
-      search: (prev) => ({
-        ...prev,
-        cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
-        cursor: nextCursor,
-      }),
+      search: (prev) => ({ ...prev, after: nextAfter, before: undefined }),
     });
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (prevCursor: string) => {
     navigate({
-      search: (prev) => {
-        const history = prev.cursorHistory ?? [];
-        if (history.length > 0) {
-          return {
-            ...prev,
-            cursor: history[history.length - 1],
-            cursorHistory: history.slice(0, -1),
-          };
-        }
-        return { ...prev, cursor: undefined, cursorHistory: undefined };
-      },
+      search: (prev) => ({ ...prev, before: prevCursor, after: undefined }),
     });
   };
 
   return (
     <ReferralsAdminPage
-      cursor={cursor}
+      after={after}
+      before={before}
       searchParam={searchParam}
-      hasPrevious={hasPrevious}
       onSearchChange={handleSearchChange}
       onNext={handleNext}
       onPrevious={handlePrevious}

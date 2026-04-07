@@ -30,22 +30,24 @@ type ReferralTransactionRow = {
 type ReferralListResponse = {
   data: ReferralTransactionRow[];
   nextCursor: string | null;
+  prevCursor: string | null;
   hasMore: boolean;
+  hasPrevious: boolean;
 };
 
 interface ReferralsAdminPageProps {
-  cursor: string | null;
+  after: string | null;
+  before: string | null;
   searchParam: string;
-  hasPrevious: boolean;
   onSearchChange: (value: string) => void;
-  onNext: (nextCursor: string) => void;
-  onPrevious: () => void;
+  onNext: (nextAfter: string) => void;
+  onPrevious: (prevCursor: string) => void;
 }
 
 export function ReferralsAdminPage({
-  cursor,
+  after,
+  before,
   searchParam,
-  hasPrevious,
   onSearchChange,
   onNext,
   onPrevious,
@@ -64,18 +66,21 @@ export function ReferralsAdminPage({
   }, [debouncedSearch, onSearchChange]);
 
   const { data, isPending } = useQuery<ReferralListResponse>({
-    queryKey: ["admin", "referrals", cursor, searchParam],
+    queryKey: ["admin", "referrals", after, before, searchParam],
     queryFn: async () =>
       client.admin.referrals.listReferralTransactions({
         limit,
-        cursor: cursor ?? undefined,
+        after: after ?? undefined,
+        before: before ?? undefined,
         search: searchParam,
       }) as Promise<ReferralListResponse>,
   });
 
   const rows = data?.data || [];
   const hasMore = data?.hasMore || false;
+  const hasPrevious = data?.hasPrevious || false;
   const nextCursor = data?.nextCursor || null;
+  const prevCursor = data?.prevCursor || null;
 
   return (
     <AdminContainer>
@@ -101,7 +106,7 @@ export function ReferralsAdminPage({
       <CursorPagination
         hasPrevious={hasPrevious}
         hasNext={hasMore}
-        onPrevious={onPrevious}
+        onPrevious={() => prevCursor && onPrevious(prevCursor)}
         onNext={() => nextCursor && onNext(nextCursor)}
         isLoading={isPending}
       />

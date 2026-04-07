@@ -1,22 +1,51 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 export const adminQuestionRepo = {
   list: async ({
     db = defaultDb,
     limit,
-    cursorId,
+    afterId,
+    beforeId,
     search,
     isFlashcardQuestion,
   }: {
     db?: DrizzleDatabase;
     limit: number;
-    cursorId: number | null;
+    afterId: number | null;
+    beforeId: number | null;
     search: string;
     isFlashcardQuestion?: boolean;
   }) => {
+    if (beforeId) {
+      const items = await db
+        .select({
+          id: question.id,
+          content: question.content,
+          contentJson: question.contentJson,
+          discussion: question.discussion,
+          discussionJson: question.discussionJson,
+          isFlashcardQuestion: question.isFlashcardQuestion,
+          packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
+        })
+        .from(question)
+        .where(
+          and(
+            search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
+            sql`${question.id} > ${beforeId}`,
+            isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
+          ),
+        )
+        .leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+        .groupBy(question.id)
+        .orderBy(asc(question.id))
+        .limit(limit + 1);
+
+      return items.reverse();
+    }
+
     return db
       .select({
         id: question.id,
@@ -31,7 +60,7 @@ export const adminQuestionRepo = {
       .where(
         and(
           search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
-          cursorId ? sql`${question.id} < ${cursorId}` : undefined,
+          afterId ? sql`${question.id} < ${afterId}` : undefined,
           isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
         ),
       )

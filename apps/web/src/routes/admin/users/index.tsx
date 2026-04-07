@@ -14,8 +14,8 @@ import { UserRow } from "./-components/user-row";
 
 const usersSearchSchema = type({
   "search?": "string",
-  "cursor?": "string",
-  "cursorHistory?": "string[]",
+  "after?": "string",
+  "before?": "string",
 });
 
 export const Route = createFileRoute("/admin/users/")({
@@ -25,9 +25,9 @@ export const Route = createFileRoute("/admin/users/")({
 
 function UsersPage() {
   const navigate = useNavigate({ from: Route.fullPath });
-  const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
+  const after = Route.useSearch({ select: (s) => s.after ?? undefined });
+  const before = Route.useSearch({ select: (s) => s.before ?? undefined });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
-  const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 500);
@@ -43,8 +43,8 @@ function UsersPage() {
       search: (prev) => ({
         ...prev,
         search: debouncedSearch || undefined,
-        cursor: undefined,
-        cursorHistory: undefined,
+        after: undefined,
+        before: undefined,
       }),
       replace: true,
     });
@@ -52,27 +52,13 @@ function UsersPage() {
 
   const handleNext = (nextCursor: string) => {
     navigate({
-      search: (prev) => ({
-        ...prev,
-        cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
-        cursor: nextCursor,
-      }),
+      search: (prev) => ({ ...prev, after: nextCursor, before: undefined }),
     });
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (prevCursor: string) => {
     navigate({
-      search: (prev) => {
-        const history = prev.cursorHistory ?? [];
-        if (history.length > 0) {
-          return {
-            ...prev,
-            cursor: history[history.length - 1],
-            cursorHistory: history.slice(0, -1),
-          };
-        }
-        return { ...prev, cursor: undefined, cursorHistory: undefined };
-      },
+      search: (prev) => ({ ...prev, before: prevCursor, after: undefined }),
     });
   };
 
@@ -80,7 +66,8 @@ function UsersPage() {
     orpc.admin.users.list.queryOptions({
       input: {
         limit,
-        cursor: cursor ?? undefined,
+        after,
+        before,
         search: searchParam,
       },
     }),
@@ -88,7 +75,9 @@ function UsersPage() {
 
   const users = data?.data || [];
   const hasMore = data?.hasMore || false;
+  const hasPrevious = data?.hasPrevious || false;
   const nextCursor = data?.nextCursor || null;
+  const prevCursor = data?.prevCursor || null;
 
   return (
     <AdminContainer>
@@ -111,7 +100,7 @@ function UsersPage() {
       <CursorPagination
         hasPrevious={hasPrevious}
         hasNext={hasMore}
-        onPrevious={handlePrevious}
+        onPrevious={() => prevCursor && handlePrevious(prevCursor)}
         onNext={() => nextCursor && handleNext(nextCursor)}
         isLoading={isPending}
       />

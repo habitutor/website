@@ -42,9 +42,6 @@ import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './rout
 import { Route as AuthenticatedDashboardFlashcardIndexRouteImport } from './routes/_authenticated/dashboard/flashcard.index'
 import { Route as AuthenticatedClassesShortNameIndexRouteImport } from './routes/_authenticated/classes/$shortName/index'
 import { Route as AdminClassesShortNameContentIdRouteImport } from './routes/admin/classes/$shortName/$contentId'
-import { Route as AuthenticatedPremiumPaymentUnfinishRouteImport } from './routes/_authenticated/premium/payment/unfinish'
-import { Route as AuthenticatedPremiumPaymentFinishRouteImport } from './routes/_authenticated/premium/payment/finish'
-import { Route as AuthenticatedPremiumPaymentErrorRouteImport } from './routes/_authenticated/premium/payment/error'
 import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
 import { Route as AuthenticatedDashboardFlashcardResultRouteImport } from './routes/_authenticated/dashboard/flashcard.result'
 import { Route as AuthenticatedDashboardFlashcardIntroRouteImport } from './routes/_authenticated/dashboard/flashcard.intro'
@@ -231,24 +228,6 @@ const AdminClassesShortNameContentIdRoute =
     path: '/classes/$shortName/$contentId',
     getParentRoute: () => AdminRoute,
   } as any)
-const AuthenticatedPremiumPaymentUnfinishRoute =
-  AuthenticatedPremiumPaymentUnfinishRouteImport.update({
-    id: '/premium/payment/unfinish',
-    path: '/premium/payment/unfinish',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedPremiumPaymentFinishRoute =
-  AuthenticatedPremiumPaymentFinishRouteImport.update({
-    id: '/premium/payment/finish',
-    path: '/premium/payment/finish',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedPremiumPaymentErrorRoute =
-  AuthenticatedPremiumPaymentErrorRouteImport.update({
-    id: '/premium/payment/error',
-    path: '/premium/payment/error',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedLatihanSoalRiwayatIdRoute =
   AuthenticatedLatihanSoalRiwayatIdRouteImport.update({
     id: '/latihan-soal/riwayat/$id',
@@ -341,9 +320,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
-  '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
-  '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
-  '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/$shortName/$contentId': typeof AdminClassesShortNameContentIdRouteWithChildren
   '/classes/$shortName/': typeof AuthenticatedClassesShortNameIndexRoute
   '/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
@@ -386,9 +362,6 @@ export interface FileRoutesByTo {
   '/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
-  '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
-  '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
-  '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/$shortName/$contentId': typeof AdminClassesShortNameContentIdRouteWithChildren
   '/classes/$shortName': typeof AuthenticatedClassesShortNameIndexRoute
   '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
@@ -435,9 +408,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/_authenticated/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
   '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
-  '/_authenticated/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
-  '/_authenticated/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
-  '/_authenticated/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/$shortName/$contentId': typeof AdminClassesShortNameContentIdRouteWithChildren
   '/_authenticated/classes/$shortName/': typeof AuthenticatedClassesShortNameIndexRoute
   '/_authenticated/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
@@ -483,9 +453,6 @@ export interface FileRouteTypes {
     | '/dashboard/flashcard/intro'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
-    | '/premium/payment/error'
-    | '/premium/payment/finish'
-    | '/premium/payment/unfinish'
     | '/admin/classes/$shortName/$contentId'
     | '/classes/$shortName/'
     | '/dashboard/flashcard/'
@@ -528,9 +495,6 @@ export interface FileRouteTypes {
     | '/dashboard/flashcard/intro'
     | '/dashboard/flashcard/result'
     | '/latihan-soal/riwayat/$id'
-    | '/premium/payment/error'
-    | '/premium/payment/finish'
-    | '/premium/payment/unfinish'
     | '/admin/classes/$shortName/$contentId'
     | '/classes/$shortName'
     | '/dashboard/flashcard'
@@ -576,9 +540,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/flashcard/intro'
     | '/_authenticated/dashboard/flashcard/result'
     | '/_authenticated/latihan-soal/riwayat/$id'
-    | '/_authenticated/premium/payment/error'
-    | '/_authenticated/premium/payment/finish'
-    | '/_authenticated/premium/payment/unfinish'
     | '/admin/classes/$shortName/$contentId'
     | '/_authenticated/classes/$shortName/'
     | '/_authenticated/dashboard/flashcard/'
@@ -833,27 +794,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClassesShortNameContentIdRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_authenticated/premium/payment/unfinish': {
-      id: '/_authenticated/premium/payment/unfinish'
-      path: '/premium/payment/unfinish'
-      fullPath: '/premium/payment/unfinish'
-      preLoaderRoute: typeof AuthenticatedPremiumPaymentUnfinishRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/premium/payment/finish': {
-      id: '/_authenticated/premium/payment/finish'
-      path: '/premium/payment/finish'
-      fullPath: '/premium/payment/finish'
-      preLoaderRoute: typeof AuthenticatedPremiumPaymentFinishRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/premium/payment/error': {
-      id: '/_authenticated/premium/payment/error'
-      path: '/premium/payment/error'
-      fullPath: '/premium/payment/error'
-      preLoaderRoute: typeof AuthenticatedPremiumPaymentErrorRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/latihan-soal/riwayat/$id': {
       id: '/_authenticated/latihan-soal/riwayat/$id'
       path: '/latihan-soal/riwayat/$id'
@@ -975,9 +915,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardFlashcardIntroRoute: typeof AuthenticatedDashboardFlashcardIntroRoute
   AuthenticatedDashboardFlashcardResultRoute: typeof AuthenticatedDashboardFlashcardResultRoute
   AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
-  AuthenticatedPremiumPaymentErrorRoute: typeof AuthenticatedPremiumPaymentErrorRoute
-  AuthenticatedPremiumPaymentFinishRoute: typeof AuthenticatedPremiumPaymentFinishRoute
-  AuthenticatedPremiumPaymentUnfinishRoute: typeof AuthenticatedPremiumPaymentUnfinishRoute
   AuthenticatedClassesShortNameIndexRoute: typeof AuthenticatedClassesShortNameIndexRoute
   AuthenticatedDashboardFlashcardIndexRoute: typeof AuthenticatedDashboardFlashcardIndexRoute
   AuthenticatedLatihanSoalRiwayatIndexRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -998,11 +935,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedDashboardFlashcardResultRoute,
   AuthenticatedLatihanSoalRiwayatIdRoute:
     AuthenticatedLatihanSoalRiwayatIdRoute,
-  AuthenticatedPremiumPaymentErrorRoute: AuthenticatedPremiumPaymentErrorRoute,
-  AuthenticatedPremiumPaymentFinishRoute:
-    AuthenticatedPremiumPaymentFinishRoute,
-  AuthenticatedPremiumPaymentUnfinishRoute:
-    AuthenticatedPremiumPaymentUnfinishRoute,
   AuthenticatedClassesShortNameIndexRoute:
     AuthenticatedClassesShortNameIndexRoute,
   AuthenticatedDashboardFlashcardIndexRoute:

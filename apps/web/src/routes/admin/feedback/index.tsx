@@ -42,8 +42,8 @@ const PRIORITY_OPTIONS = [
 function FeedbackListPage() {
   const navigate = useNavigate({ from: Route.fullPath });
   const search = Route.useSearch();
-  const afterCursor = search.after ?? undefined;
-  const beforeCursor = search.before ?? undefined;
+  const after = search.after ?? undefined;
+  const before = search.before ?? undefined;
   const statusFilter = search.status ?? undefined;
   const priorityFilter = search.priority ?? undefined;
   const limit = 20;
@@ -52,8 +52,8 @@ function FeedbackListPage() {
     orpc.admin.feedback.list.queryOptions({
       input: {
         limit,
-        afterCursor,
-        beforeCursor,
+        after,
+        before,
         status: statusFilter,
         category: search.category ?? undefined,
         priority: priorityFilter,

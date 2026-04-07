@@ -1,7 +1,13 @@
 import { type } from "arktype";
 import { admin, authed } from "../../index";
 import { feedbackRepo } from "./repo";
-import { createFeedbackInputSchema, listFeedbackByUserInputSchema, listFeedbackForAdminInputSchema } from "./schema";
+import {
+  createFeedbackInputSchema,
+  listFeedbackByUserInputSchema,
+  listFeedbackForAdminInputSchema,
+  priority,
+  status,
+} from "./model";
 
 const create = authed
   .route({
@@ -35,7 +41,7 @@ const listMine = authed
     return await feedbackRepo.listByUser({
       userId: context.session.user.id,
       limit: input.limit,
-      cursorId: input.cursor,
+      afterId: input.after,
     });
   });
 
@@ -75,8 +81,8 @@ const adminList = admin
   .handler(async ({ input }) => {
     return await feedbackRepo.listForAdmin({
       limit: input.limit,
-      afterCursor: input.afterCursor,
-      beforeCursor: input.beforeCursor,
+      after: input.after,
+      before: input.before,
       status: input.status,
       category: input.category,
       priority: input.priority,
@@ -105,8 +111,8 @@ const adminUpdate = admin
   .input(
     type({
       id: "number",
-      "status?": "'open' | 'in_review' | 'resolved' | 'dismissed'",
-      "priority?": "'p0' | 'p1' | 'p2' | 'p3'",
+      "status?": status,
+      "priority?": priority,
       "adminNotes?": "string",
     }),
   )

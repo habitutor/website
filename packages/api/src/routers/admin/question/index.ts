@@ -4,22 +4,6 @@ import { admin } from "../../../index";
 import { convertToTiptap } from "../../../lib/tiptap";
 import { adminQuestionRepo } from "./repo";
 
-interface CursorData {
-  id: number;
-}
-
-function encodeCursor(data: CursorData): string {
-  return Buffer.from(JSON.stringify(data)).toString("base64url");
-}
-
-function decodeCursor(cursor: string): CursorData {
-  try {
-    return JSON.parse(Buffer.from(cursor, "base64url").toString());
-  } catch {
-    throw new ORPCError("BAD_REQUEST", { message: "Invalid cursor" });
-  }
-}
-
 const list = admin
   .route({
     path: "/admin/questions",
@@ -29,49 +13,72 @@ const list = admin
   .input(
     type({
       "limit?": "number",
-      "cursor?": "string",
+      "after?": "string",
+      "before?": "string",
       "search?": "string",
       "isFlashcardQuestion?": "boolean",
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, errors }) => {
+    if (input.after && input.before) {
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Cannot specify both after and before" });
+    }
+
     const limit = Math.min(input.limit || 20, 50);
     const search = input.search || "";
-    const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
+
+    const afterData = input.after ? JSON.parse(Buffer.from(input.after, "base64url").toString()) : null;
+    const beforeData = input.before ? JSON.parse(Buffer.from(input.before, "base64url").toString()) : null;
 
     const rawData = await adminQuestionRepo.list({
       limit,
-      cursorId: cursorData?.id ?? null,
+      afterId: afterData?.id ?? null,
+      beforeId: beforeData?.id ?? null,
       search,
       isFlashcardQuestion: input.isFlashcardQuestion,
     });
 
+    if (rawData.length === 0) {
+      return {
+        data: [],
+        nextCursor: null,
+        prevCursor: null,
+        hasMore: false,
+        hasPrevious: false,
+      };
+    }
+
     const hasMore = rawData.length > limit;
     const data = hasMore ? rawData.slice(0, limit) : rawData;
 
-    const lastItem = data[data.length - 1];
-    const nextCursor = hasMore && lastItem ? encodeCursor({ id: lastItem.id }) : null;
+    const firstItem = data[0]!;
+    const lastItem = data[data.length - 1]!;
+    const encodeQCursor = (id: number) => Buffer.from(JSON.stringify({ id })).toString("base64url");
+
+    const questions = data.map(
+      (q: {
+        id: number;
+        packCount: number;
+        content: string;
+        contentJson: unknown;
+        discussion: string;
+        discussionJson: unknown;
+        isFlashcardQuestion: boolean;
+      }) => ({
+        id: q.id,
+        packCount: q.packCount,
+        content: q.contentJson || convertToTiptap(q.content),
+        discussion: q.discussionJson || convertToTiptap(q.discussion),
+        isFlashcardQuestion: q.isFlashcardQuestion,
+      }),
+    );
 
     return {
-      data: data.map(
-        (q: {
-          id: number;
-          packCount: number;
-          content: string;
-          contentJson: unknown;
-          discussion: string;
-          discussionJson: unknown;
-          isFlashcardQuestion: boolean;
-        }) => ({
-          id: q.id,
-          packCount: q.packCount,
-          content: q.contentJson || convertToTiptap(q.content),
-          discussion: q.discussionJson || convertToTiptap(q.discussion),
-          isFlashcardQuestion: q.isFlashcardQuestion,
-        }),
-      ),
-      nextCursor,
+      data: questions,
+      nextCursor: hasMore ? encodeQCursor(lastItem.id) : null,
+      prevCursor: encodeQCursor(firstItem.id),
       hasMore,
+      hasPrevious: input.after !== undefined || input.before !== undefined,
     };
   });
 

@@ -33,8 +33,8 @@ import { orpc } from "@/utils/orpc";
 
 const questionsSearchSchema = type({
   "search?": "string",
-  "cursor?": "string",
-  "cursorHistory?": "string[]",
+  "after?": "string",
+  "before?": "string",
   "flashcard?": "'true' | 'false'",
 });
 
@@ -45,10 +45,10 @@ export const Route = createFileRoute("/admin/questions/")({
 
 function QuestionsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
-  const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
+  const after = Route.useSearch({ select: (s) => s.after ?? undefined });
+  const before = Route.useSearch({ select: (s) => s.before ?? undefined });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
   const flashcardParam = Route.useSearch({ select: (s) => s.flashcard ?? undefined });
-  const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 300);
@@ -64,36 +64,22 @@ function QuestionsPage() {
       search: (prev) => ({
         ...prev,
         search: debouncedSearch || undefined,
-        cursor: undefined,
-        cursorHistory: undefined,
+        after: undefined,
+        before: undefined,
       }),
       replace: true,
     });
   }, [debouncedSearch, navigate]);
 
-  const handleNext = (nextCursor: string) => {
+  const handleNext = (nextAfter: string) => {
     navigate({
-      search: (prev) => ({
-        ...prev,
-        cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
-        cursor: nextCursor,
-      }),
+      search: (prev) => ({ ...prev, after: nextAfter, before: undefined }),
     });
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (prevCursor: string) => {
     navigate({
-      search: (prev) => {
-        const history = prev.cursorHistory ?? [];
-        if (history.length > 0) {
-          return {
-            ...prev,
-            cursor: history[history.length - 1],
-            cursorHistory: history.slice(0, -1),
-          };
-        }
-        return { ...prev, cursor: undefined, cursorHistory: undefined };
-      },
+      search: (prev) => ({ ...prev, before: prevCursor, after: undefined }),
     });
   };
 
@@ -102,8 +88,8 @@ function QuestionsPage() {
       search: (prev) => ({
         ...prev,
         flashcard: value,
-        cursor: undefined,
-        cursorHistory: undefined,
+        after: undefined,
+        before: undefined,
       }),
       replace: true,
     });
@@ -113,7 +99,8 @@ function QuestionsPage() {
     orpc.admin.question.list.queryOptions({
       input: {
         limit,
-        cursor: cursor ?? undefined,
+        after,
+        before,
         search: searchParam,
         isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
       },
@@ -122,7 +109,9 @@ function QuestionsPage() {
 
   const questions = data?.data || [];
   const hasMore = data?.hasMore || false;
+  const hasPrevious = data?.hasPrevious || false;
   const nextCursor = data?.nextCursor || null;
+  const prevCursor = data?.prevCursor || null;
 
   return (
     <AdminContainer>
@@ -214,7 +203,7 @@ function QuestionsPage() {
             variant="outline"
             size="sm"
             disabled={!hasPrevious || isLoading}
-            onClick={handlePrevious}
+            onClick={() => prevCursor && handlePrevious(prevCursor)}
             className="h-9 px-4"
           >
             Previous

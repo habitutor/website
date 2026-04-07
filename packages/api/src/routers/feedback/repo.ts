@@ -41,16 +41,16 @@ export const feedbackRepo = {
   listForAdmin: async ({
     db = defaultDb,
     limit = 20,
-    afterCursor,
-    beforeCursor,
+    after,
+    before,
     status,
     category,
     priority,
   }: {
     db?: DrizzleDatabase;
     limit?: number;
-    afterCursor?: number | null;
-    beforeCursor?: number | null;
+    after?: number | null;
+    before?: number | null;
     status?: FeedbackStatus | null;
     category?: string | null;
     priority?: string | null;
@@ -59,7 +59,7 @@ export const feedbackRepo = {
     let hasNext = false;
     let hasPrevious = false;
 
-    if (beforeCursor !== null && beforeCursor !== undefined) {
+    if (before !== null && before !== undefined) {
       const items = await db
         .select()
         .from(feedbackReport)
@@ -73,7 +73,7 @@ export const feedbackRepo = {
                 )
               : undefined,
             priority ? eq(feedbackReport.priority, priority as "p0" | "p1" | "p2" | "p3") : undefined,
-            lt(feedbackReport.id, beforeCursor),
+            lt(feedbackReport.id, before),
           ),
         )
         .orderBy(desc(feedbackReport.id))
@@ -100,7 +100,7 @@ export const feedbackRepo = {
                 )
               : undefined,
             priority ? eq(feedbackReport.priority, priority as "p0" | "p1" | "p2" | "p3") : undefined,
-            afterCursor !== null && afterCursor !== undefined ? gt(feedbackReport.id, afterCursor) : undefined,
+            after !== null && after !== undefined ? gt(feedbackReport.id, after) : undefined,
           ),
         )
         .orderBy(asc(feedbackReport.id))
@@ -112,7 +112,7 @@ export const feedbackRepo = {
       }
 
       data = items;
-      if (afterCursor !== null && afterCursor !== undefined) {
+      if (after !== null && after !== undefined) {
         hasPrevious = true;
       }
     }
@@ -167,19 +167,19 @@ export const feedbackRepo = {
     db = defaultDb,
     userId,
     limit = 20,
-    cursorId,
+    afterId,
   }: {
     db?: DrizzleDatabase;
     userId: string;
     limit?: number;
-    cursorId?: number | null;
+    afterId?: number | null;
   }) => {
     const items = await db
       .select()
       .from(feedbackReport)
       .where(
-        cursorId
-          ? and(eq(feedbackReport.userId, userId), gte(feedbackReport.id, cursorId))
+        afterId
+          ? and(eq(feedbackReport.userId, userId), gte(feedbackReport.id, afterId))
           : eq(feedbackReport.userId, userId),
       )
       .orderBy(desc(feedbackReport.id))
