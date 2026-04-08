@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 export function Pricing() {
   const { plans } = DATA.pricing;
   const planEntries = Object.values(plans);
+  const mobilePlanEntries = planEntries.length > 0 ? [planEntries[planEntries.length - 1], ...planEntries.slice(0, -1)] : [];
   // const tryout = Object.values(DATA.pricing_tryout);
 
   const basicHeaderStyles = [
@@ -21,8 +22,11 @@ export function Pricing() {
     "bg-tertiary-500 border-tertiary-600",
   ];
 
-  const mobilePlanCards = planEntries.map((plan, index) =>
-    index === planEntries.length - 1 ? (
+  const mobilePlanCards = mobilePlanEntries.map((plan) => {
+    const basicIndex = planEntries.findIndex((entry) => entry.label === plan.label);
+    const isPremiumPlan = basicIndex === planEntries.length - 1;
+
+    return isPremiumPlan ? (
       <BundlingCard
         key={plan.label}
         data={plan}
@@ -45,12 +49,12 @@ export function Pricing() {
         data={plan}
         variant="basic"
         colors={{
-          header: basicHeaderStyles[index],
-          circle: basicCircleStyles[index],
+          header: basicHeaderStyles[basicIndex],
+          circle: basicCircleStyles[basicIndex],
         }}
       />
-    ),
-  );
+    );
+  });
 
   // const mobileTryoutCards = tryout.map((plan) => <TryOutCard key={plan.label} data={plan} />);
 
