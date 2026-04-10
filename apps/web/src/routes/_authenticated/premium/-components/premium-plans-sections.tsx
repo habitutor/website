@@ -37,15 +37,15 @@ export function PremiumPlansSections({
       buttonDisabled={false}
       onSubscribe={onSubscribe}
     />,
-    <BundlingCard
-      key="premium2"
-      variant="premium2"
-      isCurrentPlan={currentTier === "premium2"}
-      isSubscribed={isPremium && currentTier !== "premium2"}
-      isPending={isTransactionPending && activeVariant === "premium2"}
-      buttonDisabled={false}
-      onSubscribe={onSubscribe}
-    />,
+    // <BundlingCard
+    //   key="premium2"
+    //   variant="premium2"
+    //   isCurrentPlan={currentTier === "premium2"}
+    //   isSubscribed={isPremium && currentTier !== "premium2"}
+    //   isPending={isTransactionPending && activeVariant === "premium2"}
+    //   buttonDisabled={false}
+    //   onSubscribe={onSubscribe}
+    // />,
   ];
   const privilegeCards = [
     <PrivilegeCard key="privilege1" variant="privilege1" />,
@@ -54,7 +54,7 @@ export function PremiumPlansSections({
   const perintisCards = [
     <PerintisClassroomCard key="perintis1" variant="perintis1" />,
     <PerintisClassroomCard key="perintis2" variant="perintis2" />,
-    <PerintisClassroomCard key="classroom" variant="classroom" />,
+    // <PerintisClassroomCard key="classroom" variant="classroom" />,
   ];
   const tryoutCards = tryoutPlans.map((plan) => <TryOutCard key={plan.label} data={plan} />);
 
@@ -73,7 +73,7 @@ export function PremiumPlansSections({
             </span>
           </div>
           <MobileCarousel items={bundlingCards} paginationLabel="Ultimate Bundling" itemClassName="w-full shrink-0" />
-          <div className="hidden gap-6 sm:grid sm:grid-cols-2">{bundlingCards}</div>
+          <div className="hidden gap-6 sm:flex sm:grid-cols-2">{bundlingCards}</div>
         </div>
       </MotionStaggerItem>
 
@@ -93,7 +93,7 @@ export function PremiumPlansSections({
       <MotionStaggerItem>
         <div className="space-y-6 rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
           <div className="flex flex-col">
-            <span className="text-lg font-bold sm:text-2xl">Perintis & Classroom</span>
+            <span className="text-lg font-bold sm:text-2xl">Perintis</span>
             <span className="text-sm font-medium sm:text-lg">
               Pilihan belajar bertahap dengan isi dan warna yang sama seperti section perintis.
             </span>
@@ -103,7 +103,7 @@ export function PremiumPlansSections({
             paginationLabel="Perintis dan Classroom"
             itemClassName="w-full shrink-0"
           />
-          <div className="hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-3">{perintisCards}</div>
+          <div className="hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-2">{perintisCards}</div>
         </div>
       </MotionStaggerItem>
 

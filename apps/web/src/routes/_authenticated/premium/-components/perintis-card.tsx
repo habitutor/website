@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/home-premium/-components/data";
 
 interface PerintisClassroomCardProps {
-  variant: "perintis1" | "perintis2" | "classroom";
+  variant: "perintis1" | "perintis2" ;
 }
 
 interface PlanFeature {
@@ -26,10 +26,9 @@ interface PlanData {
   price_monthly?: string;
 }
 
-const plans: Record<"perintis1" | "perintis2" | "classroom", PlanData> = {
+const plans: Record<"perintis1" | "perintis2", PlanData> = {
   perintis1: DATA.perintis.perintis1,
   perintis2: DATA.perintis.perintis2,
-  classroom: DATA.classroom,
 };
 
 const planColors = {
@@ -52,7 +51,7 @@ export function PerintisClassroomCard({ variant }: PerintisClassroomCardProps) {
   const colors = planColors[variant];
 
   return (
-    <div className="relative flex h-full min-h-110 w-full max-w-110 flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-sm">
+    <div className="relative flex h-full min-h-110 w-full  flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-sm">
       <div
         className={cn("absolute -right-12 -bottom-20 z-1 size-45 rounded-full border-2", colors.bg, colors.border)}
       />

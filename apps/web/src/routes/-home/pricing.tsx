@@ -78,7 +78,7 @@ export function Pricing() {
             viewportClassName="overflow-hidden px-8"
           />
 
-          <div className="hidden w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+          <div className="hidden w-full gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
             {planEntries.map((plan, index) =>
               index === planEntries.length - 1 ? (
                 <BundlingCard

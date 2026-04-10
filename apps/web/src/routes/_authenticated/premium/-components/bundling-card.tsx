@@ -34,9 +34,10 @@ interface BundlingPlan {
   price_monthly?: string;
 }
 
-const bundlingPlans: Record<"premium" | "premium2", BundlingPlan> = {
+const bundlingPlans: Record<"premium" | "premium2", BundlingPlan | undefined> = {
   premium: DATA.premium.ultimate_bundling1,
-  premium2: DATA.premium.ultimate_bundling2,
+  // premium2: DATA.premium.ultimate_bundling2,
+  premium2: (DATA.premium as Record<string, BundlingPlan | undefined>).ultimate_bundling2,
 };
 
 const bundlingColors = {
@@ -77,14 +78,16 @@ export function BundlingCard({
 }: BundlingCardProps) {
   const data = bundlingPlans[variant];
   const colors = bundlingColors[variant];
-  const monthlyPrice = "price_monthly" in data ? data.price_monthly : undefined;
+  if (!data) return null;
+
+  const monthlyPrice = data.price_monthly;
   const displayPrice = data.price_now;
   const defaultButtonLabel = buttonLabel ?? data.cta.label;
 
   return (
     <div
       className={cn(
-        "relative flex h-fit min-h-110 w-full flex-col justify-between overflow-hidden rounded-2xl shadow-sm",
+        "relative flex h-fit min-h-110 w-full max-w-lg flex-col justify-between overflow-hidden rounded-2xl shadow-sm",
         colors.bg,
       )}
     >

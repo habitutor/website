@@ -59,7 +59,7 @@ const Tryout = () => {
 
       <Button asChild size="icon" variant="default" className="z-10 bg-fourtiary-400">
         <a
-          href="https://classroom.google.com/c/ODQ4OTAyNzg1Mzcz?cjc=af2t5e5j"
+          href="https://classroom.google.com/c/ODU4ODUwNzk2OTIz?cjc=5vyw5pb5"
           rel="noopener noreferrer"
           target="_blank"
           aria-label="Visit AnyAcademy website"

@@ -135,26 +135,26 @@ export const DATA = {
   ],
   pricing: {
     plans: {
-      classroom: {
-        label: "Classroom",
-        price_full: "Rp35.000",
-        suffix: "sampai SNBT",
-        features: [
-          { label: "Akses Full Website", status: "excluded" },
-          { label: "Google Classroom", status: "included" },
-          { label: "Tugas Harian & Kuis", status: "included" },
-          { label: "1000+ Latihan Soal", status: "included" },
-          { label: "Habit Tracker & Grup", status: "included" },
-          { label: "Matrikulasi Subtest", status: "included" },
-          { label: "Live Class (3x/Minggu)", status: "excluded" },
-          { label: "Mentor UI, ITB, UGM", status: "excluded" },
-          // { label: "Try Out & Pembahasan", status: "limited", value: "3x" },
-        ],
-        cta: {
-          label: "Mulai Sekarang",
-          url: "https://lynk.id/habitutor/64p096g69747",
-        },
-      },
+      // classroom: {
+      //   label: "Classroom",
+      //   price_full: "Rp35.000",
+      //   suffix: "sampai SNBT",
+      //   features: [
+      //     { label: "Akses Full Website", status: "excluded" },
+      //     { label: "Google Classroom", status: "included" },
+      //     { label: "Tugas Harian & Kuis", status: "included" },
+      //     { label: "1000+ Latihan Soal", status: "included" },
+      //     { label: "Habit Tracker & Grup", status: "included" },
+      //     { label: "Matrikulasi Subtest", status: "included" },
+      //     { label: "Live Class (3x/Minggu)", status: "excluded" },
+      //     { label: "Mentor UI, ITB, UGM", status: "excluded" },
+      //     // { label: "Try Out & Pembahasan", status: "limited", value: "3x" },
+      //   ],
+      //   cta: {
+      //     label: "Mulai Sekarang",
+      //     url: "https://lynk.id/habitutor/64p096g69747",
+      //   },
+      // },
 
       mentoring_perintis: {
         label: "Mentoring Perintis",

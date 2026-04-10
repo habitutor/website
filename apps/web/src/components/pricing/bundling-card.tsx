@@ -68,10 +68,10 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
           premiumColors.text,
         )}
       >
-        <div className={cn("absolute -right-12 -bottom-20 z-0 size-45 rounded-full border-2", premiumColors.circle)} />
+        <div className={cn("absolute -right-12 -bottom-20 z-5 size-45 rounded-full border-2", premiumColors.circle)} />
         <div
           className={cn(
-            "absolute bottom-13 left-1/2 z-0 size-9 -translate-x-1/2 rounded-full border-2",
+            "absolute bottom-13 left-1/2 z-5 size-9 -translate-x-1/2 rounded-full border-2",
             premiumColors.circle,
           )}
         />
@@ -104,7 +104,7 @@ export function BundlingCard({ data, variant, span, colors }: BundlingCardProps)
         </div>
         <div
           className={cn(
-            "relative z-10 flex-1 border-x-2 border-primary-400 px-6 pb-4",
+            "relative z-0 flex-1 border-x-2 border-primary-400 px-6 pb-4",
             premiumColors.border,
             premiumColors.bg,
           )}

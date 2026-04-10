@@ -4,8 +4,8 @@ import { DATA } from "@/routes/home-premium/-components/data";
 
 export function Perintis() {
   const perintisPlans = Object.values(DATA.perintis);
-  const classroomPlans = [DATA.classroom];
-  const allPlans = [...perintisPlans, ...classroomPlans];
+  // const classroomPlans = [DATA.classroom];
+  const allPlans = [...perintisPlans];
 
   const colors = [
     {
