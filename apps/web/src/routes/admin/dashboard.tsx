@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/dashboard")({
+  staticData: { breadcrumb: "Dashboard" },
   component: AdminDashboard,
 });
 

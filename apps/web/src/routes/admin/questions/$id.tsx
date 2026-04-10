@@ -9,6 +9,12 @@ import { orpc } from "@/utils/orpc";
 import { getInitialAnswerOptions, syncQuestionAndAnswers } from "./-question-edit-helpers";
 
 export const Route = createFileRoute("/admin/questions/$id")({
+  staticData: {
+    breadcrumb: [
+      { label: "Question Bank", href: "/admin/questions" },
+      { label: "Edit Question", href: "" },
+    ],
+  },
   component: QuestionEditPage,
 });
 

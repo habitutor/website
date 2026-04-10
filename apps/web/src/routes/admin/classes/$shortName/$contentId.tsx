@@ -6,6 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$shortName/$contentId")({
+  staticData: {
+    breadcrumb: [
+      { label: "Classes", href: "/admin/classes" },
+      { label: "Class Detail", href: "/admin/classes/$shortName" },
+      { label: "Content", href: "" },
+    ],
+  },
   component: RouteComponent,
 });
 

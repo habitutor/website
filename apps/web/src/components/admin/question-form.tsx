@@ -38,6 +38,7 @@ interface QuestionFormProps {
   title: string;
   initialData?: Partial<QuestionFormData>;
   onSubmit: (data: QuestionFormData) => void | Promise<void>;
+  onCancel?: () => void;
   isSubmitting?: boolean;
   submitLabel?: string;
 }
@@ -148,6 +149,7 @@ export function QuestionForm({
   title,
   initialData,
   onSubmit,
+  onCancel,
   isSubmitting = false,
   submitLabel = "Simpan Perubahan",
 }: QuestionFormProps) {
@@ -336,7 +338,7 @@ export function QuestionForm({
           </form.Field>
 
           <div className="mt-8 flex gap-2">
-            <Button type="submit" isPending={isSubmitting} disabled={isSubmitting}>
+            <Button type="submit" isPending={isSubmitting}>
               {isSubmitting ? (
                 <>Saving...</>
               ) : (
@@ -346,6 +348,11 @@ export function QuestionForm({
                 </>
               )}
             </Button>
+            {onCancel && (
+              <Button variant="outline" isPending={isSubmitting} onClick={onCancel}>
+                Kembali
+              </Button>
+            )}
           </div>
         </form>
       </CardContent>

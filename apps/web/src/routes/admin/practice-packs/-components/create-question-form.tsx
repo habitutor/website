@@ -3,13 +3,15 @@ import { toast } from "sonner";
 import { QuestionForm, type QuestionFormData } from "@/components/admin/question-form";
 import { orpc } from "@/utils/orpc";
 
-interface CreateQuestionFormProps {
+export function CreateQuestionForm({
+  practicePackId,
+  onSuccess,
+  onCancel,
+}: {
   practicePackId: number;
   onSuccess?: () => void;
   onCancel?: () => void;
-}
-
-export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: CreateQuestionFormProps) {
+}) {
   const queryClient = useQueryClient();
 
   const createQuestionMutation = useMutation(orpc.admin.question.create.mutationOptions());

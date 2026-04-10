@@ -12,6 +12,12 @@ import { QuestionSection } from "./-components/question-section";
 import { SidebarContent } from "./-components/sidebar-content";
 
 export const Route = createFileRoute("/admin/feedback/$id")({
+  staticData: {
+    breadcrumb: [
+      { label: "Feedback", href: "/admin/feedback" },
+      { label: "Feedback Detail", href: "" },
+    ],
+  },
   component: FeedbackDetailPage,
 });
 

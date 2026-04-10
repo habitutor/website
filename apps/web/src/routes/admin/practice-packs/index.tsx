@@ -11,6 +11,7 @@ import { orpc } from "@/utils/orpc";
 import { PracticePackCard } from "./-components/practice-pack-card";
 
 export const Route = createFileRoute("/admin/practice-packs/")({
+  staticData: { breadcrumb: "Practice Packs" },
   component: PracticePacksListPage,
 });
 

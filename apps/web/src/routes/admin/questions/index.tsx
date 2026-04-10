@@ -39,6 +39,7 @@ const questionsSearchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/questions/")({
+  staticData: { breadcrumb: "Questions" },
   component: QuestionsPage,
   validateSearch: questionsSearchSchema,
 });

@@ -7,6 +7,12 @@ import { orpc } from "@/utils/orpc";
 import { ContentDialogs, useContentDialogs } from "./-content-dialogs";
 
 export const Route = createFileRoute("/admin/classes/$shortName/")({
+  staticData: {
+    breadcrumb: [
+      { label: "Classes", href: "/admin/classes" },
+      { label: "Class Detail", href: "" },
+    ],
+  },
   params: {
     parse: (raw) => ({
       shortName: raw.shortName?.toLowerCase(),

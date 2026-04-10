@@ -19,6 +19,7 @@ const feedbackSearchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/feedback/")({
+  staticData: { breadcrumb: "Feedback" },
   component: FeedbackListPage,
   validateSearch: feedbackSearchSchema,
 });

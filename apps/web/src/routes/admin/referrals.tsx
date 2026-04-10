@@ -9,6 +9,7 @@ const referralSearchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/referrals")({
+  staticData: { breadcrumb: "Referrals" },
   component: RouteComponent,
   validateSearch: referralSearchSchema,
 });

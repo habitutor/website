@@ -11,6 +11,12 @@ import { PackInfoHeader } from "./-components/pack-info-header";
 import { QuestionsList } from "./-components/questions-list";
 
 export const Route = createFileRoute("/admin/practice-packs/$id")({
+  staticData: {
+    breadcrumb: [
+      { label: "Practice Packs", href: "/admin/practice-packs" },
+      { label: "Pack Detail", href: "" },
+    ],
+  },
   component: PracticePackDetailPage,
 });
 
