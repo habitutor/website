@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { QuestionForm, type QuestionFormData } from "@/components/admin/question-form";
@@ -16,7 +16,6 @@ function QuestionEditPage() {
   const { id } = Route.useParams();
   const questionId = Number.parseInt(id, 10);
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const { data: question, isPending } = useQuery(
     orpc.admin.question.find.queryOptions({
@@ -55,14 +54,6 @@ function QuestionEditPage() {
     toast.success("Question updated successfully");
     queryClient.invalidateQueries(orpc.admin.question.find.queryOptions({ input: { id: questionId } }));
     queryClient.invalidateQueries({ queryKey: orpc.admin.question.list.queryKey({ input: {} }) });
-
-    setTimeout(() => {
-      navigate({ to: "/admin/questions" });
-    }, 500);
-  };
-
-  const handleCancel = () => {
-    navigate({ to: "/admin/questions" });
   };
 
   if (Number.isNaN(questionId)) throw notFound();
@@ -105,15 +96,13 @@ function QuestionEditPage() {
         <QuestionForm
           title="Question Details"
           initialData={{
-            content: question!.content,
-            discussion: question!.discussion,
-            isFlashcardQuestion: question!.isFlashcardQuestion,
-            answerOptions: getInitialAnswerOptions(question!),
+            content: question.content,
+            discussion: question.discussion,
+            isFlashcardQuestion: question.isFlashcardQuestion,
+            answerOptions: getInitialAnswerOptions(question),
           }}
           onSubmit={handleSubmit}
-          onCancel={handleCancel}
           isSubmitting={isSubmitting}
-          submitLabel="Save Changes"
         />
       )}
     </AdminContainer>

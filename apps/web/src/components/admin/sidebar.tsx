@@ -3,31 +3,20 @@
 import {
   BooksIcon,
   ChatCircleIcon,
-  House,
-  Megaphone,
-  Package,
-  Question,
-  SignOut,
+  HouseIcon,
+  MegaphoneIcon,
+  PackageIcon,
+  QuestionIcon,
+  SignOutIcon,
   TicketIcon,
-  User,
+  UserIcon,
   UserSwitchIcon,
 } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { LogoutDialog } from "@/components/logout-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -50,17 +39,17 @@ const adminNavLinks = [
   {
     name: "Dashboard",
     to: "/admin/dashboard" as const,
-    icon: House,
+    icon: HouseIcon,
   },
   {
     name: "Practice Packs",
     to: "/admin/practice-packs" as const,
-    icon: Package,
+    icon: PackageIcon,
   },
   {
     name: "Questions",
     to: "/admin/questions" as const,
-    icon: Question,
+    icon: QuestionIcon,
   },
   {
     name: "Feedback",
@@ -75,12 +64,12 @@ const adminNavLinks = [
   {
     name: "Dashboard Content",
     to: "/admin/dashboard-content" as const,
-    icon: Megaphone,
+    icon: MegaphoneIcon,
   },
   {
     name: "Users",
     to: "/admin/users" as const,
-    icon: User,
+    icon: UserIcon,
   },
   {
     name: "Referral Transactions",
@@ -155,37 +144,6 @@ export function AdminSidebar() {
   );
 }
 
-function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-          <AlertDialogDescription>Anda akan logout dari panel admin.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Kembali</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={async () => {
-                await authClient.signOut();
-                queryClient.removeQueries();
-                navigate({ to: "/login" });
-              }}
-              variant="destructive"
-            >
-              <SignOut /> Keluar
-            </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
 function SidebarLogout() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { state } = useSidebar();
@@ -197,10 +155,15 @@ function SidebarLogout() {
         tooltip={state === "collapsed" ? "Logout" : undefined}
         className="text-destructive hover:bg-destructive/10 hover:text-destructive"
       >
-        <SignOut className="size-5" />
+        <SignOutIcon className="size-5" />
         <span>Logout</span>
       </SidebarMenuButton>
-      <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+      <LogoutDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        redirectUrl="/login"
+        description="Anda akan logout dari panel admin."
+      />
     </>
   );
 }

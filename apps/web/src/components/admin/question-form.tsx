@@ -38,7 +38,6 @@ interface QuestionFormProps {
   title: string;
   initialData?: Partial<QuestionFormData>;
   onSubmit: (data: QuestionFormData) => void | Promise<void>;
-  onCancel?: () => void;
   isSubmitting?: boolean;
   submitLabel?: string;
 }
@@ -149,9 +148,8 @@ export function QuestionForm({
   title,
   initialData,
   onSubmit,
-  onCancel,
   isSubmitting = false,
-  submitLabel = "Save",
+  submitLabel = "Simpan Perubahan",
 }: QuestionFormProps) {
   const [answerOptions, setAnswerOptions] = useState<AnswerOption[]>(DEFAULT_ANSWER_OPTIONS);
 
@@ -348,11 +346,6 @@ export function QuestionForm({
                 </>
               )}
             </Button>
-            {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
-            )}
           </div>
         </form>
       </CardContent>
