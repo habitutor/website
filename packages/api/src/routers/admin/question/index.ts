@@ -207,53 +207,6 @@ const delete_ = admin
     return { message: "Berhasil menghapus question" };
   });
 
-const bulkUpdateFlashcard = admin
-  .route({
-    path: "/admin/questions/bulk-flashcard",
-    method: "PATCH",
-    tags: ["Admin - Questions"],
-  })
-  .input(
-    type({
-      questionIds: "number[]",
-      isFlashcard: "boolean",
-    }),
-  )
-  .output(type({ message: "string", updatedCount: "number" }))
-  .handler(async ({ input }) => {
-    if (!Array.isArray(input.questionIds) || input.questionIds.length === 0) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "questionIds harus berupa array dengan setidaknya satu ID",
-      });
-    }
-
-    if (input.questionIds.length > 100) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "Maksimal 100 questionId dapat diproses sekaligus",
-      });
-    }
-
-    const existingQuestions = await adminQuestionRepo.getByIds({ ids: input.questionIds });
-
-    if (existingQuestions.length !== input.questionIds.length) {
-      throw new ORPCError("NOT_FOUND", {
-        message: "Beberapa pertanyaan tidak ditemukan",
-      });
-    }
-
-    await adminQuestionRepo.bulkUpdateFlashcard({
-      ids: input.questionIds,
-      isFlashcard: input.isFlashcard,
-    });
-
-    return {
-      message: input.isFlashcard
-        ? "Pertanyaan berhasil ditandai sebagai flashcard"
-        : "Pertanyaan berhasil dicoret dari flashcard",
-      updatedCount: input.questionIds.length,
-    };
-  });
-
 const createAnswer = admin
   .route({
     path: "/admin/questions/{questionId}/answers",
@@ -343,7 +296,6 @@ export const adminQuestionRouter = {
   create,
   update,
   remove: delete_,
-  bulkFlashcard: bulkUpdateFlashcard,
   answer: {
     create: createAnswer,
     update: updateAnswer,

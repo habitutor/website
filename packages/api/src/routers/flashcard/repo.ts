@@ -304,27 +304,6 @@ export const flashcardRepo = {
     });
   },
 
-  getUserHistory: async ({
-    db = defaultDb,
-    userId,
-    limit = 50,
-  }: {
-    db?: DrizzleDatabase;
-    userId: string;
-    limit?: number;
-  }) => {
-    return db
-      .select({
-        id: userFlashcardAttempt.id,
-        startedAt: userFlashcardAttempt.startedAt,
-        submittedAt: userFlashcardAttempt.submittedAt,
-      })
-      .from(userFlashcardAttempt)
-      .where(eq(userFlashcardAttempt.userId, userId))
-      .orderBy(desc(userFlashcardAttempt.startedAt))
-      .limit(limit);
-  },
-
   getLeaderboardWithCurrentUser: async ({
     db = defaultDb,
     currentUserId,

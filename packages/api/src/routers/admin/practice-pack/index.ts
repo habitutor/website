@@ -186,29 +186,6 @@ const removeQuestion = admin
     return { message: "Berhasil menghapus question dari practice pack" };
   });
 
-const reorderQuestion = admin
-  .route({
-    path: "/admin/practice-packs/{practicePackId}/questions/{questionId}",
-    method: "PATCH",
-    tags: ["Admin - Practice Pack Questions"],
-  })
-  .input(
-    type({
-      practicePackId: "number",
-      questionId: "number",
-      order: "number",
-    }),
-  )
-  .handler(async ({ input }) => {
-    await adminPracticePackRepo.updateQuestionOrder({
-      practicePackId: input.practicePackId,
-      questionId: input.questionId,
-      order: input.order,
-    });
-
-    return { message: "Berhasil mengupdate urutan question" };
-  });
-
 const getQuestions = admin
   .route({
     path: "/admin/practice-packs/{id}/questions",
@@ -292,7 +269,6 @@ export const adminPracticePackRouter = {
     list: getQuestions,
     add: addQuestion,
     remove: removeQuestion,
-    reorder: reorderQuestion,
   },
   toggleFlashcard: toggleAvailableForFlashcard,
 };

@@ -238,10 +238,6 @@ const historyByPack = authed
 
 export const practicePackRouter = {
   list,
-  get: find,
-  save: saveAnswer,
-  historyByPack,
-  // Legacy aliases kept for compatibility
   find,
   start: startAttempt,
   answer: saveAnswer,

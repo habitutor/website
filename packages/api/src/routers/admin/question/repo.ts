@@ -1,7 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
-import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 
 export const adminQuestionRepo = {
   list: async ({
@@ -131,22 +131,6 @@ export const adminQuestionRepo = {
   delete: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [q] = await db.delete(question).where(eq(question.id, id)).returning();
     return q;
-  },
-
-  getByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
-    return db.select({ id: question.id }).from(question).where(inArray(question.id, ids));
-  },
-
-  bulkUpdateFlashcard: async ({
-    db = defaultDb,
-    ids,
-    isFlashcard,
-  }: {
-    db?: DrizzleDatabase;
-    ids: number[];
-    isFlashcard: boolean;
-  }) => {
-    return db.update(question).set({ isFlashcardQuestion: isFlashcard }).where(inArray(question.id, ids));
   },
 
   getQuestionById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {

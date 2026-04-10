@@ -212,25 +212,6 @@ export const adminPracticePackRepo = {
       );
   },
 
-  updateQuestionOrder: async ({
-    db = defaultDb,
-    practicePackId,
-    questionId,
-    order,
-  }: {
-    db?: DrizzleDatabase;
-    practicePackId: number;
-    questionId: number;
-    order: number;
-  }) => {
-    return db
-      .update(practicePackQuestions)
-      .set({ order })
-      .where(
-        and(eq(practicePackQuestions.practicePackId, practicePackId), eq(practicePackQuestions.questionId, questionId)),
-      );
-  },
-
   getQuestionsForPack: async ({ db = defaultDb, packId }: { db?: DrizzleDatabase; packId: number }) => {
     return db
       .select({

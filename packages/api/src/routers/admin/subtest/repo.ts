@@ -1,67 +1,8 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
-import {
-  contentItem,
-  contentPracticeQuestions,
-  noteMaterial,
-  subtest,
-  videoMaterial,
-} from "@habitutor/db/schema/subtest";
+import { contentItem, contentPracticeQuestions, noteMaterial, videoMaterial } from "@habitutor/db/schema/subtest";
 import { and, eq, sql } from "drizzle-orm";
 
 export const adminSubtestRepo = {
-  createSubtest: async ({
-    db = defaultDb,
-    name,
-    shortName,
-    description,
-    order,
-  }: {
-    db?: DrizzleDatabase;
-    name: string;
-    shortName: string;
-    description: string | null;
-    order: number;
-  }) => {
-    const [created] = await db
-      .insert(subtest)
-      .values({
-        name,
-        shortName,
-        description,
-        order,
-      })
-      .returning();
-    return created;
-  },
-
-  updateSubtest: async ({
-    db = defaultDb,
-    id,
-    data,
-  }: {
-    db?: DrizzleDatabase;
-    id: number;
-    data: {
-      name?: string;
-      shortName?: string;
-      description?: string | null;
-      order?: number;
-      updatedAt: Date;
-    };
-  }) => {
-    const [updated] = await db.update(subtest).set(data).where(eq(subtest.id, id)).returning();
-    return updated;
-  },
-
-  deleteSubtest: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
-    const [deleted] = await db.delete(subtest).where(eq(subtest.id, id)).returning();
-    return deleted;
-  },
-
-  updateSubtestOrder: async ({ db = defaultDb, id, order }: { db?: DrizzleDatabase; id: number; order: number }) => {
-    return db.update(subtest).set({ order, updatedAt: new Date() }).where(eq(subtest.id, id));
-  },
-
   getMaxContentOrder: async ({
     db = defaultDb,
     subtestId,

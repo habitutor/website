@@ -2,7 +2,7 @@ import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
-import { authed, premium } from "../../index";
+import { authed } from "../../index";
 import { getStartOfDay } from "@habitutor/shared/date";
 import { convertToTiptap } from "../../lib/tiptap";
 import {
@@ -325,16 +325,6 @@ const result = authed
     };
   });
 
-const history = premium
-  .route({
-    path: "/flashcard/history",
-    method: "GET",
-    tags: ["Flashcard"],
-  })
-  .handler(async ({ context }) => {
-    return flashcardRepo.getUserHistory({ db, userId: context.session.user.id });
-  });
-
 const leaderboard = authed
   .route({
     path: "/flashcard/leaderboard",
@@ -375,12 +365,8 @@ const leaderboard = authed
 export const flashcardRouter = {
   start,
   get,
-  save,
-  // Legacy aliases kept for compatibility
-  session: get,
   submit,
   answer: save,
   result,
-  history,
   leaderboard,
 };

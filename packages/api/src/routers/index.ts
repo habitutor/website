@@ -19,7 +19,6 @@ import {
   upsertNote,
   upsertVideo,
 } from "./admin/subtest/content-routes";
-import { createSubtest, deleteSubtest, reorderSubtests, updateSubtest } from "./admin/subtest/subtest-routes";
 import { dashboardRouter } from "./dashboard";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
@@ -57,12 +56,6 @@ export const appRouter = {
     practicePack: adminPracticePackRouter,
     question: adminQuestionRouter,
     subtest: {
-      subtest: {
-        create: createSubtest,
-        update: updateSubtest,
-        remove: deleteSubtest,
-        reorder: reorderSubtests,
-      },
       content: {
         create: createContent,
         update: updateContent,
