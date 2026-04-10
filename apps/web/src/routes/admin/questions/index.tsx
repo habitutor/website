@@ -116,7 +116,7 @@ function QuestionsPage() {
 
   return (
     <AdminContainer>
-      <AdminHeader title="Question Bank" description="Manage all questions across practice packs" />
+      <AdminHeader title="Questions" description="Manage all questions across practice packs" />
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">

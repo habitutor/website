@@ -2,9 +2,12 @@
 
 import {
   BooksIcon,
+  CaretRightIcon,
   ChatCircleIcon,
+  FolderOpenIcon,
   HouseIcon,
   MegaphoneIcon,
+  NotebookIcon,
   PackageIcon,
   QuestionIcon,
   SignOutIcon,
@@ -16,6 +19,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { LogoutDialog } from "@/components/logout-dialog";
 import {
   Sidebar,
@@ -28,6 +32,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -35,46 +42,58 @@ import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
-const adminNavLinks = [
+const adminNavGroups = [
   {
-    name: "Dashboard",
-    to: "/admin/dashboard" as const,
-    icon: HouseIcon,
+    name: "Content",
+    icon: NotebookIcon,
+    items: [
+      {
+        name: "Practice Packs",
+        to: "/admin/practice-packs" as const,
+        icon: PackageIcon,
+      },
+      {
+        name: "Questions",
+        to: "/admin/questions" as const,
+        icon: QuestionIcon,
+      },
+      {
+        name: "Dashboard Content",
+        to: "/admin/dashboard-content" as const,
+        icon: MegaphoneIcon,
+      },
+    ],
   },
   {
-    name: "Practice Packs",
-    to: "/admin/practice-packs" as const,
-    icon: PackageIcon,
-  },
-  {
-    name: "Questions",
-    to: "/admin/questions" as const,
-    icon: QuestionIcon,
-  },
-  {
-    name: "Feedback",
-    to: "/admin/feedback" as const,
-    icon: ChatCircleIcon,
-  },
-  {
-    name: "Classes",
-    to: "/admin/classes" as const,
-    icon: BooksIcon,
-  },
-  {
-    name: "Dashboard Content",
-    to: "/admin/dashboard-content" as const,
-    icon: MegaphoneIcon,
-  },
-  {
-    name: "Users",
-    to: "/admin/users" as const,
-    icon: UserIcon,
-  },
-  {
-    name: "Referral Transactions",
-    to: "/admin/referrals" as const,
-    icon: TicketIcon,
+    name: "Management",
+    icon: FolderOpenIcon,
+    items: [
+      {
+        name: "Dashboard",
+        to: "/admin/dashboard" as const,
+        icon: HouseIcon,
+      },
+      {
+        name: "Feedback",
+        to: "/admin/feedback" as const,
+        icon: ChatCircleIcon,
+      },
+      {
+        name: "Classes",
+        to: "/admin/classes" as const,
+        icon: BooksIcon,
+      },
+      {
+        name: "Users",
+        to: "/admin/users" as const,
+        icon: UserIcon,
+      },
+      {
+        name: "Referral Transactions",
+        to: "/admin/referrals" as const,
+        icon: TicketIcon,
+      },
+    ],
   },
 ];
 
@@ -92,19 +111,41 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {adminNavLinks.map((link) => {
-                const isActive = location.pathname.startsWith(link.to);
-                const Icon = link.icon;
+              {adminNavGroups.map((group) => {
+                const hasActiveChild = group.items.some((item) => location.pathname.startsWith(item.to));
+                const GroupIcon = group.icon;
 
                 return (
-                  <SidebarMenuItem key={link.to}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={link.name}>
-                      <Link to={link.to}>
-                        <Icon className="size-5" weight={isActive ? "fill" : "regular"} />
-                        <span>{link.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <Collapsible key={group.name} asChild defaultOpen={hasActiveChild} className="group/collapsible">
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton tooltip={group.name}>
+                          <GroupIcon className="size-5" />
+                          <span>{group.name}</span>
+                          <CaretRightIcon className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {group.items.map((item) => {
+                            const isActive = location.pathname.startsWith(item.to);
+                            const Icon = item.icon;
+
+                            return (
+                              <SidebarMenuSubItem key={item.to}>
+                                <SidebarMenuSubButton asChild isActive={isActive}>
+                                  <Link to={item.to}>
+                                    <Icon className="size-4" weight={isActive ? "fill" : "regular"} />
+                                    <span>{item.name}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            );
+                          })}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
                 );
               })}
             </SidebarMenu>
