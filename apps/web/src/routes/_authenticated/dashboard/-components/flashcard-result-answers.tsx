@@ -14,21 +14,19 @@ type AnswerOption = {
   isCorrect: boolean;
 };
 
-type AssignedQuestion = {
-  questionId: number;
-  selectedAnswerId: number | null;
-  question: {
-    id: number;
-    discussion: string;
-    answerOptions: AnswerOption[];
+function AnswerItem({
+  assignedQuestion,
+}: {
+  assignedQuestion: {
+    questionId: number;
+    selectedAnswerId: number | null;
+    question: {
+      id: number;
+      discussion: string;
+      answerOptions: AnswerOption[];
+    };
   };
-};
-
-interface AnswerItemProps {
-  assignedQuestion: AssignedQuestion;
-}
-
-function AnswerItem({ assignedQuestion }: AnswerItemProps) {
+}) {
   const { question, selectedAnswerId } = assignedQuestion;
   const correctAnswer = question.answerOptions.find((a) => a.isCorrect);
   const userAnswer = question.answerOptions.find((a) => a.id === selectedAnswerId);
@@ -147,6 +145,7 @@ export function ResultsSection() {
       <FeedbackReportDialog
         open={feedbackDialogOpen}
         onOpenChange={setFeedbackDialogOpen}
+        attemptId={data?.attemptId}
         path="/dashboard/flashcard/result"
       />
     </div>

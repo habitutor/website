@@ -14,7 +14,7 @@ const feedbackSearchSchema = type({
   "after?": "number",
   "before?": "number",
   "status?": "'open' | 'in_review' | 'resolved' | 'dismissed'",
-  "category?": "'wrong_answer' | 'bug_in_question' | 'unclear_discussion' | 'missing_option' | 'other'",
+  "category?": "'error' | 'question_bug' | 'other'",
   "priority?": "'p0' | 'p1' | 'p2' | 'p3'",
 });
 
@@ -236,21 +236,13 @@ function FeedbackTableSkeleton() {
 
 export function CategoryBadge({ category }: { category: string }) {
   const config: Record<string, { label: string; className: string }> = {
-    wrong_answer: {
-      label: "Wrong Answer",
+    error: {
+      label: "Error",
       className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
     },
-    bug_in_question: {
-      label: "Bug in Question",
+    question_bug: {
+      label: "Question Bug",
       className: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-    },
-    unclear_discussion: {
-      label: "Unclear Discussion",
-      className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-    },
-    missing_option: {
-      label: "Missing Option",
-      className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     },
     other: {
       label: "Other",

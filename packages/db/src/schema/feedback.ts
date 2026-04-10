@@ -4,13 +4,9 @@ export const feedbackStatusEnum = pgEnum("feedback_status", ["open", "in_review"
 
 export type FeedbackStatus = (typeof feedbackStatusEnum.enumValues)[number];
 
-export const feedbackCategoryEnum = pgEnum("feedback_category", [
-  "wrong_answer",
-  "bug_in_question",
-  "unclear_discussion",
-  "missing_option",
-  "other",
-]);
+export const feedbackCategoryEnum = pgEnum("feedback_category", ["error", "question_bug", "other"]);
+
+export type FeedbackCategory = (typeof feedbackCategoryEnum.enumValues)[number];
 
 export const feedbackPriorityEnum = pgEnum("feedback_priority", ["p0", "p1", "p2", "p3"]);
 
@@ -30,7 +26,6 @@ export const feedbackReport = pgTable(
     adminNotes: text("admin_notes"),
     resolvedBy: text("resolved_by"),
     resolvedAt: timestamp("resolved_at"),
-    userSeenAt: timestamp("user_seen_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
       .notNull()

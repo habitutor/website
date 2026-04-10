@@ -1,13 +1,7 @@
 import { type } from "arktype";
 import { admin, authed } from "../../index";
 import { feedbackRepo } from "./repo";
-import {
-  createFeedbackInputSchema,
-  listFeedbackByUserInputSchema,
-  listFeedbackForAdminInputSchema,
-  priority,
-  status,
-} from "./model";
+import { createFeedbackInputSchema, listFeedbackForAdminInputSchema, priority, status } from "./model";
 
 const create = authed
   .route({
@@ -28,46 +22,6 @@ const create = authed
     });
     if (!feedback) throw errors.UNPROCESSABLE_CONTENT();
     return { id: feedback.id, message: "Laporan berhasil dikirim!" };
-  });
-
-const listMine = authed
-  .route({
-    path: "/feedback/mine",
-    method: "GET",
-    tags: ["Feedback"],
-  })
-  .input(listFeedbackByUserInputSchema)
-  .handler(async ({ context, input }) => {
-    return await feedbackRepo.listByUser({
-      userId: context.session.user.id,
-      limit: input.limit,
-      afterId: input.after,
-    });
-  });
-
-const markSeen = authed
-  .route({
-    path: "/feedback/mark-seen",
-    method: "POST",
-    tags: ["Feedback"],
-  })
-  .input(type({ ids: "number[]" }))
-  .handler(async ({ input }) => {
-    await feedbackRepo.markSeen({ ids: input.ids });
-    return { success: true };
-  });
-
-const unseenResolvedCount = authed
-  .route({
-    path: "/feedback/unseen-resolved-count",
-    method: "GET",
-    tags: ["Feedback"],
-  })
-  .handler(async ({ context }) => {
-    const count = await feedbackRepo.countUnseenResolved({
-      userId: context.session.user.id,
-    });
-    return { count };
   });
 
 // Admin routes
@@ -117,37 +71,21 @@ const adminUpdate = admin
     }),
   )
   .handler(async ({ context, input }) => {
-    await feedbackRepo.update({
-      id: input.id,
-      status: input.status,
-      priority: input.priority,
-      adminNotes: input.adminNotes,
+    const resolvedAt = input.status === "resolved" ? new Date() : null;
+
+    return feedbackRepo.update({
+      ...input,
+      resolvedAt,
       ...(input.status && { resolvedBy: context.session.user.id }),
     });
-    return { success: true };
-  });
-
-const adminCountOpen = admin
-  .route({
-    path: "/feedback/count-open",
-    method: "GET",
-    tags: ["Admin Feedback"],
-  })
-  .handler(async () => {
-    const count = await feedbackRepo.countOpen({});
-    return { count };
   });
 
 export const feedbackRouter = {
   create,
-  listMine,
-  markSeen,
-  unseenResolvedCount,
 };
 
 export const adminFeedbackRouter = {
   list: adminList,
   find: adminFind,
   update: adminUpdate,
-  countOpen: adminCountOpen,
 };

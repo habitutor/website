@@ -167,31 +167,9 @@ function QuestionsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
           {isLoading
-            ? Array.from({ length: 12 }).map((_, i) => (
+            ? Array.from({ length: 12 }, (_, i) => (
                 // biome-ignore lint: skeleton items don't need stable keys
-                <Card key={i} className="relative flex flex-col overflow-hidden py-0">
-                  <div className="flex flex-1 flex-col px-6 py-6">
-                    <div className="mb-4 flex-1 space-y-3">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-11/12" />
-                        <Skeleton className="h-4 w-3/4" />
-                      </div>
-                      <div className="pt-2">
-                        <Skeleton className="h-3 w-28" />
-                      </div>
-                      <Skeleton className="h-3 w-4/5" />
-                    </div>
-                    <div className="mt-auto flex items-center gap-4">
-                      <Skeleton className="h-5 w-20 rounded-full" />
-                      <Skeleton className="h-5 w-24 rounded-full" />
-                      <Skeleton className="h-3 w-16" />
-                    </div>
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <Skeleton className="size-8 rounded-md" />
-                  </div>
-                </Card>
+                <Skeleton key={i} className="h-52 rounded-lg" />
               ))
             : questions.map((question) => <QuestionCard key={question.id} question={question} />)}
         </div>

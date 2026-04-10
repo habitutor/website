@@ -18,7 +18,7 @@ function QuestionEditPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: question, isLoading } = useQuery(
+  const { data: question, isPending } = useQuery(
     orpc.admin.question.find.queryOptions({
       input: { id: questionId },
     }),
@@ -67,7 +67,7 @@ function QuestionEditPage() {
 
   if (Number.isNaN(questionId)) throw notFound();
 
-  if (!isLoading && !question) throw notFound();
+  if (!isPending && !question) throw notFound();
 
   return (
     <AdminContainer>
@@ -77,7 +77,7 @@ function QuestionEditPage() {
         backTo="/admin/questions"
       />
 
-      {isLoading ? (
+      {isPending ? (
         <Card className="overflow-hidden rounded-xl py-0 shadow-sm">
           <CardHeader className="bg-muted/30 py-4">
             <Skeleton className="h-6 w-36" />

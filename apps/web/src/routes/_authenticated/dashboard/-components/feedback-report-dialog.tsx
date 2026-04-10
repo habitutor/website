@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
 
-type FeedbackCategory = "wrong_answer" | "bug_in_question" | "unclear_discussion" | "missing_option" | "other";
+type FeedbackCategory = "error" | "question_bug" | "other";
 
 const categoryLabels: Record<FeedbackCategory, string> = {
-  wrong_answer: "Jawaban Salah",
-  bug_in_question: "Error di Soal",
-  unclear_discussion: "Pembahasan Kurang Jelas",
-  missing_option: "Opsi Jawaban Kurang",
+  error: "Error",
+  question_bug: "Kesalahan di Soal",
   other: "Lainnya",
 };
 
@@ -31,6 +29,7 @@ interface FeedbackReportDialogProps {
 function FeedbackForm({
   onSubmit,
   isSubmitting,
+  isSuccess,
   category,
   setCategory,
   description,
@@ -39,6 +38,7 @@ function FeedbackForm({
 }: {
   onSubmit: () => void;
   isSubmitting: boolean;
+  isSuccess: boolean;
   category: FeedbackCategory;
   setCategory: (cat: FeedbackCategory) => void;
   description: string;
@@ -48,7 +48,6 @@ function FeedbackForm({
   return (
     <div className={className}>
       <div className="flex flex-col gap-4 py-4">
-        {/* Category Picker */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Kategori Masalah</label>
           <Select value={category} onValueChange={(val) => setCategory(val as FeedbackCategory)}>
@@ -96,9 +95,10 @@ function FeedbackForm({
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button
           onClick={onSubmit}
-          disabled={isSubmitting || description.trim().length < 10 || description.length > 250}
+          disabled={isSubmitting || isSuccess || description.trim().length < 10 || description.length > 250}
+          className={isSuccess ? "border-green-500 text-green-600" : undefined}
         >
-          {isSubmitting ? "Mengirim..." : "Kirim Laporan"}
+          {isSuccess ? "Terkirim!" : isSubmitting ? "Mengirim..." : "Kirim Laporan"}
         </Button>
       </div>
     </div>
@@ -113,20 +113,33 @@ export function FeedbackReportDialog({
   attemptId,
   path,
 }: FeedbackReportDialogProps) {
-  const queryClient = useQueryClient();
   const [category, setCategory] = useState<FeedbackCategory>("other");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const resetForm = useCallback(() => {
+    setCategory("other");
+    setDescription("");
+    setIsSuccess(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const mutation = useMutation(
     orpc.feedback.create.mutationOptions({
       onSuccess: async () => {
-        toast.success("Laporan berhasil dikirim!");
-        setCategory("other");
-        setDescription("");
-        onOpenChange(false);
-        await queryClient.invalidateQueries({ queryKey: orpc.feedback.listMine.key() });
+        setIsSuccess(true);
+        timeoutRef.current = setTimeout(() => {
+          resetForm();
+          onOpenChange(false);
+        }, 1000);
       },
       onError: () => {
         toast.error("Gagal mengirim laporan. Silakan coba lagi.");
@@ -162,8 +175,7 @@ export function FeedbackReportDialog({
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      setCategory("other");
-      setDescription("");
+      resetForm();
     }
     onOpenChange(newOpen);
   };
@@ -181,6 +193,7 @@ export function FeedbackReportDialog({
           <FeedbackForm
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
+            isSuccess={isSuccess}
             category={category}
             setCategory={setCategory}
             description={description}
@@ -203,6 +216,7 @@ export function FeedbackReportDialog({
         <FeedbackForm
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
+          isSuccess={isSuccess}
           category={category}
           setCategory={setCategory}
           description={description}
