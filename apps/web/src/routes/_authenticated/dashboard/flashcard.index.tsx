@@ -15,7 +15,7 @@ function RouteComponent() {
   const { session } = useRouteContext({ from: "/_authenticated" });
   const navigate = useNavigate();
   const flashcard = useQuery(
-    orpc.flashcard.session.queryOptions({
+    orpc.flashcard.get.queryOptions({
       retry: false,
     }),
   );

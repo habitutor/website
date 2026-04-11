@@ -1,6 +1,8 @@
 import { ORPCError } from "@orpc/server";
+import { db } from "@habitutor/db";
 import { type } from "arktype";
 import { admin } from "../../../index";
+import { adminQuestionRepo } from "../question/repo";
 import { cursor } from "../../../utils/cursor";
 import { adminPracticePackRepo, formatPackQuestions } from "./repo";
 
@@ -297,6 +299,76 @@ const toggleAvailableForFlashcard = admin
     };
   });
 
+const createQuestionWithAnswers = admin
+  .route({
+    path: "/admin/practice-packs/{practicePackId}/questions/create-with-answers",
+    method: "POST",
+    tags: ["Admin - Practice Pack Questions"],
+  })
+  .input(
+    type({
+      practicePackId: "number",
+      content: "unknown",
+      discussion: "unknown",
+      "isFlashcardQuestion?": "boolean",
+      answerOptions: type({
+        code: "string",
+        content: "string",
+        isCorrect: "boolean",
+      })
+        .array()
+        .atLeastLength(1),
+    }),
+  )
+  .handler(async ({ input, errors }) => {
+    const pack = await adminPracticePackRepo.getPracticePackById({ id: input.practicePackId });
+
+    if (!pack) throw errors.NOT_FOUND({ message: "Practice pack tidak ditemukan" });
+
+    const contentJson = typeof input.content === "object" ? input.content : null;
+    const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
+    const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+    const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+
+    const result = await db.transaction(async (tx) => {
+      const maxOrder = await adminPracticePackRepo.getMaxQuestionOrder({
+        db: tx,
+        practicePackId: input.practicePackId,
+      });
+
+      const q = await adminQuestionRepo.createWithAnswers({
+        db: tx,
+        questionValues: {
+          content: contentText,
+          discussion: discussionText,
+          contentJson,
+          discussionJson,
+          isFlashcardQuestion: input.isFlashcardQuestion ?? true,
+        },
+        answerValues: input.answerOptions.map((a) => ({
+          code: a.code,
+          content: a.content,
+          isCorrect: a.isCorrect,
+        })),
+      });
+
+      if (!q) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat question" });
+
+      await adminPracticePackRepo.addQuestion({
+        db: tx,
+        values: {
+          practicePackId: input.practicePackId,
+          questionId: q.id,
+          order: maxOrder + 1,
+        },
+      });
+
+      return q;
+    });
+
+    return result;
+  });
+
 export const adminPracticePackRouter = {
   list,
   find: get,
@@ -307,6 +379,7 @@ export const adminPracticePackRouter = {
     list: getQuestions,
     add: addQuestion,
     remove: removeQuestion,
+    bulkCreate: createQuestionWithAnswers,
   },
   toggleFlashcard: toggleAvailableForFlashcard,
 };

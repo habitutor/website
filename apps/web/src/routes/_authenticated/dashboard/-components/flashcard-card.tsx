@@ -15,7 +15,7 @@ import { TimeoutDialog } from "./timeout-dialog";
 
 export const FlashcardCard = () => {
   const queryClient = useQueryClient();
-  const { data } = useQuery(orpc.flashcard.session.queryOptions());
+  const { data } = useQuery(orpc.flashcard.get.queryOptions());
   const navigate = useNavigate();
 
   const saveAnswerMutation = useMutation(
@@ -75,7 +75,7 @@ export const FlashcardCard = () => {
   const handleSubmit = async () => {
     try {
       await submitMutation.mutateAsync({});
-      await queryClient.invalidateQueries({ queryKey: orpc.flashcard.session.key() });
+      await queryClient.invalidateQueries({ queryKey: orpc.flashcard.get.key() });
       queryClient.removeQueries({ queryKey: orpc.flashcard.result.queryKey({ input: {} }) });
       navigate({ to: "/dashboard/flashcard/result" });
     } catch {
@@ -104,7 +104,7 @@ export const FlashcardCard = () => {
       saveAnswerMutation.reset();
       setHasChecked(false);
       setSelectedAnswerId(null);
-      queryClient.removeQueries({ queryKey: orpc.flashcard.session.key() });
+      queryClient.removeQueries({ queryKey: orpc.flashcard.get.key() });
     } catch (error) {
       console.error(error);
     } finally {

@@ -14,34 +14,19 @@ export function CreateQuestionForm({
 }) {
   const queryClient = useQueryClient();
 
-  const createQuestionMutation = useMutation(orpc.admin.question.create.mutationOptions());
-  const createAnswerMutation = useMutation(orpc.admin.question.answer.create.mutationOptions());
-  const addToPackMutation = useMutation(orpc.admin.practicePack.question.add.mutationOptions());
-
-  const isSubmitting =
-    createQuestionMutation.isPending || createAnswerMutation.isPending || addToPackMutation.isPending;
+  const createMutation = useMutation(orpc.admin.practicePack.question.bulkCreate.mutationOptions());
 
   const handleSubmit = async (data: QuestionFormData) => {
-    const question = await createQuestionMutation.mutateAsync({
+    await createMutation.mutateAsync({
+      practicePackId,
       content: data.content,
       discussion: data.discussion,
       isFlashcardQuestion: data.isFlashcardQuestion,
-    });
-
-    await Promise.all(
-      data.answerOptions.map((option) =>
-        createAnswerMutation.mutateAsync({
-          questionId: question.id,
-          code: option.code,
-          content: option.content,
-          isCorrect: option.isCorrect,
-        }),
-      ),
-    );
-
-    await addToPackMutation.mutateAsync({
-      practicePackId,
-      questionId: question.id,
+      answerOptions: data.answerOptions.map((option) => ({
+        code: option.code,
+        content: option.content,
+        isCorrect: option.isCorrect,
+      })),
     });
 
     toast.success("Question created successfully");
@@ -56,7 +41,7 @@ export function CreateQuestionForm({
       title="Create New Question"
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      isSubmitting={isSubmitting}
+      isSubmitting={createMutation.isPending}
       submitLabel="Create Question"
     />
   );

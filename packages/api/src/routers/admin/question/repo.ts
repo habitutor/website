@@ -143,4 +143,36 @@ export const adminQuestionRepo = {
     const [answer] = await db.delete(questionAnswerOption).where(eq(questionAnswerOption.id, id)).returning();
     return answer;
   },
+
+  createWithAnswers: async ({
+    db = defaultDb,
+    questionValues,
+    answerValues,
+  }: {
+    db?: DrizzleDatabase;
+    questionValues: Omit<typeof question.$inferInsert, "id">;
+    answerValues: Array<Pick<typeof questionAnswerOption.$inferInsert, "code" | "content" | "isCorrect">>;
+  }) => {
+    const [q] = await db.insert(question).values(questionValues).returning();
+
+    if (answerValues.length > 0) {
+      await db.insert(questionAnswerOption).values(
+        answerValues.map((a) => ({
+          questionId: q!.id,
+          code: a.code,
+          content: a.content,
+          isCorrect: a.isCorrect,
+        })),
+      );
+    }
+
+    return db.query.question.findFirst({
+      where: eq(question.id, q!.id),
+      with: {
+        answerOptions: {
+          orderBy: (answerOptions, { asc }) => [asc(answerOptions.code)],
+        },
+      },
+    });
+  },
 };
