@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { admin } from "../../../index";
+import { cursor } from "../../../utils/cursor";
 import { adminPracticePackRepo, formatPackQuestions } from "./repo";
 
 const list = admin
@@ -12,23 +13,60 @@ const list = admin
   .input(
     type({
       "limit?": "number",
-      "offset?": "number",
+      "after?": "string",
+      "before?": "string",
       "search?": "string",
     }),
   )
-  .handler(async ({ input }) => {
-    const limit = input.limit || 20;
-    const offset = input.offset || 0;
+  .handler(async ({ input, errors }) => {
+    if (input.after && input.before) {
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Cannot specify both after and before" });
+    }
+
+    const limit = Math.min(input.limit || 10, 50);
     const search = input.search || "";
 
-    const packs = await adminPracticePackRepo.list({ limit, offset, search });
-    const total = await adminPracticePackRepo.count({ search });
+    const afterData = input.after ? cursor.decode(input.after) : null;
+    const afterCreatedAt = afterData ? new Date(afterData.createdAt) : null;
+
+    const beforeData = input.before ? cursor.decode(input.before) : null;
+    const beforeCreatedAt = beforeData ? new Date(beforeData.createdAt) : null;
+
+    const rows = await adminPracticePackRepo.list({
+      limit,
+      afterCreatedAt,
+      afterId: afterData ? Number(afterData.id) : null,
+      beforeCreatedAt,
+      beforeId: beforeData ? Number(beforeData.id) : null,
+      search,
+    });
+
+    if (rows.length === 0) {
+      return {
+        data: [],
+        nextCursor: null,
+        prevCursor: null,
+        hasMore: false,
+        hasPrevious: false,
+      };
+    }
+
+    const hasMore = rows.length > limit;
+    const data = hasMore ? rows.slice(0, limit) : rows;
+
+    const firstItem = data[0]!;
+    const lastItem = data[data.length - 1]!;
+    const nextCursor = hasMore
+      ? cursor.encode({ createdAt: lastItem.createdAt!.toISOString(), id: String(lastItem.id) })
+      : null;
+    const prevCursor = cursor.encode({ createdAt: firstItem.createdAt!.toISOString(), id: String(firstItem.id) });
 
     return {
-      data: packs,
-      total,
-      limit,
-      offset,
+      data,
+      nextCursor,
+      prevCursor,
+      hasMore,
+      hasPrevious: input.after !== undefined || input.before !== undefined,
     };
   });
 

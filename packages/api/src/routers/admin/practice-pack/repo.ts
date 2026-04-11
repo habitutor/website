@@ -1,7 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePack, practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
-import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { convertToTiptap } from "../../../lib/tiptap";
 
 type PackQuestionRow = {
@@ -78,37 +78,58 @@ export const adminPracticePackRepo = {
   list: async ({
     db = defaultDb,
     limit,
-    offset,
+    afterCreatedAt,
+    afterId,
+    beforeCreatedAt,
+    beforeId,
     search,
   }: {
     db?: DrizzleDatabase;
     limit: number;
-    offset: number;
+    afterCreatedAt: Date | null;
+    afterId: number | null;
+    beforeCreatedAt: Date | null;
+    beforeId: number | null;
     search: string;
   }) => {
-    const baseQuery = db
-      .select({
-        id: practicePack.id,
-        title: practicePack.title,
-        description: practicePack.description,
-      })
-      .from(practicePack);
+    const searchFilter =
+      search.length > 0
+        ? or(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`))
+        : undefined;
 
-    const filteredQuery = search
-      ? baseQuery.where(and(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
-      : baseQuery;
+    const select = {
+      id: practicePack.id,
+      title: practicePack.title,
+      description: practicePack.description,
+      createdAt: practicePack.createdAt,
+    };
 
-    return filteredQuery.limit(limit).offset(offset).orderBy(practicePack.id);
-  },
+    if (beforeCreatedAt && beforeId) {
+      const items = await db
+        .select(select)
+        .from(practicePack)
+        .where(
+          and(searchFilter, sql`(${practicePack.createdAt}, ${practicePack.id}) > (${beforeCreatedAt}, ${beforeId})`),
+        )
+        .orderBy(asc(practicePack.createdAt), asc(practicePack.id))
+        .limit(limit + 1);
 
-  count: async ({ db = defaultDb, search }: { db?: DrizzleDatabase; search: string }) => {
-    const [result] = search
-      ? await db
-          .select({ count: count() })
-          .from(practicePack)
-          .where(or(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
-      : await db.select({ count: count() }).from(practicePack);
-    return result?.count ?? 0;
+      return items.reverse();
+    }
+
+    return db
+      .select(select)
+      .from(practicePack)
+      .where(
+        and(
+          searchFilter,
+          afterCreatedAt && afterId
+            ? sql`(${practicePack.createdAt}, ${practicePack.id}) < (${afterCreatedAt}, ${afterId})`
+            : undefined,
+        ),
+      )
+      .orderBy(desc(practicePack.createdAt), desc(practicePack.id))
+      .limit(limit + 1);
   },
 
   getById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
