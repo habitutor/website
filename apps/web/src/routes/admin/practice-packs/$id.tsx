@@ -1,9 +1,10 @@
 import { MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { AdminContainer } from "@/components/admin/dashboard-layout";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { orpc } from "@/utils/orpc";
 import { AddExistingQuestionModal } from "./-components/add-existing-modal";
 import { CreateQuestionForm } from "./-components/create-question-form";
@@ -35,13 +36,7 @@ function PracticePackDetailPage() {
 
   const existingQuestionIds = data?.questions?.map((q) => q.id) || [];
 
-  if (Number.isNaN(packId)) {
-    return (
-      <AdminContainer>
-        <p className="text-destructive">Invalid practice pack ID</p>
-      </AdminContainer>
-    );
-  }
+  if (Number.isNaN(packId)) throw notFound();
 
   return (
     <AdminContainer>
@@ -51,10 +46,7 @@ function PracticePackDetailPage() {
         <div className="space-y-4">
           <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="flex items-center gap-4 text-xl font-bold tracking-tight sm:text-2xl">
-              Questions
-              <span className="rounded-lg bg-blue-100 px-2 py-1 font-mono text-base font-medium text-muted-foreground">
-                {data?.questions?.length || 0}
-              </span>
+              Questions ({data?.questions?.length || 0})
             </h2>
             {data?.questions && data.questions.length > 0 && (
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -64,31 +56,32 @@ function PracticePackDetailPage() {
                   className="gap-2 text-xs sm:text-sm"
                 >
                   <MagnifyingGlassIcon className="size-3.5 sm:size-4" />
-                  Add Existing
+                  Tambah Soal
                 </Button>
                 <Button onClick={() => setShowCreateForm(true)} className="gap-2 text-xs shadow-sm sm:text-sm">
                   <PlusIcon className="size-3.5 sm:size-4" />
-                  Create New Question
+                  Buat Soal Baru
                 </Button>
               </div>
             )}
           </div>
 
-          {showAddExisting && (
-            <AddExistingQuestionModal
-              practicePackId={packId}
-              existingQuestionIds={existingQuestionIds}
-              onClose={() => setShowAddExisting(false)}
-            />
-          )}
+          <AddExistingQuestionModal
+            practicePackId={packId}
+            existingQuestionIds={existingQuestionIds}
+            open={showAddExisting}
+            onOpenChange={setShowAddExisting}
+          />
 
-          {showCreateForm && (
-            <CreateQuestionForm
-              practicePackId={packId}
-              onSuccess={() => setShowCreateForm(false)}
-              onCancel={() => setShowCreateForm(false)}
-            />
-          )}
+          <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
+            <SheetContent side="right" className="overflow-y-auto sm:max-w-xl">
+              <CreateQuestionForm
+                practicePackId={packId}
+                onSuccess={() => setShowCreateForm(false)}
+                onCancel={() => setShowCreateForm(false)}
+              />
+            </SheetContent>
+          </Sheet>
 
           <QuestionsList
             packId={packId}

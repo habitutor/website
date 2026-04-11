@@ -111,7 +111,7 @@ function RouteComponent() {
       <div className="space-y-4">
         <ContentList
           items={contents}
-          isLoading={false}
+          isPending={false}
           searchQuery={searchQuery}
           showCount={Boolean(searchQuery)}
           hasMore={contents?.length === 20}

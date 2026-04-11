@@ -130,7 +130,7 @@ function RouteComponent() {
       <div className="space-y-4">
         <ContentList
           items={contents.data}
-          isLoading={contents.isPending}
+          isPending={contents.isPending}
           error={contents.isError ? contents.error.message : undefined}
           searchQuery={searchQuery}
           showCount={Boolean(searchQuery)}

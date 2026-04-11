@@ -127,7 +127,7 @@ function UsersPage() {
         hasNext={hasMore}
         onPrevious={() => prevCursor && handlePrevious(prevCursor)}
         onNext={() => nextCursor && handleNext(nextCursor)}
-        isLoading={isPending}
+        isPending={isPending}
       />
     </AdminContainer>
   );

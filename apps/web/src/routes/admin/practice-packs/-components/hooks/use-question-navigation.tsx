@@ -1,6 +1,4 @@
-import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 
 type UseQuestionNavigationOptions = {
   totalQuestions: number;
@@ -88,17 +86,4 @@ export function useQuestionNavigation({
     startIndex: gridPage * gridSize,
     endIndex: Math.min(gridPage * gridSize + gridSize, totalQuestions),
   };
-}
-
-export function KeyboardShortcutsHint() {
-  return (
-    <Badge
-      variant="outline"
-      className="gap-1.5 border-border/50 bg-muted/30 font-mono text-[10px] text-muted-foreground"
-    >
-      <CaretLeftIcon className="size-3" />
-      <CaretRightIcon className="size-3" />
-      <span>to navigate</span>
-    </Badge>
-  );
 }

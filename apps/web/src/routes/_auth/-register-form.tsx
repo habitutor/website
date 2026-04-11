@@ -69,7 +69,7 @@ export function SignUpForm() {
       onSubmit: type({
         name: "string >= 2",
         email: "string.email",
-        "phoneNumber?": "string",
+        "phoneNumber?": /^\+[1-9]\d{1,14}$/,
         accountPassphrase: "string >= 8",
         confirmAccountPassphrase: "string >= 8",
       }),

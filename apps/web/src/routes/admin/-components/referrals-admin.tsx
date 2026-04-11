@@ -118,7 +118,7 @@ export function ReferralsAdminPage({
         hasNext={hasMore}
         onPrevious={() => prevCursor && onPrevious(prevCursor)}
         onNext={() => nextCursor && onNext(nextCursor)}
-        isLoading={isPending}
+        isPending={isPending}
       />
     </AdminContainer>
   );

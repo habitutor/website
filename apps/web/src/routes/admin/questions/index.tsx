@@ -96,7 +96,7 @@ function QuestionsPage() {
     });
   };
 
-  const { data, isLoading } = useQuery(
+  const { data, isPending } = useQuery(
     orpc.admin.question.list.queryOptions({
       input: {
         limit,
@@ -157,7 +157,7 @@ function QuestionsPage() {
         </div>
       </div>
 
-      {!isLoading && (!questions || questions.length === 0) ? (
+      {!isPending && (!questions || questions.length === 0) ? (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
           <Exam className="mb-4 size-12 text-muted-foreground" />
           <h3 className="mb-2 text-lg font-semibold">No questions found</h3>
@@ -167,7 +167,7 @@ function QuestionsPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-          {isLoading
+          {isPending
             ? Array.from({ length: 12 }, (_, i) => (
                 // biome-ignore lint: skeleton items don't need stable keys
                 <Skeleton key={i} className="h-52 rounded-lg" />
@@ -181,7 +181,7 @@ function QuestionsPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={!hasPrevious || isLoading}
+            disabled={!hasPrevious || isPending}
             onClick={() => prevCursor && handlePrevious(prevCursor)}
             className="h-9 px-4"
           >
@@ -191,7 +191,7 @@ function QuestionsPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={!hasMore || isLoading}
+            disabled={!hasMore || isPending}
             onClick={() => nextCursor && handleNext(nextCursor)}
             className="h-9 px-4"
           >

@@ -344,7 +344,7 @@ export function LastContentViewedCard({
 export function ContentList({
   title,
   items,
-  isLoading,
+  isPending,
   error,
   onCreate,
   onEdit,
@@ -362,7 +362,7 @@ export function ContentList({
 }: {
   title?: string;
   items?: ContentListItem[];
-  isLoading?: boolean;
+  isPending?: boolean;
   error?: string;
   onCreate?: () => void;
   onEdit?: (item: ContentListItem) => void;
@@ -420,7 +420,7 @@ export function ContentList({
             Tambah Konten
           </Button>
         )}
-        {isLoading && !title && <p className="text-xs text-muted-foreground">Memuat...</p>}
+        {isPending && !title && <p className="text-xs text-muted-foreground">Memuat...</p>}
       </div>
 
       {showCount && searchQuery && items && (
@@ -431,7 +431,7 @@ export function ContentList({
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      {!isLoading && !error && (!localItems || localItems.length === 0) && (
+      {!isPending && !error && (!localItems || localItems.length === 0) && (
         <div className="flex flex-col items-center justify-center gap-2">
           <Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
           <p>Tunggu kontennya diracik dulu ya!</p>

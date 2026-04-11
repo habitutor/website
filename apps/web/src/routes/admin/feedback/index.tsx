@@ -134,7 +134,7 @@ function FeedbackListPage() {
         hasNext={hasNext}
         onPrevious={handlePrevious}
         onNext={handleNext}
-        isLoading={isPending}
+        isPending={isPending}
       />
     </AdminContainer>
   );

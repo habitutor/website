@@ -349,7 +349,7 @@ export function QuestionForm({
               )}
             </Button>
             {onCancel && (
-              <Button variant="outline" isPending={isSubmitting} onClick={onCancel}>
+              <Button type="button" variant="outline" isPending={isSubmitting} onClick={onCancel}>
                 Kembali
               </Button>
             )}

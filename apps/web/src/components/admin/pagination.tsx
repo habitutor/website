@@ -6,7 +6,7 @@ interface CursorPaginationProps {
   hasNext: boolean;
   onPrevious: () => void;
   onNext: () => void;
-  isLoading?: boolean;
+  isPending?: boolean;
 }
 
 export function CursorPagination({
@@ -14,23 +14,23 @@ export function CursorPagination({
   hasNext,
   onPrevious,
   onNext,
-  isLoading = false,
+  isPending = false,
 }: CursorPaginationProps) {
   return (
     <div className="mt-6 flex items-center justify-center gap-4 sm:mt-8">
       <Button
         variant="outline"
         size="sm"
-        disabled={!hasPrevious || isLoading}
+        disabled={!hasPrevious || isPending}
         onClick={onPrevious}
         className="h-9 px-4"
       >
         <CaretLeftIcon className="mr-2 size-4" />
-        Previous
+        Sebelumnya
       </Button>
 
-      <Button variant="outline" size="sm" disabled={!hasNext || isLoading} onClick={onNext} className="h-9 px-4">
-        Next
+      <Button variant="outline" size="sm" disabled={!hasNext || isPending} onClick={onNext} className="h-9 px-4">
+        Berikutnya
         <CaretRightIcon className="ml-2 size-4" />
       </Button>
     </div>

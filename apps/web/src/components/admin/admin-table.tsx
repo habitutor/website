@@ -30,13 +30,13 @@ function AdminTablePagination({
   hasNext,
   onPrevious,
   onNext,
-  isLoading = false,
+  isPending = false,
 }: {
   hasPrevious: boolean;
   hasNext: boolean;
   onPrevious: () => void;
   onNext: () => void;
-  isLoading?: boolean;
+  isPending?: boolean;
 }) {
   return (
     <CursorPagination
@@ -44,7 +44,7 @@ function AdminTablePagination({
       hasNext={hasNext}
       onPrevious={onPrevious}
       onNext={onNext}
-      isLoading={isLoading}
+      isPending={isPending}
     />
   );
 }

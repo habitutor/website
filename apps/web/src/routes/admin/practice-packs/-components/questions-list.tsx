@@ -18,7 +18,7 @@ type QuestionsListProps = {
 export function QuestionsList({ packId, onCreateNew, onAddExisting }: QuestionsListProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const { data, isLoading } = useQuery(
+  const { data, isPending } = useQuery(
     orpc.admin.practicePack.question.list.queryOptions({
       input: { id: packId },
     }),
@@ -42,17 +42,17 @@ export function QuestionsList({ packId, onCreateNew, onAddExisting }: QuestionsL
     onNavigate: setCurrentIndex,
   });
 
-  if (!isLoading && questions.length === 0) {
+  if (!isPending && questions.length === 0) {
     return <EmptyState onCreateNew={onCreateNew} onAddExisting={onAddExisting} />;
   }
 
   const currentQuestion = questions[currentIndex];
 
-  if (!isLoading && !currentQuestion) return null;
+  if (!isPending && !currentQuestion) return null;
 
   return (
     <div className="space-y-4">
-      {isLoading ? (
+      {isPending ? (
         <Skeleton className="h-64 w-full rounded-xl" />
       ) : (
         <div className="flex flex-col gap-6 lg:flex-row">

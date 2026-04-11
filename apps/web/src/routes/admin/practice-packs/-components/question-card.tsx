@@ -22,7 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { KeyboardShortcutsHint } from "./hooks/use-question-navigation";
 import { RemoveQuestionDialog } from "./remove-question-dialog";
 import type { Question } from "./types";
 
@@ -53,13 +52,10 @@ export function QuestionCard({
           <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
             {currentIndex + 1}
           </span>
-          <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
-            ID: {question.id}
-          </Badge>
           <Badge
             variant="outline"
             className={cn(
-              "gap-1 font-mono text-[10px]",
+              "gap-1 text-xs",
               question.isFlashcard
                 ? "border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-950/40 dark:text-green-400"
                 : "border-red-300 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950/40 dark:text-red-400",
@@ -107,12 +103,12 @@ export function QuestionCard({
       />
 
       <CardContent className="space-y-4 py-4">
-        <div className="relative rounded-lg border-l-4 border-l-primary bg-card p-3 shadow-sm">
+        <div className="rounded-lg border bg-card p-3">
           <TiptapRenderer content={question.content} />
         </div>
 
         <div className="rounded-lg bg-muted/30 p-3">
-          <h3 className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">Answer Options</h3>
+          <h3 className="mb-2 text-xs font-medium text-muted-foreground">Opsi Jawaban</h3>
           <div className="grid gap-2 sm:grid-cols-2">
             {question.answers?.map((answer) => (
               <div
@@ -124,7 +120,7 @@ export function QuestionCard({
               >
                 <span
                   className={cn(
-                    "flex size-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold",
+                    "flex size-5 shrink-0 items-center justify-center rounded-sm text-xs font-bold",
                     answer.isCorrect ? "bg-green-500 text-white" : "bg-muted text-muted-foreground",
                   )}
                 >
@@ -151,32 +147,23 @@ export function QuestionCard({
           </CollapsibleContent>
         </Collapsible>
 
-        <div className="flex items-center justify-between border-t pt-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1 px-2 text-xs"
-            onClick={onPrevious}
-            disabled={currentIndex === 0}
-          >
-            <CaretLeftIcon className="size-3" />
-            Previous
+        <div className="flex items-center justify-center gap-4 pt-4">
+          <Button variant="outline" size="sm" className="h-9 px-4" onClick={onPrevious} disabled={currentIndex === 0}>
+            <CaretLeftIcon className="mr-2 size-4" />
+            Sebelumnya
           </Button>
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-muted-foreground">
-              {currentIndex + 1}/{totalQuestions}
-            </span>
-            <KeyboardShortcutsHint />
-          </div>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {currentIndex + 1}/{totalQuestions}
+          </span>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-7 gap-1 px-2 text-xs"
+            className="h-9 px-4"
             onClick={onNext}
             disabled={currentIndex === totalQuestions - 1}
           >
-            Next
-            <CaretRightIcon className="size-3" />
+            Berikutnya
+            <CaretRightIcon className="ml-2 size-4" />
           </Button>
         </div>
       </CardContent>
