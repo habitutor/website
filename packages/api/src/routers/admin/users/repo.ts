@@ -84,22 +84,18 @@ export const adminUserRepo = {
   updatePremium: async ({
     db = defaultDb,
     id,
-    isPremium,
-    premiumTier,
-    premiumExpiresAt,
+    data,
   }: {
     db?: DrizzleDatabase;
     id: string;
-    isPremium: boolean;
-    premiumTier?: "premium" | "premium2" | null;
-    premiumExpiresAt: Date | null;
+    data: Pick<typeof user.$inferInsert, "isPremium" | "premiumTier" | "premiumExpiresAt">;
   }) => {
     const [u] = await db
       .update(user)
       .set({
-        isPremium,
-        premiumTier: isPremium ? (premiumTier ?? "premium") : null,
-        premiumExpiresAt,
+        isPremium: data.isPremium,
+        premiumTier: data.isPremium ? (data.premiumTier ?? "premium") : null,
+        premiumExpiresAt: data.premiumExpiresAt,
       })
       .where(eq(user.id, id))
       .returning();

@@ -94,9 +94,11 @@ const updateUserPremium = admin
 
     const updatedUser = await adminUserRepo.updatePremium({
       id: input.id,
-      isPremium: input.isPremium,
-      premiumTier: input.isPremium ? (input.premiumTier ?? PREMIUM_TIERS.PREMIUM) : null,
-      premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null,
+      data: {
+        isPremium: input.isPremium,
+        premiumTier: input.isPremium ? (input.premiumTier ?? PREMIUM_TIERS.PREMIUM) : null,
+        premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null,
+      },
     });
 
     if (!updatedUser) {

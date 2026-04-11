@@ -41,9 +41,11 @@ export const syncSessionLifecycle = o.middleware(async ({ context, next }) => {
   if (sessionUser.isPremium && sessionUser.premiumExpiresAt && sessionUser.premiumExpiresAt.getTime() < Date.now()) {
     await transactionRepo.updateUserPremium({
       userId: sessionUser.id,
-      isPremium: false,
-      premiumTier: null,
-      premiumExpiresAt: null,
+      data: {
+        isPremium: false,
+        premiumTier: null,
+        premiumExpiresAt: null,
+      },
     });
     sessionUser.isPremium = false;
     sessionUser.premiumExpiresAt = null;

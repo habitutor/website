@@ -12,29 +12,12 @@ export const transactionRepo = {
 
   createTransaction: async ({
     db = defaultDb,
-    id,
-    productId,
-    grossAmount,
-    userId,
-    referralCodeId,
+    values,
   }: {
     db?: DrizzleDatabase;
-    id: string;
-    productId: string;
-    grossAmount: string;
-    userId: string;
-    referralCodeId?: string;
+    values: Pick<typeof transaction.$inferInsert, "id" | "productId" | "grossAmount" | "userId" | "referralCodeId">;
   }) => {
-    const [tx] = await db
-      .insert(transaction)
-      .values({
-        id,
-        productId,
-        grossAmount,
-        userId,
-        referralCodeId,
-      })
-      .returning();
+    const [tx] = await db.insert(transaction).values(values).returning();
     return tx;
   },
 
@@ -100,47 +83,38 @@ export const transactionRepo = {
   updateTransactionStatus: async ({
     db = defaultDb,
     orderId,
-    status,
-    paidAt,
+    data,
   }: {
     db?: DrizzleDatabase;
     orderId: string;
-    status: "success" | "failed" | "pending";
-    paidAt?: Date;
+    data: Pick<typeof transaction.$inferInsert, "status" | "paidAt">;
   }) => {
-    const [tx] = await db
-      .update(transaction)
-      .set({
-        status,
-        paidAt,
-      })
-      .where(eq(transaction.id, orderId))
-      .returning();
+    const [tx] = await db.update(transaction).set(data).where(eq(transaction.id, orderId)).returning();
     return tx;
   },
 
   updateUserPremium: async ({
     db = defaultDb,
     userId,
-    isPremium,
-    premiumTier,
-    premiumExpiresAt,
+    data,
   }: {
     db?: DrizzleDatabase;
     userId: string;
-    isPremium: boolean;
-    premiumTier?: "premium" | "premium2" | null;
-    premiumExpiresAt: Date | null;
+    data: {
+      isPremium: boolean;
+      premiumTier?: "premium" | "premium2" | null;
+      premiumExpiresAt: Date | null;
+    };
   }) => {
     const resolvedPremiumTier = resolvePremiumTierForUpdate({
-      isPremium,
-      premiumTier,
-      premiumExpiresAt,
+      isPremium: data.isPremium,
+      premiumTier: data.premiumTier,
+      premiumExpiresAt: data.premiumExpiresAt,
     });
 
     const updates = [
-      sql`is_premium = ${isPremium}`,
-      sql`premium_expires_at = ${premiumExpiresAt}`,
+      sql`is_premium = ${data.isPremium}`,
+      sql`premium_expires_at = ${data.premiumExpiresAt}`,
       sql`updated_at = now()`,
     ];
 

@@ -44,27 +44,6 @@ import { cn } from "@/lib/utils";
 
 const adminNavGroups = [
   {
-    name: "Content",
-    icon: NotebookIcon,
-    items: [
-      {
-        name: "Practice Packs",
-        to: "/admin/practice-packs" as const,
-        icon: PackageIcon,
-      },
-      {
-        name: "Questions",
-        to: "/admin/questions" as const,
-        icon: QuestionIcon,
-      },
-      {
-        name: "Dashboard Content",
-        to: "/admin/dashboard-content" as const,
-        icon: MegaphoneIcon,
-      },
-    ],
-  },
-  {
     name: "Management",
     icon: FolderOpenIcon,
     items: [
@@ -79,11 +58,6 @@ const adminNavGroups = [
         icon: ChatCircleIcon,
       },
       {
-        name: "Classes",
-        to: "/admin/classes" as const,
-        icon: BooksIcon,
-      },
-      {
         name: "Users",
         to: "/admin/users" as const,
         icon: UserIcon,
@@ -92,6 +66,32 @@ const adminNavGroups = [
         name: "Referral Transactions",
         to: "/admin/referrals" as const,
         icon: TicketIcon,
+      },
+    ],
+  },
+  {
+    name: "Content",
+    icon: NotebookIcon,
+    items: [
+      {
+        name: "Practice Packs",
+        to: "/admin/practice-packs" as const,
+        icon: PackageIcon,
+      },
+      {
+        name: "Questions",
+        to: "/admin/questions" as const,
+        icon: QuestionIcon,
+      },
+      {
+        name: "Classes",
+        to: "/admin/classes" as const,
+        icon: BooksIcon,
+      },
+      {
+        name: "Dashboard Content",
+        to: "/admin/dashboard-content" as const,
+        icon: MegaphoneIcon,
       },
     ],
   },
@@ -112,7 +112,7 @@ export function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {adminNavGroups.map((group) => {
-                const hasActiveChild = group.items.some((item) => location.pathname.startsWith(item.to));
+                const hasActiveChild = group.items.some((item) => location.pathname === item.to);
                 const GroupIcon = group.icon;
 
                 return (
@@ -128,7 +128,7 @@ export function AdminSidebar() {
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {group.items.map((item) => {
-                            const isActive = location.pathname.startsWith(item.to);
+                            const isActive = location.pathname === item.to;
                             const Icon = item.icon;
 
                             return (

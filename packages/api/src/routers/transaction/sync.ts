@@ -53,8 +53,7 @@ export async function markTransactionAsSuccess(orderId: string) {
     await transactionRepo.updateTransactionStatus({
       db: trx,
       orderId,
-      status: "success",
-      paidAt,
+      data: { status: "success", paidAt },
     });
 
     if (isPremiumSubscription && tx.userId) {
@@ -64,9 +63,11 @@ export async function markTransactionAsSuccess(orderId: string) {
       await transactionRepo.updateUserPremium({
         db: trx,
         userId: tx.userId,
-        isPremium: true,
-        premiumTier,
-        premiumExpiresAt: PREMIUM_DEADLINE,
+        data: {
+          isPremium: true,
+          premiumTier,
+          premiumExpiresAt: PREMIUM_DEADLINE,
+        },
       });
     }
 
@@ -149,7 +150,7 @@ export async function syncTransactionStatus(orderId: string) {
   if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
     const updatedTx = await transactionRepo.updateTransactionStatus({
       orderId,
-      status: "failed",
+      data: { status: "failed" },
     });
 
     return {
@@ -160,7 +161,7 @@ export async function syncTransactionStatus(orderId: string) {
 
   const updatedTx = await transactionRepo.updateTransactionStatus({
     orderId,
-    status: "pending",
+    data: { status: "pending" },
   });
 
   return {

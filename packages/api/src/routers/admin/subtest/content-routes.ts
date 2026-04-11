@@ -1,4 +1,5 @@
 import { db } from "@habitutor/db";
+import { contentItem } from "@habitutor/db/schema/subtest";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { admin } from "../../../index";
@@ -81,10 +82,12 @@ export const createContent = admin
 
       const newContent = await adminSubtestRepo.createContentItem({
         db: tx,
-        subtestId: input.subtestId,
-        type: input.type,
-        title: input.title,
-        order: maxOrder + 1,
+        values: {
+          subtestId: input.subtestId,
+          type: input.type,
+          title: input.title,
+          order: maxOrder + 1,
+        },
       });
 
       if (!newContent)
@@ -101,9 +104,11 @@ export const createContent = admin
       if (hasVideo && input.video) {
         const video = await adminSubtestRepo.upsertVideoMaterial({
           db: tx,
-          contentItemId: newContent.id,
-          videoUrl: (input.video as { videoUrl: string }).videoUrl,
-          content: (input.video as { content: object }).content,
+          values: {
+            contentItemId: newContent.id,
+            videoUrl: (input.video as { videoUrl: string }).videoUrl,
+            content: (input.video as { content: object }).content,
+          },
         });
 
         if (video) createdMaterials.video = video.id;
@@ -112,8 +117,10 @@ export const createContent = admin
       if (hasNote && input.note) {
         const note = await adminSubtestRepo.upsertNoteMaterial({
           db: tx,
-          contentItemId: newContent.id,
-          content: (input.note as { content: object }).content,
+          values: {
+            contentItemId: newContent.id,
+            content: (input.note as { content: object }).content,
+          },
         });
 
         if (note) createdMaterials.note = note.id;
@@ -157,7 +164,7 @@ export const updateContent = admin
   )
   .output(type({ message: "string" }))
   .handler(async ({ input }) => {
-    const updateData: { title?: string; order?: number; updatedAt: Date } = {
+    const updateData: Partial<Omit<typeof contentItem.$inferInsert, "id" | "createdAt">> = {
       updatedAt: new Date(),
     };
 
@@ -278,9 +285,11 @@ export const upsertVideo = admin
       });
 
     const video = await adminSubtestRepo.upsertVideoMaterial({
-      contentItemId: input.id,
-      videoUrl: input.videoUrl,
-      content: input.content,
+      values: {
+        contentItemId: input.id,
+        videoUrl: input.videoUrl,
+        content: input.content,
+      },
     });
 
     if (!video)
@@ -332,8 +341,10 @@ export const upsertNote = admin
       });
 
     const note = await adminSubtestRepo.upsertNoteMaterial({
-      contentItemId: input.id,
-      content: input.content,
+      values: {
+        contentItemId: input.id,
+        content: input.content,
+      },
     });
 
     if (!note)

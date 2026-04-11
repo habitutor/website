@@ -1,4 +1,5 @@
 import { ORPCError } from "@orpc/server";
+import { question } from "@habitutor/db/schema/question";
 import { type } from "arktype";
 import { admin } from "../../../index";
 import { convertToTiptap } from "../../../lib/tiptap";
@@ -132,11 +133,13 @@ const create = admin
     const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
 
     const q = await adminQuestionRepo.create({
-      content: contentText,
-      discussion: discussionText,
-      contentJson,
-      discussionJson,
-      isFlashcardQuestion: input.isFlashcardQuestion ?? true,
+      values: {
+        content: contentText,
+        discussion: discussionText,
+        contentJson,
+        discussionJson,
+        isFlashcardQuestion: input.isFlashcardQuestion ?? true,
+      },
     });
 
     if (!q)
@@ -162,7 +165,7 @@ const update = admin
     }),
   )
   .handler(async ({ input }) => {
-    const updateData: Record<string, unknown> = {};
+    const updateData: Partial<Omit<typeof question.$inferInsert, "id">> = {};
 
     if (input.content !== undefined) {
       updateData.contentJson = typeof input.content === "object" ? input.content : null;
@@ -230,10 +233,12 @@ const createAnswer = admin
       });
 
     const answer = await adminQuestionRepo.createAnswer({
-      questionId: input.questionId,
-      content: input.content,
-      isCorrect: input.isCorrect,
-      code: input.code,
+      values: {
+        questionId: input.questionId,
+        content: input.content,
+        isCorrect: input.isCorrect,
+        code: input.code,
+      },
     });
 
     if (!answer)
@@ -260,8 +265,10 @@ const updateAnswer = admin
   .handler(async ({ input }) => {
     const answer = await adminQuestionRepo.updateAnswer({
       id: input.id,
-      content: input.content,
-      isCorrect: input.isCorrect,
+      data: {
+        content: input.content,
+        isCorrect: input.isCorrect,
+      },
     });
 
     if (!answer)

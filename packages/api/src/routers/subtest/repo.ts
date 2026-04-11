@@ -271,13 +271,7 @@ export const subtestRepo = {
     noteCompleted?: boolean;
     practiceQuestionsCompleted?: boolean;
   }) => {
-    const updateData: {
-      videoCompleted?: boolean;
-      noteCompleted?: boolean;
-      practiceQuestionsCompleted?: boolean;
-      lastViewedAt: Date;
-      updatedAt: Date;
-    } = {
+    const updateData: Omit<typeof userProgress.$inferInsert, "id" | "userId" | "contentItemId" | "createdAt"> = {
       lastViewedAt: new Date(),
       updatedAt: new Date(),
     };

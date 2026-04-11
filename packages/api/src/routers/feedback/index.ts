@@ -12,13 +12,15 @@ const create = authed
   .input(createFeedbackInputSchema)
   .handler(async ({ context, input, errors }) => {
     const feedback = await feedbackRepo.create({
-      userId: context.session.user.id,
-      path: input.path,
-      questionId: input.questionId,
-      category: input.category ?? "other",
-      description: input.description,
-      selectedAnswerId: input.selectedAnswerId,
-      attemptId: input.attemptId,
+      values: {
+        userId: context.session.user.id,
+        path: input.path,
+        questionId: input.questionId,
+        category: input.category ?? "other",
+        description: input.description,
+        selectedAnswerId: input.selectedAnswerId,
+        attemptId: input.attemptId,
+      },
     });
     if (!feedback) throw errors.UNPROCESSABLE_CONTENT();
     return { id: feedback.id, message: "Laporan berhasil dikirim!" };
@@ -74,9 +76,12 @@ const adminUpdate = admin
     const resolvedAt = input.status === "resolved" ? new Date() : null;
 
     return feedbackRepo.update({
-      ...input,
-      resolvedAt,
-      ...(input.status && { resolvedBy: context.session.user.id }),
+      id: input.id,
+      data: {
+        ...input,
+        resolvedAt,
+        ...(input.status && { resolvedBy: context.session.user.id }),
+      },
     });
   });
 

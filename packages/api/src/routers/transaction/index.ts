@@ -81,11 +81,13 @@ const subscribe = authed
     const orderId = `tx_${crypto.randomUUID()}`;
 
     const createdTransaction = await transactionRepo.createTransaction({
-      id: orderId,
-      productId: plan.id,
-      grossAmount: String(grossAmount),
-      userId: context.session.user.id,
-      referralCodeId: appliedReferralCodeId,
+      values: {
+        id: orderId,
+        productId: plan.id,
+        grossAmount: String(grossAmount),
+        userId: context.session.user.id,
+        referralCodeId: appliedReferralCodeId,
+      },
     });
     if (!createdTransaction)
       throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });

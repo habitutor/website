@@ -83,29 +83,12 @@ export const adminQuestionRepo = {
 
   create: async ({
     db = defaultDb,
-    content,
-    discussion,
-    contentJson,
-    discussionJson,
-    isFlashcardQuestion,
+    values,
   }: {
     db?: DrizzleDatabase;
-    content: string;
-    discussion: string;
-    contentJson: object | null;
-    discussionJson: object | null;
-    isFlashcardQuestion: boolean;
+    values: Omit<typeof question.$inferInsert, "id">;
   }) => {
-    const [q] = await db
-      .insert(question)
-      .values({
-        content,
-        discussion,
-        contentJson,
-        discussionJson,
-        isFlashcardQuestion,
-      })
-      .returning();
+    const [q] = await db.insert(question).values(values).returning();
     return q;
   },
 
@@ -116,13 +99,7 @@ export const adminQuestionRepo = {
   }: {
     db?: DrizzleDatabase;
     id: number;
-    data: {
-      content?: string;
-      contentJson?: object | null;
-      discussion?: string;
-      discussionJson?: object | null;
-      isFlashcardQuestion?: boolean;
-    };
+    data: Partial<Omit<typeof question.$inferInsert, "id">>;
   }) => {
     const [q] = await db.update(question).set(data).where(eq(question.id, id)).returning();
     return q;
@@ -140,45 +117,25 @@ export const adminQuestionRepo = {
 
   createAnswer: async ({
     db = defaultDb,
-    questionId,
-    content,
-    isCorrect,
-    code,
+    values,
   }: {
     db?: DrizzleDatabase;
-    questionId: number;
-    content: string;
-    isCorrect: boolean;
-    code: string;
+    values: Omit<typeof questionAnswerOption.$inferInsert, "id">;
   }) => {
-    const [answer] = await db
-      .insert(questionAnswerOption)
-      .values({
-        questionId,
-        content,
-        isCorrect,
-        code,
-      })
-      .returning();
+    const [answer] = await db.insert(questionAnswerOption).values(values).returning();
     return answer;
   },
 
   updateAnswer: async ({
     db = defaultDb,
     id,
-    content,
-    isCorrect,
+    data,
   }: {
     db?: DrizzleDatabase;
     id: number;
-    content: string;
-    isCorrect: boolean;
+    data: Partial<Omit<typeof questionAnswerOption.$inferInsert, "id" | "questionId" | "code">>;
   }) => {
-    const [answer] = await db
-      .update(questionAnswerOption)
-      .set({ content, isCorrect })
-      .where(eq(questionAnswerOption.id, id))
-      .returning();
+    const [answer] = await db.update(questionAnswerOption).set(data).where(eq(questionAnswerOption.id, id)).returning();
     return answer;
   },
 

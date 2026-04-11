@@ -1,40 +1,17 @@
 import { and, asc, desc, eq, gt, gte, lt } from "drizzle-orm";
 import type { DrizzleDatabase } from "@habitutor/db";
 import { db as defaultDb } from "@habitutor/db";
-import { type FeedbackCategory, type FeedbackStatus, feedbackReport } from "@habitutor/db/schema/feedback";
+import { type FeedbackStatus, feedbackReport } from "@habitutor/db/schema/feedback";
 
 export const feedbackRepo = {
   create: async ({
     db = defaultDb,
-    userId,
-    path,
-    questionId,
-    category,
-    description,
-    selectedAnswerId,
-    attemptId,
+    values,
   }: {
     db?: DrizzleDatabase;
-    userId: string;
-    path?: string | null;
-    questionId?: number | null;
-    category: FeedbackCategory;
-    description: string;
-    selectedAnswerId?: number | null;
-    attemptId?: number | null;
+    values: Omit<typeof feedbackReport.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
-    const [feedback] = await db
-      .insert(feedbackReport)
-      .values({
-        userId,
-        path,
-        questionId,
-        category,
-        description,
-        selectedAnswerId,
-        attemptId,
-      })
-      .returning();
+    const [feedback] = await db.insert(feedbackReport).values(values).returning();
     return feedback;
   },
 
@@ -55,7 +32,7 @@ export const feedbackRepo = {
     category?: string | null;
     priority?: string | null;
   }) => {
-    let data;
+    let data: (typeof feedbackReport.$inferSelect)[];
     let hasNext = false;
     let hasPrevious = false;
 
@@ -124,34 +101,15 @@ export const feedbackRepo = {
   update: async ({
     db = defaultDb,
     id,
-    status,
-    priority,
-    adminNotes,
-    resolvedBy,
-    resolvedAt,
+    data,
   }: {
     db?: DrizzleDatabase;
     id: number;
-    status?: FeedbackStatus | null;
-    priority?: "p0" | "p1" | "p2" | "p3" | null;
-    adminNotes?: string | null;
-    resolvedBy?: string | null;
-    resolvedAt?: Date | null;
+    data: Partial<
+      Pick<typeof feedbackReport.$inferInsert, "status" | "priority" | "adminNotes" | "resolvedBy" | "resolvedAt">
+    >;
   }) => {
-    const [feedback] = await db
-      .update(feedbackReport)
-      .set({
-        ...(status !== undefined &&
-          status !== null && {
-            status,
-            resolvedAt,
-          }),
-        ...(priority !== undefined && { priority }),
-        ...(adminNotes !== undefined && { adminNotes }),
-        ...(resolvedBy !== undefined && { resolvedBy }),
-      })
-      .where(eq(feedbackReport.id, id))
-      .returning();
+    const [feedback] = await db.update(feedbackReport).set(data).where(eq(feedbackReport.id, id)).returning();
     return feedback;
   },
 

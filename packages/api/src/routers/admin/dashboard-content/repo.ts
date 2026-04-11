@@ -52,17 +52,10 @@ export const adminDashboardContentRepo = {
 
   createLiveClass: async ({
     db = defaultDb,
-    input,
+    values,
   }: {
     db?: DrizzleDatabase;
-    input: {
-      title: string;
-      date: string;
-      time: string;
-      teacher: string;
-      link: string;
-      access: "3x" | "5x";
-    };
+    values: Omit<typeof dashboardLiveClass.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
     const existingRows = await db.query.dashboardLiveClass.findMany({
       columns: { order: true },
@@ -73,13 +66,7 @@ export const adminDashboardContentRepo = {
     const [row] = await db
       .insert(dashboardLiveClass)
       .values({
-        title: input.title,
-        date: input.date,
-        time: input.time,
-        teacher: input.teacher,
-        link: input.link,
-        access: input.access,
-        isPublished: true,
+        ...values,
         order: nextOrder,
       })
       .returning();
@@ -114,43 +101,27 @@ export const adminDashboardContentRepo = {
 
   createAnnouncement: async ({
     db = defaultDb,
-    input,
+    values,
   }: {
     db?: DrizzleDatabase;
-    input: {
-      title: string;
-      description: string;
-      variant: "primary" | "cashback";
-      ctaLink: string | null;
-      ctaLabel: string | null;
-      order: number;
-      isPublished: boolean;
-    };
+    values: Omit<typeof dashboardAnnouncement.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
-    const [row] = await db.insert(dashboardAnnouncement).values(input).returning();
+    const [row] = await db.insert(dashboardAnnouncement).values(values).returning();
     return row;
   },
 
   updateAnnouncement: async ({
     db = defaultDb,
     id,
-    input,
+    values,
   }: {
     db?: DrizzleDatabase;
     id: number;
-    input: {
-      title: string;
-      description: string;
-      variant: "primary" | "cashback";
-      ctaLink: string | null;
-      ctaLabel: string | null;
-      order: number;
-      isPublished: boolean;
-    };
+    values: Omit<typeof dashboardAnnouncement.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
     const [row] = await db
       .update(dashboardAnnouncement)
-      .set({ ...input, updatedAt: new Date() })
+      .set({ ...values, updatedAt: new Date() })
       .where(eq(dashboardAnnouncement.id, id))
       .returning();
     return row;

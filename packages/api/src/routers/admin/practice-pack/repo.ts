@@ -126,29 +126,25 @@ export const adminPracticePackRepo = {
 
   create: async ({
     db = defaultDb,
-    title,
-    description,
+    values,
   }: {
     db?: DrizzleDatabase;
-    title: string;
-    description?: string;
+    values: Pick<typeof practicePack.$inferInsert, "title" | "description">;
   }) => {
-    const [pack] = await db.insert(practicePack).values({ title, description }).returning();
+    const [pack] = await db.insert(practicePack).values(values).returning();
     return pack;
   },
 
   update: async ({
     db = defaultDb,
     id,
-    title,
-    description,
+    values,
   }: {
     db?: DrizzleDatabase;
     id: number;
-    title: string;
-    description?: string;
+    values: Pick<typeof practicePack.$inferInsert, "title" | "description">;
   }) => {
-    const [pack] = await db.update(practicePack).set({ title, description }).where(eq(practicePack.id, id)).returning();
+    const [pack] = await db.update(practicePack).set(values).where(eq(practicePack.id, id)).returning();
     return pack;
   },
 
@@ -177,23 +173,12 @@ export const adminPracticePackRepo = {
 
   addQuestion: async ({
     db = defaultDb,
-    practicePackId,
-    questionId,
-    order,
+    values,
   }: {
     db?: DrizzleDatabase;
-    practicePackId: number;
-    questionId: number;
-    order: number;
+    values: Omit<typeof practicePackQuestions.$inferInsert, never>;
   }) => {
-    return db
-      .insert(practicePackQuestions)
-      .values({
-        practicePackId,
-        questionId,
-        order,
-      })
-      .onConflictDoNothing();
+    return db.insert(practicePackQuestions).values(values).onConflictDoNothing();
   },
 
   removeQuestion: async ({

@@ -64,8 +64,7 @@ const create = admin
   )
   .handler(async ({ input }) => {
     const pack = await adminPracticePackRepo.create({
-      title: input.title,
-      description: input.description,
+      values: { title: input.title, description: input.description },
     });
 
     if (!pack)
@@ -92,8 +91,7 @@ const update = admin
   .handler(async ({ input }) => {
     const pack = await adminPracticePackRepo.update({
       id: input.id,
-      title: input.title,
-      description: input.description,
+      values: { title: input.title, description: input.description },
     });
 
     if (!pack)
@@ -157,9 +155,11 @@ const addQuestion = admin
     }
 
     await adminPracticePackRepo.addQuestion({
-      practicePackId: input.practicePackId,
-      questionId: input.questionId,
-      order: orderValue ?? 1,
+      values: {
+        practicePackId: input.practicePackId,
+        questionId: input.questionId,
+        order: orderValue ?? 1,
+      },
     });
 
     return { message: "Berhasil menambahkan question ke practice pack" };

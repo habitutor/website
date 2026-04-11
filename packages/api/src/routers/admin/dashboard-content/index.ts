@@ -91,13 +91,14 @@ const createLiveClass = admin
     }
 
     const row = await adminDashboardContentRepo.createLiveClass({
-      input: {
+      values: {
         title: input.title,
         date: normalizedDate,
         time: normalizedTime,
         teacher: input.teacher,
         link: input.link,
         access: input.access,
+        isPublished: true,
       },
     });
 
@@ -163,7 +164,7 @@ const updateAnnouncement = admin
 
     const row = await adminDashboardContentRepo.updateAnnouncement({
       id: input.id,
-      input: {
+      values: {
         title: input.title,
         description: input.description,
         variant: existing.variant,

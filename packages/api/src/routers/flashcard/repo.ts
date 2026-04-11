@@ -98,11 +98,7 @@ export const flashcardRepo = {
     answers,
   }: {
     db?: DrizzleDatabase;
-    answers: Array<{
-      attemptId: number;
-      assignedDate: Date;
-      questionId: number;
-    }>;
+    answers: (typeof userFlashcardQuestionAnswer.$inferInsert)[];
   }) => {
     return db.insert(userFlashcardQuestionAnswer).values(answers);
   },
