@@ -3,10 +3,10 @@ export const DATA = {
     ultimate_bundling1: {
       label: "Ultimate Bundling",
       badge: "Paling Lengkap",
-      price_now: "Rp55.000",
+      price_now: "Rp35.000",
       original_price: "Rp1.000.000",
       suffix: "sampai SNBT",
-      percentage: "90%",
+      percentage: "95%",
       promo_end: "1 Mei",
       features: [
         { label: "Akses Full Website", status: "included" },
