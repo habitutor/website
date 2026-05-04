@@ -1,35 +1,35 @@
 import { isDefinedError } from "@orpc/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeftIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Item, ItemContent, ItemDescription, ItemMedia } from "@/components/ui/item";
 import { orpc } from "@/utils/orpc";
 
 export function FlashcardStartCard() {
   const queryClient = useQueryClient();
   const { session } = useRouteContext({ from: "/_authenticated" });
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
   const startMutation = useMutation(
     orpc.flashcard.start.mutationOptions({
       onSuccess: () => {
-        queryClient.resetQueries({ queryKey: orpc.flashcard.session.key() });
+        queryClient.resetQueries({ queryKey: orpc.flashcard.get.key() });
         navigate({ to: "/dashboard/flashcard/intro" });
       },
       onError: (error) => {
         if (isDefinedError(error) && error.code === "NOT_FOUND") {
-          toast.error("Ups! Kamu sudah mengerjakan semua Brain Gym yang tersedia!", {
-            description: "Silahkan coba lagi dalam beberapa saat.",
-          });
+          setError(
+            "Ups! Kamu sudah mengerjakan semua Brain Gym yang tersedia! Silahkan coba lagi dalam beberapa saat.",
+          );
         } else if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") {
-          toast.error(error.message || "Permintaan tidak dapat diproses.");
+          setError(error.message || "Permintaan tidak dapat diproses.");
         }
       },
     }),
   );
-  const { data: totalScoreData } = useQuery(orpc.flashcard.score.queryOptions());
-  const totalScore = totalScoreData?.totalScore ?? 0;
+  const totalScore = session?.user.totalScore ?? 0;
 
   useEffect(() => {
     if (!session) {
@@ -124,6 +124,7 @@ export function FlashcardStartCard() {
 
       <Button
         onClick={() => {
+          setError(null);
           startMutation.mutate({});
         }}
         disabled={startMutation.isPending}
@@ -131,6 +132,17 @@ export function FlashcardStartCard() {
       >
         Mulai Sekarang
       </Button>
+
+      {error && (
+        <Item variant="destructive" size="sm">
+          <ItemMedia variant="destructive">
+            <WarningCircleIcon className="text-destructive" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemDescription className="text-destructive">{error}</ItemDescription>
+          </ItemContent>
+        </Item>
+      )}
     </section>
   );
 }

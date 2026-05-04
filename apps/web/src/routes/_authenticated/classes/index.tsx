@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { SubtestCard, SubtestHeader } from "@/components/classes";
-import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
+import { MotionStaggerItem } from "@/components/motion/motion-components";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
+import { PageContent } from "../-components/page-content";
 
 export const Route = createFileRoute("/_authenticated/classes/")({
   head: () => ({
@@ -25,7 +26,7 @@ function RouteComponent() {
   const subtests = useQuery(orpc.subtest.list.queryOptions({ input: {} }));
 
   return (
-    <MotionStagger className="mt-4 sm:-mt-3">
+    <PageContent className="mt-4 sm:-mt-3">
       <MotionStaggerItem>
         <SubtestHeader />
       </MotionStaggerItem>
@@ -55,6 +56,6 @@ function RouteComponent() {
           )}
         </div>
       </MotionStaggerItem>
-    </MotionStagger>
+    </PageContent>
   );
 }

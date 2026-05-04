@@ -1,6 +1,5 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import Loader from "./components/feedback/loader";
-import "./index.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import ErrorComponent from "./components/feedback/error";
 import NotFound from "./components/feedback/not-found";
@@ -24,5 +23,8 @@ export const getRouter = () => {
 declare module "@tanstack/react-router" {
   interface Register {
     router: ReturnType<typeof getRouter>;
+  }
+  interface StaticDataRouteOption {
+    breadcrumb?: string | Array<{ label: string; href: string }>;
   }
 }

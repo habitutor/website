@@ -91,81 +91,20 @@ const createLiveClass = admin
     }
 
     const row = await adminDashboardContentRepo.createLiveClass({
-      input: {
+      values: {
         title: input.title,
         date: normalizedDate,
         time: normalizedTime,
         teacher: input.teacher,
         link: input.link,
         access: input.access,
+        isPublished: true,
       },
     });
 
     if (!row) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Gagal membuat live class",
-      });
-    }
-
-    return row;
-  });
-
-const updateLiveClass = admin
-  .route({
-    path: "/admin/dashboard-content/live-classes/{id}",
-    method: "PUT",
-    tags: ["Admin - Dashboard Content"],
-  })
-  .input(
-    type({
-      id: "number",
-      title: "string",
-      date: "string",
-      time: "string",
-      teacher: "string",
-      link: "string",
-      access: "'3x' | '5x'",
-    }),
-  )
-  .handler(async ({ input }) => {
-    const { id, ...updatePayload } = input;
-    const normalizedDate = normalizeDateInput(updatePayload.date);
-    const normalizedTime = normalizeTimeInput(updatePayload.time);
-
-    if (!updatePayload.title.trim() || !updatePayload.teacher.trim() || !updatePayload.link.trim()) {
-      throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        message: "Semua field live class wajib diisi",
-      });
-    }
-
-    if (!normalizedDate || !normalizedTime) {
-      throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        message: "Format tanggal/waktu tidak valid",
-      });
-    }
-
-    const scheduledAt = toScheduleDate(normalizedDate, normalizedTime);
-    if (!scheduledAt || scheduledAt <= new Date()) {
-      throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        message: "Tanggal dan waktu live class harus di masa depan",
-      });
-    }
-
-    const row = await adminDashboardContentRepo.updateLiveClass({
-      id,
-      input: {
-        title: updatePayload.title,
-        date: normalizedDate,
-        time: normalizedTime,
-        teacher: updatePayload.teacher,
-        link: updatePayload.link,
-        access: updatePayload.access,
-      },
-    });
-
-    if (!row) {
-      throw new ORPCError("NOT_FOUND", {
-        message: "Live class tidak ditemukan",
       });
     }
 
@@ -191,41 +130,6 @@ const deleteLiveClass = admin
     }
 
     return { message: "Live class berhasil dihapus" };
-  });
-
-const createAnnouncement = admin
-  .route({
-    path: "/admin/dashboard-content/announcements",
-    method: "POST",
-    tags: ["Admin - Dashboard Content"],
-  })
-  .input(
-    type({
-      title: "string",
-      description: "string",
-    }),
-  )
-  .handler(async ({ input }) => {
-    if (!input.title.trim() || !input.description.trim()) {
-      throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        message: "Judul dan deskripsi announcement wajib diisi",
-      });
-    }
-
-    const row = await adminDashboardContentRepo.upsertPrimaryAnnouncement({
-      input: {
-        title: input.title,
-        description: input.description,
-      },
-    });
-
-    if (!row) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Gagal membuat announcement",
-      });
-    }
-
-    return row;
   });
 
 const updateAnnouncement = admin
@@ -260,7 +164,7 @@ const updateAnnouncement = admin
 
     const row = await adminDashboardContentRepo.updateAnnouncement({
       id: input.id,
-      input: {
+      values: {
         title: input.title,
         description: input.description,
         variant: existing.variant,
@@ -280,53 +184,13 @@ const updateAnnouncement = admin
     return row;
   });
 
-const deleteAnnouncement = admin
-  .route({
-    path: "/admin/dashboard-content/announcements/{id}",
-    method: "DELETE",
-    tags: ["Admin - Dashboard Content"],
-  })
-  .input(type({ id: "number" }))
-  .handler(async ({ input }) => {
-    const existing = await adminDashboardContentRepo.getAnnouncementById({
-      id: input.id,
-    });
-
-    if (!existing) {
-      throw new ORPCError("NOT_FOUND", {
-        message: "Announcement tidak ditemukan",
-      });
-    }
-
-    if (existing.variant !== "primary") {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Promo cashback tidak bisa dihapus",
-      });
-    }
-
-    const row = await adminDashboardContentRepo.deleteAnnouncement({
-      id: input.id,
-    });
-
-    if (!row) {
-      throw new ORPCError("NOT_FOUND", {
-        message: "Announcement tidak ditemukan",
-      });
-    }
-
-    return { message: "Announcement berhasil dihapus" };
-  });
-
 export const adminDashboardContentRouter = {
   list,
   liveClass: {
     create: createLiveClass,
-    update: updateLiveClass,
     remove: deleteLiveClass,
   },
   announcement: {
-    create: createAnnouncement,
     update: updateAnnouncement,
-    remove: deleteAnnouncement,
   },
 };

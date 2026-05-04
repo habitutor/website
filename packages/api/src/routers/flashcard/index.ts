@@ -2,7 +2,7 @@ import { db } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
-import { authed, premium } from "../../index";
+import { authed } from "../../index";
 import { getStartOfDay } from "@habitutor/shared/date";
 import { convertToTiptap } from "../../lib/tiptap";
 import {
@@ -41,54 +41,51 @@ const start = authed
       gracePeriodSeconds: GRACE_PERIOD_SECONDS,
     });
 
-    if (shouldBlock && !isPremium)
+    if (shouldBlock)
       throw errors.UNPROCESSABLE_CONTENT({
         message: "Kamu sudah memulai sesi flashcard hari ini.",
       });
 
-    // if (shouldBlock && isPremium)
-    //   throw errors.UNPROCESSABLE_CONTENT({
-    //     message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
-    //   });
-
-    const attempt = await flashcardRepo.createAttempt({
-      db,
-      userId: context.session.user.id,
-      deadline,
-    });
-
-    if (!attempt)
-      throw errors.INTERNAL_SERVER_ERROR({
-        message: "Gagal membuat sesi flashcard.",
+    await db.transaction(async (tx) => {
+      const attempt = await flashcardRepo.createAttempt({
+        db: tx,
+        userId: context.session.user.id,
+        deadline,
       });
 
-    const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
-      db,
-      limit: FLASHCARD_QUESTION_LIMIT,
-    });
+      if (!attempt)
+        throw errors.INTERNAL_SERVER_ERROR({
+          message: "Gagal membuat sesi flashcard.",
+        });
 
-    if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
-      throw errors.NOT_FOUND({
-        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+      const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
+        db: tx,
+        limit: FLASHCARD_QUESTION_LIMIT,
       });
 
-    const availableQuestions = await flashcardRepo.getQuestionsByIds({
-      db,
-      ids: randomQuestionIds.map((q) => q.id),
-    });
+      if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
+        throw errors.NOT_FOUND({
+          message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+        });
 
-    if (availableQuestions.length < FLASHCARD_QUESTION_LIMIT)
-      throw errors.NOT_FOUND({
-        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+      const availableQuestions = await flashcardRepo.getQuestionsByIds({
+        db: tx,
+        ids: randomQuestionIds.map((q) => q.id),
       });
 
-    await flashcardRepo.insertQuestionAnswers({
-      db,
-      answers: availableQuestions.map((q) => ({
-        attemptId: attempt.id,
-        assignedDate: today,
-        questionId: q.id,
-      })),
+      if (availableQuestions.length < FLASHCARD_QUESTION_LIMIT)
+        throw errors.NOT_FOUND({
+          message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+        });
+
+      await flashcardRepo.insertQuestionAnswers({
+        db: tx,
+        answers: availableQuestions.map((q) => ({
+          attemptId: attempt.id,
+          assignedDate: today,
+          questionId: q.id,
+        })),
+      });
     });
 
     return "Sukses memulai sesi flashcard!";
@@ -324,37 +321,8 @@ const result = authed
       assignedQuestions: formattedQuestions,
       correctAnswersCount: correct,
       questionsCount: formattedQuestions.length,
+      attemptId: attempt.id,
     };
-  });
-
-const history = premium
-  .route({
-    path: "/flashcard/history",
-    method: "GET",
-    tags: ["Flashcard"],
-  })
-  .handler(async ({ context }) => {
-    return flashcardRepo.getUserHistory({ db, userId: context.session.user.id });
-  });
-
-const totalScore = authed
-  .route({
-    path: "/flashcard/total-score",
-    method: "POST",
-    tags: ["Flashcard"],
-  })
-  .output(
-    type({
-      totalScore: "number",
-    }),
-  )
-  .handler(async ({ context }) => {
-    const totalScore = await flashcardRepo.getUserTotalScore({
-      db,
-      userId: context.session.user.id,
-    });
-
-    return { totalScore };
   });
 
 const leaderboard = authed
@@ -397,14 +365,8 @@ const leaderboard = authed
 export const flashcardRouter = {
   start,
   get,
-  save,
-  totalScore,
-  // Legacy aliases kept for compatibility
-  session: get,
   submit,
   answer: save,
   result,
-  history,
-  score: totalScore,
   leaderboard,
 };

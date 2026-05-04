@@ -9,7 +9,7 @@ import {
   type PackQuestion,
   PracticeQuestionLinkingView,
   type PracticePackOption,
-} from "./$contentId.latihan-soal-view";
+} from "./-$contentId.latihan-soal-view";
 
 export const Route = createFileRoute("/admin/classes/$shortName/$contentId/latihan-soal")({
   component: RouteComponent,

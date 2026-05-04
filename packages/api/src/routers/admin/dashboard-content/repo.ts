@@ -52,17 +52,10 @@ export const adminDashboardContentRepo = {
 
   createLiveClass: async ({
     db = defaultDb,
-    input,
+    values,
   }: {
     db?: DrizzleDatabase;
-    input: {
-      title: string;
-      date: string;
-      time: string;
-      teacher: string;
-      link: string;
-      access: "3x" | "5x";
-    };
+    values: Omit<typeof dashboardLiveClass.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
     const existingRows = await db.query.dashboardLiveClass.findMany({
       columns: { order: true },
@@ -73,52 +66,9 @@ export const adminDashboardContentRepo = {
     const [row] = await db
       .insert(dashboardLiveClass)
       .values({
-        title: input.title,
-        date: input.date,
-        time: input.time,
-        teacher: input.teacher,
-        link: input.link,
-        access: input.access,
-        isPublished: true,
+        ...values,
         order: nextOrder,
       })
-      .returning();
-    return row;
-  },
-
-  updateLiveClass: async ({
-    db = defaultDb,
-    id,
-    input,
-  }: {
-    db?: DrizzleDatabase;
-    id: number;
-    input: {
-      title: string;
-      date: string;
-      time: string;
-      teacher: string;
-      link: string;
-      access: "3x" | "5x";
-    };
-  }) => {
-    const [existing] = await db.select().from(dashboardLiveClass).where(eq(dashboardLiveClass.id, id));
-    if (!existing) return undefined;
-
-    const [row] = await db
-      .update(dashboardLiveClass)
-      .set({
-        title: input.title,
-        date: input.date,
-        time: input.time,
-        teacher: input.teacher,
-        link: input.link,
-        access: input.access,
-        isPublished: existing.isPublished,
-        order: existing.order,
-        updatedAt: new Date(),
-      })
-      .where(eq(dashboardLiveClass.id, id))
       .returning();
     return row;
   },
@@ -151,91 +101,29 @@ export const adminDashboardContentRepo = {
 
   createAnnouncement: async ({
     db = defaultDb,
-    input,
+    values,
   }: {
     db?: DrizzleDatabase;
-    input: {
-      title: string;
-      description: string;
-      variant: "primary" | "cashback";
-      ctaLink: string | null;
-      ctaLabel: string | null;
-      order: number;
-      isPublished: boolean;
-    };
+    values: Omit<typeof dashboardAnnouncement.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
-    const [row] = await db.insert(dashboardAnnouncement).values(input).returning();
-    return row;
-  },
-
-  upsertPrimaryAnnouncement: async ({
-    db = defaultDb,
-    input,
-  }: {
-    db?: DrizzleDatabase;
-    input: {
-      title: string;
-      description: string;
-    };
-  }) => {
-    const existingPrimary = await adminDashboardContentRepo.getPrimaryAnnouncement({ db });
-
-    if (existingPrimary) {
-      const [row] = await db
-        .update(dashboardAnnouncement)
-        .set({
-          title: input.title,
-          description: input.description,
-          updatedAt: new Date(),
-        })
-        .where(eq(dashboardAnnouncement.id, existingPrimary.id))
-        .returning();
-      return row;
-    }
-
-    const [row] = await db
-      .insert(dashboardAnnouncement)
-      .values({
-        title: input.title,
-        description: input.description,
-        variant: "primary",
-        ctaLink: null,
-        ctaLabel: null,
-        isPublished: true,
-        order: 1,
-      })
-      .returning();
-
+    const [row] = await db.insert(dashboardAnnouncement).values(values).returning();
     return row;
   },
 
   updateAnnouncement: async ({
     db = defaultDb,
     id,
-    input,
+    values,
   }: {
     db?: DrizzleDatabase;
     id: number;
-    input: {
-      title: string;
-      description: string;
-      variant: "primary" | "cashback";
-      ctaLink: string | null;
-      ctaLabel: string | null;
-      order: number;
-      isPublished: boolean;
-    };
+    values: Omit<typeof dashboardAnnouncement.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
     const [row] = await db
       .update(dashboardAnnouncement)
-      .set({ ...input, updatedAt: new Date() })
+      .set({ ...values, updatedAt: new Date() })
       .where(eq(dashboardAnnouncement.id, id))
       .returning();
-    return row;
-  },
-
-  deleteAnnouncement: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
-    const [row] = await db.delete(dashboardAnnouncement).where(eq(dashboardAnnouncement.id, id)).returning();
     return row;
   },
 };

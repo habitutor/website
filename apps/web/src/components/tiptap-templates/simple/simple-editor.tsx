@@ -12,9 +12,9 @@ import { StarterKit } from "@tiptap/starter-kit";
 import { useEffect, useRef, useState } from "react";
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 // --- UI Primitives ---
-import { Button } from "@/components/tiptap-ui-primitive/button";
-import { Spacer } from "@/components/tiptap-ui-primitive/spacer";
-import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@/components/tiptap-ui-primitive/toolbar";
+import { Button } from "@/components/tiptap-ui-primitive/button/button";
+import { Spacer } from "@/components/tiptap-ui-primitive/spacer/spacer";
+import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@/components/tiptap-ui-primitive/toolbar/toolbar";
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
 import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss";
@@ -24,25 +24,25 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 
 // --- Icons ---
-import { ArrowLeftIcon } from "@/components/tiptap-icons";
-import { HighlighterIcon } from "@/components/tiptap-icons";
-import { LinkIcon } from "@/components/tiptap-icons";
+import { ArrowLeftIcon } from "@/components/tiptap-icons/actions/arrow-left-icon";
+import { HighlighterIcon } from "@/components/tiptap-icons/marks/highlighter-icon";
+import { LinkIcon } from "@/components/tiptap-icons/actions/link-icon";
 // --- Components ---
-import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button";
-import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button";
+import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button/blockquote-button";
+import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button/code-block-button";
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverButton,
   ColorHighlightPopoverContent,
-} from "@/components/tiptap-ui/color-highlight-popover";
+} from "@/components/tiptap-ui/color-highlight-popover/color-highlight-popover";
 // --- Tiptap UI ---
-import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu";
-import { ImageLinkPopover } from "@/components/tiptap-ui/image-link-popover";
-import { LinkButton, LinkContent, LinkPopover } from "@/components/tiptap-ui/link-popover";
-import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu";
-import { MarkButton } from "@/components/tiptap-ui/mark-button";
-import { TextAlignButton } from "@/components/tiptap-ui/text-align-button";
-import { UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button";
+import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu/heading-dropdown-menu";
+import { ImageLinkPopover } from "@/components/tiptap-ui/image-link-popover/image-link-popover";
+import { LinkButton, LinkContent, LinkPopover } from "@/components/tiptap-ui/link-popover/link-popover";
+import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu/list-dropdown-menu";
+import { MarkButton } from "@/components/tiptap-ui/mark-button/mark-button";
+import { TextAlignButton } from "@/components/tiptap-ui/text-align-button/text-align-button";
+import { UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button/undo-redo-button";
 import { useCursorVisibility } from "@/hooks/editor/use-cursor-visibility";
 // --- Hooks ---
 import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";

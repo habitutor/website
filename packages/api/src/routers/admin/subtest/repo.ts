@@ -1,67 +1,8 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
-import {
-  contentItem,
-  contentPracticeQuestions,
-  noteMaterial,
-  subtest,
-  videoMaterial,
-} from "@habitutor/db/schema/subtest";
+import { contentItem, contentPracticeQuestions, noteMaterial, videoMaterial } from "@habitutor/db/schema/subtest";
 import { and, eq, sql } from "drizzle-orm";
 
 export const adminSubtestRepo = {
-  createSubtest: async ({
-    db = defaultDb,
-    name,
-    shortName,
-    description,
-    order,
-  }: {
-    db?: DrizzleDatabase;
-    name: string;
-    shortName: string;
-    description: string | null;
-    order: number;
-  }) => {
-    const [created] = await db
-      .insert(subtest)
-      .values({
-        name,
-        shortName,
-        description,
-        order,
-      })
-      .returning();
-    return created;
-  },
-
-  updateSubtest: async ({
-    db = defaultDb,
-    id,
-    data,
-  }: {
-    db?: DrizzleDatabase;
-    id: number;
-    data: {
-      name?: string;
-      shortName?: string;
-      description?: string | null;
-      order?: number;
-      updatedAt: Date;
-    };
-  }) => {
-    const [updated] = await db.update(subtest).set(data).where(eq(subtest.id, id)).returning();
-    return updated;
-  },
-
-  deleteSubtest: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
-    const [deleted] = await db.delete(subtest).where(eq(subtest.id, id)).returning();
-    return deleted;
-  },
-
-  updateSubtestOrder: async ({ db = defaultDb, id, order }: { db?: DrizzleDatabase; id: number; order: number }) => {
-    return db.update(subtest).set({ order, updatedAt: new Date() }).where(eq(subtest.id, id));
-  },
-
   getMaxContentOrder: async ({
     db = defaultDb,
     subtestId,
@@ -84,26 +25,12 @@ export const adminSubtestRepo = {
 
   createContentItem: async ({
     db = defaultDb,
-    subtestId,
-    type,
-    title,
-    order,
+    values,
   }: {
     db?: DrizzleDatabase;
-    subtestId: number;
-    type: "material" | "tips_and_trick";
-    title: string;
-    order: number;
+    values: Omit<typeof contentItem.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
-    const [created] = await db
-      .insert(contentItem)
-      .values({
-        subtestId,
-        type,
-        title,
-        order,
-      })
-      .returning();
+    const [created] = await db.insert(contentItem).values(values).returning();
     return created;
   },
 
@@ -114,7 +41,7 @@ export const adminSubtestRepo = {
   }: {
     db?: DrizzleDatabase;
     id: number;
-    data: { title?: string; order?: number; updatedAt: Date };
+    data: Partial<Omit<typeof contentItem.$inferInsert, "id" | "createdAt">>;
   }) => {
     const [updated] = await db.update(contentItem).set(data).where(eq(contentItem.id, id)).returning();
     return updated;
@@ -160,27 +87,19 @@ export const adminSubtestRepo = {
 
   upsertVideoMaterial: async ({
     db = defaultDb,
-    contentItemId,
-    videoUrl,
-    content,
+    values,
   }: {
     db?: DrizzleDatabase;
-    contentItemId: number;
-    videoUrl: string;
-    content: object;
+    values: Omit<typeof videoMaterial.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
     const [video] = await db
       .insert(videoMaterial)
-      .values({
-        contentItemId,
-        videoUrl,
-        content,
-      })
+      .values(values)
       .onConflictDoUpdate({
         target: videoMaterial.contentItemId,
         set: {
-          videoUrl,
-          content,
+          videoUrl: values.videoUrl,
+          content: values.content,
           updatedAt: new Date(),
         },
       })
@@ -195,23 +114,18 @@ export const adminSubtestRepo = {
 
   upsertNoteMaterial: async ({
     db = defaultDb,
-    contentItemId,
-    content,
+    values,
   }: {
     db?: DrizzleDatabase;
-    contentItemId: number;
-    content: object;
+    values: Omit<typeof noteMaterial.$inferInsert, "id" | "createdAt" | "updatedAt">;
   }) => {
     const [note] = await db
       .insert(noteMaterial)
-      .values({
-        contentItemId,
-        content,
-      })
+      .values(values)
       .onConflictDoUpdate({
         target: noteMaterial.contentItemId,
         set: {
-          content,
+          content: values.content,
           updatedAt: new Date(),
         },
       })

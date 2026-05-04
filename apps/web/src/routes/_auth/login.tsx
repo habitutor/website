@@ -1,18 +1,19 @@
-import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
+import { ArrowLeft, GoogleLogoIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
-import { toast } from "sonner";
+import { useState } from "react";
 import Loader from "@/components/feedback/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Item, ItemContent, ItemDescription, ItemMedia } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
-import { getPostLoginRedirectPath } from "./auth-routing";
+import { getPostLoginRedirectPath } from "./-auth-routing";
 
 export const Route = createFileRoute("/_auth/login")({
   head: () => ({
@@ -48,6 +49,7 @@ function SignInForm() {
   });
   const queryClient = useQueryClient();
   const { isPending } = authClient.useSession();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -55,6 +57,7 @@ function SignInForm() {
       password: "",
     },
     onSubmit: async ({ value }) => {
+      setError(null);
       await authClient.signIn.email(
         {
           email: value.email,
@@ -69,8 +72,8 @@ function SignInForm() {
             const user = session.data?.user as { role?: string } | undefined;
             navigate({ to: getPostLoginRedirectPath(user?.role) });
           },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
+          onError: (ctx) => {
+            setError(ctx.error.message || ctx.error.statusText);
           },
         },
       );
@@ -88,7 +91,7 @@ function SignInForm() {
   }
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative mt-24 w-full max-w-md sm:mt-28">
       <div className="absolute -top-8 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2">
         <Image src="/avatar/login-avatar.webp" alt="Study Avatar" width={200} height={200} />
       </div>
@@ -102,6 +105,7 @@ function SignInForm() {
         </div>
 
         <form
+          onChange={() => setError(null)}
           onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -188,6 +192,17 @@ function SignInForm() {
           Masuk dengan Google
         </Button>
       </div>
+
+      {error && (
+        <Item variant="destructive" size="sm" className="mt-3">
+          <ItemMedia variant="destructive">
+            <WarningCircleIcon className="text-destructive" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemDescription className="text-destructive">{error}</ItemDescription>
+          </ItemContent>
+        </Item>
+      )}
 
       <p className="mt-4 text-center text-sm">
         Belum punya akun?{" "}

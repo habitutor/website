@@ -6,7 +6,7 @@ import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { PremiumPlansSections } from "./-components/premium-plans-sections";
-import { type BundlingVariant, usePremiumPaymentEffect } from "./premium-payment";
+import { type BundlingVariant, usePremiumPaymentEffect } from "./-premium-payment";
 
 export const Route = createFileRoute("/_authenticated/premium/")({
   head: () => ({

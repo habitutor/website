@@ -1,83 +1,59 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { Link, useLocation, useMatches } from "@tanstack/react-router";
-import { Fragment } from "react";
+import { Link, useMatches } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { cn, type TRoutes } from "@/lib/utils";
 
-const ROUTE_LABELS: Record<string, string> = {
-  dashboard: "Dashboard",
-  "practice-packs": "Practice Packs",
-  questions: "Question Bank",
-  classes: "Classes",
-  users: "Users",
-  create: "Create",
-};
+type BreadcrumbEntry = { label: string; href: string };
 
-type BreadcrumbRouteMatch = {
-  pathname: string;
-  routeId?: string;
-};
-
-export function generateBreadcrumbs(pathname: string, matches: BreadcrumbRouteMatch[]) {
-  const segments = pathname.split("/").filter(Boolean);
-  const breadcrumbs: Array<{ label: string; href?: string }> = [{ label: "Admin", href: "/admin/dashboard" }];
-
-  let currentPath = "/admin";
-  for (let i = 1; i < segments.length; i++) {
-    const segment = segments[i];
-    if (!segment) continue;
-
-    currentPath += `/${segment}`;
-
-    // Check if it's a parameter (starts with $ or contains numbers)
-    const isParam = segment.startsWith("$") || /^\d+$/.test(segment);
-    const cleanSegment = segment.replace(/^\$/, "");
-
-    if (isParam) {
-      // For parameters, try to get title from route match
-      const match = matches.find((m) => m.pathname === currentPath);
-      const routeId = match?.routeId;
-      if (routeId?.includes("contentId")) {
-        breadcrumbs.push({ label: "Content" });
-      } else if (routeId?.includes("shortName")) {
-        breadcrumbs.push({ label: cleanSegment.toUpperCase() });
-      } else {
-        // For numeric IDs or other params, show shortened version
-        breadcrumbs.push({ label: `#${cleanSegment.slice(0, 6)}` });
-      }
-    } else {
-      const label = ROUTE_LABELS[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
-      const isLast = i === segments.length - 1;
-      breadcrumbs.push({ label, href: isLast ? undefined : currentPath });
-    }
-  }
-
-  return breadcrumbs;
+function normalizeBreadcrumb(raw: string | BreadcrumbEntry[]): BreadcrumbEntry[] {
+  if (typeof raw === "string") return [{ label: raw, href: "" }];
+  return raw;
 }
 
 export function AdminBreadcrumbs() {
-  const location = useLocation();
   const matches = useMatches();
-  const breadcrumbs = generateBreadcrumbs(location.pathname, matches);
+  const crumbs: BreadcrumbEntry[] = [];
+
+  for (const match of matches) {
+    if (!match.staticData?.breadcrumb) continue;
+    for (const entry of normalizeBreadcrumb(match.staticData.breadcrumb)) {
+      crumbs.push(entry);
+    }
+  }
 
   return (
-    <nav className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-      <Link to="/admin/dashboard" className="hover:text-foreground">
-        Admin
-      </Link>
-      {breadcrumbs.slice(1).map((crumb) => (
-        <Fragment key={`${crumb.label}-${crumb.href || "current"}`}>
-          <span className="text-muted-foreground/50">/</span>
-          {crumb.href ? (
-            <Link to={crumb.href} className="hover:text-foreground">
-              {crumb.label}
-            </Link>
-          ) : (
-            <span className="text-foreground">{crumb.label}</span>
-          )}
-        </Fragment>
-      ))}
-    </nav>
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to="/admin/dashboard">Admin</Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        {crumbs.map((crumb, index) => {
+          const isLast = index === crumbs.length - 1;
+          return (
+            <BreadcrumbItem key={`${crumb.label}-${index}`}>
+              <BreadcrumbSeparator />
+              {isLast ? (
+                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink asChild>
+                  <Link to={crumb.href as TRoutes}>{crumb.label}</Link>
+                </BreadcrumbLink>
+              )}
+            </BreadcrumbItem>
+          );
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }
 

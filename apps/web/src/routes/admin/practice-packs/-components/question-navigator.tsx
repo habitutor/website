@@ -45,7 +45,7 @@ export function QuestionNavigator({
                 onClick={() => onQuestionClick(absoluteIndex)}
                 aria-current={isActive ? "true" : undefined}
                 className={cn(
-                  "flex aspect-square w-full touch-manipulation items-center justify-center rounded-md border font-mono text-xs transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none",
+                  "flex aspect-square w-full touch-manipulation items-center justify-center rounded-md border text-xs transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none",
                   isActive
                     ? "border-primary bg-primary font-bold text-primary-foreground"
                     : "border-border hover:border-primary/50 hover:bg-muted",
@@ -69,7 +69,7 @@ export function QuestionNavigator({
             >
               <CaretLeftIcon className="size-3.5" />
             </button>
-            <span className="font-mono text-[10px] text-muted-foreground tabular-nums" aria-live="polite">
+            <span className="text-[10px] text-muted-foreground tabular-nums" aria-live="polite">
               {startIndex + 1}–{endIndex}
             </span>
             <button

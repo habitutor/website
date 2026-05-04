@@ -1,5 +1,5 @@
 import { isDefinedError } from "@orpc/client";
-import { CheckIcon, XIcon } from "@phosphor-icons/react";
+import { CheckIcon, FlagIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import * as m from "motion/react-m";
@@ -10,11 +10,12 @@ import { refreshAuthSession } from "@/lib/auth-session";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
+import { FeedbackReportDialog } from "./feedback-report-dialog";
 import { TimeoutDialog } from "./timeout-dialog";
 
 export const FlashcardCard = () => {
   const queryClient = useQueryClient();
-  const { data } = useQuery(orpc.flashcard.session.queryOptions());
+  const { data } = useQuery(orpc.flashcard.get.queryOptions());
   const navigate = useNavigate();
 
   const saveAnswerMutation = useMutation(
@@ -41,6 +42,7 @@ export const FlashcardCard = () => {
   );
 
   const [timeoutDialogOpen, setTimeoutDialogOpen] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [hasStartedCountdown, setHasStartedCountdown] = useState(false);
   const [, hours, minutes, seconds] = useCountdown((data?.status !== "not_started" && data?.deadline) || 0);
   const [disableInteraction, setDisableInteraction] = useState(false);
@@ -73,7 +75,7 @@ export const FlashcardCard = () => {
   const handleSubmit = async () => {
     try {
       await submitMutation.mutateAsync({});
-      await queryClient.invalidateQueries({ queryKey: orpc.flashcard.session.key() });
+      await queryClient.invalidateQueries({ queryKey: orpc.flashcard.get.key() });
       queryClient.removeQueries({ queryKey: orpc.flashcard.result.queryKey({ input: {} }) });
       navigate({ to: "/dashboard/flashcard/result" });
     } catch {
@@ -102,7 +104,7 @@ export const FlashcardCard = () => {
       saveAnswerMutation.reset();
       setHasChecked(false);
       setSelectedAnswerId(null);
-      queryClient.removeQueries({ queryKey: orpc.flashcard.session.key() });
+      queryClient.removeQueries({ queryKey: orpc.flashcard.get.key() });
     } catch (error) {
       console.error(error);
     } finally {
@@ -130,7 +132,17 @@ export const FlashcardCard = () => {
       >
         {/* Question Card - yellow style */}
         <div className="relative flex h-full min-h-108.75 flex-col gap-2 overflow-hidden rounded-[10px] border border-secondary-600 bg-secondary-200 p-4">
-          <h1 className="text-[18px] font-medium">Brain Gym {currentPage}</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-[18px] font-medium">Brain Gym {currentPage}</h1>
+            <button
+              type="button"
+              onClick={() => setFeedbackDialogOpen(true)}
+              className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-orange-50 hover:text-orange-600"
+              aria-label="Laporkan masalah"
+            >
+              <FlagIcon size={20} weight="bold" />
+            </button>
+          </div>
           <div className="h-full rounded-[5px] border border-neutral-200 bg-white p-4 pb-40 text-foreground sm:pb-4">
             <TiptapRenderer content={currentQuestion?.question.content} />
           </div>
@@ -227,6 +239,15 @@ export const FlashcardCard = () => {
           </div>
         </div>
       </m.div>
+
+      <FeedbackReportDialog
+        open={feedbackDialogOpen}
+        onOpenChange={setFeedbackDialogOpen}
+        questionId={currentQuestion?.question.id}
+        selectedAnswerId={selectedAnswerId ?? undefined}
+        attemptId={data.id}
+        path="/dashboard/flashcard"
+      />
 
       <TimeoutDialog open={timeoutDialogOpen} onOpenChange={setTimeoutDialogOpen} />
     </div>

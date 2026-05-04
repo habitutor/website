@@ -1,7 +1,7 @@
 import { Fragment, forwardRef, useMemo } from "react";
 
 // --- Tiptap UI Primitive ---
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/tiptap-ui-primitive/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/tiptap-ui-primitive/tooltip/tooltip";
 
 // --- Lib ---
 import { cn, parseShortcutKeys } from "@/lib/tiptap-utils";

@@ -1,6 +1,9 @@
 import { ORPCError } from "@orpc/server";
+import { db } from "@habitutor/db";
 import { type } from "arktype";
 import { admin } from "../../../index";
+import { adminQuestionRepo } from "../question/repo";
+import { cursor } from "../../../utils/cursor";
 import { adminPracticePackRepo, formatPackQuestions } from "./repo";
 
 const list = admin
@@ -12,23 +15,60 @@ const list = admin
   .input(
     type({
       "limit?": "number",
-      "offset?": "number",
+      "after?": "string",
+      "before?": "string",
       "search?": "string",
     }),
   )
-  .handler(async ({ input }) => {
-    const limit = input.limit || 20;
-    const offset = input.offset || 0;
+  .handler(async ({ input, errors }) => {
+    if (input.after && input.before) {
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Cannot specify both after and before" });
+    }
+
+    const limit = Math.min(input.limit || 10, 50);
     const search = input.search || "";
 
-    const packs = await adminPracticePackRepo.list({ limit, offset, search });
-    const total = await adminPracticePackRepo.count({ search });
+    const afterData = input.after ? cursor.decode(input.after) : null;
+    const afterCreatedAt = afterData ? new Date(afterData.createdAt) : null;
+
+    const beforeData = input.before ? cursor.decode(input.before) : null;
+    const beforeCreatedAt = beforeData ? new Date(beforeData.createdAt) : null;
+
+    const rows = await adminPracticePackRepo.list({
+      limit,
+      afterCreatedAt,
+      afterId: afterData ? Number(afterData.id) : null,
+      beforeCreatedAt,
+      beforeId: beforeData ? Number(beforeData.id) : null,
+      search,
+    });
+
+    if (rows.length === 0) {
+      return {
+        data: [],
+        nextCursor: null,
+        prevCursor: null,
+        hasMore: false,
+        hasPrevious: false,
+      };
+    }
+
+    const hasMore = rows.length > limit;
+    const data = hasMore ? rows.slice(0, limit) : rows;
+
+    const firstItem = data[0]!;
+    const lastItem = data[data.length - 1]!;
+    const nextCursor = hasMore
+      ? cursor.encode({ createdAt: lastItem.createdAt!.toISOString(), id: String(lastItem.id) })
+      : null;
+    const prevCursor = cursor.encode({ createdAt: firstItem.createdAt!.toISOString(), id: String(firstItem.id) });
 
     return {
-      data: packs,
-      total,
-      limit,
-      offset,
+      data,
+      nextCursor,
+      prevCursor,
+      hasMore,
+      hasPrevious: input.after !== undefined || input.before !== undefined,
     };
   });
 
@@ -64,8 +104,7 @@ const create = admin
   )
   .handler(async ({ input }) => {
     const pack = await adminPracticePackRepo.create({
-      title: input.title,
-      description: input.description,
+      values: { title: input.title, description: input.description },
     });
 
     if (!pack)
@@ -92,8 +131,7 @@ const update = admin
   .handler(async ({ input }) => {
     const pack = await adminPracticePackRepo.update({
       id: input.id,
-      title: input.title,
-      description: input.description,
+      values: { title: input.title, description: input.description },
     });
 
     if (!pack)
@@ -157,9 +195,11 @@ const addQuestion = admin
     }
 
     await adminPracticePackRepo.addQuestion({
-      practicePackId: input.practicePackId,
-      questionId: input.questionId,
-      order: orderValue ?? 1,
+      values: {
+        practicePackId: input.practicePackId,
+        questionId: input.questionId,
+        order: orderValue ?? 1,
+      },
     });
 
     return { message: "Berhasil menambahkan question ke practice pack" };
@@ -184,29 +224,6 @@ const removeQuestion = admin
     });
 
     return { message: "Berhasil menghapus question dari practice pack" };
-  });
-
-const reorderQuestion = admin
-  .route({
-    path: "/admin/practice-packs/{practicePackId}/questions/{questionId}",
-    method: "PATCH",
-    tags: ["Admin - Practice Pack Questions"],
-  })
-  .input(
-    type({
-      practicePackId: "number",
-      questionId: "number",
-      order: "number",
-    }),
-  )
-  .handler(async ({ input }) => {
-    await adminPracticePackRepo.updateQuestionOrder({
-      practicePackId: input.practicePackId,
-      questionId: input.questionId,
-      order: input.order,
-    });
-
-    return { message: "Berhasil mengupdate urutan question" };
   });
 
 const getQuestions = admin
@@ -282,6 +299,76 @@ const toggleAvailableForFlashcard = admin
     };
   });
 
+const createQuestionWithAnswers = admin
+  .route({
+    path: "/admin/practice-packs/{practicePackId}/questions/create-with-answers",
+    method: "POST",
+    tags: ["Admin - Practice Pack Questions"],
+  })
+  .input(
+    type({
+      practicePackId: "number",
+      content: "unknown",
+      discussion: "unknown",
+      "isFlashcardQuestion?": "boolean",
+      answerOptions: type({
+        code: "string",
+        content: "string",
+        isCorrect: "boolean",
+      })
+        .array()
+        .atLeastLength(1),
+    }),
+  )
+  .handler(async ({ input, errors }) => {
+    const pack = await adminPracticePackRepo.getPracticePackById({ id: input.practicePackId });
+
+    if (!pack) throw errors.NOT_FOUND({ message: "Practice pack tidak ditemukan" });
+
+    const contentJson = typeof input.content === "object" ? input.content : null;
+    const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
+    const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+    const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+
+    const result = await db.transaction(async (tx) => {
+      const maxOrder = await adminPracticePackRepo.getMaxQuestionOrder({
+        db: tx,
+        practicePackId: input.practicePackId,
+      });
+
+      const q = await adminQuestionRepo.createWithAnswers({
+        db: tx,
+        questionValues: {
+          content: contentText,
+          discussion: discussionText,
+          contentJson,
+          discussionJson,
+          isFlashcardQuestion: input.isFlashcardQuestion ?? true,
+        },
+        answerValues: input.answerOptions.map((a) => ({
+          code: a.code,
+          content: a.content,
+          isCorrect: a.isCorrect,
+        })),
+      });
+
+      if (!q) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat question" });
+
+      await adminPracticePackRepo.addQuestion({
+        db: tx,
+        values: {
+          practicePackId: input.practicePackId,
+          questionId: q.id,
+          order: maxOrder + 1,
+        },
+      });
+
+      return q;
+    });
+
+    return result;
+  });
+
 export const adminPracticePackRouter = {
   list,
   find: get,
@@ -292,7 +379,7 @@ export const adminPracticePackRouter = {
     list: getQuestions,
     add: addQuestion,
     remove: removeQuestion,
-    reorder: reorderQuestion,
+    bulkCreate: createQuestionWithAnswers,
   },
   toggleFlashcard: toggleAvailableForFlashcard,
 };

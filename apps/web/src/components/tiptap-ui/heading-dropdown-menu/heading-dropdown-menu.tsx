@@ -1,21 +1,21 @@
 import { forwardRef, useCallback, useState } from "react";
 
 // --- Icons ---
-import { ChevronDownIcon } from "@/components/tiptap-icons";
+import { ChevronDownIcon } from "@/components/tiptap-icons/actions/chevron-down-icon";
 // --- Tiptap UI ---
-import { HeadingButton } from "@/components/tiptap-ui/heading-button";
-import type { UseHeadingDropdownMenuConfig } from "@/components/tiptap-ui/heading-dropdown-menu";
-import { useHeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu";
+import { HeadingButton } from "@/components/tiptap-ui/heading-button/heading-button";
+import type { UseHeadingDropdownMenuConfig } from "./use-heading-dropdown-menu";
+import { useHeadingDropdownMenu } from "./use-heading-dropdown-menu";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button";
-import { Card, CardBody } from "@/components/tiptap-ui-primitive/card";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button/button";
+import { Card, CardBody } from "@/components/tiptap-ui-primitive/card/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/tiptap-ui-primitive/dropdown-menu";
+} from "@/components/tiptap-ui-primitive/dropdown-menu/dropdown-menu";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 

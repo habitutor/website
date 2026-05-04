@@ -151,7 +151,7 @@ export function QuestionForm({
   onSubmit,
   onCancel,
   isSubmitting = false,
-  submitLabel = "Save",
+  submitLabel = "Simpan Perubahan",
 }: QuestionFormProps) {
   const [answerOptions, setAnswerOptions] = useState<AnswerOption[]>(DEFAULT_ANSWER_OPTIONS);
 
@@ -338,7 +338,7 @@ export function QuestionForm({
           </form.Field>
 
           <div className="mt-8 flex gap-2">
-            <Button type="submit" isPending={isSubmitting} disabled={isSubmitting}>
+            <Button type="submit" isPending={isSubmitting}>
               {isSubmitting ? (
                 <>Saving...</>
               ) : (
@@ -349,8 +349,8 @@ export function QuestionForm({
               )}
             </Button>
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
+              <Button type="button" variant="outline" isPending={isSubmitting} onClick={onCancel}>
+                Kembali
               </Button>
             )}
           </div>

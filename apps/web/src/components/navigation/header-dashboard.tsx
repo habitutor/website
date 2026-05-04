@@ -1,17 +1,7 @@
-import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { ArrowRightIcon, ListIcon, SignOutIcon, UserIcon, XIcon } from "@phosphor-icons/react";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useEffect, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,10 +10,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
+import { LogoutDialog } from "@/components/logout-dialog";
 
 const links = [
   {
@@ -71,7 +63,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {!session?.user.isPremium && !location.pathname.startsWith("/classes/") && (
+      {!session?.user.isPremium && (
         <div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
           Dapatkan Semua Fitur dan Akses
           <Button variant="default" size={"sm"} asChild>
@@ -113,11 +105,15 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-50">
               <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <Link to="/profile">Profile</Link>
+                <Link to="/profile">
+                  <UserIcon />
+                  Profile
+                </Link>
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                 <SignOutIcon />
                 Log Out
@@ -192,45 +188,3 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
     </header>
   );
 }
-
-const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [pending, setPending] = useState(false);
-
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-          <AlertDialogDescription>Kamu akan dikeluarkan dan harus login kembali.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Kembali</AlertDialogCancel>
-          <Button
-            onClick={async () => {
-              setPending(true);
-              await authClient.signOut();
-              queryClient.removeQueries();
-              navigate({ to: "/" });
-              setPending(false);
-            }}
-            disabled={pending}
-            variant={"destructive"}
-          >
-            {pending ? (
-              <>
-                <SpinnerIcon className="animate-spin" />
-                Memasak...
-              </>
-            ) : (
-              <>
-                <SignOutIcon weight="bold" /> Keluar
-              </>
-            )}
-          </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};

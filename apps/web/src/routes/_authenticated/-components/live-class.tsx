@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { LiveClassCard } from "@/components/classes/practice";
 import { orpc } from "@/utils/orpc";
+import { DashboardCard, DashboardCardTitle } from "./dashboard-card";
 
 export const LiveClass = () => {
   const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
@@ -46,19 +47,19 @@ export const LiveClass = () => {
 
   if (!items || items.length === 0) {
     return (
-      <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-        <h2 className="font-medium">Live Class bersama Mentor</h2>
+      <DashboardCard>
+        <DashboardCardTitle className="mb-0">Live Class bersama Mentor</DashboardCardTitle>
         <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
           <img src="/avatar/pencil-blue-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
           <p className="text-2xl font-bold text-black">Tunggu ya, Mentor terbaikmu akan segera hadir!</p>
         </div>
-      </section>
+      </DashboardCard>
     );
   }
 
   return (
-    <section className="relative rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Live Class bersama Mentor</h2>
+    <DashboardCard className="relative">
+      <DashboardCardTitle>Live Class bersama Mentor</DashboardCardTitle>
       <div className="w-full">
         <div ref={containerRef} className="relative w-full overflow-hidden">
           <div
@@ -110,6 +111,6 @@ export const LiveClass = () => {
           </div>
         )}
       </div>
-    </section>
+    </DashboardCard>
   );
 };

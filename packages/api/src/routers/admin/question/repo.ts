@@ -1,22 +1,51 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 
 export const adminQuestionRepo = {
   list: async ({
     db = defaultDb,
     limit,
-    cursorId,
+    afterId,
+    beforeId,
     search,
     isFlashcardQuestion,
   }: {
     db?: DrizzleDatabase;
     limit: number;
-    cursorId: number | null;
+    afterId: number | null;
+    beforeId: number | null;
     search: string;
     isFlashcardQuestion?: boolean;
   }) => {
+    if (beforeId) {
+      const items = await db
+        .select({
+          id: question.id,
+          content: question.content,
+          contentJson: question.contentJson,
+          discussion: question.discussion,
+          discussionJson: question.discussionJson,
+          isFlashcardQuestion: question.isFlashcardQuestion,
+          packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
+        })
+        .from(question)
+        .where(
+          and(
+            search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
+            sql`${question.id} > ${beforeId}`,
+            isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
+          ),
+        )
+        .leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
+        .groupBy(question.id)
+        .orderBy(asc(question.id))
+        .limit(limit + 1);
+
+      return items.reverse();
+    }
+
     return db
       .select({
         id: question.id,
@@ -31,7 +60,7 @@ export const adminQuestionRepo = {
       .where(
         and(
           search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
-          cursorId ? sql`${question.id} < ${cursorId}` : undefined,
+          afterId ? sql`${question.id} < ${afterId}` : undefined,
           isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
         ),
       )
@@ -54,29 +83,12 @@ export const adminQuestionRepo = {
 
   create: async ({
     db = defaultDb,
-    content,
-    discussion,
-    contentJson,
-    discussionJson,
-    isFlashcardQuestion,
+    values,
   }: {
     db?: DrizzleDatabase;
-    content: string;
-    discussion: string;
-    contentJson: object | null;
-    discussionJson: object | null;
-    isFlashcardQuestion: boolean;
+    values: Omit<typeof question.$inferInsert, "id">;
   }) => {
-    const [q] = await db
-      .insert(question)
-      .values({
-        content,
-        discussion,
-        contentJson,
-        discussionJson,
-        isFlashcardQuestion,
-      })
-      .returning();
+    const [q] = await db.insert(question).values(values).returning();
     return q;
   },
 
@@ -87,13 +99,7 @@ export const adminQuestionRepo = {
   }: {
     db?: DrizzleDatabase;
     id: number;
-    data: {
-      content?: string;
-      contentJson?: object | null;
-      discussion?: string;
-      discussionJson?: object | null;
-      isFlashcardQuestion?: boolean;
-    };
+    data: Partial<Omit<typeof question.$inferInsert, "id">>;
   }) => {
     const [q] = await db.update(question).set(data).where(eq(question.id, id)).returning();
     return q;
@@ -104,22 +110,6 @@ export const adminQuestionRepo = {
     return q;
   },
 
-  getByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
-    return db.select({ id: question.id }).from(question).where(inArray(question.id, ids));
-  },
-
-  bulkUpdateFlashcard: async ({
-    db = defaultDb,
-    ids,
-    isFlashcard,
-  }: {
-    db?: DrizzleDatabase;
-    ids: number[];
-    isFlashcard: boolean;
-  }) => {
-    return db.update(question).set({ isFlashcardQuestion: isFlashcard }).where(inArray(question.id, ids));
-  },
-
   getQuestionById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [q] = await db.select().from(question).where(eq(question.id, id)).limit(1);
     return q;
@@ -127,50 +117,62 @@ export const adminQuestionRepo = {
 
   createAnswer: async ({
     db = defaultDb,
-    questionId,
-    content,
-    isCorrect,
-    code,
+    values,
   }: {
     db?: DrizzleDatabase;
-    questionId: number;
-    content: string;
-    isCorrect: boolean;
-    code: string;
+    values: Omit<typeof questionAnswerOption.$inferInsert, "id">;
   }) => {
-    const [answer] = await db
-      .insert(questionAnswerOption)
-      .values({
-        questionId,
-        content,
-        isCorrect,
-        code,
-      })
-      .returning();
+    const [answer] = await db.insert(questionAnswerOption).values(values).returning();
     return answer;
   },
 
   updateAnswer: async ({
     db = defaultDb,
     id,
-    content,
-    isCorrect,
+    data,
   }: {
     db?: DrizzleDatabase;
     id: number;
-    content: string;
-    isCorrect: boolean;
+    data: Partial<Omit<typeof questionAnswerOption.$inferInsert, "id" | "questionId" | "code">>;
   }) => {
-    const [answer] = await db
-      .update(questionAnswerOption)
-      .set({ content, isCorrect })
-      .where(eq(questionAnswerOption.id, id))
-      .returning();
+    const [answer] = await db.update(questionAnswerOption).set(data).where(eq(questionAnswerOption.id, id)).returning();
     return answer;
   },
 
   deleteAnswer: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
     const [answer] = await db.delete(questionAnswerOption).where(eq(questionAnswerOption.id, id)).returning();
     return answer;
+  },
+
+  createWithAnswers: async ({
+    db = defaultDb,
+    questionValues,
+    answerValues,
+  }: {
+    db?: DrizzleDatabase;
+    questionValues: Omit<typeof question.$inferInsert, "id">;
+    answerValues: Array<Pick<typeof questionAnswerOption.$inferInsert, "code" | "content" | "isCorrect">>;
+  }) => {
+    const [q] = await db.insert(question).values(questionValues).returning();
+
+    if (answerValues.length > 0) {
+      await db.insert(questionAnswerOption).values(
+        answerValues.map((a) => ({
+          questionId: q!.id,
+          code: a.code,
+          content: a.content,
+          isCorrect: a.isCorrect,
+        })),
+      );
+    }
+
+    return db.query.question.findFirst({
+      where: eq(question.id, q!.id),
+      with: {
+        answerOptions: {
+          orderBy: (answerOptions, { asc }) => [asc(answerOptions.code)],
+        },
+      },
+    });
   },
 };

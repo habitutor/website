@@ -94,6 +94,14 @@ export const auth = betterAuth({
         defaultValue: null,
         input: true,
       },
+      totalScore: {
+        type: "number",
+        validator: {
+          input: type("number | null"),
+        },
+        defaultValue: 0,
+        input: false,
+      },
       referralCode: {
         type: "string",
         required: false,

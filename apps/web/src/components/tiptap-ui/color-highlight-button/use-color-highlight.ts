@@ -2,7 +2,7 @@ import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 // --- Icons ---
-import { HighlighterIcon } from "@/components/tiptap-icons";
+import { HighlighterIcon } from "@/components/tiptap-icons/marks/highlighter-icon";
 import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";

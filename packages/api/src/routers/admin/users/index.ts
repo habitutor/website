@@ -2,24 +2,8 @@ import { ORPCError } from "@orpc/server";
 import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { type } from "arktype";
 import { admin } from "../../../index";
+import { cursor } from "../../../utils/cursor";
 import { adminUserRepo } from "./repo";
-
-interface CursorData {
-  createdAt: string;
-  id: string;
-}
-
-function encodeCursor(data: CursorData): string {
-  return Buffer.from(JSON.stringify(data)).toString("base64url");
-}
-
-function decodeCursor(cursor: string): CursorData {
-  try {
-    return JSON.parse(Buffer.from(cursor, "base64url").toString());
-  } catch {
-    throw new ORPCError("BAD_REQUEST", { message: "Invalid cursor" });
-  }
-}
 
 const listUsers = admin
   .route({
@@ -30,47 +14,58 @@ const listUsers = admin
   .input(
     type({
       "limit?": "number",
-      "cursor?": "string",
+      "after?": "string",
+      "before?": "string",
       "search?": "string",
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, errors }) => {
+    if (input.after && input.before) {
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Cannot specify both after and before" });
+    }
+
     const limit = Math.min(input.limit || 10, 50);
     const search = input.search || "";
 
-    const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
-    const cursorCreatedAt = cursorData ? new Date(cursorData.createdAt) : null;
+    const afterData = input.after ? cursor.decode(input.after) : null;
+    const afterCreatedAt = afterData ? new Date(afterData.createdAt) : null;
 
-    const users = await adminUserRepo.list({
+    const beforeData = input.before ? cursor.decode(input.before) : null;
+    const beforeCreatedAt = beforeData ? new Date(beforeData.createdAt) : null;
+
+    const rows = await adminUserRepo.list({
       limit,
-      cursorCreatedAt,
-      cursorId: cursorData?.id ?? null,
+      afterCreatedAt,
+      afterId: afterData?.id ?? null,
+      beforeCreatedAt,
+      beforeId: beforeData?.id ?? null,
       search,
     });
 
-    if (users.length === 0)
+    if (rows.length === 0) {
       return {
         data: [],
         nextCursor: null,
+        prevCursor: null,
         hasMore: false,
+        hasPrevious: false,
       };
+    }
 
-    const hasMore = users.length > limit;
-    const data = hasMore ? users.slice(0, limit) : users;
+    const hasMore = rows.length > limit;
+    const data = hasMore ? rows.slice(0, limit) : rows;
 
-    const lastItem = data[data.length - 1];
-    const nextCursor =
-      hasMore && lastItem
-        ? encodeCursor({
-            createdAt: lastItem.createdAt.toISOString(),
-            id: lastItem.id,
-          })
-        : null;
+    const firstItem = data[0]!;
+    const lastItem = data[data.length - 1]!;
+    const nextCursor = hasMore ? cursor.encode({ createdAt: lastItem.createdAt.toISOString(), id: lastItem.id }) : null;
+    const prevCursor = cursor.encode({ createdAt: firstItem.createdAt.toISOString(), id: firstItem.id });
 
     return {
       data,
       nextCursor,
+      prevCursor,
       hasMore,
+      hasPrevious: input.after !== undefined || input.before !== undefined,
     };
   });
 
@@ -99,9 +94,11 @@ const updateUserPremium = admin
 
     const updatedUser = await adminUserRepo.updatePremium({
       id: input.id,
-      isPremium: input.isPremium,
-      premiumTier: input.isPremium ? (input.premiumTier ?? PREMIUM_TIERS.PREMIUM) : null,
-      premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null,
+      data: {
+        isPremium: input.isPremium,
+        premiumTier: input.isPremium ? (input.premiumTier ?? PREMIUM_TIERS.PREMIUM) : null,
+        premiumExpiresAt: input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null,
+      },
     });
 
     if (!updatedUser) {

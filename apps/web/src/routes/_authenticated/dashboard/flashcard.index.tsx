@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import Loader from "@/components/feedback/loader";
+import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 import { FlashcardBackgroundCircles } from "./-components/flashcard-background-circles";
 import { FlashcardCard } from "./-components/flashcard-card";
@@ -15,7 +15,7 @@ function RouteComponent() {
   const { session } = useRouteContext({ from: "/_authenticated" });
   const navigate = useNavigate();
   const flashcard = useQuery(
-    orpc.flashcard.session.queryOptions({
+    orpc.flashcard.get.queryOptions({
       retry: false,
     }),
   );
@@ -28,10 +28,6 @@ function RouteComponent() {
 
   const [showPremiumDialog, setShowPremiumDialog] = useState(!session?.user.isPremium);
 
-  if (flashcard.isPending) {
-    return <Loader />;
-  }
-
   if (flashcard.data?.status === "not_started") {
     return (
       <FlashcardNotStartedView showPremiumDialog={showPremiumDialog} onPremiumDialogChange={setShowPremiumDialog} />
@@ -42,7 +38,17 @@ function RouteComponent() {
     <div className="relative">
       <FlashcardBackgroundCircles />
       <div className="relative z-10">
-        <FlashcardCard />
+        {flashcard.isPending ? (
+          <div className="mx-auto max-w-md">
+            <Skeleton className="h-64 w-full rounded-2xl" />
+            <div className="mt-4 flex justify-center gap-4">
+              <Skeleton className="h-12 w-28 rounded-xl" />
+              <Skeleton className="h-12 w-28 rounded-xl" />
+            </div>
+          </div>
+        ) : (
+          <FlashcardCard />
+        )}
       </div>
     </div>
   );

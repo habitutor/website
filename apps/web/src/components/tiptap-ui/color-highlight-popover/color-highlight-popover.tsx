@@ -1,21 +1,24 @@
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useMemo, useRef, useState } from "react";
 // --- Icons ---
-import { BanIcon } from "@/components/tiptap-icons";
-import { HighlighterIcon } from "@/components/tiptap-icons";
+import { BanIcon } from "@/components/tiptap-icons/actions/ban-icon";
+import { HighlighterIcon } from "@/components/tiptap-icons/marks/highlighter-icon";
 // --- Tiptap UI ---
-import type { HighlightColor, UseColorHighlightConfig } from "@/components/tiptap-ui/color-highlight-button";
+import type {
+  HighlightColor,
+  UseColorHighlightConfig,
+} from "@/components/tiptap-ui/color-highlight-button/use-color-highlight";
 import {
-  ColorHighlightButton,
   pickHighlightColorsByValue,
   useColorHighlight,
-} from "@/components/tiptap-ui/color-highlight-button";
+} from "@/components/tiptap-ui/color-highlight-button/use-color-highlight";
+import { ColorHighlightButton } from "@/components/tiptap-ui/color-highlight-button/color-highlight-button";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button";
-import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover";
-import { Separator } from "@/components/tiptap-ui-primitive/separator";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button/button";
+import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover/popover";
+import { Separator } from "@/components/tiptap-ui-primitive/separator/separator";
 import { useIsBreakpoint } from "@/hooks/browser/use-is-breakpoint";
 // --- Hooks ---
 import { useMenuNavigation } from "@/hooks/editor/use-menu-navigation";

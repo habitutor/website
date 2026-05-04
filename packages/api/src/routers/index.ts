@@ -19,7 +19,6 @@ import {
   upsertNote,
   upsertVideo,
 } from "./admin/subtest/content-routes";
-import { createSubtest, deleteSubtest, reorderSubtests, updateSubtest } from "./admin/subtest/subtest-routes";
 import { dashboardRouter } from "./dashboard";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
@@ -28,6 +27,7 @@ import { referralRouter } from "./referral";
 import { socialRouter } from "./social";
 import { subtestRouter } from "./subtest";
 import { transactionRouter } from "./transaction";
+import { feedbackRouter, adminFeedbackRouter } from "./feedback";
 
 export const appRouter = {
   healthCheck: pub
@@ -50,17 +50,12 @@ export const appRouter = {
   practicePack: practicePackRouter,
   flashcard: flashcardRouter,
   subtest: subtestRouter,
+  feedback: feedbackRouter,
   admin: {
     statistics: adminStatisticsRouter,
     practicePack: adminPracticePackRouter,
     question: adminQuestionRouter,
     subtest: {
-      subtest: {
-        create: createSubtest,
-        update: updateSubtest,
-        remove: deleteSubtest,
-        reorder: reorderSubtests,
-      },
       content: {
         create: createContent,
         update: updateContent,
@@ -83,6 +78,7 @@ export const appRouter = {
     users: adminUserRouter,
     referrals: adminReferralRouter,
     dashboardContent: adminDashboardContentRouter,
+    feedback: adminFeedbackRouter,
   },
   transaction: transactionRouter,
   referral: referralRouter,

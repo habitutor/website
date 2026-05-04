@@ -1,14 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { QuestionForm, type QuestionFormData } from "@/components/admin/question-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
-import { getInitialAnswerOptions, syncQuestionAndAnswers } from "./question-edit-helpers";
+import { getInitialAnswerOptions, syncQuestionAndAnswers } from "./-question-edit-helpers";
 
 export const Route = createFileRoute("/admin/questions/$id")({
+  staticData: {
+    breadcrumb: [
+      { label: "Questions", href: "/admin/questions" },
+      { label: "Edit Question", href: "" },
+    ],
+  },
   component: QuestionEditPage,
 });
 
@@ -16,9 +22,8 @@ function QuestionEditPage() {
   const { id } = Route.useParams();
   const questionId = Number.parseInt(id, 10);
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
-  const { data: question, isLoading } = useQuery(
+  const { data: question, isPending } = useQuery(
     orpc.admin.question.find.queryOptions({
       input: { id: questionId },
     }),
@@ -55,23 +60,21 @@ function QuestionEditPage() {
     toast.success("Question updated successfully");
     queryClient.invalidateQueries(orpc.admin.question.find.queryOptions({ input: { id: questionId } }));
     queryClient.invalidateQueries({ queryKey: orpc.admin.question.list.queryKey({ input: {} }) });
-
-    setTimeout(() => {
-      navigate({ to: "/admin/questions" });
-    }, 500);
-  };
-
-  const handleCancel = () => {
-    navigate({ to: "/admin/questions" });
   };
 
   if (Number.isNaN(questionId)) throw notFound();
 
-  if (isLoading) {
-    return (
-      <AdminContainer>
-        <AdminHeader title="Edit Question" description="Update question content and answer options" />
+  if (!isPending && !question) throw notFound();
 
+  return (
+    <AdminContainer>
+      <AdminHeader
+        title="Edit Question"
+        description="Update question content and answer options"
+        backTo="/admin/questions"
+      />
+
+      {isPending ? (
         <Card className="overflow-hidden rounded-xl py-0 shadow-sm">
           <CardHeader className="bg-muted/30 py-4">
             <Skeleton className="h-6 w-36" />
@@ -95,33 +98,19 @@ function QuestionEditPage() {
             </div>
           </CardContent>
         </Card>
-      </AdminContainer>
-    );
-  }
-
-  if (!question) throw notFound();
-
-  return (
-    <AdminContainer>
-      <AdminHeader
-        title="Edit Question"
-        description="Update question content and answer options"
-        backTo="/admin/questions"
-      />
-
-      <QuestionForm
-        title="Question Details"
-        initialData={{
-          content: question.content,
-          discussion: question.discussion,
-          isFlashcardQuestion: question.isFlashcardQuestion,
-          answerOptions: getInitialAnswerOptions(question),
-        }}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSubmitting={isSubmitting}
-        submitLabel="Save Changes"
-      />
+      ) : (
+        <QuestionForm
+          title="Question Details"
+          initialData={{
+            content: question.content,
+            discussion: question.discussion,
+            isFlashcardQuestion: question.isFlashcardQuestion,
+            answerOptions: getInitialAnswerOptions(question),
+          }}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+        />
+      )}
     </AdminContainer>
   );
 }

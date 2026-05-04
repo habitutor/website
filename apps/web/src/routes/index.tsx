@@ -31,7 +31,6 @@ function HomeComponent() {
       <Pricing />
       <FAQ />
       <CallToAction />
-      {/* <Footer /> */}
     </>
   );
 }

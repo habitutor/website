@@ -2,7 +2,7 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { createMeta } from "@/lib/seo-utils";
-import { SignUpForm } from "./register-form";
+import { SignUpForm } from "./-register-form";
 
 export const Route = createFileRoute("/_auth/register")({
   head: () => ({

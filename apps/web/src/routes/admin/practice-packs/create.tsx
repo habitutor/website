@@ -11,6 +11,12 @@ import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/practice-packs/create")({
+  staticData: {
+    breadcrumb: [
+      { label: "Practice Packs", href: "/admin/practice-packs" },
+      { label: "Create", href: "" },
+    ],
+  },
   component: CreatePracticePackPage,
 });
 

@@ -141,6 +141,5 @@ const applyReferralCode = authed
 export const referralRouter = {
   code: getMyCode,
   validate,
-  apply: applyReferralCode,
   use: applyReferralCode,
 };

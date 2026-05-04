@@ -1,11 +1,11 @@
 import { forwardRef, useCallback } from "react";
 // --- Tiptap UI ---
-import type { UndoRedoAction, UseUndoRedoConfig } from "@/components/tiptap-ui/undo-redo-button";
-import { UNDO_REDO_SHORTCUT_KEYS, useUndoRedo } from "@/components/tiptap-ui/undo-redo-button";
-import { Badge } from "@/components/tiptap-ui-primitive/badge";
+import type { UndoRedoAction, UseUndoRedoConfig } from "./use-undo-redo";
+import { UNDO_REDO_SHORTCUT_KEYS, useUndoRedo } from "./use-undo-redo";
+import { Badge } from "@/components/tiptap-ui-primitive/badge/badge";
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button } from "@/components/tiptap-ui-primitive/button";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button } from "@/components/tiptap-ui-primitive/button/button";
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 // --- Lib ---

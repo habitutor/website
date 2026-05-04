@@ -1,33 +1,227 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Image } from "@unpic/react";
 
-const LOADING_TEXTS = [
-  "Sharpening pencils...",
-  "Brewing coffee for the brain cells...",
-  "Summoning the knowledge spirits...",
-  "Loading wisdom...",
-  "Organizing the library...",
+export const SPINNER_VERBS = [
+  "Menyelesaikan",
+  "Melakukan",
+  "Mewujudkan",
+  "Mendesain",
+  "Memanggang",
+  "Memancarkan",
+  "Bergoyang",
+  "Membingungkan",
+  "Menggelembung",
+  "Memercik",
+  "Berbicara",
+  "Berdans",
+  "Bermain",
+  "Mencolek",
+  "Memulai",
+  "Merebus",
+  "Membuat",
+  "Menggali",
+  "Menghitung",
+  "Berpelukan",
+  "Mengkaramel",
+  "Mengalir",
+  "Melemparkan",
+  "Berpikir",
+  "Menyampaikan",
+  "Mengalirkan",
+  "Menari",
+  "Mengaduk",
+  "Menutupi",
+  "Menyatu",
+  "Memikirkan",
+  "Menyusun",
+  "Mencipta",
+  "Menghitung",
+  "Mencampur",
+  "Mempertimbangkan",
+  "Berkontemplasi",
+  "Memasak",
+  "Membuat",
+  "Menciptakan",
+  "Menggiling",
+  "Mengkristal",
+  "Menanam",
+  "Membaca",
+  "Memusyawarahkan",
+  "Menentukan",
+  "Menunda-nunda",
+  "Mengacau",
+  "Melakukan",
+  "Corat-coret",
+  "Menetes",
+  "Mereda",
+  "Mempengaruhi",
+  "Menjelaskan",
+  "Menghiasi",
+  "Mempesona",
+  "Membayangkan",
+  "Menguap",
+  "Fermentasi",
+  "Bersifat",
+  "Membujuk",
+  "Membakar",
+  "Berceloteh",
+  "Mengalir",
+  "Bingung",
+  "Berkepak",
+  "Menyamakan",
+  "Membentuk",
+  "Berlari-lari",
+  "Membekukan",
+  "Berkelana",
+  "Berlari",
+  "Menghiasi",
+  "Menghasilkan",
+  "Gestur",
+  "Bertunas",
+  "Meng-git",
+  "Grooving",
+  "Menerbangkan",
+  "Menyelaraskan",
+  "Meng-hash",
+  "Menetaskan",
+  "Mengumpulkan",
+  "Membunyikan",
+  "Ribut",
+  "Hyperspace",
+  "Berideasi",
+  "Membayangkan",
+  "Improvising",
+  "Menginkubasi",
+  "Menyimpulkan",
+  "Memasukkan",
+  "Mengionisasi",
+  "Berjitter",
+  "Memotong",
+  "Menguleni",
+  "Mengembang",
+  "Melayang",
+  "Bersantai",
+  "Memanifestasi",
+  "Merendam",
+  "Berkelok",
+  "Berubah",
+  "Berkabut",
+  "Bermoonwalk",
+  "Berkeliling",
+  "Memikir",
+  "Mengumpulkan",
+  "Bergaya",
+  "Mengabut",
+  "Bersarang",
+  "Membuat koran",
+  "Noodling",
+  "Menginti",
+  "Mengorbit",
+  "Mengorkestrasi",
+  "Osmosis",
+  "Berkeliling",
+  "Merembes",
+  "Membaca",
+  "Berfilosofi",
+  "Fotosintesis",
+  "Berpolinasi",
+  " Berpikir",
+  "Berpontifikasi",
+  "Meloncat",
+  "Mengendapkan",
+  "Prestidigitasi",
+  "Memproses",
+  "Membuktikan",
+  "Menyebarkan",
+  "Berputar-putar",
+  "Permainan",
+  "Kuantisasi",
+  "Berkilau",
+  "Razzmatazz",
+  "Menyusun ulang",
+  "Reticulating",
+  "Bersarang",
+  "Mengunyah",
+  "Menumis",
+  "Lari kecil",
+  "Membawa",
+  "Berlari",
+  "Bumbui",
+  "Bersilat",
+  "Bergoyang",
+  "Mendidih",
+  "Kabur",
+  "Mensketsa",
+  "Meluncur",
+  "Memeras",
+  "Dansa",
+  "Menjelajahi",
+  "Berputar",
+  "Tunas",
+  "Merebus",
+  "Menyublim",
+  "Berputar",
+  "Menukik",
+  "Symbioting",
+  "Mensintesis",
+  "Melunakan",
+  "Berpikir",
+  "Guruh",
+  "Bermain",
+  "Bermain-main",
+  "Balik",
+  "Mentransfigur",
+  "Berubah",
+  "Memutar",
+  "Bergelombang",
+  "Mengembangkan",
+  "Memecahkan",
+  "Vibing",
+  "Berjalan",
+  "Berkeliling",
+  "Membengkokkan",
+  "Apalah",
+  "Berpusar",
+  "Berdencing",
+  "Mengibaskan",
+  "Bergerak",
+  "Bekerja",
+  "Mengatur",
+  "Menambah",
+  "Zigzagging",
 ];
+
+function AnimatedDots() {
+  const [dotCount, setDotCount] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDotCount((prev) => (prev + 1) % 4);
+    }, 400);
+    return () => clearInterval(interval);
+  }, []);
+
+  return <span>{".".repeat(dotCount)}</span>;
+}
 
 export default function Loader() {
   const text = useMemo(() => {
-    return LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)];
+    return SPINNER_VERBS[Math.floor(Math.random() * SPINNER_VERBS.length)];
   }, []);
 
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-8">
-      <div className="flex items-center gap-2">
-        {[
-          { color: "bg-primary", delay: "delay-0" },
-          { color: "bg-secondary", delay: "delay-150" },
-          { color: "bg-tertiary", delay: "delay-300" },
-        ].map((dot) => (
-          <div
-            key={dot.color + dot.delay}
-            className={`h-3.5 w-3.5 animate-bounce rounded-full ${dot.color} ${dot.delay}`}
-          />
-        ))}
-      </div>
-      <p className="animate-pulse text-sm font-medium text-muted-foreground">{text}</p>
+    <div className="flex h-screen w-full flex-col items-center justify-center gap-2 p-8">
+      <Image
+        src="/logo.svg"
+        alt="Habitutor Logo"
+        width={100}
+        height={100}
+        className="pointer-events-none animate-pulse select-none"
+      />
+      <p className="text-sm font-medium text-muted-foreground">
+        {text}
+        <AnimatedDots />
+      </p>
     </div>
   );
 }

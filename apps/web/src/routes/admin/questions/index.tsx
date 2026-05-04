@@ -33,22 +33,23 @@ import { orpc } from "@/utils/orpc";
 
 const questionsSearchSchema = type({
   "search?": "string",
-  "cursor?": "string",
-  "cursorHistory?": "string[]",
+  "after?": "string",
+  "before?": "string",
   "flashcard?": "'true' | 'false'",
 });
 
 export const Route = createFileRoute("/admin/questions/")({
+  staticData: { breadcrumb: "Questions" },
   component: QuestionsPage,
   validateSearch: questionsSearchSchema,
 });
 
 function QuestionsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
-  const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
+  const after = Route.useSearch({ select: (s) => s.after ?? undefined });
+  const before = Route.useSearch({ select: (s) => s.before ?? undefined });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
   const flashcardParam = Route.useSearch({ select: (s) => s.flashcard ?? undefined });
-  const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 300);
@@ -64,36 +65,22 @@ function QuestionsPage() {
       search: (prev) => ({
         ...prev,
         search: debouncedSearch || undefined,
-        cursor: undefined,
-        cursorHistory: undefined,
+        after: undefined,
+        before: undefined,
       }),
       replace: true,
     });
   }, [debouncedSearch, navigate]);
 
-  const handleNext = (nextCursor: string) => {
+  const handleNext = (nextAfter: string) => {
     navigate({
-      search: (prev) => ({
-        ...prev,
-        cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
-        cursor: nextCursor,
-      }),
+      search: (prev) => ({ ...prev, after: nextAfter, before: undefined }),
     });
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (prevCursor: string) => {
     navigate({
-      search: (prev) => {
-        const history = prev.cursorHistory ?? [];
-        if (history.length > 0) {
-          return {
-            ...prev,
-            cursor: history[history.length - 1],
-            cursorHistory: history.slice(0, -1),
-          };
-        }
-        return { ...prev, cursor: undefined, cursorHistory: undefined };
-      },
+      search: (prev) => ({ ...prev, before: prevCursor, after: undefined }),
     });
   };
 
@@ -102,18 +89,19 @@ function QuestionsPage() {
       search: (prev) => ({
         ...prev,
         flashcard: value,
-        cursor: undefined,
-        cursorHistory: undefined,
+        after: undefined,
+        before: undefined,
       }),
       replace: true,
     });
   };
 
-  const { data, isLoading } = useQuery(
+  const { data, isPending } = useQuery(
     orpc.admin.question.list.queryOptions({
       input: {
         limit,
-        cursor: cursor ?? undefined,
+        after,
+        before,
         search: searchParam,
         isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
       },
@@ -122,11 +110,13 @@ function QuestionsPage() {
 
   const questions = data?.data || [];
   const hasMore = data?.hasMore || false;
+  const hasPrevious = data?.hasPrevious || false;
   const nextCursor = data?.nextCursor || null;
+  const prevCursor = data?.prevCursor || null;
 
   return (
     <AdminContainer>
-      <AdminHeader title="Question Bank" description="Manage all questions across practice packs" />
+      <AdminHeader title="Questions" description="Manage all questions across practice packs" />
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
@@ -167,45 +157,7 @@ function QuestionsPage() {
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-          {Array.from({ length: 12 }).map((_, i) => (
-            // biome-ignore lint: skeleton items don't need stable keys
-            <Card key={i} className="relative flex flex-col overflow-hidden py-0">
-              <div className="flex flex-1 flex-col px-6 py-6">
-                {/* Content area */}
-                <div className="mb-4 flex-1 space-y-3">
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-11/12" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-
-                  {/* Discussion preview header */}
-                  <div className="pt-2">
-                    <Skeleton className="h-3 w-28" />
-                  </div>
-
-                  {/* Discussion content */}
-                  <Skeleton className="h-3 w-4/5" />
-                </div>
-
-                {/* Metadata badges */}
-                <div className="mt-auto flex items-center gap-4">
-                  <Skeleton className="h-5 w-20 rounded-full" />
-                  <Skeleton className="h-5 w-24 rounded-full" />
-                  <Skeleton className="h-3 w-16" />
-                </div>
-              </div>
-
-              {/* Dropdown menu button */}
-              <div className="absolute top-4 right-4">
-                <Skeleton className="size-8 rounded-md" />
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : !questions || questions.length === 0 ? (
+      {!isPending && (!questions || questions.length === 0) ? (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
           <Exam className="mb-4 size-12 text-muted-foreground" />
           <h3 className="mb-2 text-lg font-semibold">No questions found</h3>
@@ -215,9 +167,12 @@ function QuestionsPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-          {questions.map((question) => (
-            <QuestionCard key={question.id} question={question} />
-          ))}
+          {isPending
+            ? Array.from({ length: 12 }, (_, i) => (
+                // biome-ignore lint: skeleton items don't need stable keys
+                <Skeleton key={i} className="h-52 rounded-lg" />
+              ))
+            : questions.map((question) => <QuestionCard key={question.id} question={question} />)}
         </div>
       )}
 
@@ -226,8 +181,8 @@ function QuestionsPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={!hasPrevious || isLoading}
-            onClick={handlePrevious}
+            disabled={!hasPrevious || isPending}
+            onClick={() => prevCursor && handlePrevious(prevCursor)}
             className="h-9 px-4"
           >
             Previous
@@ -236,7 +191,7 @@ function QuestionsPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={!hasMore || isLoading}
+            disabled={!hasMore || isPending}
             onClick={() => nextCursor && handleNext(nextCursor)}
             className="h-9 px-4"
           >

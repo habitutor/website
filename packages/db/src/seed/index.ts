@@ -1,8 +1,10 @@
+import { SQL } from "bun";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/bun-sql";
 import { clearSubtest, seedSubtest } from "./subtest.seed";
+import { clearQuestion, seedQuestion } from "./question.seed";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({
@@ -21,10 +23,14 @@ async function main() {
 
   console.log("Starting seed...");
 
-  const db = drizzle(process.env.DATABASE_URL);
+  const client = new SQL(process.env.DATABASE_URL);
+  const db = drizzle({ client, casing: "snake_case" });
 
   await clearSubtest(db);
   await seedSubtest(db);
+
+  await clearQuestion(db);
+  await seedQuestion(db);
 
   console.log("Seed completed");
 

@@ -3,7 +3,7 @@ import { MobileCarousel } from "@/components/pricing/mobile-carousel";
 import { TryOutCard } from "@/components/pricing/tryout-card";
 import { DATA } from "@/routes/home-premium/-components/data";
 import type { ComponentProps } from "react";
-import type { BundlingVariant } from "../premium-payment";
+import type { BundlingVariant } from "../-premium-payment";
 import { BundlingCard } from "./bundling-card";
 import { PerintisClassroomCard } from "./perintis-card";
 import { PremiumHeader } from "./premium-header";

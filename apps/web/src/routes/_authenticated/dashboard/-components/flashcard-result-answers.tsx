@@ -1,8 +1,11 @@
+import { FlagIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useRouteContext } from "@tanstack/react-router";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { FeedbackReportDialog } from "./feedback-report-dialog";
 
 type AnswerOption = {
   id: number;
@@ -11,15 +14,19 @@ type AnswerOption = {
   isCorrect: boolean;
 };
 
-type AssignedQuestion = {
-  selectedAnswerId: number | null;
-  question: {
-    discussion: string;
-    answerOptions: AnswerOption[];
+function AnswerItem({
+  assignedQuestion,
+}: {
+  assignedQuestion: {
+    questionId: number;
+    selectedAnswerId: number | null;
+    question: {
+      id: number;
+      discussion: string;
+      answerOptions: AnswerOption[];
+    };
   };
-};
-
-function AnswerItem({ assignedQuestion }: { assignedQuestion: AssignedQuestion }) {
+}) {
   const { question, selectedAnswerId } = assignedQuestion;
   const correctAnswer = question.answerOptions.find((a) => a.isCorrect);
   const userAnswer = question.answerOptions.find((a) => a.id === selectedAnswerId);
@@ -94,6 +101,7 @@ function StreakBanner() {
 
 export function ResultsSection() {
   const { data, isPending } = useQuery(orpc.flashcard.result.queryOptions({ input: {} }));
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const score = data ? Math.round((data.correctAnswersCount / (data.questionsCount || 5)) * 100) : 0;
 
   return (
@@ -101,6 +109,17 @@ export function ResultsSection() {
       className="flex w-full flex-col rounded-[10px] border border-neutral-300 bg-white px-4 pt-4"
       style={{ animation: "slideUpIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both" }}
     >
+      <div className="flex items-center justify-between px-2 pb-2">
+        <h2 className="text-[20px] font-medium text-[#333]">Hasil Flashcard</h2>
+        <button
+          type="button"
+          onClick={() => setFeedbackDialogOpen(true)}
+          className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-orange-50 hover:text-orange-600"
+          aria-label="Laporkan masalah"
+        >
+          <FlagIcon size={20} weight="bold" />
+        </button>
+      </div>
       <StreakBanner />
       <div className="flex flex-col gap-5 py-5 pb-8">
         {isPending ? (
@@ -123,6 +142,12 @@ export function ResultsSection() {
           )}
         </div>
       </div>
+      <FeedbackReportDialog
+        open={feedbackDialogOpen}
+        onOpenChange={setFeedbackDialogOpen}
+        attemptId={data?.attemptId}
+        path="/dashboard/flashcard/result"
+      />
     </div>
   );
 }

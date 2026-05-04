@@ -98,11 +98,7 @@ export const flashcardRepo = {
     answers,
   }: {
     db?: DrizzleDatabase;
-    answers: Array<{
-      attemptId: number;
-      assignedDate: Date;
-      questionId: number;
-    }>;
+    answers: (typeof userFlashcardQuestionAnswer.$inferInsert)[];
   }) => {
     return db.insert(userFlashcardQuestionAnswer).values(answers);
   },
@@ -277,6 +273,7 @@ export const flashcardRepo = {
       where: eq(userFlashcardQuestionAnswer.attemptId, attemptId),
       columns: {
         selectedAnswerId: true,
+        questionId: true,
       },
       with: {
         question: {
@@ -301,33 +298,6 @@ export const flashcardRepo = {
         },
       },
     });
-  },
-
-  getUserHistory: async ({
-    db = defaultDb,
-    userId,
-    limit = 50,
-  }: {
-    db?: DrizzleDatabase;
-    userId: string;
-    limit?: number;
-  }) => {
-    return db
-      .select({
-        id: userFlashcardAttempt.id,
-        startedAt: userFlashcardAttempt.startedAt,
-        submittedAt: userFlashcardAttempt.submittedAt,
-      })
-      .from(userFlashcardAttempt)
-      .where(eq(userFlashcardAttempt.userId, userId))
-      .orderBy(desc(userFlashcardAttempt.startedAt))
-      .limit(limit);
-  },
-
-  getUserTotalScore: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
-    const [row] = await db.select({ totalScore: user.totalScore }).from(user).where(eq(user.id, userId)).limit(1);
-
-    return row?.totalScore ?? 0;
   },
 
   getLeaderboardWithCurrentUser: async ({

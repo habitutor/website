@@ -1,12 +1,12 @@
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useCallback, useState } from "react";
-import { CornerDownLeftIcon } from "@/components/tiptap-icons";
-import { ImagePlusIcon } from "@/components/tiptap-icons";
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
-import { Button } from "@/components/tiptap-ui-primitive/button";
-import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card";
-import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover";
+import { CornerDownLeftIcon } from "@/components/tiptap-icons/actions/corner-down-left-icon";
+import { ImagePlusIcon } from "@/components/tiptap-icons/actions/image-plus-icon";
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button/button";
+import { Button } from "@/components/tiptap-ui-primitive/button/button";
+import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card/card";
+import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover/popover";
 import { useTiptapEditor } from "@/hooks/editor/use-tiptap-editor";
 
 export interface ImageLinkPopoverProps extends Omit<ButtonProps, "type"> {

@@ -4,9 +4,15 @@ import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout
 import { ContentFilters, ContentList } from "@/components/classes/content";
 import { SearchInput } from "@/components/ui/search-input";
 import { orpc } from "@/utils/orpc";
-import { ContentDialogs, useContentDialogs } from "./content-dialogs";
+import { ContentDialogs, useContentDialogs } from "./-content-dialogs";
 
 export const Route = createFileRoute("/admin/classes/$shortName/")({
+  staticData: {
+    breadcrumb: [
+      { label: "Classes", href: "/admin/classes" },
+      { label: "Class Detail", href: "" },
+    ],
+  },
   params: {
     parse: (raw) => ({
       shortName: raw.shortName?.toLowerCase(),
@@ -124,7 +130,7 @@ function RouteComponent() {
       <div className="space-y-4">
         <ContentList
           items={contents.data}
-          isLoading={contents.isPending}
+          isPending={contents.isPending}
           error={contents.isError ? contents.error.message : undefined}
           searchQuery={searchQuery}
           showCount={Boolean(searchQuery)}

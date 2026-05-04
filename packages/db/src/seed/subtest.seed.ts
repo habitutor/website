@@ -1,4 +1,4 @@
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { BunSQLDatabase } from "drizzle-orm/bun-sql";
 import { contentItem, noteMaterial, recentContentView, subtest, userProgress, videoMaterial } from "../schema/subtest";
 
 const SUBTEST_DATA = [
@@ -46,7 +46,7 @@ const SUBTEST_DATA = [
   },
 ];
 
-export async function clearSubtest(db: NodePgDatabase) {
+export async function clearSubtest(db: BunSQLDatabase) {
   const isMissingTableError = (error: unknown) => {
     if (!(error instanceof Error)) return false;
     if ("code" in error && (error as { code?: string }).code === "42P01") return true;
@@ -79,7 +79,7 @@ export async function clearSubtest(db: NodePgDatabase) {
   }
 }
 
-export async function seedSubtest(db: NodePgDatabase) {
+export async function seedSubtest(db: BunSQLDatabase) {
   await db.transaction(async (tx) => {
     const insertedSubtests = await tx.insert(subtest).values(SUBTEST_DATA).returning({
       id: subtest.id,

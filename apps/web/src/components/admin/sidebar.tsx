@@ -2,31 +2,25 @@
 
 import {
   BooksIcon,
-  House,
-  Megaphone,
-  Package,
-  Question,
-  SignOut,
+  CaretRightIcon,
+  ChatCircleIcon,
+  FolderOpenIcon,
+  HouseIcon,
+  MegaphoneIcon,
+  NotebookIcon,
+  PackageIcon,
+  QuestionIcon,
+  SignOutIcon,
   TicketIcon,
-  User,
+  UserIcon,
   UserSwitchIcon,
 } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { LogoutDialog } from "@/components/logout-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +32,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -45,41 +42,58 @@ import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
-const adminNavLinks = [
+const adminNavGroups = [
   {
-    name: "Dashboard",
-    to: "/admin/dashboard" as const,
-    icon: House,
+    name: "Management",
+    icon: FolderOpenIcon,
+    items: [
+      {
+        name: "Dashboard",
+        to: "/admin/dashboard" as const,
+        icon: HouseIcon,
+      },
+      {
+        name: "Feedback",
+        to: "/admin/feedback" as const,
+        icon: ChatCircleIcon,
+      },
+      {
+        name: "Users",
+        to: "/admin/users" as const,
+        icon: UserIcon,
+      },
+      {
+        name: "Referral Transactions",
+        to: "/admin/referrals" as const,
+        icon: TicketIcon,
+      },
+    ],
   },
   {
-    name: "Practice Packs",
-    to: "/admin/practice-packs" as const,
-    icon: Package,
-  },
-  {
-    name: "Questions",
-    to: "/admin/questions" as const,
-    icon: Question,
-  },
-  {
-    name: "Classes",
-    to: "/admin/classes" as const,
-    icon: BooksIcon,
-  },
-  {
-    name: "Dashboard Content",
-    to: "/admin/dashboard-content" as const,
-    icon: Megaphone,
-  },
-  {
-    name: "Users",
-    to: "/admin/users" as const,
-    icon: User,
-  },
-  {
-    name: "Referral Transactions",
-    to: "/admin/referrals" as const,
-    icon: TicketIcon,
+    name: "Content",
+    icon: NotebookIcon,
+    items: [
+      {
+        name: "Practice Packs",
+        to: "/admin/practice-packs" as const,
+        icon: PackageIcon,
+      },
+      {
+        name: "Questions",
+        to: "/admin/questions" as const,
+        icon: QuestionIcon,
+      },
+      {
+        name: "Classes",
+        to: "/admin/classes" as const,
+        icon: BooksIcon,
+      },
+      {
+        name: "Dashboard Content",
+        to: "/admin/dashboard-content" as const,
+        icon: MegaphoneIcon,
+      },
+    ],
   },
 ];
 
@@ -97,19 +111,41 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {adminNavLinks.map((link) => {
-                const isActive = location.pathname.startsWith(link.to);
-                const Icon = link.icon;
+              {adminNavGroups.map((group) => {
+                const hasActiveChild = group.items.some((item) => location.pathname === item.to);
+                const GroupIcon = group.icon;
 
                 return (
-                  <SidebarMenuItem key={link.to}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={link.name}>
-                      <Link to={link.to}>
-                        <Icon className="size-5" weight={isActive ? "fill" : "regular"} />
-                        <span>{link.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <Collapsible key={group.name} asChild defaultOpen={hasActiveChild} className="group/collapsible">
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton tooltip={group.name}>
+                          <GroupIcon className="size-5" />
+                          <span>{group.name}</span>
+                          <CaretRightIcon className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {group.items.map((item) => {
+                            const isActive = location.pathname === item.to;
+                            const Icon = item.icon;
+
+                            return (
+                              <SidebarMenuSubItem key={item.to}>
+                                <SidebarMenuSubButton asChild isActive={isActive}>
+                                  <Link to={item.to}>
+                                    <Icon className="size-4" weight={isActive ? "fill" : "regular"} />
+                                    <span>{item.name}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            );
+                          })}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
                 );
               })}
             </SidebarMenu>
@@ -149,37 +185,6 @@ export function AdminSidebar() {
   );
 }
 
-function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-          <AlertDialogDescription>Anda akan logout dari panel admin.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Kembali</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={async () => {
-                await authClient.signOut();
-                queryClient.removeQueries();
-                navigate({ to: "/login" });
-              }}
-              variant="destructive"
-            >
-              <SignOut /> Keluar
-            </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
 function SidebarLogout() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { state } = useSidebar();
@@ -191,10 +196,15 @@ function SidebarLogout() {
         tooltip={state === "collapsed" ? "Logout" : undefined}
         className="text-destructive hover:bg-destructive/10 hover:text-destructive"
       >
-        <SignOut className="size-5" />
+        <SignOutIcon className="size-5" />
         <span>Logout</span>
       </SidebarMenuButton>
-      <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+      <LogoutDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        redirectUrl="/login"
+        description="Anda akan logout dari panel admin."
+      />
     </>
   );
 }
