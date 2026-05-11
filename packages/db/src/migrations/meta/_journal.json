@@ -15,6 +15,27 @@
       "when": 1775122859810,
       "tag": "0001_fantastic_mongu",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778311838841,
+      "tag": "0002_absurd_true_believers",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778315019765,
+      "tag": "0003_curious_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778323951257,
+      "tag": "0004_dashing_talos",
+      "breakpoints": true
     }
   ]
 }

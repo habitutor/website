@@ -6,6 +6,8 @@ import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminQuestionRouter } from "./admin/question";
 import { adminReferralRouter } from "./admin/referrals";
 import { adminStatisticsRouter } from "./admin/statistics";
+import { adminTryoutRouter } from "./admin/tryout";
+import { adminUniversitasRouter } from "./admin/universitas";
 import { adminUserRouter } from "./admin/users";
 import {
   createContent,
@@ -26,64 +28,80 @@ import { practicePackRouter } from "./practice-pack";
 import { profileRouter } from "./profile";
 import { referralRouter } from "./referral";
 import { socialRouter } from "./social";
+import { studentTryoutRouter } from "./student/tryout";
 import { subtestRouter } from "./subtest";
 import { transactionRouter } from "./transaction";
 
-export const appRouter = {
-  healthCheck: pub
-    .route({
-      path: "/healthcheck",
-      method: "GET",
-      tags: ["Uncategorized"],
-    })
-    .output(type({ message: "string" }))
-    .handler(() => {
-      return { message: "OK" };
-    }),
+const healthCheck = pub
+  .route({
+    path: "/healthcheck",
+    method: "GET",
+    tags: ["Uncategorized"],
+  })
+  .output(type({ message: "string" }))
+  .handler(() => {
+    return { message: "OK" };
+  });
+
+const adminRouter = {
+  statistics: adminStatisticsRouter,
+  universitas: adminUniversitasRouter,
+  practicePack: adminPracticePackRouter,
+  question: adminQuestionRouter,
+  tryout: adminTryoutRouter,
+  subtest: {
+    subtest: {
+      create: createSubtest,
+      update: updateSubtest,
+      remove: deleteSubtest,
+      reorder: reorderSubtests,
+    },
+    content: {
+      create: createContent,
+      update: updateContent,
+      remove: deleteContent,
+      reorder: reorderContent,
+      video: {
+        update: upsertVideo,
+        remove: deleteVideo,
+      },
+      note: {
+        update: upsertNote,
+        remove: deleteNote,
+      },
+      question: {
+        link: linkPracticeQuestions,
+        unlink: unlinkPracticeQuestions,
+      },
+    },
+  },
+  users: adminUserRouter,
+  referrals: adminReferralRouter,
+  dashboardContent: adminDashboardContentRouter,
+};
+
+export const appRouter: {
+  healthCheck: typeof healthCheck;
+  social: typeof socialRouter;
+  dashboard: typeof dashboardRouter;
+  profile: typeof profileRouter;
+  practicePack: typeof practicePackRouter;
+  flashcard: typeof flashcardRouter;
+  subtest: typeof subtestRouter;
+  tryout: typeof studentTryoutRouter;
+  admin: typeof adminRouter;
+  transaction: typeof transactionRouter;
+  referral: typeof referralRouter;
+} = {
+  healthCheck,
   social: socialRouter,
   dashboard: dashboardRouter,
   profile: profileRouter,
-  // Learning feature boundaries:
-  // - subtest: curriculum + content navigation
-  // - practicePack: structured pack attempts (start/save/submit/history)
-  // - flashcard: short daily retention sessions with streak logic
   practicePack: practicePackRouter,
   flashcard: flashcardRouter,
   subtest: subtestRouter,
-  admin: {
-    statistics: adminStatisticsRouter,
-    practicePack: adminPracticePackRouter,
-    question: adminQuestionRouter,
-    subtest: {
-      subtest: {
-        create: createSubtest,
-        update: updateSubtest,
-        remove: deleteSubtest,
-        reorder: reorderSubtests,
-      },
-      content: {
-        create: createContent,
-        update: updateContent,
-        remove: deleteContent,
-        reorder: reorderContent,
-        video: {
-          update: upsertVideo,
-          remove: deleteVideo,
-        },
-        note: {
-          update: upsertNote,
-          remove: deleteNote,
-        },
-        question: {
-          link: linkPracticeQuestions,
-          unlink: unlinkPracticeQuestions,
-        },
-      },
-    },
-    users: adminUserRouter,
-    referrals: adminReferralRouter,
-    dashboardContent: adminDashboardContentRouter,
-  },
+  tryout: studentTryoutRouter,
+  admin: adminRouter,
   transaction: transactionRouter,
   referral: referralRouter,
 };

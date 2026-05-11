@@ -1,0 +1,2 @@
+ALTER TABLE "universitas" ADD CONSTRAINT "universitas_nama_univ_unique" UNIQUE("nama_univ");--> statement-breakpoint
+ALTER TABLE "universitas" ADD CONSTRAINT "universitas_rank_univ_unique" UNIQUE("rank_univ");

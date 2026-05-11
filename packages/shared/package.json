@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "check-types": "tsgo --noEmit"
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@habitutor/config": "workspace:*",
