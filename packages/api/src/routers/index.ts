@@ -43,7 +43,42 @@ const healthCheck = pub
     return { message: "OK" };
   });
 
-const adminRouter = {
+const adminRouter: {
+  statistics: typeof adminStatisticsRouter;
+  universitas: typeof adminUniversitasRouter;
+  practicePack: typeof adminPracticePackRouter;
+  question: typeof adminQuestionRouter;
+  tryout: typeof adminTryoutRouter;
+  subtest: {
+    subtest: {
+      create: typeof createSubtest;
+      update: typeof updateSubtest;
+      remove: typeof deleteSubtest;
+      reorder: typeof reorderSubtests;
+    };
+    content: {
+      create: typeof createContent;
+      update: typeof updateContent;
+      remove: typeof deleteContent;
+      reorder: typeof reorderContent;
+      video: {
+        update: typeof upsertVideo;
+        remove: typeof deleteVideo;
+      };
+      note: {
+        update: typeof upsertNote;
+        remove: typeof deleteNote;
+      };
+      question: {
+        link: typeof linkPracticeQuestions;
+        unlink: typeof unlinkPracticeQuestions;
+      };
+    };
+  };
+  users: typeof adminUserRouter;
+  referrals: typeof adminReferralRouter;
+  dashboardContent: typeof adminDashboardContentRouter;
+} = {
   statistics: adminStatisticsRouter,
   universitas: adminUniversitasRouter,
   practicePack: adminPracticePackRouter,

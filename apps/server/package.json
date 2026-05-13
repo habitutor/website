@@ -19,6 +19,7 @@
     "@orpc/arktype": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
+    "cloudinary": "^2.10.0",
     "hono": "catalog:"
   },
   "devDependencies": {
