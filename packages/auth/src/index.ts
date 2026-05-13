@@ -25,6 +25,26 @@ const trustedOrigins = Array.from(
   ]),
 );
 
+const authBaseUrl = process.env.BETTER_AUTH_URL;
+const parsedAuthBaseUrl = (() => {
+  if (!authBaseUrl) {
+    return null;
+  }
+
+  try {
+    return new URL(authBaseUrl);
+  } catch {
+    return null;
+  }
+})();
+const authHost = parsedAuthBaseUrl?.hostname;
+const isHabitutorHost = authHost === "habitutor.id" || authHost?.endsWith(".habitutor.id");
+const cookieDomain = process.env.BETTER_AUTH_COOKIE_DOMAIN?.trim() || (isHabitutorHost ? ".habitutor.id" : undefined);
+const cookieSecure =
+  process.env.BETTER_AUTH_COOKIE_SECURE === "true" ||
+  (process.env.BETTER_AUTH_COOKIE_SECURE !== "false" &&
+    (parsedAuthBaseUrl ? parsedAuthBaseUrl.protocol === "https:" : process.env.NODE_ENV === "production"));
+
 const resendClient = new Resend(process.env.RESEND_API_KEY || "Re_api_key");
 
 export const auth = betterAuth({
@@ -170,13 +190,13 @@ export const auth = betterAuth({
   advanced: {
     defaultCookieAttributes: {
       sameSite: "Lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: cookieSecure,
       httpOnly: true,
     },
-    ...(process.env.NODE_ENV === "production" && {
+    ...(cookieDomain && {
       crossSubDomainCookies: {
         enabled: true,
-        domain: ".habitutor.id",
+        domain: cookieDomain,
       },
     }),
   },
