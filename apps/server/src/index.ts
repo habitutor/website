@@ -3,6 +3,7 @@ import { appRouter } from "@habitutor/api/routers/index";
 import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
 import { auth } from "@habitutor/auth";
+import { formDataToJsonMiddleware } from "./form-data-converter";
 import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConverter } from "@orpc/arktype";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
@@ -69,8 +70,15 @@ export const rpcHandler = new RPCHandler(appRouter, {
 
 app.use("/*", async (c, next) => {
   const context = await createContext({ context: c });
+  let req = c.req.raw;
 
-  const rpcResult = await rpcHandler.handle(c.req.raw, {
+  // Try to convert form-data to JSON if applicable
+  const convertedRequest = await formDataToJsonMiddleware(req);
+  if (convertedRequest) {
+    req = convertedRequest;
+  }
+
+  const rpcResult = await rpcHandler.handle(req, {
     prefix: "/rpc",
     context: context,
   });
@@ -79,7 +87,7 @@ app.use("/*", async (c, next) => {
     return c.newResponse(rpcResult.response.body, rpcResult.response);
   }
 
-  const apiResult = await apiHandler.handle(c.req.raw, {
+  const apiResult = await apiHandler.handle(req, {
     prefix: "/api-reference",
     context: context,
   });

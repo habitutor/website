@@ -10,7 +10,7 @@ import {
 } from "@habitutor/db/schema/tryout";
 import { user } from "@habitutor/db/schema/user";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
-import { fisherYatesShuffle } from "./logic";
+import { fisherYatesShuffle, TryoutError } from "./logic";
 
 export const tryoutRepo = {
     /**
@@ -62,7 +62,7 @@ export const tryoutRepo = {
         });
 
         if (!firstSubtes) {
-            throw new Error("Tidak ada subtes di tryout ini");
+            throw new TryoutError("BAD_REQUEST", "Tidak ada subtes di tryout ini");
         }
 
         // Buat sesi_subtes untuk subtes pertama
@@ -205,7 +205,7 @@ export const tryoutRepo = {
         });
 
         if (!sesiSoal) {
-            throw new Error("Sesi soal tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Sesi soal tidak ditemukan");
         }
 
         let isBenar = false;
@@ -295,7 +295,7 @@ export const tryoutRepo = {
         });
 
         if (!sesiSubtes) {
-            throw new Error("Sesi subtes tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Sesi subtes tidak ditemukan");
         }
 
         // Hitung skor untuk subtes ini
@@ -443,7 +443,7 @@ export const tryoutRepo = {
         });
 
         if (!sesi) {
-            throw new Error("Sesi tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Sesi tidak ditemukan");
         }
 
         // Ambil semua sesi_subtes untuk hitung total skor
@@ -546,7 +546,7 @@ export const tryoutRepo = {
         });
 
         if (!userData?.isPremium || !userData.premiumExpiresAt || new Date() >= userData.premiumExpiresAt) {
-            throw new Error("PREMIUM_REQUIRED");
+            throw new TryoutError("FORBIDDEN", "Pembahasan hanya tersedia untuk member premium");
         }
 
         // Ambil soal dengan pembahasan
@@ -560,7 +560,7 @@ export const tryoutRepo = {
         });
 
         if (!soal) {
-            throw new Error("Soal tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
         }
 
         return {
@@ -594,5 +594,6 @@ export const tryoutRepo = {
         return tryoutRepo.submitSubtest({ db, sesiSubtesId, isExpired: true });
     },
 };
+
 
 

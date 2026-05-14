@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { authed } from "../../../index";
 import { tryoutRepo } from "./repo";
+import { toOrpcError } from "./logic";
 
 /**
  * Mulai Tryout - buat sesi baru atau return existing
@@ -35,9 +36,7 @@ const startTryout = authed
                 mulaiAt: result.sesi.mulaiAt,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal memulai tryout",
-            });
+            throw toOrpcError(error, "Gagal memulai tryout");
         }
     });
 
@@ -67,9 +66,7 @@ const getQuestions = authed
                 totalSoal: questions.length,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil soal",
-            });
+            throw toOrpcError(error, "Gagal mengambil soal");
         }
     });
 
@@ -114,9 +111,7 @@ const submitAnswer = authed
                 },
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal submit jawaban",
-            });
+            throw toOrpcError(error, "Gagal submit jawaban");
         }
     });
 
@@ -147,9 +142,7 @@ const submitSubtest = authed
                 subtesBerikutnya: result.nextSubtes,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal submit subtes",
-            });
+            throw toOrpcError(error, "Gagal submit subtes");
         }
     });
 
@@ -180,9 +173,7 @@ const autoSubmitSubtest = authed
                 subtesBerikutnya: result.nextSubtes,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal auto submit subtes",
-            });
+            throw toOrpcError(error, "Gagal auto submit subtes");
         }
     });
 
@@ -209,9 +200,7 @@ const getResults = authed
 
             return result;
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil hasil",
-            });
+            throw toOrpcError(error, "Gagal mengambil hasil");
         }
     });
 
@@ -243,14 +232,7 @@ const getPembahasan = authed
 
             return result;
         } catch (error) {
-            if (error instanceof Error && error.message === "PREMIUM_REQUIRED") {
-                throw new ORPCError("FORBIDDEN", {
-                    message: "Pembahasan hanya tersedia untuk member premium",
-                });
-            }
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil pembahasan",
-            });
+            throw toOrpcError(error, "Gagal mengambil pembahasan");
         }
     });
 
@@ -267,3 +249,4 @@ export const studentTryoutRouter = {
     results: getResults,
     pembahasan: getPembahasan,
 };
+

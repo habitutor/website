@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { admin } from "../../../index";
 import { tryoutRepo } from "./repo";
+import { toOrpcError } from "./logic";
 
 const listTryouts = admin
     .route({
@@ -24,9 +25,7 @@ const listTryouts = admin
                 limit: input.limit,
             });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil daftar tryout",
-            });
+            throw toOrpcError(error, "Gagal mengambil daftar tryout");
         }
     });
 
@@ -41,9 +40,7 @@ const getTryoutDetail = admin
         try {
             return await tryoutRepo.getTryoutDetail({ tryoutId: input.tryoutId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil detail tryout",
-            });
+            throw toOrpcError(error, "Gagal mengambil detail tryout");
         }
     });
 
@@ -75,9 +72,7 @@ const createTryout = admin
             });
             return result;
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal membuat tryout",
-            });
+            throw toOrpcError(error, "Gagal membuat tryout");
         }
     });
 
@@ -110,9 +105,7 @@ const updateTryout = admin
                 selesaiAt: input.selesaiAt ? new Date(input.selesaiAt) : input.selesaiAt === null ? null : undefined,
             });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal update tryout",
-            });
+            throw toOrpcError(error, "Gagal update tryout");
         }
     });
 
@@ -136,9 +129,7 @@ const deleteTryout = admin
             await tryoutRepo.deleteTryout({ tryoutId: input.tryoutId });
             return { success: true, message: "Tryout berhasil dihapus" };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal menghapus tryout",
-            });
+            throw toOrpcError(error, "Gagal menghapus tryout");
         }
     });
 
@@ -162,9 +153,7 @@ const createSubtes = admin
         try {
             return await tryoutRepo.createSubtes(input);
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal membuat subtes",
-            });
+            throw toOrpcError(error, "Gagal membuat subtes");
         }
     });
 
@@ -179,9 +168,7 @@ const listSubtesByTryout = admin
         try {
             return await tryoutRepo.listSubtesByTryout({ tryoutId: input.tryoutId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil daftar subtes",
-            });
+            throw toOrpcError(error, "Gagal mengambil daftar subtes");
         }
     });
 
@@ -209,9 +196,7 @@ const updateSubtes = admin
         try {
             return await tryoutRepo.updateSubtes(input);
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal update subtes",
-            });
+            throw toOrpcError(error, "Gagal update subtes");
         }
     });
 
@@ -226,9 +211,7 @@ const getSubtesDetail = admin
         try {
             return await tryoutRepo.getSubtesDetail({ subtesId: input.subtesId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil detail subtes",
-            });
+            throw toOrpcError(error, "Gagal mengambil detail subtes");
         }
     });
 
@@ -252,9 +235,7 @@ const deleteSubtes = admin
             await tryoutRepo.deleteSubtes({ subtesId: input.subtesId });
             return { success: true, message: "Subtes berhasil dihapus" };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal menghapus subtes",
-            });
+            throw toOrpcError(error, "Gagal menghapus subtes");
         }
     });
 
@@ -279,9 +260,7 @@ const createSoal = admin
         try {
             return await tryoutRepo.createSoal(input);
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal membuat soal",
-            });
+            throw toOrpcError(error, "Gagal membuat soal");
         }
     });
 
@@ -296,9 +275,7 @@ const listSoalBySubtes = admin
         try {
             return await tryoutRepo.listSoalBySubtes({ subtesId: input.subtesId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil daftar soal",
-            });
+            throw toOrpcError(error, "Gagal mengambil daftar soal");
         }
     });
 
@@ -327,9 +304,7 @@ const updateSoal = admin
         try {
             return await tryoutRepo.updateSoal(input);
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal update soal",
-            });
+            throw toOrpcError(error, "Gagal update soal");
         }
     });
 
@@ -344,9 +319,7 @@ const getSoalDetail = admin
         try {
             return await tryoutRepo.getSoalDetail({ soalId: input.soalId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil detail soal",
-            });
+            throw toOrpcError(error, "Gagal mengambil detail soal");
         }
     });
 
@@ -370,9 +343,7 @@ const deleteSoal = admin
             await tryoutRepo.deleteSoal({ soalId: input.soalId });
             return { success: true, message: "Soal berhasil dihapus" };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal menghapus soal",
-            });
+            throw toOrpcError(error, "Gagal menghapus soal");
         }
     });
 
@@ -395,9 +366,7 @@ const createPilihanJawaban = admin
         try {
             return await tryoutRepo.createPilihanJawaban(input);
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal membuat pilihan jawaban",
-            });
+            throw toOrpcError(error, "Gagal membuat pilihan jawaban");
         }
     });
 
@@ -412,9 +381,7 @@ const listPilihanBySoal = admin
         try {
             return await tryoutRepo.listPilihanBySoal({ soalId: input.soalId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil daftar pilihan jawaban",
-            });
+            throw toOrpcError(error, "Gagal mengambil daftar pilihan jawaban");
         }
     });
 
@@ -441,9 +408,7 @@ const updatePilihanJawaban = admin
         try {
             return await tryoutRepo.updatePilihanJawaban(input);
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal update pilihan jawaban",
-            });
+            throw toOrpcError(error, "Gagal update pilihan jawaban");
         }
     });
 
@@ -467,9 +432,7 @@ const deletePilihanJawaban = admin
             await tryoutRepo.deletePilihanJawaban({ pilihanId: input.pilihanId });
             return { success: true, message: "Pilihan jawaban berhasil dihapus" };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal menghapus pilihan jawaban",
-            });
+            throw toOrpcError(error, "Gagal menghapus pilihan jawaban");
         }
     });
 
@@ -488,9 +451,7 @@ const publishTryout = admin
         try {
             return await tryoutRepo.publishTryout({ tryoutId: input.tryoutId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal publish tryout",
-            });
+            throw toOrpcError(error, "Gagal publish tryout");
         }
     });
 
@@ -513,9 +474,7 @@ const unpublishTryout = admin
         try {
             return await tryoutRepo.unpublishTryout({ tryoutId: input.tryoutId });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal membatalkan publish tryout",
-            });
+            throw toOrpcError(error, "Gagal membatalkan publish tryout");
         }
     });
 
@@ -551,9 +510,7 @@ const startTryout = admin
                 mulaiAt: result.sesi.mulaiAt,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal memulai tryout",
-            });
+            throw toOrpcError(error, "Gagal memulai tryout");
         }
     });
 
@@ -583,9 +540,7 @@ const getQuestions = admin
                 totalSoal: questions.length,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil soal",
-            });
+            throw toOrpcError(error, "Gagal mengambil soal");
         }
     });
 
@@ -630,9 +585,7 @@ const submitAnswer = admin
                 },
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal submit jawaban",
-            });
+            throw toOrpcError(error, "Gagal submit jawaban");
         }
     });
 
@@ -663,9 +616,7 @@ const submitSubtest = admin
                 subtesBerikutnya: result.nextSubtes,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal submit subtes",
-            });
+            throw toOrpcError(error, "Gagal submit subtes");
         }
     });
 
@@ -696,9 +647,7 @@ const autoSubmitSubtest = admin
                 subtesBerikutnya: result.nextSubtes,
             };
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal auto submit subtes",
-            });
+            throw toOrpcError(error, "Gagal auto submit subtes");
         }
     });
 
@@ -725,9 +674,7 @@ const getResults = admin
 
             return result;
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil hasil",
-            });
+            throw toOrpcError(error, "Gagal mengambil hasil");
         }
     });
 
@@ -752,9 +699,7 @@ const listSesiByTryout = admin
                 limit: input.limit,
             });
         } catch (error) {
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil daftar sesi tryout",
-            });
+            throw toOrpcError(error, "Gagal mengambil daftar sesi tryout");
         }
     });
 
@@ -786,14 +731,7 @@ const getPembahasan = admin
 
             return result;
         } catch (error) {
-            if (error instanceof Error && error.message === "PREMIUM_REQUIRED") {
-                throw new ORPCError("FORBIDDEN", {
-                    message: "Pembahasan hanya tersedia untuk member premium",
-                });
-            }
-            throw new ORPCError("INTERNAL_SERVER_ERROR", {
-                message: error instanceof Error ? error.message : "Gagal mengambil pembahasan",
-            });
+            throw toOrpcError(error, "Gagal mengambil pembahasan");
         }
     });
 
@@ -842,3 +780,4 @@ export const adminTryoutRouter = {
     results: getResults,
     pembahasan: getPembahasan,
 };
+

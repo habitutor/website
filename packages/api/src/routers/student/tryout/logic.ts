@@ -1,6 +1,42 @@
+import { ORPCError } from "@orpc/server";
+
 /**
  * Business logic untuk fitur Tryout
  */
+
+export type TryoutErrorCode =
+    | "BAD_REQUEST"
+    | "UNAUTHORIZED"
+    | "FORBIDDEN"
+    | "NOT_FOUND"
+    | "CONFLICT"
+    | "INTERNAL_SERVER_ERROR";
+
+export class TryoutError extends Error {
+    code: TryoutErrorCode;
+
+    constructor(code: TryoutErrorCode, message: string) {
+        super(message);
+        this.name = "TryoutError";
+        this.code = code;
+    }
+}
+
+export function toOrpcError(error: unknown, fallbackMessage: string): ORPCError<TryoutErrorCode, { message: string }> {
+    if (error instanceof ORPCError) {
+        return error as ORPCError<TryoutErrorCode, { message: string }>;
+    }
+
+    if (error instanceof TryoutError) {
+        return new ORPCError(error.code, { data: { message: error.message } });
+    }
+
+    return new ORPCError("INTERNAL_SERVER_ERROR", {
+        data: {
+            message: error instanceof Error ? error.message : fallbackMessage,
+        },
+    });
+}
 
 /**
  * Fisher-Yates Shuffle - acak array dengan algoritma yang baik

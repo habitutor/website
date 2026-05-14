@@ -12,7 +12,7 @@ import {
 } from "@habitutor/db/schema/tryout";
 import { user } from "@habitutor/db/schema/user";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
-import { fisherYatesShuffle } from "./logic";
+import { fisherYatesShuffle, TryoutError } from "./logic";
 
 export const tryoutRepo = {
     listTryouts: async ({
@@ -71,7 +71,7 @@ export const tryoutRepo = {
                 },
             },
         });
-        if (!row) throw new Error("Tryout tidak ditemukan");
+        if (!row) throw new TryoutError("NOT_FOUND", "Tryout tidak ditemukan");
         return row;
     },
 
@@ -103,7 +103,7 @@ export const tryoutRepo = {
                 },
             },
         });
-        if (!row) throw new Error("Subtes tidak ditemukan");
+        if (!row) throw new TryoutError("NOT_FOUND", "Subtes tidak ditemukan");
         return row;
     },
 
@@ -135,7 +135,7 @@ export const tryoutRepo = {
                 },
             },
         });
-        if (!row) throw new Error("Soal tidak ditemukan");
+        if (!row) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
         return row;
     },
 
@@ -255,7 +255,7 @@ export const tryoutRepo = {
             .where(eq(tryout.id, tryoutId))
             .returning();
 
-        if (!updated) throw new Error("Tryout tidak ditemukan");
+        if (!updated) throw new TryoutError("NOT_FOUND", "Tryout tidak ditemukan");
         return updated;
     },
 
@@ -271,9 +271,9 @@ export const tryoutRepo = {
             where: eq(tryout.id, tryoutId),
         });
 
-        if (!existing) throw new Error("Tryout tidak ditemukan");
+        if (!existing) throw new TryoutError("NOT_FOUND", "Tryout tidak ditemukan");
         if (existing.status === "published") {
-            throw new Error("Tryout yang sudah dipublish tidak dapat dihapus. Batalkan publish terlebih dahulu.");
+            throw new TryoutError("CONFLICT", "Tryout yang sudah dipublish tidak dapat dihapus. Batalkan publish terlebih dahulu.");
         }
 
         const subtesList = await db.query.tryoutSubtes.findMany({
@@ -376,7 +376,7 @@ export const tryoutRepo = {
             .where(eq(tryoutSubtes.id, subtesId))
             .returning();
 
-        if (!updated) throw new Error("Subtes tidak ditemukan");
+        if (!updated) throw new TryoutError("NOT_FOUND", "Subtes tidak ditemukan");
         return updated;
     },
 
@@ -415,7 +415,7 @@ export const tryoutRepo = {
             .where(eq(tryoutSubtes.id, subtesId))
             .returning();
 
-        if (!deleted) throw new Error("Subtes tidak ditemukan");
+        if (!deleted) throw new TryoutError("NOT_FOUND", "Subtes tidak ditemukan");
         return deleted;
     },
 
@@ -484,7 +484,7 @@ export const tryoutRepo = {
                 pembahasanGambar: true,
             },
         });
-        if (!existing) throw new Error("Soal tidak ditemukan");
+        if (!existing) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
 
         let nextGambarUrl: string | null | undefined = undefined;
         if (gambarUrl !== undefined) {
@@ -527,7 +527,7 @@ export const tryoutRepo = {
             .where(eq(tryoutSoal.id, soalId))
             .returning();
 
-        if (!updated) throw new Error("Soal tidak ditemukan");
+        if (!updated) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
         return updated;
     },
 
@@ -552,7 +552,7 @@ export const tryoutRepo = {
                 pembahasanGambar: true,
             },
         });
-        if (!existing) throw new Error("Soal tidak ditemukan");
+        if (!existing) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
 
         await deleteCloudinaryImageByUrl(existing.gambarUrl);
         await deleteCloudinaryImageByUrl(existing.pembahasanGambar);
@@ -565,7 +565,7 @@ export const tryoutRepo = {
             .where(eq(tryoutSoal.id, soalId))
             .returning();
 
-        if (!deleted) throw new Error("Soal tidak ditemukan");
+        if (!deleted) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
         return deleted;
     },
 
@@ -620,7 +620,7 @@ export const tryoutRepo = {
             where: eq(tryoutPilihanJawaban.id, pilihanId),
             columns: { gambarUrl: true },
         });
-        if (!existing) throw new Error("Pilihan jawaban tidak ditemukan");
+        if (!existing) throw new TryoutError("NOT_FOUND", "Pilihan jawaban tidak ditemukan");
 
         let nextGambarUrl: string | null | undefined = undefined;
         if (gambarUrl !== undefined) {
@@ -647,7 +647,7 @@ export const tryoutRepo = {
             .where(eq(tryoutPilihanJawaban.id, pilihanId))
             .returning();
 
-        if (!updated) throw new Error("Pilihan jawaban tidak ditemukan");
+        if (!updated) throw new TryoutError("NOT_FOUND", "Pilihan jawaban tidak ditemukan");
         return updated;
     },
 
@@ -662,7 +662,7 @@ export const tryoutRepo = {
             where: eq(tryoutPilihanJawaban.id, pilihanId),
             columns: { gambarUrl: true },
         });
-        if (!existing) throw new Error("Pilihan jawaban tidak ditemukan");
+        if (!existing) throw new TryoutError("NOT_FOUND", "Pilihan jawaban tidak ditemukan");
         await deleteCloudinaryImageByUrl(existing.gambarUrl);
 
         const [deleted] = await db
@@ -670,7 +670,7 @@ export const tryoutRepo = {
             .where(eq(tryoutPilihanJawaban.id, pilihanId))
             .returning();
 
-        if (!deleted) throw new Error("Pilihan jawaban tidak ditemukan");
+        if (!deleted) throw new TryoutError("NOT_FOUND", "Pilihan jawaban tidak ditemukan");
         return deleted;
     },
 
@@ -690,7 +690,7 @@ export const tryoutRepo = {
             .where(eq(tryout.id, tryoutId))
             .returning();
 
-        if (!updated) throw new Error("Tryout tidak ditemukan");
+        if (!updated) throw new TryoutError("NOT_FOUND", "Tryout tidak ditemukan");
         return updated;
     },
 
@@ -710,7 +710,7 @@ export const tryoutRepo = {
             .where(eq(tryout.id, tryoutId))
             .returning();
 
-        if (!updated) throw new Error("Tryout tidak ditemukan");
+        if (!updated) throw new TryoutError("NOT_FOUND", "Tryout tidak ditemukan");
         return updated;
     },
 
@@ -763,7 +763,7 @@ export const tryoutRepo = {
         });
 
         if (!firstSubtes) {
-            throw new Error("Tidak ada subtes di tryout ini");
+            throw new TryoutError("BAD_REQUEST", "Tidak ada subtes di tryout ini");
         }
 
         // Buat sesi_subtes untuk subtes pertama
@@ -906,7 +906,7 @@ export const tryoutRepo = {
         });
 
         if (!sesiSoal) {
-            throw new Error("Sesi soal tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Sesi soal tidak ditemukan");
         }
 
         let isBenar = false;
@@ -996,7 +996,7 @@ export const tryoutRepo = {
         });
 
         if (!sesiSubtes) {
-            throw new Error("Sesi subtes tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Sesi subtes tidak ditemukan");
         }
 
         // Hitung skor untuk subtes ini
@@ -1144,7 +1144,7 @@ export const tryoutRepo = {
         });
 
         if (!sesi) {
-            throw new Error("Sesi tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Sesi tidak ditemukan");
         }
 
         // Ambil semua sesi_subtes untuk hitung total skor
@@ -1247,7 +1247,7 @@ export const tryoutRepo = {
         });
 
         if (!userData?.isPremium || !userData.premiumExpiresAt || new Date() >= userData.premiumExpiresAt) {
-            throw new Error("PREMIUM_REQUIRED");
+            throw new TryoutError("FORBIDDEN", "Pembahasan hanya tersedia untuk member premium");
         }
 
         // Ambil soal dengan pembahasan
@@ -1261,7 +1261,7 @@ export const tryoutRepo = {
         });
 
         if (!soal) {
-            throw new Error("Soal tidak ditemukan");
+            throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
         }
 
         return {
@@ -1295,3 +1295,4 @@ export const tryoutRepo = {
         return tryoutRepo.submitSubtest({ db, sesiSubtesId, isExpired: true });
     },
 };
+
