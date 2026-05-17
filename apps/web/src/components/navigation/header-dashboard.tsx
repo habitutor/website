@@ -31,6 +31,10 @@ const links = [
     to: "/dashboard",
   },
   {
+    name: "Tryout",
+    to: "/tryout",
+  },
+  {
     name: "Kelas",
     to: "/classes",
   },

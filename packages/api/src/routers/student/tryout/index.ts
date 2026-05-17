@@ -5,6 +5,43 @@ import { tryoutRepo } from "./repo";
 import { toOrpcError } from "./logic";
 
 /**
+ * Daftar tryout yang dipublish
+ * GET /student/tryouts
+ */
+const listPublishedTryouts = authed
+    .route({
+        path: "/student/tryouts",
+        method: "GET",
+        tags: ["Student - Tryout"],
+    })
+    .handler(async () => {
+        try {
+            return await tryoutRepo.listPublishedTryouts({});
+        } catch (error) {
+            throw toOrpcError(error, "Gagal mengambil daftar tryout");
+        }
+    });
+
+/**
+ * Daftar subtes berdasarkan tryout
+ * GET /student/tryouts/{tryoutId}/subtes
+ */
+const listSubtesByTryout = authed
+    .route({
+        path: "/student/tryouts/{tryoutId}/subtes",
+        method: "GET",
+        tags: ["Student - Tryout"],
+    })
+    .input(type({ tryoutId: "string" }))
+    .handler(async ({ input }) => {
+        try {
+            return await tryoutRepo.listSubtesByTryout({ tryoutId: input.tryoutId });
+        } catch (error) {
+            throw toOrpcError(error, "Gagal mengambil daftar subtes");
+        }
+    });
+
+/**
  * Mulai Tryout - buat sesi baru atau return existing
  * POST /student/tryouts/{tryoutId}/start
  */
@@ -236,9 +273,61 @@ const getPembahasan = authed
         }
     });
 
+/**
+ * Ambil info sesi subtes (timer, nama, status)
+ * GET /student/tryouts/sesi-subtes/{sesiSubtesId}/info
+ */
+const getSesiSubtesInfo = authed
+    .route({
+        path: "/student/tryouts/sesi-subtes/{sesiSubtesId}/info",
+        method: "GET",
+        tags: ["Student - Tryout"],
+    })
+    .input(
+        type({
+            sesiSubtesId: "string",
+        }),
+    )
+    .handler(async ({ input }) => {
+        try {
+            return await tryoutRepo.getSesiSubtesInfo({
+                sesiSubtesId: input.sesiSubtesId,
+            });
+        } catch (error) {
+            throw toOrpcError(error, "Gagal mengambil info sesi subtes");
+        }
+    });
+
+/**
+ * Ambil riwayat tryout user
+ * GET /student/tryouts/history
+ */
+const getHistory = authed
+    .route({
+        path: "/student/tryouts/history",
+        method: "GET",
+        tags: ["Student - Tryout"],
+    })
+    .handler(async ({ context }) => {
+        if (!context.session?.user?.id) {
+            throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
+        }
+
+        try {
+            return await tryoutRepo.getHistory({
+                userId: context.session.user.id,
+            });
+        } catch (error) {
+            throw toOrpcError(error, "Gagal mengambil riwayat tryout");
+        }
+    });
+
 export const studentTryoutRouter = {
+    list: listPublishedTryouts,
+    listSubtes: listSubtesByTryout,
     start: startTryout,
     questions: getQuestions,
+    sesiSubtesInfo: getSesiSubtesInfo,
     answer: {
         submit: submitAnswer,
     },
@@ -248,5 +337,6 @@ export const studentTryoutRouter = {
     },
     results: getResults,
     pembahasan: getPembahasan,
+    history: getHistory,
 };
 

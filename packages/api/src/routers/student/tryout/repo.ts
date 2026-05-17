@@ -1,5 +1,6 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import {
+    tryout,
     tryoutJawaban,
     tryoutPilihanJawaban,
     tryoutSesi,
@@ -13,6 +14,57 @@ import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { fisherYatesShuffle, TryoutError } from "./logic";
 
 export const tryoutRepo = {
+    /**
+     * List tryout yang sudah dipublish
+     */
+    listPublishedTryouts: async ({
+        db = defaultDb,
+    }: {
+        db?: DrizzleDatabase;
+    }) => {
+        const tryouts = await db.query.tryout.findMany({
+            where: eq(tryout.status, "published"),
+            orderBy: (t) => [desc(t.createdAt)],
+            with: {
+                subtes: {
+                    columns: {
+                        id: true,
+                        jumlahSoal: true,
+                        durasiMenit: true,
+                    },
+                },
+            },
+        });
+
+        return tryouts.map((t) => ({
+            id: t.id,
+            judul: t.judul,
+            deskripsi: t.deskripsi,
+            mulaiAt: t.mulaiAt,
+            selesaiAt: t.selesaiAt,
+            totalSubtes: t.subtes.length,
+            totalSoal: t.subtes.reduce((sum, s) => sum + s.jumlahSoal, 0),
+            totalDurasi: t.subtes.reduce((sum, s) => sum + s.durasiMenit, 0),
+            createdAt: t.createdAt,
+        }));
+    },
+
+    /**
+     * List subtes berdasarkan tryout ID
+     */
+    listSubtesByTryout: async ({
+        db = defaultDb,
+        tryoutId,
+    }: {
+        db?: DrizzleDatabase;
+        tryoutId: string;
+    }) => {
+        return db.query.tryoutSubtes.findMany({
+            where: eq(tryoutSubtes.tryoutId, tryoutId),
+            orderBy: (s) => [s.urutan],
+        });
+    },
+
     /**
      * Mulai tryout - buat sesi baru atau return existing
      */
@@ -146,7 +198,7 @@ export const tryoutRepo = {
 
         // Ambil jawaban yang sudah dipilih
         const sesiId = sesiSoalList[0]?.sesiSubtes.sesiId;
-        let jawabanMap = new Map<string, string | null>();
+        const jawabanMap = new Map<string, string | null>();
 
         if (sesiId) {
             const jawaban = await db.query.tryoutJawaban.findMany({
@@ -439,6 +491,11 @@ export const tryoutRepo = {
                         premiumExpiresAt: true,
                     },
                 },
+                tryout: {
+                    columns: {
+                        judul: true,
+                    },
+                },
             },
         });
 
@@ -498,6 +555,7 @@ export const tryoutRepo = {
                 return {
                     subtesId: ss.subtesId,
                     namaSubtes: ss.subtes.namaSubtes,
+                    durasiMenit: ss.subtes.durasiMenit,
                     skor: ss.skorSubtes || 0,
                     isLulus: ss.isLulus,
                     benar,
@@ -517,6 +575,7 @@ export const tryoutRepo = {
 
         return {
             sesiId,
+            judulTryout: sesi.tryout.judul,
             totalSkor,
             peringkat: ranking,
             aksesPembahasan,
@@ -592,6 +651,94 @@ export const tryoutRepo = {
         sesiSubtesId: string;
     }) => {
         return tryoutRepo.submitSubtest({ db, sesiSubtesId, isExpired: true });
+    },
+
+    /**
+     * Ambil info sesi subtes (untuk timer, nama subtest, dll)
+     */
+    getSesiSubtesInfo: async ({
+        db = defaultDb,
+        sesiSubtesId,
+    }: {
+        db?: DrizzleDatabase;
+        sesiSubtesId: string;
+    }) => {
+        const sesiSubtes = await db.query.tryoutSesiSubtes.findFirst({
+            where: eq(tryoutSesiSubtes.id, sesiSubtesId),
+            with: {
+                subtes: {
+                    columns: {
+                        namaSubtes: true,
+                        jumlahSoal: true,
+                        durasiMenit: true,
+                    },
+                },
+                sesi: {
+                    columns: {
+                        id: true,
+                        tryoutId: true,
+                    },
+                },
+            },
+        });
+
+        if (!sesiSubtes) {
+            throw new TryoutError("NOT_FOUND", "Sesi subtes tidak ditemukan");
+        }
+
+        return {
+            sesiSubtesId: sesiSubtes.id,
+            sesiId: sesiSubtes.sesi.id,
+            tryoutId: sesiSubtes.sesi.tryoutId,
+            namaSubtes: sesiSubtes.subtes.namaSubtes,
+            jumlahSoal: sesiSubtes.subtes.jumlahSoal,
+            durasiMenit: sesiSubtes.subtes.durasiMenit,
+            mulaiAt: sesiSubtes.mulaiAt,
+            deadlineAt: sesiSubtes.deadlineAt,
+            status: sesiSubtes.status,
+        };
+    },
+
+    /**
+     * Ambil riwayat sesi tryout user
+     */
+    getHistory: async ({
+        db = defaultDb,
+        userId,
+    }: {
+        db?: DrizzleDatabase;
+        userId: string;
+    }) => {
+        const history = await db.query.tryoutSesi.findMany({
+            where: eq(tryoutSesi.userId, userId),
+            orderBy: (ts) => [desc(ts.createdAt)],
+            with: {
+                tryout: {
+                    columns: {
+                        judul: true,
+                        deskripsi: true,
+                    },
+                },
+                sesiSubtes: {
+                    columns: {
+                        skorSubtes: true,
+                    },
+                },
+            },
+        });
+
+        return history.map((h) => {
+            const totalSkor = h.sesiSubtes.reduce((sum, ss) => sum + (ss.skorSubtes || 0), 0);
+            return {
+                id: h.id,
+                tryoutId: h.tryoutId,
+                judul: h.tryout.judul,
+                status: h.status,
+                totalSkor,
+                mulaiAt: h.mulaiAt,
+                selesaiAt: h.selesaiAt,
+            };
+        });
     },
 };
 

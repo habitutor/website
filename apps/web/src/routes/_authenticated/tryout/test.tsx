@@ -1,24 +1,27 @@
-import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import {
-	ArrowLeftIcon,
-	ArrowRightIcon,
-	CheckSquare,
-	ListIcon,
-	Square,
-} from "@phosphor-icons/react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { orpc, queryClient } from "@/utils/orpc";
+import { toast } from "sonner";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeftIcon, ArrowRightIcon, CheckSquare, ListIcon, Square } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/tryout/test")({
+	validateSearch: (search: Record<string, unknown>) => ({
+		sesiSubtesId: String(search.sesiSubtesId ?? ""),
+		sesiId: String(search.sesiId ?? ""),
+		tryoutSessionId: search.tryoutSessionId ? String(search.tryoutSessionId) : undefined,
+	}),
 	head: () => ({
 		meta: createMeta({
 			title: "Tryout Test",
@@ -29,44 +32,190 @@ export const Route = createFileRoute("/_authenticated/tryout/test")({
 	component: TryoutTestPage,
 });
 
+// --- Countdown Timer Hook ---
+function useCountdown(deadlineAt: string | Date | null | undefined) {
+	const [remainingMs, setRemainingMs] = useState<number>(0);
+	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+	useEffect(() => {
+		if (!deadlineAt) return;
+
+		const deadline = new Date(deadlineAt).getTime();
+
+		const tick = () => {
+			const now = Date.now();
+			const diff = deadline - now;
+			setRemainingMs(Math.max(0, diff));
+		};
+
+		tick();
+		intervalRef.current = setInterval(tick, 1000);
+
+		return () => {
+			if (intervalRef.current) clearInterval(intervalRef.current);
+		};
+	}, [deadlineAt]);
+
+	const isExpired = remainingMs <= 0 && !!deadlineAt;
+
+	const minutes = Math.floor(remainingMs / 60000);
+	const seconds = Math.floor((remainingMs % 60000) / 1000);
+	const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+	return { remainingMs, isExpired, formatted, minutes, seconds };
+}
+
 function TryoutTestPage() {
+	const navigate = useNavigate();
+	const searchParams = Route.useSearch();
+
+	// Support both search params and legacy query params
+	const sesiSubtesId = searchParams.sesiSubtesId || searchParams.tryoutSessionId || "";
+	const sesiId = searchParams.sesiId || "";
+
 	const [activeQuestion, setActiveQuestion] = useState(1);
+	const [timeExpiredDialogOpen, setTimeExpiredDialogOpen] = useState(false);
+	const [hasAutoSubmitted, setHasAutoSubmitted] = useState(false);
 
-	// Mock testing state based on the images
-	const [answers, setAnswers] = useState<
-		Record<number | string, number | number[]>
-	>({
-		1: 1,
-		2: 2,
-	});
-	const [doubtfuls, setDoubtfuls] = useState<Record<number, boolean>>({
-		6: true,
-		7: true,
+	// --- Fetch sesi subtes info (for timer + subtest name) ---
+	const sesiInfoQuery = useQuery({
+		...orpc.tryout.sesiSubtesInfo.queryOptions({
+			input: { sesiSubtesId },
+		}),
+		enabled: !!sesiSubtesId,
 	});
 
-	const isDoubtful = doubtfuls[activeQuestion] || false;
+	const sesiInfo = sesiInfoQuery.data;
+	const deadlineAt = sesiInfo?.deadlineAt;
+	const subtestName = sesiInfo?.namaSubtes ?? "Subtest";
+	const resolvedSesiId = sesiId || sesiInfo?.sesiId || "";
 
-	const toggleDoubtful = () => {
-		setDoubtfuls((prev) => ({
-			...prev,
-			[activeQuestion]: !prev[activeQuestion],
-		}));
-	};
+	// --- Countdown timer ---
+	const { formatted: timerFormatted, isExpired } = useCountdown(deadlineAt);
 
-	const selectAnswer = (optionIdx: number | number[]) => {
-		setAnswers((prev) => ({
-			...prev,
-			[activeQuestion]: optionIdx,
-		}));
-	};
+	// --- Fetch questions ---
+	const questionsQuery = useQuery({
+		...orpc.tryout.questions.queryOptions({
+			input: { sesiSubtesId },
+		}),
+		enabled: !!sesiSubtesId,
+	});
 
-	// Dummy options
-	const options = [
-		"Bergerak cepat",
-		"Bergerak lambat",
-		"Bergerak bersama",
-		"Bergerak sendiri",
-	];
+	const questions = questionsQuery.data?.soal ?? [];
+	const totalQuestions = questions.length;
+	const currentQuestion = questions[activeQuestion - 1];
+
+	// --- Submit answer mutation ---
+	const submitAnswerMutation = useMutation(
+		orpc.tryout.answer.submit.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.tryout.questions.key({ input: { sesiSubtesId } } as never),
+				});
+			},
+			onError: (err: Error) => {
+				toast.error("Gagal submit jawaban", { description: err.message });
+			},
+		}),
+	);
+
+	// --- Submit subtest mutation ---
+	const submitSubtestMutation = useMutation(
+		orpc.tryout.subtes.submit.mutationOptions({
+			onSuccess: (data) => {
+				if (data.subtesBerikutnya) {
+					// Navigate to next subtest
+					toast.success(`Subtest "${data.selesaiSubtes?.namaSubtes}" selesai! Lanjut ke subtest berikutnya.`);
+					navigate({
+						to: "/tryout/test",
+						search: {
+							sesiSubtesId: data.subtesBerikutnya.id,
+							sesiId: resolvedSesiId,
+							tryoutSessionId: undefined,
+						},
+					});
+				} else {
+					// All subtests done, go to results
+					toast.success("Tryout selesai! Melihat hasil...");
+					navigate({
+						to: "/tryout",
+					});
+				}
+			},
+			onError: (err: Error) => {
+				toast.error("Gagal submit subtest", { description: err.message });
+			},
+		}),
+	);
+
+	// --- Auto-submit subtest mutation ---
+	const autoSubmitMutation = useMutation(
+		orpc.tryout.subtes.autoSubmit.mutationOptions({
+			onSuccess: () => {
+				setHasAutoSubmitted(true);
+				// Don't navigate yet — show dialog first
+			},
+			onError: (err: Error) => {
+				toast.error("Gagal auto-submit", { description: err.message });
+			},
+		}),
+	);
+
+	// --- Trigger time-expired dialog when timer hits zero ---
+	useEffect(() => {
+		if (isExpired && !timeExpiredDialogOpen && !hasAutoSubmitted && sesiSubtesId) {
+			setTimeExpiredDialogOpen(true);
+			autoSubmitMutation.mutate({ sesiSubtesId });
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isExpired, timeExpiredDialogOpen, hasAutoSubmitted, sesiSubtesId]);
+
+	// --- Handle "Lanjutkan" button in time-expired dialog ---
+	const handleTimeExpiredContinue = useCallback(() => {
+		setTimeExpiredDialogOpen(false);
+
+		const data = autoSubmitMutation.data as unknown as { subtesBerikutnya?: { id: string } };
+		if (data?.subtesBerikutnya) {
+			navigate({
+				to: "/tryout/test",
+				search: {
+					sesiSubtesId: data.subtesBerikutnya.id,
+					sesiId: resolvedSesiId,
+					tryoutSessionId: undefined,
+				},
+			});
+		} else {
+			navigate({ to: "/tryout" });
+		}
+	}, [autoSubmitMutation.data, navigate, resolvedSesiId]);
+
+	// --- Handle manual submit ---
+	const handleSubmitSubtest = useCallback(() => {
+		if (!sesiSubtesId) return;
+		submitSubtestMutation.mutate({ sesiSubtesId });
+	}, [sesiSubtesId, submitSubtestMutation]);
+
+	// --- Compute answered/doubtful status from API data ---
+	const getQuestionStatus = useCallback(
+		(qIdx: number) => {
+			const q = questions[qIdx];
+			if (!q) return { answered: false, doubtful: false };
+			return {
+				answered: !!q.jawaban_dipilih,
+				doubtful: !!q.is_ragu,
+			};
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[questionsQuery.data],
+	);
+
+	if (!sesiSubtesId) {
+		return (
+			<div className="flex min-h-[60vh] items-center justify-center">
+				<p className="text-muted-foreground">Sesi tidak valid. Kembali ke halaman tryout.</p>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex w-full flex-col py-6">
@@ -74,21 +223,27 @@ function TryoutTestPage() {
 				{/* Header Section */}
 				<div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
 					<div>
-						<h1 className="text-xl font-bold text-gray-900">
-							Soal Nomor {activeQuestion}
-						</h1>
-						<p className="text-sm text-gray-600">Bahasa Indonesia</p>
+						<h1 className="text-xl font-bold text-gray-900">Soal Nomor {activeQuestion}</h1>
+						<p className="text-sm text-gray-600">{subtestName}</p>
 					</div>
 					<div className="flex items-center gap-4">
-						{isDoubtful && (
+						{currentQuestion?.is_ragu && (
 							<div className="rounded bg-[#eab308] px-3 py-1.5 text-sm font-bold text-black shadow-sm">
 								Ragu-Ragu
 							</div>
 						)}
-						<div className="rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-800 shadow-sm">
-							Sisa waktu: <span className="font-bold">00:14:05</span>
+						<div
+							className={cn(
+								"rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm",
+								isExpired
+									? "border-red-300 bg-red-100 text-red-700"
+									: "border-gray-200 bg-white text-gray-800",
+							)}
+						>
+							Sisa waktu: <span className="font-bold">{timerFormatted}</span>
 						</div>
 
+						{/* Question List Dialog */}
 						<Dialog>
 							<DialogTrigger asChild>
 								<Button className="bg-[#3b5998] text-white hover:bg-[#3b5998]/90">
@@ -97,15 +252,12 @@ function TryoutTestPage() {
 							</DialogTrigger>
 							<DialogContent className="sm:max-w-md">
 								<DialogHeader>
-									<DialogTitle className="text-xl font-bold">
-										Daftar Soal
-									</DialogTitle>
+									<DialogTitle className="text-xl font-bold">Daftar Soal</DialogTitle>
 								</DialogHeader>
 								<div className="grid grid-cols-5 gap-3 border-t pt-4">
-									{Array.from({ length: 10 }).map((_, idx) => {
+									{questions.map((_: unknown, idx: number) => {
 										const qNum = idx + 1;
-										const isItemDoubtful = doubtfuls[qNum];
-										const isItemAnswered = !!answers[qNum];
+										const { answered, doubtful } = getQuestionStatus(idx);
 
 										return (
 											<button
@@ -114,19 +266,42 @@ function TryoutTestPage() {
 												onClick={() => setActiveQuestion(qNum)}
 												className={cn(
 													"flex h-12 w-full items-center justify-center rounded-lg border text-lg font-medium transition-colors",
-													isItemDoubtful
+													doubtful
 														? "border-[#facc15] bg-[#fde047] text-gray-900"
-														: isItemAnswered
+														: answered
 															? "border-[#7dd3fc] bg-[#bae6fd] text-gray-900"
 															: "border-gray-300 bg-white text-gray-900 hover:bg-gray-50",
-													activeQuestion === qNum &&
-														"ring-2 ring-[#3b5998] ring-offset-2",
+													activeQuestion === qNum && "ring-2 ring-[#3b5998] ring-offset-2",
 												)}
 											>
 												{qNum}
 											</button>
 										);
 									})}
+								</div>
+
+								{/* Summary */}
+								<div className="mt-4 flex gap-4 border-t pt-4 text-xs text-gray-500">
+									<div className="flex items-center gap-1.5">
+										<div className="size-3 rounded-sm border-[#7dd3fc] bg-[#bae6fd]" /> Dijawab
+									</div>
+									<div className="flex items-center gap-1.5">
+										<div className="size-3 rounded-sm border-[#facc15] bg-[#fde047]" /> Ragu-ragu
+									</div>
+									<div className="flex items-center gap-1.5">
+										<div className="size-3 rounded-sm border-gray-300 bg-white" /> Belum dijawab
+									</div>
+								</div>
+
+								{/* Submit button */}
+								<div className="mt-2 border-t pt-4">
+									<Button
+										className="w-full bg-[#3b5998] text-white hover:bg-[#3b5998]/90"
+										onClick={handleSubmitSubtest}
+										disabled={submitSubtestMutation.isPending || isExpired}
+									>
+										{submitSubtestMutation.isPending ? "Menyimpan..." : "Selesai & Lanjut Subtest"}
+									</Button>
 								</div>
 							</DialogContent>
 						</Dialog>
@@ -135,322 +310,72 @@ function TryoutTestPage() {
 
 				{/* Content Section */}
 				<div className="flex min-h-100 flex-col gap-0 rounded-xl bg-white shadow-sm md:flex-row">
-					{/* Left Panel: Reading Material */}
-					<div className="flex-1 border-dashed border-gray-300 p-6 md:border-r-2 md:p-8">
-						<h2 className="mb-4 text-lg font-bold text-gray-900">
-							Teks untuk soal nomor {activeQuestion} s.d. 4
-						</h2>
-						{activeQuestion === 1 ? (
-							<div className="prose prose-sm max-w-none space-y-4 text-gray-700">
-								<p>
-									Untuk memastikan pengalaman pengguna di Habitutor benar-benar
-									relevan dengan kondisi lapangan, saya ingin menyesuaikan alur
-									Tryout kita dengan pelaksanaan UTBK 2025 yang sebenarnya.
-									Karena itu, saya ingin menanyakan beberapa hal terkait flow
-									dan teknis pelaksanaannya:
-								</p>
-								<p>
-									Apakah ada referensi tryout online (gratis/open access) yang
-									menurut Kakak paling mendekati alur UTBK asli?
-									<br />
-									Mulai dari proses masuk tes, navigasi soal, timer, hingga
-									perpindahan antar subtes.
-								</p>
-								<p>
-									Apakah ada dokumen, panduan resmi, atau catatan teknis yang
-									bisa kami pelajari untuk memahami detail-detail UTBK
-									sebenarnya (misalnya aturan pengerjaan, sistem timer, atau
-									struktur soal)?
-									<br />
-									Untuk desain produk:
-								</p>
-								<p>
-									Di UTBK asli tidak ada jeda antar subtes.
-									<br />
-									Apakah di Tryout Habitutor juga ingin mengikuti format tanpa
-									jeda, atau justru ingin diberikan jeda (misalnya 1-2 menit)
-									agar lebih nyaman untuk siswa?
-								</p>
-								<p>
-									Apakah Habitutor memiliki preferensi atau permintaan khusus
-									terkait pengalaman tryout?
-									<br />
-									Misalnya highlight soal terlewat, mode latihan tambahan, fitur
-									penandaan dsb.
-								</p>
-							</div>
-						) : (
-							<div className="flex flex-col gap-6">
-								<div className="rounded-xl border border-[#e5e5e5] bg-[#fdfbf6] p-4">
-									<h3 className="mb-2 text-xl font-bold tracking-tight text-[#1e293b] uppercase">
-										How to study in the library
-									</h3>
-									<p className="mb-6 text-sm text-gray-600">
-										Studying in the library is a good way to focus and learn.
-										Follow these steps to use your time well:
-									</p>
-
-									<ul className="space-y-6">
-										<li className="flex gap-4">
-											<div className="text-3xl font-black text-[#64748b]">
-												1
-											</div>
-											<div>
-												<h4 className="font-bold text-[#1e293b] uppercase">
-													Prepare your materials
-												</h4>
-												<p className="text-sm text-gray-600">
-													Bring your books, notes, stationery, and water. Make
-													sure you also have your library card.
-												</p>
-											</div>
-										</li>
-										<li className="flex gap-4">
-											<div className="text-3xl font-black text-[#64748b]">
-												2
-											</div>
-											<div>
-												<h4 className="font-bold text-[#1e293b] uppercase">
-													Choose quiet spot
-												</h4>
-												<p className="text-sm text-gray-600">
-													Find a table with good light and little noise. Avoid
-													sitting too close to the entrance or the restroom.
-												</p>
-											</div>
-										</li>
-										<li className="flex gap-4">
-											<div className="text-3xl font-black text-[#64748b]">
-												3
-											</div>
-											<div>
-												<h4 className="font-bold text-[#1e293b] uppercase">
-													Set a study goal
-												</h4>
-												<p className="text-sm text-gray-600">
-													Decide what you want to finish, such as reading two
-													chapters or writing an essay
-												</p>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div>
-						)}
-					</div>
-
-					{/* Right Panel: Question and Options */}
+					{/* Question Panel */}
 					<div className="flex-1 p-6 md:p-8">
-						{activeQuestion === 1 && (
+						{questionsQuery.isPending ? (
+							<div className="flex flex-col gap-4">
+								<div className="h-6 w-3/4 animate-pulse rounded bg-gray-200" />
+								<div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+								<div className="h-4 w-2/3 animate-pulse rounded bg-gray-200" />
+							</div>
+						) : currentQuestion ? (
 							<>
-								<p className="mb-6 font-medium text-gray-800">
-									Makna dari istilah mobilisasi dari teks tersebut adalah...
-								</p>
+								<div className="mb-6">
+									<p className="whitespace-pre-wrap text-lg font-medium text-gray-800">
+										{currentQuestion.pertanyaan}
+									</p>
+									{currentQuestion.gambarUrl && (
+										<img
+											src={currentQuestion.gambarUrl}
+											alt={`Gambar soal ${activeQuestion}`}
+											className="mt-4 max-w-full rounded-lg"
+										/>
+									)}
+								</div>
 
-								<div className="flex flex-col gap-4">
-									{options.map((opt, i) => (
-										<button
-											// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-											key={i}
-											type="button"
-											onClick={() => selectAnswer(i)}
-											className="flex cursor-pointer items-center gap-3 rounded-lg border border-transparent p-2 text-left hover:bg-gray-50"
-										>
-											<div className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-gray-400 bg-white">
-												{answers[activeQuestion] === i && (
-													<div className="size-3 rounded-full bg-blue-500" />
+								{/* Answer Options */}
+								<div className="flex flex-col gap-3">
+									{currentQuestion.pilihan.map((opt: { id: string; label: string; isi: string }) => {
+										const isSelected = currentQuestion.jawaban_dipilih === opt.id;
+
+										return (
+											<button
+												key={opt.id}
+												type="button"
+												onClick={() => {
+													if (!resolvedSesiId || isExpired) return;
+													submitAnswerMutation.mutate({
+														sesiId: resolvedSesiId,
+														sesiSoalId: currentQuestion.sesiSoalId,
+														pilihanId: opt.id,
+														isRagu: currentQuestion.is_ragu ?? false,
+													});
+												}}
+												disabled={isExpired}
+												className={cn(
+													"flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 text-left transition-colors",
+													isSelected
+														? "border-blue-400 bg-blue-50"
+														: "border-transparent hover:bg-gray-50",
+													isExpired && "cursor-not-allowed opacity-60",
 												)}
-											</div>
-											<span className="text-gray-700">{opt}</span>
-										</button>
-									))}
-								</div>
-							</>
-						)}
-
-						{activeQuestion === 2 && (
-							<>
-								<p className="mb-6 font-medium text-gray-800">
-									The following activities are suggested in the infographic.
-									Categorize
-								</p>
-
-								<div className="overflow-x-auto">
-									<table className="w-full border-collapse text-left text-sm text-gray-700">
-										<thead>
-											<tr>
-												<th className="w-1/2 border-b border-gray-300 p-3 font-semibold">
-													Activities
-												</th>
-												<th className="w-1/4 border-b border-gray-300 p-3 text-center font-semibold">
-													Preparation
-												</th>
-												<th className="w-1/4 border-b border-gray-300 p-3 text-center font-semibold">
-													Breaks
-												</th>
-											</tr>
-										</thead>
-										<tbody>
-											{["Standing Up", "Standing Up", "Standing Up"].map(
-												(activity, idx) => (
-													<tr key={idx} className="hover:bg-gray-50">
-														<td className="border-b border-gray-200 p-3">
-															{activity}
-														</td>
-														<td className="border-b border-gray-200 p-3">
-															<div className="flex justify-center">
-																<button
-																	type="button"
-																	aria-label="Preparation"
-																	onClick={() =>
-																		setAnswers((prev) => ({
-																			...prev,
-																			[`${activeQuestion}_cat_${idx}`]: 0,
-																		}))
-																	}
-																	className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
-																>
-																	{answers[`${activeQuestion}_cat_${idx}`] ===
-																		0 && (
-																		<div className="size-3 rounded-full bg-blue-500" />
-																	)}
-																</button>
-															</div>
-														</td>
-														<td className="border-b border-gray-200 p-3">
-															<div className="flex justify-center">
-																<button
-																	type="button"
-																	aria-label="Breaks"
-																	onClick={() =>
-																		setAnswers((prev) => ({
-																			...prev,
-																			[`${activeQuestion}_cat_${idx}`]: 1,
-																		}))
-																	}
-																	className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
-																>
-																	{answers[`${activeQuestion}_cat_${idx}`] ===
-																		1 && (
-																		<div className="size-3 rounded-full bg-blue-500" />
-																	)}
-																</button>
-															</div>
-														</td>
-													</tr>
-												),
-											)}
-										</tbody>
-									</table>
-								</div>
-							</>
-						)}
-
-						{activeQuestion === 3 && (
-							<>
-								<p className="mb-6 font-medium text-gray-800">
-									The following activities are suggested in the infographic.
-									Categorize
-								</p>
-
-								<div className="flex flex-col gap-6">
-									{[
-										{
-											id: 1,
-											diagramLabel1: "Dampak ekonomi digital",
-											diagramLabel2: "Manfaat teknis yang diperoleh",
-										},
-										{
-											id: 2,
-											diagramLabel1:
-												"Tantangan adaptasi teknologi dan keamanan digital",
-											diagramLabel2:
-												"Peluang pertumbuhan dan berkelanjutan UKM",
-										},
-										{
-											id: 3,
-											diagramLabel1: "Dampak ekonomi digital",
-											diagramLabel2: "Manfaat teknis yang diperoleh",
-										},
-									].map((opt, i) => (
-										<button
-											// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-											key={i}
-											type="button"
-											onClick={() => selectAnswer(i)}
-											className="flex cursor-pointer items-start gap-4 rounded-lg border border-transparent p-2 text-left hover:bg-gray-50"
-										>
-											<div className="mt-8 flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-gray-400 bg-white">
-												{answers[activeQuestion] === i && (
-													<div className="size-3 rounded-full bg-blue-500" />
-												)}
-											</div>
-											<div className="relative flex min-h-30 flex-1 items-center justify-between rounded-2xl border-2 border-gray-300 bg-white p-6">
-												{/* Simplified mock diagram */}
-												<div className="w-40 rounded-xl border-2 border-gray-300 bg-gray-50 p-2 text-center text-xs">
-													{opt.diagramLabel1}
+											>
+												<div className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-gray-400 bg-white">
+													{isSelected && <div className="size-3 rounded-full bg-blue-500" />}
 												</div>
-												<div className="absolute top-1/2 left-1/2 z-10 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-center text-sm font-bold">
-													Ekonomi
-													<br />
-													Digital
-												</div>
-												<div className="w-40 rounded-xl border-2 border-gray-300 bg-gray-50 p-2 text-center text-xs">
-													{opt.diagramLabel2}
-												</div>
-												{/* Lines connecting them */}
-												<div className="absolute top-1/2 left-0 -z-10 h-0.5 w-full bg-gray-300" />
-											</div>
-										</button>
-									))}
+												<span className="font-medium text-gray-600">{opt.label}.</span>
+												<span className="text-gray-700">{opt.isi}</span>
+											</button>
+										);
+									})}
 								</div>
 							</>
-						)}
-
-						{activeQuestion > 3 && (
-							<>
-								<p className="mb-6 font-medium text-gray-800">
-									The following activities are suggested in the infographic.
-									Categorize
-								</p>
-
-								<div className="flex flex-col gap-4">
-									{options.map((opt, i) => (
-										<button
-											// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-											key={i}
-											type="button"
-											onClick={() => {
-												const currentAnswers = Array.isArray(
-													answers[activeQuestion],
-												)
-													? answers[activeQuestion]
-													: [];
-												const newAnswers = (
-													currentAnswers as number[]
-												).includes(i)
-													? (currentAnswers as number[]).filter(
-															(val) => val !== i,
-														)
-													: [...(currentAnswers as number[]), i];
-												selectAnswer(newAnswers);
-											}}
-											className="flex cursor-pointer items-center gap-3 rounded-lg border border-transparent p-2 text-left hover:bg-gray-50"
-										>
-											<div className="flex size-6 shrink-0 items-center justify-center rounded border-2 border-gray-400 bg-white">
-												{Array.isArray(answers[activeQuestion]) &&
-													(answers[activeQuestion] as number[]).includes(i) && (
-														<CheckSquare
-															weight="fill"
-															className="h-5 w-5 text-blue-500"
-														/>
-													)}
-											</div>
-											<span className="text-gray-700">{opt}</span>
-										</button>
-									))}
-								</div>
-							</>
+						) : (
+							<p className="py-8 text-center text-sm text-muted-foreground">
+								{questionsQuery.isError
+									? `Error: ${questionsQuery.error.message}`
+									: "Tidak ada soal"}
+							</p>
 						)}
 					</div>
 				</div>
@@ -460,21 +385,29 @@ function TryoutTestPage() {
 					<Button
 						variant="outline"
 						onClick={() => setActiveQuestion(Math.max(1, activeQuestion - 1))}
+						disabled={activeQuestion <= 1}
 						className="h-12 w-full border-gray-300 bg-white px-6 shadow-sm md:w-auto"
 					>
 						<ArrowLeftIcon weight="bold" className="mr-2" /> Sebelumnya
 					</Button>
 
 					<Button
-						onClick={toggleDoubtful}
+						onClick={() => {
+							if (!resolvedSesiId || !currentQuestion || isExpired) return;
+							submitAnswerMutation.mutate({
+								sesiId: resolvedSesiId,
+								sesiSoalId: currentQuestion.sesiSoalId,
+								pilihanId: currentQuestion.jawaban_dipilih ?? null,
+								isRagu: !currentQuestion.is_ragu,
+							});
+						}}
+						disabled={isExpired}
 						className={cn(
 							"h-12 w-full px-8 font-semibold shadow-sm md:w-auto",
-							isDoubtful
-								? "bg-[#eab308] text-black hover:bg-[#ca8a04]"
-								: "bg-[#eab308] text-black hover:bg-[#ca8a04]",
+							"bg-[#eab308] text-black hover:bg-[#ca8a04]",
 						)}
 					>
-						{isDoubtful ? (
+						{currentQuestion?.is_ragu ? (
 							<CheckSquare weight="fill" className="mr-2 h-5 w-5" />
 						) : (
 							<Square weight="bold" className="mr-2 h-5 w-5" />
@@ -482,14 +415,49 @@ function TryoutTestPage() {
 						Ragu-Ragu
 					</Button>
 
-					<Button
-						onClick={() => setActiveQuestion(Math.min(10, activeQuestion + 1))}
-						className="h-12 w-full bg-[#3b5998] px-6 text-white shadow-sm hover:bg-[#273f72] md:w-auto"
-					>
-						Selanjutnya <ArrowRightIcon weight="bold" className="ml-2" />
-					</Button>
+					{activeQuestion < totalQuestions ? (
+						<Button
+							onClick={() => setActiveQuestion(Math.min(totalQuestions, activeQuestion + 1))}
+							className="h-12 w-full bg-[#3b5998] px-6 text-white shadow-sm hover:bg-[#273f72] md:w-auto"
+						>
+							Selanjutnya <ArrowRightIcon weight="bold" className="ml-2" />
+						</Button>
+					) : (
+						<Button
+							onClick={handleSubmitSubtest}
+							disabled={submitSubtestMutation.isPending || isExpired}
+							className="h-12 w-full bg-green-600 px-6 text-white shadow-sm hover:bg-green-700 md:w-auto"
+						>
+							{submitSubtestMutation.isPending ? "Menyimpan..." : "Selesai Subtest →"}
+						</Button>
+					)}
 				</div>
 			</div>
+
+			{/* ===== TIME EXPIRED DIALOG ===== */}
+			<Dialog open={timeExpiredDialogOpen} onOpenChange={setTimeExpiredDialogOpen}>
+				<DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+					<DialogHeader>
+						<DialogTitle className="text-lg font-bold text-orange-600">
+							Waktu Anda sudah habis !
+						</DialogTitle>
+						<DialogDescription className="text-sm text-gray-600">
+							Jawaban Anda akan otomatis terkumpul dan hasil akan keluar secara langsung
+						</DialogDescription>
+					</DialogHeader>
+					<div className="flex justify-end gap-3 pt-4">
+						<Button variant="outline" onClick={() => setTimeExpiredDialogOpen(false)}>
+							Batal
+						</Button>
+						<Button
+							className="bg-[#eab308] text-black hover:bg-[#ca8a04]"
+							onClick={handleTimeExpiredContinue}
+						>
+							Lanjutkan
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

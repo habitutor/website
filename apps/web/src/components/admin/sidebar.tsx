@@ -52,6 +52,11 @@ const adminNavLinks = [
     icon: House,
   },
   {
+    name: "Tryout",
+    to: "/admin/tryout" as const,
+    icon: TicketIcon,
+  },
+  {
     name: "Practice Packs",
     to: "/admin/practice-packs" as const,
     icon: Package,
