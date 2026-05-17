@@ -40,7 +40,7 @@ function TryoutListPage() {
 		}),
 	);
 
-	const tryouts = data?.data ?? [];
+	const tryouts = data?.items ?? [];
 
 	const deleteMutation = useMutation(
 		orpc.admin.tryout.delete.tryout.mutationOptions({
@@ -116,7 +116,7 @@ function TryoutListPage() {
 									</TableCell>
 								</TableRow>
 							) : (
-								tryouts.map((tryout: any) => (
+								tryouts.map((tryout: { id: string; judul: string; status: string; deskripsi: string | null; createdAt: Date }) => (
 									<TableRow key={tryout.id}>
 										<TableCell className="font-medium">{tryout.judul}</TableCell>
 										<TableCell>

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
@@ -40,17 +40,17 @@ function TryoutSessionPage() {
   const DEFAULT_TRYOUT_ID = process.env.NEXT_PUBLIC_DEFAULT_TRYOUT_ID || "";
 
   const startMutation = useMutation(
-    orpc.student.tryout.start.mutationOptions({
-      onSuccess: (data) => {
+    orpc.tryout.start.mutationOptions({
+      onSuccess: (data: { sesiSubtesId?: string | null; sesiId: string }) => {
         toast.success("Tryout dimulai");
         if (data.sesiSubtesId && data.sesiId) {
           navigate({
             to: "/tryout/test",
-            search: { sesiSubtesId: data.sesiSubtesId, sesiId: data.sesiId },
+            search: { sesiSubtesId: data.sesiSubtesId, sesiId: data.sesiId, tryoutSessionId: undefined },
           });
         }
       },
-      onError: (err) => {
+      onError: (err: Error) => {
         toast.error("Gagal memulai tryout", { description: () => <p>{err.message}</p> });
       },
     }),

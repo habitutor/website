@@ -44,6 +44,7 @@ function TryoutDetailPage() {
 						search: {
 							sesiSubtesId: data.sesiSubtesId,
 							sesiId: data.sesiId,
+							tryoutSessionId: undefined,
 						},
 					});
 				}
