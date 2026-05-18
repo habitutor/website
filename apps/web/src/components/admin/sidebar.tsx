@@ -10,6 +10,7 @@ import {
   TicketIcon,
   User,
   UserSwitchIcon,
+  CaretUp,
 } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
@@ -26,7 +27,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -140,12 +146,7 @@ export function AdminSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarUserProfile />
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarLogout />
-          </SidebarMenuItem>
+          <SidebarUserNav />
         </SidebarMenu>
       </SidebarFooter>
 
@@ -167,17 +168,16 @@ function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (op
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Kembali</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={async () => {
-                await authClient.signOut();
-                queryClient.removeQueries();
-                navigate({ to: "/login" });
-              }}
-              variant="destructive"
-            >
-              <SignOut /> Keluar
-            </Button>
+          <AlertDialogAction
+            onClick={async (e) => {
+              e.preventDefault(); // Mencegah dialog tertutup sebelum proses selesai
+              await authClient.signOut();
+              queryClient.removeQueries();
+              navigate({ to: "/login" });
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            <SignOut /> Keluar
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -185,26 +185,8 @@ function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (op
   );
 }
 
-function SidebarLogout() {
+function SidebarUserNav() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const { state } = useSidebar();
-
-  return (
-    <>
-      <SidebarMenuButton
-        onClick={() => setLogoutDialogOpen(true)}
-        tooltip={state === "collapsed" ? "Logout" : undefined}
-        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-      >
-        <SignOut className="size-5" />
-        <span>Logout</span>
-      </SidebarMenuButton>
-      <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
-    </>
-  );
-}
-
-function SidebarUserProfile() {
   const { state } = useSidebar();
   const session = authClient.useSession();
   const user = session.data?.user;
@@ -212,20 +194,44 @@ function SidebarUserProfile() {
   if (!user) return null;
 
   return (
-    <div className="flex items-center gap-3 px-2 py-3">
-      <Avatar className="size-8 shrink-0">
-        <AvatarImage src={getAvatarSrc(user.image)} alt={user.name} />
-        <AvatarFallback className="bg-primary/10 text-sm text-primary">
-          {user.name.charAt(0).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      {state !== "collapsed" && (
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium">{user.name}</span>
-          <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-        </div>
-      )}
-    </div>
+    <>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+              <Avatar className="size-8 shrink-0">
+                <AvatarImage src={getAvatarSrc(user.image)} alt={user.name} />
+                <AvatarFallback className="bg-primary/10 text-sm text-primary">
+                  {user.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {state !== "collapsed" && (
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate text-sm font-medium">{user.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                </div>
+              )}
+              {state !== "collapsed" && <CaretUp className="ml-auto size-4 shrink-0 opacity-50" />}
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            side={state === "collapsed" ? "right" : "top"}
+            align="end"
+            sideOffset={4}
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+          >
+            <DropdownMenuItem
+              className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+              onSelect={() => setLogoutDialogOpen(true)}
+            >
+              <SignOut className="mr-2 size-4" />
+              <span>Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+      <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+    </>
   );
 }
 
