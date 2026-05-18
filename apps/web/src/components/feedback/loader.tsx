@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 
 const LOADING_TEXTS = [
   "Sharpening pencils...",
@@ -9,8 +9,10 @@ const LOADING_TEXTS = [
 ];
 
 export default function Loader() {
-  const text = useMemo(() => {
-    return LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)];
+  const [text, setText] = useState(LOADING_TEXTS[0]);
+
+  useEffect(() => {
+    setText(LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)]);
   }, []);
 
   return (
