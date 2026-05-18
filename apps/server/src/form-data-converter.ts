@@ -12,9 +12,10 @@ async function parseFormDataFromRequest(request: Request): Promise<{
   const files: Record<string, File> = {};
 
   for (const [key, value] of formData.entries()) {
-    if (value instanceof File) {
-      if (value.size > 0) {
-        files[key] = value;
+    const val = value as unknown;
+    if (val instanceof File) {
+      if (val.size > 0) {
+        files[key] = val;
       }
       continue;
     }
@@ -36,12 +37,7 @@ export async function formDataToJsonMiddleware(request: Request): Promise<Reques
   const url = new URL(request.url);
   const pathLower = url.pathname.toLowerCase();
 
-  const supportedEndpoints = [
-    "/admin/tryouts/subtes",
-    "/soal",
-    "/admin/tryouts/soal",
-    "/admin/tryouts/pilihan",
-  ];
+  const supportedEndpoints = ["/admin/tryouts/subtes", "/soal", "/admin/tryouts/soal", "/admin/tryouts/pilihan"];
 
   const isSupportedEndpoint = supportedEndpoints.some((endpoint) => pathLower.includes(endpoint));
 
@@ -83,10 +79,15 @@ export async function formDataToJsonMiddleware(request: Request): Promise<Reques
     }
 
     const jsonBody = JSON.stringify(convertedFields);
+    const headersObj: Record<string, string> = {};
+    request.headers.forEach((v, k) => {
+      headersObj[k] = v;
+    });
+
     return new Request(request.url, {
       method: request.method,
       headers: {
-        ...Object.fromEntries(request.headers),
+        ...headersObj,
         "content-type": "application/json",
       },
       body: jsonBody,
@@ -96,4 +97,3 @@ export async function formDataToJsonMiddleware(request: Request): Promise<Reques
     return null;
   }
 }
-
