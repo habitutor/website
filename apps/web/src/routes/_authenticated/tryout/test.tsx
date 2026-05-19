@@ -113,6 +113,16 @@ function TryoutTestPage() {
 	const totalQuestions = questions.length;
 	const currentQuestion = questions[activeQuestion - 1];
 
+	useEffect(() => {
+		setActiveQuestion(1);
+	}, [sesiSubtesId]);
+
+	useEffect(() => {
+		if (totalQuestions > 0 && activeQuestion > totalQuestions) {
+			setActiveQuestion(1);
+		}
+	}, [activeQuestion, totalQuestions]);
+
 	// --- Submit answer mutation ---
 	const submitAnswerMutation = useMutation(
 		orpc.tryout.answer.submit.mutationOptions({
