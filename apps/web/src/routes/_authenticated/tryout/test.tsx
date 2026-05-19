@@ -35,17 +35,22 @@ export const Route = createFileRoute("/_authenticated/tryout/test")({
 // --- Countdown Timer Hook ---
 function useCountdown(deadlineAt: string | Date | null | undefined) {
 	const [remainingMs, setRemainingMs] = useState<number>(0);
+	const [isReady, setIsReady] = useState(false);
 	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	useEffect(() => {
+		setIsReady(false);
+
 		if (!deadlineAt) return;
 
 		const deadline = new Date(deadlineAt).getTime();
+		if (Number.isNaN(deadline)) return;
 
 		const tick = () => {
 			const now = Date.now();
 			const diff = deadline - now;
 			setRemainingMs(Math.max(0, diff));
+			setIsReady(true);
 		};
 
 		tick();
@@ -56,13 +61,15 @@ function useCountdown(deadlineAt: string | Date | null | undefined) {
 		};
 	}, [deadlineAt]);
 
-	const isExpired = remainingMs <= 0 && !!deadlineAt;
+	const isExpired = isReady && remainingMs <= 0 && !!deadlineAt;
 
 	const minutes = Math.floor(remainingMs / 60000);
 	const seconds = Math.floor((remainingMs % 60000) / 1000);
-	const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+	const formatted = isReady
+		? `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+		: "--:--";
 
-	return { remainingMs, isExpired, formatted, minutes, seconds };
+	return { remainingMs, isExpired, formatted, minutes, seconds, isReady };
 }
 
 function TryoutTestPage() {
@@ -91,7 +98,7 @@ function TryoutTestPage() {
 	const resolvedSesiId = sesiId || sesiInfo?.sesiId || "";
 
 	// --- Countdown timer ---
-	const { formatted: timerFormatted, isExpired } = useCountdown(deadlineAt);
+	const { formatted: timerFormatted, isExpired, isReady: isTimerReady } = useCountdown(deadlineAt);
 
 	// --- Fetch questions ---
 	const questionsQuery = useQuery({
@@ -163,12 +170,12 @@ function TryoutTestPage() {
 
 	// --- Trigger time-expired dialog when timer hits zero ---
 	useEffect(() => {
-		if (isExpired && !timeExpiredDialogOpen && !hasAutoSubmitted && sesiSubtesId) {
+		if (isTimerReady && isExpired && !timeExpiredDialogOpen && !hasAutoSubmitted && sesiSubtesId) {
 			setTimeExpiredDialogOpen(true);
 			autoSubmitMutation.mutate({ sesiSubtesId });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isExpired, timeExpiredDialogOpen, hasAutoSubmitted, sesiSubtesId]);
+	}, [isExpired, isTimerReady, timeExpiredDialogOpen, hasAutoSubmitted, sesiSubtesId]);
 
 	// --- Handle "Lanjutkan" button in time-expired dialog ---
 	const handleTimeExpiredContinue = useCallback(() => {

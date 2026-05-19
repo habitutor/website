@@ -83,12 +83,21 @@ export const tryoutRepo = {
         });
 
         if (existingSesi) {
-            // Return sesi yang existing beserta subtes pertama
-            const firstSubtes = await db.query.tryoutSesiSubtes.findFirst({
+            const latestSubtes = await db.query.tryoutSesiSubtes.findFirst({
                 where: eq(tryoutSesiSubtes.sesiId, existingSesi.id),
-                orderBy: (st) => [st.urutanPengerjaan],
+                orderBy: (st) => [desc(st.urutanPengerjaan)],
             });
-            return { sesi: existingSesi, sesiSubtes: firstSubtes };
+
+            const now = new Date();
+            const canResumeExistingSession =
+                latestSubtes !== undefined &&
+                latestSubtes !== null &&
+                latestSubtes.status === "berjalan" &&
+                latestSubtes.deadlineAt > now;
+
+            if (canResumeExistingSession) {
+                return { sesi: existingSesi, sesiSubtes: latestSubtes };
+            }
         }
 
         // Buat sesi baru
@@ -448,6 +457,14 @@ export const tryoutRepo = {
             } else {
                 nextSesiSubtes = existingNextSesiSubtes;
             }
+        } else {
+            await db
+                .update(tryoutSesi)
+                .set({
+                    status: isExpired ? "expired" : "selesai",
+                    selesaiAt: new Date(),
+                })
+                .where(eq(tryoutSesi.id, sesiSubtes.sesi.id));
         }
 
         return {

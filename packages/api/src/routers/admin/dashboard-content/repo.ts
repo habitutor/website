@@ -10,9 +10,9 @@ export const adminDashboardContentRepo = {
     const [row] = await db
       .insert(dashboardAnnouncement)
       .values({
-        title: "Lorem ipsum dolor sit amet, consectetur.",
+        title: "Seleksi Semakin Kompetitif",
         description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor.",
+          "Dengan jumlah lulusan SMA yang besar dan daya tampung PTN terbatas, persaingan SNBT dan Ujian Mandiri diperkirakan tetap ketat dalam beberapa tahun ke depan. Bagi calon mahasiswa, memahami data, rasio persaingan, dan karakter seleksi menjadi kunci untuk meningkatkan peluang. Keberhasilan masuk PTN tidak hanya ditentukan nilai tinggi, tetapi juga strategi yang tepat dan kesiapan mental.",
         variant: "primary",
         ctaLink: null,
         ctaLabel: null,
