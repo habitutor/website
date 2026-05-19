@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import React from "react";
 import { Image } from "@unpic/react";
 import { ArrowRightIcon, BookOpenIcon, ClockIcon, ListNumbersIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
@@ -20,79 +21,6 @@ export const Route = createFileRoute("/_authenticated/tryout/")({
   component: TryoutPage,
 });
 
-const PASSING_GRADE_DATA = [
-  {
-    id: 1,
-    universitas: "Universitas Indonesia",
-    rank: 1,
-    jurusan: "Ilmu Komputer",
-    score: 744,
-  },
-  {
-    id: 2,
-    universitas: "Universitas Indonesia",
-    rank: 2,
-    jurusan: "Pendidikan Dokter",
-    score: 729,
-  },
-  {
-    id: 3,
-    universitas: "Institut Teknologi Bandung",
-    rank: 1,
-    jurusan: "Sekolah Teknik Elektro dan Informatika (STEI)",
-    score: 755,
-  },
-  {
-    id: 4,
-    universitas: "Institut Teknologi Bandung",
-    rank: 2,
-    jurusan: "Fakultas Teknik Pertambangan dan Perminyakan (FTTM)",
-    score: 730,
-  },
-  {
-    id: 5,
-    universitas: "Universitas Gadjah Mada",
-    rank: 1,
-    jurusan: "Kedokteran",
-    score: 733,
-  },
-  {
-    id: 6,
-    universitas: "Universitas Gadjah Mada",
-    rank: 2,
-    jurusan: "Ilmu Hubungan Internasional",
-    score: 698,
-  },
-  {
-    id: 7,
-    universitas: "Universitas Padjadjaran",
-    rank: 1,
-    jurusan: "Ilmu Komunikasi",
-    score: 685,
-  },
-  {
-    id: 8,
-    universitas: "Institut Teknologi Sepuluh Nopember",
-    rank: 1,
-    jurusan: "Teknik Informatika",
-    score: 712,
-  },
-  {
-    id: 9,
-    universitas: "Universitas Diponegoro",
-    rank: 1,
-    jurusan: "Hukum",
-    score: 680,
-  },
-  {
-    id: 10,
-    universitas: "Universitas Airlangga",
-    rank: 1,
-    jurusan: "Manajemen",
-    score: 672,
-  },
-];
-
 type TryoutListItem = {
   id: string;
   judul: string;
@@ -109,6 +37,47 @@ function asArray<T>(value: unknown): T[] {
 function TryoutPage() {
   const { data: tryoutsData, error, isError, isPending } = useQuery(orpc.tryout.list.queryOptions({ input: {} }));
   const tryouts = asArray<TryoutListItem>(tryoutsData);
+
+  const [selectedUniv, setSelectedUniv] = React.useState<string>("");
+  const [selectedJurusan, setSelectedJurusan] = React.useState<string>("");
+
+  const {
+    data: universitasData,
+    isPending: isPgPending,
+    isError: isPgError,
+    error: pgError,
+  } = useQuery(orpc.admin.universitas.universitas.list.queryOptions({ input: {} }));
+
+  const passingGradeItems = React.useMemo(() => {
+    if (!universitasData) return [];
+    return universitasData.flatMap((univ) =>
+      univ.programStudi.map((prodi) => ({
+        id: `${univ.id}-${prodi.id}`,
+        universitas: univ.namaUniv,
+        rank: univ.rankUniv,
+        jurusan: prodi.nama,
+        score: prodi.passedGrade,
+      })),
+    );
+  }, [universitasData]);
+
+  const uniqueUniversitas = React.useMemo(() => {
+    if (!universitasData) return [];
+    return universitasData.map((u) => u.namaUniv);
+  }, [universitasData]);
+
+  const uniqueJurusan = React.useMemo(() => {
+    const set = new Set(passingGradeItems.map((item) => item.jurusan));
+    return Array.from(set).sort();
+  }, [passingGradeItems]);
+
+  const filteredPassingGrade = React.useMemo(() => {
+    return passingGradeItems.filter((item) => {
+      const matchUniv = selectedUniv ? item.universitas === selectedUniv : true;
+      const matchJurusan = selectedJurusan ? item.jurusan === selectedJurusan : true;
+      return matchUniv && matchJurusan;
+    });
+  }, [passingGradeItems, selectedUniv, selectedJurusan]);
 
   return (
     <div className="flex w-full flex-col gap-6 pt-10">
@@ -180,46 +149,85 @@ function TryoutPage() {
 
         {/* PASSING GRADE TAB */}
         <TabsContent value="passing_grade">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-              <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:w-[200px]">
-                <option value="">Universitas</option>
-                <option value="ui">Universitas Indonesia</option>
-                <option value="itb">Institut Teknologi Bandung</option>
-                <option value="ugm">Universitas Gadjah Mada</option>
-              </select>
-              <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:w-[200px]">
-                <option value="">Jurusan</option>
-                <option value="cs">Ilmu Komputer</option>
-                <option value="is">Sistem Informasi</option>
-                <option value="med">Kedokteran</option>
-              </select>
+          {isPgPending ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <Skeleton className="h-10 w-full sm:w-[200px]" />
+                <Skeleton className="h-10 w-full sm:w-[200px]" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+              </div>
             </div>
-
-            <div className="overflow-hidden rounded-md border bg-white shadow-sm">
-              <Table>
-                <TableHeader className="bg-blue-50/50">
-                  <TableRow>
-                    <TableHead className="font-semibold text-primary-300">Universitas</TableHead>
-                    <TableHead className="hidden font-semibold text-primary-300 sm:table-cell">Rank ↑</TableHead>
-                    <TableHead className="font-semibold text-primary-300">Jurusan</TableHead>
-                    <TableHead className="w-[100px] font-semibold text-primary-300" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {PASSING_GRADE_DATA.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.universitas}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{item.rank}</TableCell>
-                      <TableCell>{item.jurusan}</TableCell>
-                      <TableCell>{item.score}</TableCell>
-                    </TableRow>
+          ) : isPgError ? (
+            <TryoutErrorState message={getErrorMessage(pgError, "Gagal memuat data passing grade")} />
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <select
+                  value={selectedUniv}
+                  onChange={(e) => setSelectedUniv(e.target.value)}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:w-[200px]"
+                >
+                  <option value="">Semua Universitas</option>
+                  {uniqueUniversitas.map((univ) => (
+                    <option key={univ} value={univ}>
+                      {univ}
+                    </option>
                   ))}
-                </TableBody>
-              </Table>
+                </select>
+                <select
+                  value={selectedJurusan}
+                  onChange={(e) => setSelectedJurusan(e.target.value)}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:w-[200px]"
+                >
+                  <option value="">Semua Jurusan</option>
+                  {uniqueJurusan.map((jurusan) => (
+                    <option key={jurusan} value={jurusan}>
+                      {jurusan}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="overflow-hidden rounded-md border bg-white shadow-sm">
+                <Table>
+                  <TableHeader className="bg-blue-50/50">
+                    <TableRow>
+                      <TableHead className="font-semibold text-primary-300">Universitas</TableHead>
+                      <TableHead className="hidden font-semibold text-primary-300 sm:table-cell">Rank ↑</TableHead>
+                      <TableHead className="font-semibold text-primary-300">Jurusan</TableHead>
+                      <TableHead className="w-[100px] font-semibold text-primary-300">Score</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPassingGrade.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="py-6 text-center text-muted-foreground">
+                          Tidak ada data passing grade yang sesuai.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredPassingGrade.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.universitas}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{item.rank}</TableCell>
+                          <TableCell>{item.jurusan}</TableCell>
+                          <TableCell>{item.score}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Menampilkan {filteredPassingGrade.length} dari {passingGradeItems.length} data.
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">0 of {PASSING_GRADE_DATA.length} row(s) selected.</div>
-          </div>
+          )}
         </TabsContent>
 
         {/* HASIL TRYOUT TAB */}
@@ -251,11 +259,7 @@ function TryoutErrorState({ message }: { message: string }) {
   );
 }
 
-function TryoutCard({
-  tryout,
-}: {
-  tryout: TryoutListItem;
-}) {
+function TryoutCard({ tryout }: { tryout: TryoutListItem }) {
   return (
     <div className="group flex flex-col justify-between gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-primary-300/50 hover:shadow-md">
       <div className="flex flex-col gap-2">
