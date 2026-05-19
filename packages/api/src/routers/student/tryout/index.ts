@@ -6,11 +6,11 @@ import { toOrpcError } from "./logic";
 
 /**
  * Daftar tryout yang dipublish
- * GET /student/tryouts
+ * GET /tryout
  */
 const listPublishedTryouts = authed
     .route({
-        path: "/student/tryouts",
+        path: "/tryout",
         method: "GET",
         tags: ["Student - Tryout"],
     })
@@ -24,11 +24,11 @@ const listPublishedTryouts = authed
 
 /**
  * Daftar subtes berdasarkan tryout
- * GET /student/tryouts/{tryoutId}/subtes
+ * GET /tryout/{tryoutId}/subtes
  */
 const listSubtesByTryout = authed
     .route({
-        path: "/student/tryouts/{tryoutId}/subtes",
+        path: "/tryout/{tryoutId}/subtes",
         method: "GET",
         tags: ["Student - Tryout"],
     })
@@ -43,11 +43,11 @@ const listSubtesByTryout = authed
 
 /**
  * Mulai Tryout - buat sesi baru atau return existing
- * POST /student/tryouts/{tryoutId}/start
+ * POST /tryout/{tryoutId}/start
  */
 const startTryout = authed
     .route({
-        path: "/student/tryouts/{tryoutId}/start",
+        path: "/tryout/{tryoutId}/start",
         method: "POST",
         tags: ["Student - Tryout"],
     })
@@ -79,11 +79,11 @@ const startTryout = authed
 
 /**
  * Ambil soal berdasarkan sesi_subtes_id
- * GET /student/tryouts/subtes/{sesiSubtesId}/questions
+ * GET /tryout/subtes/{sesiSubtesId}/questions
  */
 const getQuestions = authed
     .route({
-        path: "/student/tryouts/subtes/{sesiSubtesId}/questions",
+        path: "/tryout/subtes/{sesiSubtesId}/questions",
         method: "GET",
         tags: ["Student - Tryout"],
     })
@@ -109,11 +109,11 @@ const getQuestions = authed
 
 /**
  * Submit jawaban per soal
- * POST /student/tryouts/questions/submit-answer
+ * POST /tryout/questions/submit-answer
  */
 const submitAnswer = authed
     .route({
-        path: "/student/tryouts/questions/submit-answer",
+        path: "/tryout/questions/submit-answer",
         method: "POST",
         tags: ["Student - Tryout"],
     })
@@ -154,11 +154,11 @@ const submitAnswer = authed
 
 /**
  * Submit subtes - hitung skor dan cek subtes berikutnya
- * POST /student/tryouts/subtes/submit
+ * POST /tryout/subtes/submit
  */
 const submitSubtest = authed
     .route({
-        path: "/student/tryouts/subtes/submit",
+        path: "/tryout/subtes/submit",
         method: "POST",
         tags: ["Student - Tryout"],
     })
@@ -185,11 +185,11 @@ const submitSubtest = authed
 
 /**
  * Auto submit saat waktu habis
- * POST /student/tryouts/subtes/auto-submit
+ * POST /tryout/subtes/auto-submit
  */
 const autoSubmitSubtest = authed
     .route({
-        path: "/student/tryouts/subtes/auto-submit",
+        path: "/tryout/subtes/auto-submit",
         method: "POST",
         tags: ["Student - Tryout"],
     })
@@ -216,11 +216,11 @@ const autoSubmitSubtest = authed
 
 /**
  * Ambil hasil akhir tryout
- * GET /student/tryouts/{sesiId}/results
+ * GET /tryout/{sesiId}/results
  */
 const getResults = authed
     .route({
-        path: "/student/tryouts/{sesiId}/results",
+        path: "/tryout/{sesiId}/results",
         method: "GET",
         tags: ["Student - Tryout"],
     })
@@ -243,11 +243,11 @@ const getResults = authed
 
 /**
  * Ambil pembahasan soal (hanya untuk premium user)
- * GET /student/tryouts/soal/{soalId}/pembahasan
+ * GET /tryout/soal/{soalId}/pembahasan
  */
 const getPembahasan = authed
     .route({
-        path: "/student/tryouts/soal/{soalId}/pembahasan",
+        path: "/tryout/soal/{soalId}/pembahasan",
         method: "GET",
         tags: ["Student - Tryout"],
     })
@@ -275,11 +275,11 @@ const getPembahasan = authed
 
 /**
  * Ambil info sesi subtes (timer, nama, status)
- * GET /student/tryouts/sesi-subtes/{sesiSubtesId}/info
+ * GET /tryout/sesi-subtes/{sesiSubtesId}/info
  */
 const getSesiSubtesInfo = authed
     .route({
-        path: "/student/tryouts/sesi-subtes/{sesiSubtesId}/info",
+        path: "/tryout/sesi-subtes/{sesiSubtesId}/info",
         method: "GET",
         tags: ["Student - Tryout"],
     })
@@ -300,11 +300,11 @@ const getSesiSubtesInfo = authed
 
 /**
  * Ambil riwayat tryout user
- * GET /student/tryouts/history
+ * GET /tryout/history
  */
 const getHistory = authed
     .route({
-        path: "/student/tryouts/history",
+        path: "/tryout/history",
         method: "GET",
         tags: ["Student - Tryout"],
     })
