@@ -4,15 +4,14 @@ import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 
-type ExecuteRowsResult<T> = T[] | { rows?: T[] };
+type ExecuteRowsResult = unknown;
 
-function extractExecuteRows<T>(result: ExecuteRowsResult<T>): T[] {
-  if (Array.isArray(result)) {
-    return result;
-  }
+function extractExecuteRows<T>(result: ExecuteRowsResult): T[] {
+  if (Array.isArray(result)) return result as T[];
 
-  if (result && typeof result === "object" && "rows" in result && Array.isArray(result.rows)) {
-    return result.rows;
+  if (result && typeof result === "object" && "rows" in result) {
+    const rows = (result as { rows?: unknown }).rows;
+    if (Array.isArray(rows)) return rows as T[];
   }
 
   return [];
@@ -67,7 +66,7 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }) => {
+  getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }): Promise<Array<{ id: number }>> => {
     const result = await db.execute(sql<{ id: number }>`
       SELECT q.id
       FROM (
@@ -81,7 +80,7 @@ export const flashcardRepo = {
       LIMIT ${limit}
     `);
 
-    return extractExecuteRows(result);
+    return extractExecuteRows<{ id: number }>(result);
   },
 
   getQuestionsByIds: async ({ db = defaultDb, ids }: { db?: DrizzleDatabase; ids: number[] }) => {
@@ -169,7 +168,7 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }) => {
+  getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }): Promise<number> => {
     const result = await db.execute(sql<{ score: number }>`
       SELECT
         CASE
@@ -181,8 +180,8 @@ export const flashcardRepo = {
       WHERE aq.attempt_id = ${attemptId}
     `);
 
-    const rows = extractExecuteRows(result);
-    const row = rows[0];
+    const rows = extractExecuteRows<{ score: number }>(result);
+    const row = rows[0] as { score: number } | undefined;
 
     return row?.score ?? 0;
   },
@@ -338,7 +337,13 @@ export const flashcardRepo = {
     db?: DrizzleDatabase;
     currentUserId: string;
     limit?: number;
-  }) => {
+  }): Promise<Array<{
+    userId: string;
+    name: string;
+    image: string | null;
+    totalScore: number;
+    rank: number;
+  }>> => {
     const result = await db.execute(
       sql<{
         userId: string;
@@ -371,6 +376,12 @@ export const flashcardRepo = {
 			`,
     );
 
-    return extractExecuteRows(result);
+    return extractExecuteRows<{
+      userId: string;
+      name: string;
+      image: string | null;
+      totalScore: number;
+      rank: number;
+    }>(result);
   },
 };

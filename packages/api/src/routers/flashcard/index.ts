@@ -27,7 +27,7 @@ const start = authed
   .handler(async ({ context, errors }) => {
     const deadline = new Date(Date.now() + FLASHCARD_SESSION_DURATION_MINUTES * 60_000);
     const today = getStartOfDay();
-    const isPremium = context.session.user.isPremium;
+    const isPremium = Boolean(context.session.user.isPremium);
 
     const latestAttempt = await flashcardRepo.getLatestAttempt({
       db,

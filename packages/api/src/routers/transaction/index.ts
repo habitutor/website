@@ -154,7 +154,7 @@ const getStatus = authed
       throw errors.NOT_FOUND({ message: "Transaction not found" });
     }
 
-    if (!isAdminRole(context.session.user.role) && tx.userId !== context.session.user.id) {
+    if (!isAdminRole(context.session.user.role ?? "user") && tx.userId !== context.session.user.id) {
       throw errors.FORBIDDEN({
         message: "Kamu tidak memiliki akses ke transaksi ini.",
       });

@@ -129,7 +129,7 @@ export const rateLimit = o.middleware(async ({ context, next, path }) => {
   }
 
   const userId = context.session.user.id;
-  const isPremium = context.session.user.isPremium;
+  const isPremium = Boolean(context.session.user.isPremium);
   // path is a readonly string array, join to create endpoint key
   const endpointPath = Array.isArray(path) ? path.join("/") : "unknown";
 

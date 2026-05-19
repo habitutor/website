@@ -123,8 +123,8 @@ const getContentById = authedRateLimited
     }
 
     const hasAccess = canAccessContent(
-      context.session.user.isPremium,
-      context.session.user.role,
+      Boolean(context.session.user.isPremium),
+      context.session.user.role ?? "user",
       row.subtestOrder,
       row.order,
     );

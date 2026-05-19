@@ -28,9 +28,10 @@ export const syncSessionLifecycle = o.middleware(async ({ context, next }) => {
   }
 
   const sessionUser = context.session.user as typeof context.session.user;
+  const flashcardStreak = sessionUser.flashcardStreak ?? 0;
 
   if (
-    sessionUser.flashcardStreak > 0 &&
+    flashcardStreak > 0 &&
     sessionUser.lastCompletedFlashcardAt &&
     Date.now() - sessionUser.lastCompletedFlashcardAt.getTime() >= 2 * 24 * 3600 * 1000
   ) {

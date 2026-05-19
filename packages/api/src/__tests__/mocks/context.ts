@@ -5,22 +5,31 @@ type SessionData = NonNullable<Context["session"]>;
 
 type MockUser = Partial<SessionUser> & { id: string };
 
+type SessionRole = NonNullable<SessionUser["role"]>;
+type SessionBoolean = NonNullable<SessionUser["isPremium"]>;
+type SessionFlashcardStreak = NonNullable<SessionUser["flashcardStreak"]>;
+
 function createMockSession(user?: MockUser): SessionData {
-  const defaultUser: MockUser = {
+  const defaultUser = {
     id: "test-user-id",
     name: "Test User",
     email: "test@example.com",
     emailVerified: true,
-    role: "user",
-    isPremium: false,
-    flashcardStreak: 0,
-    lastCompletedFlashcardAt: undefined,
-    premiumExpiresAt: undefined,
+    role: "user" as SessionRole,
+    isPremium: false as SessionBoolean,
+    flashcardStreak: 0 as SessionFlashcardStreak,
+    totalScore: 0,
+    lastCompletedFlashcardAt: null,
+    premiumExpiresAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
-    image: undefined,
+    image: null,
+  } as unknown as SessionUser;
+
+  const mergedUser = {
+    ...defaultUser,
     ...user,
-  };
+  } as SessionUser;
 
   return {
     session: {
@@ -30,11 +39,11 @@ function createMockSession(user?: MockUser): SessionData {
       token: "test-token",
       createdAt: new Date(),
       updatedAt: new Date(),
-      ipAddress: undefined,
-      userAgent: undefined,
+      ipAddress: null,
+      userAgent: null,
     },
-    user: defaultUser as SessionUser,
-  };
+    user: mergedUser,
+  } as SessionData;
 }
 
 export function createMockContext(user?: MockUser): Context {
