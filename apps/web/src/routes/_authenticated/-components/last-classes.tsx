@@ -7,6 +7,7 @@ import { orpc } from "@/utils/orpc";
 
 export const LastClasses = () => {
   const { data, isPending } = useQuery(orpc.subtest.content.recent.queryOptions());
+  const recentViews = Array.isArray(data) ? data : [];
 
   if (isPending) {
     return (
@@ -20,7 +21,7 @@ export const LastClasses = () => {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (recentViews.length === 0) {
     return (
       <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
         <h2 className="font-medium">Kelas terakhirmu</h2>
@@ -41,7 +42,7 @@ export const LastClasses = () => {
     <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
       <h2 className="mb-2 font-medium">Kelas terakhirmu</h2>
       <div className="space-y-2">
-        {data.map((view, idx) => (
+        {recentViews.map((view, idx) => (
           <LastContentViewedCard
             key={view.contentId}
             item={{

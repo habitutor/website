@@ -23,6 +23,14 @@ type RecentContentView = {
   hasPracticeQuestions: boolean;
 };
 
+type ExecuteRowsResult<T> = T[] | { rows?: T[] };
+
+function extractExecuteRows<T>(result: ExecuteRowsResult<T>): T[] {
+  if (Array.isArray(result)) return result;
+  if (result && typeof result === "object" && "rows" in result && Array.isArray(result.rows)) return result.rows;
+  return [];
+}
+
 export const subtestRepo = {
   listSubtests: async ({ db = defaultDb, limit, offset }: { db?: DrizzleDatabase; limit: number; offset: number }) => {
     return db
@@ -253,7 +261,7 @@ export const subtestRepo = {
 			LIMIT 5
 		`);
 
-    return views as RecentContentView[];
+    return extractExecuteRows(views as ExecuteRowsResult<RecentContentView>);
   },
 
   upsertUserProgress: async ({
