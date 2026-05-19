@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Image } from "@unpic/react";
 import { orpc, queryClient } from "@/utils/orpc";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -343,6 +344,12 @@ function TryoutTestPage() {
 								{/* Answer Options */}
 								<div className="flex flex-col gap-3">
 									{currentQuestion.pilihan.map((opt: { id: string; label: string; isi: string }) => {
+										const option = opt as {
+											id: string;
+											label: string;
+											isi: string;
+											gambarUrl?: string | null;
+										};
 										const isSelected = currentQuestion.jawaban_dipilih === opt.id;
 
 										return (
@@ -371,7 +378,18 @@ function TryoutTestPage() {
 													{isSelected && <div className="size-3 rounded-full bg-blue-500" />}
 												</div>
 												<span className="font-medium text-gray-600">{opt.label}.</span>
-												<span className="text-gray-700">{opt.isi}</span>
+												<div className="flex flex-1 flex-col gap-2">
+													{option.isi && <span className="text-gray-700">{option.isi}</span>}
+													{option.gambarUrl && (
+														<Image
+															src={option.gambarUrl}
+															alt={`Gambar opsi ${option.label}`}
+															width={320}
+															height={240}
+															className="mt-1 max-w-full rounded-lg border border-gray-200 bg-white object-contain"
+														/>
+													)}
+												</div>
 											</button>
 										);
 									})}
