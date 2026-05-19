@@ -40,10 +40,31 @@ const parsedAuthBaseUrl = (() => {
 const authHost = parsedAuthBaseUrl?.hostname;
 const isHabitutorHost = authHost === "habitutor.id" || authHost?.endsWith(".habitutor.id");
 const cookieDomain = process.env.BETTER_AUTH_COOKIE_DOMAIN?.trim() || (isHabitutorHost ? ".habitutor.id" : undefined);
+const corsOrigin = process.env.CORS_ORIGIN?.trim();
+const isLocalhostOrigin = (origin: string | undefined) => {
+  if (!origin) return false;
+  try {
+    const hostname = new URL(origin).hostname;
+    return hostname === "localhost" || hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+};
+
+const explicitCookieSameSite = process.env.BETTER_AUTH_COOKIE_SAMESITE?.trim();
+const cookieSameSite =
+  explicitCookieSameSite === "Lax" || explicitCookieSameSite === "Strict" || explicitCookieSameSite === "None"
+    ? explicitCookieSameSite
+    : isLocalhostOrigin(corsOrigin) && isHabitutorHost
+      ? "None"
+      : "Lax";
+
 const cookieSecure =
-  process.env.BETTER_AUTH_COOKIE_SECURE === "true" ||
-  (process.env.BETTER_AUTH_COOKIE_SECURE !== "false" &&
-    (parsedAuthBaseUrl ? parsedAuthBaseUrl.protocol === "https:" : process.env.NODE_ENV === "production"));
+  cookieSameSite === "None"
+    ? true
+    : process.env.BETTER_AUTH_COOKIE_SECURE === "true" ||
+      (process.env.BETTER_AUTH_COOKIE_SECURE !== "false" &&
+      (parsedAuthBaseUrl ? parsedAuthBaseUrl.protocol === "https:" : process.env.NODE_ENV === "production"));
 
 const resendClient = new Resend(process.env.RESEND_API_KEY || "Re_api_key");
 
@@ -189,7 +210,7 @@ export const auth = betterAuth({
 
   advanced: {
     defaultCookieAttributes: {
-      sameSite: "Lax",
+      sameSite: cookieSameSite,
       secure: cookieSecure,
       httpOnly: true,
     },
