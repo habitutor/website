@@ -40,17 +40,39 @@ function TryoutPage() {
 
   const [selectedUniv, setSelectedUniv] = React.useState<string>("");
   const [selectedJurusan, setSelectedJurusan] = React.useState<string>("");
+  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc");
 
   const {
     data: universitasData,
     isPending: isPgPending,
     isError: isPgError,
     error: pgError,
-  } = useQuery(orpc.admin.universitas.universitas.list.queryOptions({ input: {} }));
+  } = useQuery(orpc.tryout.passingGrade.queryOptions({ input: {} }));
 
-  const passingGradeItems = React.useMemo(() => {
+  type PassingGradeItem = {
+    id: string;
+    universitas: string;
+    rank: number;
+    jurusan: string;
+    score: number;
+  };
+
+  type ProgramStudiData = {
+    id: number;
+    nama: string;
+    passedGrade: number;
+  };
+
+  type UniversitasData = {
+    id: number;
+    namaUniv: string;
+    rankUniv: number;
+    programStudi: ProgramStudiData[];
+  };
+
+  const passingGradeItems = React.useMemo<PassingGradeItem[]>(() => {
     if (!universitasData) return [];
-    return universitasData.flatMap((univ) =>
+    return (universitasData as UniversitasData[]).flatMap((univ) =>
       univ.programStudi.map((prodi) => ({
         id: `${univ.id}-${prodi.id}`,
         universitas: univ.namaUniv,
@@ -61,23 +83,30 @@ function TryoutPage() {
     );
   }, [universitasData]);
 
-  const uniqueUniversitas = React.useMemo(() => {
+  const uniqueUniversitas = React.useMemo<string[]>(() => {
     if (!universitasData) return [];
-    return universitasData.map((u) => u.namaUniv);
+    return (universitasData as UniversitasData[]).map((u) => u.namaUniv);
   }, [universitasData]);
 
-  const uniqueJurusan = React.useMemo(() => {
+  const uniqueJurusan = React.useMemo<string[]>(() => {
     const set = new Set(passingGradeItems.map((item) => item.jurusan));
     return Array.from(set).sort();
   }, [passingGradeItems]);
 
-  const filteredPassingGrade = React.useMemo(() => {
-    return passingGradeItems.filter((item) => {
+  const filteredPassingGrade = React.useMemo<PassingGradeItem[]>(() => {
+    const filtered = passingGradeItems.filter((item) => {
       const matchUniv = selectedUniv ? item.universitas === selectedUniv : true;
       const matchJurusan = selectedJurusan ? item.jurusan === selectedJurusan : true;
       return matchUniv && matchJurusan;
     });
-  }, [passingGradeItems, selectedUniv, selectedJurusan]);
+
+    return filtered.sort((a, b) => {
+      if (sortDirection === "asc") {
+        return a.rank - b.rank;
+      }
+      return b.rank - a.rank;
+    });
+  }, [passingGradeItems, selectedUniv, selectedJurusan, sortDirection]);
 
   return (
     <div className="flex w-full flex-col gap-6 pt-10">
@@ -198,7 +227,12 @@ function TryoutPage() {
                   <TableHeader className="bg-blue-50/50">
                     <TableRow>
                       <TableHead className="font-semibold text-primary-300">Universitas</TableHead>
-                      <TableHead className="hidden font-semibold text-primary-300 sm:table-cell">Rank ↑</TableHead>
+                      <TableHead
+                        className="hidden cursor-pointer font-semibold text-primary-300 select-none hover:text-primary-400 sm:table-cell"
+                        onClick={() => setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))}
+                      >
+                        Rank {sortDirection === "asc" ? "↑" : "↓"}
+                      </TableHead>
                       <TableHead className="font-semibold text-primary-300">Jurusan</TableHead>
                       <TableHead className="w-[100px] font-semibold text-primary-300">Score</TableHead>
                     </TableRow>
