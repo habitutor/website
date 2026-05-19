@@ -13,6 +13,58 @@ import { user } from "@habitutor/db/schema/user";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { fisherYatesShuffle, TryoutError } from "./logic";
 
+type TryoutQuestionItem = {
+    sesiSoalId: string;
+    soalId: string;
+    pertanyaan: string;
+    gambarUrl: string | null;
+    tipe: "pilgan" | "multiple";
+    poin: number;
+    pilihan: Array<{
+        id: string;
+        label: string;
+        isi: string;
+        gambarUrl: string | null;
+    }>;
+    jawaban_dipilih: string | null;
+    is_ragu: boolean;
+};
+
+async function ensureSesiSoalForSubtes({
+    db,
+    sesiSubtesId,
+    subtesId,
+}: {
+    db: DrizzleDatabase;
+    sesiSubtesId: string;
+    subtesId: string;
+}) {
+    const existingSoal = await db.query.tryoutSesiSoal.findFirst({
+        where: eq(tryoutSesiSoal.sesiSubtesId, sesiSubtesId),
+    });
+
+    if (existingSoal) return;
+
+    const soalList = await db.query.tryoutSoal.findMany({
+        where: eq(tryoutSoal.subtesId, subtesId),
+    });
+
+    if (soalList.length === 0) {
+        throw new TryoutError("BAD_REQUEST", "Tidak ada soal untuk subtes ini");
+    }
+
+    const shuffledSoal = fisherYatesShuffle(soalList);
+    await db.insert(tryoutSesiSoal).values(
+        shuffledSoal.map((soal, index) => ({
+            sesiSubtesId,
+            soalId: soal.id,
+            urutanTampil: index + 1,
+            isDijawab: false,
+            isRagu: false,
+        })),
+    );
+}
+
 export const tryoutRepo = {
     /**
      * List tryout yang sudah dipublish
@@ -147,24 +199,11 @@ export const tryoutRepo = {
         }
         const newSesiSubtes = newSesiSubtesArray[0];
 
-        // Ambil soal untuk subtes ini
-        const soalList = await db.query.tryoutSoal.findMany({
-            where: eq(tryoutSoal.subtesId, firstSubtes.id),
-        });
-
-        // Acak soal dengan Fisher-Yates shuffle
-        const shuffledSoal = fisherYatesShuffle(soalList);
-
-        // Buat sesi_soal untuk setiap soal
-        const sesiSoalValues = shuffledSoal.map((soal, index) => ({
-            sesiSubtesId: newSesiSubtes.id,
-            soalId: soal.id,
-            urutanTampil: index + 1,
-            isDijawab: false,
-            isRagu: false,
-        }));
-
-        await db.insert(tryoutSesiSoal).values(sesiSoalValues);
+        await ensureSesiSoalForSubtes({
+			db,
+			sesiSubtesId: newSesiSubtes.id,
+			subtesId: firstSubtes.id,
+		});
 
         return { sesi: newSesi, sesiSubtes: newSesiSubtes };
     },
@@ -178,7 +217,7 @@ export const tryoutRepo = {
     }: {
         db?: DrizzleDatabase;
         sesiSubtesId: string;
-    }) => {
+    }): Promise<TryoutQuestionItem[]> => {
         const sesiSoalList = await db.query.tryoutSesiSoal.findMany({
             where: eq(tryoutSesiSoal.sesiSubtesId, sesiSubtesId),
             orderBy: (ss) => [ss.urutanTampil],
@@ -204,6 +243,27 @@ export const tryoutRepo = {
                 },
             },
         });
+
+        if (sesiSoalList.length === 0) {
+            const sesiSubtes = await db.query.tryoutSesiSubtes.findFirst({
+                where: eq(tryoutSesiSubtes.id, sesiSubtesId),
+                columns: {
+                    subtesId: true,
+                },
+            });
+
+            if (!sesiSubtes) {
+                throw new TryoutError("NOT_FOUND", "Sesi subtes tidak ditemukan");
+            }
+
+            await ensureSesiSoalForSubtes({
+                db,
+                sesiSubtesId,
+                subtesId: sesiSubtes.subtesId,
+            });
+
+            return tryoutRepo.getQuestions({ db, sesiSubtesId });
+        }
 
         // Ambil jawaban yang sudah dipilih
         const sesiId = sesiSoalList[0]?.sesiSubtes.sesiId;
@@ -437,26 +497,15 @@ export const tryoutRepo = {
                 const created = createdArray[0];
 
                 nextSesiSubtes = created;
-
-                // Ambil soal untuk subtes berikutnya dan acak
-                const soalList = await db.query.tryoutSoal.findMany({
-                    where: eq(tryoutSoal.subtesId, nextSubtes.id),
-                });
-
-                const shuffledSoal = fisherYatesShuffle(soalList);
-
-                const sesiSoalValues = shuffledSoal.map((soal, index) => ({
-                    sesiSubtesId: created.id,
-                    soalId: soal.id,
-                    urutanTampil: index + 1,
-                    isDijawab: false,
-                    isRagu: false,
-                }));
-
-                await db.insert(tryoutSesiSoal).values(sesiSoalValues);
             } else {
                 nextSesiSubtes = existingNextSesiSubtes;
             }
+
+			await ensureSesiSoalForSubtes({
+				db,
+				sesiSubtesId: nextSesiSubtes.id,
+				subtesId: nextSubtes.id,
+			});
         } else {
             await db
                 .update(tryoutSesi)
