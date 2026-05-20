@@ -30,6 +30,12 @@ ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_SERVER_URL=${VITE_SERVER_URL}
 WORKDIR /usr/src/app
 
+# debug env vars
+RUN echo "TURBO_TEAM: $TURBO_TEAM" && \
+    echo "TURBO_TOKEN: $TURBO_TOKEN" && \
+    echo "VITE_API_URL: $VITE_API_URL" && \
+    echo "VITE_SERVER_URL: $VITE_SERVER_URL"
+
 COPY --from=installer /usr/src/app ./
 COPY . .
 RUN turbo prune web
