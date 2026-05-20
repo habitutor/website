@@ -45,12 +45,6 @@ ENV TURBO_TOKEN=${TURBO_TOKEN}
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_SERVER_URL=${VITE_SERVER_URL}
 
-# debug env variables
-RUN echo "TURBO_TEAM: $TURBO_TEAM" && \
-    echo "TURBO_TOKEN: $TURBO_TOKEN" && \
-    echo "VITE_API_URL: $VITE_API_URL" && \
-    echo "VITE_SERVER_URL: $VITE_SERVER_URL"
-
 EXPOSE 3000
 CMD ["bun", "./server/index.mjs"]
 
