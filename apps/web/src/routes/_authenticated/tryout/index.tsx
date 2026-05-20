@@ -40,7 +40,8 @@ function TryoutPage() {
 
   const [selectedUniv, setSelectedUniv] = React.useState<string>("");
   const [selectedJurusan, setSelectedJurusan] = React.useState<string>("");
-  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = React.useState<"rank" | "score">("score");
+  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("desc");
 
   const {
     data: universitasData,
@@ -93,6 +94,8 @@ function TryoutPage() {
     return Array.from(set).sort();
   }, [passingGradeItems]);
 
+
+
   const filteredPassingGrade = React.useMemo<PassingGradeItem[]>(() => {
     const filtered = passingGradeItems.filter((item) => {
       const matchUniv = selectedUniv ? item.universitas === selectedUniv : true;
@@ -101,12 +104,13 @@ function TryoutPage() {
     });
 
     return filtered.sort((a, b) => {
-      if (sortDirection === "asc") {
-        return a.rank - b.rank;
+      if (sortBy === "rank") {
+        return sortDirection === "asc" ? a.rank - b.rank : b.rank - a.rank;
+      } else {
+        return sortDirection === "asc" ? a.score - b.score : b.score - a.score;
       }
-      return b.rank - a.rank;
     });
-  }, [passingGradeItems, selectedUniv, selectedJurusan, sortDirection]);
+  }, [passingGradeItems, selectedUniv, selectedJurusan, sortBy, sortDirection]);
 
   return (
     <div className="flex w-full flex-col gap-6 pt-10">
@@ -229,12 +233,23 @@ function TryoutPage() {
                       <TableHead className="font-semibold text-primary-300">Universitas</TableHead>
                       <TableHead
                         className="hidden cursor-pointer font-semibold text-primary-300 select-none hover:text-primary-400 sm:table-cell"
-                        onClick={() => setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))}
+                        onClick={() => {
+                          if (sortBy === "rank") setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+                          else { setSortBy("rank"); setSortDirection("asc"); }
+                        }}
                       >
-                        Rank {sortDirection === "asc" ? "↑" : "↓"}
+                        Rank Univ {sortBy === "rank" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                       </TableHead>
                       <TableHead className="font-semibold text-primary-300">Jurusan</TableHead>
-                      <TableHead className="w-[100px] font-semibold text-primary-300">Score</TableHead>
+                      <TableHead
+                        className="w-[100px] cursor-pointer font-semibold text-primary-300 select-none hover:text-primary-400"
+                        onClick={() => {
+                          if (sortBy === "score") setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+                          else { setSortBy("score"); setSortDirection("desc"); }
+                        }}
+                      >
+                        Score {sortBy === "score" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
