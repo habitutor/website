@@ -1,3 +1,8 @@
+ARG TURBO_TEAM
+ARG TURBO_TOKEN
+ARG VITE_API_URL
+ARG VITE_SERVER_URL
+
 FROM oven/bun:1-alpine AS base
 RUN bun install -g turbo@^2.7.2
 
@@ -20,21 +25,12 @@ COPY packages/shared/package.json ./packages/shared/
 RUN bun install
 
 FROM configs AS builder
-ARG TURBO_TEAM
-ARG TURBO_TOKEN
-ARG VITE_API_URL
-ARG VITE_SERVER_URL
+
 ENV TURBO_TEAM=${TURBO_TEAM}
 ENV TURBO_TOKEN=${TURBO_TOKEN}
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_SERVER_URL=${VITE_SERVER_URL}
 WORKDIR /usr/src/app
-
-# debug env vars
-RUN echo "TURBO_TEAM: $TURBO_TEAM" && \
-    echo "TURBO_TOKEN: $TURBO_TOKEN" && \
-    echo "VITE_API_URL: $VITE_API_URL" && \
-    echo "VITE_SERVER_URL: $VITE_SERVER_URL"
 
 COPY --from=installer /usr/src/app ./
 COPY . .
@@ -43,6 +39,11 @@ RUN turbo build --filter=web
 
 FROM configs AS runner
 COPY --from=builder /usr/src/app/apps/web/.output/ .
+
+ENV TURBO_TEAM=${TURBO_TEAM}
+ENV TURBO_TOKEN=${TURBO_TOKEN}
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_SERVER_URL=${VITE_SERVER_URL}
 
 EXPOSE 3000
 CMD ["bun", "./server/index.mjs"]
