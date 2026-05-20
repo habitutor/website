@@ -73,15 +73,23 @@ function TryoutPage() {
 
   const passingGradeItems = React.useMemo<PassingGradeItem[]>(() => {
     if (!universitasData) return [];
-    return (universitasData as UniversitasData[]).flatMap((univ) =>
+    const items = (universitasData as UniversitasData[]).flatMap((univ) =>
       univ.programStudi.map((prodi) => ({
         id: `${univ.id}-${prodi.id}`,
         universitas: univ.namaUniv,
-        rank: univ.rankUniv,
         jurusan: prodi.nama,
         score: prodi.passedGrade,
+        rank: 0,
       })),
     );
+
+    // Urutkan berdasarkan score descending untuk menghitung peringkat (rank) prodi
+    items.sort((a, b) => b.score - a.score);
+
+    return items.map((item, index) => ({
+      ...item,
+      rank: index + 1,
+    }));
   }, [universitasData]);
 
   const uniqueUniversitas = React.useMemo<string[]>(() => {
@@ -93,8 +101,6 @@ function TryoutPage() {
     const set = new Set(passingGradeItems.map((item) => item.jurusan));
     return Array.from(set).sort();
   }, [passingGradeItems]);
-
-
 
   const filteredPassingGrade = React.useMemo<PassingGradeItem[]>(() => {
     const filtered = passingGradeItems.filter((item) => {
@@ -235,17 +241,23 @@ function TryoutPage() {
                         className="hidden cursor-pointer font-semibold text-primary-300 select-none hover:text-primary-400 sm:table-cell"
                         onClick={() => {
                           if (sortBy === "rank") setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-                          else { setSortBy("rank"); setSortDirection("asc"); }
+                          else {
+                            setSortBy("rank");
+                            setSortDirection("asc");
+                          }
                         }}
                       >
-                        Rank Univ {sortBy === "rank" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                        Rank {sortBy === "rank" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                       </TableHead>
                       <TableHead className="font-semibold text-primary-300">Jurusan</TableHead>
                       <TableHead
                         className="w-[100px] cursor-pointer font-semibold text-primary-300 select-none hover:text-primary-400"
                         onClick={() => {
                           if (sortBy === "score") setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-                          else { setSortBy("score"); setSortDirection("desc"); }
+                          else {
+                            setSortBy("score");
+                            setSortDirection("desc");
+                          }
                         }}
                       >
                         Score {sortBy === "score" ? (sortDirection === "asc" ? "↑" : "↓") : ""}

@@ -208,29 +208,31 @@ function UniversitasCard({ universitas }: { universitas: UniversitasType }) {
                   {[...universitas.programStudi]
                     .sort((a, b) => b.passedGrade - a.passedGrade)
                     .map((prodi) => (
-                    <TableRow key={prodi.id}>
-                      <TableCell className="font-medium">{prodi.nama}</TableCell>
-                      <TableCell className="text-primary-700 text-center font-semibold">{prodi.passedGrade}</TableCell>
-                      <TableCell className="space-x-1 text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-blue-600"
-                          onClick={() => setEditProdi(prodi)}
-                        >
-                          <PencilIcon />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-red-600"
-                          onClick={() => setDeleteProdiId(prodi.id)}
-                        >
-                          <TrashIcon />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                      <TableRow key={prodi.id}>
+                        <TableCell className="font-medium">{prodi.nama}</TableCell>
+                        <TableCell className="text-primary-700 text-center font-semibold">
+                          {prodi.passedGrade}
+                        </TableCell>
+                        <TableCell className="space-x-1 text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-blue-600"
+                            onClick={() => setEditProdi(prodi)}
+                          >
+                            <PencilIcon />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-red-600"
+                            onClick={() => setDeleteProdiId(prodi.id)}
+                          >
+                            <TrashIcon />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </div>
