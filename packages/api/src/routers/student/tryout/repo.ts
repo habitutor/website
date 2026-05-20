@@ -593,6 +593,7 @@ export const tryoutRepo = {
         const kosong = jawaban.filter((j) => !j.isDijawab).length;
 
         return {
+          sesiSubtesId: ss.id,
           subtesId: ss.subtesId,
           namaSubtes: ss.subtes.namaSubtes,
           durasiMenit: ss.subtes.durasiMenit,
