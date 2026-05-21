@@ -1,0 +1,33 @@
+﻿bun : $ turbo -F @habitutor/db db:migrate -v
+At line:1 char:45
++ ... ocation 'D:\Projek\Habitutor\website'; bun db:migrate -v *>&1 | Out-F ...
++                                            ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ turbo -F @habitutor/db db:migra 
+   te -v:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+initializing rayon global pool
+ΓÇó turbo 2.9.3
+
+   ΓÇó Packages in scope: @habitutor/db
+   ΓÇó Running db:migrate in 1 packages
+   ΓÇó Remote caching disabled
+
+@habitutor/db:db:migrate: cache bypass, force executing 084567288a0bbba3
+@habitutor/db:db:migrate: $ drizzle-kit migrate
+@habitutor/db:db:migrate: No config path provided, using default 'drizzle.config.ts'
+@habitutor/db:db:migrate: Reading config file 'D:\Projek\Habitutor\website\packages\db\drizzle.config.ts'
+@habitutor/db:db:migrate: Γùç injecting env (17) from ..\..\apps\server\.env // tip: Γùê secrets for agents [www.dotenvx.com]
+@habitutor/db:db:migrate: Using 'pg' driver for database querying
+@habitutor/db:db:migrate: error: script "db:migrate" exited with code 1
+ ERROR  @habitutor/db#db:migrate: command 
+(D:\Projek\Habitutor\website\packages\db) C:\Users\Lenovo\.bun\bin\bun.exe run 
+db:migrate exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    1.761s 
+Failed:    @habitutor/db#db:migrate
+
+ ERROR  run failed: command  exited (1)
+error: script "db:migrate" exited with code 1

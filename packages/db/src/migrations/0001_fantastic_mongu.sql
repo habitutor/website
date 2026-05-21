@@ -1,18 +1,25 @@
 ALTER TABLE "practice_pack_attempt" DROP CONSTRAINT "practice_pack_attempt_user_id_user_id_fk";
 --> statement-breakpoint
 DO $$
+DECLARE
+	constraint_to_drop text;
 BEGIN
-	IF EXISTS (
-		SELECT 1
-		FROM information_schema.table_constraints
-		WHERE table_schema = 'public'
-			AND table_name = 'practice_pack_user_answer'
-			AND constraint_name IN (
-				'practice_pack_user_answer_selected_answer_id_question_answer_option_id_fk',
-				'practice_pack_user_answer_selected_answer_id_question_answer_op'
-			)
-	) THEN
-		EXECUTE 'ALTER TABLE "practice_pack_user_answer" DROP CONSTRAINT "practice_pack_user_answer_selected_answer_id_question_answer_option_id_fk"';
+	SELECT constraint_name
+	INTO constraint_to_drop
+	FROM information_schema.table_constraints
+	WHERE table_schema = 'public'
+		AND table_name = 'practice_pack_user_answer'
+		AND constraint_name IN (
+			'practice_pack_user_answer_selected_answer_id_question_answer_option_id_fk',
+			'practice_pack_user_answer_selected_answer_id_question_answer_op'
+		)
+	LIMIT 1;
+
+	IF constraint_to_drop IS NOT NULL THEN
+		EXECUTE format(
+			'ALTER TABLE "practice_pack_user_answer" DROP CONSTRAINT %I',
+			constraint_to_drop
+		);
 	END IF;
 END $$;
 --> statement-breakpoint

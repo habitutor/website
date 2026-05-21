@@ -1,0 +1,5 @@
+﻿No config path provided, using default 'drizzle.config.ts'
+Reading config file 'D:\Projek\Habitutor\website\packages\db\drizzle.config.ts'
+Γùç injecting env (17) from ..\..\apps\server\.env // tip: Γîÿ enable debugging { debug: true }
+Using 'pg' driver for database querying
+[Γú╖] applying migrations...[2K[1G[Γú»] applying migrations...[2K[1G[Γúƒ] applying migrations...[2K[1G[Γí┐] applying migrations...[2K[1G[Γí┐] applying migrations...
