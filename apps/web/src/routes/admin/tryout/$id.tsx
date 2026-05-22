@@ -7,6 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -270,15 +281,48 @@ function TryoutDetailPage() {
 
 // --- Subtest Card with Soal Management ---
 function SubtestCard({ subtest }: { subtest: unknown }) {
+  const { id: tryoutId } = Route.useParams();
   const [showSoal, setShowSoal] = useState(false);
   const [detailSoalId, setDetailSoalId] = useState<string | null>(null);
   const [editSoalId, setEditSoalId] = useState<string | null>(null);
   const typedSubtest = subtest as SubtestType;
 
+  const deleteSubtestMutation = useMutation(
+    orpc.admin.tryout.delete.subtes.mutationOptions({
+      onSuccess: () => {
+        toast.success("Subtest berhasil dihapus");
+        queryClient.invalidateQueries({
+          queryKey: orpc.admin.tryout.list.subtes.queryKey({ input: { tryoutId } }),
+        });
+      },
+      onError: (err) => {
+        toast.error("Gagal menghapus subtest", {
+          description: err.message,
+        });
+      },
+    }),
+  );
+
   const { data: soalList = [], isPending: isSoalPending } = useQuery({
     ...orpc.admin.tryout.list.soal.queryOptions({ input: { subtesId: typedSubtest.id } }),
     enabled: showSoal,
   });
+
+  const deleteSoalMutation = useMutation(
+    orpc.admin.tryout.delete.soal.mutationOptions({
+      onSuccess: () => {
+        toast.success("Soal berhasil dihapus");
+        queryClient.invalidateQueries({
+          queryKey: orpc.admin.tryout.list.soal.queryKey({ input: { subtesId: typedSubtest.id } }),
+        });
+      },
+      onError: (err) => {
+        toast.error("Gagal menghapus soal", {
+          description: err.message,
+        });
+      },
+    }),
+  );
 
   return (
     <Card>
@@ -293,9 +337,35 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
           <Button variant="outline" size="sm" onClick={() => setShowSoal(!showSoal)}>
             {showSoal ? "Sembunyikan Soal" : "Kelola Soal"}
           </Button>
-          <Button variant="ghost" size="sm" className="text-red-600">
-            <TrashIcon />
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600"
+                disabled={deleteSubtestMutation.isPending}
+              >
+                <TrashIcon />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hapus Subtest?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Apakah Anda yakin ingin menghapus subtest ini beserta semua soal di dalamnya? Tindakan ini tidak dapat dibatalkan.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white"
+                  onClick={() => deleteSubtestMutation.mutate({ subtesId: typedSubtest.id })}
+                >
+                  Ya, hapus
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardHeader>
 
@@ -354,9 +424,35 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                         >
                           <PencilIcon className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600">
-                          <TrashIcon className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={deleteSoalMutation.isPending}
+                              className="h-8 w-8 p-0 text-red-600"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Soal?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Apakah Anda yakin ingin menghapus soal ini? Tindakan ini tidak dapat dibatalkan.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white"
+                                onClick={() => deleteSoalMutation.mutate({ soalId: soal.id })}
+                              >
+                                Ya, hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
