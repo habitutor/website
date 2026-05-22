@@ -49,9 +49,11 @@ function FeedbackForm({
     <div className={className}>
       <div className="flex flex-col gap-4 py-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Kategori Masalah</label>
+          <label htmlFor="feedback-category" className="text-sm font-medium">
+            Kategori Masalah
+          </label>
           <Select value={category} onValueChange={(val) => setCategory(val as FeedbackCategory)}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="feedback-category" className="w-full">
               <SelectValue placeholder="Pilih kategori" />
             </SelectTrigger>
             <SelectContent>

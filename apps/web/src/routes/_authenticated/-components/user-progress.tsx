@@ -55,7 +55,7 @@ const Tryout = () => {
   return (
     <div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
       <div className="z-10 space-y-0.5">
-        <h2 className="text-2xl font-bold">Kerjakan Tryout</h2>
+        <h2 className="text-2xl font-semibold">Kerjakan Tryout</h2>
       </div>
 
       <Button asChild size="icon" variant="default" className="z-10 bg-fourtiary-400">
@@ -99,11 +99,11 @@ const Flashcard = () => {
           </div>
           <div className="space-y-2">
             <div className="z-10 space-y-0.5">
-              <h4 className={"text-4xl font-bold"}>{totalScore.toLocaleString("id-ID")}</h4>
+              <h4 className={"text-4xl font-semibold"}>{totalScore.toLocaleString("id-ID")}</h4>
               <p className="font-bold">Skor saat ini</p>
             </div>
             <div className="z-10 space-y-0.5">
-              <h4 className={"text-4xl font-bold"}>{session.user.flashcardStreak}</h4>
+              <h4 className={"text-4xl font-semibold"}>{session.user.flashcardStreak}</h4>
               <p className="font-bold">Streak Brain Gym</p>
             </div>
           </div>
@@ -111,11 +111,11 @@ const Flashcard = () => {
       ) : (
         <div className="space-y-2">
           <div className="z-10 space-y-0.5">
-            <h4 className={"text-4xl font-bold"}>{totalScore.toLocaleString("id-ID")}</h4>
+            <h4 className={"text-4xl font-semibold"}>{totalScore.toLocaleString("id-ID")}</h4>
             <p className="font-bold">Skor saat ini</p>
           </div>
           <div className="z-10 space-y-0.5">
-            <h4 className={"text-4xl font-bold"}>{session.user.flashcardStreak}</h4>
+            <h4 className={"text-4xl font-semibold"}>{session.user.flashcardStreak}</h4>
             <p className="font-bold">Streak Brain Gym</p>
           </div>
         </div>

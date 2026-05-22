@@ -49,7 +49,7 @@ function FeedbackDetailPage() {
             <SheetHeader>
               <SheetTitle>Manage Feedback</SheetTitle>
             </SheetHeader>
-            <div className="overflow-y-auto px-4 py-4 pb-8">
+            <div className="overflow-y-auto p-4 pb-8">
               <SidebarContent feedbackId={feedbackId} />
             </div>
           </SheetContent>
@@ -69,8 +69,8 @@ function FeedbackDetailPage() {
               {isPending ? (
                 <Skeleton className="h-4 w-48" />
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  {new Date(feedback!.createdAt).toLocaleDateString(undefined, {
+                <p className="text-sm text-muted-foreground" suppressHydrationWarning>
+                  {new Date(feedback!.createdAt).toLocaleDateString("id-ID", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -115,7 +115,7 @@ function FeedbackDetailPage() {
                 <>
                   <Separator />
                   <div>
-                    <h3 className="mb-2 text-sm font-bold text-muted-foreground">Page</h3>
+                    <h3 className="mb-2 text-sm font-semibold text-muted-foreground">Page</h3>
                     <code className="rounded bg-muted px-2 py-1 text-xs">{feedback!.path}</code>
                   </div>
                 </>

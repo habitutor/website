@@ -124,15 +124,16 @@ export function ReferralsAdminPage({
   );
 }
 
+const rupiahFormat = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  maximumFractionDigits: 0,
+});
+
 function formatCurrency(amount: string | null) {
   const value = Number(amount ?? "0");
   if (!Number.isFinite(value)) return "Rp0";
-
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return rupiahFormat.format(value);
 }
 
 function ReferralsTable({ rows }: { rows: ReferralTransactionRow[] }) {
@@ -170,7 +171,9 @@ function ReferralsTable({ rows }: { rows: ReferralTransactionRow[] }) {
             <TableCell>{formatCurrency(row.transactionGrossAmount)}</TableCell>
             <TableCell>{formatCurrency(row.cashbackAmount)}</TableCell>
             <TableCell className="capitalize">{row.transactionStatus}</TableCell>
-            <TableCell>{row.paidAt ? format(new Date(row.paidAt), "dd MMM yyyy HH:mm") : "-"}</TableCell>
+            <TableCell suppressHydrationWarning>
+              {row.paidAt ? format(new Date(row.paidAt), "dd MMM yyyy HH:mm") : "-"}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

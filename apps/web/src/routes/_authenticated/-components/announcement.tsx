@@ -48,13 +48,13 @@ export const Announcement = () => {
       <DashboardCardTitle>Tips SNBT khusus untukmu</DashboardCardTitle>
       <div className="flex w-full flex-col gap-4 md:flex-row md:gap-6">
         <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-secondary-700 bg-secondary-400 p-4 pb-6 md:w-[55%]">
-          <h3 className="relative z-10 w-full font-bold md:text-[22px]">{primaryAnnouncement.title}</h3>
+          <h3 className="relative z-10 w-full font-semibold md:text-[22px]">{primaryAnnouncement.title}</h3>
           <p className="relative z-10 w-full text-[10px] md:w-[70%] md:text-sm">{primaryAnnouncement.description}</p>
-          <div className="absolute -right-10 -bottom-20 h-42 w-42 rounded-full border border-secondary-700 bg-secondary-600 md:right-0" />
+          <div className="absolute -right-10 -bottom-20 size-42 rounded-full border border-secondary-700 bg-secondary-600 md:right-0" />
           <div className="absolute right-2 bottom-23 h-8 w-8 rounded-full border border-secondary-700 bg-secondary-600 md:right-4 md:bottom-22 md:h-11 md:w-11" />
         </div>
         <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-red-200 bg-red-100 p-4 md:w-[45%]">
-          <h3 className="relative z-10 font-bold md:text-[22px]">{cashbackAnnouncement.title}</h3>
+          <h3 className="relative z-10 font-semibold md:text-[22px]">{cashbackAnnouncement.title}</h3>
           <p className="relative z-10 w-[50%] text-[10px] md:text-sm">{cashbackAnnouncement.description}</p>
           <img
             src="/avatar/announcement-avatar.webp"

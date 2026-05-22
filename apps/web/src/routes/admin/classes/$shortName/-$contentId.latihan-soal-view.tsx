@@ -109,7 +109,7 @@ export function PracticeQuestionLinkingView({
     <AdminContainer>
       <AdminHeader title="Edit Practice Questions" description="Link practice questions to this content" />
       <div className="mt-6 space-y-6">
-        <div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
+        <div className="flex flex-col items-start justify-between gap-1 sm:flex-row sm:items-center">
           <h2 className="text-lg font-semibold">Edit Latihan Soal</h2>
 
           <div className="flex gap-4">
@@ -222,9 +222,7 @@ export function PracticeQuestionLinkingView({
                     />
                   </div>
                   <div className="max-h-60 overflow-y-auto p-1">
-                    {practicePacksPending && (
-                      <p className="py-6 text-center text-sm text-muted-foreground">Memuat...</p>
-                    )}
+                    {practicePacksPending && <p className="py-6 text-center text-sm text-muted-foreground">Memuat…</p>}
                     {practicePacks.length === 0 && (
                       <p className="py-6 text-center text-sm text-muted-foreground">Tidak ada hasil</p>
                     )}
@@ -297,7 +295,7 @@ export function PracticeQuestionLinkingView({
               </div>
             )}
 
-            {packQuestionsPending && <p className="text-sm text-muted-foreground">Memuat soal...</p>}
+            {packQuestionsPending && <p className="text-sm text-muted-foreground">Memuat soal…</p>}
           </div>
         </div>
       </div>

@@ -168,14 +168,35 @@ function QuestionsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
           {isPending
-            ? Array.from({ length: 12 }, (_, i) => (
+            ? Array.from({ length: 12 }).map((_, i) => (
                 // biome-ignore lint: skeleton items don't need stable keys
-                <Skeleton key={i} className="h-52 rounded-lg" />
+                <Card key={i} className="relative flex flex-col overflow-hidden py-0">
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-4 flex-1 space-y-3">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-11/12" />
+                        <Skeleton className="h-4 w-3/4" />
+                      </div>
+                      <div className="pt-2">
+                        <Skeleton className="h-3 w-28" />
+                      </div>
+                      <Skeleton className="h-3 w-4/5" />
+                    </div>
+                    <div className="mt-auto flex items-center gap-4">
+                      <Skeleton className="h-5 w-20 rounded-full" />
+                      <Skeleton className="h-5 w-24 rounded-full" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <Skeleton className="size-8 rounded-md" />
+                  </div>
+                </Card>
               ))
             : questions.map((question) => <QuestionCard key={question.id} question={question} />)}
         </div>
       )}
-
       {(hasPrevious || hasMore) && (
         <div className="mt-6 flex items-center justify-center gap-4 sm:mt-8">
           <Button
@@ -187,7 +208,6 @@ function QuestionsPage() {
           >
             Previous
           </Button>
-
           <Button
             variant="outline"
             size="sm"
@@ -243,14 +263,13 @@ function QuestionCard({
           queryKey: orpc.admin.question.list.queryKey({ input: {} }),
         });
       },
-      onError: (error) => {
+      onError: () => {
         toast.error("Failed to update flashcard status", {
           description: String(error),
         });
       },
     }),
   );
-
   const handleDelete = () => {
     deleteMutation.mutate({ id: question.id });
   };
@@ -265,11 +284,7 @@ function QuestionCard({
           isUnused && "border-dashed bg-muted/30",
         )}
       >
-        <Link
-          to="/admin/questions/$id"
-          params={{ id: question.id.toString() }}
-          className="flex flex-1 flex-col px-6 py-6"
-        >
+        <Link to="/admin/questions/$id" params={{ id: question.id.toString() }} className="flex flex-1 flex-col p-6">
           <div className="mb-4 flex-1 space-y-3">
             <div className="prose prose-sm line-clamp-3 max-w-none text-foreground">
               <TiptapRenderer content={question.content} />
@@ -394,7 +409,7 @@ function QuestionCard({
               disabled={deleteMutation.isPending}
               className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending ? "Deleting…" : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -49,7 +49,7 @@ export const LiveClass = () => {
     return (
       <DashboardCard>
         <DashboardCardTitle className="mb-0">Live Class bersama Mentor</DashboardCardTitle>
-        <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
+        <div className="flex flex-col items-center justify-center gap-6 py-8 text-center">
           <img src="/avatar/pencil-blue-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
           <p className="text-2xl font-bold text-black">Tunggu ya, Mentor terbaikmu akan segera hadir!</p>
         </div>

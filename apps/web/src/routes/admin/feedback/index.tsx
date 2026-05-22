@@ -184,8 +184,8 @@ function FeedbackTable({
             <TableCell>
               <StatusBadge status={fb.status} />
             </TableCell>
-            <TableCell className="text-xs text-muted-foreground">
-              {new Date(fb.createdAt).toLocaleDateString()}
+            <TableCell className="text-xs text-muted-foreground" suppressHydrationWarning>
+              {new Date(fb.createdAt).toLocaleDateString("id-ID")}
             </TableCell>
           </TableRow>
         ))}
@@ -194,7 +194,7 @@ function FeedbackTable({
   );
 }
 
-export function CategoryBadge({ category }: { category: string }) {
+function CategoryBadge({ category }: { category: string }) {
   const config: Record<string, { label: string; className: string }> = {
     error: {
       label: "Error",
@@ -219,7 +219,7 @@ export function CategoryBadge({ category }: { category: string }) {
   );
 }
 
-export function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; className: string }> = {
     open: {
       label: "Open",
@@ -248,8 +248,8 @@ export function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export function PriorityBadge({ priority }: { priority: string | null }) {
-  if (!priority) return <span className="text-xs text-muted-foreground">—</span>;
+function PriorityBadge({ priority }: { priority: string | null }) {
+  if (!priority) return <span className="text-xs text-muted-foreground">-</span>;
 
   const config: Record<string, { label: string; className: string }> = {
     p0: {

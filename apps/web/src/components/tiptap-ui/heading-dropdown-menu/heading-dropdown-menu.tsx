@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 // --- Icons ---
 import { ChevronDownIcon } from "@/components/tiptap-icons/actions/chevron-down-icon";
@@ -40,78 +40,74 @@ export function canToggleHeadingDropdown(props: { hasEditor: boolean; canToggle:
  *
  * For custom dropdown implementations, use the `useHeadingDropdownMenu` hook instead.
  */
-export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdownMenuProps>(
-  (
-    {
-      editor: providedEditor,
-      levels = [1, 2, 3, 4, 5, 6],
-      hideWhenUnavailable = false,
-      portal = false,
-      onOpenChange,
-      ...buttonProps
+export const HeadingDropdownMenu = ({
+  ref,
+  editor: providedEditor,
+  levels = [1, 2, 3, 4, 5, 6],
+  hideWhenUnavailable = false,
+  portal = false,
+  onOpenChange,
+  ...buttonProps
+}: HeadingDropdownMenuProps) => {
+  const { editor } = useTiptapEditor(providedEditor);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { isVisible, isActive, canToggle, Icon } = useHeadingDropdownMenu({
+    editor,
+    levels,
+    hideWhenUnavailable,
+  });
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!canToggleHeadingDropdown({ hasEditor: Boolean(editor), canToggle })) return;
+      setIsOpen(open);
+      onOpenChange?.(open);
     },
-    ref,
-  ) => {
-    const { editor } = useTiptapEditor(providedEditor);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const { isVisible, isActive, canToggle, Icon } = useHeadingDropdownMenu({
-      editor,
-      levels,
-      hideWhenUnavailable,
-    });
+    [canToggle, editor, onOpenChange],
+  );
 
-    const handleOpenChange = useCallback(
-      (open: boolean) => {
-        if (!canToggleHeadingDropdown({ hasEditor: Boolean(editor), canToggle })) return;
-        setIsOpen(open);
-        onOpenChange?.(open);
-      },
-      [canToggle, editor, onOpenChange],
-    );
+  if (!isVisible) {
+    return null;
+  }
 
-    if (!isVisible) {
-      return null;
-    }
+  return (
+    <DropdownMenu modal open={isOpen} onOpenChange={handleOpenChange}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          data-style="ghost"
+          data-active-state={isActive ? "on" : "off"}
+          role="button"
+          tabIndex={-1}
+          disabled={!canToggle}
+          data-disabled={!canToggle}
+          aria-label="Format text as heading"
+          aria-pressed={isActive}
+          tooltip="Heading"
+          {...buttonProps}
+          ref={ref}
+        >
+          <Icon className="tiptap-button-icon" />
+          <ChevronDownIcon className="tiptap-button-dropdown-small" />
+        </Button>
+      </DropdownMenuTrigger>
 
-    return (
-      <DropdownMenu modal open={isOpen} onOpenChange={handleOpenChange}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            data-style="ghost"
-            data-active-state={isActive ? "on" : "off"}
-            role="button"
-            tabIndex={-1}
-            disabled={!canToggle}
-            data-disabled={!canToggle}
-            aria-label="Format text as heading"
-            aria-pressed={isActive}
-            tooltip="Heading"
-            {...buttonProps}
-            ref={ref}
-          >
-            <Icon className="tiptap-button-icon" />
-            <ChevronDownIcon className="tiptap-button-dropdown-small" />
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="start" portal={portal}>
-          <Card>
-            <CardBody>
-              <ButtonGroup>
-                {levels.map((level) => (
-                  <DropdownMenuItem key={`heading-${level}`} asChild>
-                    <HeadingButton editor={editor} level={level} text={`Heading ${level}`} showTooltip={false} />
-                  </DropdownMenuItem>
-                ))}
-              </ButtonGroup>
-            </CardBody>
-          </Card>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  },
-);
+      <DropdownMenuContent align="start" portal={portal}>
+        <Card>
+          <CardBody>
+            <ButtonGroup>
+              {levels.map((level) => (
+                <DropdownMenuItem key={`heading-${level}`} asChild>
+                  <HeadingButton editor={editor} level={level} text={`Heading ${level}`} showTooltip={false} />
+                </DropdownMenuItem>
+              ))}
+            </ButtonGroup>
+          </CardBody>
+        </Card>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 HeadingDropdownMenu.displayName = "HeadingDropdownMenu";
 

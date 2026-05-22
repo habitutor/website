@@ -103,7 +103,7 @@ function RouteComponent() {
                   <XIcon weight="bold" size={20} />
                 </button>
                 <div className="z-10">
-                  <h5 className="font-bold md:text-2xl">Pindahkan ke Layar Utamamu!</h5>
+                  <h5 className="font-semibold md:text-2xl">Pindahkan ke Layar Utamamu!</h5>
                   <p className="text-[10px] md:text-base">Gunakan di Mobile. Akses kapanpun</p>
                 </div>
                 <Button

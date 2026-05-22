@@ -25,7 +25,7 @@ export const LastClasses = () => {
     return (
       <DashboardCard>
         <DashboardCardTitle className="mb-0">Kelas terakhirmu</DashboardCardTitle>
-        <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
+        <div className="flex flex-col items-center justify-center gap-6 py-8 text-center">
           <img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
           <p className="text-2xl font-bold text-black">Kamu belum melihat kelas apapun</p>
           <Button asChild>

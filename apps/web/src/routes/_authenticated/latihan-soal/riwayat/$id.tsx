@@ -34,7 +34,7 @@ function RouteComponent() {
   if (history.isPending) {
     return (
       <Container className="pt-20">
-        <p className="animate-pulse">Memuat detail...</p>
+        <p className="animate-pulse">Memuat detail…</p>
       </Container>
     );
   }

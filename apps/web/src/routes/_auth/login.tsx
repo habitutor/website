@@ -122,7 +122,6 @@ function SignInForm() {
                     id={field.name}
                     name={field.name}
                     type="email"
-                    autoFocus
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}

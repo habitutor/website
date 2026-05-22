@@ -3,7 +3,7 @@ import { CheckIcon, FlagIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import * as m from "motion/react-m";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { refreshAuthSession } from "@/lib/auth-session";
@@ -43,25 +43,28 @@ export const FlashcardCard = () => {
 
   const [timeoutDialogOpen, setTimeoutDialogOpen] = useState(false);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
-  const [hasStartedCountdown, setHasStartedCountdown] = useState(false);
+  const hasStartedCountdown = useRef(false);
   const [, hours, minutes, seconds] = useCountdown((data?.status !== "not_started" && data?.deadline) || 0);
   const [disableInteraction, setDisableInteraction] = useState(false);
   const [selectedAnswerId, setSelectedAnswerId] = useState<number | null>(null);
   const [hasChecked, setHasChecked] = useState(false);
+  // Set ref during render when countdown is actively running — avoids effect chain
+  if (data?.status !== "not_started" && data?.deadline && (hours !== "00" || minutes !== "00" || seconds !== "00")) {
+    hasStartedCountdown.current = true;
+  }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies
   useEffect(() => {
-    if (data?.status !== "not_started" && data?.deadline && (hours !== "00" || minutes !== "00" || seconds !== "00")) {
-      setHasStartedCountdown(true);
-    }
-  }, [data, hours, minutes, seconds]);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies
-  useEffect(() => {
-    if (hasStartedCountdown && data?.status === "ongoing" && hours === "00" && minutes === "00" && seconds === "00") {
+    if (
+      hasStartedCountdown.current &&
+      data?.status === "ongoing" &&
+      hours === "00" &&
+      minutes === "00" &&
+      seconds === "00"
+    ) {
       setTimeoutDialogOpen(true);
     }
-  }, [hasStartedCountdown, data, hours, minutes, seconds]);
+  }, [data, hours, minutes, seconds]);
 
   if (!data || data.status === "not_started") return null;
 
@@ -94,13 +97,13 @@ export const FlashcardCard = () => {
       });
 
       setHasChecked(true);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       if (isLastQuestion) {
         await handleSubmit();
         return;
       }
 
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       saveAnswerMutation.reset();
       setHasChecked(false);
       setSelectedAnswerId(null);
@@ -137,7 +140,7 @@ export const FlashcardCard = () => {
             <button
               type="button"
               onClick={() => setFeedbackDialogOpen(true)}
-              className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-orange-50 hover:text-orange-600"
+              className="rounded-lg p-2 text-orange-500 transition-colors hover:bg-orange-50 hover:text-orange-600"
               aria-label="Laporkan masalah"
             >
               <FlagIcon size={20} weight="bold" />

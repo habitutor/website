@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
@@ -34,12 +34,13 @@ function RouteComponent() {
   const currentTier = isPremium ? (sessionUser?.premiumTier ?? "premium") : null;
 
   useMidtransScript();
+  const handleCompleted = useCallback(() => navigate({ to: "/premium" }), [navigate]);
   usePremiumPaymentEffect({
     paymentToken,
     paymentRedirectUrl,
     paymentOrderId,
     invalidateRouter: router.invalidate,
-    onCompleted: () => navigate({ to: "/premium" }),
+    onCompleted: handleCompleted,
   });
 
   const handleSubscribe = (variant: BundlingVariant) => {

@@ -42,7 +42,7 @@ export function SidebarContent({ feedbackId }: { feedbackId: number }) {
     <div className="space-y-6">
       {/* Status */}
       <div>
-        <label className="mb-2 block text-sm font-bold text-muted-foreground">Status</label>
+        <span className="mb-2 block text-sm font-bold text-muted-foreground">Status</span>
         {isPending ? (
           <Skeleton className="h-7 w-full" />
         ) : feedback ? (
@@ -72,7 +72,7 @@ export function SidebarContent({ feedbackId }: { feedbackId: number }) {
 
       {/* Priority */}
       <div>
-        <label className="mb-2 block text-sm font-bold text-muted-foreground">Priority</label>
+        <span className="mb-2 block text-sm font-bold text-muted-foreground">Priority</span>
         {isPending ? (
           <Skeleton className="h-7 w-full" />
         ) : feedback ? (
@@ -102,12 +102,15 @@ export function SidebarContent({ feedbackId }: { feedbackId: number }) {
 
       {/* Admin Notes */}
       <div>
-        <label className="mb-2 block text-sm font-bold text-muted-foreground">Admin Notes</label>
+        <label htmlFor="admin-notes" className="mb-2 block text-sm font-bold text-muted-foreground">
+          Admin Notes
+        </label>
         {isPending ? (
           <Skeleton className="h-20 w-full" />
         ) : feedback ? (
           <InputGroup className="bg-white">
             <InputGroupTextarea
+              id="admin-notes"
               placeholder="Add internal notes..."
               value={currentNotes}
               onChange={(e) => setAdminNotes(e.target.value)}
@@ -141,7 +144,7 @@ export function SidebarContent({ feedbackId }: { feedbackId: number }) {
 
       {/* Details */}
       <div>
-        <label className="mb-2 block text-sm font-bold text-muted-foreground">Details</label>
+        <span className="mb-2 block text-sm font-bold text-muted-foreground">Details</span>
         {isPending ? (
           <div className="space-y-2">
             <Skeleton className="h-4 w-full" />
@@ -160,8 +163,8 @@ export function SidebarContent({ feedbackId }: { feedbackId: number }) {
             </div>
             <div className="flex justify-between gap-2">
               <span className="text-muted-foreground">Created</span>
-              <span>
-                {new Date(feedback.createdAt).toLocaleDateString(undefined, {
+              <span suppressHydrationWarning>
+                {new Date(feedback.createdAt).toLocaleDateString("id-ID", {
                   dateStyle: "medium",
                 })}
               </span>
@@ -169,8 +172,8 @@ export function SidebarContent({ feedbackId }: { feedbackId: number }) {
             {feedback.resolvedAt && (
               <div className="flex justify-between gap-2">
                 <span className="text-muted-foreground">Resolved</span>
-                <span>
-                  {new Date(feedback.resolvedAt).toLocaleDateString(undefined, {
+                <span suppressHydrationWarning>
+                  {new Date(feedback.resolvedAt).toLocaleDateString("id-ID", {
                     dateStyle: "medium",
                   })}
                 </span>

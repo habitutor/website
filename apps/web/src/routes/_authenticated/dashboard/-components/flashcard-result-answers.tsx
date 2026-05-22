@@ -90,7 +90,7 @@ function StreakBanner() {
       className="relative flex shrink-0 items-center gap-3 overflow-hidden rounded-lg bg-fourtiary-300 px-6"
       style={{ minHeight: 48 }}
     >
-      <div className="pointer-events-none absolute top-1/2 -right-8 h-48 w-48 -translate-y-1/2 rounded-full bg-[#32DC82] opacity-40" />
+      <div className="pointer-events-none absolute top-1/2 -right-8 size-48 -translate-y-1/2 rounded-full bg-[#32DC82] opacity-40" />
       <span className="relative z-10 text-[22px] leading-none font-bold text-background">
         {session.user.flashcardStreak}
       </span>
@@ -114,7 +114,7 @@ export function ResultsSection() {
         <button
           type="button"
           onClick={() => setFeedbackDialogOpen(true)}
-          className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-orange-50 hover:text-orange-600"
+          className="rounded-lg p-2 text-orange-500 transition-colors hover:bg-orange-50 hover:text-orange-600"
           aria-label="Laporkan masalah"
         >
           <FlagIcon size={20} weight="bold" />
@@ -138,7 +138,7 @@ export function ResultsSection() {
           {isPending ? (
             <Skeleton className="h-72 w-full" />
           ) : (
-            data?.assignedQuestions.map((aq, i) => <AnswerItem key={i} assignedQuestion={aq} />)
+            data?.assignedQuestions.map((aq) => <AnswerItem key={aq.questionId} assignedQuestion={aq} />)
           )}
         </div>
       </div>

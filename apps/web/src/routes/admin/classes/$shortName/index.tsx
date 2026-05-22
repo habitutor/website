@@ -95,7 +95,7 @@ function RouteComponent() {
   if (subtests.isPending) {
     return (
       <AdminContainer>
-        <p className="animate-pulse text-sm">Memuat kelas...</p>
+        <p className="animate-pulse text-sm">Memuat kelas…</p>
       </AdminContainer>
     );
   }

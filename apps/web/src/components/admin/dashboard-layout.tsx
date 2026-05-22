@@ -77,7 +77,7 @@ export function AdminHeader({ title, description, children, backTo }: AdminHeade
             Kembali
           </Link>
         )}
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {children && <div className="flex items-center gap-2">{children}</div>}

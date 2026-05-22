@@ -26,7 +26,7 @@ export function LeaderboardSection() {
       <div className="rounded-t-xl px-4 pt-6">
         <LeaderboardPodium top3={top3} />
       </div>
-      <div className="flex max-h-95 flex-col gap-2 overflow-y-auto rounded-b-xl border border-t-0 border-neutral-200 bg-white px-4 py-4">
+      <div className="flex max-h-95 flex-col gap-2 overflow-y-auto rounded-b-xl border border-t-0 border-neutral-200 bg-white p-4">
         {rest.map((entry, index) => (
           <LeaderboardRow key={entry.rank} entry={entry} index={index} />
         ))}
@@ -96,9 +96,11 @@ function PodiumItem({ player }: { player: LeaderboardEntry }) {
 }
 
 function LeaderboardPodium({ top3 }: { top3: LeaderboardEntry[] }) {
-  const ordered = PODIUM_ORDER.map((rank) => top3.find((player) => player.rank === rank)).filter(
-    (player): player is LeaderboardEntry => player !== undefined,
-  );
+  const ordered = PODIUM_ORDER.reduce<LeaderboardEntry[]>((acc, rank) => {
+    const player = top3.find((p) => p.rank === rank);
+    if (player) acc.push(player);
+    return acc;
+  }, []);
 
   return (
     <div className="flex w-full items-end justify-center gap-1">

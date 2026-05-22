@@ -113,7 +113,6 @@ export function SignUpForm() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(event) => field.handleChange(event.target.value)}
-                    autoFocus
                   />
                   {field.state.meta.errors.map((error) => (
                     <p key={error?.message} className="text-red-500">
@@ -217,8 +216,11 @@ export function SignUpForm() {
                     onBlur={field.handleBlur}
                     onChange={(event) => field.handleChange(event.target.value)}
                   />
-                  {field.state.meta.errors.map((error, index) => (
-                    <p key={`${field.name}-${index}`} className="text-xs text-red-500">
+                  {field.state.meta.errors.map((error, i) => (
+                    <p
+                      key={`${field.name}-${typeof error === "string" ? error : (error?.message ?? i)}`}
+                      className="text-xs text-red-500"
+                    >
                       {typeof error === "string" ? error : error?.message}
                     </p>
                   ))}

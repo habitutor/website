@@ -1,11 +1,11 @@
-import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Separator } from "@/components/tiptap-ui-primitive/separator/separator";
 import "@/components/tiptap-ui-primitive/toolbar/toolbar.scss";
 import { useComposedRef } from "@/hooks/react/use-composed-ref";
 import { useMenuNavigation } from "@/hooks/editor/use-menu-navigation";
 import { cn } from "@/lib/tiptap-utils";
 
-type BaseProps = React.HTMLAttributes<HTMLDivElement>;
+type BaseProps = React.ComponentProps<"div">;
 
 interface ToolbarProps extends BaseProps {
   variant?: "floating" | "fixed";
@@ -74,38 +74,34 @@ const useToolbarNavigation = (toolbarRef: React.RefObject<HTMLDivElement | null>
   }, [selectedIndex, items]);
 };
 
-export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
-  ({ children, className, variant = "fixed", ...props }, ref) => {
-    const toolbarRef = useRef<HTMLDivElement>(null);
-    const composedRef = useComposedRef(toolbarRef, ref);
-    useToolbarNavigation(toolbarRef);
+export const Toolbar = ({ ref, children, className, variant = "fixed", ...props }: ToolbarProps) => {
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const composedRef = useComposedRef(toolbarRef, ref);
+  useToolbarNavigation(toolbarRef);
 
-    return (
-      <div
-        ref={composedRef}
-        role="toolbar"
-        aria-label="toolbar"
-        data-variant={variant}
-        className={cn("tiptap-toolbar", className)}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  },
-);
+  return (
+    <div
+      ref={composedRef}
+      role="toolbar"
+      aria-label="toolbar"
+      data-variant={variant}
+      className={cn("tiptap-toolbar", className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
 Toolbar.displayName = "Toolbar";
 
-export const ToolbarGroup = forwardRef<HTMLFieldSetElement, React.ComponentProps<"fieldset">>(
-  ({ children, className, ...props }, ref) => (
-    <fieldset ref={ref} className={cn("tiptap-toolbar-group", className)} {...props}>
-      {children}
-    </fieldset>
-  ),
+export const ToolbarGroup = ({ ref, children, className, ...props }: React.ComponentProps<"fieldset">) => (
+  <fieldset ref={ref} className={cn("tiptap-toolbar-group", className)} {...props}>
+    {children}
+  </fieldset>
 );
 ToolbarGroup.displayName = "ToolbarGroup";
 
-export const ToolbarSeparator = forwardRef<HTMLDivElement, BaseProps>(({ ...props }, ref) => (
+export const ToolbarSeparator = ({ ref, ...props }: BaseProps) => (
   <Separator ref={ref} orientation="vertical" decorative {...props} />
-));
+);
 ToolbarSeparator.displayName = "ToolbarSeparator";

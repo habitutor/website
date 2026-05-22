@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from "react";
+import { useCallback } from "react";
 // --- Tiptap UI ---
 import type { TextAlign, UseTextAlignConfig } from "./use-text-align";
 import { TEXT_ALIGN_SHORTCUT_KEYS, useTextAlign } from "./use-text-align";
@@ -45,71 +45,67 @@ export function TextAlignShortcutBadge({
  *
  * For custom button implementations, use the `useTextAlign` hook instead.
  */
-export const TextAlignButton = forwardRef<HTMLButtonElement, TextAlignButtonProps>(
-  (
-    {
-      editor: providedEditor,
-      align,
-      text,
-      hideWhenUnavailable = false,
-      onAligned,
-      showShortcut = false,
-      onClick,
-      icon: CustomIcon,
-      children,
-      ...buttonProps
+export const TextAlignButton = ({
+  ref,
+  editor: providedEditor,
+  align,
+  text,
+  hideWhenUnavailable = false,
+  onAligned,
+  showShortcut = false,
+  onClick,
+  icon: CustomIcon,
+  children,
+  ...buttonProps
+}: TextAlignButtonProps) => {
+  const { editor } = useTiptapEditor(providedEditor);
+  const { isVisible, handleTextAlign, label, canAlign, isActive, Icon, shortcutKeys } = useTextAlign({
+    editor,
+    align,
+    hideWhenUnavailable,
+    onAligned,
+  });
+
+  const handleTextAlignClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(event);
+      if (event.defaultPrevented) return;
+      handleTextAlign();
     },
-    ref,
-  ) => {
-    const { editor } = useTiptapEditor(providedEditor);
-    const { isVisible, handleTextAlign, label, canAlign, isActive, Icon, shortcutKeys } = useTextAlign({
-      editor,
-      align,
-      hideWhenUnavailable,
-      onAligned,
-    });
+    [handleTextAlign, onClick],
+  );
 
-    const handleClick = useCallback(
-      (event: React.MouseEvent<HTMLButtonElement>) => {
-        onClick?.(event);
-        if (event.defaultPrevented) return;
-        handleTextAlign();
-      },
-      [handleTextAlign, onClick],
-    );
+  if (!isVisible) {
+    return null;
+  }
 
-    if (!isVisible) {
-      return null;
-    }
+  const RenderIcon = CustomIcon ?? Icon;
 
-    const RenderIcon = CustomIcon ?? Icon;
-
-    return (
-      <Button
-        type="button"
-        disabled={!canAlign}
-        data-style="ghost"
-        data-active-state={isActive ? "on" : "off"}
-        data-disabled={!canAlign}
-        role="button"
-        tabIndex={-1}
-        aria-label={label}
-        aria-pressed={isActive}
-        tooltip={label}
-        onClick={handleClick}
-        {...buttonProps}
-        ref={ref}
-      >
-        {children ?? (
-          <>
-            <RenderIcon className="tiptap-button-icon" />
-            {text && <span className="tiptap-button-text">{text}</span>}
-            {showShortcut && <TextAlignShortcutBadge align={align} shortcutKeys={shortcutKeys} />}
-          </>
-        )}
-      </Button>
-    );
-  },
-);
+  return (
+    <Button
+      type="button"
+      disabled={!canAlign}
+      data-style="ghost"
+      data-active-state={isActive ? "on" : "off"}
+      data-disabled={!canAlign}
+      role="button"
+      tabIndex={-1}
+      aria-label={label}
+      aria-pressed={isActive}
+      tooltip={label}
+      onClick={handleTextAlignClick}
+      {...buttonProps}
+      ref={ref}
+    >
+      {children ?? (
+        <>
+          <RenderIcon className="tiptap-button-icon" />
+          {text && <span className="tiptap-button-text">{text}</span>}
+          {showShortcut && <TextAlignShortcutBadge align={align} shortcutKeys={shortcutKeys} />}
+        </>
+      )}
+    </Button>
+  );
+};
 
 TextAlignButton.displayName = "TextAlignButton";

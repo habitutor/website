@@ -2,8 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { ArrowLeftIcon, CheckIcon, CopyIcon, SpinnerIcon } from "@phosphor-icons/react";
-import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { domAnimation, LazyMotion } from "motion/react";
+import * as m from "motion/react-m";
+import { useEffect, useReducer, useState } from "react";
 import { toast } from "sonner";
 import { MotionPulse } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,61 @@ const AVATAR = [
   },
 ];
 
+type ProfileState = {
+  formData: { email: string; phone: string; name: string };
+  customize: { kampus: string; jurusan: string };
+  selectedAvatar: number;
+};
+
+type ProfileAction =
+  | {
+      type: "SYNC_PROFILE";
+      profile: {
+        name: string;
+        phoneNumber?: string | null;
+        email?: string | null;
+        dreamCampus?: string | null;
+        dreamMajor?: string | null;
+        image?: string | null;
+      };
+    }
+  | { type: "SET_PHONE"; phone: string }
+  | { type: "SET_NAME"; name: string }
+  | { type: "SET_KAMPUS"; kampus: string }
+  | { type: "SET_JURUSAN"; jurusan: string }
+  | { type: "SET_AVATAR"; avatar: number };
+
+function profileReducer(state: ProfileState, action: ProfileAction): ProfileState {
+  switch (action.type) {
+    case "SYNC_PROFILE":
+      return {
+        formData: {
+          ...state.formData,
+          email: action.profile.email ?? state.formData.email,
+          name: action.profile.name,
+          phone: action.profile.phoneNumber ?? "",
+        },
+        customize: {
+          ...state.customize,
+          kampus: action.profile.dreamCampus ?? "",
+          jurusan: action.profile.dreamMajor ?? "",
+        },
+        selectedAvatar: getAvatarId(action.profile.image),
+      };
+    case "SET_PHONE":
+      return { ...state, formData: { ...state.formData, phone: action.phone } };
+    case "SET_NAME":
+      return { ...state, formData: { ...state.formData, name: action.name } };
+    case "SET_KAMPUS":
+      return { ...state, customize: { ...state.customize, kampus: action.kampus } };
+    case "SET_JURUSAN":
+      return { ...state, customize: { ...state.customize, jurusan: action.jurusan } };
+    case "SET_AVATAR":
+      return { ...state, selectedAvatar: action.avatar };
+    default:
+      return state;
+  }
+}
 function AvatarItem({
   avatar,
   selected,
@@ -124,13 +180,16 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const profile = session?.user;
   const [tab, setTab] = useState<"data" | "customize">("data");
-  const [formData, setFormData] = useState({
-    email: session?.user.email,
-    phone: "",
-    name: session?.user.name ?? "",
-  });
-  const [customize, setCustomize] = useState({ kampus: "", jurusan: "" });
-  const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarId(session?.user.image));
+  const [profileState, dispatch] = useReducer(profileReducer, null, () => ({
+    formData: {
+      email: session?.user.email ?? "",
+      phone: "",
+      name: session?.user.name ?? "",
+    },
+    customize: { kampus: "", jurusan: "" },
+    selectedAvatar: getAvatarId(session?.user.image),
+  }));
+  const { formData, customize, selectedAvatar } = profileState;
   const [copied, setCopied] = useState(false);
   const referralCode = profile?.referralCode ?? null;
   const displayReferralCode = referralCode ?? "Belum punya kode";
@@ -139,17 +198,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (profile) {
-      setFormData((prev) => ({
-        ...prev,
-        name: profile.name,
-        phone: profile.phoneNumber ?? "",
-      }));
-      setCustomize((prev) => ({
-        ...prev,
-        kampus: profile.dreamCampus ?? "",
-        jurusan: profile.dreamMajor ?? "",
-      }));
-      setSelectedAvatar(getAvatarId(profile.image));
+      dispatch({ type: "SYNC_PROFILE", profile });
     }
   }, [profile]);
 
@@ -221,8 +270,7 @@ export default function ProfilePage() {
       }
     };
 
-    const avatarResult = await saveAvatar();
-    const profileSaved = await saveProfileDetails();
+    const [avatarResult, profileSaved] = await Promise.all([saveAvatar(), saveProfileDetails()]);
 
     await queryClient.invalidateQueries({ queryKey: orpc.profile.me.key() });
 
@@ -240,230 +288,227 @@ export default function ProfilePage() {
   return (
     <main>
       {/* Background dan dekorasi */}
-      <div className="relative flex w-full items-start justify-center bg-background pt-20 md:overflow-y-hidden">
-        {/* Dekorasi bulatan */}
-        <MotionPulse>
-          <motion.div
-            className="pointer-events-none fixed top-101.5 left-5.5 z-0 hidden size-20 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-          />
-        </MotionPulse>
-        <MotionPulse>
-          <motion.div
-            className="pointer-events-none fixed top-135.5 right-0 z-0 hidden size-78.5 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.3 }}
-          />
-        </MotionPulse>
-        <MotionPulse>
-          <motion.div
-            className="pointer-events-none fixed top-109 -right-10.5 z-0 hidden size-32 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5, duration: 0.3 }}
-          />
-        </MotionPulse>
+      <LazyMotion features={domAnimation} strict>
+        <div className="relative flex w-full items-start justify-center bg-background pt-20 md:overflow-y-hidden">
+          {/* Dekorasi bulatan */}
+          <MotionPulse>
+            <m.div
+              className="pointer-events-none fixed top-101.5 left-5.5 z-0 hidden size-20 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.3 }}
+            />
+          </MotionPulse>
+          <MotionPulse>
+            <m.div
+              className="pointer-events-none fixed top-135.5 right-0 z-0 hidden size-78.5 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4, duration: 0.3 }}
+            />
+          </MotionPulse>
+          <MotionPulse>
+            <m.div
+              className="pointer-events-none fixed top-109 -right-10.5 z-0 hidden size-32 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5, duration: 0.3 }}
+            />
+          </MotionPulse>
 
-        {/* kartu */}
-        <main className="relative z-2 w-full animate-in items-center space-y-6 border-x border-neutral-300 bg-white py-10 shadow-sm fade-in slide-in-from-bottom-6 md:h-[calc(100vh-80px)]">
-          {/* Tombol kembali */}
-          <div className="hidden w-full px-12 md:block">
-            <Button className="h-8 rounded-md bg-primary-300 px-4 text-xs font-semibold text-white hover:bg-primary-400">
-              <ArrowLeftIcon className="size-4" />
-              Kembali
-            </Button>
-          </div>
-
-          {/* Hero banner */}
-          <div className="relative w-full shrink-0 px-12 max-md:px-4">
-            <div className="relative h-29.25 w-full overflow-visible rounded-[10px] border-2 border-tertiary-200 bg-tertiary-100 max-md:h-35">
-              {/* Bulatan biru dalam banner */}
-              <div className="pointer-events-none absolute top-0 right-0 h-full w-70 overflow-hidden rounded-tr-[10px] rounded-br-[10px] max-md:top-auto max-md:bottom-0 max-md:h-46.25 max-md:w-45.75">
-                <div className="absolute -top-11.75 -right-10.25 size-77.5 rounded-full border-2 border-tertiary-400 bg-tertiary-300 max-md:top-auto max-md:-right-13 max-md:-bottom-23 max-md:size-45.75" />
-              </div>
-
-              {/* Teks */}
-              <div className="p-4 md:px-6 md:py-5">
-                <h1 className="m-0 text-[28px] leading-[1.2] font-normal text-primary-300 md:text-[34px]">
-                  Halo, <span className="font-bold">{session?.user.name}!</span>
-                </h1>
-                <p className="m-0 w-2/3 text-[12px] text-primary-300 md:w-full">
-                  Lengkapi informasi profilmu di bawah ini
-                </p>
-              </div>
-
-              {/* Gambar tupai — key berubah tiap ganti avatar → re-mount → animasi ulang */}
-              <div
-                key={selectedAvatar}
-                className="pointer-events-none absolute right-6 bottom-0 z-30 h-51.25 w-55.5 animate-in fade-in slide-in-from-bottom-6 max-md:right-2 max-md:h-26.5 max-md:w-28.75"
-              >
-                <Image
-                  src={`/avatar/profile/tupai-${selectedAvatar}.webp`}
-                  alt="Maskot"
-                  layout="fullWidth"
-                  className="h-full w-full object-contain object-bottom"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Konten */}
-          <div className="relative flex w-full flex-1 flex-col gap-5 px-12 max-md:mt-6 max-md:gap-4 max-md:px-4">
-            {/* Tabs */}
-            <div className="flex shrink-0 gap-3">
-              <Button variant={tab === "data" ? "default" : "outline"} onClick={() => setTab("data")}>
-                Data Dirimu
-              </Button>
-              <Button variant={tab === "customize" ? "default" : "outline"} onClick={() => setTab("customize")}>
-                Customize
+          {/* kartu */}
+          <main className="relative z-2 w-full animate-in items-center space-y-6 border-x border-neutral-300 bg-white py-10 shadow-sm fade-in slide-in-from-bottom-6 md:h-[calc(100vh-80px)]">
+            {/* Tombol kembali */}
+            <div className="hidden w-full px-12 md:block">
+              <Button className="h-8 rounded-md bg-primary-300 px-4 text-xs font-semibold text-white hover:bg-primary-400">
+                <ArrowLeftIcon className="size-4" />
+                Kembali
               </Button>
             </div>
 
-            {/* TAB: Data Diri */}
-            {tab === "data" && (
-              <div className="flex flex-col items-start gap-6 md:flex-row">
-                {/* Kiri: form fields */}
-                <div className="flex w-[48%] flex-col gap-3 max-md:w-full">
-                  <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input type="email" value={formData.email} className="cursor-not-allowed bg-muted" disabled />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Nomor Telepon</Label>
-                    <Input
-                      type="tel"
-                      value={formData.phone}
-                      placeholder="Nomor Telepon"
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Nama</Label>
-                    <Input
-                      type="text"
-                      value={formData.name}
-                      placeholder="Nama"
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    />
-                  </div>
+            {/* Hero banner */}
+            <div className="relative w-full shrink-0 px-12 max-md:px-4">
+              <div className="relative h-29.25 w-full overflow-visible rounded-[10px] border-2 border-tertiary-200 bg-tertiary-100 max-md:h-35">
+                {/* Bulatan biru dalam banner */}
+                <div className="pointer-events-none absolute top-0 right-0 h-full w-70 overflow-hidden rounded-tr-[10px] rounded-br-[10px] max-md:top-auto max-md:bottom-0 max-md:h-46.25 max-md:w-45.75">
+                  <div className="absolute -top-11.75 -right-10.25 size-77.5 rounded-full border-2 border-tertiary-400 bg-tertiary-300 max-md:top-auto max-md:-right-13 max-md:-bottom-23 max-md:size-45.75" />
                 </div>
 
-                {/* Kanan: affiliate */}
-                <div className="flex flex-col gap-2 max-md:w-full">
-                  <div className="text-xs font-medium">
-                    Ajak Teman, Dapat <strong>Cashback 25%</strong>
-                  </div>
-                  <div className="flex h-23.5 items-stretch overflow-hidden rounded-lg border-2 border-secondary-600 bg-secondary-400">
-                    <div className="flex flex-1 flex-col justify-center gap-1 pl-4">
-                      <span className="text-[10px] font-medium">Kode Affiliatemu</span>
-                      <span className="text-[28px] leading-10.5 font-bold">{displayReferralCode}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleReferralButtonClick}
-                      disabled={generateReferralMutation.isPending}
-                      className="flex w-18 shrink-0 cursor-pointer items-center justify-center border-l-2 border-secondary-700 bg-secondary-600"
-                    >
-                      {generateReferralMutation.isPending ? (
-                        <SpinnerIcon className="size-5 animate-spin" />
-                      ) : hasReferralCode ? (
-                        copied ? (
-                          <CheckIcon className="size-5" />
-                        ) : (
-                          <CopyIcon className="size-5" />
-                        )
-                      ) : (
-                        <span className="text-xs font-semibold">Generate</span>
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex gap-3 max-md:flex-col">
-                    {/* Referral Terdaftar */}
-                    <div className="flex w-27.5 shrink-0 items-center justify-center gap-1.5 rounded-lg border-2 border-tertiary-100 bg-background px-3 py-3.5 max-md:w-full max-md:justify-start">
-                      <span className="text-[20px] font-bold">{referralCount}</span>
-                      <span className="text-[9px] font-medium whitespace-nowrap">
-                        Referral
-                        <br />
-                        Terdaftar
-                      </span>
-                    </div>
-                    {/* Terms and Conditions */}
-                    <div className="flex flex-1 flex-col gap-1 rounded-[10px] border border-background bg-white px-3.5 py-3">
-                      <span className="text-[10px] font-bold">Terms and Conditions</span>
-                      <ul className="m-0 list-disc pl-3.5 text-[10px] leading-3.75">
-                        <li>Cashback 25% berlaku untuk pembelian paket oleh teman (pengguna baru).</li>
-                        <li>Saldo akan masuk setelah transaksi teman terverifikasi.</li>
-                        <li>Habitutor berhak membatalkan reward jika ditemukan indikasi kecurangan.</li>
-                      </ul>
-                    </div>
-                  </div>
+                {/* Teks */}
+                <div className="p-4 md:px-6 md:py-5">
+                  <h1 className="m-0 text-[28px] leading-[1.2] font-normal text-primary-300 md:text-[34px]">
+                    Halo, <span className="font-bold">{session?.user.name}!</span>
+                  </h1>
+                  <p className="m-0 w-2/3 text-[12px] text-primary-300 md:w-full">
+                    Lengkapi informasi profilmu di bawah ini
+                  </p>
+                </div>
+
+                {/* Gambar tupai — key berubah tiap ganti avatar → re-mount → animasi ulang */}
+                <div
+                  key={selectedAvatar}
+                  className="pointer-events-none absolute right-6 bottom-0 z-30 h-51.25 w-55.5 animate-in fade-in slide-in-from-bottom-6 max-md:right-2 max-md:h-26.5 max-md:w-28.75"
+                >
+                  <Image
+                    src={`/avatar/profile/tupai-${selectedAvatar}.webp`}
+                    alt="Maskot"
+                    layout="fullWidth"
+                    className="h-full w-full object-contain object-bottom"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
+                  />
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* TAB: Customize */}
-            {tab === "customize" && (
-              <div className="flex w-full flex-col-reverse items-start gap-8 md:flex-row">
-                {/* Kiri: fields */}
-                <div className="flex w-full flex-1 shrink-0 flex-col gap-4">
-                  <div className="space-y-2">
-                    <Label>Pilih Kampus Impianmu</Label>
-                    <Input
-                      type="text"
-                      value={customize.kampus}
-                      placeholder="Kampus"
-                      onChange={(e) => setCustomize({ ...customize, kampus: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Pilih Jurusan Impianmu</Label>
-                    <Input
-                      type="text"
-                      value={customize.jurusan}
-                      placeholder="Jurusan"
-                      onChange={(e) =>
-                        setCustomize({
-                          ...customize,
-                          jurusan: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
+            {/* Konten */}
+            <div className="relative flex w-full flex-1 flex-col gap-5 px-12 max-md:mt-6 max-md:gap-4 max-md:px-4">
+              {/* Tabs */}
+              <div className="flex shrink-0 gap-3">
+                <Button variant={tab === "data" ? "default" : "outline"} onClick={() => setTab("data")}>
+                  Data Dirimu
+                </Button>
+                <Button variant={tab === "customize" ? "default" : "outline"} onClick={() => setTab("customize")}>
+                  Customize
+                </Button>
+              </div>
 
-                {/* Kanan: avatar grid — fixed width agar tetap square */}
-                <div className="flex w-full shrink-0 flex-col gap-2.5 overflow-hidden md:w-117.5">
-                  <h2 className="text-xs font-semibold">Pilih Avatarmu</h2>
-                  <div className="flex w-full flex-row gap-2.5 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:overflow-x-visible md:pb-0">
-                    {AVATAR.map((av) => (
-                      <AvatarItem
-                        key={av.id}
-                        avatar={av}
-                        selected={selectedAvatar === av.id}
-                        onSelect={setSelectedAvatar}
+              {/* TAB: Data Diri */}
+              {tab === "data" && (
+                <div className="flex flex-col items-start gap-6 md:flex-row">
+                  {/* Kiri: form fields */}
+                  <div className="flex w-[48%] flex-col gap-3 max-md:w-full">
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input type="email" value={formData.email} className="cursor-not-allowed bg-muted" disabled />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nomor Telepon</Label>
+                      <Input
+                        type="tel"
+                        value={formData.phone}
+                        placeholder="Nomor Telepon"
+                        onChange={(e) => dispatch({ type: "SET_PHONE", phone: e.target.value })}
                       />
-                    ))}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nama</Label>
+                      <Input
+                        type="text"
+                        value={formData.name}
+                        placeholder="Nama"
+                        onChange={(e) => dispatch({ type: "SET_NAME", name: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Kanan: affiliate */}
+                  <div className="flex flex-col gap-2 max-md:w-full">
+                    <div className="text-xs font-medium">
+                      Ajak Teman, Dapat <strong>Cashback 25%</strong>
+                    </div>
+                    <div className="flex h-23.5 items-stretch overflow-hidden rounded-lg border-2 border-secondary-600 bg-secondary-400">
+                      <div className="flex flex-1 flex-col justify-center gap-1 pl-4">
+                        <span className="text-[10px] font-medium">Kode Affiliatemu</span>
+                        <span className="text-[28px] leading-10.5 font-bold">{displayReferralCode}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleReferralButtonClick}
+                        disabled={generateReferralMutation.isPending}
+                        className="flex w-18 shrink-0 cursor-pointer items-center justify-center border-l-2 border-secondary-700 bg-secondary-600"
+                      >
+                        {generateReferralMutation.isPending ? (
+                          <SpinnerIcon className="size-5 animate-spin" />
+                        ) : hasReferralCode ? (
+                          copied ? (
+                            <CheckIcon className="size-5" />
+                          ) : (
+                            <CopyIcon className="size-5" />
+                          )
+                        ) : (
+                          <span className="text-xs font-semibold">Generate</span>
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex gap-3 max-md:flex-col">
+                      {/* Referral Terdaftar */}
+                      <div className="flex w-27.5 shrink-0 items-center justify-center gap-1.5 rounded-lg border-2 border-tertiary-100 bg-background px-3 py-3.5 max-md:w-full max-md:justify-start">
+                        <span className="text-[20px] font-bold">{referralCount}</span>
+                        <span className="text-[9px] font-medium whitespace-nowrap">
+                          Referral
+                          <br />
+                          Terdaftar
+                        </span>
+                      </div>
+                      {/* Terms and Conditions */}
+                      <div className="flex flex-1 flex-col gap-1 rounded-[10px] border border-background bg-white px-3.5 py-3">
+                        <span className="text-[10px] font-bold">Terms and Conditions</span>
+                        <ul className="m-0 list-disc pl-3.5 text-[10px] leading-3.75">
+                          <li>Cashback 25% berlaku untuk pembelian paket oleh teman (pengguna baru).</li>
+                          <li>Saldo akan masuk setelah transaksi teman terverifikasi.</li>
+                          <li>Habitutor berhak membatalkan reward jika ditemukan indikasi kecurangan.</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
 
-          {/* Save Changes */}
-          <div className="w-full self-stretch px-12 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:z-50 max-md:bg-white max-md:px-4 max-md:py-4 max-md:shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-            <SaveRow onSave={handleSave} />
-          </div>
-        </main>
-      </div>
+              {/* TAB: Customize */}
+              {tab === "customize" && (
+                <div className="flex w-full flex-col-reverse items-start gap-8 md:flex-row">
+                  {/* Kiri: fields */}
+                  <div className="flex w-full flex-1 shrink-0 flex-col gap-4">
+                    <div className="space-y-2">
+                      <Label>Pilih Kampus Impianmu</Label>
+                      <Input
+                        type="text"
+                        value={customize.kampus}
+                        placeholder="Kampus"
+                        onChange={(e) => dispatch({ type: "SET_KAMPUS", kampus: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Pilih Jurusan Impianmu</Label>
+                      <Input
+                        type="text"
+                        value={customize.jurusan}
+                        placeholder="Jurusan"
+                        onChange={(e) => dispatch({ type: "SET_JURUSAN", jurusan: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Kanan: avatar grid — fixed width agar tetap square */}
+                  <div className="flex w-full shrink-0 flex-col gap-2.5 overflow-hidden md:w-117.5">
+                    <h2 className="text-xs font-semibold">Pilih Avatarmu</h2>
+                    <div className="flex w-full flex-row gap-2.5 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:overflow-x-visible md:pb-0">
+                      {AVATAR.map((av) => (
+                        <AvatarItem
+                          key={av.id}
+                          avatar={av}
+                          selected={selectedAvatar === av.id}
+                          onSelect={(id) => dispatch({ type: "SET_AVATAR", avatar: id })}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Save Changes */}
+            <div className="w-full self-stretch px-12 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:z-50 max-md:bg-white max-md:px-4 max-md:py-4 max-md:shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+              <SaveRow onSave={handleSave} />
+            </div>
+          </main>
+        </div>
+      </LazyMotion>
     </main>
   );
 }

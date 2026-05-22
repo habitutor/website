@@ -36,7 +36,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
+  const [avatarSrc, setAvatarSrc] = useState(() => getAvatarSrc(session?.user.image));
 
   useEffect(() => {
     setAvatarSrc(getAvatarSrc(session?.user.image));

@@ -23,7 +23,7 @@ function RouteComponent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitialized = useRef(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const debouncedSearch = useDebounceValue(searchQuery, 300);
 
@@ -51,7 +51,7 @@ function RouteComponent() {
   );
 
   useEffect(() => {
-    if (content.data?.practiceQuestions && "questions" in content.data.practiceQuestions && !isInitialized) {
+    if (content.data?.practiceQuestions && "questions" in content.data.practiceQuestions && !isInitialized.current) {
       const existingQuestionIds = (
         content.data.practiceQuestions.questions as Array<{
           questionId: number;
@@ -60,9 +60,9 @@ function RouteComponent() {
       if (existingQuestionIds.length > 0) {
         setSelectedQuestionIds(existingQuestionIds);
       }
-      setIsInitialized(true);
+      isInitialized.current = true;
     }
-  }, [content.data, isInitialized]);
+  }, [content.data]);
 
   const saveMutation = useMutation(
     orpc.admin.subtest.content.question.link.mutationOptions({
@@ -142,7 +142,7 @@ function RouteComponent() {
   };
 
   if (content.isPending) {
-    return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
+    return <p className="animate-pulse text-sm">Memuat latihan soal…</p>;
   }
 
   if (content.isError) {

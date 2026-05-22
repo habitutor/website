@@ -18,9 +18,9 @@ function QuestionCard({ question, index }: { question: HistoryDetail["questions"
           <TiptapRenderer content={question.content} />
         </div>
         {question.userAnswerIsCorrect ? (
-          <CheckCircle className="h-6 w-6 text-green-600" />
+          <CheckCircle className="size-6 text-green-600" />
         ) : (
-          <XCircle className="h-6 w-6 text-red-600" />
+          <XCircle className="size-6 text-red-600" />
         )}
       </div>
       <div className="space-y-2">
@@ -54,7 +54,7 @@ function QuestionCard({ question, index }: { question: HistoryDetail["questions"
       {Boolean(question.discussion) && (
         <div className="mt-4 rounded-lg border bg-accent p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-            <Lightbulb className="h-4 w-4 text-amber-200" />
+            <Lightbulb className="size-4 text-amber-200" />
             Pembahasan
           </div>
           <div className="text-sm">
@@ -80,9 +80,9 @@ export function PracticeHistoryDetailView({ history }: { history: HistoryDetail 
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">{history.title}</h1>
+          <h1 className="text-2xl font-semibold">{history.title}</h1>
           {history.startedAt && history.completedAt && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground" suppressHydrationWarning>
               {new Date(history.startedAt).toLocaleDateString("id-ID", {
                 day: "numeric",
                 month: "long",

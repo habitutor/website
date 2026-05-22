@@ -1,5 +1,5 @@
 import type { Editor } from "@tiptap/react";
-import { forwardRef, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 // --- Icons ---
 import { BanIcon } from "@/components/tiptap-icons/actions/ban-icon";
 import { HighlighterIcon } from "@/components/tiptap-icons/marks/highlighter-icon";
@@ -45,23 +45,21 @@ export interface ColorHighlightPopoverProps
   colors?: HighlightColor[];
 }
 
-export const ColorHighlightPopoverButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, children, ...props }, ref) => (
-    <Button
-      type="button"
-      className={className}
-      data-style="ghost"
-      data-appearance="default"
-      role="button"
-      tabIndex={-1}
-      aria-label="Highlight text"
-      tooltip="Highlight"
-      ref={ref}
-      {...props}
-    >
-      {children ?? <HighlighterIcon className="tiptap-button-icon" />}
-    </Button>
-  ),
+export const ColorHighlightPopoverButton = ({ ref, className, children, ...props }: ButtonProps) => (
+  <Button
+    type="button"
+    className={className}
+    data-style="ghost"
+    data-appearance="default"
+    role="button"
+    tabIndex={-1}
+    aria-label="Highlight text"
+    tooltip="Highlight"
+    ref={ref}
+    {...props}
+  >
+    {children ?? <HighlighterIcon className="tiptap-button-icon" />}
+  </Button>
 );
 
 ColorHighlightPopoverButton.displayName = "ColorHighlightPopoverButton";

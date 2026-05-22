@@ -129,7 +129,7 @@ export function AddExistingQuestionModal({
 
         <div className="max-h-[28rem] space-y-2 overflow-y-auto">
           {isPending && !data ? (
-            <div className="flex items-center justify-center py-12 text-muted-foreground">Memuat soal...</div>
+            <div className="flex items-center justify-center py-12 text-muted-foreground">Memuat soal…</div>
           ) : allQuestions.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">
               Tidak ada soal yang ditemukan. Buat soal baru terlebih dahulu.
@@ -174,7 +174,7 @@ export function AddExistingQuestionModal({
             })
           )}
           {isFetchingNextPage && (
-            <div className="py-4 text-center text-sm text-muted-foreground">Memuat lebih banyak...</div>
+            <div className="py-4 text-center text-sm text-muted-foreground">Memuat lebih banyak…</div>
           )}
         </div>
 
@@ -184,7 +184,7 @@ export function AddExistingQuestionModal({
           </Button>
           <Button onClick={handleBulkAdd} disabled={selectedIds.size === 0 || addMutation.isPending}>
             {addMutation.isPending
-              ? "Menambahkan..."
+              ? "Menambahkan…"
               : selectedIds.size > 0
                 ? `Tambah ${selectedIds.size} Soal`
                 : "Tambah Soal"}
