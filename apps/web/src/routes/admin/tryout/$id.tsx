@@ -35,6 +35,18 @@ import { SubtestExplanationManager } from "./-components/explanation-editor";
 import { AddSoalDialog, DetailSoalDialog, EditSoalDialog } from "./-components/soal-dialogs";
 
 export const Route = createFileRoute("/admin/tryout/$id")({
+  loader: async ({ params }) => {
+    try {
+      const tryout = await queryClient.ensureQueryData(
+        orpc.admin.tryout.detail.tryout.queryOptions({
+          input: { tryoutId: params.id },
+        }),
+      );
+      return { breadcrumbTitle: tryout.judul };
+    } catch {
+      return { breadcrumbTitle: "Detail Tryout" };
+    }
+  },
   component: TryoutDetailPage,
 });
 
@@ -44,10 +56,28 @@ type SoalType = { id: string; pertanyaan: string; tipe: string; poin: number; pi
 
 function TryoutDetailPage() {
   const { id } = Route.useParams();
+  const [isEditTryoutOpen, setIsEditTryoutOpen] = useState(false);
 
   const { data: tryout, isPending: isTryoutPending } = useQuery(
     orpc.admin.tryout.detail.tryout.queryOptions({
       input: { tryoutId: id },
+    }),
+  );
+
+  const editTryoutMutation = useMutation(
+    orpc.admin.tryout.update.tryout.mutationOptions({
+      onSuccess: () => {
+        toast.success("Informasi tryout berhasil diperbarui");
+        queryClient.invalidateQueries({
+          queryKey: orpc.admin.tryout.detail.tryout.queryKey({ input: { tryoutId: id } }),
+        });
+        setIsEditTryoutOpen(false);
+      },
+      onError: (err) => {
+        toast.error("Gagal memperbarui tryout", {
+          description: err.message,
+        });
+      },
     }),
   );
 
@@ -153,8 +183,31 @@ function TryoutDetailPage() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle>Informasi Tryout</CardTitle>
+              {!isTryoutPending && (
+                <Dialog open={isEditTryoutOpen} onOpenChange={setIsEditTryoutOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <PencilIcon className="mr-2" />
+                      Edit Info
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Informasi Tryout</DialogTitle>
+                      <DialogDescription>Ubah judul atau deskripsi tryout</DialogDescription>
+                    </DialogHeader>
+                    <EditTryoutForm
+                      tryout={tryout as TryoutType}
+                      isPending={editTryoutMutation.isPending}
+                      onEdit={(judul, deskripsi) => {
+                        editTryoutMutation.mutate({ tryoutId: id, judul, deskripsi });
+                      }}
+                    />
+                  </DialogContent>
+                </Dialog>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               {isTryoutPending ? (
@@ -629,6 +682,47 @@ function EditSubtestForm({
             required
           />
         </div>
+      </div>
+      <Button type="submit" className="w-full" disabled={isPending}>
+        {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+      </Button>
+    </form>
+  );
+}
+
+// --- Edit Tryout Form ---
+function EditTryoutForm({
+  tryout,
+  onEdit,
+  isPending,
+}: {
+  tryout: TryoutType;
+  onEdit: (judul: string, deskripsi: string | null) => void;
+  isPending: boolean;
+}) {
+  const [judul, setJudul] = useState(tryout.judul);
+  const [deskripsi, setDeskripsi] = useState(tryout.deskripsi || "");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (judul.trim()) {
+      onEdit(judul, deskripsi.trim() || null);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label>Judul Tryout</Label>
+        <Input placeholder="Contoh: Tryout UTBK 2026" value={judul} onChange={(e) => setJudul(e.target.value)} required />
+      </div>
+      <div className="space-y-2">
+        <Label>Deskripsi</Label>
+        <Input
+          placeholder="Opsional"
+          value={deskripsi}
+          onChange={(e) => setDeskripsi(e.target.value)}
+        />
       </div>
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Menyimpan..." : "Simpan Perubahan"}

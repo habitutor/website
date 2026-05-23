@@ -16,6 +16,7 @@ const ROUTE_LABELS: Record<string, string> = {
 type BreadcrumbRouteMatch = {
   pathname: string;
   routeId?: string;
+  loaderData?: unknown;
 };
 
 export function generateBreadcrumbs(pathname: string, matches: BreadcrumbRouteMatch[]) {
@@ -29,21 +30,27 @@ export function generateBreadcrumbs(pathname: string, matches: BreadcrumbRouteMa
 
     currentPath += `/${segment}`;
 
-    // Check if it's a parameter (starts with $ or contains numbers)
-    const isParam = segment.startsWith("$") || /^\d+$/.test(segment);
+    // Check if it's a parameter (starts with $ or contains numbers or is a UUID)
+    const isParam = segment.startsWith("$") || /^\d+$/.test(segment) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment);
     const cleanSegment = segment.replace(/^\$/, "");
 
     if (isParam) {
       // For parameters, try to get title from route match
       const match = matches.find((m) => m.pathname === currentPath);
-      const routeId = match?.routeId;
-      if (routeId?.includes("contentId")) {
-        breadcrumbs.push({ label: "Content" });
-      } else if (routeId?.includes("shortName")) {
-        breadcrumbs.push({ label: cleanSegment.toUpperCase() });
+      const loaderData = match?.loaderData as { breadcrumbTitle?: string } | undefined;
+      
+      if (loaderData?.breadcrumbTitle) {
+        breadcrumbs.push({ label: loaderData.breadcrumbTitle });
       } else {
-        // For numeric IDs or other params, show shortened version
-        breadcrumbs.push({ label: `#${cleanSegment.slice(0, 6)}` });
+        const routeId = match?.routeId;
+        if (routeId?.includes("contentId")) {
+          breadcrumbs.push({ label: "Content" });
+        } else if (routeId?.includes("shortName")) {
+          breadcrumbs.push({ label: cleanSegment.toUpperCase() });
+        } else {
+          // For numeric IDs or other params, show shortened version
+          breadcrumbs.push({ label: `#${cleanSegment.slice(0, 6)}` });
+        }
       }
     } else {
       const label = ROUTE_LABELS[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
