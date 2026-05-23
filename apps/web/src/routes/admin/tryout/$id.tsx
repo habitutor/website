@@ -285,6 +285,7 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
   const [showSoal, setShowSoal] = useState(false);
   const [detailSoalId, setDetailSoalId] = useState<string | null>(null);
   const [editSoalId, setEditSoalId] = useState<string | null>(null);
+  const [isEditSubtestOpen, setIsEditSubtestOpen] = useState(false);
   const typedSubtest = subtest as SubtestType;
 
   const deleteSubtestMutation = useMutation(
@@ -302,6 +303,32 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
       },
     }),
   );
+
+  const editSubtestMutation = useMutation(
+    orpc.admin.tryout.update.subtes.mutationOptions({
+      onSuccess: () => {
+        toast.success("Subtest berhasil diperbarui");
+        queryClient.invalidateQueries({
+          queryKey: orpc.admin.tryout.list.subtes.queryKey({ input: { tryoutId } }),
+        });
+        setIsEditSubtestOpen(false);
+      },
+      onError: (err) => {
+        toast.error("Gagal memperbarui subtest", {
+          description: err.message,
+        });
+      },
+    }),
+  );
+
+  const handleEditSubtest = (name: string, jumlahSoal: number, durasiMenit: number) => {
+    editSubtestMutation.mutate({
+      subtesId: typedSubtest.id,
+      namaSubtes: name,
+      jumlahSoal,
+      durasiMenit,
+    });
+  };
 
   const { data: soalList = [], isPending: isSoalPending } = useQuery({
     ...orpc.admin.tryout.list.soal.queryOptions({ input: { subtesId: typedSubtest.id } }),
@@ -337,6 +364,24 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
           <Button variant="outline" size="sm" onClick={() => setShowSoal(!showSoal)}>
             {showSoal ? "Sembunyikan Soal" : "Kelola Soal"}
           </Button>
+          <Dialog open={isEditSubtestOpen} onOpenChange={setIsEditSubtestOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-blue-600">
+                <PencilIcon />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Subtest</DialogTitle>
+                <DialogDescription>Ubah detail subtest di bawah ini</DialogDescription>
+              </DialogHeader>
+              <EditSubtestForm 
+                subtest={typedSubtest} 
+                onEdit={handleEditSubtest} 
+                isPending={editSubtestMutation.isPending} 
+              />
+            </DialogContent>
+          </Dialog>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -531,6 +576,62 @@ function AddSubtestForm({
       </div>
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Menambahkan..." : "Tambah"}
+      </Button>
+    </form>
+  );
+}
+
+// --- Edit Subtest Form ---
+function EditSubtestForm({
+  subtest,
+  onEdit,
+  isPending,
+}: {
+  subtest: SubtestType;
+  onEdit: (name: string, jumlahSoal: number, durasiMenit: number) => void;
+  isPending: boolean;
+}) {
+  const [name, setName] = useState(subtest.namaSubtes);
+  const [jumlahSoal, setJumlahSoal] = useState(subtest.jumlahSoal);
+  const [durasiMenit, setDurasiMenit] = useState(subtest.durasiMenit);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim()) {
+      onEdit(name, jumlahSoal, durasiMenit);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label>Nama Subtest</Label>
+        <Input placeholder="Penalaran Matematika" value={name} onChange={(e) => setName(e.target.value)} required />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Jumlah Soal</Label>
+          <Input
+            type="number"
+            min={1}
+            value={jumlahSoal}
+            onChange={(e) => setJumlahSoal(Number(e.target.value))}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Durasi (Menit)</Label>
+          <Input
+            type="number"
+            min={1}
+            value={durasiMenit}
+            onChange={(e) => setDurasiMenit(Number(e.target.value))}
+            required
+          />
+        </div>
+      </div>
+      <Button type="submit" className="w-full" disabled={isPending}>
+        {isPending ? "Menyimpan..." : "Simpan Perubahan"}
       </Button>
     </form>
   );

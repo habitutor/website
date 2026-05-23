@@ -1,0 +1,1586 @@
+{
+  "info": {
+    "_postman_id": "4c4b376f-58d2-4a6d-b384-a01ddf07253d",
+    "name": "Habitutor",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "39730398"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "sign in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//   \"email\": \"demo@habitutor.local\",\r\n//   \"password\": \"Demo12345!\",\r\n//   \"rememberMe\": true\r\n// }\r\n\r\n//siswa non-premiumm\r\n{\r\n  \"email\": \"siswa@test.com\",\r\n  \"password\": \"password123\",\r\n  \"rememberMe\": true\r\n}\r\n\r\n\r\n\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/sign-in/email",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "sign-in", "email"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "sign up siswa premium",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Siswa Premium Test\",\r\n  \"email\": \"siswapremium@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/sign-up/email",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "sign-up", "email"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "sign up siswa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Siswa Test\",\r\n  \"email\": \"siswa@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/sign-up/email",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "sign-up", "email"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "sign up admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Admin Dev\",\r\n  \"email\": \"admin@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/sign-up/email",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "sign-up", "email"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Passing_Grade",
+      "item": [
+        {
+          "name": "Universitas",
+          "item": [
+            {
+              "name": "get all",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/universitas",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "universitas"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get by id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/universitas/3",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "universitas", "3"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new univ",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/universitas/{1}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "universitas", "{1}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update univ",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/universitas/3",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "universitas", "3"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Univ",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/universitas/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "universitas", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "program studi",
+          "item": [
+            {
+              "name": "get all",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/program-studi",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "program-studi"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get by id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/program-studi/3",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "program-studi", "3"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update program studi",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\r\n  \"nama\": \"Ilmu Sosial Komunikasi\",\r\n  \"passedGrade\": 780,\r\n  \"univId\": 3\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/program-studi/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "program-studi", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new program studi ( single)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\r\n  \"nama\": \"Ilmu Komputer\",\r\n  \"passedGrade\": 1,\r\n  \"univId\": 3\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/program-studi",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "program-studi"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new program studi ( bulk insert )",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"univId\": 3,\r\n  \"items\": [\r\n    { \"nama\": \"Kedokteran\", \"passedGrade\": 780 },\r\n    { \"nama\": \"Teknik Informatika\", \"passedGrade\": 760 },\r\n    { \"nama\": \"Psikologi\", \"passedGrade\": 740 }\r\n  ]\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/program-studi",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "program-studi"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete program studi",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "http://localhost:3000",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/program-studi/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "program-studi", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tryout Admin",
+      "item": [
+        {
+          "name": "tryout",
+          "item": [
+            {
+              "name": "get all tryout",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get by id tryout",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/9da45111-b764-4fbb-a481-21882068783c",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "9da45111-b764-4fbb-a481-21882068783c"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new tryout",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "DxZV6R8X27iPERoHwMgnry6gUF4Wj8AW",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"judul\": \"UTBK\",\r\n  \"deskripsi\": \"Tryout testing\",\r\n  \"mulaiAt\": \"2026-05-10T09:30:00Z\",\r\n  \"selesaiAt\": \"2026-05-20T23:59:00Z\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "edit tryout",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"judul\": \"TO UTUL UGM \",\r\n  \"deskripsi\": \"Update deskripsi\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/9da45111-b764-4fbb-a481-21882068783c",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "9da45111-b764-4fbb-a481-21882068783c"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete tryout must draft",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/dc0e66cb-13d4-4af2-815d-284ae2a596db",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "dc0e66cb-13d4-4af2-815d-284ae2a596db"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "subtest",
+          "item": [
+            {
+              "name": "List subtes by tryout",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/48e3360c-75c1-4f3e-ad36-3c25c094f9c7/subtes",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "48e3360c-75c1-4f3e-ad36-3c25c094f9c7", "subtes"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get by id subtest",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/subtes/569d305e-6cd3-4872-bde9-67085645835b",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "subtes", "569d305e-6cd3-4872-bde9-67085645835b"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new subtest",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"namaSubtes\": \"TPS\",\r\n  \"jumlahSoal\": 2,\r\n  \"durasiMenit\": 20,\r\n  \"urutan\": 1,\r\n  \"nilaiMinimum\": 50\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/48e3360c-75c1-4f3e-ad36-3c25c094f9c7/subtes",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "48e3360c-75c1-4f3e-ad36-3c25c094f9c7", "subtes"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update subtes",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"namaSubtes\": \"TPS\",\r\n  \"jumlahSoal\": 12,\r\n  \"durasiMenit\": 40,\r\n  \"urutan\": 1,\r\n  \"nilaiMinimum\": 70\r\n}\r\n\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/subtes/569d305e-6cd3-4872-bde9-67085645835b",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "subtes", "569d305e-6cd3-4872-bde9-67085645835b"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete subtes",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/subtes/569d305e-6cd3-4872-bde9-67085645835b",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "subtes", "569d305e-6cd3-4872-bde9-67085645835b"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "soal",
+          "item": [
+            {
+              "name": "List soal by subtes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/subtes/569d305e-6cd3-4872-bde9-67085645835b/soal",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api-reference",
+                    "admin",
+                    "tryouts",
+                    "subtes",
+                    "569d305e-6cd3-4872-bde9-67085645835b",
+                    "soal"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Detail soal",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/soal/bf96221c-bbd9-4153-b654-5a6d4183f125",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "soal", "bf96221c-bbd9-4153-b654-5a6d4183f125"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new soal non image",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"pertanyaan\": \"Presiden kita siapa \",\r\n  \"tipe\": \"pilgan\",\r\n  \"poin\": 2\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/subtes/83c9945f-7f43-49d3-98a4-90cf8cb72806/soal",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api-reference",
+                    "admin",
+                    "tryouts",
+                    "subtes",
+                    "83c9945f-7f43-49d3-98a4-90cf8cb72806",
+                    "soal"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new soal with image",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"pertanyaan\": \"Berapakah hasil 2 + 2?\",\r\n  \"gambarUrl\": \"https://placehold.co/1200x800/jpg\",\r\n  \"tipe\": \"pilgan\",\r\n  \"poin\": 2,\r\n  \"pembahasan\": \"Hasilnya adalah 4.\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/subtes/83c9945f-7f43-49d3-98a4-90cf8cb72806/soal",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api-reference",
+                    "admin",
+                    "tryouts",
+                    "subtes",
+                    "83c9945f-7f43-49d3-98a4-90cf8cb72806",
+                    "soal"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update soal",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"pertanyaan\": \"Berapakah hasil 2 + 2?\",\r\n  \"gambarUrl\": \"https://picsum.photos/1200/800.jpg\",\r\n  \"tipe\": \"pilgan\",\r\n  \"poin\": 2,\r\n  \"pembahasan\": \"Hasilnya adalah 4.\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/soal/25d1a1ed-75ef-4c5a-af60-abcafda4ad6c",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "soal", "25d1a1ed-75ef-4c5a-af60-abcafda4ad6c"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new soal Copy",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/soal/25d1a1ed-75ef-4c5a-af60-abcafda4ad6c",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "soal", "25d1a1ed-75ef-4c5a-af60-abcafda4ad6c"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "pilihan",
+          "item": [
+            {
+              "name": "List pilihan by soal",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/soal/25d1a1ed-75ef-4c5a-af60-abcafda4ad6c/pilihan",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api-reference",
+                    "admin",
+                    "tryouts",
+                    "soal",
+                    "25d1a1ed-75ef-4c5a-af60-abcafda4ad6c",
+                    "pilihan"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new pilihan soal",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"label\": \"D\",\r\n  \"isi\": \"5\",\r\n  \"isBenar\": false\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/soal/bf96221c-bbd9-4153-b654-5a6d4183f125/pilihan",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api-reference",
+                    "admin",
+                    "tryouts",
+                    "soal",
+                    "bf96221c-bbd9-4153-b654-5a6d4183f125",
+                    "pilihan"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "new pilihan soal with image",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"label\": \"E\",\r\n  \"isi\": \"Jawaban E\",\r\n  \"isBenar\": true,\r\n  \"gambarUrl\": \"https://placehold.co/1200x800/jpg\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/soal/bf96221c-bbd9-4153-b654-5a6d4183f125/pilihan",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api-reference",
+                    "admin",
+                    "tryouts",
+                    "soal",
+                    "bf96221c-bbd9-4153-b654-5a6d4183f125",
+                    "pilihan"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update pilihan",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"label\": \"E\",\r\n  \"isi\": \"Jawaban E\",\r\n  \"isBenar\": true,\r\n  \"gambarUrl\": \"https://picsum.photos/1200/800.jpg\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/pilihan/9955ef78-ee7c-4cc3-b34a-900ffdb7f091",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "pilihan", "9955ef78-ee7c-4cc3-b34a-900ffdb7f091"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete pilihan",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/pilihan/b386dfa6-b5b3-417b-aef4-2e572ffc51c7",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "pilihan", "b386dfa6-b5b3-417b-aef4-2e572ffc51c7"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "publish tryout",
+          "item": [
+            {
+              "name": "publish To",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/6ee353c6-e231-4cce-81a6-398399370748/publish",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "6ee353c6-e231-4cce-81a6-398399370748", "publish"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "unpublish To",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Origin",
+                    "value": "{{base_url}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api-reference/admin/tryouts/6ee353c6-e231-4cce-81a6-398399370748/unpublish",
+                  "host": ["{{base_url}}"],
+                  "path": ["api-reference", "admin", "tryouts", "6ee353c6-e231-4cce-81a6-398399370748", "unpublish"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "**Dokumentasi Fitur Tryout by Admin and peserta atau user**\n\n[https://drive.google.com/drive/folders/1v3pqiVJBBfVzBziRvpjoRkF8mVDv848w?usp=sharing](https://drive.google.com/drive/folders/1v3pqiVJBBfVzBziRvpjoRkF8mVDv848w?usp=sharing)"
+    },
+    {
+      "name": "Tryout User",
+      "item": [
+        {
+          "name": "tryout",
+          "item": [
+            {
+              "name": "start tryout student",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"json\":{\r\n        \"tryoutId\":\"6ee353c6-e231-4cce-81a6-398399370748\"}\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/start",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "start"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "get question",
+          "item": [
+            {
+              "name": "get question test manual",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiSubtesId\": \"6052acc8-616e-4ded-9bc1-b82d47fcace5\"\r\n  }\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/questions",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "questions"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Submit Answerr",
+          "item": [
+            {
+              "name": "sumbit answer normal",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiId\": \"41d992b7-2731-463a-af5c-6a14ab062658\",\r\n    \"sesiSoalId\": \"5a7884d7-08f6-45be-9334-621b9fdf26ee\",\r\n    \"pilihanId\": \"5cf240a6-8c6f-474f-ae7e-ef1ce2eaaa81\",\r\n    \"isRagu\": false\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/answer/submit",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "answer", "submit"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "sumbit answer normal with ragu",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiId\": \"41d992b7-2731-463a-af5c-6a14ab062658\",\r\n    \"sesiSoalId\": \"5a7884d7-08f6-45be-9334-621b9fdf26ee\",\r\n    \"pilihanId\": \"5cf240a6-8c6f-474f-ae7e-ef1ce2eaaa81\",\r\n    \"isRagu\": true\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/answer/submit",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "answer", "submit"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "sumbit answer ( clear jawaban )",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiId\": \"41d992b7-2731-463a-af5c-6a14ab062658\",\r\n    \"sesiSoalId\": \"5a7884d7-08f6-45be-9334-621b9fdf26ee\",\r\n    \"pilihanId\":null,\r\n    \"isRagu\": false\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/answer/submit",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "answer", "submit"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "sumbit answer clear tapi ragu",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiId\": \"41d992b7-2731-463a-af5c-6a14ab062658\",\r\n    \"sesiSoalId\": \"5a7884d7-08f6-45be-9334-621b9fdf26ee\",\r\n    \"pilihanId\": null,\r\n    \"isRagu\": true\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/answer/submit",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "answer", "submit"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "submit subtest",
+          "item": [
+            {
+              "name": "submit test normal",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiSubtesId\": \"6052acc8-616e-4ded-9bc1-b82d47fcace5\"\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/subtes/submit",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "subtes", "submit"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "sumbit subtest timeout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiSubtesId\": \"6052acc8-616e-4ded-9bc1-b82d47fcace5\"\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/subtes/submit",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "subtes", "submit"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "result",
+          "item": [
+            {
+              "name": "get result",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"sesiId\": \"41d992b7-2731-463a-af5c-6a14ab062658\"\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/results",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "results"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "get pembahasan ( only permium )",
+          "item": [
+            {
+              "name": "get pembahasan only member premium",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"json\": {\r\n    \"soalId\": \"ca7c966c-0784-4935-a6b9-eac645e51ed5\"\r\n  }\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "http://localhost:3001/rpc/tryout/pembahasan",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3001",
+                  "path": ["rpc", "tryout", "pembahasan"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "**Dokumentasi Fitur Tryout by Admin and peserta atau user**\n\n[https://drive.google.com/drive/folders/1v3pqiVJBBfVzBziRvpjoRkF8mVDv848w?usp=sharing](https://drive.google.com/drive/folders/1v3pqiVJBBfVzBziRvpjoRkF8mVDv848w?usp=sharing)"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "base_url_api",
+      "value": ""
+    }
+  ]
+}
