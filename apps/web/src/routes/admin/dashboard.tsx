@@ -5,6 +5,7 @@ import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { BusinessAnalytics } from "./-components/business-analytics";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: AdminDashboard,
@@ -38,6 +39,8 @@ function AdminDashboard() {
           iconClassName="text-orange-500"
         />
       </div>
+
+      <BusinessAnalytics />
     </AdminContainer>
   );
 }
