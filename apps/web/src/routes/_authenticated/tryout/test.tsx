@@ -153,6 +153,7 @@ function TryoutTestPage() {
         } else {
           // All subtests done, go to results
           toast.success("Tryout selesai! Melihat hasil...");
+          queryClient.invalidateQueries({ queryKey: orpc.streak.get.key() });
           navigate({
             to: "/tryout",
           });
@@ -169,6 +170,7 @@ function TryoutTestPage() {
     orpc.tryout.subtes.autoSubmit.mutationOptions({
       onSuccess: () => {
         setHasAutoSubmitted(true);
+        queryClient.invalidateQueries({ queryKey: orpc.streak.get.key() });
         // Don't navigate yet — show dialog first
       },
       onError: (err: Error) => {

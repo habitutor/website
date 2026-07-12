@@ -22,6 +22,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { StreakIndicator } from "@/components/streak/streak-indicator";
 import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
 
@@ -104,35 +105,38 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           ))}
         </div>
 
-        <div className="hidden md:flex md:items-center md:gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-2">
-              {session?.user.isPremium && (
-                <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                  Premium
-                </Badge>
-              )}
-              <Avatar>
-                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
-                <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link to="/profile">Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
-                <SignOutIcon />
-                Log Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <div className="flex items-center gap-2 md:gap-4">
+          {session && <StreakIndicator />}
+          <div className="hidden md:flex md:items-center md:gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2">
+                {session?.user.isPremium && (
+                  <Badge variant="secondary" className="bg-primary text-primary-foreground">
+                    Premium
+                  </Badge>
+                )}
+                <Avatar>
+                  <AvatarImage src={avatarSrc} alt="User Profile Picture" />
+                  <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
+                  <SignOutIcon />
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-          <ListIcon className="size-6" />
-        </Button>
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
+            <ListIcon className="size-6" />
+          </Button>
+        </div>
       </div>
 
       {mobileMenuOpen && (

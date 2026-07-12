@@ -74,7 +74,7 @@ export function CallToAction() {
                 </Button>
 
                 <Button variant="outline" size="lg" asChild>
-                  <a href={DATA.footer.socials[2].url} className="flex items-center gap-2">
+                  <a href={DATA.footer.contactWhatsapp} className="flex items-center gap-2">
                     <WhatsappLogoIcon size={24} weight="duotone" className="text-neutral-700" />
                     Masih Ada Pertanyaan?
                   </a>

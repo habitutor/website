@@ -13,7 +13,6 @@ import {
   shouldBlockStartSession,
   shouldIncrementFlashcardStreak,
 } from "./logic";
-import { recordStreakActivity } from "../streak/service";
 import { flashcardRepo } from "./repo";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;

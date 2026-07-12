@@ -1,4 +1,5 @@
-import { InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
+import { DiscordLogoIcon, InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
+import { COMMUNITY_LINKS } from "@/lib/community-links";
 
 export const DATA = {
   testimonials: [
@@ -134,6 +135,7 @@ export const DATA = {
     },
   ],
   footer: {
+    contactWhatsapp: "https://wa.me/6281212686307",
     socials: [
       {
         label: "Instagram",
@@ -148,13 +150,13 @@ export const DATA = {
       {
         label: "WhatsApp",
         icon: WhatsappLogoIcon,
-        url: "https://wa.me/6281212686307",
+        url: COMMUNITY_LINKS.whatsapp,
       },
-      // {
-      // 	label: "Discord",
-      // 	icon: DiscordLogoIcon,
-      // 	url: "https://discord.gg/habitutor",
-      // },
+      {
+        label: "Discord",
+        icon: DiscordLogoIcon,
+        url: COMMUNITY_LINKS.discord,
+      },
       // {
       // 	label: "TikTok",
       // 	icon: TiktokLogoIcon,

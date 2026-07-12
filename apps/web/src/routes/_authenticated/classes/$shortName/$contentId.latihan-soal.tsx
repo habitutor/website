@@ -26,6 +26,7 @@ function RouteComponent() {
         queryClient.invalidateQueries({
           queryKey: orpc.subtest.content.stats.key(),
         });
+        queryClient.invalidateQueries({ queryKey: orpc.streak.get.key() });
       },
     }),
   );

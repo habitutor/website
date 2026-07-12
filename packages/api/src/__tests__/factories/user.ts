@@ -23,6 +23,14 @@ export function createTestUser(overrides?: Partial<UserSelect>): UserSelect {
     referralUsage: 0,
     dreamCampus: null,
     dreamMajor: null,
+    age: null,
+    educationLevel: null,
+    difficultSubjects: null,
+    hasSeenWelcomeVideo: false,
+    streak: 0,
+    lastStreakAt: null,
+    streakSaves: 3,
+    streakSavesUpdatedAt: null,
     ...overrides,
   };
 }

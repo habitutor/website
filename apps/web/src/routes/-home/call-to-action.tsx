@@ -69,7 +69,7 @@ function HeroPanel() {
 
               <Button variant="outline" size="lg">
                 <a
-                  href={DATA.footer.socials[2].url}
+                  href={DATA.footer.contactWhatsapp}
                   className="flex items-center justify-center gap-2"
                   target="_blank"
                   rel="noopener noreferrer"
