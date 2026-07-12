@@ -23,4 +23,12 @@ export const user = pgTable("user", {
   referralUsage: integer("referral_usage").default(0),
   dreamCampus: text("dream_campus"),
   dreamMajor: text("dream_major"),
+  age: integer("age"),
+  educationLevel: text("education_level"),
+  difficultSubjects: text("difficult_subjects").array(),
+  hasSeenWelcomeVideo: boolean("has_seen_welcome_video").default(false).notNull(),
+  streak: integer("streak").default(0).notNull(),
+  lastStreakAt: timestamp("last_streak_at"),
+  streakSaves: integer("streak_saves").default(3).notNull(),
+  streakSavesUpdatedAt: timestamp("streak_saves_updated_at"),
 });

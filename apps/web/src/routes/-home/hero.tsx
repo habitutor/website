@@ -112,7 +112,7 @@ export function Hero() {
         <div className="flex max-w-3xl flex-col items-start gap-1 text-left md:gap-2">
           <span className="text-primary-600 rounded-full border-2 border-neutral-300 bg-neutral-100 px-3 py-2 text-xs font-medium md:text-sm">
             Selama <span className="font-bold text-primary-400">2</span> Tahun Berdirinya Sudah Membantu{" "}
-            <span className="font-bold text-primary-400">1.000+</span> Siswa Mencapai Mimpinya
+            <span className="font-bold text-primary-400">20.000+</span> Siswa Mencapai Mimpinya
           </span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -150,9 +150,6 @@ export function Hero() {
         >
           <Link to="/login" className={cn(buttonVariants({ variant: "lightBlue" }), "w-full md:w-fit")}>
             Mulai Belajar Sekarang
-          </Link>
-          <Link to="/" className={cn(buttonVariants({ variant: "outline" }), "w-full md:w-fit")}>
-            Cara Kerjanya
           </Link>
         </motion.div>
       </div>

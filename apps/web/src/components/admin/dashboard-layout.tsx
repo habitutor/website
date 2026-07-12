@@ -31,14 +31,17 @@ export function generateBreadcrumbs(pathname: string, matches: BreadcrumbRouteMa
     currentPath += `/${segment}`;
 
     // Check if it's a parameter (starts with $ or contains numbers or is a UUID)
-    const isParam = segment.startsWith("$") || /^\d+$/.test(segment) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment);
+    const isParam =
+      segment.startsWith("$") ||
+      /^\d+$/.test(segment) ||
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment);
     const cleanSegment = segment.replace(/^\$/, "");
 
     if (isParam) {
       // For parameters, try to get title from route match
       const match = matches.find((m) => m.pathname === currentPath);
       const loaderData = match?.loaderData as { breadcrumbTitle?: string } | undefined;
-      
+
       if (loaderData?.breadcrumbTitle) {
         breadcrumbs.push({ label: loaderData.breadcrumbTitle });
       } else {

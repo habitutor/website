@@ -64,7 +64,7 @@ const cookieSecure =
     ? true
     : process.env.BETTER_AUTH_COOKIE_SECURE === "true" ||
       (process.env.BETTER_AUTH_COOKIE_SECURE !== "false" &&
-      (parsedAuthBaseUrl ? parsedAuthBaseUrl.protocol === "https:" : process.env.NODE_ENV === "production"));
+        (parsedAuthBaseUrl ? parsedAuthBaseUrl.protocol === "https:" : process.env.NODE_ENV === "production"));
 
 const resendClient = new Resend(process.env.RESEND_API_KEY || "Re_api_key");
 

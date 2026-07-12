@@ -6,8 +6,13 @@ import { MotionPulse } from "@/components/motion/motion-components";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/-home/data";
+import { formatRupiah, PERINTIS_DATA } from "./data";
+import { usePerintisPricing } from "./use-perintis-pricing";
 
 export function CallToAction() {
+  const { closing } = PERINTIS_DATA;
+  const pricing = usePerintisPricing();
+
   return (
     <section className="mx-auto flex w-full flex-col items-center overflow-hidden bg-neutral-100 px-4 py-20">
       <MotionPulse>
@@ -35,47 +40,40 @@ export function CallToAction() {
           <div className="flex w-full flex-col lg:flex-row lg:items-center">
             {/* Left Content */}
             <div className="z-20 flex flex-col items-start gap-6 lg:w-2/3">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <m.h2
                   className="max-w-5xl font-sans text-2xl font-extrabold text-pretty md:text-5xl"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  Unlock Versi{" "}
-                  <m.span
-                    className="inline-block text-primary-300"
-                    whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0], transition: { duration: 0.3 } }}
-                  >
-                    Terbaik
-                  </m.span>
-                  <br />
-                  dari{" "}
-                  <m.span
-                    className="inline-block text-primary-300"
-                    whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0], transition: { duration: 0.3 } }}
-                  >
-                    Persiapanmu
-                  </m.span>
+                  Merintis duluan selalu <span className="text-primary-300">lebih murah</span> daripada{" "}
+                  <span className="text-primary-300">nyusul</span>.
                 </m.h2>
 
                 <m.p
-                  className="text-sm text-pretty md:text-lg"
+                  className="flex flex-wrap items-baseline gap-x-2 text-sm text-pretty md:text-xl"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
                 >
-                  Dengan Premium, kamu dapat semua fitur unggulan: live class rutin, tryout intensif, dan mentoring dari
-                  kakak TOP PTN
+                  <span className="relative inline-block font-semibold text-neutral-600">
+                    {formatRupiah(pricing.originalPrice)}
+                    <span className="pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-red-400" />
+                  </span>
+                  <span className="text-xl font-black text-primary-300 md:text-3xl">
+                    {formatRupiah(pricing.currentPrice)}
+                  </span>
+                  {pricing.isEarlyBird && <span className="font-semibold">— 50 orang pertama.</span>}
                 </m.p>
               </div>
-              {/* UPDATED BUTTON CONTAINER: Added w-full and responsive flex directions */}
+
               <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Button asChild size="lg" className="">
-                  <Link to="/login">Mulai Perjalananmu</Link>
+                <Button asChild size="lg" className="font-bold tracking-wide uppercase">
+                  <Link to="/premium">{closing.cta}</Link>
                 </Button>
 
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" asChild>
                   <a href={DATA.footer.socials[2].url} className="flex items-center gap-2">
                     <WhatsappLogoIcon size={24} weight="duotone" className="text-neutral-700" />
                     Masih Ada Pertanyaan?

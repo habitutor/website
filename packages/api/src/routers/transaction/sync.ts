@@ -2,7 +2,7 @@ import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
-import { PREMIUM_DEADLINE } from "../../lib/constants";
+import { PERINTIS_2027, PREMIUM_DEADLINE, SNBT_2027_DEADLINE } from "../../lib/constants";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
 
@@ -44,9 +44,11 @@ export async function markTransactionAsSuccess(orderId: string) {
 
   const tx = existingTransaction.tx;
   const paidAt = tx.paidAt ?? new Date();
+  const isPerintis2027 = existingTransaction.prodSlug === PERINTIS_2027.SLUG;
   const isPremiumSubscription =
     existingTransaction.prodType === "subscription" &&
-    (existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM ||
+    (isPerintis2027 ||
+      existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM ||
       existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM_2);
 
   await db.transaction(async (trx) => {
@@ -66,7 +68,7 @@ export async function markTransactionAsSuccess(orderId: string) {
         userId: tx.userId,
         isPremium: true,
         premiumTier,
-        premiumExpiresAt: PREMIUM_DEADLINE,
+        premiumExpiresAt: isPerintis2027 ? SNBT_2027_DEADLINE : PREMIUM_DEADLINE,
       });
     }
 

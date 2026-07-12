@@ -3,6 +3,7 @@ import { type } from "arktype";
 import { authed, authedRateLimited } from "../../index";
 import { canAccessContent } from "@habitutor/shared/content-access";
 import { convertToTiptap } from "../../lib/tiptap";
+import { recordStreakActivity } from "../streak/service";
 import { subtestRepo } from "./repo";
 
 /**
@@ -266,6 +267,10 @@ const updateProgress = authed
       noteCompleted: input.noteCompleted,
       practiceQuestionsCompleted: input.practiceQuestionsCompleted,
     });
+
+    if (input.videoCompleted || input.noteCompleted || input.practiceQuestionsCompleted) {
+      await recordStreakActivity({ userId: context.session.user.id });
+    }
 
     return { message: "Progress berhasil disimpan" };
   });

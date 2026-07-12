@@ -428,21 +428,16 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                 <DialogTitle>Edit Subtest</DialogTitle>
                 <DialogDescription>Ubah detail subtest di bawah ini</DialogDescription>
               </DialogHeader>
-              <EditSubtestForm 
-                subtest={typedSubtest} 
-                onEdit={handleEditSubtest} 
-                isPending={editSubtestMutation.isPending} 
+              <EditSubtestForm
+                subtest={typedSubtest}
+                onEdit={handleEditSubtest}
+                isPending={editSubtestMutation.isPending}
               />
             </DialogContent>
           </Dialog>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-red-600"
-                disabled={deleteSubtestMutation.isPending}
-              >
+              <Button variant="ghost" size="sm" className="text-red-600" disabled={deleteSubtestMutation.isPending}>
                 <TrashIcon />
               </Button>
             </AlertDialogTrigger>
@@ -450,13 +445,14 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Hapus Subtest?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Apakah Anda yakin ingin menghapus subtest ini beserta semua soal di dalamnya? Tindakan ini tidak dapat dibatalkan.
+                  Apakah Anda yakin ingin menghapus subtest ini beserta semua soal di dalamnya? Tindakan ini tidak dapat
+                  dibatalkan.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Batal</AlertDialogCancel>
                 <AlertDialogAction
-                  className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white"
+                  className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"
                   onClick={() => deleteSubtestMutation.mutate({ subtesId: typedSubtest.id })}
                 >
                   Ya, hapus
@@ -543,7 +539,7 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Batal</AlertDialogCancel>
                               <AlertDialogAction
-                                className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white"
+                                className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"
                                 onClick={() => deleteSoalMutation.mutate({ soalId: soal.id })}
                               >
                                 Ya, hapus
@@ -714,15 +710,16 @@ function EditTryoutForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label>Judul Tryout</Label>
-        <Input placeholder="Contoh: Tryout UTBK 2026" value={judul} onChange={(e) => setJudul(e.target.value)} required />
+        <Input
+          placeholder="Contoh: Tryout UTBK 2026"
+          value={judul}
+          onChange={(e) => setJudul(e.target.value)}
+          required
+        />
       </div>
       <div className="space-y-2">
         <Label>Deskripsi</Label>
-        <Input
-          placeholder="Opsional"
-          value={deskripsi}
-          onChange={(e) => setDeskripsi(e.target.value)}
-        />
+        <Input placeholder="Opsional" value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
       </div>
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Menyimpan..." : "Simpan Perubahan"}

@@ -58,14 +58,9 @@ const Tryout = () => {
       </div>
 
       <Button asChild size="icon" variant="default" className="z-10 bg-fourtiary-400">
-        <a
-          href="https://classroom.google.com/c/ODU4ODUwNzk2OTIz?cjc=5vyw5pb5"
-          rel="noopener noreferrer"
-          target="_blank"
-          aria-label="Visit AnyAcademy website"
-        >
+        <Link to="/tryout" aria-label="Kerjakan Tryout">
           <ArrowRightIcon />
-        </a>
+        </Link>
       </Button>
 
       <div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />

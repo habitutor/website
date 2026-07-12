@@ -37,7 +37,9 @@ export const adminUniversitasRepo = {
     const [row] = await db
       .select()
       .from(universitas)
-      .where(and(eq(universitas.namaUniv, namaUniv), excludeId !== undefined ? ne(universitas.id, excludeId) : undefined))
+      .where(
+        and(eq(universitas.namaUniv, namaUniv), excludeId !== undefined ? ne(universitas.id, excludeId) : undefined),
+      )
       .limit(1);
     return row;
   },
@@ -54,7 +56,9 @@ export const adminUniversitasRepo = {
     const [row] = await db
       .select()
       .from(universitas)
-      .where(and(eq(universitas.rankUniv, rankUniv), excludeId !== undefined ? ne(universitas.id, excludeId) : undefined))
+      .where(
+        and(eq(universitas.rankUniv, rankUniv), excludeId !== undefined ? ne(universitas.id, excludeId) : undefined),
+      )
       .limit(1);
     return row;
   },
@@ -140,7 +144,10 @@ export const adminUniversitasRepo = {
     univId: number;
     items: Array<{ nama: string; passedGrade: number }>;
   }) => {
-    return db.insert(programStudi).values(items.map((item) => ({ ...item, univId }))).returning();
+    return db
+      .insert(programStudi)
+      .values(items.map((item) => ({ ...item, univId })))
+      .returning();
   },
 
   updateProgramStudi: async ({

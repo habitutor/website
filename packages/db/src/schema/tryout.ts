@@ -5,7 +5,12 @@ import { user } from "./user";
 export const tryoutStatusEnum = pgEnum("tryout_status", ["draft", "published", "archived"]);
 export const tryoutQuestionTypeEnum = pgEnum("tryout_question_type", ["pilgan", "multiple"]);
 export const tryoutSessionStatusEnum = pgEnum("tryout_session_status", ["berjalan", "selesai", "expired"]);
-export const tryoutSessionSubtestStatusEnum = pgEnum("tryout_session_subtest_status", ["menunggu", "berjalan", "selesai", "expired"]);
+export const tryoutSessionSubtestStatusEnum = pgEnum("tryout_session_subtest_status", [
+  "menunggu",
+  "berjalan",
+  "selesai",
+  "expired",
+]);
 
 export const tryout = pgTable(
   "tryout",
@@ -77,7 +82,10 @@ export const tryoutPilihanJawaban = pgTable(
     gambarUrl: text("gambar_url"),
     isBenar: boolean("is_benar").notNull().default(false),
   },
-  (t) => [index("idx_tryout_pilihan_soal_id").on(t.soalId), unique("tryout_pilihan_soal_id_label_unique").on(t.soalId, t.label)],
+  (t) => [
+    index("idx_tryout_pilihan_soal_id").on(t.soalId),
+    unique("tryout_pilihan_soal_id_label_unique").on(t.soalId, t.label),
+  ],
 );
 
 export const tryoutSesi = pgTable(
@@ -164,7 +172,10 @@ export const tryoutJawaban = pgTable(
     isBenar: boolean("is_benar"),
     poinDapat: integer("poin_dapat"),
   },
-  (t) => [index("idx_tryout_jawaban_sesi_id").on(t.sesiId), unique("tryout_jawaban_sesi_soal_id_unique").on(t.sesiSoalId)],
+  (t) => [
+    index("idx_tryout_jawaban_sesi_id").on(t.sesiId),
+    unique("tryout_jawaban_sesi_soal_id_unique").on(t.sesiSoalId),
+  ],
 );
 
 export const tryoutRelations = relations(tryout, ({ one, many }) => ({

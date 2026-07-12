@@ -14,11 +14,9 @@ describe("home DATA module contracts", () => {
     expect(DATA.mentor.every((mentor) => mentor.name && mentor.major && mentor.university && mentor.image)).toBe(true);
   });
 
-  test("tryout pricing entries have features and CTA metadata", () => {
-    for (const plan of Object.values(DATA.pricing_tryout)) {
-      expect(plan.features.length).toBeGreaterThan(0);
-      expect(plan.cta.label.length).toBeGreaterThan(0);
-      expect(plan.cta.url.length).toBeGreaterThan(0);
-    }
+  test("faq entries keep unique IDs and required fields", () => {
+    const ids = DATA.faq.map((item) => item.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(DATA.faq.every((item) => item.question && item.answer)).toBe(true);
   });
 });

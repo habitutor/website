@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { authed } from "../../../index";
+import { recordStreakActivity } from "../../streak/service";
 import { tryoutRepo } from "./repo";
 import { toOrpcError } from "./logic";
 
@@ -167,11 +168,15 @@ const submitSubtest = authed
       sesiSubtesId: "string",
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context }) => {
     try {
       const result = await tryoutRepo.submitSubtest({
         sesiSubtesId: input.sesiSubtesId,
       });
+
+      if (!result.nextSubtes) {
+        await recordStreakActivity({ userId: context.session.user.id });
+      }
 
       return {
         success: true,
@@ -198,11 +203,15 @@ const autoSubmitSubtest = authed
       sesiSubtesId: "string",
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context }) => {
     try {
       const result = await tryoutRepo.autoSubmitSubtest({
         sesiSubtesId: input.sesiSubtesId,
       });
+
+      if (!result.nextSubtes) {
+        await recordStreakActivity({ userId: context.session.user.id });
+      }
 
       return {
         success: true,

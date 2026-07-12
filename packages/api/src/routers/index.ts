@@ -28,6 +28,7 @@ import { practicePackRouter } from "./practice-pack";
 import { profileRouter } from "./profile";
 import { referralRouter } from "./referral";
 import { socialRouter } from "./social";
+import { streakRouter } from "./streak";
 import { studentTryoutRouter } from "./student/tryout";
 import { subtestRouter } from "./subtest";
 import { transactionRouter } from "./transaction";
@@ -127,6 +128,7 @@ export const appRouter: {
   admin: typeof adminRouter;
   transaction: typeof transactionRouter;
   referral: typeof referralRouter;
+  streak: typeof streakRouter;
 } = {
   healthCheck,
   social: socialRouter,
@@ -139,6 +141,7 @@ export const appRouter: {
   admin: adminRouter,
   transaction: transactionRouter,
   referral: referralRouter,
+  streak: streakRouter,
 };
 
 export type AppRouter = typeof appRouter;
