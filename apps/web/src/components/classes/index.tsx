@@ -57,6 +57,7 @@ const subtestCardBackground = {
   lbi: "bg-secondary-400",
   lbing: "bg-tertiary-400",
   pm: "bg-fourtiary-300 *:text-white",
+  hab: "bg-primary-200 *:text-white",
 } as const;
 
 const subtestCardPattern = {
@@ -67,6 +68,7 @@ const subtestCardPattern = {
   lbi: "bg-secondary-600",
   lbing: "bg-tertiary-200",
   pm: "bg-fourtiary-200",
+  hab: "bg-primary-100",
 } as const;
 
 const subtestCardAvatar = {
@@ -77,6 +79,7 @@ const subtestCardAvatar = {
   lbi: "/avatar/subtest-lbi-avatar.webp",
   lbing: "/avatar/subtest-lbing-avatar.webp",
   pm: "/avatar/subtest-pm-avatar.webp",
+  hab: "/avatar/brain-gym.webp",
 } as const;
 
 type SubtestListItem = NonNullable<BodyOutputs["subtest"]["list"]>["data"][number];

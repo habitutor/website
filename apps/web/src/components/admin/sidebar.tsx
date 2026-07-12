@@ -175,7 +175,7 @@ function LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (op
               queryClient.removeQueries();
               navigate({ to: "/login" });
             }}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
           >
             <SignOut /> Keluar
           </AlertDialogAction>
@@ -198,7 +198,10 @@ function SidebarUserNav() {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
               <Avatar className="size-8 shrink-0">
                 <AvatarImage src={getAvatarSrc(user.image)} alt={user.name} />
                 <AvatarFallback className="bg-primary/10 text-sm text-primary">

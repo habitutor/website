@@ -1,13 +1,22 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { product, transaction } from "@habitutor/db/schema/transaction";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
   getProductBySlug: async ({ db = defaultDb, slug }: { db?: DrizzleDatabase; slug: string }) => {
     const [prod] = await db.select().from(product).where(eq(product.slug, slug)).limit(1);
     return prod;
+  },
+
+  countSuccessfulTransactionsBySlug: async ({ db = defaultDb, slug }: { db?: DrizzleDatabase; slug: string }) => {
+    const [result] = await db
+      .select({ total: count() })
+      .from(transaction)
+      .innerJoin(product, eq(transaction.productId, product.id))
+      .where(and(eq(product.slug, slug), eq(transaction.status, "success")));
+    return result?.total ?? 0;
   },
 
   createTransaction: async ({

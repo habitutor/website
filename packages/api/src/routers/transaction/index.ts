@@ -1,12 +1,60 @@
-import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared/auth-domain";
+import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
-import { PREMIUM_DEADLINE } from "../../lib/constants";
+import { PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
 import { markTransactionAsSuccess, syncTransactionStatus } from "./sync";
+
+async function getPerintisPricing() {
+  const soldCount = await transactionRepo.countSuccessfulTransactionsBySlug({ slug: PERINTIS_2027.SLUG });
+  const earlyBirdRemaining = Math.max(PERINTIS_2027.EARLY_BIRD_QUOTA - soldCount, 0);
+  const isEarlyBird = earlyBirdRemaining > 0;
+
+  return {
+    soldCount,
+    earlyBirdRemaining,
+    isEarlyBird,
+    currentPrice: isEarlyBird ? PERINTIS_2027.EARLY_BIRD_PRICE : PERINTIS_2027.REGULAR_PRICE,
+  };
+}
+
+const availability = pub
+  .route({
+    path: "/transactions/perintis-2027",
+    method: "GET",
+    tags: ["Payment", "Subscription"],
+  })
+  .output(
+    type({
+      slug: "string",
+      originalPrice: "number",
+      earlyBirdPrice: "number",
+      regularPrice: "number",
+      currentPrice: "number",
+      earlyBirdQuota: "number",
+      earlyBirdRemaining: "number",
+      isEarlyBird: "boolean",
+      isAvailable: "boolean",
+    }),
+  )
+  .handler(async () => {
+    const pricing = await getPerintisPricing();
+
+    return {
+      slug: PERINTIS_2027.SLUG,
+      originalPrice: PERINTIS_2027.ORIGINAL_PRICE,
+      earlyBirdPrice: PERINTIS_2027.EARLY_BIRD_PRICE,
+      regularPrice: PERINTIS_2027.REGULAR_PRICE,
+      currentPrice: pricing.currentPrice,
+      earlyBirdQuota: PERINTIS_2027.EARLY_BIRD_QUOTA,
+      earlyBirdRemaining: pricing.earlyBirdRemaining,
+      isEarlyBird: pricing.isEarlyBird,
+      isAvailable: Date.now() <= SNBT_2027_DEADLINE.getTime(),
+    };
+  });
 
 const subscribe = authed
   .route({
@@ -15,9 +63,10 @@ const subscribe = authed
     tags: ["Payment", "Subscription"],
   })
   .input(
-    //add premium2 tier on input validation
+    // Older packages (premium, premium2, basic) are no longer sold; the only
+    // purchasable package is Perintis 2027.
     type({
-      name: "'premium' | 'premium2' | 'basic'",
+      name: "'perintis2027'",
       "referralCode?": "string",
     }),
   )
@@ -29,17 +78,17 @@ const subscribe = authed
     }),
   )
   .handler(async ({ input, context, errors }) => {
-    const isPremiumPlanName = input.name === PREMIUM_TIERS.PREMIUM || input.name === PREMIUM_TIERS.PREMIUM_2;
-
-    if (isPremiumPlanName && context.session.user.isPremium)
+    if (context.session.user.isPremium)
       throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-    if (isPremiumPlanName && Date.now() > PREMIUM_DEADLINE.getTime())
+    if (Date.now() > SNBT_2027_DEADLINE.getTime())
       throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
 
     const plan = await transactionRepo.getProductBySlug({ slug: input.name });
     if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
-    let grossAmount = plan.price;
+    // Early-bird price for the first 50 successful payments, then the regular price.
+    const pricing = await getPerintisPricing();
+    let grossAmount = String(pricing.currentPrice);
     const existingUsage = await referralRepo.getUserUsage({ userId: context.session.user.id });
     let appliedReferralCodeId: string | undefined;
 
@@ -175,4 +224,5 @@ export const transactionRouter = {
   subscribe,
   webhook: notification,
   status: getStatus,
+  perintisAvailability: availability,
 };

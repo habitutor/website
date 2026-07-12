@@ -31,6 +31,7 @@ export const FlashcardCard = () => {
     orpc.flashcard.submit.mutationOptions({
       onSuccess: async () => {
         await refreshAuthSession();
+        queryClient.invalidateQueries({ queryKey: orpc.streak.get.key() });
       },
       onError: (error) => {
         if (isDefinedError(error) && error.code === "UNPROCESSABLE_CONTENT") {

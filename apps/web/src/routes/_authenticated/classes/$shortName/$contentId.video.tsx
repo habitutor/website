@@ -33,6 +33,7 @@ function RouteComponent() {
         queryClient.invalidateQueries({
           queryKey: orpc.subtest.content.list.key(),
         });
+        queryClient.invalidateQueries({ queryKey: orpc.streak.get.key() });
       },
       onError: (error) => {
         console.error("Failed to update progress:", error);

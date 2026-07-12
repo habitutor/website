@@ -44,6 +44,13 @@ const SUBTEST_DATA = [
     description: "Mengukur kemampuan penalaran dan pemecahan masalah menggunakan konsep matematika tingkat lanjut.",
     order: 7,
   },
+  {
+    name: "Habit Anti-Burnout",
+    shortName: "HAB",
+    description:
+      "Bangun kebiasaan belajar yang sehat dan berkelanjutan biar kamu tetap konsisten sampai hari-H tanpa tumbang.",
+    order: 8,
+  },
 ];
 
 export async function clearSubtest(db: NodePgDatabase) {

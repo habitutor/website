@@ -66,7 +66,13 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getRandomFlashcardQuestionIds: async ({ db = defaultDb, limit = 5 }: { db?: DrizzleDatabase; limit?: number }): Promise<Array<{ id: number }>> => {
+  getRandomFlashcardQuestionIds: async ({
+    db = defaultDb,
+    limit = 5,
+  }: {
+    db?: DrizzleDatabase;
+    limit?: number;
+  }): Promise<Array<{ id: number }>> => {
     const result = await db.execute(sql<{ id: number }>`
       SELECT q.id
       FROM (
@@ -168,7 +174,13 @@ export const flashcardRepo = {
     return attempt ?? null;
   },
 
-  getAttemptScore: async ({ db = defaultDb, attemptId }: { db?: DrizzleDatabase; attemptId: number }): Promise<number> => {
+  getAttemptScore: async ({
+    db = defaultDb,
+    attemptId,
+  }: {
+    db?: DrizzleDatabase;
+    attemptId: number;
+  }): Promise<number> => {
     const result = await db.execute(sql<{ score: number }>`
       SELECT
         CASE
@@ -337,13 +349,15 @@ export const flashcardRepo = {
     db?: DrizzleDatabase;
     currentUserId: string;
     limit?: number;
-  }): Promise<Array<{
-    userId: string;
-    name: string;
-    image: string | null;
-    totalScore: number;
-    rank: number;
-  }>> => {
+  }): Promise<
+    Array<{
+      userId: string;
+      name: string;
+      image: string | null;
+      totalScore: number;
+      rank: number;
+    }>
+  > => {
     const result = await db.execute(
       sql<{
         userId: string;

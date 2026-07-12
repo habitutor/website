@@ -2,7 +2,7 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { createMeta } from "@/lib/seo-utils";
-import { SignUpForm } from "./register-form";
+import { OnboardingWizard } from "./-onboarding/onboarding-wizard";
 
 export const Route = createFileRoute("/_auth/register")({
   head: () => ({
@@ -27,7 +27,7 @@ function RouteComponent() {
           Kembali
         </Link>
       </Button>
-      <SignUpForm />
+      <OnboardingWizard />
     </main>
   );
 }

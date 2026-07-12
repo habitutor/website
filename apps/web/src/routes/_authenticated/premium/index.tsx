@@ -2,17 +2,19 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
-import { PremiumPlansSections } from "./-components/premium-plans-sections";
-import { type BundlingVariant, usePremiumPaymentEffect } from "./premium-payment";
+import { Perintis2027Plan } from "./-components/perintis-2027-plan";
+import { PremiumHeader } from "./-components/premium-header";
+import { usePremiumPaymentEffect } from "./premium-payment";
 
 export const Route = createFileRoute("/_authenticated/premium/")({
   head: () => ({
     meta: createMeta({
       title: "Premium",
-      description: "Upgrade ke premium untuk akses penuh ke semua fitur dan materi Habitutor.",
+      description: "Amankan Paket Perintis 2027 untuk akses penuh ke semua fitur dan materi Habitutor.",
       noIndex: true,
     }),
   }),
@@ -27,11 +29,8 @@ function RouteComponent() {
   const [paymentToken, setPaymentToken] = useState<string>();
   const [paymentRedirectUrl, setPaymentRedirectUrl] = useState<string>();
   const [paymentOrderId, setPaymentOrderId] = useState<string>();
-  const [activeVariant, setActiveVariant] = useState<BundlingVariant | null>(null);
 
-  const sessionUser = session?.user as { isPremium?: boolean; premiumTier?: BundlingVariant | null } | undefined;
-  const isPremium = sessionUser?.isPremium ?? false;
-  const currentTier = isPremium ? (sessionUser?.premiumTier ?? "premium") : null;
+  const isPremium = session?.user.isPremium ?? false;
 
   useMidtransScript();
   usePremiumPaymentEffect({
@@ -42,36 +41,39 @@ function RouteComponent() {
     onCompleted: () => navigate({ to: "/premium" }),
   });
 
-  const handleSubscribe = (variant: BundlingVariant) => {
+  const handleSubscribe = () => {
     if (transactionMutation.isPending) return;
 
-    setActiveVariant(variant);
     transactionMutation.mutate(
-      { name: variant },
+      { name: "perintis2027" },
       {
         onSuccess: (data) => {
-          const transactionData = data as typeof data & { orderId?: string };
-          setPaymentToken(transactionData.token);
-          setPaymentRedirectUrl(transactionData.redirectUrl);
-          setPaymentOrderId(transactionData.orderId);
-          setActiveVariant(null);
+          setPaymentToken(data.token);
+          setPaymentRedirectUrl(data.redirectUrl);
+          setPaymentOrderId(data.orderId);
         },
         onError: (error) => {
           toast.error(error.message);
-          setActiveVariant(null);
         },
       },
     );
   };
 
   return (
-    <PremiumPlansSections
-      session={session}
-      isPremium={isPremium}
-      currentTier={currentTier}
-      isTransactionPending={transactionMutation.isPending}
-      activeVariant={activeVariant}
-      onSubscribe={handleSubscribe}
-    />
+    <MotionStagger className="mt-4 flex flex-col gap-6 sm:-mt-3">
+      <MotionStaggerItem>
+        <PremiumHeader session={session} />
+      </MotionStaggerItem>
+
+      <MotionStaggerItem>
+        <div className="rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
+          <Perintis2027Plan
+            isPremium={isPremium}
+            isPending={transactionMutation.isPending}
+            onSubscribe={handleSubscribe}
+          />
+        </div>
+      </MotionStaggerItem>
+    </MotionStagger>
   );
 }

@@ -5,6 +5,7 @@ import { eq, sql } from "drizzle-orm";
 import { authed, premium } from "../../index";
 import { getStartOfDay } from "@habitutor/shared/date";
 import { convertToTiptap } from "../../lib/tiptap";
+import { recordStreakActivity } from "../streak/service";
 import {
   countCorrectAnswers,
   isAttemptExpired,
@@ -209,6 +210,8 @@ const submit = authed
           .set({ totalScore: sql`${user.totalScore} + ${attemptScore}` })
           .where(eq(user.id, context.session.user.id));
     });
+
+    await recordStreakActivity({ userId: context.session.user.id });
 
     return { message: "Berhasil mengerjakan flashcard hari ini!" };
   });

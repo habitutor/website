@@ -21,10 +21,10 @@ export function PremiumHeader({ session }: { session: typeof authClient.$Infer.S
 
           <div className="relative z-10 col-span-2">
             <h1 className="bg-linear-to-r from-background to-tertiary-100 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
-              Pilih Paket Belajar Terbaikmu!
+              Amankan Paket Perintis 2027!
             </h1>
             <p className="mt-2 text-[14px] leading-5.25 text-white/90">
-              Investasikan masa depanmu sekarang! dengan bimbingan intensif dari Habitutor
+              Sekali bayar, akses penuh sampai hari-H SNBT 2027 — belajar bareng Habitutor mulai hari ini
             </p>
           </div>
         </div>

@@ -33,7 +33,7 @@ export default function Header() {
         <Link to="/home-premium">Premium</Link>
       </Button>
       <Button variant={"outline"} className="w-full md:w-auto" asChild>
-        <a href={DATA.footer.socials[2].url}>
+        <a href={DATA.footer.contactWhatsapp}>
           <WhatsappLogoIcon />
           Hubungi Kami
         </a>

@@ -1,27 +1,21 @@
 import { ArrowCircleRightIcon, ArrowRightIcon, XIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { COMMUNITY_LINKS } from "@/lib/community-links";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
+import { useSyncOnboardingProfile } from "@/hooks/data/use-sync-onboarding-profile";
 import { Announcement } from "../-components/announcement";
 import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
-import { shouldRequirePremiumDialog } from "./social-access";
+import { WelcomeVideoDialog } from "./-components/welcome-video-dialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -36,45 +30,19 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 
 function RouteComponent() {
   const { session } = Route.useRouteContext();
-  const { data, error } = useQuery(orpc.social.get.queryOptions());
   const { data: profile } = useQuery(orpc.profile.me.queryOptions());
   useQuery(orpc.dashboard.content.queryOptions());
 
-  const [showDialog, setShowDialog] = useState(false);
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
   const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
   const [pwaDialog, setPwaDialog] = useState(false);
 
   useProcessReferralCode();
-
-  const handleSocialClick = useCallback(
-    (e: React.MouseEvent, socialLink?: string) => {
-      if (shouldRequirePremiumDialog({ socialLink, hasError: Boolean(error) })) {
-        e.preventDefault();
-        setShowDialog(true);
-      }
-    },
-    [error],
-  );
+  useSyncOnboardingProfile();
 
   return (
     <>
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ups, belum premium!</DialogTitle>
-            <DialogDescription>Untuk bergabung bersama grup whatsapp, kamu perlu Premium</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>
-              Cancel
-            </Button>
-            <Link to="/premium">
-              <Button>Continue</Button>
-            </Link>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <WelcomeVideoDialog open={profile ? !profile.hasSeenWelcomeVideo : false} />
 
       <PWATutorialDialog open={pwaDialog} onOpenChange={setPwaDialog} />
 
@@ -93,18 +61,32 @@ function RouteComponent() {
               </div>
             </div>
 
-            <div className="fixed right-4 bottom-10 z-20 grid grid-cols-1 md:static [&>a]:flex [&>a]:justify-between [&>a]:gap-10 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
+            <div className="fixed right-4 bottom-10 z-20 grid grid-cols-1 gap-2 md:static [&>a]:flex [&>a]:justify-between [&>a]:gap-10 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
               <a
-                href={data?.whatsapp || "#"}
-                rel={data?.whatsapp ? "noopener noreferrer" : undefined}
-                target={data?.whatsapp ? "_blank" : undefined}
-                onClick={(e) => handleSocialClick(e, data?.whatsapp ?? undefined)}
+                href={COMMUNITY_LINKS.whatsapp}
+                rel="noopener noreferrer"
+                target="_blank"
                 className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
               >
                 <p className="z-10 w-[50%] font-bold md:w-full">Join Whatsapp</p>
                 <ArrowCircleRightIcon size={24} className="z-10" />
                 <Image
                   src="/icons/whatsapp.svg"
+                  width={70}
+                  height={70}
+                  className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
+                />
+              </a>
+              <a
+                href={COMMUNITY_LINKS.discord}
+                rel="noopener noreferrer"
+                target="_blank"
+                className="group relative overflow-clip bg-discord hover:bg-discord/80"
+              >
+                <p className="z-10 w-[50%] font-bold md:w-full">Join Discord</p>
+                <ArrowCircleRightIcon size={24} className="z-10" />
+                <Image
+                  src="/icons/discord.svg"
                   width={70}
                   height={70}
                   className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
