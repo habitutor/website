@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 import { BusinessAnalytics } from "./-components/business-analytics";
+import { EarlyBirdStatusCard } from "./-components/early-bird-status-card";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: AdminDashboard,
@@ -16,7 +17,8 @@ function AdminDashboard() {
     <AdminContainer>
       <AdminHeader title="Admin Dashboard" description="Selamat datang di panel admin Habitutor" />
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+        <EarlyBirdStatusCard />
         <StatsCard
           title="Total Users"
           statKey="totalUsers"

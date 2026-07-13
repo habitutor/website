@@ -9,7 +9,7 @@ import { isAdminRole } from "./auth-domain";
  * Check if a user can access specific content detail (video, notes, practice questions)
  * - Admin users can access all content
  * - Premium users can access all content
- * - Free users can only access: first subtest (order=1) AND first content per category (order=1)
+ * - Free users can only access the first content per category (order=1) in any subtest
  *
  * @param userIsPremium - Whether the user has premium access
  * @param userRole - The user's role (e.g., "admin", "user")
@@ -20,15 +20,15 @@ import { isAdminRole } from "./auth-domain";
 export function canAccessContent(
   userIsPremium: boolean,
   userRole: string | undefined,
-  subtestOrder: number,
+  _subtestOrder: number,
   contentOrder: number,
 ): boolean {
   // Admin can access everything
   if (isAdminRole(userRole)) return true;
   // Premium users can access everything
   if (userIsPremium) return true;
-  // Free users: only first content from first subtest
-  return isFirstSubtest(subtestOrder) && isFirstContent(contentOrder);
+  // Free users: first lesson of every course
+  return isFirstContent(contentOrder);
 }
 
 /**
@@ -49,14 +49,13 @@ export function isFirstContent(contentOrder: number): boolean {
 
 /**
  * Check if a subtest requires premium access (for UI display)
- * Only the first subtest (order=1) is accessible to free users
+ * Free users can open every subtest (first lesson is free); individual content locks apply per item.
  *
- * @param subtestOrder - The order of the subtest
+ * @param _subtestOrder - The order of the subtest (unused; kept for call-site compatibility)
  * @param userRole - The user's role
  * @param userIsPremium - Whether the user has premium access
  */
-export function isSubtestPremium(subtestOrder: number, userRole?: string, userIsPremium?: boolean): boolean {
-  // Admin and premium users see no lock
+export function isSubtestPremium(_subtestOrder: number, userRole?: string, userIsPremium?: boolean): boolean {
   if (isAdminRole(userRole) || userIsPremium) return false;
-  return subtestOrder !== 1;
+  return false;
 }

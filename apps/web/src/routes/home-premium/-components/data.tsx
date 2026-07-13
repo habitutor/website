@@ -1,17 +1,7 @@
+import { PERINTIS_FAQ, PERINTIS_FALLBACK_PRICING, PERINTIS_SLUG, formatRupiah } from "@/lib/perintis-pricing-copy";
 import { BooksIcon, FireIcon, type Icon, MicrophoneStageIcon } from "@phosphor-icons/react";
 
-export function formatRupiah(amount: number) {
-  return `Rp ${amount.toLocaleString("id-ID")}`;
-}
-
-export const PERINTIS_SLUG = "perintis2027" as const;
-
-export const PERINTIS_FALLBACK_PRICING = {
-  originalPrice: 499_000,
-  earlyBirdPrice: 199_000,
-  regularPrice: 299_000,
-  earlyBirdQuota: 50,
-} as const;
+export { formatRupiah, PERINTIS_FALLBACK_PRICING, PERINTIS_SLUG };
 
 type Benefit = {
   icon: Icon;
@@ -25,15 +15,10 @@ export const PERINTIS_DATA = {
     title: "Perintis SNBT & TKA 2027, mulai sekarang.",
     subtitle:
       "Belajar bareng sampai hari-H: playlist video, anti burn out starterpack, bank soal, try out, 100+ sesi live, dan komunitas yang jagain lo tetep konsisten.",
-    priceSuffix: "akses penuh sampai SNBT 2027!",
+    priceSuffix: "sekali bayar, akses penuh sampai SNBT 2027!",
     cta: "Daftar Sekarang",
-    scarcityNote: "Khusus 50 pendaftar pertama. Setelah itu naik Rp 299.000.",
   },
-  proofPoints: [
-    "7 dari 10 peserta SNBT gagal tiap tahun",
-    "Siswa Habitutor: 60% lolos PTN 2026",
-    "Dibangun oleh yang udah bantu ratusan ribu siswa",
-  ],
+  proofPoints: ["Lebih dari 60% siswa Habitutor yang melapor lolos PTN di SNBT 2026 — hampir 2x rata-rata nasional."],
   benefits: [
     {
       icon: BooksIcon,
@@ -62,33 +47,7 @@ export const PERINTIS_DATA = {
     description:
       "Aplikasi iOS & Android, AI personal tutor, tes minat-jurusan. Daftar sekarang = dapet semuanya otomatis, tanpa bayar lagi.",
   },
-  pricing: {
-    label: "Paket Perintis 2027",
-    suffix: "akses penuh sampai hari-H SNBT",
-    features: ["Semua video, soal & try out", "100+ sesi live", "Komunitas", "Semua fitur baru otomatis"],
-  },
-  faq: [
-    {
-      id: 1,
-      question: "Live class-nya mulai kapan?",
-      answer: "Pertengahan Agustus. Tapi video, bank soal, try out, dan komunitas bisa lo akses langsung hari ini.",
-    },
-    {
-      id: 2,
-      question: "Gua baru naik kelas 12 / masih kelas 11, cocok gak?",
-      answer: "Buat kelas 12 itu waktu ideal. Kelas 11 juga boleh banget, makin panjang persiapan makin santai.",
-    },
-    {
-      id: 3,
-      question: "Aksesnya sampai kapan?",
-      answer: "Sampai hari-H SNBT 2027. Sekali bayar, gak ada biaya bulanan.",
-    },
-    {
-      id: 4,
-      question: "Belajarnya lewat mana?",
-      answer: "Web habitutor.id (aplikasi menyusul Agustus, gratis buat member).",
-    },
-  ],
+  faq: PERINTIS_FAQ,
   closing: {
     title: "Merintis duluan selalu lebih murah daripada nyusul.",
     cta: "Daftar Sekarang",

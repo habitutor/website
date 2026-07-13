@@ -41,9 +41,12 @@ export function PremiumGateModal({ isOpen, onClose, contentType, previewContent 
               </CardTitle>
               <CardDescription className="text-base">
                 {contentType === "subtest" ? (
-                  <>Untuk membuka semua subtest UTBK (PU, PPU, PBM, PK, LBI, LBing, PM), premium dulu yuk!</>
+                  <>Untuk membuka semua materi di subtest ini, premium dulu yuk! Materi pertama tetap gratis.</>
                 ) : (
-                  <>Untuk membuka semua materi dan tips & trick, premium dulu yuk!</>
+                  <>
+                    Untuk membuka semua materi dan tips & trick, premium dulu yuk! Materi pertama tiap kelas tetap
+                    gratis.
+                  </>
                 )}
               </CardDescription>
             </CardHeader>

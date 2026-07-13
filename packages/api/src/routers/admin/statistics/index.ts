@@ -1,4 +1,6 @@
 import { type } from "arktype";
+import { PERINTIS_2027 } from "../../../lib/constants";
+import { transactionRepo } from "../../transaction/repo";
 import { admin } from "../../../index";
 import { adminMetricsRepo } from "./metrics-repo";
 import { adminStatisticsRepo } from "./repo";
@@ -49,9 +51,31 @@ const audienceInsights = admin
     return adminMetricsRepo.getAudienceInsights({});
   });
 
+const perintisEarlyBird = admin
+  .route({
+    path: "/admin/statistics/perintis-early-bird",
+    method: "GET",
+    tags: ["Admin - Statistics"],
+  })
+  .handler(async () => {
+    const soldCount = await transactionRepo.countSuccessfulTransactionsBySlug({ slug: PERINTIS_2027.SLUG });
+    const slotsClaimed = soldCount;
+    const slotsRemaining = Math.max(PERINTIS_2027.EARLY_BIRD_QUOTA - soldCount, 0);
+
+    return {
+      totalSlots: PERINTIS_2027.EARLY_BIRD_QUOTA,
+      slotsClaimed,
+      slotsRemaining,
+      isActive: slotsRemaining > 0,
+      earlyBirdPrice: PERINTIS_2027.EARLY_BIRD_PRICE,
+      regularPrice: PERINTIS_2027.REGULAR_PRICE,
+    };
+  });
+
 export const adminStatisticsRouter = {
   stats: get,
   businessOverview,
   timeSeries,
   audienceInsights,
+  perintisEarlyBird,
 };

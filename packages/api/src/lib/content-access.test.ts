@@ -31,11 +31,12 @@ describe("canAccessContent", () => {
       expect(canAccessContent(false, "user", 1, 2)).toBe(false);
     });
 
-    test("free user cannot access first content of second subtest", () => {
-      expect(canAccessContent(false, "user", 2, 1)).toBe(false);
+    test("free user can access first content of any subtest", () => {
+      expect(canAccessContent(false, "user", 2, 1)).toBe(true);
+      expect(canAccessContent(false, "user", 8, 1)).toBe(true);
     });
 
-    test("free user cannot access arbitrary content", () => {
+    test("free user cannot access later content in any subtest", () => {
       expect(canAccessContent(false, "user", 3, 5)).toBe(false);
     });
   });
@@ -43,7 +44,8 @@ describe("canAccessContent", () => {
   describe("undefined role", () => {
     test("undefined role is treated as regular user", () => {
       expect(canAccessContent(false, undefined, 1, 1)).toBe(true);
-      expect(canAccessContent(false, undefined, 2, 1)).toBe(false);
+      expect(canAccessContent(false, undefined, 2, 1)).toBe(true);
+      expect(canAccessContent(false, undefined, 2, 2)).toBe(false);
     });
   });
 });

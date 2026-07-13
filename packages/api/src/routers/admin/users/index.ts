@@ -32,6 +32,7 @@ const listUsers = admin
       "limit?": "number",
       "cursor?": "string",
       "search?": "string",
+      "isPremium?": "boolean",
     }),
   )
   .handler(async ({ input }) => {
@@ -46,6 +47,7 @@ const listUsers = admin
       cursorCreatedAt,
       cursorId: cursorData?.id ?? null,
       search,
+      isPremium: input.isPremium,
     });
 
     if (users.length === 0)

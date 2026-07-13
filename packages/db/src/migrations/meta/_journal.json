@@ -57,6 +57,13 @@
       "when": 1783878900000,
       "tag": "0007_seed_habit_anti_burnout_subtest",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783880000000,
+      "tag": "0008_hab_first_and_pricing_update",
+      "breakpoints": true
     }
   ]
 }

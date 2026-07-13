@@ -30,6 +30,7 @@ import {
   PHONE_NUMBER_PATTERN,
   SNBT_SUBJECTS,
 } from "./constants";
+import { AutocompleteInput } from "./autocomplete-input";
 
 const QUESTION_STEPS = [
   "dreamCampus",
@@ -165,35 +166,25 @@ function QuestionStep({
     >
       {key === "dreamCampus" && (
         <StepShell title="Apa kampus impian kamu?" subtitle="Tulis nama PTN atau kampus yang paling kamu incar.">
-          <Input
+          <AutocompleteInput
             value={answers.dreamCampus}
-            onChange={(e) => setAnswer("dreamCampus", e.target.value)}
+            onChange={(value) => setAnswer("dreamCampus", value)}
+            suggestions={CAMPUS_SUGGESTIONS}
             placeholder="Contoh: Universitas Gadjah Mada"
-            list="campus-suggestions"
             autoFocus
           />
-          <datalist id="campus-suggestions">
-            {CAMPUS_SUGGESTIONS.map((campus) => (
-              <option key={campus} value={campus} />
-            ))}
-          </datalist>
         </StepShell>
       )}
 
       {key === "dreamMajor" && (
         <StepShell title="Apa jurusan impian kamu?" subtitle="Jurusan yang bakal kamu perjuangin sampai hari-H.">
-          <Input
+          <AutocompleteInput
             value={answers.dreamMajor}
-            onChange={(e) => setAnswer("dreamMajor", e.target.value)}
+            onChange={(value) => setAnswer("dreamMajor", value)}
+            suggestions={MAJOR_SUGGESTIONS}
             placeholder="Contoh: Kedokteran"
-            list="major-suggestions"
             autoFocus
           />
-          <datalist id="major-suggestions">
-            {MAJOR_SUGGESTIONS.map((major) => (
-              <option key={major} value={major} />
-            ))}
-          </datalist>
         </StepShell>
       )}
 

@@ -10,12 +10,14 @@ export const adminUserRepo = {
     cursorCreatedAt,
     cursorId,
     search,
+    isPremium,
   }: {
     db?: DrizzleDatabase;
     limit: number;
     cursorCreatedAt: Date | null;
     cursorId: string | null;
     search: string;
+    isPremium?: boolean;
   }) => {
     return db
       .select({
@@ -35,6 +37,7 @@ export const adminUserRepo = {
       .where(
         and(
           search.length > 0 ? or(ilike(user.name, `%${search}%`), ilike(user.email, `%${search}%`)) : undefined,
+          isPremium === undefined ? undefined : eq(user.isPremium, isPremium),
           cursorCreatedAt && cursorId
             ? sql`(${user.createdAt}, ${user.id}) < (${cursorCreatedAt}, ${cursorId})`
             : undefined,
