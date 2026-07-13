@@ -64,7 +64,7 @@ export function CallToAction() {
                   <span className="text-xl font-black text-primary-300 md:text-3xl">
                     {formatRupiah(pricing.currentPrice)}
                   </span>
-                  {pricing.isEarlyBird && <span className="font-semibold">— 50 orang pertama.</span>}
+                  <span className="font-semibold">— sekali bayar.</span>
                 </m.p>
               </div>
 

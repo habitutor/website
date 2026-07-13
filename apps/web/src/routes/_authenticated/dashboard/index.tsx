@@ -6,6 +6,7 @@ import { useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { COMMUNITY_LINKS } from "@/lib/community-links";
+import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
@@ -42,7 +43,7 @@ function RouteComponent() {
 
   return (
     <>
-      <WelcomeVideoDialog open={profile ? !profile.hasSeenWelcomeVideo : false} />
+      <WelcomeVideoDialog open={WELCOME_VIDEO_ENABLED && profile ? !profile.hasSeenWelcomeVideo : false} />
 
       <PWATutorialDialog open={pwaDialog} onOpenChange={setPwaDialog} />
 

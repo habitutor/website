@@ -4,6 +4,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useEffect, useRef, useState } from "react";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,6 +17,7 @@ const usersSearchSchema = type({
   "search?": "string",
   "cursor?": "string",
   "cursorHistory?": "string[]",
+  "premium?": "'all' | 'premium' | 'free'",
 });
 
 export const Route = createFileRoute("/admin/users/")({
@@ -27,6 +29,7 @@ function UsersPage() {
   const navigate = useNavigate({ from: Route.fullPath });
   const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
+  const premiumFilter = Route.useSearch({ select: (s) => s.premium ?? "all" });
   const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
@@ -82,6 +85,7 @@ function UsersPage() {
         limit,
         cursor: cursor ?? undefined,
         search: searchParam,
+        isPremium: premiumFilter === "premium" ? true : premiumFilter === "free" ? false : undefined,
       },
     }),
   );
@@ -103,6 +107,34 @@ function UsersPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
           />
+        </div>
+        <div className="flex gap-2">
+          {(
+            [
+              { value: "all", label: "Semua" },
+              { value: "premium", label: "Premium" },
+              { value: "free", label: "Free" },
+            ] as const
+          ).map((option) => (
+            <Button
+              key={option.value}
+              type="button"
+              variant={premiumFilter === option.value ? "default" : "outline"}
+              onClick={() =>
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    premium: option.value === "all" ? undefined : option.value,
+                    cursor: undefined,
+                    cursorHistory: undefined,
+                  }),
+                  replace: true,
+                })
+              }
+            >
+              {option.label}
+            </Button>
+          ))}
         </div>
       </div>
 

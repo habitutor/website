@@ -3,52 +3,52 @@ import { contentItem, noteMaterial, recentContentView, subtest, userProgress, vi
 
 const SUBTEST_DATA = [
   {
+    name: "Habit Anti Burnout - Buka ini sebelum Belajar!",
+    shortName: "HAB",
+    description:
+      "Bangun kebiasaan belajar yang sehat dan berkelanjutan biar kamu tetap konsisten sampai hari-H tanpa tumbang.",
+    order: 1,
+  },
+  {
     name: "Kemampuan Penalaran Umum",
     shortName: "PU",
     description: "Mengukur kemampuan berpikir logis, analitis, dan kritis melalui penalaran deduktif dan induktif.",
-    order: 1,
+    order: 2,
   },
   {
     name: "Pengetahuan dan Pemahaman Umum",
     shortName: "PPU",
     description: "Mengukur kemampuan memahami dan menganalisis informasi dari berbagai teks dan konteks.",
-    order: 2,
+    order: 3,
   },
   {
     name: "Kemampuan Memahami Bacaan dan Menulis",
     shortName: "PBM",
     description: "Mengukur kemampuan memahami isi bacaan, menemukan ide pokok, dan menyusun kalimat yang efektif.",
-    order: 3,
+    order: 4,
   },
   {
     name: "Pengetahuan Kuantitatif",
     shortName: "PK",
     description: "Mengukur kemampuan menggunakan konsep matematika dasar dan penalaran numerik.",
-    order: 4,
+    order: 5,
   },
   {
     name: "Literasi dalam Bahasa Indonesia",
     shortName: "LBI",
     description: "Mengukur kemampuan memahami, menganalisis, dan mengevaluasi teks berbahasa Indonesia.",
-    order: 5,
+    order: 6,
   },
   {
     name: "Literasi dalam Bahasa Inggris",
     shortName: "LBing",
     description: "Mengukur kemampuan memahami dan menganalisis teks berbahasa Inggris.",
-    order: 6,
+    order: 7,
   },
   {
     name: "Penalaran Matematika",
     shortName: "PM",
     description: "Mengukur kemampuan penalaran dan pemecahan masalah menggunakan konsep matematika tingkat lanjut.",
-    order: 7,
-  },
-  {
-    name: "Habit Anti-Burnout",
-    shortName: "HAB",
-    description:
-      "Bangun kebiasaan belajar yang sehat dan berkelanjutan biar kamu tetap konsisten sampai hari-H tanpa tumbang.",
     order: 8,
   },
 ];

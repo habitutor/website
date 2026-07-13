@@ -92,9 +92,6 @@ export function Hero() {
             >
               {hero.cta}
             </Link>
-            {pricing.isEarlyBird && (
-              <p className="text-center text-xs font-medium text-neutral-700 sm:text-sm">{hero.scarcityNote}</p>
-            )}
           </m.div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { client, orpc } from "@/utils/orpc";
-import { PERINTIS_FALLBACK_PRICING } from "./data";
+import { PERINTIS_FALLBACK_PRICING } from "@/lib/perintis-pricing-copy";
 
 export function usePerintisPricing() {
   const { data, isPending } = useQuery({
