@@ -26,9 +26,14 @@ function RouteComponent() {
   const router = useRouter();
   const navigate = useNavigate();
   const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
+  const validatePromoMutation = useMutation(orpc.transaction.validatePromo.mutationOptions());
   const [paymentToken, setPaymentToken] = useState<string>();
   const [paymentRedirectUrl, setPaymentRedirectUrl] = useState<string>();
   const [paymentOrderId, setPaymentOrderId] = useState<string>();
+  const [promoCode, setPromoCode] = useState("");
+  const [promoFeedback, setPromoFeedback] = useState<
+    { valid: boolean; message: string; discountedPrice?: number } | undefined
+  >();
 
   const isPremium = session?.user.isPremium ?? false;
 
@@ -45,7 +50,7 @@ function RouteComponent() {
     if (transactionMutation.isPending) return;
 
     transactionMutation.mutate(
-      { name: "perintis2027" },
+      { name: "perintis2027", promoCode: promoCode.trim() || undefined },
       {
         onSuccess: (data) => {
           setPaymentToken(data.token);
@@ -55,6 +60,27 @@ function RouteComponent() {
         onError: (error) => {
           toast.error(error.message);
         },
+      },
+    );
+  };
+
+  const handleValidatePromo = () => {
+    if (!promoCode.trim()) return;
+    validatePromoMutation.mutate(
+      { code: promoCode, productSlug: "perintis2027" },
+      {
+        onSuccess: (result) => {
+          setPromoFeedback(
+            result.valid
+              ? {
+                  valid: true,
+                  message: "Kode promo valid.",
+                  discountedPrice: result.discountedPrice,
+                }
+              : { valid: false, message: result.message },
+          );
+        },
+        onError: (error) => setPromoFeedback({ valid: false, message: error.message }),
       },
     );
   };
@@ -71,6 +97,14 @@ function RouteComponent() {
             isPremium={isPremium}
             isPending={transactionMutation.isPending}
             onSubscribe={handleSubscribe}
+            promoCode={promoCode}
+            onPromoCodeChange={(value) => {
+              setPromoCode(value);
+              setPromoFeedback(undefined);
+            }}
+            onValidatePromo={handleValidatePromo}
+            promoFeedback={promoFeedback}
+            isPromoValidating={validatePromoMutation.isPending}
           />
         </div>
       </MotionStaggerItem>

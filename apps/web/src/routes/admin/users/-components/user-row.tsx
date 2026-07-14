@@ -1,4 +1,4 @@
-import { Crown, DotsThree } from "@phosphor-icons/react";
+import { Crown, DotsThree, XCircle } from "@phosphor-icons/react";
 import { ROLES } from "@habitutor/shared/auth-domain";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ConfirmPremiumDialog } from "./confirm-premium-dialog";
 import { ManagePremiumDialog } from "./manage-premium-dialog";
+import { RevokePremiumDialog } from "./revoke-premium-dialog";
 
 interface User {
   id: string;
@@ -21,6 +22,7 @@ interface User {
   referralUsage: number | null;
   phoneNumber: string | null;
   isPremium: boolean | null;
+  packageSlug: string | null;
   premiumExpiresAt: Date | null;
   createdAt: Date;
 }
@@ -48,6 +50,7 @@ export function getDisplayDate(date: Date) {
 export function UserRow({ user }: UserRowProps) {
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     user.premiumExpiresAt ? new Date(user.premiumExpiresAt) : undefined,
   );
@@ -70,7 +73,7 @@ export function UserRow({ user }: UserRowProps) {
           {isPremium ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
               <Crown className="size-3" weight="fill" />
-              Premium
+              {user.packageSlug ?? "Premium"}
               {user.premiumExpiresAt && (
                 <span className="text-amber-600/70 dark:text-amber-400/70">
                   until {getDisplayDate(user.premiumExpiresAt)}
@@ -97,6 +100,12 @@ export function UserRow({ user }: UserRowProps) {
                 <Crown className="mr-2 size-4" />
                 {isPremium ? "Manage Premium" : "Grant Premium"}
               </DropdownMenuItem>
+              {isPremium && (
+                <DropdownMenuItem className="text-destructive" onClick={() => setRevokeDialogOpen(true)}>
+                  <XCircle className="mr-2 size-4" />
+                  Revoke Premium
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
@@ -124,6 +133,7 @@ export function UserRow({ user }: UserRowProps) {
           setSelectedDate(undefined);
         }}
       />
+      <RevokePremiumDialog user={user} open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen} />
     </>
   );
 }

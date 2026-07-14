@@ -5,6 +5,8 @@ describe("ORPC error contract", () => {
   test("exposes expected error keys", () => {
     expect(Object.keys(ORPC_ERROR_MESSAGES).sort()).toEqual(
       [
+        "BAD_REQUEST",
+        "CONFLICT",
         "FORBIDDEN",
         "INTERNAL_SERVER_ERROR",
         "NOT_FOUND",

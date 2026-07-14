@@ -16,7 +16,10 @@ export function usePaymentStatus(
   const { data, isLoading, error } = useQuery({
     ...orpc.transaction.status.queryOptions({ input: { orderId: order_id ?? "" } }),
     enabled: !!order_id,
-    retry: false,
+    // The webhook is the primary fulfillment path, but it can lag a few seconds.
+    // Retry transient errors so a paid user isn't bounced to /premium prematurely.
+    retry: 3,
+    retryDelay: 1000,
   });
 
   if (isLoading) {

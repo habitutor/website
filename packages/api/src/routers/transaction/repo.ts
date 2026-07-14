@@ -1,7 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { product, transaction } from "@habitutor/db/schema/transaction";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, ne, sql } from "drizzle-orm";
 import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
@@ -10,12 +10,17 @@ export const transactionRepo = {
     return prod;
   },
 
+  getProductById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: string }) => {
+    const [prod] = await db.select().from(product).where(eq(product.id, id)).limit(1);
+    return prod;
+  },
+
   countSuccessfulTransactionsBySlug: async ({ db = defaultDb, slug }: { db?: DrizzleDatabase; slug: string }) => {
     const [result] = await db
       .select({ total: count() })
       .from(transaction)
       .innerJoin(product, eq(transaction.productId, product.id))
-      .where(and(eq(product.slug, slug), eq(transaction.status, "success")));
+      .where(and(eq(product.slug, slug), eq(transaction.status, "success"), eq(transaction.isSimulation, false)));
     return result?.total ?? 0;
   },
 
@@ -26,6 +31,8 @@ export const transactionRepo = {
     grossAmount,
     userId,
     referralCodeId,
+    promoCodeId,
+    isSimulation = false,
   }: {
     db?: DrizzleDatabase;
     id: string;
@@ -33,6 +40,8 @@ export const transactionRepo = {
     grossAmount: string;
     userId: string;
     referralCodeId?: string;
+    promoCodeId?: string;
+    isSimulation?: boolean;
   }) => {
     const [tx] = await db
       .insert(transaction)
@@ -42,13 +51,23 @@ export const transactionRepo = {
         grossAmount,
         userId,
         referralCodeId,
+        promoCodeId,
+        isSimulation,
       })
       .returning();
     return tx;
   },
 
-  getTransactionWithProduct: async ({ db = defaultDb, orderId }: { db?: DrizzleDatabase; orderId: string }) => {
-    const [result] = await db
+  getTransactionWithProduct: async ({
+    db = defaultDb,
+    orderId,
+    lock = false,
+  }: {
+    db?: DrizzleDatabase;
+    orderId: string;
+    lock?: boolean;
+  }) => {
+    const query = db
       .select({
         tx: transaction,
         prodType: product.type,
@@ -58,7 +77,37 @@ export const transactionRepo = {
       .innerJoin(product, eq(transaction.productId, product.id))
       .where(eq(transaction.id, orderId))
       .limit(1);
+    const [result] = lock ? await query.for("update") : await query;
     return result;
+  },
+
+  getLatestSuccessfulSubscriptionByUserId: async ({
+    db = defaultDb,
+    userId,
+    excludeOrderId,
+  }: {
+    db?: DrizzleDatabase;
+    userId: string;
+    excludeOrderId?: string;
+  }) => {
+    const [result] = await db
+      .select({
+        prodSlug: product.slug,
+      })
+      .from(transaction)
+      .innerJoin(product, eq(transaction.productId, product.id))
+      .where(
+        and(
+          eq(transaction.userId, userId),
+          eq(transaction.status, "success"),
+          eq(product.type, "subscription"),
+          excludeOrderId ? ne(transaction.id, excludeOrderId) : undefined,
+        ),
+      )
+      .orderBy(desc(transaction.paidAt), desc(transaction.orderedAt))
+      .limit(1);
+
+    return result ?? null;
   },
 
   getLatestSuccessfulPremiumTierByUserId: async ({
@@ -122,6 +171,39 @@ export const transactionRepo = {
       .set({
         status,
         paidAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(transaction.id, orderId))
+      .returning();
+    return tx;
+  },
+
+  updateGatewayMetadata: async ({
+    db = defaultDb,
+    orderId,
+    gatewayTransactionId,
+    gatewayStatus,
+    paymentType,
+    fraudStatus,
+    statusCode,
+  }: {
+    db?: DrizzleDatabase;
+    orderId: string;
+    gatewayTransactionId?: string;
+    gatewayStatus?: string;
+    paymentType?: string;
+    fraudStatus?: string;
+    statusCode?: string;
+  }) => {
+    const [tx] = await db
+      .update(transaction)
+      .set({
+        gatewayTransactionId,
+        gatewayStatus,
+        paymentType,
+        fraudStatus,
+        statusCode,
+        updatedAt: new Date(),
       })
       .where(eq(transaction.id, orderId))
       .returning();

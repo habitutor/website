@@ -72,6 +72,14 @@ app.use("/*", async (c, next) => {
   const context = await createContext({ context: c });
   let req = c.req.raw;
 
+  // Keep the payment webhook outside auth/RPC-looking URLs. The legacy
+  // /api-reference/transactions/notification endpoint remains available.
+  if (c.req.path === "/webhooks/midtrans") {
+    const url = new URL(req.url);
+    url.pathname = "/api-reference/transactions/notification";
+    req = new Request(url, req);
+  }
+
   // Try to convert form-data to JSON if applicable
   const convertedRequest = await formDataToJsonMiddleware(req);
   if (convertedRequest) {

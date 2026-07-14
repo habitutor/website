@@ -7,6 +7,8 @@ export const ORPC_ERROR_MESSAGES = {
   UNPROCESSABLE_CONTENT: { message: "Permintaan anda tidak dapat diproses." },
   INTERNAL_SERVER_ERROR: { message: "Terjadi kesalahan pada sisi kami, silahkan coba lagi." },
   FORBIDDEN: { message: "Anda tidak memiliki hak akses ke resource ini." },
+  BAD_REQUEST: { message: "Permintaan tidak valid." },
+  CONFLICT: { message: "Terjadi konflik dengan data yang sudah ada." },
   TOO_MANY_REQUESTS: { message: "Terlalu banyak permintaan. Silakan coba lagi nanti." },
 } as const;
 

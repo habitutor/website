@@ -8,7 +8,13 @@ import { transactionRepo } from "./repo";
 
 type MidtransStatusResponse = {
   transaction_status: string;
-  fraud_status: string;
+  fraud_status?: string;
+  gross_amount: string;
+  settlement_time?: string;
+  transaction_time?: string;
+  transaction_id?: string;
+  payment_type?: string;
+  status_code?: string;
 };
 
 async function fetchMidtransTransactionStatus(orderId: string): Promise<MidtransStatusResponse> {
@@ -35,128 +41,229 @@ async function fetchMidtransTransactionStatus(orderId: string): Promise<Midtrans
   return (await statusResponse.json()) as MidtransStatusResponse;
 }
 
-export async function markTransactionAsSuccess(orderId: string) {
-  const existingTransaction = await transactionRepo.getTransactionWithProduct({ orderId });
+function getPremiumDetails(productSlug: string) {
+  const isPerintis2027 = productSlug === PERINTIS_2027.SLUG;
+  const isPremium = isPerintis2027 || productSlug === PREMIUM_TIERS.PREMIUM || productSlug === PREMIUM_TIERS.PREMIUM_2;
 
-  if (!existingTransaction) {
-    return null;
+  if (!isPremium) return null;
+
+  return {
+    tier: productSlug === PREMIUM_TIERS.PREMIUM_2 ? PREMIUM_TIERS.PREMIUM_2 : PREMIUM_TIERS.PREMIUM,
+    expiresAt: isPerintis2027 ? SNBT_2027_DEADLINE : PREMIUM_DEADLINE,
+  };
+}
+
+// Referral cashback runs in its own transaction after the grant commits, so a
+// referral failure can never roll back a legitimately paid premium upgrade.
+async function processReferralReward(input: {
+  orderId: string;
+  userId: string;
+  referralCodeId: string;
+  productSlug: string;
+}) {
+  try {
+    await db.transaction(async (trx) => {
+      const alreadyRecorded = await referralRepo.getUsageByTransactionId({
+        db: trx,
+        transactionId: input.orderId,
+      });
+      if (alreadyRecorded) return;
+
+      const originalProduct = await transactionRepo.getProductBySlug({ db: trx, slug: input.productSlug });
+      const cashback = originalProduct ? String(Math.floor(Number(originalProduct.price) * 0.25)) : "0";
+
+      const linkedUsage = await referralRepo.attachPendingUsageToTransaction({
+        db: trx,
+        userId: input.userId,
+        referralCodeId: input.referralCodeId,
+        transactionId: input.orderId,
+        cashbackAmount: cashback,
+      });
+
+      if (!linkedUsage) {
+        await referralRepo.createUsage({
+          db: trx,
+          userId: input.userId,
+          referralCodeId: input.referralCodeId,
+          transactionId: input.orderId,
+          cashbackAmount: cashback,
+        });
+        await referralRepo.incrementReferralCount({
+          db: trx,
+          referralCodeId: input.referralCodeId,
+        });
+      }
+    });
+  } catch (err) {
+    const isUniqueViolation = err instanceof Error && "code" in err && (err as { code: string }).code === "23505";
+    if (!isUniqueViolation) {
+      logger.error("Failed to process referral reward after successful payment", {
+        orderId: input.orderId,
+        referralCodeId: input.referralCodeId,
+        error: err,
+      });
+    }
   }
+}
 
-  const tx = existingTransaction.tx;
-  const paidAt = tx.paidAt ?? new Date();
-  const isPerintis2027 = existingTransaction.prodSlug === PERINTIS_2027.SLUG;
-  const isPremiumSubscription =
-    existingTransaction.prodType === "subscription" &&
-    (isPerintis2027 ||
-      existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM ||
-      existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM_2);
+export async function markTransactionAsSuccess(orderId: string, paidAtFromGateway?: Date) {
+  const result = await db.transaction(async (trx) => {
+    const existingTransaction = await transactionRepo.getTransactionWithProduct({ db: trx, orderId, lock: true });
 
-  await db.transaction(async (trx) => {
+    if (!existingTransaction) return null;
+
+    const tx = existingTransaction.tx;
+    const resolvedPaidAt = tx.paidAt ?? paidAtFromGateway ?? new Date();
+    const premiumDetails =
+      existingTransaction.prodType === "subscription" ? getPremiumDetails(existingTransaction.prodSlug) : null;
+    const alreadySuccessful = tx.status === "success";
+
     await transactionRepo.updateTransactionStatus({
       db: trx,
       orderId,
       status: "success",
-      paidAt,
+      paidAt: resolvedPaidAt,
     });
 
-    if (isPremiumSubscription && tx.userId) {
-      const premiumTier =
-        existingTransaction.prodSlug === PREMIUM_TIERS.PREMIUM_2 ? PREMIUM_TIERS.PREMIUM_2 : PREMIUM_TIERS.PREMIUM;
-
+    if (premiumDetails && tx.userId) {
       await transactionRepo.updateUserPremium({
         db: trx,
         userId: tx.userId,
         isPremium: true,
-        premiumTier,
-        premiumExpiresAt: isPerintis2027 ? SNBT_2027_DEADLINE : PREMIUM_DEADLINE,
+        premiumTier: premiumDetails.tier,
+        premiumExpiresAt: premiumDetails.expiresAt,
       });
     }
 
-    if (tx.referralCodeId && tx.userId) {
-      const alreadyRecorded = await referralRepo.getUsageByTransactionId({
-        db: trx,
-        transactionId: orderId,
-      });
-
-      if (!alreadyRecorded) {
-        const originalProduct = await transactionRepo.getProductBySlug({
-          db: trx,
-          slug: existingTransaction.prodSlug,
-        });
-        const cashback = originalProduct ? String(Math.floor(Number(originalProduct.price) * 0.25)) : "0";
-
-        try {
-          const linkedUsage = await referralRepo.attachPendingUsageToTransaction({
-            db: trx,
-            userId: tx.userId,
-            referralCodeId: tx.referralCodeId,
-            transactionId: orderId,
-            cashbackAmount: cashback,
-          });
-
-          if (!linkedUsage) {
-            await referralRepo.createUsage({
-              db: trx,
-              userId: tx.userId,
-              referralCodeId: tx.referralCodeId,
-              transactionId: orderId,
-              cashbackAmount: cashback,
-            });
-            await referralRepo.incrementReferralCount({
-              db: trx,
-              referralCodeId: tx.referralCodeId,
-            });
-          }
-        } catch (err) {
-          const isUniqueViolation = err instanceof Error && "code" in err && (err as { code: string }).code === "23505";
-          if (!isUniqueViolation) throw err;
-        }
-      }
-    }
+    return {
+      resolvedPaidAt,
+      // Only process referral once, on the transition into success.
+      referral:
+        !alreadySuccessful && tx.referralCodeId && tx.userId
+          ? { userId: tx.userId, referralCodeId: tx.referralCodeId, productSlug: existingTransaction.prodSlug }
+          : null,
+    };
   });
 
-  const updatedTx = await transactionRepo.getTransactionById({ orderId });
+  if (!result) return null;
+
+  if (result.referral) {
+    await processReferralReward({ orderId, ...result.referral });
+  }
 
   return {
     status: "success" as const,
-    paidAt: updatedTx?.paidAt ?? paidAt,
+    paidAt: result.resolvedPaidAt,
   };
 }
 
-export async function syncTransactionStatus(orderId: string) {
+async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment: boolean) {
+  return db.transaction(async (trx) => {
+    const existingTransaction = await transactionRepo.getTransactionWithProduct({ db: trx, orderId, lock: true });
+    if (!existingTransaction) return null;
+
+    const wasSuccessful = existingTransaction.tx.status === "success";
+    const updatedTx = await transactionRepo.updateTransactionStatus({
+      db: trx,
+      orderId,
+      status: "failed",
+    });
+
+    if (
+      revokeSuccessfulPayment &&
+      wasSuccessful &&
+      existingTransaction.tx.userId &&
+      existingTransaction.prodType === "subscription"
+    ) {
+      const replacement = await transactionRepo.getLatestSuccessfulSubscriptionByUserId({
+        db: trx,
+        userId: existingTransaction.tx.userId,
+        excludeOrderId: orderId,
+      });
+      const replacementPremium = replacement ? getPremiumDetails(replacement.prodSlug) : null;
+
+      await transactionRepo.updateUserPremium({
+        db: trx,
+        userId: existingTransaction.tx.userId,
+        isPremium: Boolean(replacementPremium),
+        premiumTier: replacementPremium?.tier ?? null,
+        premiumExpiresAt: replacementPremium?.expiresAt ?? null,
+      });
+    }
+
+    return {
+      status: updatedTx?.status ?? ("failed" as const),
+      paidAt: updatedTx?.paidAt ?? null,
+    };
+  });
+}
+
+function parseMidtransDate(value?: string) {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+function amountsMatch(first: string | null, second: string) {
+  return first !== null && Number(first) === Number(second);
+}
+
+export async function syncTransactionStatus(orderId: string, options?: { expectedGrossAmount?: string }) {
   const tx = await transactionRepo.getTransactionById({ orderId });
 
   if (!tx) {
     return null;
   }
 
-  if (tx.status === "success" && tx.paidAt) {
-    return {
-      status: tx.status,
-      paidAt: tx.paidAt,
-    };
-  }
-
   const statusData = await fetchMidtransTransactionStatus(orderId);
   const transactionStatus = statusData.transaction_status;
   const fraudStatus = statusData.fraud_status;
 
+  if (
+    !amountsMatch(tx.grossAmount, statusData.gross_amount) ||
+    (options?.expectedGrossAmount && !amountsMatch(tx.grossAmount, options.expectedGrossAmount))
+  ) {
+    logger.error("Midtrans transaction amount mismatch", {
+      orderId,
+      localGrossAmount: tx.grossAmount,
+      midtransGrossAmount: statusData.gross_amount,
+      notificationGrossAmount: options?.expectedGrossAmount,
+    });
+    throw new ORPCError("BAD_REQUEST", { message: "Transaction amount mismatch" });
+  }
+
+  await transactionRepo.updateGatewayMetadata({
+    orderId,
+    gatewayTransactionId: statusData.transaction_id,
+    gatewayStatus: transactionStatus,
+    paymentType: statusData.payment_type,
+    fraudStatus,
+    statusCode: statusData.status_code,
+  });
+
   if (transactionStatus === "capture" || transactionStatus === "settlement") {
     const isValid = transactionStatus === "capture" ? fraudStatus === "accept" : true;
     if (isValid) {
-      return await markTransactionAsSuccess(orderId);
+      return await markTransactionAsSuccess(
+        orderId,
+        parseMidtransDate(statusData.settlement_time ?? statusData.transaction_time),
+      );
     }
   }
 
-  if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
-    const updatedTx = await transactionRepo.updateTransactionStatus({
-      orderId,
-      status: "failed",
-    });
+  if (["refund", "partial_refund", "chargeback"].includes(transactionStatus)) {
+    return markTransactionAsFailed(orderId, true);
+  }
 
+  if (["cancel", "deny", "expire", "failure"].includes(transactionStatus)) {
+    return markTransactionAsFailed(orderId, false);
+  }
+
+  // Never downgrade an already-settled transaction on an unexpected/pending status.
+  if (tx.status === "success") {
     return {
-      status: updatedTx?.status ?? "failed",
-      paidAt: updatedTx?.paidAt ?? null,
+      status: "success" as const,
+      paidAt: tx.paidAt,
     };
   }
 
