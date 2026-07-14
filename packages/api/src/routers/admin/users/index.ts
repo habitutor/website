@@ -33,6 +33,7 @@ const listUsers = admin
       "cursor?": "string",
       "search?": "string",
       "isPremium?": "boolean",
+      "packageSlug?": "string",
     }),
   )
   .handler(async ({ input }) => {
@@ -48,6 +49,7 @@ const listUsers = admin
       cursorId: cursorData?.id ?? null,
       search,
       isPremium: input.isPremium,
+      packageSlug: input.packageSlug,
     });
 
     if (users.length === 0)
@@ -122,7 +124,16 @@ const updateUserPremium = admin
     };
   });
 
+const listPackages = admin
+  .route({
+    path: "/admin/users/packages",
+    method: "GET",
+    tags: ["Admin - Users"],
+  })
+  .handler(() => adminUserRepo.listSubscriptionProducts());
+
 export const adminUserRouter = {
   list: listUsers,
+  packages: listPackages,
   premium: { update: updateUserPremium },
 };

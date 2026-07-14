@@ -24,7 +24,9 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminTryoutIndexRouteImport } from './routes/admin/tryout/index'
+import { Route as AdminTransactionsIndexRouteImport } from './routes/admin/transactions/index'
 import { Route as AdminQuestionsIndexRouteImport } from './routes/admin/questions/index'
+import { Route as AdminPromosIndexRouteImport } from './routes/admin/promos/index'
 import { Route as AdminPracticePacksIndexRouteImport } from './routes/admin/practice-packs/index'
 import { Route as AdminClassesIndexRouteImport } from './routes/admin/classes/index'
 import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenticated/tryout/index'
@@ -136,9 +138,19 @@ const AdminTryoutIndexRoute = AdminTryoutIndexRouteImport.update({
   path: '/tryout/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminTransactionsIndexRoute = AdminTransactionsIndexRouteImport.update({
+  id: '/transactions/',
+  path: '/transactions/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminQuestionsIndexRoute = AdminQuestionsIndexRouteImport.update({
   id: '/questions/',
   path: '/questions/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPromosIndexRoute = AdminPromosIndexRouteImport.update({
+  id: '/promos/',
+  path: '/promos/',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPracticePacksIndexRoute = AdminPracticePacksIndexRouteImport.update({
@@ -385,7 +397,9 @@ export interface FileRoutesByFullPath {
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
+  '/admin/promos/': typeof AdminPromosIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
+  '/admin/transactions/': typeof AdminTransactionsIndexRoute
   '/admin/tryout/': typeof AdminTryoutIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
@@ -437,7 +451,9 @@ export interface FileRoutesByTo {
   '/tryout': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes': typeof AdminClassesIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
+  '/admin/promos': typeof AdminPromosIndexRoute
   '/admin/questions': typeof AdminQuestionsIndexRoute
+  '/admin/transactions': typeof AdminTransactionsIndexRoute
   '/admin/tryout': typeof AdminTryoutIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
@@ -493,7 +509,9 @@ export interface FileRoutesById {
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
+  '/admin/promos/': typeof AdminPromosIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
+  '/admin/transactions/': typeof AdminTransactionsIndexRoute
   '/admin/tryout/': typeof AdminTryoutIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/_authenticated/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
@@ -548,7 +566,9 @@ export interface FileRouteTypes {
     | '/tryout/'
     | '/admin/classes/'
     | '/admin/practice-packs/'
+    | '/admin/promos/'
     | '/admin/questions/'
+    | '/admin/transactions/'
     | '/admin/tryout/'
     | '/admin/users/'
     | '/classes/$shortName/$contentId'
@@ -600,7 +620,9 @@ export interface FileRouteTypes {
     | '/tryout'
     | '/admin/classes'
     | '/admin/practice-packs'
+    | '/admin/promos'
     | '/admin/questions'
+    | '/admin/transactions'
     | '/admin/tryout'
     | '/admin/users'
     | '/classes/$shortName/$contentId'
@@ -655,7 +677,9 @@ export interface FileRouteTypes {
     | '/_authenticated/tryout/'
     | '/admin/classes/'
     | '/admin/practice-packs/'
+    | '/admin/promos/'
     | '/admin/questions/'
+    | '/admin/transactions/'
     | '/admin/tryout/'
     | '/admin/users/'
     | '/_authenticated/classes/$shortName/$contentId'
@@ -795,11 +819,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTryoutIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/transactions/': {
+      id: '/admin/transactions/'
+      path: '/transactions'
+      fullPath: '/admin/transactions/'
+      preLoaderRoute: typeof AdminTransactionsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/questions/': {
       id: '/admin/questions/'
       path: '/questions'
       fullPath: '/admin/questions/'
       preLoaderRoute: typeof AdminQuestionsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/promos/': {
+      id: '/admin/promos/'
+      path: '/promos'
+      fullPath: '/admin/promos/'
+      preLoaderRoute: typeof AdminPromosIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/practice-packs/': {
@@ -1196,7 +1234,9 @@ interface AdminRouteChildren {
   AdminTryoutPassingGradeRoute: typeof AdminTryoutPassingGradeRoute
   AdminClassesIndexRoute: typeof AdminClassesIndexRoute
   AdminPracticePacksIndexRoute: typeof AdminPracticePacksIndexRoute
+  AdminPromosIndexRoute: typeof AdminPromosIndexRoute
   AdminQuestionsIndexRoute: typeof AdminQuestionsIndexRoute
+  AdminTransactionsIndexRoute: typeof AdminTransactionsIndexRoute
   AdminTryoutIndexRoute: typeof AdminTryoutIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AdminClassesShortNameContentIdRoute: typeof AdminClassesShortNameContentIdRouteWithChildren
@@ -1216,7 +1256,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminTryoutPassingGradeRoute: AdminTryoutPassingGradeRoute,
   AdminClassesIndexRoute: AdminClassesIndexRoute,
   AdminPracticePacksIndexRoute: AdminPracticePacksIndexRoute,
+  AdminPromosIndexRoute: AdminPromosIndexRoute,
   AdminQuestionsIndexRoute: AdminQuestionsIndexRoute,
+  AdminTransactionsIndexRoute: AdminTransactionsIndexRoute,
   AdminTryoutIndexRoute: AdminTryoutIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
   AdminClassesShortNameContentIdRoute:

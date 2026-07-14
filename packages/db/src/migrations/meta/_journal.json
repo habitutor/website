@@ -64,6 +64,13 @@
       "when": 1783880000000,
       "tag": "0008_hab_first_and_pricing_update",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784056979513,
+      "tag": "0009_puzzling_thor_girl",
+      "breakpoints": true
     }
   ]
 }

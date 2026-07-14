@@ -1,9 +1,18 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { referralCode } from "@habitutor/db/schema/referral";
+import { product, transaction } from "@habitutor/db/schema/transaction";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 export const adminUserRepo = {
+  listSubscriptionProducts: async ({ db = defaultDb }: { db?: DrizzleDatabase } = {}) => {
+    return db
+      .select({ name: product.name, slug: product.slug })
+      .from(product)
+      .where(eq(product.type, "subscription"))
+      .orderBy(product.name);
+  },
+
   list: async ({
     db = defaultDb,
     limit,
@@ -11,6 +20,7 @@ export const adminUserRepo = {
     cursorId,
     search,
     isPremium,
+    packageSlug,
   }: {
     db?: DrizzleDatabase;
     limit: number;
@@ -18,6 +28,7 @@ export const adminUserRepo = {
     cursorId: string | null;
     search: string;
     isPremium?: boolean;
+    packageSlug?: string;
   }) => {
     return db
       .select({
@@ -30,6 +41,16 @@ export const adminUserRepo = {
         isPremium: user.isPremium,
         premiumTier: user.premiumTier,
         premiumExpiresAt: user.premiumExpiresAt,
+        packageSlug: sql<string | null>`(
+					SELECT ${product.slug}
+					FROM ${transaction}
+					INNER JOIN ${product} ON ${transaction.productId} = ${product.id}
+					WHERE ${transaction.userId} = ${user.id}
+						AND ${transaction.status} = 'success'
+						AND ${product.type} = 'subscription'
+					ORDER BY ${transaction.paidAt} DESC NULLS LAST, ${transaction.orderedAt} DESC
+					LIMIT 1
+				)`,
         createdAt: user.createdAt,
       })
       .from(user)
@@ -38,6 +59,18 @@ export const adminUserRepo = {
         and(
           search.length > 0 ? or(ilike(user.name, `%${search}%`), ilike(user.email, `%${search}%`)) : undefined,
           isPremium === undefined ? undefined : eq(user.isPremium, isPremium),
+          packageSlug
+            ? sql`(
+								SELECT ${product.slug}
+								FROM ${transaction}
+								INNER JOIN ${product} ON ${transaction.productId} = ${product.id}
+								WHERE ${transaction.userId} = ${user.id}
+									AND ${transaction.status} = 'success'
+									AND ${product.type} = 'subscription'
+								ORDER BY ${transaction.paidAt} DESC NULLS LAST, ${transaction.orderedAt} DESC
+								LIMIT 1
+							) = ${packageSlug}`
+            : undefined,
           cursorCreatedAt && cursorId
             ? sql`(${user.createdAt}, ${user.id}) < (${cursorCreatedAt}, ${cursorId})`
             : undefined,

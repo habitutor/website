@@ -6,7 +6,9 @@ import {
   Megaphone,
   Package,
   Question,
+  ReceiptIcon,
   SignOut,
+  TagIcon,
   TicketIcon,
   User,
   UserSwitchIcon,
@@ -91,6 +93,16 @@ const adminNavLinks = [
     name: "Referral Transactions",
     to: "/admin/referrals" as const,
     icon: TicketIcon,
+  },
+  {
+    name: "Transactions",
+    to: "/admin/transactions" as const,
+    icon: ReceiptIcon,
+  },
+  {
+    name: "Promo Codes",
+    to: "/admin/promos" as const,
+    icon: TagIcon,
   },
 ];
 

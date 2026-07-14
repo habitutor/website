@@ -3,10 +3,12 @@ import { type } from "arktype";
 import { pub } from "../index";
 import { adminDashboardContentRouter } from "./admin/dashboard-content";
 import { adminPracticePackRouter } from "./admin/practice-pack";
+import { adminPromoRouter } from "./admin/promos";
 import { adminQuestionRouter } from "./admin/question";
 import { adminReferralRouter } from "./admin/referrals";
 import { adminStatisticsRouter } from "./admin/statistics";
 import { adminTryoutRouter } from "./admin/tryout";
+import { adminTransactionRouter } from "./admin/transactions";
 import { adminUniversitasRouter } from "./admin/universitas";
 import { adminUserRouter } from "./admin/users";
 import {
@@ -77,6 +79,8 @@ const adminRouter: {
     };
   };
   users: typeof adminUserRouter;
+  transactions: typeof adminTransactionRouter;
+  promos: typeof adminPromoRouter;
   referrals: typeof adminReferralRouter;
   dashboardContent: typeof adminDashboardContentRouter;
 } = {
@@ -112,6 +116,8 @@ const adminRouter: {
     },
   },
   users: adminUserRouter,
+  transactions: adminTransactionRouter,
+  promos: adminPromoRouter,
   referrals: adminReferralRouter,
   dashboardContent: adminDashboardContentRouter,
 };

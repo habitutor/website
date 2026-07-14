@@ -15,6 +15,11 @@ type PerintisPricingCardProps = {
   isPending?: boolean;
   onSubscribe?: () => void;
   showExtras?: boolean;
+  promoCode?: string;
+  onPromoCodeChange?: (value: string) => void;
+  onValidatePromo?: () => void;
+  promoFeedback?: { valid: boolean; message: string; discountedPrice?: number };
+  isPromoValidating?: boolean;
 };
 
 function FakePurchaseBubble() {
@@ -38,6 +43,11 @@ export function PerintisPricingCard({
   isPending = false,
   onSubscribe,
   showExtras = true,
+  promoCode = "",
+  onPromoCodeChange,
+  onValidatePromo,
+  promoFeedback,
+  isPromoValidating = false,
 }: PerintisPricingCardProps) {
   const copy = PERINTIS_PRICING_COPY;
   const pricing = usePerintisPricing();
@@ -95,19 +105,48 @@ export function PerintisPricingCard({
 
         <div className="relative z-10 space-y-3 p-6 pt-0">
           {mode === "checkout" ? (
-            <button
-              type="button"
-              disabled={isPremium || isPending}
-              onClick={onSubscribe}
-              className={cn(
-                "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-neutral-1000 px-4 py-3 text-sm font-bold tracking-wide uppercase transition-colors",
-                isPremium
-                  ? "text-primary-600 cursor-default bg-primary-100"
-                  : "hover:bg-primary-600 bg-primary-500 text-neutral-100 disabled:opacity-70",
-              )}
-            >
-              {buttonLabel}
-            </button>
+            <>
+              <div className="space-y-1">
+                <div className="flex gap-2">
+                  <input
+                    value={promoCode}
+                    onChange={(event) => onPromoCodeChange?.(event.target.value.toUpperCase())}
+                    placeholder="Kode promo"
+                    aria-label="Kode promo"
+                    className="min-w-0 flex-1 rounded-lg border border-neutral-1000 bg-background px-3 py-2 text-sm text-foreground uppercase"
+                  />
+                  <button
+                    type="button"
+                    disabled={!promoCode.trim() || isPromoValidating}
+                    onClick={onValidatePromo}
+                    className="rounded-lg border border-neutral-1000 bg-secondary-200 px-4 py-2 text-sm font-bold text-neutral-1000 disabled:opacity-60"
+                  >
+                    {isPromoValidating ? "Cek..." : "Pakai"}
+                  </button>
+                </div>
+                {promoFeedback && (
+                  <p className={cn("text-xs", promoFeedback.valid ? "text-green-100" : "text-red-100")}>
+                    {promoFeedback.message}
+                    {promoFeedback.valid && promoFeedback.discountedPrice !== undefined
+                      ? ` Harga akhir ${formatRupiah(promoFeedback.discountedPrice)}.`
+                      : ""}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                disabled={isPremium || isPending}
+                onClick={onSubscribe}
+                className={cn(
+                  "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-neutral-1000 px-4 py-3 text-sm font-bold tracking-wide uppercase transition-colors",
+                  isPremium
+                    ? "text-primary-600 cursor-default bg-primary-100"
+                    : "hover:bg-primary-600 bg-primary-500 text-neutral-100 disabled:opacity-70",
+                )}
+              >
+                {buttonLabel}
+              </button>
+            </>
           ) : (
             <Link
               to="/premium"

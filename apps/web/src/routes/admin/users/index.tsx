@@ -18,6 +18,7 @@ const usersSearchSchema = type({
   "cursor?": "string",
   "cursorHistory?": "string[]",
   "premium?": "'all' | 'premium' | 'free'",
+  "package?": "string",
 });
 
 export const Route = createFileRoute("/admin/users/")({
@@ -30,6 +31,7 @@ function UsersPage() {
   const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
   const premiumFilter = Route.useSearch({ select: (s) => s.premium ?? "all" });
+  const packageFilter = Route.useSearch({ select: (s) => s.package ?? "" });
   const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
@@ -86,9 +88,11 @@ function UsersPage() {
         cursor: cursor ?? undefined,
         search: searchParam,
         isPremium: premiumFilter === "premium" ? true : premiumFilter === "free" ? false : undefined,
+        packageSlug: packageFilter || undefined,
       },
     }),
   );
+  const packagesQuery = useQuery(orpc.admin.users.packages.queryOptions());
 
   const users = data?.data || [];
   const hasMore = data?.hasMore || false;
@@ -109,6 +113,30 @@ function UsersPage() {
           />
         </div>
         <div className="flex gap-2">
+          <select
+            aria-label="Filter by premium package"
+            value={packageFilter}
+            onChange={(event) =>
+              navigate({
+                search: (prev) => ({
+                  ...prev,
+                  package: event.target.value || undefined,
+                  premium: event.target.value ? "premium" : prev.premium,
+                  cursor: undefined,
+                  cursorHistory: undefined,
+                }),
+                replace: true,
+              })
+            }
+            className="h-9 rounded-md border bg-background px-3 text-sm"
+          >
+            <option value="">All packages</option>
+            {packagesQuery.data?.map((product) => (
+              <option key={product.slug} value={product.slug}>
+                {product.name}
+              </option>
+            ))}
+          </select>
           {(
             [
               { value: "all", label: "Semua" },
@@ -163,6 +191,7 @@ function UsersTable({
     referralUsage: number | null;
     phoneNumber: string | null;
     isPremium: boolean | null;
+    packageSlug: string | null;
     premiumExpiresAt: Date | null;
     createdAt: Date;
   }>;
