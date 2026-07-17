@@ -21,6 +21,18 @@ function decodeCursor(cursor: string): CursorData {
   }
 }
 
+function parseDateRange(createdFrom?: string, createdTo?: string) {
+  const from = createdFrom ? new Date(`${createdFrom}T00:00:00.000Z`) : undefined;
+  const to = createdTo ? new Date(`${createdTo}T23:59:59.999Z`) : undefined;
+  if (from && Number.isNaN(from.getTime())) {
+    throw new ORPCError("BAD_REQUEST", { message: "Invalid start date" });
+  }
+  if (to && Number.isNaN(to.getTime())) {
+    throw new ORPCError("BAD_REQUEST", { message: "Invalid end date" });
+  }
+  return { from, to };
+}
+
 const listUsers = admin
   .route({
     path: "/admin/users",
@@ -34,11 +46,14 @@ const listUsers = admin
       "search?": "string",
       "isPremium?": "boolean",
       "packageSlug?": "string",
+      "createdFrom?": "string",
+      "createdTo?": "string",
     }),
   )
   .handler(async ({ input }) => {
     const limit = Math.min(input.limit || 10, 50);
     const search = input.search || "";
+    const { from: createdFrom, to: createdTo } = parseDateRange(input.createdFrom, input.createdTo);
 
     const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
     const cursorCreatedAt = cursorData ? new Date(cursorData.createdAt) : null;
@@ -50,6 +65,8 @@ const listUsers = admin
       search,
       isPremium: input.isPremium,
       packageSlug: input.packageSlug,
+      createdFrom,
+      createdTo,
     });
 
     if (users.length === 0)
@@ -132,8 +149,39 @@ const listPackages = admin
   })
   .handler(() => adminUserRepo.listSubscriptionProducts());
 
+const exportUsers = admin
+  .route({
+    path: "/admin/users/export",
+    method: "GET",
+    tags: ["Admin - Users"],
+  })
+  .input(
+    type({
+      "search?": "string",
+      "isPremium?": "boolean",
+      "packageSlug?": "string",
+      "createdFrom?": "string",
+      "createdTo?": "string",
+    }),
+  )
+  .handler(async ({ input }) => {
+    const search = input.search || "";
+    const { from: createdFrom, to: createdTo } = parseDateRange(input.createdFrom, input.createdTo);
+
+    const users = await adminUserRepo.listForExport({
+      search,
+      isPremium: input.isPremium,
+      packageSlug: input.packageSlug,
+      createdFrom,
+      createdTo,
+    });
+
+    return { data: users, total: users.length };
+  });
+
 export const adminUserRouter = {
   list: listUsers,
   packages: listPackages,
+  export: exportUsers,
   premium: { update: updateUserPremium },
 };

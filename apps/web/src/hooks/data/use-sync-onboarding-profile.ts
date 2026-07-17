@@ -6,6 +6,7 @@ import {
   loadOnboardingDraft,
   toProfileUpdateInput,
 } from "@/lib/onboarding-storage";
+import { isOnboardingComplete } from "@/lib/onboarding-completion";
 import { client, orpc } from "@/utils/orpc";
 
 /**
@@ -27,7 +28,7 @@ export function useSyncOnboardingProfile() {
 
     hasAttemptedRef.current = true;
 
-    const alreadyOnboarded = Boolean(profile.dreamCampus || profile.educationLevel || profile.age);
+    const alreadyOnboarded = isOnboardingComplete(profile);
     if (alreadyOnboarded) {
       clearOnboardingDraft();
       return;

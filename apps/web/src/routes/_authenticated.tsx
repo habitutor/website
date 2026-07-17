@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "
 import { useEffect, useRef } from "react";
 import { HeaderDashboard } from "@/components/navigation/header-dashboard";
 import { Container } from "@/components/ui/container";
+import { useOnboardingGuard } from "@/hooks/data/use-onboarding-guard";
 import { $getSession } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";
 
@@ -37,6 +38,8 @@ function AuthedLayout() {
   const routerState = useRouterState();
   const stablePathnameRef = useRef(location.pathname);
 
+  useOnboardingGuard(context.session);
+
   const isPending = routerState.isLoading || routerState.isTransitioning;
 
   useEffect(() => {
@@ -53,6 +56,10 @@ function AuthedLayout() {
 
       {/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
         <Container className="flex flex-col gap-6 py-0">
+          <Outlet />
+        </Container>
+      ) : /^\/onboarding/.test(pathname) ? (
+        <Container className="flex flex-col gap-6 pt-48 sm:pt-40">
           <Outlet />
         </Container>
       ) : /^\/profile/.test(pathname) ? (

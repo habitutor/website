@@ -43,6 +43,12 @@ const QUESTION_STEPS = [
 
 const TOTAL_STEPS = QUESTION_STEPS.length + 1; // + account creation step
 
+interface OnboardingWizardProps {
+  mode?: "register" | "complete";
+  initialAnswers?: OnboardingAnswers;
+  onComplete?: () => void | Promise<void>;
+}
+
 function isStepValid(step: number, answers: OnboardingAnswers): boolean {
   switch (QUESTION_STEPS[step]) {
     case "dreamCampus":
@@ -64,34 +70,54 @@ function isStepValid(step: number, answers: OnboardingAnswers): boolean {
   }
 }
 
-export function OnboardingWizard() {
-  const [{ answers, step }, setDraft] = useState({ answers: EMPTY_ONBOARDING_ANSWERS, step: 0 });
-  const [hydrated, setHydrated] = useState(false);
+export function OnboardingWizard({ mode = "register", initialAnswers, onComplete }: OnboardingWizardProps) {
+  const totalSteps = mode === "complete" ? QUESTION_STEPS.length : TOTAL_STEPS;
+  const [{ answers, step }, setDraft] = useState({
+    answers: initialAnswers ?? EMPTY_ONBOARDING_ANSWERS,
+    step: 0,
+  });
+  const [hydrated, setHydrated] = useState(mode === "complete");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Hydrate from localStorage after mount so SSR markup stays deterministic
   useEffect(() => {
+    if (mode === "complete") return;
     const stored = loadOnboardingDraft();
     if (stored) {
       setDraft({
         answers: stored.answers,
-        step: Math.min(Math.max(stored.step, 0), TOTAL_STEPS - 1),
+        step: Math.min(Math.max(stored.step, 0), totalSteps - 1),
       });
     }
     setHydrated(true);
-  }, []);
+  }, [mode, totalSteps]);
 
   useEffect(() => {
-    if (hydrated) saveOnboardingDraft({ answers, step });
-  }, [answers, step, hydrated]);
+    if (mode === "complete" || !hydrated) return;
+    saveOnboardingDraft({ answers, step });
+  }, [answers, step, hydrated, mode]);
 
   const setAnswer = <K extends keyof OnboardingAnswers>(key: K, value: OnboardingAnswers[K]) => {
     setDraft((prev) => ({ ...prev, answers: { ...prev.answers, [key]: value } }));
   };
 
-  const goNext = () => setDraft((prev) => ({ ...prev, step: Math.min(prev.step + 1, TOTAL_STEPS - 1) }));
+  const goNext = () => setDraft((prev) => ({ ...prev, step: Math.min(prev.step + 1, totalSteps - 1) }));
   const goBack = () => setDraft((prev) => ({ ...prev, step: Math.max(prev.step - 1, 0) }));
 
-  const isAccountStep = step === QUESTION_STEPS.length;
+  const handleComplete = async () => {
+    setIsSaving(true);
+    try {
+      await client.profile.update(toProfileUpdateInput(answers));
+      clearOnboardingDraft();
+      await onComplete?.();
+    } catch {
+      toast.error("Gagal menyimpan profil. Silakan coba lagi.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const isAccountStep = mode === "register" && step === QUESTION_STEPS.length;
 
   return (
     <div className="relative w-full max-w-md">
@@ -102,12 +128,12 @@ export function OnboardingWizard() {
       <div className="relative z-10 w-full rounded-sm border border-primary/50 bg-white p-8 pt-16 shadow-lg">
         <div className="mb-6 space-y-2">
           <p className="text-center text-xs font-medium text-muted-foreground">
-            Langkah {step + 1} dari {TOTAL_STEPS}
+            Langkah {step + 1} dari {totalSteps}
           </p>
           <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200">
             <motion.div
               className="h-full rounded-full bg-primary-300"
-              animate={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
+              animate={{ width: `${((step + 1) / totalSteps) * 100}%` }}
               transition={{ duration: 0.3, ease: "easeOut" }}
             />
           </div>
@@ -124,18 +150,29 @@ export function OnboardingWizard() {
             {isAccountStep ? (
               <AccountStep answers={answers} onBack={goBack} />
             ) : (
-              <QuestionStep step={step} answers={answers} setAnswer={setAnswer} onNext={goNext} onBack={goBack} />
+              <QuestionStep
+                step={step}
+                answers={answers}
+                setAnswer={setAnswer}
+                onNext={goNext}
+                onBack={goBack}
+                isLastStep={mode === "complete" && step === QUESTION_STEPS.length - 1}
+                onFinish={handleComplete}
+                isSaving={isSaving}
+              />
             )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <p className="mt-4 text-center text-sm">
-        Sudah punya akun?{" "}
-        <Link to="/login" className="font-bold text-primary">
-          Masuk Sekarang
-        </Link>
-      </p>
+      {mode === "register" && (
+        <p className="mt-4 text-center text-sm">
+          Sudah punya akun?{" "}
+          <Link to="/login" className="font-bold text-primary">
+            Masuk Sekarang
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
@@ -146,12 +183,18 @@ function QuestionStep({
   setAnswer,
   onNext,
   onBack,
+  isLastStep = false,
+  onFinish,
+  isSaving = false,
 }: {
   step: number;
   answers: OnboardingAnswers;
   setAnswer: <K extends keyof OnboardingAnswers>(key: K, value: OnboardingAnswers[K]) => void;
   onNext: () => void;
   onBack: () => void;
+  isLastStep?: boolean;
+  onFinish?: () => void;
+  isSaving?: boolean;
 }) {
   const key = QUESTION_STEPS[step];
   const valid = isStepValid(step, answers);
@@ -160,7 +203,12 @@ function QuestionStep({
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        if (valid) onNext();
+        if (!valid) return;
+        if (isLastStep) {
+          onFinish?.();
+          return;
+        }
+        onNext();
       }}
       className="space-y-6"
     >
@@ -262,9 +310,9 @@ function QuestionStep({
           <ArrowLeftIcon />
           Kembali
         </Button>
-        <Button type="submit" disabled={!valid}>
-          Lanjut
-          <ArrowRightIcon />
+        <Button type="submit" disabled={!valid || isSaving}>
+          {isLastStep ? (isSaving ? "Menyimpan..." : "Selesai") : "Lanjut"}
+          {!isLastStep && <ArrowRightIcon />}
         </Button>
       </div>
     </form>
