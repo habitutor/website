@@ -7,7 +7,7 @@ export const PERINTIS_SLUG = "perintis2027" as const;
 export const PERINTIS_FALLBACK_PRICING = {
   originalPrice: 500_000,
   earlyBirdPrice: 249_000,
-  regularPrice: 349_000,
+  regularPrice: 249_000,
   earlyBirdQuota: 50,
 } as const;
 
@@ -15,9 +15,8 @@ export const PERINTIS_PRICING_COPY = {
   label: "Paket Perintis 2027",
   suffix: "akses penuh sampai hari-H SNBT",
   priceSuffix: "sekali bayar",
-  urgencyEarlyBird: (regularPrice: number) =>
-    `Harga naik jadi ${formatRupiah(regularPrice)} setelah 50 pendaftar pertama`,
-  urgencyRegular: "Slot early bird udah habis — harga reguler berlaku",
+  urgencyEarlyBird: (earlyBirdPrice: number) => `Harga spesial ${formatRupiah(earlyBirdPrice)} — berlaku permanen`,
+  urgencyRegular: "Harga spesial ini tetap berlaku permanen buat semua pendaftar",
   comparison: "Platform belajar lain: Rp250–400rb per bulan.\n\nIni sekali bayar, sampai hari-H SNBT!",
   ctaLabel: "Amankan Slot Lo",
   footerNote: "Langsung aktif setelah bayar · QRIS / transfer bank · Sekali bayar, tanpa biaya bulanan",

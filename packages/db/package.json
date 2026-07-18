@@ -24,7 +24,9 @@
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d && sleep 2 && bun db:migrate && bun db:seed",
     "db:seed": "bun run src/seed/index.ts",
-    "db:sync-hab-order": "bun run src/scripts/sync-hab-subtest-order.ts"
+    "db:sync-hab-order": "bun run src/scripts/sync-hab-subtest-order.ts",
+    "db:identify-legacy-premium": "bun run src/scripts/identify-legacy-premium.ts",
+    "db:revoke-legacy-premium": "bun run src/scripts/revoke-legacy-premium.ts"
   },
   "dependencies": {
     "dotenv": "catalog:",

@@ -9,6 +9,7 @@ type Perintis2027PlanProps = {
   onValidatePromo: () => void;
   promoFeedback?: { valid: boolean; message: string; discountedPrice?: number };
   isPromoValidating: boolean;
+  hasInitiatedPurchase?: boolean;
 };
 
 export function Perintis2027Plan({
@@ -20,6 +21,7 @@ export function Perintis2027Plan({
   onValidatePromo,
   promoFeedback,
   isPromoValidating,
+  hasInitiatedPurchase,
 }: Perintis2027PlanProps) {
   return (
     <div className="mx-auto w-full max-w-2xl">
@@ -33,6 +35,7 @@ export function Perintis2027Plan({
         onValidatePromo={onValidatePromo}
         promoFeedback={promoFeedback}
         isPromoValidating={isPromoValidating}
+        hasInitiatedPurchase={hasInitiatedPurchase}
       />
     </div>
   );
