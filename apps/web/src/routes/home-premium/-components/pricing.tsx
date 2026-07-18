@@ -20,6 +20,7 @@ type PerintisPricingCardProps = {
   onValidatePromo?: () => void;
   promoFeedback?: { valid: boolean; message: string; discountedPrice?: number };
   isPromoValidating?: boolean;
+  hasInitiatedPurchase?: boolean;
 };
 
 function FakePurchaseBubble() {
@@ -48,13 +49,14 @@ export function PerintisPricingCard({
   onValidatePromo,
   promoFeedback,
   isPromoValidating = false,
+  hasInitiatedPurchase = false,
 }: PerintisPricingCardProps) {
   const copy = PERINTIS_PRICING_COPY;
   const pricing = usePerintisPricing();
 
   const buttonLabel = isPremium ? "Kamu sudah berlangganan paket ini!" : isPending ? "Memproses..." : copy.ctaLabel;
 
-  const urgencyText = pricing.isEarlyBird ? copy.urgencyEarlyBird(pricing.regularPrice) : copy.urgencyRegular;
+  const urgencyText = pricing.isEarlyBird ? copy.urgencyEarlyBird(pricing.earlyBirdPrice) : copy.urgencyRegular;
 
   return (
     <div className="w-full">
@@ -146,6 +148,12 @@ export function PerintisPricingCard({
               >
                 {buttonLabel}
               </button>
+              {hasInitiatedPurchase && !isPremium && (
+                <p className="rounded-lg border border-yellow-300 bg-yellow-50 px-3 py-2 text-center text-xs font-semibold text-yellow-800">
+                  Tunggu 15 Menit — pembayaranmu sedang diproses, status premium akan aktif otomatis setelah
+                  terkonfirmasi.
+                </p>
+              )}
             </>
           ) : (
             <Link

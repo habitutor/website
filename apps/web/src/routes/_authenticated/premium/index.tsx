@@ -34,6 +34,7 @@ function RouteComponent() {
   const [promoFeedback, setPromoFeedback] = useState<
     { valid: boolean; message: string; discountedPrice?: number } | undefined
   >();
+  const [hasInitiatedPurchase, setHasInitiatedPurchase] = useState(false);
 
   const isPremium = session?.user.isPremium ?? false;
 
@@ -49,6 +50,7 @@ function RouteComponent() {
   const handleSubscribe = () => {
     if (transactionMutation.isPending) return;
 
+    setHasInitiatedPurchase(true);
     transactionMutation.mutate(
       { name: "perintis2027", promoCode: promoCode.trim() || undefined },
       {
@@ -58,6 +60,7 @@ function RouteComponent() {
           setPaymentOrderId(data.orderId);
         },
         onError: (error) => {
+          setHasInitiatedPurchase(false);
           toast.error(error.message);
         },
       },
@@ -105,6 +108,7 @@ function RouteComponent() {
             onValidatePromo={handleValidatePromo}
             promoFeedback={promoFeedback}
             isPromoValidating={validatePromoMutation.isPending}
+            hasInitiatedPurchase={hasInitiatedPurchase}
           />
         </div>
       </MotionStaggerItem>
