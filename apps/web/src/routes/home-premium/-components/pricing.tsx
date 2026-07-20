@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveFakePurchase } from "@/lib/fake-recent-purchases";
 import { PERINTIS_PRICING_COPY, formatRupiah } from "@/lib/perintis-pricing-copy";
 import { cn } from "@/lib/utils";
+import { EarlyBirdCountdown } from "./early-bird-countdown";
 import { usePerintisPricing } from "./use-perintis-pricing";
 
 type PerintisPricingCardProps = {
@@ -56,8 +57,6 @@ export function PerintisPricingCard({
 
   const buttonLabel = isPremium ? "Kamu sudah berlangganan paket ini!" : isPending ? "Memproses..." : copy.ctaLabel;
 
-  const urgencyText = pricing.isEarlyBird ? copy.urgencyEarlyBird(pricing.earlyBirdPrice) : copy.urgencyRegular;
-
   return (
     <div className="w-full">
       <div className="relative flex w-full flex-col overflow-hidden rounded-2xl border-2 border-primary-400 bg-primary-300 shadow-sm">
@@ -87,7 +86,8 @@ export function PerintisPricingCard({
             )}
             <span className="text-xs text-neutral-100">{copy.priceSuffix}</span>
           </div>
-          <p className="mt-1 text-xs text-red-100">{urgencyText}</p>
+          <p className="mt-2 text-lg font-black text-neutral-100">kurang dari Rp850 / hari</p>
+          {mode === "marketing" && <EarlyBirdCountdown />}
           <p className="mt-3 text-sm leading-relaxed whitespace-pre-line text-neutral-100">{copy.comparison}</p>
           <hr className="mt-4 border-primary-100" />
         </div>
