@@ -17,7 +17,7 @@ type MidtransStatusResponse = {
   status_code?: string;
 };
 
-async function fetchMidtransTransactionStatus(orderId: string): Promise<MidtransStatusResponse> {
+async function fetchMidtransTransactionStatus(orderId: string): Promise<MidtransStatusResponse | null> {
   const serverKey = process.env.MIDTRANS_SERVER_KEY || "";
   const auth = Buffer.from(`${serverKey}:`).toString("base64");
 
@@ -30,6 +30,13 @@ async function fetchMidtransTransactionStatus(orderId: string): Promise<Midtrans
       },
     },
   );
+
+  // Midtrans returns 404 until the customer initiates a payment attempt.
+  // Treat it as "no gateway state yet" instead of an error so reconciliation
+  // can move on to other transactions.
+  if (statusResponse.status === 404) {
+    return null;
+  }
 
   if (!statusResponse.ok) {
     logger.error("Midtrans API error", { status: statusResponse.status, orderId });
@@ -163,6 +170,18 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
     if (!existingTransaction) return null;
 
     const wasSuccessful = existingTransaction.tx.status === "success";
+
+    // Only refunds/chargebacks may take down a settled transaction. Any other
+    // failure status against a success row means gateway state is inconsistent;
+    // keep the paid state instead of silently splitting status and premium.
+    if (wasSuccessful && !revokeSuccessfulPayment) {
+      logger.error("Refusing to downgrade a successful transaction to failed", { orderId });
+      return {
+        status: "success" as const,
+        paidAt: existingTransaction.tx.paidAt,
+      };
+    }
+
     const updatedTx = await transactionRepo.updateTransactionStatus({
       db: trx,
       orderId,
@@ -216,6 +235,15 @@ export async function syncTransactionStatus(orderId: string, options?: { expecte
   }
 
   const statusData = await fetchMidtransTransactionStatus(orderId);
+
+  // No payment attempt recorded at Midtrans yet — keep local state untouched.
+  if (!statusData) {
+    return {
+      status: tx.status,
+      paidAt: tx.paidAt,
+    };
+  }
+
   const transactionStatus = statusData.transaction_status;
   const fraudStatus = statusData.fraud_status;
 
@@ -267,23 +295,75 @@ export async function syncTransactionStatus(orderId: string, options?: { expecte
     };
   }
 
+  // The Midtrans fetch above is not atomic with this write: a concurrent
+  // webhook may have settled the transaction in the meantime. Only write
+  // "pending" if the row is still pending, then report whatever won.
   const updatedTx = await transactionRepo.updateTransactionStatus({
     orderId,
     status: "pending",
+    onlyIfCurrentStatus: "pending",
   });
 
+  if (!updatedTx) {
+    const currentTx = await transactionRepo.getTransactionById({ orderId });
+    return {
+      status: currentTx?.status ?? tx.status,
+      paidAt: currentTx?.paidAt ?? tx.paidAt,
+    };
+  }
+
   return {
-    status: updatedTx?.status ?? "pending",
-    paidAt: updatedTx?.paidAt ?? null,
+    status: updatedTx.status,
+    paidAt: updatedTx.paidAt ?? null,
   };
 }
 
-export async function reconcileLatestPendingTransaction(userId: string) {
-  const pendingTx = await transactionRepo.getLatestPendingSubscriptionByUserId({ userId });
+// Sync every pending subscription the user has, not just the newest one: a
+// user who paid an older attempt and then started a newer one would otherwise
+// never have the paid transaction reconciled.
+export async function reconcilePendingTransactions(userId: string) {
+  const pendingTxs = await transactionRepo.getPendingSubscriptionsByUserId({ userId });
 
-  if (!pendingTx) {
-    return null;
+  for (const pendingTx of pendingTxs) {
+    try {
+      await syncTransactionStatus(pendingTx.id);
+    } catch (error) {
+      logger.error("Failed to reconcile pending transaction", { orderId: pendingTx.id, userId, error });
+    }
+  }
+}
+
+const STALE_PENDING_MIN_AGE_MS = 10 * 60 * 1000;
+const STALE_PENDING_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+// Safety net for lost webhooks: verify long-pending transactions against
+// Midtrans and settle/fail them (including the premium grant) even if the
+// user never returns to the site.
+export async function reconcileStalePendingTransactions() {
+  const now = Date.now();
+  const staleTxs = await transactionRepo.getStalePendingTransactions({
+    orderedBefore: new Date(now - STALE_PENDING_MIN_AGE_MS),
+    orderedAfter: new Date(now - STALE_PENDING_MAX_AGE_MS),
+  });
+
+  let resolved = 0;
+  let failures = 0;
+
+  for (const staleTx of staleTxs) {
+    try {
+      const result = await syncTransactionStatus(staleTx.id);
+      if (result && result.status !== "pending") {
+        resolved += 1;
+      }
+    } catch (error) {
+      failures += 1;
+      logger.error("Failed to reconcile stale pending transaction", { orderId: staleTx.id, error });
+    }
   }
 
-  return syncTransactionStatus(pendingTx.id);
+  if (staleTxs.length > 0) {
+    logger.info("Reconciled stale pending transactions", { checked: staleTxs.length, resolved, failures });
+  }
+
+  return { checked: staleTxs.length, resolved, failures };
 }

@@ -1,4 +1,5 @@
 import { createContext } from "@habitutor/api/context";
+import { startTransactionReconciliationJob } from "@habitutor/api/jobs";
 import { appRouter } from "@habitutor/api/routers/index";
 import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
@@ -34,6 +35,12 @@ app.use(
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.use("/api-reference/*", async (c, next) => {
+  // The Midtrans webhook must stay publicly reachable at its legacy URL; it
+  // is authenticated by its SHA-512 signature instead of an admin session.
+  if (c.req.path === "/api-reference/transactions/notification") {
+    return next();
+  }
+
   const context = await createContext({ context: c });
 
   if (!context.session?.user) {
@@ -110,6 +117,10 @@ app.use("/*", async (c, next) => {
 app.get("/", (c) => {
   return c.text("OK");
 });
+
+if (process.env.NODE_ENV !== "test") {
+  startTransactionReconciliationJob();
+}
 
 export function normalizeForwardedRequest(req: Request) {
   const url = new URL(req.url);
