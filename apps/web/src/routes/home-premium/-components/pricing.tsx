@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveFakePurchase } from "@/lib/fake-recent-purchases";
 import { PERINTIS_PRICING_COPY, formatRupiah } from "@/lib/perintis-pricing-copy";
 import { cn } from "@/lib/utils";
-import { EarlyBirdCountdown } from "./early-bird-countdown";
 import { usePerintisPricing } from "./use-perintis-pricing";
 
 type PerintisPricingCardProps = {
@@ -87,7 +86,6 @@ export function PerintisPricingCard({
             <span className="text-xs text-neutral-100">{copy.priceSuffix}</span>
           </div>
           <p className="mt-2 text-lg font-black text-neutral-100">kurang dari Rp850 / hari</p>
-          {mode === "marketing" && <EarlyBirdCountdown />}
           <p className="mt-3 text-sm leading-relaxed whitespace-pre-line text-neutral-100">{copy.comparison}</p>
           <hr className="mt-4 border-primary-100" />
         </div>

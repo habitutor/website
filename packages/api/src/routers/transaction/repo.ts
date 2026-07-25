@@ -1,7 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { product, transaction } from "@habitutor/db/schema/transaction";
-import { and, count, desc, eq, ne, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
@@ -134,14 +134,16 @@ export const transactionRepo = {
     return null;
   },
 
-  getLatestPendingSubscriptionByUserId: async ({
+  getPendingSubscriptionsByUserId: async ({
     db = defaultDb,
     userId,
+    limit = 5,
   }: {
     db?: DrizzleDatabase;
     userId: string;
+    limit?: number;
   }) => {
-    const [result] = await db
+    return db
       .select({
         id: transaction.id,
         orderedAt: transaction.orderedAt,
@@ -150,9 +152,36 @@ export const transactionRepo = {
       .innerJoin(product, eq(transaction.productId, product.id))
       .where(and(eq(transaction.userId, userId), eq(transaction.status, "pending"), eq(product.type, "subscription")))
       .orderBy(desc(transaction.orderedAt))
-      .limit(1);
+      .limit(limit);
+  },
 
-    return result ?? null;
+  getStalePendingTransactions: async ({
+    db = defaultDb,
+    orderedBefore,
+    orderedAfter,
+    limit = 50,
+  }: {
+    db?: DrizzleDatabase;
+    orderedBefore: Date;
+    orderedAfter: Date;
+    limit?: number;
+  }) => {
+    return db
+      .select({
+        id: transaction.id,
+        orderedAt: transaction.orderedAt,
+      })
+      .from(transaction)
+      .where(
+        and(
+          eq(transaction.status, "pending"),
+          eq(transaction.isSimulation, false),
+          lte(transaction.orderedAt, orderedBefore),
+          gte(transaction.orderedAt, orderedAfter),
+        ),
+      )
+      .orderBy(asc(transaction.orderedAt))
+      .limit(limit);
   },
 
   updateTransactionStatus: async ({
@@ -160,11 +189,13 @@ export const transactionRepo = {
     orderId,
     status,
     paidAt,
+    onlyIfCurrentStatus,
   }: {
     db?: DrizzleDatabase;
     orderId: string;
     status: "success" | "failed" | "pending";
     paidAt?: Date;
+    onlyIfCurrentStatus?: "success" | "failed" | "pending";
   }) => {
     const [tx] = await db
       .update(transaction)
@@ -173,7 +204,11 @@ export const transactionRepo = {
         paidAt,
         updatedAt: new Date(),
       })
-      .where(eq(transaction.id, orderId))
+      .where(
+        onlyIfCurrentStatus
+          ? and(eq(transaction.id, orderId), eq(transaction.status, onlyIfCurrentStatus))
+          : eq(transaction.id, orderId),
+      )
       .returning();
     return tx;
   },

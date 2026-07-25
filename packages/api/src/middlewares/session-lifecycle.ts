@@ -5,7 +5,7 @@ import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { o } from "../lib/orpc";
 import { transactionRepo } from "../routers/transaction/repo";
-import { reconcileLatestPendingTransaction } from "../routers/transaction/sync";
+import { reconcilePendingTransactions } from "../routers/transaction/sync";
 
 const RECONCILE_COOLDOWN_MS = 30 * 1000;
 const lastReconcileByUser = new Map<string, number>();
@@ -53,7 +53,7 @@ export const syncSessionLifecycle = o.middleware(async ({ context, next }) => {
 
   if (!sessionUser.isPremium && shouldReconcileNow(sessionUser.id)) {
     try {
-      await reconcileLatestPendingTransaction(sessionUser.id);
+      await reconcilePendingTransactions(sessionUser.id);
 
       const [latestUserState] = await db
         .select({
