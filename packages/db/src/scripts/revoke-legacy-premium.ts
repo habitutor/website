@@ -22,7 +22,7 @@ const protectionWindowDays = daysArg ? Number(daysArg.split("=")[1]) : 50;
 const isConfirmed = process.argv.includes("--confirm");
 
 if (!Number.isFinite(protectionWindowDays) || protectionWindowDays <= 0) {
-	throw new Error(`Invalid --days value: ${daysArg}`);
+  throw new Error(`Invalid --days value: ${daysArg}`);
 }
 
 const { db } = await import("../index");
@@ -51,13 +51,13 @@ console.log(`\nUsers that ${isConfirmed ? "will be" : "would be"} revoked (${can
 console.log(JSON.stringify(candidates.rows, null, 2));
 
 if (!isConfirmed) {
-	console.log("\nDry run only. Re-run with --confirm to apply these changes.");
-	process.exit(0);
+  console.log("\nDry run only. Re-run with --confirm to apply these changes.");
+  process.exit(0);
 }
 
 if (candidates.rows.length === 0) {
-	console.log("\nNo matching users. Nothing to do.");
-	process.exit(0);
+  console.log("\nNo matching users. Nothing to do.");
+  process.exit(0);
 }
 
 const result = await db.execute(sql`

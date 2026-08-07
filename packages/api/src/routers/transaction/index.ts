@@ -3,7 +3,7 @@ import { db } from "@habitutor/db";
 import { logger } from "@habitutor/shared/logger";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
-import { PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
+import { GROUP_BUY, PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { referralRepo } from "../referral/repo";
 import { processMidtransNotification } from "./notification";
@@ -50,6 +50,9 @@ const availability = pub
       earlyBirdRemaining: "number",
       isEarlyBird: "boolean",
       isAvailable: "boolean",
+      groupBuyPrice: "number",
+      groupBuyRequiredMembers: "number",
+      groupBuyWindowHours: "number",
     }),
   )
   .handler(async () => {
@@ -65,6 +68,9 @@ const availability = pub
       earlyBirdRemaining: pricing.earlyBirdRemaining,
       isEarlyBird: pricing.isEarlyBird,
       isAvailable: Date.now() <= SNBT_2027_DEADLINE.getTime(),
+      groupBuyPrice: GROUP_BUY.SEAT_PRICE,
+      groupBuyRequiredMembers: GROUP_BUY.REQUIRED_MEMBERS,
+      groupBuyWindowHours: GROUP_BUY.WINDOW_HOURS,
     };
   });
 

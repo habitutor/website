@@ -29,7 +29,8 @@
     "cloudinary": "^2.8.0",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "midtrans-client": "catalog:"
+    "midtrans-client": "catalog:",
+    "resend": "^6.10.0"
   },
   "devDependencies": {
     "@habitutor/config": "workspace:*",

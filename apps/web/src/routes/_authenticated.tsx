@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+import { GroupBuyStatusBanner } from "@/components/group-buy/status-banner";
+import { usePendingGroupInviteRedirect } from "@/components/group-buy/use-pending-invite";
 import { HeaderDashboard } from "@/components/navigation/header-dashboard";
 import { Container } from "@/components/ui/container";
 import { useOnboardingGuard } from "@/hooks/data/use-onboarding-guard";
@@ -39,6 +41,7 @@ function AuthedLayout() {
   const stablePathnameRef = useRef(location.pathname);
 
   useOnboardingGuard(context.session);
+  usePendingGroupInviteRedirect();
 
   const isPending = routerState.isLoading || routerState.isTransitioning;
 
@@ -53,6 +56,7 @@ function AuthedLayout() {
   return (
     <>
       <HeaderDashboard session={context.session} />
+      <GroupBuyStatusBanner />
 
       {/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
         <Container className="flex flex-col gap-6 py-0">

@@ -20,7 +20,7 @@ const daysArg = process.argv.find((arg) => arg.startsWith("--days="));
 const protectionWindowDays = daysArg ? Number(daysArg.split("=")[1]) : 50;
 
 if (!Number.isFinite(protectionWindowDays) || protectionWindowDays <= 0) {
-	throw new Error(`Invalid --days value: ${daysArg}`);
+  throw new Error(`Invalid --days value: ${daysArg}`);
 }
 
 const { db } = await import("../index");

@@ -11,6 +11,7 @@ import {
   TagIcon,
   TicketIcon,
   User,
+  UsersThree,
   UserSwitchIcon,
   CaretUp,
 } from "@phosphor-icons/react";
@@ -98,6 +99,11 @@ const adminNavLinks = [
     name: "Transactions",
     to: "/admin/transactions" as const,
     icon: ReceiptIcon,
+  },
+  {
+    name: "Group Buys",
+    to: "/admin/group-buys" as const,
+    icon: UsersThree,
   },
   {
     name: "Promo Codes",

@@ -20,7 +20,7 @@ export function useOnboardingGuard(session: { user: { role?: string | null } } |
 
   useEffect(() => {
     if (!session || isAdminRole(session.user.role)) return;
-		if (location.pathname.startsWith("/onboarding")) return;
+    if (location.pathname.startsWith("/onboarding")) return;
     if (isLoading || !profile) return;
     if (!isOnboardingComplete(profile)) {
       navigate({ to: "/onboarding", replace: true });
