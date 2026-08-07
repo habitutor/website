@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { GroupBuyOfferCard } from "@/components/group-buy/offer-card";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { useMidtransScript } from "@/lib/midtrans";
 import { createMeta } from "@/lib/seo-utils";
@@ -112,6 +113,14 @@ function RouteComponent() {
           />
         </div>
       </MotionStaggerItem>
+
+      {!isPremium && (
+        <MotionStaggerItem>
+          <div className="mx-auto w-full max-w-2xl">
+            <GroupBuyOfferCard />
+          </div>
+        </MotionStaggerItem>
+      )}
     </MotionStagger>
   );
 }

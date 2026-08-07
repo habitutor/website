@@ -2,6 +2,7 @@ import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { pub } from "../index";
 import { adminDashboardContentRouter } from "./admin/dashboard-content";
+import { adminGroupBuyRouter } from "./admin/group-buys";
 import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminPromoRouter } from "./admin/promos";
 import { adminQuestionRouter } from "./admin/question";
@@ -26,6 +27,7 @@ import {
 import { createSubtest, deleteSubtest, reorderSubtests, updateSubtest } from "./admin/subtest/subtest-routes";
 import { dashboardRouter } from "./dashboard";
 import { flashcardRouter } from "./flashcard";
+import { groupBuyRouter } from "./group-buy";
 import { practicePackRouter } from "./practice-pack";
 import { profileRouter } from "./profile";
 import { referralRouter } from "./referral";
@@ -83,6 +85,7 @@ const adminRouter: {
   promos: typeof adminPromoRouter;
   referrals: typeof adminReferralRouter;
   dashboardContent: typeof adminDashboardContentRouter;
+  groupBuys: typeof adminGroupBuyRouter;
 } = {
   statistics: adminStatisticsRouter,
   universitas: adminUniversitasRouter,
@@ -120,6 +123,7 @@ const adminRouter: {
   promos: adminPromoRouter,
   referrals: adminReferralRouter,
   dashboardContent: adminDashboardContentRouter,
+  groupBuys: adminGroupBuyRouter,
 };
 
 export const appRouter: {
@@ -133,6 +137,7 @@ export const appRouter: {
   tryout: typeof studentTryoutRouter;
   admin: typeof adminRouter;
   transaction: typeof transactionRouter;
+  groupBuy: typeof groupBuyRouter;
   referral: typeof referralRouter;
   streak: typeof streakRouter;
 } = {
@@ -146,6 +151,7 @@ export const appRouter: {
   tryout: studentTryoutRouter,
   admin: adminRouter,
   transaction: transactionRouter,
+  groupBuy: groupBuyRouter,
   referral: referralRouter,
   streak: streakRouter,
 };
