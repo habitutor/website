@@ -6,6 +6,7 @@ import { CallToAction } from "./-components/call-to-action";
 import { FAQ } from "./-components/faq";
 import { Hero } from "./-components/hero";
 import { Pricing } from "./-components/pricing";
+import { StudySchedule } from "./-components/study-schedule";
 
 export const Route = createFileRoute("/home-premium/")({
   head: () => ({
@@ -27,6 +28,7 @@ function RouteComponent() {
         <Benefits />
         <Pricing />
       </section>
+      <StudySchedule />
       <FAQ />
       <CallToAction />
     </main>
