@@ -21,11 +21,9 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard-content'
 import { Route as AdminReferralsRouteImport } from './routes/admin/referrals'
-import { Route as GroupBuyInviteCodeRouteImport } from './routes/group-buy/$inviteCode'
 import { Route as HomePremiumIndexRouteImport } from './routes/home-premium/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
-import { Route as AuthenticatedGroupBuyIndexRouteImport } from './routes/_authenticated/group-buy/index'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
 import { Route as AuthenticatedOnboardingIndexRouteImport } from './routes/_authenticated/onboarding/index'
@@ -35,7 +33,6 @@ import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedTryoutSessionRouteImport } from './routes/_authenticated/tryout/session'
 import { Route as AuthenticatedTryoutTestRouteImport } from './routes/_authenticated/tryout/test'
 import { Route as AdminClassesIndexRouteImport } from './routes/admin/classes/index'
-import { Route as AdminGroupBuysIndexRouteImport } from './routes/admin/group-buys/index'
 import { Route as AdminPracticePacksIndexRouteImport } from './routes/admin/practice-packs/index'
 import { Route as AdminPracticePacksIdRouteImport } from './routes/admin/practice-packs/$id'
 import { Route as AdminPracticePacksCreateRouteImport } from './routes/admin/practice-packs/create'
@@ -127,11 +124,6 @@ const AdminReferralsRoute = AdminReferralsRouteImport.update({
   path: '/referrals',
   getParentRoute: () => AdminRoute,
 } as any)
-const GroupBuyInviteCodeRoute = GroupBuyInviteCodeRouteImport.update({
-  id: '/group-buy/$inviteCode',
-  path: '/group-buy/$inviteCode',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HomePremiumIndexRoute = HomePremiumIndexRouteImport.update({
   id: '/home-premium/',
   path: '/home-premium/',
@@ -147,12 +139,6 @@ const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/dashboard/',
     path: '/dashboard/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedGroupBuyIndexRoute =
-  AuthenticatedGroupBuyIndexRouteImport.update({
-    id: '/group-buy/',
-    path: '/group-buy/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedLatihanSoalIndexRoute =
@@ -205,11 +191,6 @@ const AuthenticatedTryoutTestRoute = AuthenticatedTryoutTestRouteImport.update({
 const AdminClassesIndexRoute = AdminClassesIndexRouteImport.update({
   id: '/classes/',
   path: '/classes/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminGroupBuysIndexRoute = AdminGroupBuysIndexRouteImport.update({
-  id: '/group-buys/',
-  path: '/group-buys/',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPracticePacksIndexRoute = AdminPracticePacksIndexRouteImport.update({
@@ -404,7 +385,6 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin/referrals': typeof AdminReferralsRoute
-  '/group-buy/$inviteCode': typeof GroupBuyInviteCodeRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
@@ -418,14 +398,12 @@ export interface FileRoutesByFullPath {
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/group-buy/': typeof AuthenticatedGroupBuyIndexRoute
   '/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
   '/onboarding/': typeof AuthenticatedOnboardingIndexRoute
   '/premium/': typeof AuthenticatedPremiumIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
-  '/admin/group-buys/': typeof AdminGroupBuysIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
   '/admin/promos/': typeof AdminPromosIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
@@ -462,7 +440,6 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin/referrals': typeof AdminReferralsRoute
-  '/group-buy/$inviteCode': typeof GroupBuyInviteCodeRoute
   '/admin': typeof AdminIndexRoute
   '/home-premium': typeof HomePremiumIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
@@ -476,14 +453,12 @@ export interface FileRoutesByTo {
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/group-buy': typeof AuthenticatedGroupBuyIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
   '/onboarding': typeof AuthenticatedOnboardingIndexRoute
   '/premium': typeof AuthenticatedPremiumIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/tryout': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes': typeof AdminClassesIndexRoute
-  '/admin/group-buys': typeof AdminGroupBuysIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
   '/admin/promos': typeof AdminPromosIndexRoute
   '/admin/questions': typeof AdminQuestionsIndexRoute
@@ -524,7 +499,6 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin/referrals': typeof AdminReferralsRoute
-  '/group-buy/$inviteCode': typeof GroupBuyInviteCodeRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
@@ -538,14 +512,12 @@ export interface FileRoutesById {
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/_authenticated/group-buy/': typeof AuthenticatedGroupBuyIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
   '/_authenticated/onboarding/': typeof AuthenticatedOnboardingIndexRoute
   '/_authenticated/premium/': typeof AuthenticatedPremiumIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
-  '/admin/group-buys/': typeof AdminGroupBuysIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
   '/admin/promos/': typeof AdminPromosIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
@@ -585,7 +557,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dashboard-content'
     | '/admin/referrals'
-    | '/group-buy/$inviteCode'
     | '/admin/'
     | '/home-premium/'
     | '/latihan-soal/$id'
@@ -599,14 +570,12 @@ export interface FileRouteTypes {
     | '/admin/tryout/passing-grade'
     | '/classes/'
     | '/dashboard/'
-    | '/group-buy/'
     | '/latihan-soal/'
     | '/onboarding/'
     | '/premium/'
     | '/profile/'
     | '/tryout/'
     | '/admin/classes/'
-    | '/admin/group-buys/'
     | '/admin/practice-packs/'
     | '/admin/promos/'
     | '/admin/questions/'
@@ -643,7 +612,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dashboard-content'
     | '/admin/referrals'
-    | '/group-buy/$inviteCode'
     | '/admin'
     | '/home-premium'
     | '/latihan-soal/$id'
@@ -657,14 +625,12 @@ export interface FileRouteTypes {
     | '/admin/tryout/passing-grade'
     | '/classes'
     | '/dashboard'
-    | '/group-buy'
     | '/latihan-soal'
     | '/onboarding'
     | '/premium'
     | '/profile'
     | '/tryout'
     | '/admin/classes'
-    | '/admin/group-buys'
     | '/admin/practice-packs'
     | '/admin/promos'
     | '/admin/questions'
@@ -704,7 +670,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dashboard-content'
     | '/admin/referrals'
-    | '/group-buy/$inviteCode'
     | '/admin/'
     | '/home-premium/'
     | '/_authenticated/latihan-soal/$id'
@@ -718,14 +683,12 @@ export interface FileRouteTypes {
     | '/admin/tryout/passing-grade'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
-    | '/_authenticated/group-buy/'
     | '/_authenticated/latihan-soal/'
     | '/_authenticated/onboarding/'
     | '/_authenticated/premium/'
     | '/_authenticated/profile/'
     | '/_authenticated/tryout/'
     | '/admin/classes/'
-    | '/admin/group-buys/'
     | '/admin/practice-packs/'
     | '/admin/promos/'
     | '/admin/questions/'
@@ -759,7 +722,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  GroupBuyInviteCodeRoute: typeof GroupBuyInviteCodeRoute
   HomePremiumIndexRoute: typeof HomePremiumIndexRoute
 }
 
@@ -849,13 +811,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReferralsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/group-buy/$inviteCode': {
-      id: '/group-buy/$inviteCode'
-      path: '/group-buy/$inviteCode'
-      fullPath: '/group-buy/$inviteCode'
-      preLoaderRoute: typeof GroupBuyInviteCodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/home-premium/': {
       id: '/home-premium/'
       path: '/home-premium'
@@ -875,13 +830,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/group-buy/': {
-      id: '/_authenticated/group-buy/'
-      path: '/group-buy'
-      fullPath: '/group-buy/'
-      preLoaderRoute: typeof AuthenticatedGroupBuyIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/latihan-soal/': {
@@ -945,13 +893,6 @@ declare module '@tanstack/react-router' {
       path: '/classes'
       fullPath: '/admin/classes/'
       preLoaderRoute: typeof AdminClassesIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/group-buys/': {
-      id: '/admin/group-buys/'
-      path: '/group-buys'
-      fullPath: '/admin/group-buys/'
-      preLoaderRoute: typeof AdminGroupBuysIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/practice-packs/': {
@@ -1224,7 +1165,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTryoutTestRoute: typeof AuthenticatedTryoutTestRoute
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
-  AuthenticatedGroupBuyIndexRoute: typeof AuthenticatedGroupBuyIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
   AuthenticatedOnboardingIndexRoute: typeof AuthenticatedOnboardingIndexRoute
   AuthenticatedPremiumIndexRoute: typeof AuthenticatedPremiumIndexRoute
@@ -1250,7 +1190,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTryoutTestRoute: AuthenticatedTryoutTestRoute,
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
-  AuthenticatedGroupBuyIndexRoute: AuthenticatedGroupBuyIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
   AuthenticatedOnboardingIndexRoute: AuthenticatedOnboardingIndexRoute,
   AuthenticatedPremiumIndexRoute: AuthenticatedPremiumIndexRoute,
@@ -1316,7 +1255,6 @@ interface AdminRouteChildren {
   AdminTryoutCreateRoute: typeof AdminTryoutCreateRoute
   AdminTryoutPassingGradeRoute: typeof AdminTryoutPassingGradeRoute
   AdminClassesIndexRoute: typeof AdminClassesIndexRoute
-  AdminGroupBuysIndexRoute: typeof AdminGroupBuysIndexRoute
   AdminPracticePacksIndexRoute: typeof AdminPracticePacksIndexRoute
   AdminPromosIndexRoute: typeof AdminPromosIndexRoute
   AdminQuestionsIndexRoute: typeof AdminQuestionsIndexRoute
@@ -1339,7 +1277,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminTryoutCreateRoute: AdminTryoutCreateRoute,
   AdminTryoutPassingGradeRoute: AdminTryoutPassingGradeRoute,
   AdminClassesIndexRoute: AdminClassesIndexRoute,
-  AdminGroupBuysIndexRoute: AdminGroupBuysIndexRoute,
   AdminPracticePacksIndexRoute: AdminPracticePacksIndexRoute,
   AdminPromosIndexRoute: AdminPromosIndexRoute,
   AdminQuestionsIndexRoute: AdminQuestionsIndexRoute,
@@ -1358,7 +1295,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  GroupBuyInviteCodeRoute: GroupBuyInviteCodeRoute,
   HomePremiumIndexRoute: HomePremiumIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -18,7 +18,6 @@ export async function createSubscriptionTransaction({
   name,
   grossAmount,
   session,
-  callbackPaths,
 }: {
   id: string;
   name: string;
@@ -29,18 +28,8 @@ export async function createSubscriptionTransaction({
       email: string;
     };
   };
-  callbackPaths?: {
-    finish: string;
-    error: string;
-    pending: string;
-  };
 }) {
   const normalizedGrossAmount = Math.round(grossAmount);
-  const callbacks = callbackPaths ?? {
-    finish: "/premium/payment/finish",
-    error: "/premium/payment/error",
-    pending: "/premium/payment/unfinish",
-  };
 
   const params = {
     transaction_details: {
@@ -60,9 +49,9 @@ export async function createSubscriptionTransaction({
     },
     credit_card: { secure: true },
     callbacks: {
-      finish: `${process.env.CORS_ORIGIN}${callbacks.finish}`,
-      error: `${process.env.CORS_ORIGIN}${callbacks.error}`,
-      pending: `${process.env.CORS_ORIGIN}${callbacks.pending}`,
+      finish: `${process.env.CORS_ORIGIN}/premium/payment/finish`,
+      error: `${process.env.CORS_ORIGIN}/premium/payment/error`,
+      pending: `${process.env.CORS_ORIGIN}/premium/payment/unfinish`,
     },
   };
 

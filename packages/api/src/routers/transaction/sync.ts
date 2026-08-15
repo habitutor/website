@@ -3,7 +3,6 @@ import { ORPCError } from "@orpc/client";
 import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
 import { PERINTIS_2027, PREMIUM_DEADLINE, SNBT_2027_DEADLINE } from "../../lib/constants";
-import { applyGroupBuySettlement } from "../group-buy/lifecycle";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
 
@@ -142,10 +141,6 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
         premiumExpiresAt: premiumDetails.expiresAt,
       });
     }
-
-    // Group-buy seats and top-ups are type "product", so premium for them is
-    // granted here (only once the whole group has paid) instead of above.
-    await applyGroupBuySettlement({ db: trx, orderId, paidAt: resolvedPaidAt });
 
     return {
       resolvedPaidAt,

@@ -82,15 +82,8 @@
     {
       "idx": 11,
       "version": "7",
-      "when": 1786122890825,
-      "tag": "0011_lucky_fallen_one",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1786122890826,
-      "tag": "0012_perintis_2027_group_buy_pricing",
+      "when": 1786760308270,
+      "tag": "0011_restore_perintis_price",
       "breakpoints": true
     }
   ]

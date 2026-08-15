@@ -1,7 +1,6 @@
 import { CheckIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { GroupBuyOfferCard } from "@/components/group-buy/offer-card";
 import { MotionScaleIn } from "@/components/motion/motion-components";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,7 +85,7 @@ export function PerintisPricingCard({
             )}
             <span className="text-xs text-neutral-100">{copy.priceSuffix}</span>
           </div>
-          <p className="mt-2 text-lg font-black text-neutral-100">kurang dari Rp1.000 / hari</p>
+          <p className="mt-2 text-lg font-black text-neutral-100">kurang dari Rp850 / hari</p>
           <p className="mt-3 text-sm leading-relaxed whitespace-pre-line text-neutral-100">{copy.comparison}</p>
           <hr className="mt-4 border-primary-100" />
         </div>
@@ -198,10 +197,6 @@ export function Pricing() {
           <PerintisPricingCard />
         </MotionScaleIn>
       </div>
-
-      <MotionScaleIn className="mx-auto mt-8 w-full max-w-xl">
-        <GroupBuyOfferCard />
-      </MotionScaleIn>
     </div>
   );
 }

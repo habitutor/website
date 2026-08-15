@@ -136,7 +136,6 @@
         "drizzle-orm": "catalog:",
         "hono": "catalog:",
         "midtrans-client": "catalog:",
-        "resend": "^6.10.0",
       },
       "devDependencies": {
         "@habitutor/config": "workspace:*",
