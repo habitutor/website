@@ -1,5 +1,4 @@
 import { logger } from "@habitutor/shared/logger";
-import { expireDueGroupBuys } from "./routers/group-buy/lifecycle";
 import { reconcileStalePendingTransactions } from "./routers/transaction/sync";
 
 const RECONCILIATION_INTERVAL_MS = 5 * 60 * 1000;
@@ -15,17 +14,9 @@ async function runReconciliationSweep() {
     await reconcileStalePendingTransactions();
   } catch (error) {
     logger.error("Transaction reconciliation sweep failed", { error });
+  } finally {
+    isSweepRunning = false;
   }
-
-  try {
-    // Expiry runs after reconciliation so seats settled by the sweep above
-    // can still complete a group right at the deadline.
-    await expireDueGroupBuys();
-  } catch (error) {
-    logger.error("Group buy expiry sweep failed", { error });
-  }
-
-  isSweepRunning = false;
 }
 
 export function startTransactionReconciliationJob() {

@@ -6,8 +6,8 @@ export const PERINTIS_SLUG = "perintis2027" as const;
 
 export const PERINTIS_FALLBACK_PRICING = {
   originalPrice: 500_000,
-  earlyBirdPrice: 349_000,
-  regularPrice: 349_000,
+  earlyBirdPrice: 299_000,
+  regularPrice: 299_000,
   earlyBirdQuota: 50,
 } as const;
 

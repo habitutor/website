@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { GroupBuyOfferCard } from "@/components/group-buy/offer-card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PerintisPricingCard } from "@/routes/home-premium/-components/pricing";
@@ -19,10 +18,6 @@ export function Pricing() {
 
         <div className="mx-auto w-full max-w-xl">
           <PerintisPricingCard />
-        </div>
-
-        <div className="mx-auto w-full max-w-xl">
-          <GroupBuyOfferCard />
         </div>
 
         <div className="flex items-center justify-center">
