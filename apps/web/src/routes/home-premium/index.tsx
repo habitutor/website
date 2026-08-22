@@ -13,7 +13,7 @@ export const Route = createFileRoute("/home-premium/")({
     meta: createMeta({
       title: "Perintis SNBT & TKA 2027",
       description:
-        "Belajar bareng sampai hari-H SNBT 2027: playlist video, bank soal, try out, 100+ sesi live, dan komunitas yang jagain lo tetep konsisten.",
+        "Belajar bareng sampai hari-H SNBT 2027: playlist video, bank soal, try out, 150+ sesi live, dan komunitas yang jagain lo tetep konsisten.",
     }),
   }),
   component: RouteComponent,

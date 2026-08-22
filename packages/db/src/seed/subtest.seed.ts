@@ -51,6 +51,13 @@ const SUBTEST_DATA = [
     description: "Mengukur kemampuan penalaran dan pemecahan masalah menggunakan konsep matematika tingkat lanjut.",
     order: 8,
   },
+  {
+    name: "Tes Kemampuan Akademik (TKA)",
+    shortName: "TKA",
+    description:
+      "Persiapan Tes Kemampuan Akademik: modul, latihan soal, dan pembahasan mata pelajaran wajib dan pilihan.",
+    order: 9,
+  },
 ];
 
 export async function clearSubtest(db: NodePgDatabase) {

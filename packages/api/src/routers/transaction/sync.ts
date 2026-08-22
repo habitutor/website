@@ -2,7 +2,8 @@ import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
-import { PERINTIS_2027, PREMIUM_DEADLINE, SNBT_2027_DEADLINE } from "../../lib/constants";
+import { PATUNGAN_BERTIGA, PERINTIS_2027, PREMIUM_DEADLINE, SNBT_2027_DEADLINE } from "../../lib/constants";
+import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
 import { transactionRepo } from "./repo";
 
@@ -124,6 +125,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     const premiumDetails =
       existingTransaction.prodType === "subscription" ? getPremiumDetails(existingTransaction.prodSlug) : null;
     const alreadySuccessful = tx.status === "success";
+    const premiumUnlockedUserIds: string[] = [];
 
     await transactionRepo.updateTransactionStatus({
       db: trx,
@@ -140,10 +142,32 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
         premiumTier: premiumDetails.tier,
         premiumExpiresAt: premiumDetails.expiresAt,
       });
+      if (!alreadySuccessful) premiumUnlockedUserIds.push(tx.userId);
+    }
+
+    // Patungan Bertiga: premium unlocks for every member only once the whole
+    // group has paid (getPremiumDetails intentionally excludes this slug).
+    if (existingTransaction.prodSlug === PATUNGAN_BERTIGA.SLUG && tx.paymentGroupId) {
+      const payers = await transactionRepo.countSuccessfulGroupPayers({ db: trx, groupId: tx.paymentGroupId });
+      if (payers >= PATUNGAN_BERTIGA.GROUP_SIZE) {
+        await transactionRepo.markPaymentGroupComplete({ db: trx, groupId: tx.paymentGroupId });
+        const memberIds = await transactionRepo.getSuccessfulGroupPayerIds({ db: trx, groupId: tx.paymentGroupId });
+        for (const memberId of memberIds) {
+          await transactionRepo.updateUserPremium({
+            db: trx,
+            userId: memberId,
+            isPremium: true,
+            premiumTier: "premium",
+            premiumExpiresAt: SNBT_2027_DEADLINE,
+          });
+          premiumUnlockedUserIds.push(memberId);
+        }
+      }
     }
 
     return {
       resolvedPaidAt,
+      premiumUnlockedUserIds,
       // Only process referral once, on the transition into success.
       referral:
         !alreadySuccessful && tx.referralCodeId && tx.userId
@@ -156,6 +180,21 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
 
   if (result.referral) {
     await processReferralReward({ orderId, ...result.referral });
+  }
+
+  // Inbox + push happen outside the DB transaction: delivery must never roll
+  // back a successful payment.
+  for (const userId of result.premiumUnlockedUserIds) {
+    try {
+      await notifyUser({
+        userId,
+        type: "premium_unlocked",
+        title: "Premium aktif! 🎉",
+        body: "Akun premium kamu sudah aktif. Semua kelas dan fitur kini terbuka.",
+      });
+    } catch (err) {
+      logger.error("Failed to send premium notification", { userId, error: err });
+    }
   }
 
   return {
@@ -232,6 +271,14 @@ export async function syncTransactionStatus(orderId: string, options?: { expecte
 
   if (!tx) {
     return null;
+  }
+
+  // Simulated transactions never exist at the gateway; local state is truth.
+  if (tx.isSimulation) {
+    return {
+      status: tx.status,
+      paidAt: tx.paidAt,
+    };
   }
 
   const statusData = await fetchMidtransTransactionStatus(orderId);

@@ -8,6 +8,7 @@ export function StudySchedule() {
           <h2 className="text-2xl font-extrabold sm:text-3xl">
             Jadwal <span className="text-primary-300">Belajar</span>
           </h2>
+          <p className="font-semibold text-neutral-700">Jadwal belajar 150+ live class</p>
         </div>
 
         <iframe

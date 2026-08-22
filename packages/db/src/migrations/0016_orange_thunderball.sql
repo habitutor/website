@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "has_joined_premium_whatsapp" boolean DEFAULT false NOT NULL;

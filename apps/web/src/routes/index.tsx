@@ -4,6 +4,7 @@ import { createMeta } from "@/lib/seo-utils";
 import { CallToAction } from "./-home/call-to-action";
 import { FAQ } from "./-home/faq";
 import { Features } from "./-home/features";
+import { FundedBy } from "./-home/funded-by";
 import { Hero } from "./-home/hero";
 import { Pricing } from "./-home/pricing";
 import { Statistics } from "./-home/statistics";
@@ -25,6 +26,7 @@ function HomeComponent() {
     <>
       <Header />
       <Hero />
+      <FundedBy />
       <Testimonial />
       <Statistics />
       <Features />

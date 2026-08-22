@@ -1,7 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
-import { product, transaction } from "@habitutor/db/schema/transaction";
-import { and, asc, count, desc, eq, gte, lte, ne, sql } from "drizzle-orm";
+import { paymentGroup, product, transaction } from "@habitutor/db/schema/transaction";
+import { and, asc, count, countDistinct, desc, eq, gte, isNotNull, lte, ne, sql } from "drizzle-orm";
 import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
@@ -33,6 +33,7 @@ export const transactionRepo = {
     referralCodeId,
     promoCodeId,
     isSimulation = false,
+    paymentGroupId,
   }: {
     db?: DrizzleDatabase;
     id: string;
@@ -42,6 +43,7 @@ export const transactionRepo = {
     referralCodeId?: string;
     promoCodeId?: string;
     isSimulation?: boolean;
+    paymentGroupId?: string;
   }) => {
     const [tx] = await db
       .insert(transaction)
@@ -53,9 +55,57 @@ export const transactionRepo = {
         referralCodeId,
         promoCodeId,
         isSimulation,
+        paymentGroupId,
       })
       .returning();
     return tx;
+  },
+
+  createPaymentGroup: async ({
+    db = defaultDb,
+    inviteCode,
+    creatorUserId,
+    expiresAt,
+  }: {
+    db?: DrizzleDatabase;
+    inviteCode: string;
+    creatorUserId: string;
+    expiresAt: Date;
+  }) => {
+    const [group] = await db.insert(paymentGroup).values({ inviteCode, creatorUserId, expiresAt }).returning();
+    return group;
+  },
+
+  getPaymentGroupByInviteCode: async ({ db = defaultDb, inviteCode }: { db?: DrizzleDatabase; inviteCode: string }) => {
+    const [group] = await db.select().from(paymentGroup).where(eq(paymentGroup.inviteCode, inviteCode)).limit(1);
+    return group;
+  },
+
+  getPaymentGroupById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: string }) => {
+    const [group] = await db.select().from(paymentGroup).where(eq(paymentGroup.id, id)).limit(1);
+    return group;
+  },
+
+  countSuccessfulGroupPayers: async ({ db = defaultDb, groupId }: { db?: DrizzleDatabase; groupId: string }) => {
+    const [result] = await db
+      .select({ total: countDistinct(transaction.userId) })
+      .from(transaction)
+      .where(and(eq(transaction.paymentGroupId, groupId), eq(transaction.status, "success")));
+    return result?.total ?? 0;
+  },
+
+  getSuccessfulGroupPayerIds: async ({ db = defaultDb, groupId }: { db?: DrizzleDatabase; groupId: string }) => {
+    const rows = await db
+      .selectDistinct({ userId: transaction.userId })
+      .from(transaction)
+      .where(
+        and(eq(transaction.paymentGroupId, groupId), eq(transaction.status, "success"), isNotNull(transaction.userId)),
+      );
+    return rows.map((row) => row.userId).filter((id): id is string => id !== null);
+  },
+
+  markPaymentGroupComplete: async ({ db = defaultDb, groupId }: { db?: DrizzleDatabase; groupId: string }) => {
+    await db.update(paymentGroup).set({ status: "complete" }).where(eq(paymentGroup.id, groupId));
   },
 
   getTransactionWithProduct: async ({

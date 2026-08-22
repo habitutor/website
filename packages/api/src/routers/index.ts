@@ -24,8 +24,10 @@ import {
   upsertVideo,
 } from "./admin/subtest/content-routes";
 import { createSubtest, deleteSubtest, reorderSubtests, updateSubtest } from "./admin/subtest/subtest-routes";
+import { communityRouter } from "./community";
 import { dashboardRouter } from "./dashboard";
 import { flashcardRouter } from "./flashcard";
+import { notificationRouter } from "./notification";
 import { practicePackRouter } from "./practice-pack";
 import { profileRouter } from "./profile";
 import { referralRouter } from "./referral";
@@ -125,6 +127,7 @@ const adminRouter: {
 export const appRouter: {
   healthCheck: typeof healthCheck;
   social: typeof socialRouter;
+  community: typeof communityRouter;
   dashboard: typeof dashboardRouter;
   profile: typeof profileRouter;
   practicePack: typeof practicePackRouter;
@@ -135,9 +138,11 @@ export const appRouter: {
   transaction: typeof transactionRouter;
   referral: typeof referralRouter;
   streak: typeof streakRouter;
+  notification: typeof notificationRouter;
 } = {
   healthCheck,
   social: socialRouter,
+  community: communityRouter,
   dashboard: dashboardRouter,
   profile: profileRouter,
   practicePack: practicePackRouter,
@@ -148,6 +153,7 @@ export const appRouter: {
   transaction: transactionRouter,
   referral: referralRouter,
   streak: streakRouter,
+  notification: notificationRouter,
 };
 
 export type AppRouter = typeof appRouter;

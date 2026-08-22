@@ -34,7 +34,9 @@ const getProfile = authed
       "age?": "number | null",
       "educationLevel?": "string | null",
       "difficultSubjects?": "string[] | null",
+      "dailyGoalMinutes?": "number | null",
       hasSeenWelcomeVideo: "boolean",
+      hasJoinedPremiumWhatsapp: "boolean",
     }),
   )
   .handler(async ({ context }) => {
@@ -51,7 +53,9 @@ const getProfile = authed
         age: user.age,
         educationLevel: user.educationLevel,
         difficultSubjects: user.difficultSubjects,
+        dailyGoalMinutes: user.dailyGoalMinutes,
         hasSeenWelcomeVideo: user.hasSeenWelcomeVideo,
+        hasJoinedPremiumWhatsapp: user.hasJoinedPremiumWhatsapp,
       })
       .from(user)
       .leftJoin(referralCode, eq(user.id, referralCode.userId))
@@ -76,7 +80,9 @@ const getProfile = authed
       age: row?.age ?? null,
       educationLevel: row?.educationLevel ?? null,
       difficultSubjects: row?.difficultSubjects ?? null,
+      dailyGoalMinutes: row?.dailyGoalMinutes ?? null,
       hasSeenWelcomeVideo: row?.hasSeenWelcomeVideo ?? false,
+      hasJoinedPremiumWhatsapp: row?.hasJoinedPremiumWhatsapp ?? false,
     };
   });
 
@@ -95,6 +101,7 @@ const updateProfile = authed
       "age?": "number",
       "educationLevel?": "string",
       "difficultSubjects?": "string[]",
+      "dailyGoalMinutes?": "number",
     }),
   )
   .output(
@@ -114,6 +121,7 @@ const updateProfile = authed
     if (input.age !== undefined) updates.age = input.age;
     if (input.educationLevel !== undefined) updates.educationLevel = input.educationLevel;
     if (input.difficultSubjects !== undefined) updates.difficultSubjects = input.difficultSubjects;
+    if (input.dailyGoalMinutes !== undefined) updates.dailyGoalMinutes = input.dailyGoalMinutes;
     if (Object.keys(updates).length > 0) {
       await db.update(user).set(updates).where(eq(user.id, context.session.user.id));
     }
@@ -158,9 +166,28 @@ const markWelcomeVideoSeen = authed
     return { success: true };
   });
 
+const markPremiumWhatsappJoined = authed
+  .route({
+    path: "/profile/premium-whatsapp-joined",
+    method: "POST",
+    tags: ["Profile"],
+  })
+  .output(
+    type({
+      success: "boolean",
+    }),
+  )
+  .handler(async ({ context }) => {
+    if (!context.session.user.isPremium) return { success: false };
+
+    await db.update(user).set({ hasJoinedPremiumWhatsapp: true }).where(eq(user.id, context.session.user.id));
+    return { success: true };
+  });
+
 export const profileRouter = {
   me: getProfile,
   update: updateProfile,
   avatar: { update: updateAvatar },
   markWelcomeVideoSeen,
+  markPremiumWhatsappJoined,
 };

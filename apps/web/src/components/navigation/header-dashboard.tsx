@@ -1,5 +1,5 @@
 import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useEffect, useState } from "react";
@@ -25,6 +25,8 @@ import {
 import { StreakIndicator } from "@/components/streak/streak-indicator";
 import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
+import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
+import { orpc } from "@/utils/orpc";
 
 const links = [
   {
@@ -47,9 +49,19 @@ const links = [
 
 export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
   const location = useLocation();
+  const isDashboard = location.pathname === "/dashboard" || location.pathname === "/dashboard/";
+  const { data: profile } = useQuery({
+    ...orpc.profile.me.queryOptions(),
+    enabled: isDashboard,
+  });
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
+  const dashboardPopupPending =
+    isDashboard &&
+    (profile === undefined ||
+      (WELCOME_VIDEO_ENABLED && !profile.hasSeenWelcomeVideo) ||
+      (Boolean(session?.user.isPremium) && !profile.hasJoinedPremiumWhatsapp));
 
   useEffect(() => {
     setAvatarSrc(getAvatarSrc(session?.user.image));
@@ -106,7 +118,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          {session && <StreakIndicator />}
+          {session && <StreakIndicator autoOpenBlocked={dashboardPopupPending} />}
           <div className="hidden md:flex md:items-center md:gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2">

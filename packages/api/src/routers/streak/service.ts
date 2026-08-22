@@ -2,7 +2,13 @@ import { db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { eq } from "drizzle-orm";
 import type { StreakState } from "./logic";
-import { applyStreakActivity, hasCompletedToday, MAX_STREAK_SAVES, reconcileStreak } from "./logic";
+import {
+  applyStreakActivity,
+  getWeekActivity,
+  hasCompletedToday,
+  MAX_STREAK_SAVES,
+  reconcileStreak,
+} from "./logic";
 
 type DrizzleDatabase = typeof defaultDb;
 
@@ -53,7 +59,13 @@ export async function recordStreakActivity({ db = defaultDb, userId }: { db?: Dr
 
 export async function getStreakStatus({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) {
   const state = await getStreakState({ db, userId });
-  const fallback = { streak: 0, saves: MAX_STREAK_SAVES, maxSaves: MAX_STREAK_SAVES, completedToday: false };
+  const fallback = {
+    streak: 0,
+    saves: MAX_STREAK_SAVES,
+    maxSaves: MAX_STREAK_SAVES,
+    completedToday: false,
+    weekDays: getWeekActivity({ streak: 0, lastStreakAt: null }),
+  };
   if (!state) return fallback;
 
   const { next, changed } = reconcileStreak(state);
@@ -66,5 +78,6 @@ export async function getStreakStatus({ db = defaultDb, userId }: { db?: Drizzle
     saves: next.streakSaves,
     maxSaves: MAX_STREAK_SAVES,
     completedToday: hasCompletedToday(next.lastStreakAt),
+    weekDays: getWeekActivity(next),
   };
 }

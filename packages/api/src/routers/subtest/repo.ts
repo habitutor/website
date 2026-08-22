@@ -21,6 +21,7 @@ type RecentContentView = {
   hasVideo: boolean;
   hasNote: boolean;
   hasPracticeQuestions: boolean;
+  videoUrl: string | null;
 };
 
 type ExecuteRowsResult<T> = T[] | { rows?: T[] };
@@ -30,6 +31,15 @@ function extractExecuteRows<T>(result: ExecuteRowsResult<T>): T[] {
   if (result && typeof result === "object" && "rows" in result && Array.isArray(result.rows)) return result.rows;
   return [];
 }
+
+/** First lesson's video URL, used by mobile as the course thumbnail source. */
+const firstVideoUrl = sql<string | null>`(
+  SELECT vm.video_url FROM video_material vm
+  INNER JOIN content_item ci ON ci.id = vm.content_item_id
+  WHERE ci.subtest_id = ${subtest.id}
+  ORDER BY ci."order" ASC
+  LIMIT 1
+)`;
 
 export const subtestRepo = {
   listSubtests: async ({ db = defaultDb, limit, offset }: { db?: DrizzleDatabase; limit: number; offset: number }) => {
@@ -41,6 +51,7 @@ export const subtestRepo = {
         description: subtest.description,
         order: subtest.order,
         totalContent: sql<number>`COUNT(${contentItem.id})`,
+        firstVideoUrl,
       })
       .from(subtest)
       .leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
@@ -59,6 +70,7 @@ export const subtestRepo = {
         description: subtest.description,
         order: subtest.order,
         totalContent: sql<number>`COUNT(${contentItem.id})`,
+        firstVideoUrl,
       })
       .from(subtest)
       .leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
@@ -95,7 +107,9 @@ export const subtestRepo = {
       .select({
         id: contentItem.id,
         title: contentItem.title,
+        type: contentItem.type,
         order: contentItem.order,
+        videoUrl: videoMaterial.videoUrl,
         hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
         hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
         hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
@@ -234,6 +248,7 @@ export const subtestRepo = {
       hasVideo: boolean;
       hasNote: boolean;
       hasPracticeQuestions: boolean;
+      videoUrl: string | null;
     }>(sql`
 			SELECT
 				r.viewed_at AS "viewedAt",
@@ -243,6 +258,7 @@ export const subtestRepo = {
 				s.id AS "subtestId",
 				s.name AS "subtestName",
 				s.short_name AS "subtestShortName",
+				vm.video_url AS "videoUrl",
 				vm.id IS NOT NULL AS "hasVideo",
 				nm.id IS NOT NULL AS "hasNote",
 				cpq.content_item_id IS NOT NULL AS "hasPracticeQuestions"
@@ -315,5 +331,26 @@ export const subtestRepo = {
       .from(userProgress)
       .where(eq(userProgress.userId, userId));
     return stats;
+  },
+
+  /** Per-subtest material lesson totals and the user's completed count. */
+  getSubtestProgressOverview: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+    return db
+      .select({
+        id: subtest.id,
+        name: subtest.name,
+        shortName: subtest.shortName,
+        order: subtest.order,
+        totalLessons: sql<number>`COUNT(DISTINCT ${contentItem.id})::int`,
+        completedLessons: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${contentItem.id} END)::int`,
+      })
+      .from(subtest)
+      .leftJoin(contentItem, and(eq(contentItem.subtestId, subtest.id), eq(contentItem.type, "material")))
+      .leftJoin(
+        userProgress,
+        and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, userId)),
+      )
+      .groupBy(subtest.id)
+      .orderBy(subtest.order);
   },
 };

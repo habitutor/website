@@ -14,6 +14,8 @@ const get = authed
       saves: "number",
       maxSaves: "number",
       completedToday: "boolean",
+      /** Monday-first activity flags for the current week (Asia/Jakarta). */
+      weekDays: "boolean[]",
     }),
   )
   .handler(({ context }) => getStreakStatus({ userId: context.session.user.id }));

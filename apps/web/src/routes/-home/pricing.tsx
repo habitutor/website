@@ -12,7 +12,7 @@ export function Pricing() {
             Perintis SNBT & TKA 2027, <span className="text-primary-300">mulai sekarang</span>
           </h2>
           <p className="text-sm font-medium text-pretty md:text-lg">
-            Satu paket, akses penuh sampai hari-H: video, bank soal, try out, 100+ sesi live, dan komunitas
+            Satu paket, akses penuh sampai hari-H: video, bank soal, try out, 150+ sesi live, dan komunitas
           </p>
         </div>
 
@@ -21,7 +21,13 @@ export function Pricing() {
         </div>
 
         <div className="flex items-center justify-center">
-          <Link to="/home-premium" className={cn(buttonVariants({ variant: "outline" }))}>
+          <Link
+            to="/home-premium"
+            className={cn(
+              buttonVariants({ variant: "default" }),
+              "package-detail-cta bg-primary-300 text-white hover:bg-primary-200",
+            )}
+          >
             Lihat Detail Paket
           </Link>
         </div>

@@ -16,6 +16,7 @@ import { referralCode } from "./referral";
 export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"]);
 export const statusEnum = pgEnum("transaction_status_enum", ["pending", "success", "failed"]);
 export const promoDiscountTypeEnum = pgEnum("promo_discount_type_enum", ["fixed_price", "percentage"]);
+export const paymentGroupStatusEnum = pgEnum("payment_group_status_enum", ["pending", "complete", "expired"]);
 
 export const product = pgTable("product", {
   id: uuid().defaultRandom().primaryKey(),
@@ -48,6 +49,20 @@ export const promoCode = pgTable(
   ],
 );
 
+/** "Patungan Bertiga" group purchase: premium unlocks once all member payments settle. */
+export const paymentGroup = pgTable(
+  "payment_group",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    inviteCode: text("invite_code").notNull(),
+    creatorUserId: text("creator_user_id").references(() => user.id, { onDelete: "set null" }),
+    status: paymentGroupStatusEnum("status").notNull().default("pending"),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("payment_group_invite_code_unique").on(t.inviteCode)],
+);
+
 export const transaction = pgTable(
   "transaction",
   {
@@ -64,6 +79,7 @@ export const transaction = pgTable(
     fraudStatus: text("fraud_status"),
     statusCode: text("status_code"),
     isSimulation: boolean("is_simulation").notNull().default(false),
+    paymentGroupId: uuid("payment_group_id").references(() => paymentGroup.id, { onDelete: "set null" }),
     paidAt: timestamp("paid_at"),
     orderedAt: timestamp("ordered_at").defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),

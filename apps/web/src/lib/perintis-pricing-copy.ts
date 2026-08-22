@@ -21,13 +21,15 @@ export const PERINTIS_PRICING_COPY = {
   proofStrip: "Lebih dari 60% siswa Habitutor yang melapor lolos PTN di SNBT 2026 — hampir 2x rata-rata nasional.",
   features: [
     "200+ video belajar (fundamental, materi prioritas, kelas habit dan anti-burnout)",
+    "Belajar dari fundamental dan materi tiap subtest",
     "Ribuan bank soal per subtes SNBT dari yang mudah sampai HOTS",
     "20x try out soal asli SNBT tahun-tahun lalu + analisis detail",
-    "100+ sesi live: bahas materi, soal asli, masterclass, mentoring bulanan dan mingguan, TKA",
+    "150+ sesi live: bahas materi, soal asli, masterclass, mentoring bulanan dan mingguan, TKA",
+    "TKA INTENSIF — Modul, latihan soal, dan 40+ live class TKA wajib dan pilihan",
     "Komunitas Discord + grup WA angkatan 2027, ada kuis harian, reminder, bahas soal, dan belajar bareng",
     "Streak harian, progress tracker, template belajar",
     "Mabok vocab & reading habits: meningkatkan skill literasi, vocabulary, dan ketahanan untuk SNBT",
-    "Aplikasi di App Store & Play Store + AI tutor + fitur lainnya (rilis Agustus): otomatis dapet, tanpa bayar lagi",
+    "Aplikasi di App Store & Play Store + AI tutor + fitur lainnya (rilis September): otomatis dapet, tanpa bayar lagi",
     "Fitur dan aplikasi akan terus berkembang, bayar sekarang dengan harga lebih murah!",
   ],
 } as const;
@@ -51,6 +53,6 @@ export const PERINTIS_FAQ = [
   {
     id: 4,
     question: "Belajarnya lewat mana?",
-    answer: "Web Habitutor.id (aplikasi menyusul Agustus, gratis buat member).",
+    answer: "Web Habitutor.id (aplikasi menyusul September, gratis buat member).",
   },
 ] as const;
