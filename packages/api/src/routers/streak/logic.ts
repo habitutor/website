@@ -108,3 +108,23 @@ export function hasCompletedToday(lastStreakAt: Date | null, now = new Date()): 
   if (!lastStreakAt) return false;
   return getJakartaDayNumber(lastStreakAt) === getJakartaDayNumber(now);
 }
+
+/**
+ * Monday-first activity flags for the current Jakarta week, derived from the
+ * streak run (an unbroken streak of N days covers lastStreakAt back N-1 days).
+ */
+export function getWeekActivity(
+  state: Pick<StreakState, "streak" | "lastStreakAt">,
+  now = new Date(),
+): boolean[] {
+  const today = getJakartaDayNumber(now);
+  // Jakarta day 0 (1970-01-01) was a Thursday, so Monday-index = (day + 3) % 7
+  const monday = today - ((today + 3) % 7);
+  const lastActive = state.lastStreakAt ? getJakartaDayNumber(state.lastStreakAt) : null;
+
+  return Array.from({ length: 7 }, (_, i) => {
+    if (lastActive === null || state.streak <= 0) return false;
+    const day = monday + i;
+    return day <= lastActive && day > lastActive - state.streak;
+  });
+}

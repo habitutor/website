@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { StreakDialog } from "./streak-dialog";
 
-export function StreakIndicator() {
+export function StreakIndicator({ autoOpenBlocked = false }: { autoOpenBlocked?: boolean }) {
   const { data } = useQuery(orpc.streak.get.queryOptions());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
@@ -17,9 +17,13 @@ export function StreakIndicator() {
     prevStreakRef.current = data.streak;
     if (prev !== null && data.streak > prev) {
       setCelebrate(true);
-      setDialogOpen(true);
+      if (!autoOpenBlocked) setDialogOpen(true);
     }
-  }, [data]);
+  }, [autoOpenBlocked, data]);
+
+  useEffect(() => {
+    if (celebrate && !autoOpenBlocked) setDialogOpen(true);
+  }, [autoOpenBlocked, celebrate]);
 
   const lit = data?.completedToday ?? false;
 

@@ -5,8 +5,10 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres/session";
 import { Pool } from "pg";
 import * as auth from "./schema/auth";
+import * as community from "./schema/community";
 import * as dashboard from "./schema/dashboard";
 import * as flashcard from "./schema/flashcard";
+import * as notification from "./schema/notification";
 import * as practice from "./schema/practice-pack";
 import * as question from "./schema/question";
 import * as referral from "./schema/referral";
@@ -16,6 +18,8 @@ import * as universitas from "./schema/universitas";
 
 const schema = {
   ...auth,
+  ...community,
+  ...notification,
   ...practice,
   ...question,
   ...flashcard,

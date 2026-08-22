@@ -194,6 +194,28 @@
   }
 }
 
+@keyframes package-detail-wiggle {
+	0%,
+	12%,
+	100% {
+		transform: rotate(0);
+	}
+	2%,
+	6%,
+	10% {
+		transform: rotate(-2deg);
+	}
+	4%,
+	8% {
+		transform: rotate(2deg);
+	}
+}
+
+.package-detail-cta {
+	animation: package-detail-wiggle 4s ease-in-out infinite;
+	transform-origin: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

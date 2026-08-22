@@ -18,3 +18,15 @@ export const PERINTIS_2027 = {
   REGULAR_PRICE: 299_000,
   EARLY_BIRD_QUOTA: 50,
 } as const;
+
+// "Patungan Bertiga" group plan (mobile): three people each pay a discounted
+// per-person price; premium unlocks for all members only once every member's
+// payment settles within the completion window.
+export const PATUNGAN_BERTIGA = {
+  SLUG: "patungan-bertiga",
+  NAME: "Patungan Bertiga",
+  PRICE_PER_PERSON: 199_000,
+  ORIGINAL_PRICE: 349_000,
+  GROUP_SIZE: 3,
+  WINDOW_HOURS: 48,
+} as const;

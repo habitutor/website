@@ -1,5 +1,8 @@
+import { db } from "@habitutor/db";
+import { user } from "@habitutor/db/schema/auth";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
+import { eq } from "drizzle-orm";
 import { authed, authedRateLimited } from "../../index";
 import { canAccessContent } from "@habitutor/shared/content-access";
 import { convertToTiptap } from "../../lib/tiptap";
@@ -289,9 +292,70 @@ const getProgressStats = authed
     };
   });
 
+/** Extracts the short code from stored subject strings like "Pengetahuan Kuantitatif (PK)". */
+function subjectShortCode(subject: string): string | null {
+  return subject.match(/\(([^)]+)\)\s*$/)?.[1] ?? null;
+}
+
+const getProgressOverview = authed
+  .route({
+    path: "/subtests/progress-overview",
+    method: "GET",
+    tags: ["Content"],
+  })
+  .handler(async ({ context }) => {
+    const userId = context.session.user.id;
+    const rows = await subtestRepo.getSubtestProgressOverview({ userId });
+
+    const subtests = rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      shortName: row.shortName,
+      totalLessons: Number(row.totalLessons),
+      completedLessons: Number(row.completedLessons),
+    }));
+
+    // Recommendation heuristic (feature-flagged): prefer the user's declared
+    // difficult subjects with the lowest completion ratio, otherwise the
+    // least-completed subtest overall. Not ML — a transparent server heuristic.
+    const aiEnabled = process.env.FEATURE_AI_RECOMMENDATION !== "false";
+    let recommended: { shortName: string; name: string; reason: "difficult_subject" | "lowest_progress" } | null =
+      null;
+
+    if (aiEnabled) {
+      const [row] = await db
+        .select({ difficultSubjects: user.difficultSubjects })
+        .from(user)
+        .where(eq(user.id, userId))
+        .limit(1);
+
+      const difficultCodes = (row?.difficultSubjects ?? [])
+        .map(subjectShortCode)
+        .filter((code): code is string => Boolean(code));
+
+      const candidates = subtests.filter((s) => s.totalLessons > 0 && s.completedLessons < s.totalLessons);
+      const difficult = candidates.filter((s) => difficultCodes.includes(s.shortName));
+      const pool = difficult.length > 0 ? difficult : candidates;
+
+      if (pool.length > 0) {
+        const pick = [...pool].sort(
+          (a, b) => a.completedLessons / a.totalLessons - b.completedLessons / b.totalLessons,
+        )[0]!;
+        recommended = {
+          shortName: pick.shortName,
+          name: pick.name,
+          reason: difficult.length > 0 ? "difficult_subject" : "lowest_progress",
+        };
+      }
+    }
+
+    return { subtests, recommended, aiEnabled };
+  });
+
 export const subtestRouter = {
   list: listSubtests,
   byShortName: getSubtestByShortName,
+  progressOverview: getProgressOverview,
   content: {
     list: listContentByCategory,
     find: getContentById,

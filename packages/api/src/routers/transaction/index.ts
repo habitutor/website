@@ -6,23 +6,12 @@ import { authed, pub } from "../../index";
 import { PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { referralRepo } from "../referral/repo";
+import { mobileTransactionRouter } from "./mobile";
 import { processMidtransNotification } from "./notification";
+import { getPerintisPricing } from "./pricing";
 import { calculatePromoPrice, promoRepo, type PromoValidationReason } from "./promo-repo";
 import { transactionRepo } from "./repo";
 import { syncTransactionStatus } from "./sync";
-
-async function getPerintisPricing() {
-  const soldCount = await transactionRepo.countSuccessfulTransactionsBySlug({ slug: PERINTIS_2027.SLUG });
-  const earlyBirdRemaining = Math.max(PERINTIS_2027.EARLY_BIRD_QUOTA - soldCount, 0);
-  const isEarlyBird = earlyBirdRemaining > 0;
-
-  return {
-    soldCount,
-    earlyBirdRemaining,
-    isEarlyBird,
-    currentPrice: isEarlyBird ? PERINTIS_2027.EARLY_BIRD_PRICE : PERINTIS_2027.REGULAR_PRICE,
-  };
-}
 
 const PROMO_ERROR_MESSAGES: Record<PromoValidationReason, string> = {
   not_found: "Kode promo tidak ditemukan.",
@@ -297,4 +286,5 @@ export const transactionRouter = {
   status: getStatus,
   validatePromo,
   perintisAvailability: availability,
+  mobile: mobileTransactionRouter,
 };

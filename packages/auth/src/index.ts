@@ -1,12 +1,16 @@
 import { db } from "@habitutor/db";
 import { logger } from "@habitutor/shared/logger";
 import * as schema from "@habitutor/db/schema/auth";
+import { expo } from "@better-auth/expo";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { emailOTP } from "better-auth/plugins";
 import { Resend } from "resend";
 import { referral } from "./lib/referral";
+import { generateDeleteAccountEmail } from "./lib/templates/delete-account";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
+import { generateVerifyOtpEmail } from "./lib/templates/verify-otp";
 
 const localDevOrigins = [
   "http://localhost:3000",
@@ -22,6 +26,9 @@ const trustedOrigins = Array.from(
     "https://habitutor.id",
     "https://www.habitutor.id",
     "https://api.habitutor.id",
+    // Mobile app (Expo) deep-link scheme + dev-client origins
+    "habitutor://",
+    "exp://",
   ]),
 );
 
@@ -159,6 +166,25 @@ export const auth = betterAuth({
         input: false,
       },
     },
+    // Store-compliance requirement (Play "Account deletion" policy, App Store
+    // guideline 5.1.1(v)): users must be able to delete their account in-app.
+    // Password holders confirm with their password; OAuth-only users (no
+    // password) confirm through this verification email instead.
+    deleteUser: {
+      enabled: true,
+      sendDeleteAccountVerification: async ({ user, url }) => {
+        resendClient.emails
+          .send({
+            from: "Habitutor <noreply@habitutor.id>",
+            to: user.email,
+            subject: "Konfirmasi Penghapusan Akun Habitutor",
+            html: generateDeleteAccountEmail(user.name, url),
+          })
+          .catch(() => {
+            logger.error("Failed to send delete account email");
+          });
+      },
+    },
   },
 
   trustedOrigins,
@@ -194,6 +220,27 @@ export const auth = betterAuth({
       maxAge: 5 * 60,
     },
   },
+
+  plugins: [
+    expo(),
+    emailOTP({
+      otpLength: 6,
+      expiresIn: 300,
+      async sendVerificationOTP({ email, otp, type: otpType }) {
+        if (otpType !== "email-verification") return;
+        resendClient.emails
+          .send({
+            from: "Habitutor <noreply@habitutor.id>",
+            to: email,
+            subject: "Kode Verifikasi Akun Habitutor",
+            html: generateVerifyOtpEmail(otp),
+          })
+          .catch(() => {
+            logger.error("Failed to send verification OTP email");
+          });
+      },
+    }),
+  ],
 
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,

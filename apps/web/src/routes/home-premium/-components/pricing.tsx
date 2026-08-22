@@ -23,6 +23,16 @@ type PerintisPricingCardProps = {
   hasInitiatedPurchase?: boolean;
 };
 
+function PricingFeature({ feature }: { feature: string }) {
+  if (feature !== "TKA INTENSIF — Modul, latihan soal, dan 40+ live class TKA wajib dan pilihan") return feature;
+
+  return (
+    <>
+      <strong>TKA INTENSIF</strong> — Modul, latihan soal, dan <strong>40+ live class TKA</strong> wajib dan pilihan
+    </>
+  );
+}
+
 function FakePurchaseBubble() {
   const purchase = useActiveFakePurchase();
 
@@ -97,7 +107,7 @@ export function PerintisPricingCard({
                 <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-background p-0.5 text-secondary-1000">
                   <CheckIcon weight="bold" size={12} />
                 </span>
-                {feature}
+                <PricingFeature feature={feature} />
               </li>
             ))}
           </ul>

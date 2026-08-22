@@ -16,6 +16,7 @@ import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
+import { PremiumWhatsappDialog } from "./-components/premium-whatsapp-dialog";
 import { WelcomeVideoDialog } from "./-components/welcome-video-dialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
@@ -37,15 +38,20 @@ function RouteComponent() {
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
   const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
   const [pwaDialog, setPwaDialog] = useState(false);
+  const showWelcomeVideo = WELCOME_VIDEO_ENABLED && profile ? !profile.hasSeenWelcomeVideo : false;
+  const showPremiumWhatsapp =
+    Boolean(session?.user.isPremium && profile && !profile.hasJoinedPremiumWhatsapp) && !showWelcomeVideo;
 
   useProcessReferralCode();
   useSyncOnboardingProfile();
 
   return (
     <>
-      <WelcomeVideoDialog open={WELCOME_VIDEO_ENABLED && profile ? !profile.hasSeenWelcomeVideo : false} />
+      <WelcomeVideoDialog open={showWelcomeVideo} />
 
-      <PWATutorialDialog open={pwaDialog} onOpenChange={setPwaDialog} />
+      <PremiumWhatsappDialog open={showPremiumWhatsapp} />
+
+      <PWATutorialDialog open={pwaDialog && !showWelcomeVideo && !showPremiumWhatsapp} onOpenChange={setPwaDialog} />
 
       <MotionStagger className="relative z-10 flex flex-col gap-6">
         <MotionStaggerItem>
@@ -93,6 +99,26 @@ function RouteComponent() {
                   className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
                 />
               </a>
+              {session?.user.isPremium && (
+                <a
+                  href={COMMUNITY_LINKS.premiumWhatsapp}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="group relative overflow-clip bg-primary-300 hover:bg-primary-200"
+                >
+                  <div className="z-10">
+                    <p className="text-xs font-semibold text-secondary-200">Premium</p>
+                    <p className="w-[60%] font-bold md:w-full">Join WhatsApp Community</p>
+                  </div>
+                  <ArrowCircleRightIcon size={24} className="z-10" />
+                  <Image
+                    src="/icons/whatsapp.svg"
+                    width={70}
+                    height={70}
+                    className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
+                  />
+                </a>
+              )}
             </div>
           </section>
 

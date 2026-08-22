@@ -14,7 +14,7 @@ export const PERINTIS_DATA = {
   hero: {
     title: "Perintis SNBT & TKA 2027, mulai sekarang.",
     subtitle:
-      "Belajar bareng sampai hari-H: playlist video, anti burn out starterpack, bank soal, try out, 100+ sesi live, dan komunitas yang jagain lo tetep konsisten.",
+      "Belajar bareng sampai hari-H: playlist video, anti burn out starterpack, bank soal, try out, 150+ sesi live, dan komunitas yang jagain lo tetep konsisten.",
     priceSuffix: "sekali bayar, akses penuh sampai SNBT 2027!",
     cta: "Daftar Sekarang",
   },
@@ -30,7 +30,7 @@ export const PERINTIS_DATA = {
     {
       icon: MicrophoneStageIcon,
       iconClassName: "bg-secondary-100 border-secondary-200 text-secondary-1000",
-      title: "100+ sesi live sampai hari-H (mulai pertengahan Agustus)",
+      title: "150+ sesi live sampai hari-H (mulai pertengahan Agustus)",
       description:
         "Live class, masterclass, mentoring, live TKA. Agustus–Desember 1–2x/minggu, makin deket SNBT makin intensif.",
     },
@@ -43,7 +43,7 @@ export const PERINTIS_DATA = {
     },
   ] satisfies Benefit[],
   comingSoon: {
-    label: "Coming soon — Agustus",
+    label: "Coming soon — September",
     description:
       "Aplikasi iOS & Android, AI personal tutor, tes minat-jurusan. Daftar sekarang = dapet semuanya otomatis, tanpa bayar lagi.",
   },
