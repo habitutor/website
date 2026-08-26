@@ -178,8 +178,6 @@ const markPremiumWhatsappJoined = authed
     }),
   )
   .handler(async ({ context }) => {
-    if (!context.session.user.isPremium) return { success: false };
-
     await db.update(user).set({ hasJoinedPremiumWhatsapp: true }).where(eq(user.id, context.session.user.id));
     return { success: true };
   });
