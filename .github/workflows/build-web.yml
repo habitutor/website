@@ -38,4 +38,4 @@ jobs:
       # otherwise falls back to the shared COOLIFY_WEBHOOK used by the server workflow.
       - name: Deploy to Coolify
         run: |
-          curl --fail-with-body --request GET '${{ secrets.COOLIFY_WEBHOOK_WEB || secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+          curl --fail-with-body --request POST '${{ secrets.COOLIFY_WEBHOOK_WEB || secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
