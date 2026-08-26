@@ -31,6 +31,7 @@ export const PERINTIS_PRICING_COPY = {
     "Mabok vocab & reading habits: meningkatkan skill literasi, vocabulary, dan ketahanan untuk SNBT",
     "Aplikasi di App Store & Play Store + AI tutor + fitur lainnya (rilis September): otomatis dapet, tanpa bayar lagi",
     "Fitur dan aplikasi akan terus berkembang, bayar sekarang dengan harga lebih murah!",
+    "Bonus kurikulum Bahasa Inggris dari GICO Education — gratis, tanpa bayar lagi",
   ],
 } as const;
 

@@ -27,8 +27,7 @@ function PricingFeature({ feature }: { feature: string }) {
   if (feature !== "TKA INTENSIF — Modul, latihan soal, dan 40+ live class TKA wajib dan pilihan") return feature;
 
   return (
-    <>
-      <strong>TKA INTENSIF</strong> — Modul, latihan soal, dan <strong>40+ live class TKA</strong> wajib dan pilihan
+    <>40+ live class TKA wajib dan pilihan
     </>
   );
 }

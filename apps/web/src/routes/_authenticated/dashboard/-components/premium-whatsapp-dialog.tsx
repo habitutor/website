@@ -18,16 +18,24 @@ import { orpc } from "@/utils/orpc";
 export function PremiumWhatsappDialog({ open }: { open: boolean }) {
   const queryClient = useQueryClient();
   const [hasJoined, setHasJoined] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const markJoinedMutation = useMutation(
     orpc.profile.markPremiumWhatsappJoined.mutationOptions({
-      onSuccess: () => {
+      onSettled: () => {
         queryClient.invalidateQueries({ queryKey: orpc.profile.me.queryKey() });
       },
     }),
   );
 
+  const handleConfirm = () => {
+    // Close immediately so a failed request can never trap the user in the
+    // dialog; if the write fails, the popup simply reappears on a later visit.
+    setDismissed(true);
+    markJoinedMutation.mutate({});
+  };
+
   return (
-    <Dialog open={open}>
+    <Dialog open={open && !dismissed}>
       <DialogContent
         className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md"
         showCloseButton={false}
@@ -61,8 +69,8 @@ export function PremiumWhatsappDialog({ open }: { open: boolean }) {
             />
             I have joined the WhatsApp community
           </Label>
-          <Button disabled={!hasJoined || markJoinedMutation.isPending} onClick={() => markJoinedMutation.mutate({})}>
-            {markJoinedMutation.isPending ? "Menyimpan..." : "Selesai"}
+          <Button disabled={!hasJoined} onClick={handleConfirm}>
+            Selesai
           </Button>
         </DialogFooter>
       </DialogContent>
