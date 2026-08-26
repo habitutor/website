@@ -10,7 +10,7 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".output/**"]
+      "outputs": ["dist/**", ".output/**", ".vercel/output/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
