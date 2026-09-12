@@ -136,7 +136,7 @@ export const DATA = {
     },
   ],
   footer: {
-    contactWhatsapp: "https://wa.me/6281212686307",
+    contactWhatsapp: "https://wa.me/6285859126752",
     socials: [
       {
         label: "Instagram",
