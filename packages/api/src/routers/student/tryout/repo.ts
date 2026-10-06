@@ -121,7 +121,8 @@ export const tryoutRepo = {
   }) => {
     // Cek apakah sesi sudah ada
     const existingSesi = await db.query.tryoutSesi.findFirst({
-      where: and(eq(tryoutSesi.userId, userId), eq(tryoutSesi.tryoutId, tryoutId)),
+      where: and(eq(tryoutSesi.userId, userId), eq(tryoutSesi.tryoutId, tryoutId), eq(tryoutSesi.status, "berjalan")),
+      orderBy: (ts) => [desc(ts.createdAt)],
     });
 
     if (existingSesi) {
