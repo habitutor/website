@@ -339,6 +339,8 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
   const [detailSoalId, setDetailSoalId] = useState<string | null>(null);
   const [editSoalId, setEditSoalId] = useState<string | null>(null);
   const [isEditSubtestOpen, setIsEditSubtestOpen] = useState(false);
+  const [moveSoalId, setMoveSoalId] = useState<string | null>(null);
+  const [targetSubtesId, setTargetSubtesId] = useState("");
   const typedSubtest = subtest as SubtestType;
 
   const deleteSubtestMutation = useMutation(
@@ -400,6 +402,31 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
         toast.error("Gagal menghapus soal", {
           description: err.message,
         });
+      },
+    }),
+  );
+
+  // --- Pindah soal antar subtes ---
+  const { data: allSubtes = [] } = useQuery({
+    ...orpc.admin.tryout.list.subtes.queryOptions({ input: { tryoutId } }),
+    enabled: showSoal,
+  });
+
+  const moveSoalMutation = useMutation(
+    orpc.admin.tryout.update.moveSoal.mutationOptions({
+      onSuccess: (_data, variables) => {
+        toast.success("Soal berhasil dipindahkan");
+        queryClient.invalidateQueries({
+          queryKey: orpc.admin.tryout.list.soal.queryKey({ input: { subtesId: typedSubtest.id } }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: orpc.admin.tryout.list.soal.queryKey({ input: { subtesId: variables.targetSubtesId } }),
+        });
+        setMoveSoalId(null);
+        setTargetSubtesId("");
+      },
+      onError: (err) => {
+        toast.error("Gagal memindahkan soal", { description: err.message });
       },
     }),
   );
@@ -487,7 +514,7 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                   <TableHead className="w-20">Tipe</TableHead>
                   <TableHead className="w-16">Poin</TableHead>
                   <TableHead className="w-24 text-center">Pilihan</TableHead>
-                  <TableHead className="w-24 text-right">Aksi</TableHead>
+                  <TableHead className="w-40 text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -509,6 +536,17 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                           className="h-8 w-8 p-0"
                         >
                           <EyeIcon className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setMoveSoalId(soal.id);
+                            setTargetSubtesId("");
+                          }}
+                          className="h-8 px-2 text-xs"
+                        >
+                          Pindah
                         </Button>
                         <Button
                           variant="ghost"
@@ -569,6 +607,54 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
               onOpenChange={(open) => !open && setEditSoalId(null)}
             />
           )}
+
+          <Dialog
+            open={!!moveSoalId}
+            onOpenChange={(open) => {
+              if (!open) {
+                setMoveSoalId(null);
+                setTargetSubtesId("");
+              }
+            }}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Pindahkan Soal</DialogTitle>
+                <DialogDescription>Pilih subtes tujuan. Pilihan jawaban dan pembahasan ikut pindah.</DialogDescription>
+              </DialogHeader>
+              <select
+                className="w-full rounded-md border px-3 py-2 text-sm"
+                value={targetSubtesId}
+                onChange={(e) => setTargetSubtesId(e.target.value)}
+              >
+                <option value="">Pilih subtes tujuan</option>
+                {(allSubtes as SubtestType[])
+                  .filter((s) => s.id !== typedSubtest.id)
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.namaSubtes}
+                    </option>
+                  ))}
+              </select>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMoveSoalId(null);
+                    setTargetSubtesId("");
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button
+                  disabled={!targetSubtesId || moveSoalMutation.isPending}
+                  onClick={() => moveSoalId && moveSoalMutation.mutate({ soalId: moveSoalId, targetSubtesId })}
+                >
+                  Pindahkan
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       )}
     </Card>

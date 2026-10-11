@@ -353,6 +353,17 @@ const deleteSoal = admin
       throw toOrpcError(error, "Gagal menghapus soal");
     }
   });
+  
+  const moveSoal = admin
+  .route({ path: "/admin/tryouts/soal/{soalId}/move", method: "PATCH", tags: ["Admin - Tryout"] })
+  .input(type({ soalId: "string", targetSubtesId: "string" }))
+  .handler(async ({ input }) => {
+    try {
+      return await tryoutRepo.moveSoal(input);
+    } catch (error) {
+      throw toOrpcError(error, "Gagal memindahkan soal");
+    }
+  });
 
 const createPilihanJawaban = admin
   .route({
@@ -772,6 +783,7 @@ export const adminTryoutRouter = {
     tryout: updateTryout,
     subtes: updateSubtes,
     soal: updateSoal,
+    moveSoal,
     pilihan: updatePilihanJawaban,
   },
   delete: {

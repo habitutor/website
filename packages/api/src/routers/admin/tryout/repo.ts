@@ -517,6 +517,47 @@ export const tryoutRepo = {
     return deleted;
   },
 
+    moveSoal: async ({
+    db = defaultDb,
+    soalId,
+    targetSubtesId,
+  }: {
+    db?: DrizzleDatabase;
+    soalId: string;
+    targetSubtesId: string;
+  }) => {
+    return db.transaction(async (tx) => {
+      const soal = await tx.query.tryoutSoal.findFirst({
+        where: eq(tryoutSoal.id, soalId),
+        with: { subtes: true },
+      });
+      if (!soal) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
+      if (soal.subtesId === targetSubtesId)
+        throw new TryoutError("BAD_REQUEST", "Soal sudah ada di subtes tersebut");
+
+      const target = await tx.query.tryoutSubtes.findFirst({
+        where: eq(tryoutSubtes.id, targetSubtesId),
+      });
+      if (!target) throw new TryoutError("NOT_FOUND", "Subtes tujuan tidak ditemukan");
+      if (target.tryoutId !== soal.subtes.tryoutId)
+        throw new TryoutError("BAD_REQUEST", "Subtes tujuan harus di tryout yang sama");
+
+      const sesi = await tx.query.tryoutSesi.findFirst({
+        where: eq(tryoutSesi.tryoutId, target.tryoutId),
+        columns: { id: true },
+      });
+      if (sesi)
+        throw new TryoutError("BAD_REQUEST", "Tryout sudah pernah dikerjakan siswa, soal tidak bisa dipindah");
+
+      const [moved] = await tx
+        .update(tryoutSoal)
+        .set({ subtesId: targetSubtesId, updatedAt: new Date() })
+        .where(eq(tryoutSoal.id, soalId))
+        .returning();
+      return moved;
+    });
+  },
+
   createPilihanJawaban: async ({
     db = defaultDb,
     soalId,
