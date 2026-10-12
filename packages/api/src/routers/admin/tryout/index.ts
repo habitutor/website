@@ -365,6 +365,19 @@ const deleteSoal = admin
     }
   });
 
+const moveSoalBulk = admin
+  .route({ path: "/admin/tryouts/soal/move-bulk", method: "PATCH", tags: ["Admin - Tryout"] })
+  .input(type({ soalIds: "string[]", targetSubtesId: "string" }))
+  .handler(async ({ input }) => {
+    try {
+      return await tryoutRepo.moveSoalBulk(input);
+    } catch (error) {
+      throw toOrpcError(error, "Gagal memindahkan soal");
+    }
+  });
+
+
+
 const createPilihanJawaban = admin
   .route({
     path: "/admin/tryouts/soal/{soalId}/pilihan",
@@ -784,6 +797,7 @@ export const adminTryoutRouter = {
     subtes: updateSubtes,
     soal: updateSoal,
     moveSoal,
+    moveSoalBulk,
     pilihan: updatePilihanJawaban,
   },
   delete: {

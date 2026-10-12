@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { PlusIcon, TrashIcon, EyeIcon, EyeSlashIcon, PencilIcon } from "@phosphor-icons/react";
 import { orpc, queryClient } from "@/utils/orpc";
@@ -339,7 +340,8 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
   const [detailSoalId, setDetailSoalId] = useState<string | null>(null);
   const [editSoalId, setEditSoalId] = useState<string | null>(null);
   const [isEditSubtestOpen, setIsEditSubtestOpen] = useState(false);
-  const [moveSoalId, setMoveSoalId] = useState<string | null>(null);
+  const [selectedSoalIds, setSelectedSoalIds] = useState<string[]>([]);
+  const [isMoveOpen, setIsMoveOpen] = useState(false);
   const [targetSubtesId, setTargetSubtesId] = useState("");
   const typedSubtest = subtest as SubtestType;
 
@@ -392,8 +394,9 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
 
   const deleteSoalMutation = useMutation(
     orpc.admin.tryout.delete.soal.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (_data, variables) => {
         toast.success("Soal berhasil dihapus");
+        setSelectedSoalIds((prev) => prev.filter((sid) => sid !== variables.soalId));
         queryClient.invalidateQueries({
           queryKey: orpc.admin.tryout.list.soal.queryKey({ input: { subtesId: typedSubtest.id } }),
         });
@@ -406,30 +409,43 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
     }),
   );
 
-  // --- Pindah soal antar subtes ---
+  // --- Pindah banyak soal sekaligus ---
   const { data: allSubtes = [] } = useQuery({
     ...orpc.admin.tryout.list.subtes.queryOptions({ input: { tryoutId } }),
     enabled: showSoal,
   });
 
-  const moveSoalMutation = useMutation(
-    orpc.admin.tryout.update.moveSoal.mutationOptions({
-      onSuccess: (_data, variables) => {
-        toast.success("Soal berhasil dipindahkan");
+  const moveSoalBulkMutation = useMutation(
+    orpc.admin.tryout.update.moveSoalBulk.mutationOptions({
+      onSuccess: (data, variables) => {
+        toast.success(`${data.count} soal berhasil dipindahkan`);
         queryClient.invalidateQueries({
           queryKey: orpc.admin.tryout.list.soal.queryKey({ input: { subtesId: typedSubtest.id } }),
         });
         queryClient.invalidateQueries({
           queryKey: orpc.admin.tryout.list.soal.queryKey({ input: { subtesId: variables.targetSubtesId } }),
         });
-        setMoveSoalId(null);
+        setSelectedSoalIds([]);
         setTargetSubtesId("");
+        setIsMoveOpen(false);
       },
       onError: (err) => {
         toast.error("Gagal memindahkan soal", { description: err.message });
       },
     }),
   );
+
+  const soalIdsOnPage = (soalList as SoalType[]).map((s) => s.id);
+  const isAllSelected = soalIdsOnPage.length > 0 && soalIdsOnPage.every((sid) => selectedSoalIds.includes(sid));
+
+  const toggleSoal = (soalId: string, checked: boolean) => {
+    setSelectedSoalIds((prev) => (checked ? [...prev, soalId] : prev.filter((sid) => sid !== soalId)));
+  };
+
+  const closeMoveDialog = () => {
+    setIsMoveOpen(false);
+    setTargetSubtesId("");
+  };
 
   return (
     <Card>
@@ -497,6 +513,20 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
             <AddSoalDialog subtesId={typedSubtest.id} />
           </div>
 
+          {selectedSoalIds.length > 0 && (
+            <div className="mb-3 flex items-center justify-between rounded-md border bg-muted/50 px-3 py-2">
+              <span className="text-sm font-medium">{selectedSoalIds.length} soal dipilih</span>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedSoalIds([])}>
+                  Batal pilih
+                </Button>
+                <Button size="sm" onClick={() => setIsMoveOpen(true)}>
+                  Pindahkan ({selectedSoalIds.length})
+                </Button>
+              </div>
+            </div>
+          )}
+
           {isSoalPending ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -509,17 +539,31 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={(checked) => setSelectedSoalIds(checked ? soalIdsOnPage : [])}
+                      aria-label="Pilih semua soal"
+                    />
+                  </TableHead>
                   <TableHead className="w-12">#</TableHead>
                   <TableHead>Pertanyaan</TableHead>
                   <TableHead className="w-20">Tipe</TableHead>
                   <TableHead className="w-16">Poin</TableHead>
                   <TableHead className="w-24 text-center">Pilihan</TableHead>
-                  <TableHead className="w-40 text-right">Aksi</TableHead>
+                  <TableHead className="w-28 text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(soalList as SoalType[]).map((soal: SoalType, idx: number) => (
                   <TableRow key={soal.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedSoalIds.includes(soal.id)}
+                        onCheckedChange={(checked) => toggleSoal(soal.id, !!checked)}
+                        aria-label={`Pilih soal ${idx + 1}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{idx + 1}</TableCell>
                     <TableCell className="max-w-xs truncate">{soal.pertanyaan}</TableCell>
                     <TableCell>
@@ -536,17 +580,6 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                           className="h-8 w-8 p-0"
                         >
                           <EyeIcon className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setMoveSoalId(soal.id);
-                            setTargetSubtesId("");
-                          }}
-                          className="h-8 px-2 text-xs"
-                        >
-                          Pindah
                         </Button>
                         <Button
                           variant="ghost"
@@ -608,19 +641,13 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
             />
           )}
 
-          <Dialog
-            open={!!moveSoalId}
-            onOpenChange={(open) => {
-              if (!open) {
-                setMoveSoalId(null);
-                setTargetSubtesId("");
-              }
-            }}
-          >
+          <Dialog open={isMoveOpen} onOpenChange={(open) => !open && closeMoveDialog()}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Pindahkan Soal</DialogTitle>
-                <DialogDescription>Pilih subtes tujuan. Pilihan jawaban dan pembahasan ikut pindah.</DialogDescription>
+                <DialogTitle>Pindahkan {selectedSoalIds.length} Soal</DialogTitle>
+                <DialogDescription>
+                  Pilih subtes tujuan. Pilihan jawaban dan pembahasan ikut pindah.
+                </DialogDescription>
               </DialogHeader>
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm"
@@ -637,20 +664,14 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                   ))}
               </select>
               <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setMoveSoalId(null);
-                    setTargetSubtesId("");
-                  }}
-                >
+                <Button variant="outline" onClick={closeMoveDialog}>
                   Batal
                 </Button>
                 <Button
-                  disabled={!targetSubtesId || moveSoalMutation.isPending}
-                  onClick={() => moveSoalId && moveSoalMutation.mutate({ soalId: moveSoalId, targetSubtesId })}
+                  disabled={!targetSubtesId || selectedSoalIds.length === 0 || moveSoalBulkMutation.isPending}
+                  onClick={() => moveSoalBulkMutation.mutate({ soalIds: selectedSoalIds, targetSubtesId })}
                 >
-                  Pindahkan
+                  {moveSoalBulkMutation.isPending ? "Memindahkan..." : "Pindahkan"}
                 </Button>
               </div>
             </DialogContent>
