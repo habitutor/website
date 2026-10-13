@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Image } from "@unpic/react";
 import { orpc, queryClient } from "@/utils/orpc";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -335,7 +334,16 @@ function TryoutTestPage() {
             ) : currentQuestion ? (
               <>
                 <div className="mb-6">
-                  <p className="text-lg font-medium whitespace-pre-wrap text-gray-800">{currentQuestion.pertanyaan}</p>
+                  <div className="space-y-4 text-lg font-medium text-gray-800">
+                    {currentQuestion.pertanyaan
+                      .split(/\n+/)
+                      .filter((line: string) => line.trim() !== "")
+                      .map((line: string, i: number) => (
+                        <p key={i.toString()} className="leading-relaxed">
+                          {line}
+                        </p>
+                      ))}
+                  </div>
                   {currentQuestion.gambarUrl && (
                     <img
                       src={currentQuestion.gambarUrl}
@@ -376,22 +384,16 @@ function TryoutTestPage() {
                           isExpired && "cursor-not-allowed opacity-60",
                         )}
                       >
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-gray-400 bg-white">
-                          {isSelected && <div className="size-3 rounded-full bg-blue-500" />}
-                        </div>
-                        <span className="font-medium text-gray-600">{opt.label}.</span>
-                        <div className="flex flex-1 flex-col gap-2">
-                          {option.isi && <span className="text-gray-700">{option.isi}</span>}
-                          {option.gambarUrl && (
-                            <Image
-                              src={option.gambarUrl}
-                              alt={`Gambar opsi ${option.label}`}
-                              width={320}
-                              height={240}
-                              className="mt-1 max-w-full rounded-lg border border-gray-200 bg-white object-contain"
-                            />
-                          )}
-                        </div>
+                      <div className="flex min-w-0 flex-1 flex-col gap-2">
+                        {option.isi && <span className="text-gray-700">{option.isi}</span>}
+                        {option.gambarUrl && (
+                          <img
+                            src={option.gambarUrl}
+                            alt={`Gambar opsi ${option.label}`}
+                            className="mt-1 h-auto max-w-full rounded-lg border border-gray-200 bg-white object-contain"
+                          />
+                        )}
+                      </div>                      
                       </button>
                     );
                   })}
