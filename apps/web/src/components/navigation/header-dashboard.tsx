@@ -42,6 +42,10 @@ const links = [
     to: "/classes",
   },
   {
+    name: "Live Recording",
+    to: "/recordings",
+  },
+  {
     name: "Premium",
     to: "/premium",
   },
