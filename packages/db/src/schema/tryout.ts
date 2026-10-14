@@ -168,6 +168,7 @@ export const tryoutJawaban = pgTable(
       .notNull()
       .references(() => tryoutSesiSoal.id, { onDelete: "cascade" }),
     pilihanId: uuid("pilihan_id").references(() => tryoutPilihanJawaban.id, { onDelete: "set null" }),
+    pilihanIds: uuid("pilihan_ids").array(),
     dijawabAt: timestamp("dijawab_at"),
     isBenar: boolean("is_benar"),
     poinDapat: integer("poin_dapat"),

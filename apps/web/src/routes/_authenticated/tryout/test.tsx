@@ -218,7 +218,8 @@ function TryoutTestPage() {
       const q = questions[qIdx];
       if (!q) return { answered: false, doubtful: false };
       return {
-        answered: !!q.jawaban_dipilih,
+        answered:
+          !!q.jawaban_dipilih || (q.jawaban_dipilih_multi?.length ?? 0) > 0,
         doubtful: !!q.is_ragu,
       };
     },
@@ -362,7 +363,14 @@ function TryoutTestPage() {
                       isi: string;
                       gambarUrl?: string | null;
                     };
-                    const isSelected = currentQuestion.jawaban_dipilih === opt.id;
+
+                    const isMultiple = currentQuestion.tipe === "multiple";
+                    const selectedIds = currentQuestion.jawaban_dipilih_multi ?? [];
+
+                    const isSelected = isMultiple
+                      ? selectedIds.includes(opt.id)
+                      : currentQuestion.jawaban_dipilih === opt.id;
+
 
                     return (
                       <button
@@ -370,13 +378,29 @@ function TryoutTestPage() {
                         type="button"
                         onClick={() => {
                           if (!resolvedSesiId || isExpired) return;
-                          submitAnswerMutation.mutate({
-                            sesiId: resolvedSesiId,
-                            sesiSoalId: currentQuestion.sesiSoalId,
-                            pilihanId: opt.id,
-                            isRagu: currentQuestion.is_ragu ?? false,
-                          });
+
+                          if (isMultiple) {
+                            const nextIds = isSelected
+                              ? selectedIds.filter((id) => id !== opt.id)
+                              : [...selectedIds, opt.id];
+
+                            submitAnswerMutation.mutate({
+                              sesiId: resolvedSesiId,
+                              sesiSoalId: currentQuestion.sesiSoalId,
+                              pilihanId: null,
+                              pilihanIds: nextIds,
+                              isRagu: currentQuestion.is_ragu ?? false,
+                            });
+                          } else {
+                            submitAnswerMutation.mutate({
+                              sesiId: resolvedSesiId,
+                              sesiSoalId: currentQuestion.sesiSoalId,
+                              pilihanId: opt.id,
+                              isRagu: currentQuestion.is_ragu ?? false,
+                            });
+                          }
                         }}
+
                         disabled={isExpired}
                         className={cn(
                           "flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 text-left transition-colors",
@@ -393,7 +417,7 @@ function TryoutTestPage() {
                             className="mt-1 h-auto max-w-full rounded-lg border border-gray-200 bg-white object-contain"
                           />
                         )}
-                      </div>                      
+                      </div>
                       </button>
                     );
                   })}
@@ -419,15 +443,17 @@ function TryoutTestPage() {
           </Button>
 
           <Button
-            onClick={() => {
-              if (!resolvedSesiId || !currentQuestion || isExpired) return;
-              submitAnswerMutation.mutate({
-                sesiId: resolvedSesiId,
-                sesiSoalId: currentQuestion.sesiSoalId,
-                pilihanId: currentQuestion.jawaban_dipilih ?? null,
-                isRagu: !currentQuestion.is_ragu,
-              });
-            }}
+          onClick={() => {
+            if (!resolvedSesiId || !currentQuestion || isExpired) return;
+
+            submitAnswerMutation.mutate({
+              sesiId: resolvedSesiId,
+              sesiSoalId: currentQuestion.sesiSoalId,
+              pilihanId: currentQuestion.jawaban_dipilih ?? null,
+              pilihanIds: currentQuestion.jawaban_dipilih_multi ?? [],
+              isRagu: !currentQuestion.is_ragu,
+            });
+          }}
             disabled={isExpired}
             className={cn(
               "h-12 w-full px-8 font-semibold shadow-sm md:w-auto",
