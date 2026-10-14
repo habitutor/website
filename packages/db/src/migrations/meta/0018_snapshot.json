@@ -1,6 +1,6 @@
 {
-  "id": "266d9e07-425e-4c4f-9fc2-f804bd4bf845",
-  "prevId": "73767422-a22d-4f83-8a09-feea33252c3c",
+  "id": "4efdf554-09d6-46f7-9496-9aaabdb419ca",
+  "prevId": "9cc6e28d-9302-44f0-bed8-2046577fab31",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1988,110 +1988,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.recording": {
-      "name": "recording",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "recording_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "category": {
-          "name": "category",
-          "type": "recording_category",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "teacher": {
-          "name": "teacher",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "youtube_url": {
-          "name": "youtube_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "recorded_at": {
-          "name": "recorded_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_published": {
-          "name": "is_published",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "idx_recording_category_published": {
-          "name": "idx_recording_category_published",
-          "columns": [
-            {
-              "expression": "category",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "is_published",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -4640,15 +4536,6 @@
         "not_started",
         "ongoing",
         "finished"
-      ]
-    },
-    "public.recording_category": {
-      "name": "recording_category",
-      "schema": "public",
-      "values": [
-        "TKA",
-        "SNBT",
-        "MANDIRI"
       ]
     },
     "public.content_type": {
