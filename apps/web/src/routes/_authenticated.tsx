@@ -40,7 +40,7 @@ function AuthedLayout() {
 
   useOnboardingGuard(context.session);
 
-  const isPending = routerState.isLoading || routerState.isTransitioning;
+  const isPending = routerState.status === "pending";
 
   useEffect(() => {
     if (!isPending) {

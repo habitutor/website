@@ -2,7 +2,6 @@ import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import {
   tryout,
   tryoutJawaban,
-  tryoutPilihanJawaban,
   tryoutSesi,
   tryoutSesiSoal,
   tryoutSesiSubtes,
@@ -27,6 +26,7 @@ type TryoutQuestionItem = {
     gambarUrl: string | null;
   }>;
   jawaban_dipilih: string | null;
+  jawaban_dipilih_multi: string[];
   is_ragu: boolean;
 };
 
@@ -258,21 +258,27 @@ export const tryoutRepo = {
 
     // Ambil jawaban yang sudah dipilih
     const sesiId = sesiSoalList[0]?.sesiSubtes.sesiId;
-    const jawabanMap = new Map<string, string | null>();
-
+    const jawabanMap = new Map<
+      string,
+      { pilihanId: string | null; pilihanIds: string[] }
+    >();
     if (sesiId) {
       const jawaban = await db.query.tryoutJawaban.findMany({
         where: eq(tryoutJawaban.sesiId, sesiId),
         columns: {
           sesiSoalId: true,
           pilihanId: true,
+          pilihanIds: true,
         },
       });
 
       jawaban.forEach((j) => {
-        jawabanMap.set(j.sesiSoalId, j.pilihanId);
+        jawabanMap.set(j.sesiSoalId, {
+          pilihanId: j.pilihanId,
+          pilihanIds: j.pilihanIds ?? [],
+        });
       });
-    }
+     }
 
     return sesiSoalList.map((ss) => ({
       sesiSoalId: ss.id,
@@ -282,37 +288,39 @@ export const tryoutRepo = {
       tipe: ss.soal.tipe,
       poin: ss.soal.poin,
       pilihan: ss.soal.pilihanJawaban,
-      jawaban_dipilih: jawabanMap.get(ss.id) || null,
+      jawaban_dipilih: jawabanMap.get(ss.id)?.pilihanId ?? null,
+      jawaban_dipilih_multi: jawabanMap.get(ss.id)?.pilihanIds ?? [],
       is_ragu: ss.isRagu,
-    }));
+      }));
   },
 
   /**
    * Submit jawaban per soal (upsert)
    */
+
   submitAnswer: async ({
     db = defaultDb,
     sesiId,
     sesiSoalId,
     pilihanId,
+    pilihanIds,
     isRagu,
   }: {
     db?: DrizzleDatabase;
     sesiId: string;
     sesiSoalId: string;
     pilihanId: string | null;
+    pilihanIds?: string[] | null;
     isRagu: boolean;
   }) => {
-    // Cek apakah sudah ada jawaban
-    const existingJawaban = await db.query.tryoutJawaban.findFirst({
-      where: eq(tryoutJawaban.sesiSoalId, sesiSoalId),
-    });
-
-    // Ambil info soal untuk cek jawaban yang benar
     const sesiSoal = await db.query.tryoutSesiSoal.findFirst({
       where: eq(tryoutSesiSoal.id, sesiSoalId),
       with: {
-        soal: true,
+        soal: {
+          with: {
+            pilihanJawaban: true,
+          },
+        },
       },
     });
 
@@ -320,69 +328,109 @@ export const tryoutRepo = {
       throw new TryoutError("NOT_FOUND", "Sesi soal tidak ditemukan");
     }
 
+    const isMultiple = sesiSoal.soal.tipe === "multiple";
+    const selectedIds = isMultiple
+      ? [...new Set(pilihanIds ?? [])]
+      : [];
+
+    let savedPilihanId: string | null = null;
+    let savedPilihanIds: string[] | null = null;
     let isBenar = false;
     let poinDapat = 0;
 
-    if (pilihanId) {
-      // Cek apakah pilihan yang dipilih adalah yang benar
-      const pilihan = await db.query.tryoutPilihanJawaban.findFirst({
-        where: eq(tryoutPilihanJawaban.id, pilihanId),
-      });
+    if (isMultiple) {
+      const pilihanBenar = sesiSoal.soal.pilihanJawaban
+        .filter((pilihan) => pilihan.isBenar)
+        .map((pilihan) => pilihan.id);
 
-      if (pilihan?.isBenar) {
-        isBenar = true;
+      const pilihanValid = new Set(
+        sesiSoal.soal.pilihanJawaban.map((pilihan) => pilihan.id),
+      );
+
+      if (selectedIds.some((id) => !pilihanValid.has(id))) {
+        throw new TryoutError(
+          "BAD_REQUEST",
+          "Pilihan jawaban tidak sesuai dengan soal",
+        );
+      }
+
+      savedPilihanIds = selectedIds.length > 0 ? selectedIds : null;
+
+      isBenar =
+        pilihanBenar.length > 0 &&
+        pilihanBenar.length === selectedIds.length &&
+        pilihanBenar.every((id) => selectedIds.includes(id));
+
+      if (isBenar) {
+        poinDapat = sesiSoal.soal.poin;
+      }
+    } else {
+      savedPilihanId = pilihanId;
+
+      const pilihan = savedPilihanId
+        ? sesiSoal.soal.pilihanJawaban.find(
+            (item) => item.id === savedPilihanId,
+          )
+        : undefined;
+
+      if (savedPilihanId && !pilihan) {
+        throw new TryoutError(
+          "BAD_REQUEST",
+          "Pilihan jawaban tidak sesuai dengan soal",
+        );
+      }
+
+      isBenar = pilihan?.isBenar ?? false;
+
+      if (isBenar) {
         poinDapat = sesiSoal.soal.poin;
       }
     }
 
+    const isDijawab = isMultiple
+      ? selectedIds.length > 0
+      : savedPilihanId !== null;
+
+    const existingJawaban = await db.query.tryoutJawaban.findFirst({
+      where: eq(tryoutJawaban.sesiSoalId, sesiSoalId),
+    });
+
+    const jawabanValues = {
+      pilihanId: savedPilihanId,
+      pilihanIds: savedPilihanIds,
+      isBenar,
+      poinDapat,
+      dijawabAt: isDijawab ? new Date() : null,
+    };
+
+    let result;
+
     if (existingJawaban) {
-      // Update
-      const [updated] = await db
+      [result] = await db
         .update(tryoutJawaban)
-        .set({
-          pilihanId,
-          isBenar,
-          poinDapat,
-          dijawabAt: pilihanId ? new Date() : null,
-        })
+        .set(jawabanValues)
         .where(eq(tryoutJawaban.sesiSoalId, sesiSoalId))
         .returning();
-
-      // Update sesi_soal
-      await db
-        .update(tryoutSesiSoal)
-        .set({
-          isDijawab: !!pilihanId,
-          isRagu,
-        })
-        .where(eq(tryoutSesiSoal.id, sesiSoalId));
-
-      return updated;
     } else {
-      // Insert
-      const [created] = await db
+      [result] = await db
         .insert(tryoutJawaban)
         .values({
           sesiId,
           sesiSoalId,
-          pilihanId,
-          isBenar,
-          poinDapat,
-          dijawabAt: pilihanId ? new Date() : null,
+          ...jawabanValues,
         })
         .returning();
-
-      // Update sesi_soal
-      await db
-        .update(tryoutSesiSoal)
-        .set({
-          isDijawab: !!pilihanId,
-          isRagu,
-        })
-        .where(eq(tryoutSesiSoal.id, sesiSoalId));
-
-      return created;
     }
+
+    await db
+      .update(tryoutSesiSoal)
+      .set({
+        isDijawab,
+        isRagu,
+      })
+      .where(eq(tryoutSesiSoal.id, sesiSoalId));
+
+    return result;
   },
 
   /**

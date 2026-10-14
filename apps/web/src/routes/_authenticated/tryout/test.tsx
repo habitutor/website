@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Image } from "@unpic/react";
 import { orpc, queryClient } from "@/utils/orpc";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -219,7 +218,8 @@ function TryoutTestPage() {
       const q = questions[qIdx];
       if (!q) return { answered: false, doubtful: false };
       return {
-        answered: !!q.jawaban_dipilih,
+        answered:
+          !!q.jawaban_dipilih || (q.jawaban_dipilih_multi?.length ?? 0) > 0,
         doubtful: !!q.is_ragu,
       };
     },
@@ -335,7 +335,16 @@ function TryoutTestPage() {
             ) : currentQuestion ? (
               <>
                 <div className="mb-6">
-                  <p className="text-lg font-medium whitespace-pre-wrap text-gray-800">{currentQuestion.pertanyaan}</p>
+                  <div className="space-y-4 text-lg font-medium text-gray-800">
+                    {currentQuestion.pertanyaan
+                      .split(/\n+/)
+                      .filter((line: string) => line.trim() !== "")
+                      .map((line: string, i: number) => (
+                        <p key={i.toString()} className="leading-relaxed">
+                          {line}
+                        </p>
+                      ))}
+                  </div>
                   {currentQuestion.gambarUrl && (
                     <img
                       src={currentQuestion.gambarUrl}
@@ -354,7 +363,14 @@ function TryoutTestPage() {
                       isi: string;
                       gambarUrl?: string | null;
                     };
-                    const isSelected = currentQuestion.jawaban_dipilih === opt.id;
+
+                    const isMultiple = currentQuestion.tipe === "multiple";
+                    const selectedIds = currentQuestion.jawaban_dipilih_multi ?? [];
+
+                    const isSelected = isMultiple
+                      ? selectedIds.includes(opt.id)
+                      : currentQuestion.jawaban_dipilih === opt.id;
+
 
                     return (
                       <button
@@ -362,13 +378,29 @@ function TryoutTestPage() {
                         type="button"
                         onClick={() => {
                           if (!resolvedSesiId || isExpired) return;
-                          submitAnswerMutation.mutate({
-                            sesiId: resolvedSesiId,
-                            sesiSoalId: currentQuestion.sesiSoalId,
-                            pilihanId: opt.id,
-                            isRagu: currentQuestion.is_ragu ?? false,
-                          });
+
+                          if (isMultiple) {
+                            const nextIds = isSelected
+                              ? selectedIds.filter((id) => id !== opt.id)
+                              : [...selectedIds, opt.id];
+
+                            submitAnswerMutation.mutate({
+                              sesiId: resolvedSesiId,
+                              sesiSoalId: currentQuestion.sesiSoalId,
+                              pilihanId: null,
+                              pilihanIds: nextIds,
+                              isRagu: currentQuestion.is_ragu ?? false,
+                            });
+                          } else {
+                            submitAnswerMutation.mutate({
+                              sesiId: resolvedSesiId,
+                              sesiSoalId: currentQuestion.sesiSoalId,
+                              pilihanId: opt.id,
+                              isRagu: currentQuestion.is_ragu ?? false,
+                            });
+                          }
                         }}
+
                         disabled={isExpired}
                         className={cn(
                           "flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 text-left transition-colors",
@@ -376,22 +408,16 @@ function TryoutTestPage() {
                           isExpired && "cursor-not-allowed opacity-60",
                         )}
                       >
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-gray-400 bg-white">
-                          {isSelected && <div className="size-3 rounded-full bg-blue-500" />}
-                        </div>
-                        <span className="font-medium text-gray-600">{opt.label}.</span>
-                        <div className="flex flex-1 flex-col gap-2">
-                          {option.isi && <span className="text-gray-700">{option.isi}</span>}
-                          {option.gambarUrl && (
-                            <Image
-                              src={option.gambarUrl}
-                              alt={`Gambar opsi ${option.label}`}
-                              width={320}
-                              height={240}
-                              className="mt-1 max-w-full rounded-lg border border-gray-200 bg-white object-contain"
-                            />
-                          )}
-                        </div>
+                      <div className="flex min-w-0 flex-1 flex-col gap-2">
+                        {option.isi && <span className="text-gray-700">{option.isi}</span>}
+                        {option.gambarUrl && (
+                          <img
+                            src={option.gambarUrl}
+                            alt={`Gambar opsi ${option.label}`}
+                            className="mt-1 h-auto max-w-full rounded-lg border border-gray-200 bg-white object-contain"
+                          />
+                        )}
+                      </div>
                       </button>
                     );
                   })}
@@ -417,15 +443,17 @@ function TryoutTestPage() {
           </Button>
 
           <Button
-            onClick={() => {
-              if (!resolvedSesiId || !currentQuestion || isExpired) return;
-              submitAnswerMutation.mutate({
-                sesiId: resolvedSesiId,
-                sesiSoalId: currentQuestion.sesiSoalId,
-                pilihanId: currentQuestion.jawaban_dipilih ?? null,
-                isRagu: !currentQuestion.is_ragu,
-              });
-            }}
+          onClick={() => {
+            if (!resolvedSesiId || !currentQuestion || isExpired) return;
+
+            submitAnswerMutation.mutate({
+              sesiId: resolvedSesiId,
+              sesiSoalId: currentQuestion.sesiSoalId,
+              pilihanId: currentQuestion.jawaban_dipilih ?? null,
+              pilihanIds: currentQuestion.jawaban_dipilih_multi ?? [],
+              isRagu: !currentQuestion.is_ragu,
+            });
+          }}
             disabled={isExpired}
             className={cn(
               "h-12 w-full px-8 font-semibold shadow-sm md:w-auto",

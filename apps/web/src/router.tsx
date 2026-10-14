@@ -15,7 +15,11 @@ export const getRouter = () => {
     context: { orpc, queryClient, session: null },
     defaultPendingComponent: () => <Loader />,
     defaultNotFoundComponent: () => <NotFound />,
-    defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
+    defaultErrorComponent: ({ error }) => (
+      <ErrorComponent
+        error={error instanceof Error ? error : new Error(String(error))}
+      />
+    ),
     Wrap: ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>,
   });
   return router;

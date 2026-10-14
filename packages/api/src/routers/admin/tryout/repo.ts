@@ -11,7 +11,7 @@ import {
   tryoutSubtes,
 } from "@habitutor/db/schema/tryout";
 import { user } from "@habitutor/db/schema/user";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import { fisherYatesShuffle, TryoutError } from "./logic";
 
 export const tryoutRepo = {
@@ -515,6 +515,91 @@ export const tryoutRepo = {
 
     if (!deleted) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
     return deleted;
+  },
+
+    moveSoal: async ({
+    db = defaultDb,
+    soalId,
+    targetSubtesId,
+  }: {
+    db?: DrizzleDatabase;
+    soalId: string;
+    targetSubtesId: string;
+  }) => {
+    return db.transaction(async (tx) => {
+      const soal = await tx.query.tryoutSoal.findFirst({
+        where: eq(tryoutSoal.id, soalId),
+        with: { subtes: true },
+      });
+      if (!soal) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
+      if (soal.subtesId === targetSubtesId)
+        throw new TryoutError("BAD_REQUEST", "Soal sudah ada di subtes tersebut");
+
+      const target = await tx.query.tryoutSubtes.findFirst({
+        where: eq(tryoutSubtes.id, targetSubtesId),
+      });
+      if (!target) throw new TryoutError("NOT_FOUND", "Subtes tujuan tidak ditemukan");
+      if (target.tryoutId !== soal.subtes.tryoutId)
+        throw new TryoutError("BAD_REQUEST", "Subtes tujuan harus di tryout yang sama");
+
+      const sesi = await tx.query.tryoutSesi.findFirst({
+        where: eq(tryoutSesi.tryoutId, target.tryoutId),
+        columns: { id: true },
+      });
+      if (sesi)
+        throw new TryoutError("BAD_REQUEST", "Tryout sudah pernah dikerjakan siswa, soal tidak bisa dipindah");
+
+      const [moved] = await tx
+        .update(tryoutSoal)
+        .set({ subtesId: targetSubtesId, updatedAt: new Date() })
+        .where(eq(tryoutSoal.id, soalId))
+        .returning();
+      return moved;
+    });
+  },
+
+    moveSoalBulk: async ({
+    db = defaultDb,
+    soalIds,
+    targetSubtesId,
+  }: {
+    db?: DrizzleDatabase;
+    soalIds: string[];
+    targetSubtesId: string;
+  }) => {
+    return db.transaction(async (tx) => {
+      const ids = [...new Set(soalIds)];
+      if (ids.length === 0) throw new TryoutError("BAD_REQUEST", "Pilih minimal satu soal");
+
+      const target = await tx.query.tryoutSubtes.findFirst({
+        where: eq(tryoutSubtes.id, targetSubtesId),
+      });
+      if (!target) throw new TryoutError("NOT_FOUND", "Subtes tujuan tidak ditemukan");
+
+      const soalRows = await tx.query.tryoutSoal.findMany({
+        where: inArray(tryoutSoal.id, ids),
+        with: { subtes: true },
+      });
+      if (soalRows.length !== ids.length) throw new TryoutError("NOT_FOUND", "Ada soal yang tidak ditemukan");
+      if (soalRows.some((s) => s.subtes.tryoutId !== target.tryoutId))
+        throw new TryoutError("BAD_REQUEST", "Subtes tujuan harus di tryout yang sama");
+      if (soalRows.some((s) => s.subtesId === targetSubtesId))
+        throw new TryoutError("BAD_REQUEST", "Ada soal yang sudah berada di subtes tujuan");
+
+      const sesi = await tx.query.tryoutSesi.findFirst({
+        where: eq(tryoutSesi.tryoutId, target.tryoutId),
+        columns: { id: true },
+      });
+      if (sesi)
+        throw new TryoutError("BAD_REQUEST", "Tryout sudah pernah dikerjakan siswa, soal tidak bisa dipindah");
+
+      const moved = await tx
+        .update(tryoutSoal)
+        .set({ subtesId: targetSubtesId, updatedAt: new Date() })
+        .where(inArray(tryoutSoal.id, ids))
+        .returning({ id: tryoutSoal.id });
+      return { count: moved.length };
+    });
   },
 
   createPilihanJawaban: async ({

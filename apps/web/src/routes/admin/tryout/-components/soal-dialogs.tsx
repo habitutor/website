@@ -89,6 +89,7 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
   const [pertanyaan, setPertanyaan] = useState("");
   const [gambarUrl, setGambarUrl] = useState<string | null>(null);
   const [poin, setPoin] = useState(20);
+  const [tipe, setTipe] = useState<"pilgan" | "multiple">("pilgan");
   const [options, setOptions] = useState([
     { label: "A", isi: "", isBenar: false, gambarUrl: null as string | null },
     { label: "B", isi: "", isBenar: false, gambarUrl: null as string | null },
@@ -157,7 +158,7 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
     createSoalMutation.mutate({
       subtesId,
       pertanyaan,
-      tipe: "pilgan",
+      tipe,
       poin,
       gambarUrl,
     });
@@ -190,6 +191,37 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
               onRemove={() => setGambarUrl(null)}
             />
           </div>
+
+
+<div className="space-y-2">
+  <Label htmlFor="tipe-soal">Tipe Soal</Label>
+  <select
+    id="tipe-soal"
+    value={tipe}
+    onChange={(e) => {
+      const nextTipe = e.target.value as "pilgan" | "multiple";
+      setTipe(nextTipe);
+
+      if (nextTipe === "pilgan") {
+        setOptions((prev) => {
+          let found = false;
+          return prev.map((opt) => {
+            if (opt.isBenar && !found) {
+              found = true;
+              return opt;
+            }
+            return { ...opt, isBenar: false };
+          });
+        });
+      }
+    }}
+    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+  >
+    <option value="pilgan">Pilihan Ganda (satu jawaban benar)</option>
+    <option value="multiple">Multiple Answer (beberapa jawaban benar)</option>
+  </select>
+</div>
+
 
           <div className="space-y-2">
             <Label>Poin</Label>
@@ -239,10 +271,16 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
                   variant={opt.isBenar ? "default" : "outline"}
                   size="sm"
                   className={opt.isBenar ? "mt-1 bg-green-600 hover:bg-green-700" : "mt-1"}
+
                   onClick={() => {
                     const newOpts = options.map((o, i) => ({
                       ...o,
-                      isBenar: i === idx,
+                      isBenar:
+                        tipe === "multiple"
+                          ? i === idx
+                            ? !o.isBenar
+                            : o.isBenar
+                          : i === idx,
                     }));
                     setOptions(newOpts);
                   }}
@@ -394,6 +432,7 @@ export function EditSoalDialog({
   const [pertanyaan, setPertanyaan] = useState("");
   const [gambarUrl, setGambarUrl] = useState<string | null>(null);
   const [poin, setPoin] = useState(20);
+  const [tipe, setTipe] = useState<"pilgan" | "multiple">("pilgan");
   const [options, setOptions] = useState<
     Array<{ id?: string; label: string; isi: string; isBenar: boolean; gambarUrl: string | null }>
   >([]);
@@ -408,7 +447,7 @@ export function EditSoalDialog({
       setPertanyaan(data.pertanyaan);
       setGambarUrl(data.gambarUrl || null);
       setPoin(data.poin);
-
+      setTipe(data.tipe);
       const existingOptions = data.pilihanJawaban || [];
       const labels = ["A", "B", "C", "D", "E"];
 
@@ -494,6 +533,7 @@ export function EditSoalDialog({
     updateSoalMutation.mutate({
       soalId,
       pertanyaan,
+      tipe,
       poin,
       gambarUrl,
     });
@@ -515,6 +555,42 @@ export function EditSoalDialog({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-tipe-soal">Tipe Soal</Label>
+              <select
+                id="edit-tipe-soal"
+                value={tipe}
+                onChange={(e) => {
+                  const nextTipe = e.target.value as "pilgan" | "multiple";
+                  setTipe(nextTipe);
+
+                  if (nextTipe === "pilgan") {
+                    setOptions((prev) => {
+                      let found = false;
+
+                      return prev.map((opt) => {
+                        if (opt.isBenar && !found) {
+                          found = true;
+                          return opt;
+                        }
+
+                        return { ...opt, isBenar: false };
+                      });
+                    });
+                  }
+                }}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              >
+                <option value="pilgan">
+                  Pilihan Ganda (satu jawaban benar)
+                </option>
+                <option value="multiple">
+                  Multiple Answer (beberapa jawaban benar)
+                </option>
+              </select>
+            </div>
+
+
             <div className="space-y-2">
               <Label>Pertanyaan</Label>
               <Textarea
@@ -578,14 +654,22 @@ export function EditSoalDialog({
                     variant={opt.isBenar ? "default" : "outline"}
                     size="sm"
                     className={opt.isBenar ? "mt-1 bg-green-600 hover:bg-green-700" : "mt-1"}
-                    onClick={() => {
-                      const newOpts = options.map((o, i) => ({
-                        ...o,
-                        isBenar: i === idx,
-                      }));
-                      setOptions(newOpts);
-                    }}
-                  >
+                      onClick={() => {
+                        const newOpts = options.map((o, i) => {
+                          if (i === idx) {
+                            return { ...o, isBenar: !o.isBenar };
+                          }
+
+                          if (tipe === "pilgan") {
+                            return { ...o, isBenar: false };
+                          }
+
+                          return o;
+                        });
+
+                        setOptions(newOpts);
+                      }}
+                      >
                     {opt.isBenar ? "✓ Benar" : "Benar?"}
                   </Button>
                 </div>

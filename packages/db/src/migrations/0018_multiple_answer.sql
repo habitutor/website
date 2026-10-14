@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_jawaban" ADD COLUMN "pilihan_ids" uuid[];

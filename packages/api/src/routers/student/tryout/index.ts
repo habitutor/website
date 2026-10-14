@@ -123,6 +123,7 @@ const submitAnswer = authed
       sesiId: "string",
       sesiSoalId: "string",
       "pilihanId?": "string | null",
+      "pilihanIds?": "string[] | null",
       "isRagu?": "boolean",
     }),
   )
@@ -132,6 +133,7 @@ const submitAnswer = authed
         sesiId: input.sesiId,
         sesiSoalId: input.sesiSoalId,
         pilihanId: input.pilihanId || null,
+        pilihanIds: input.pilihanIds ?? null,
         isRagu: input.isRagu || false,
       });
 
