@@ -5,10 +5,11 @@ import { authClient } from "./auth-client";
 
 export const getUser = createServerFn().handler(async () => {
   const headers = getRequestHeaders();
-  const headersToForward = {
+
+  const headersToForward = new Headers({
     cookie: headers.get("cookie") || "",
-    "user-agent": headers.get("user-agent"),
-  };
+    "user-agent": headers.get("user-agent") || "",
+  });
 
   const { data } = await authClient.getSession({
     fetchOptions: {
@@ -33,14 +34,15 @@ export const $getSession = createIsomorphicFn()
   })
   .server(async (_: RouterAppContext["queryClient"]) => {
     const headers = getRequestHeaders();
+
     if (!headers) {
       return { session: null };
     }
 
-    const headersToForward = {
+    const headersToForward = new Headers({
       cookie: headers.get("cookie") || "",
-      "user-agent": headers.get("user-agent"),
-    };
+      "user-agent": headers.get("user-agent") || "",
+    });
 
     const { data } = await authClient.getSession({
       fetchOptions: {
