@@ -11,6 +11,7 @@ import {
   TagIcon,
   TicketIcon,
   User,
+  VideoCameraIcon,
   UserSwitchIcon,
   CaretUp,
 } from "@phosphor-icons/react";
@@ -83,6 +84,11 @@ const adminNavLinks = [
     name: "Dashboard Content",
     to: "/admin/dashboard-content" as const,
     icon: Megaphone,
+  },
+  {
+    name: "Recordings",
+    to: "/admin/recordings" as const,
+    icon: VideoCameraIcon,
   },
   {
     name: "Users",
