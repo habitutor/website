@@ -20,6 +20,7 @@ import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-pass
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard-content'
+import { Route as AdminRecordingsRouteImport } from './routes/admin/recordings'
 import { Route as AdminReferralsRouteImport } from './routes/admin/referrals'
 import { Route as HomePremiumIndexRouteImport } from './routes/home-premium/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
@@ -29,6 +30,7 @@ import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authen
 import { Route as AuthenticatedOnboardingIndexRouteImport } from './routes/_authenticated/onboarding/index'
 import { Route as AuthenticatedPremiumIndexRouteImport } from './routes/_authenticated/premium/index'
 import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authenticated/profile/index'
+import { Route as AuthenticatedRecordingsIndexRouteImport } from './routes/_authenticated/recordings/index'
 import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenticated/tryout/index'
 import { Route as AuthenticatedTryoutSessionRouteImport } from './routes/_authenticated/tryout/session'
 import { Route as AuthenticatedTryoutTestRouteImport } from './routes/_authenticated/tryout/test'
@@ -119,6 +121,11 @@ const AdminDashboardContentRoute = AdminDashboardContentRouteImport.update({
   path: '/dashboard-content',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminRecordingsRoute = AdminRecordingsRouteImport.update({
+  id: '/recordings',
+  path: '/recordings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminReferralsRoute = AdminReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
@@ -169,6 +176,12 @@ const AuthenticatedProfileIndexRoute =
   AuthenticatedProfileIndexRouteImport.update({
     id: '/profile/',
     path: '/profile/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRecordingsIndexRoute =
+  AuthenticatedRecordingsIndexRouteImport.update({
+    id: '/recordings/',
+    path: '/recordings/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedTryoutIndexRoute =
@@ -384,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
@@ -402,6 +416,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof AuthenticatedOnboardingIndexRoute
   '/premium/': typeof AuthenticatedPremiumIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
+  '/recordings/': typeof AuthenticatedRecordingsIndexRoute
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
@@ -439,6 +454,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin': typeof AdminIndexRoute
   '/home-premium': typeof HomePremiumIndexRoute
@@ -457,6 +473,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingIndexRoute
   '/premium': typeof AuthenticatedPremiumIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/recordings': typeof AuthenticatedRecordingsIndexRoute
   '/tryout': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes': typeof AdminClassesIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
@@ -498,6 +515,7 @@ export interface FileRoutesById {
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
@@ -516,6 +534,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding/': typeof AuthenticatedOnboardingIndexRoute
   '/_authenticated/premium/': typeof AuthenticatedPremiumIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/recordings/': typeof AuthenticatedRecordingsIndexRoute
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
@@ -556,6 +575,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/recordings'
     | '/admin/referrals'
     | '/admin/'
     | '/home-premium/'
@@ -574,6 +594,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/premium/'
     | '/profile/'
+    | '/recordings/'
     | '/tryout/'
     | '/admin/classes/'
     | '/admin/practice-packs/'
@@ -611,6 +632,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/recordings'
     | '/admin/referrals'
     | '/admin'
     | '/home-premium'
@@ -629,6 +651,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/premium'
     | '/profile'
+    | '/recordings'
     | '/tryout'
     | '/admin/classes'
     | '/admin/practice-packs'
@@ -669,6 +692,7 @@ export interface FileRouteTypes {
     | '/_auth/reset-password'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/recordings'
     | '/admin/referrals'
     | '/admin/'
     | '/home-premium/'
@@ -687,6 +711,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding/'
     | '/_authenticated/premium/'
     | '/_authenticated/profile/'
+    | '/_authenticated/recordings/'
     | '/_authenticated/tryout/'
     | '/admin/classes/'
     | '/admin/practice-packs/'
@@ -804,6 +829,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardContentRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/recordings': {
+      id: '/admin/recordings'
+      path: '/recordings'
+      fullPath: '/admin/recordings'
+      preLoaderRoute: typeof AdminRecordingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/referrals': {
       id: '/admin/referrals'
       path: '/referrals'
@@ -865,6 +897,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile/'
       preLoaderRoute: typeof AuthenticatedProfileIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/recordings/': {
+      id: '/_authenticated/recordings/'
+      path: '/recordings'
+      fullPath: '/recordings/'
+      preLoaderRoute: typeof AuthenticatedRecordingsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/tryout/': {
@@ -1169,6 +1208,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOnboardingIndexRoute: typeof AuthenticatedOnboardingIndexRoute
   AuthenticatedPremiumIndexRoute: typeof AuthenticatedPremiumIndexRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
+  AuthenticatedRecordingsIndexRoute: typeof AuthenticatedRecordingsIndexRoute
   AuthenticatedTryoutIndexRoute: typeof AuthenticatedTryoutIndexRoute
   AuthenticatedClassesShortNameContentIdRoute: typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   AuthenticatedDashboardFlashcardIntroRoute: typeof AuthenticatedDashboardFlashcardIntroRoute
@@ -1194,6 +1234,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOnboardingIndexRoute: AuthenticatedOnboardingIndexRoute,
   AuthenticatedPremiumIndexRoute: AuthenticatedPremiumIndexRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
+  AuthenticatedRecordingsIndexRoute: AuthenticatedRecordingsIndexRoute,
   AuthenticatedTryoutIndexRoute: AuthenticatedTryoutIndexRoute,
   AuthenticatedClassesShortNameContentIdRoute:
     AuthenticatedClassesShortNameContentIdRouteWithChildren,
@@ -1246,6 +1287,7 @@ const AdminClassesShortNameContentIdRouteWithChildren =
 interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboardContentRoute: typeof AdminDashboardContentRoute
+  AdminRecordingsRoute: typeof AdminRecordingsRoute
   AdminReferralsRoute: typeof AdminReferralsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPracticePacksIdRoute: typeof AdminPracticePacksIdRoute
@@ -1268,6 +1310,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboardContentRoute: AdminDashboardContentRoute,
+  AdminRecordingsRoute: AdminRecordingsRoute,
   AdminReferralsRoute: AdminReferralsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminPracticePacksIdRoute: AdminPracticePacksIdRoute,
