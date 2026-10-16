@@ -9,6 +9,7 @@ import { orpc } from "@/utils/orpc";
 import { Perintis2027Plan } from "./-components/perintis-2027-plan";
 import { PremiumHeader } from "./-components/premium-header";
 import { usePremiumPaymentEffect } from "./premium-payment";
+import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan-card";
 
 export const Route = createFileRoute("/_authenticated/premium/")({
   head: () => ({
@@ -96,20 +97,23 @@ function RouteComponent() {
 
       <MotionStaggerItem>
         <div className="rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
-          <Perintis2027Plan
-            isPremium={isPremium}
-            isPending={transactionMutation.isPending}
-            onSubscribe={handleSubscribe}
-            promoCode={promoCode}
-            onPromoCodeChange={(value) => {
-              setPromoCode(value);
-              setPromoFeedback(undefined);
-            }}
-            onValidatePromo={handleValidatePromo}
-            promoFeedback={promoFeedback}
-            isPromoValidating={validatePromoMutation.isPending}
-            hasInitiatedPurchase={hasInitiatedPurchase}
-          />
+          <div className={isPremium ? "" : "mx-auto grid w-full max-w-4xl items-start gap-6 md:grid-cols-2"}>
+            <Perintis2027Plan
+              isPremium={isPremium}
+              isPending={transactionMutation.isPending}
+              onSubscribe={handleSubscribe}
+              promoCode={promoCode}
+              onPromoCodeChange={(value) => {
+                setPromoCode(value);
+                setPromoFeedback(undefined);
+              }}
+              onValidatePromo={handleValidatePromo}
+              promoFeedback={promoFeedback}
+              isPromoValidating={validatePromoMutation.isPending}
+              hasInitiatedPurchase={hasInitiatedPurchase}
+            />
+            {!isPremium && <Paket2BulanCard />}
+          </div>
         </div>
       </MotionStaggerItem>
     </MotionStagger>

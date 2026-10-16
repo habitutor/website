@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PerintisPricingCard } from "@/routes/home-premium/-components/pricing";
+import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan-card";
 
 export function Pricing() {
   return (
@@ -12,12 +13,13 @@ export function Pricing() {
             Perintis SNBT & TKA 2027, <span className="text-primary-300">mulai sekarang</span>
           </h2>
           <p className="text-sm font-medium text-pretty md:text-lg">
-            Satu paket, akses penuh sampai hari-H: video, bank soal, try out, 150+ sesi live, dan komunitas
+            Akses penuh sampai hari-H: video, bank soal, try out, 150+ sesi live, dan komunitas
           </p>
         </div>
 
-        <div className="mx-auto w-full max-w-xl">
+        <div className="mx-auto grid w-full max-w-4xl items-start gap-6 md:grid-cols-2">
           <PerintisPricingCard />
+          <Paket2BulanCard />
         </div>
 
         <div className="flex items-center justify-center">
