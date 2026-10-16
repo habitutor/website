@@ -188,15 +188,15 @@ export function PerintisPricingCard({
 export function Pricing() {
   return (
     <div id="paket" className="container mx-auto px-4 md:px-0">
-      <div className="flex items-end justify-center gap-0 md:gap-6">
-        <div className="pointer-events-none relative hidden shrink-0 xl:block">
-          <div className="absolute bottom-0 left-1/2 size-40 -translate-x-1/2 rounded-full border-2 border-tertiary-300 bg-tertiary-200" />
+      <div className="flex flex-col items-center gap-6">
+        <div className="pointer-events-none relative hidden shrink-0 md:block">
+          <div className="absolute bottom-0 left-1/2 size-32 -translate-x-1/2 rounded-full border-2 border-tertiary-300 bg-tertiary-200" />
           <Image
             src="/avatar/premium-pricing-card-avatar.webp"
             alt="Maskot Habitutor"
             width={224}
             height={224}
-            className="relative size-56 object-contain select-none"
+            className="relative size-44 object-contain select-none"
           />
         </div>
 
