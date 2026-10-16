@@ -140,12 +140,13 @@ function TryoutPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={tab} onValueChange={setTab} className="w-full">        <TabsList className="mb-4">
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
+        {" "}
+        <TabsList className="mb-4">
           <TabsTrigger value="daftar_tryout">Daftar Tryout</TabsTrigger>
           <TabsTrigger value="passing_grade">Passing Grade</TabsTrigger>
           <TabsTrigger value="hasil">Hasil Tryout</TabsTrigger>
         </TabsList>
-
         {/* DAFTAR TRYOUT TAB */}
         <TabsContent value="daftar_tryout">
           {isPending ? (
@@ -185,7 +186,6 @@ function TryoutPage() {
             </div>
           )}
         </TabsContent>
-
         {/* PASSING GRADE TAB */}
         <TabsContent value="passing_grade">
           {isPgPending ? (
@@ -290,7 +290,6 @@ function TryoutPage() {
             </div>
           )}
         </TabsContent>
-
         {/* HASIL TRYOUT TAB */}
         <TabsContent value="hasil">
           <HistoryTabContent onStart={() => setTab("daftar_tryout")} />
@@ -362,7 +361,8 @@ type HistoryItem = {
   selesaiAt: Date | null;
 };
 
-function HistoryTabContent({ onStart }: { onStart: () => void }) {  const { data: historyData, error, isError, isPending } = useQuery(orpc.tryout.history.queryOptions({ input: {} }));
+function HistoryTabContent({ onStart }: { onStart: () => void }) {
+  const { data: historyData, error, isError, isPending } = useQuery(orpc.tryout.history.queryOptions({ input: {} }));
   const history = asArray<HistoryItem>(historyData);
 
   if (isPending) {
@@ -398,7 +398,9 @@ function HistoryTabContent({ onStart }: { onStart: () => void }) {  const { data
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:w-[800px]">
           <div className="flex flex-col justify-between gap-6 rounded-xl bg-[#6ee7b7] p-6 text-green-950">
             <p className="text-xl font-bold lg:w-[80%]">Mulai Tryout Sekarang, Gratis!</p>
-              <Button onClick={onStart} className="w-fit self-end bg-[#064e3b] text-white hover:bg-[#064e3b]/90">              Mulai Sekarang <ArrowRightIcon weight="bold" />
+            <Button onClick={onStart} className="w-fit self-end bg-[#064e3b] text-white hover:bg-[#064e3b]/90">
+              {" "}
+              Mulai Sekarang <ArrowRightIcon weight="bold" />
             </Button>
           </div>
 
@@ -463,7 +465,9 @@ function HistoryCard({ history }: { history: HistoryItem }) {
             Lihat Detail
           </Link>
         ) : (
-          <Link to="/tryout/$tryoutId" params={{ tryoutId: history.tryoutId }}>            Lanjut Tes
+          <Link to="/tryout/$tryoutId" params={{ tryoutId: history.tryoutId }}>
+            {" "}
+            Lanjut Tes
           </Link>
         )}
       </Button>
