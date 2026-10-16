@@ -7,7 +7,7 @@ import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan
 export function Pricing() {
   return (
     <div className="flex border-2 border-secondary-100 bg-[#FFFCF3] py-16">
-      <div className="container mx-auto items-center gap-8 space-y-11 px-4">
+      <div className="container mx-auto min-w-0 items-center gap-8 space-y-11 px-4">
         <div className="space-y-2 text-center *:text-pretty">
           <h2 className="text-2xl font-extrabold sm:text-3xl">
             Perintis SNBT & TKA 2027, <span className="text-primary-300">mulai sekarang</span>
@@ -17,7 +17,7 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto grid w-full max-w-4xl items-start gap-6 md:grid-cols-2">
+        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0">
           <PerintisPricingCard />
           <Paket2BulanCard />
         </div>

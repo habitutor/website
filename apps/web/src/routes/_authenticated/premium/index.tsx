@@ -97,7 +97,13 @@ function RouteComponent() {
 
       <MotionStaggerItem>
         <div className="rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
-          <div className={isPremium ? "" : "mx-auto grid w-full max-w-4xl items-start gap-6 md:grid-cols-2"}>
+          <div
+            className={
+              isPremium
+                ? ""
+                : "mx-auto grid w-full max-w-4xl grid-cols-1 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0"
+            }
+          >
             <Perintis2027Plan
               isPremium={isPremium}
               isPending={transactionMutation.isPending}

@@ -200,8 +200,8 @@ export function Pricing() {
           />
         </div>
 
-        <MotionScaleIn className="w-full max-w-4xl">
-          <div className="grid w-full items-start gap-6 md:grid-cols-2">
+        <MotionScaleIn className="w-full max-w-4xl min-w-0">
+          <div className="grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0">
             <PerintisPricingCard />
             <Paket2BulanCard />
           </div>
