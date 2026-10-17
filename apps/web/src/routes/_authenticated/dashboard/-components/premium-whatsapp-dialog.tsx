@@ -15,6 +15,12 @@ import { Label } from "@/components/ui/label";
 import { COMMUNITY_LINKS } from "@/lib/community-links";
 import { orpc } from "@/utils/orpc";
 
+// Link yang masih placeholder (diawali "ISI_") tidak ditampilkan supaya tidak ada tombol rusak.
+const WHATSAPP_GROUPS = [
+  { label: "Gabung Grup Paket Perintis 2027", href: COMMUNITY_LINKS.premiumWhatsapp },
+  { label: "Gabung Grup Paket 2 Bulan", href: COMMUNITY_LINKS.premium2BulanWhatsapp },
+].filter((group) => !group.href.startsWith("ISI_"));
+
 export function PremiumWhatsappDialog({ open }: { open: boolean }) {
   const queryClient = useQueryClient();
   const [hasJoined, setHasJoined] = useState(false);
@@ -49,16 +55,21 @@ export function PremiumWhatsappDialog({ open }: { open: boolean }) {
           </div>
           <DialogTitle>Gabung Komunitas WhatsApp Premium</DialogTitle>
           <DialogDescription>
-            Dapatkan pengumuman kelas, diskusi belajar, dan informasi khusus member premium Habitutor.
+            Dapatkan pengumuman kelas, diskusi belajar, dan informasi khusus member premium Habitutor. Pilih grup sesuai
+            paket yang kamu ambil.
           </DialogDescription>
         </DialogHeader>
 
-        <Button asChild className="w-full bg-whatsapp text-white hover:bg-whatsapp/90">
-          <a href={COMMUNITY_LINKS.premiumWhatsapp} target="_blank" rel="noopener noreferrer">
-            Gabung Komunitas Premium
-            <ArrowSquareOutIcon />
-          </a>
-        </Button>
+        <div className="flex flex-col gap-2">
+          {WHATSAPP_GROUPS.map((group) => (
+            <Button key={group.label} asChild className="w-full bg-whatsapp text-white hover:bg-whatsapp/90">
+              <a href={group.href} target="_blank" rel="noopener noreferrer">
+                {group.label}
+                <ArrowSquareOutIcon />
+              </a>
+            </Button>
+          ))}
+        </div>
 
         <DialogFooter className="items-stretch gap-4 sm:flex-col">
           <Label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm font-normal">
