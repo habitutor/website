@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils";
 const PAKET_2_BULAN_ORDER_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSczLPA0xW3mIJta75osjrZzYSHm9l9-gc5J7_k1-aKuEDNf7A/viewform";
 
-const HARGA = 99_000;
+const HARGA = 50_000;
 
-// Isi angka ini HANYA kalau 99k memang harga promo (harga normal yang benar-benar pernah berlaku).
-// Kalau 99k adalah harga biasa, biarkan null supaya tidak ada harga coret.
+// Isi angka ini HANYA kalau 50k memang harga promo (harga normal yang benar-benar pernah berlaku).
+// Kalau 50k adalah harga biasa, biarkan null supaya tidak ada harga coret.
 const HARGA_NORMAL = null as number | null;
 
 // Sembilan fasilitas inti yang sama dengan Paket Perintis 2027
@@ -44,7 +44,7 @@ export function Paket2BulanCard() {
             <span className="text-xs text-neutral-100">untuk 2 bulan</span>
           </div>
           <p className="mt-2 text-lg font-black text-neutral-100">cuma {formatRupiah(HARGA / 2)} / bulan</p>
-          <p className="text-sm font-semibold text-neutral-100">kurang dari Rp1.700 / hari</p>
+          <p className="text-sm font-semibold text-neutral-100">kurang dari Rp850 / hari</p>
           <p className="mt-3 text-sm leading-relaxed text-neutral-100">
             Semua fasilitas Paket Perintis 2027, tanpa harus komit sampai hari-H. Cocok buat yang mau coba dulu atau
             persiapan jangka pendek.
