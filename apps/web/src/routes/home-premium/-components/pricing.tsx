@@ -45,6 +45,15 @@ function FakePurchaseBubble() {
   );
 }
 
+export function PricingExtras() {
+  return (
+    <div className="mt-6">
+      <p className="text-center text-xs font-semibold text-foreground sm:text-sm">{PERINTIS_PRICING_COPY.proofStrip}</p>
+      <FakePurchaseBubble />
+    </div>
+  );
+}
+
 export function PerintisPricingCard({
   mode = "marketing",
   isPremium = false,
@@ -64,8 +73,8 @@ export function PerintisPricingCard({
   const buttonLabel = isPremium ? "Kamu sudah berlangganan paket ini!" : isPending ? "Memproses..." : copy.ctaLabel;
 
   return (
-    <div className="w-full">
-      <div className="relative flex w-full flex-col overflow-hidden rounded-2xl border-2 border-primary-400 bg-primary-300 shadow-sm">
+    <div className="h-full w-full">
+      <div className="relative flex h-full w-full flex-col overflow-hidden rounded-2xl border-2 border-primary-400 bg-primary-300 shadow-sm">
         <div className="pointer-events-none absolute -right-12 -bottom-20 z-0 size-45 rounded-full border-2 border-primary-500 bg-primary-400" />
         <div className="pointer-events-none absolute top-24 -left-10 z-0 size-24 rounded-full border-2 border-primary-500 bg-primary-400" />
 
@@ -110,7 +119,7 @@ export function PerintisPricingCard({
           </ul>
         </div>
 
-        <div className="relative z-10 space-y-3 p-6 pt-0">
+        <div className="relative z-10 mt-auto space-y-3 p-6 pt-0">
           {mode === "checkout" ? (
             <>
               <div className="space-y-1">
@@ -201,10 +210,11 @@ export function Pricing() {
         </div>
 
         <MotionScaleIn className="w-full max-w-4xl min-w-0">
-          <div className="grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0">
-            <PerintisPricingCard />
+          <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
+            <PerintisPricingCard showExtras={false} />
             <Paket2BulanCard />
           </div>
+          <PricingExtras />
         </MotionScaleIn>
       </div>
     </div>

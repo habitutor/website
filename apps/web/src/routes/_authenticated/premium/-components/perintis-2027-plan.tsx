@@ -24,9 +24,10 @@ export function Perintis2027Plan({
   hasInitiatedPurchase,
 }: Perintis2027PlanProps) {
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto h-full w-full max-w-2xl">
       <PerintisPricingCard
         mode="checkout"
+        showExtras={false}
         isPremium={isPremium}
         isPending={isPending}
         onSubscribe={onSubscribe}

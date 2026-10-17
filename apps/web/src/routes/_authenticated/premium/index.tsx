@@ -10,6 +10,7 @@ import { Perintis2027Plan } from "./-components/perintis-2027-plan";
 import { PremiumHeader } from "./-components/premium-header";
 import { usePremiumPaymentEffect } from "./premium-payment";
 import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan-card";
+import { PricingExtras } from "@/routes/home-premium/-components/pricing";
 
 export const Route = createFileRoute("/_authenticated/premium/")({
   head: () => ({
@@ -101,7 +102,7 @@ function RouteComponent() {
             className={
               isPremium
                 ? ""
-                : "mx-auto grid w-full max-w-4xl grid-cols-1 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0"
+                : "mx-auto grid w-full max-w-4xl grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0"
             }
           >
             <Perintis2027Plan
@@ -120,6 +121,7 @@ function RouteComponent() {
             />
             {!isPremium && <Paket2BulanCard />}
           </div>
+          <PricingExtras />
         </div>
       </MotionStaggerItem>
     </MotionStagger>

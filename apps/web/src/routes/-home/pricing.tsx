@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PerintisPricingCard } from "@/routes/home-premium/-components/pricing";
+import { PerintisPricingCard, PricingExtras } from "@/routes/home-premium/-components/pricing";
 import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan-card";
 
 export function Pricing() {
@@ -17,9 +17,12 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0">
-          <PerintisPricingCard />
-          <Paket2BulanCard />
+        <div>
+          <div className="mx-auto grid w-full max-w-4xl grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
+            <PerintisPricingCard showExtras={false} />
+            <Paket2BulanCard />
+          </div>
+          <PricingExtras />
         </div>
 
         <div className="flex items-center justify-center">
