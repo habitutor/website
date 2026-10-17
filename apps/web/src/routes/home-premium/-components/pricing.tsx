@@ -8,6 +8,7 @@ import { useActiveFakePurchase } from "@/lib/fake-recent-purchases";
 import { PERINTIS_PRICING_COPY, formatRupiah } from "@/lib/perintis-pricing-copy";
 import { cn } from "@/lib/utils";
 import { usePerintisPricing } from "./use-perintis-pricing";
+import { Paket2BulanCard } from "./paket-2-bulan-card";
 
 type PerintisPricingCardProps = {
   mode?: "marketing" | "checkout";
@@ -26,10 +27,7 @@ type PerintisPricingCardProps = {
 function PricingFeature({ feature }: { feature: string }) {
   if (feature !== "TKA INTENSIF — Modul, latihan soal, dan 40+ live class TKA wajib dan pilihan") return feature;
 
-  return (
-    <>40+ live class TKA wajib dan pilihan
-    </>
-  );
+  return <>40+ live class TKA wajib dan pilihan</>;
 }
 
 function FakePurchaseBubble() {
@@ -43,6 +41,15 @@ function FakePurchaseBubble() {
           {purchase.minutesAgo} menit yang lalu, {purchase.message}
         </span>
       </div>
+    </div>
+  );
+}
+
+export function PricingExtras() {
+  return (
+    <div className="mt-6">
+      <p className="text-center text-xs font-semibold text-foreground sm:text-sm">{PERINTIS_PRICING_COPY.proofStrip}</p>
+      <FakePurchaseBubble />
     </div>
   );
 }
@@ -66,8 +73,8 @@ export function PerintisPricingCard({
   const buttonLabel = isPremium ? "Kamu sudah berlangganan paket ini!" : isPending ? "Memproses..." : copy.ctaLabel;
 
   return (
-    <div className="w-full">
-      <div className="relative flex w-full flex-col overflow-hidden rounded-2xl border-2 border-primary-400 bg-primary-300 shadow-sm">
+    <div className="h-full w-full">
+      <div className="relative flex h-full w-full flex-col overflow-hidden rounded-2xl border-2 border-primary-400 bg-primary-300 shadow-sm">
         <div className="pointer-events-none absolute -right-12 -bottom-20 z-0 size-45 rounded-full border-2 border-primary-500 bg-primary-400" />
         <div className="pointer-events-none absolute top-24 -left-10 z-0 size-24 rounded-full border-2 border-primary-500 bg-primary-400" />
 
@@ -77,7 +84,7 @@ export function PerintisPricingCard({
             <p className="text-xs font-medium text-tertiary-100">{copy.suffix}</p>
           </div>
           <span className="rounded-full bg-secondary-700 px-3 py-1 text-xs font-bold whitespace-nowrap text-neutral-100">
-            Satu-satunya paket
+            Paket Utama
           </span>
         </div>
 
@@ -112,7 +119,7 @@ export function PerintisPricingCard({
           </ul>
         </div>
 
-        <div className="relative z-10 space-y-3 p-6 pt-0">
+        <div className="relative z-10 mt-auto space-y-3 p-6 pt-0">
           {mode === "checkout" ? (
             <>
               <div className="space-y-1">
@@ -190,20 +197,24 @@ export function PerintisPricingCard({
 export function Pricing() {
   return (
     <div id="paket" className="container mx-auto px-4 md:px-0">
-      <div className="flex items-end justify-center gap-0 md:gap-6">
-        <div className="pointer-events-none relative hidden shrink-0 lg:block">
-          <div className="absolute bottom-0 left-1/2 size-40 -translate-x-1/2 rounded-full border-2 border-tertiary-300 bg-tertiary-200" />
+      <div className="flex flex-col items-center gap-6">
+        <div className="pointer-events-none relative hidden shrink-0 md:block">
+          <div className="absolute bottom-0 left-1/2 size-32 -translate-x-1/2 rounded-full border-2 border-tertiary-300 bg-tertiary-200" />
           <Image
             src="/avatar/premium-pricing-card-avatar.webp"
             alt="Maskot Habitutor"
             width={224}
             height={224}
-            className="relative size-56 object-contain select-none"
+            className="relative size-44 object-contain select-none"
           />
         </div>
 
-        <MotionScaleIn className="w-full max-w-xl">
-          <PerintisPricingCard />
+        <MotionScaleIn className="w-full max-w-4xl min-w-0">
+          <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
+            <PerintisPricingCard showExtras={false} />
+            <Paket2BulanCard />
+          </div>
+          <PricingExtras />
         </MotionScaleIn>
       </div>
     </div>

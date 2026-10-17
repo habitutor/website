@@ -1,23 +1,28 @@
 import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PerintisPricingCard } from "@/routes/home-premium/-components/pricing";
+import { PerintisPricingCard, PricingExtras } from "@/routes/home-premium/-components/pricing";
+import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan-card";
 
 export function Pricing() {
   return (
     <div className="flex border-2 border-secondary-100 bg-[#FFFCF3] py-16">
-      <div className="container mx-auto items-center gap-8 space-y-11 px-4">
+      <div className="container mx-auto min-w-0 items-center gap-8 space-y-11 px-4">
         <div className="space-y-2 text-center *:text-pretty">
           <h2 className="text-2xl font-extrabold sm:text-3xl">
             Perintis SNBT & TKA 2027, <span className="text-primary-300">mulai sekarang</span>
           </h2>
           <p className="text-sm font-medium text-pretty md:text-lg">
-            Satu paket, akses penuh sampai hari-H: video, bank soal, try out, 150+ sesi live, dan komunitas
+            Akses penuh sampai hari-H: video, bank soal, try out, 150+ sesi live, dan komunitas
           </p>
         </div>
 
-        <div className="mx-auto w-full max-w-xl">
-          <PerintisPricingCard />
+        <div>
+          <div className="mx-auto grid w-full max-w-4xl grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
+            <PerintisPricingCard showExtras={false} />
+            <Paket2BulanCard />
+          </div>
+          <PricingExtras />
         </div>
 
         <div className="flex items-center justify-center">
