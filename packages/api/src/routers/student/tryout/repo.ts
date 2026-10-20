@@ -10,7 +10,41 @@ import {
 } from "@habitutor/db/schema/tryout";
 import { user } from "@habitutor/db/schema/user";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
-import { fisherYatesShuffle, TryoutError } from "./logic";
+import { fisherYatesShuffle, hitungRataRataSkor, hitungSkorSkala, TryoutError } from "./logic";
+
+type SkalaTryout = { poinMaksimal: Map<string, number>; jumlahSubtes: number };
+
+/** Poin maksimal tiap subtes (jumlah poin semua soal) dan jumlah subtes dalam satu tryout. */
+async function getSkalaTryout(db: DrizzleDatabase, tryoutId: string): Promise<SkalaTryout> {
+  const [poinRows, subtesRows] = await Promise.all([
+    db
+      .select({
+        subtesId: tryoutSoal.subtesId,
+        poinMaksimal: sql<number>`COALESCE(SUM(${tryoutSoal.poin}), 0)`.mapWith(Number),
+      })
+      .from(tryoutSoal)
+      .innerJoin(tryoutSubtes, eq(tryoutSoal.subtesId, tryoutSubtes.id))
+      .where(eq(tryoutSubtes.tryoutId, tryoutId))
+      .groupBy(tryoutSoal.subtesId),
+    db.select({ id: tryoutSubtes.id }).from(tryoutSubtes).where(eq(tryoutSubtes.tryoutId, tryoutId)),
+  ]);
+
+  return {
+    poinMaksimal: new Map(poinRows.map((row) => [row.subtesId, row.poinMaksimal] as const)),
+    jumlahSubtes: subtesRows.length,
+  };
+}
+
+/** Total skor skala 200-800 = rata-rata skor subtes; subtes yang belum dikerjakan dihitung 200. */
+function hitungTotalSkorSkala(
+  sesiSubtes: Array<{ subtesId: string; skorSubtes: number | null }>,
+  skala: SkalaTryout | undefined,
+): number {
+  const skorTiapSubtes = sesiSubtes.map((ss) =>
+    hitungSkorSkala(ss.skorSubtes ?? 0, skala?.poinMaksimal.get(ss.subtesId) ?? 0),
+  );
+  return hitungRataRataSkor(skorTiapSubtes, skala?.jumlahSubtes ?? skorTiapSubtes.length);
+}
 
 type TryoutQuestionItem = {
   sesiSoalId: string;
@@ -258,10 +292,7 @@ export const tryoutRepo = {
 
     // Ambil jawaban yang sudah dipilih
     const sesiId = sesiSoalList[0]?.sesiSubtes.sesiId;
-    const jawabanMap = new Map<
-      string,
-      { pilihanId: string | null; pilihanIds: string[] }
-    >();
+    const jawabanMap = new Map<string, { pilihanId: string | null; pilihanIds: string[] }>();
     if (sesiId) {
       const jawaban = await db.query.tryoutJawaban.findMany({
         where: eq(tryoutJawaban.sesiId, sesiId),
@@ -278,7 +309,7 @@ export const tryoutRepo = {
           pilihanIds: j.pilihanIds ?? [],
         });
       });
-     }
+    }
 
     return sesiSoalList.map((ss) => ({
       sesiSoalId: ss.id,
@@ -291,7 +322,7 @@ export const tryoutRepo = {
       jawaban_dipilih: jawabanMap.get(ss.id)?.pilihanId ?? null,
       jawaban_dipilih_multi: jawabanMap.get(ss.id)?.pilihanIds ?? [],
       is_ragu: ss.isRagu,
-      }));
+    }));
   },
 
   /**
@@ -329,9 +360,7 @@ export const tryoutRepo = {
     }
 
     const isMultiple = sesiSoal.soal.tipe === "multiple";
-    const selectedIds = isMultiple
-      ? [...new Set(pilihanIds ?? [])]
-      : [];
+    const selectedIds = isMultiple ? [...new Set(pilihanIds ?? [])] : [];
 
     let savedPilihanId: string | null = null;
     let savedPilihanIds: string[] | null = null;
@@ -343,15 +372,10 @@ export const tryoutRepo = {
         .filter((pilihan) => pilihan.isBenar)
         .map((pilihan) => pilihan.id);
 
-      const pilihanValid = new Set(
-        sesiSoal.soal.pilihanJawaban.map((pilihan) => pilihan.id),
-      );
+      const pilihanValid = new Set(sesiSoal.soal.pilihanJawaban.map((pilihan) => pilihan.id));
 
       if (selectedIds.some((id) => !pilihanValid.has(id))) {
-        throw new TryoutError(
-          "BAD_REQUEST",
-          "Pilihan jawaban tidak sesuai dengan soal",
-        );
+        throw new TryoutError("BAD_REQUEST", "Pilihan jawaban tidak sesuai dengan soal");
       }
 
       savedPilihanIds = selectedIds.length > 0 ? selectedIds : null;
@@ -368,16 +392,11 @@ export const tryoutRepo = {
       savedPilihanId = pilihanId;
 
       const pilihan = savedPilihanId
-        ? sesiSoal.soal.pilihanJawaban.find(
-            (item) => item.id === savedPilihanId,
-          )
+        ? sesiSoal.soal.pilihanJawaban.find((item) => item.id === savedPilihanId)
         : undefined;
 
       if (savedPilihanId && !pilihan) {
-        throw new TryoutError(
-          "BAD_REQUEST",
-          "Pilihan jawaban tidak sesuai dengan soal",
-        );
+        throw new TryoutError("BAD_REQUEST", "Pilihan jawaban tidak sesuai dengan soal");
       }
 
       isBenar = pilihan?.isBenar ?? false;
@@ -387,9 +406,7 @@ export const tryoutRepo = {
       }
     }
 
-    const isDijawab = isMultiple
-      ? selectedIds.length > 0
-      : savedPilihanId !== null;
+    const isDijawab = isMultiple ? selectedIds.length > 0 : savedPilihanId !== null;
 
     const existingJawaban = await db.query.tryoutJawaban.findFirst({
       where: eq(tryoutJawaban.sesiSoalId, sesiSoalId),
@@ -601,21 +618,31 @@ export const tryoutRepo = {
       where: eq(tryoutSesiSubtes.sesiId, sesiId),
     });
 
-    const totalSkor = allSubtesScores.reduce((sum, ss) => sum + (ss.skorSubtes || 0), 0);
+    const skala = await getSkalaTryout(db, sesi.tryoutId);
+    const totalSkor = hitungTotalSkorSkala(allSubtesScores, skala);
 
-    // Ambil semua sesi untuk tryout yang sama untuk hitung peringkat
-    const allSesi = await db
+    // Hitung peringkat: bandingkan total skor skala semua sesi pada tryout yang sama
+    const semuaSubtesTryout = await db
       .select({
-        id: tryoutSesi.id,
-        totalSkor: sql<number>`COALESCE(SUM(${tryoutSesiSubtes.skorSubtes}), 0)`.as("total_skor"),
+        sesiId: tryoutSesi.id,
+        subtesId: tryoutSesiSubtes.subtesId,
+        skorSubtes: tryoutSesiSubtes.skorSubtes,
       })
       .from(tryoutSesi)
       .leftJoin(tryoutSesiSubtes, eq(tryoutSesi.id, tryoutSesiSubtes.sesiId))
-      .where(eq(tryoutSesi.tryoutId, sesi.tryoutId))
-      .groupBy(tryoutSesi.id)
-      .orderBy(desc(sql`total_skor`));
+      .where(eq(tryoutSesi.tryoutId, sesi.tryoutId));
 
-    const ranking = allSesi.findIndex((s) => s.id === sesiId) + 1;
+    const subtesPerSesi = new Map<string, Array<{ subtesId: string; skorSubtes: number | null }>>();
+    for (const row of semuaSubtesTryout) {
+      const daftar = subtesPerSesi.get(row.sesiId) ?? [];
+      if (row.subtesId !== null) {
+        daftar.push({ subtesId: row.subtesId, skorSubtes: row.skorSubtes });
+      }
+      subtesPerSesi.set(row.sesiId, daftar);
+    }
+
+    const totalSemuaSesi = [...subtesPerSesi.values()].map((daftar) => hitungTotalSkorSkala(daftar, skala));
+    const ranking = totalSemuaSesi.filter((skor) => skor > totalSkor).length + 1;
 
     // Ambil skor per subtes dengan relasi
     const subtesScores = await db.query.tryoutSesiSubtes.findMany({
@@ -646,7 +673,7 @@ export const tryoutRepo = {
           subtesId: ss.subtesId,
           namaSubtes: ss.subtes.namaSubtes,
           durasiMenit: ss.subtes.durasiMenit,
-          skor: ss.skorSubtes || 0,
+          skor: hitungSkorSkala(ss.skorSubtes ?? 0, skala.poinMaksimal.get(ss.subtesId) ?? 0),
           isLulus: ss.isLulus,
           benar,
           salah,
@@ -793,14 +820,25 @@ export const tryoutRepo = {
         },
         sesiSubtes: {
           columns: {
+            subtesId: true,
             skorSubtes: true,
           },
         },
       },
     });
 
+    const tryoutIds = [...new Set(history.map((h) => h.tryoutId))];
+    const skalaPerTryout = new Map(
+      await Promise.all(
+        tryoutIds.map(async (tryoutId) => {
+          const skala = await getSkalaTryout(db, tryoutId);
+          return [tryoutId, skala] as const;
+        }),
+      ),
+    );
+
     return history.map((h) => {
-      const totalSkor = h.sesiSubtes.reduce((sum, ss) => sum + (ss.skorSubtes || 0), 0);
+      const totalSkor = hitungTotalSkorSkala(h.sesiSubtes, skalaPerTryout.get(h.tryoutId));
       return {
         id: h.id,
         tryoutId: h.tryoutId,

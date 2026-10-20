@@ -88,3 +88,26 @@ export function checkPembahasanAccess(isPremium: boolean, premiumExpiresAt: Date
   if (!premiumExpiresAt) return false;
   return new Date() < premiumExpiresAt;
 }
+
+export const SKOR_MINIMUM = 200;
+export const SKOR_MAKSIMUM = 800;
+
+/**
+ * Konversi poin mentah ke skala 200-800 (linear, bukan IRT).
+ */
+export function hitungSkorSkala(poinDidapat: number, poinMaksimal: number): number {
+  if (poinMaksimal <= 0) return SKOR_MINIMUM;
+  const rasio = Math.min(Math.max(poinDidapat / poinMaksimal, 0), 1);
+  return Math.round(SKOR_MINIMUM + rasio * (SKOR_MAKSIMUM - SKOR_MINIMUM));
+}
+
+/**
+ * Rata-rata skor subtes. Subtes yang belum dikerjakan dihitung SKOR_MINIMUM.
+ */
+export function hitungRataRataSkor(skorSubtes: number[], jumlahSubtes: number): number {
+  const pembagi = Math.max(jumlahSubtes, skorSubtes.length);
+  if (pembagi === 0) return SKOR_MINIMUM;
+  const belumDikerjakan = pembagi - skorSubtes.length;
+  const jumlah = skorSubtes.reduce((total, skor) => total + skor, 0) + belumDikerjakan * SKOR_MINIMUM;
+  return Math.round(jumlah / pembagi);
+}
