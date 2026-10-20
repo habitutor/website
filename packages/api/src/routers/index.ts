@@ -5,6 +5,7 @@ import { adminDashboardContentRouter } from "./admin/dashboard-content";
 import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminPromoRouter } from "./admin/promos";
 import { adminQuestionRouter } from "./admin/question";
+import { adminRecordingRouter } from "./admin/recording";
 import { adminReferralRouter } from "./admin/referrals";
 import { adminStatisticsRouter } from "./admin/statistics";
 import { adminTryoutRouter } from "./admin/tryout";
@@ -30,6 +31,7 @@ import { flashcardRouter } from "./flashcard";
 import { notificationRouter } from "./notification";
 import { practicePackRouter } from "./practice-pack";
 import { profileRouter } from "./profile";
+import { recordingRouter } from "./recording";
 import { referralRouter } from "./referral";
 import { socialRouter } from "./social";
 import { streakRouter } from "./streak";
@@ -85,6 +87,7 @@ const adminRouter: {
   promos: typeof adminPromoRouter;
   referrals: typeof adminReferralRouter;
   dashboardContent: typeof adminDashboardContentRouter;
+  recording: typeof adminRecordingRouter;
 } = {
   statistics: adminStatisticsRouter,
   universitas: adminUniversitasRouter,
@@ -122,6 +125,7 @@ const adminRouter: {
   promos: adminPromoRouter,
   referrals: adminReferralRouter,
   dashboardContent: adminDashboardContentRouter,
+  recording: adminRecordingRouter,
 };
 
 export const appRouter: {
@@ -139,6 +143,7 @@ export const appRouter: {
   referral: typeof referralRouter;
   streak: typeof streakRouter;
   notification: typeof notificationRouter;
+  recording: typeof recordingRouter;
 } = {
   healthCheck,
   social: socialRouter,
@@ -154,6 +159,7 @@ export const appRouter: {
   referral: referralRouter,
   streak: streakRouter,
   notification: notificationRouter,
+  recording: recordingRouter,
 };
 
 export type AppRouter = typeof appRouter;
