@@ -3,6 +3,7 @@ import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { type } from "arktype";
 import { admin } from "../../../index";
 import { adminUserRepo } from "./repo";
+import { freemiumRepo } from "../../student/tryout/freemium-repo";
 
 interface CursorData {
   createdAt: string;
@@ -179,9 +180,36 @@ const exportUsers = admin
     return { data: users, total: users.length };
   });
 
+const activateUserFreemium = admin
+  .route({
+    path: "/admin/users/{id}/freemium",
+    method: "PUT",
+    tags: ["Admin - Users"],
+  })
+  .input(type({ id: "string" }))
+  .handler(async ({ input }) => {
+    const existingUser = await adminUserRepo.getById({ id: input.id });
+
+    if (!existingUser) {
+      throw new ORPCError("NOT_FOUND", {
+        message: "User tidak ditemukan",
+      });
+    }
+
+    await freemiumRepo.activatePaid({ userId: input.id });
+
+    return {
+      id: existingUser.id,
+      name: existingUser.name,
+      email: existingUser.email,
+      freemiumPaid: true,
+    };
+  });
+
 export const adminUserRouter = {
   list: listUsers,
   packages: listPackages,
   export: exportUsers,
   premium: { update: updateUserPremium },
+  freemium: { activate: activateUserFreemium },
 };
