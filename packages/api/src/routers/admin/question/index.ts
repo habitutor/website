@@ -129,7 +129,7 @@ const create = admin
       discussion: discussionText,
       contentJson,
       discussionJson,
-      isFlashcardQuestion: input.isFlashcardQuestion ?? true,
+      isFlashcardQuestion: input.isFlashcardQuestion ?? false,
     });
 
     if (!q)

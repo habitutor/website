@@ -159,7 +159,7 @@ export function QuestionForm({
     defaultValues: {
       content: (initialData?.content ?? {}) as unknown,
       discussion: (initialData?.discussion ?? {}) as unknown,
-      isFlashcardQuestion: initialData?.isFlashcardQuestion ?? true,
+      isFlashcardQuestion: initialData?.isFlashcardQuestion ?? false,
     },
     onSubmit: async ({ value }) => {
       const validation = validateQuestionFormSubmission(value, answerOptions);
