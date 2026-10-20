@@ -30,7 +30,7 @@ WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app/ .
 COPY . .
 RUN turbo prune server
-RUN turbo build --filter=server
+RUN turbo build --filter=server --force
 
 FROM configs AS runner
 COPY --from=builder /usr/src/app/apps/server/dist/ .
