@@ -31,7 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FREEMIUM_LINKS, FREEMIUM_PRICE_LABEL, isFreemiumLinkReady } from "@/lib/freemium-links";
+import { FREEMIUM_LINKS, FREEMIUM_PRICE_LABEL, buildBroadcastText, isFreemiumLinkReady } from "@/lib/freemium-links";
 import { useMidtransScript } from "@/lib/midtrans";
 import { cn } from "@/lib/utils";
 import { client, orpc } from "@/utils/orpc";
@@ -155,11 +155,12 @@ export function FreemiumWhatsappInvite() {
 }
 
 function BroadcastTextBox() {
-  if (!isFreemiumLinkReady(FREEMIUM_LINKS.broadcastText)) return null;
+  // Dihitung saat render supaya H-N dan tanggal pendaftaran selalu sesuai hari ini.
+  const broadcastText = buildBroadcastText();
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(FREEMIUM_LINKS.broadcastText);
+      await navigator.clipboard.writeText(broadcastText);
       toast.success("Teks BC disalin");
     } catch {
       toast.error("Gagal menyalin teks, salin manual ya");
@@ -168,7 +169,7 @@ function BroadcastTextBox() {
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-gray-50 p-3 text-sm">
-      <p className="whitespace-pre-wrap text-gray-700">{FREEMIUM_LINKS.broadcastText}</p>
+      <p className="whitespace-pre-wrap text-gray-700">{broadcastText}</p>
       <Button type="button" variant="outline" size="sm" className="w-fit" onClick={handleCopy}>
         <CopyIcon /> Salin teks BC
       </Button>
@@ -308,11 +309,7 @@ export function FreemiumRequirementsDialog({
               </li>
               <li className="flex flex-col gap-2">
                 <span className="font-semibold">3. Share BC ke 5 grup WhatsApp</span>
-                {isFreemiumLinkReady(FREEMIUM_LINKS.broadcastText) ? (
-                  <BroadcastTextBox />
-                ) : (
-                  <span className="text-xs text-muted-foreground">Teks BC akan segera tersedia.</span>
-                )}
+                <BroadcastTextBox />
               </li>
             </ol>
 
