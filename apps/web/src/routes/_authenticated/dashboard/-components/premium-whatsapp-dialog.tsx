@@ -12,16 +12,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { COMMUNITY_LINKS } from "@/lib/community-links";
+import { getPremiumWhatsappLink, type PremiumPlan } from "@/lib/community-links";
 import { orpc } from "@/utils/orpc";
 
-// Link yang masih placeholder (diawali "ISI_") tidak ditampilkan supaya tidak ada tombol rusak.
-const WHATSAPP_GROUPS = [
-  { label: "Gabung Grup Paket Premium 1 Tahun (Paket Perintis 2027)", href: COMMUNITY_LINKS.premiumWhatsapp },
-  { label: "Gabung Grup Paket Premium 2 Bulan", href: COMMUNITY_LINKS.premium2BulanWhatsapp },
-].filter((group) => !group.href.startsWith("ISI_"));
+const WHATSAPP_GROUP_LABEL: Record<PremiumPlan, string> = {
+  perintis2027: "Gabung Grup Paket Perintis 2027",
+  paket2bulan: "Gabung Grup Paket 2 Bulan",
+};
 
-export function PremiumWhatsappDialog({ open }: { open: boolean }) {
+export function PremiumWhatsappDialog({ open, plan }: { open: boolean; plan?: PremiumPlan | null }) {
+  const groupLabel = WHATSAPP_GROUP_LABEL[plan ?? "perintis2027"];
+  const groupHref = getPremiumWhatsappLink(plan);
   const queryClient = useQueryClient();
   const [hasJoined, setHasJoined] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -43,7 +44,7 @@ export function PremiumWhatsappDialog({ open }: { open: boolean }) {
   return (
     <Dialog open={open && !dismissed}>
       <DialogContent
-        className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md"
+        className="max-h-[calc(100dvh-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-md [&>*]:min-w-0"
         showCloseButton={false}
         onEscapeKeyDown={(event) => event.preventDefault()}
         onPointerDownOutside={(event) => event.preventDefault()}
@@ -55,21 +56,19 @@ export function PremiumWhatsappDialog({ open }: { open: boolean }) {
           </div>
           <DialogTitle>Gabung Komunitas WhatsApp Premium</DialogTitle>
           <DialogDescription>
-            Dapatkan pengumuman kelas, diskusi belajar, dan informasi khusus member premium Habitutor. Pilih grup sesuai
-            paket yang kamu ambil.
+            Dapatkan pengumuman kelas, diskusi belajar, dan informasi khusus member premium Habitutor.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2">
-          {WHATSAPP_GROUPS.map((group) => (
-            <Button key={group.label} asChild className="w-full bg-whatsapp text-white hover:bg-whatsapp/90">
-              <a href={group.href} target="_blank" rel="noopener noreferrer">
-                {group.label}
-                <ArrowSquareOutIcon />
-              </a>
-            </Button>
-          ))}
-        </div>
+        <Button
+          asChild
+          className="h-auto w-full bg-whatsapp px-4 py-3 text-center whitespace-normal text-white hover:bg-whatsapp/90"
+        >
+          <a href={groupHref} target="_blank" rel="noopener noreferrer">
+            {groupLabel}
+            <ArrowSquareOutIcon />
+          </a>
+        </Button>
 
         <DialogFooter className="items-stretch gap-4 sm:flex-col">
           <Label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm font-normal">
@@ -78,7 +77,7 @@ export function PremiumWhatsappDialog({ open }: { open: boolean }) {
               checked={hasJoined}
               onCheckedChange={(checked) => setHasJoined(checked === true)}
             />
-            I have joined the WhatsApp community
+            Saya sudah bergabung di grup WhatsApp
           </Label>
           <Button disabled={!hasJoined} onClick={handleConfirm}>
             Selesai

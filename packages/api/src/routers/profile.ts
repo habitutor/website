@@ -4,6 +4,8 @@ import { referralCode } from "@habitutor/db/schema/referral";
 import { type } from "arktype";
 import { eq } from "drizzle-orm";
 import { authed } from "..";
+import { PAKET_2_BULAN, PERINTIS_2027 } from "../lib/constants";
+import { transactionRepo } from "./transaction/repo";
 
 const LEGACY_AVATAR_PATH_PATTERN = /\/avatar\/profile\/tupai-(\d+)\.webp$/;
 
@@ -37,6 +39,7 @@ const getProfile = authed
       "dailyGoalMinutes?": "number | null",
       hasSeenWelcomeVideo: "boolean",
       hasJoinedPremiumWhatsapp: "boolean",
+      premiumPlan: "'perintis2027' | 'paket2bulan' | null",
     }),
   )
   .handler(async ({ context }) => {
@@ -67,6 +70,13 @@ const getProfile = authed
       await db.update(user).set({ image: canonicalImage }).where(eq(user.id, id));
     }
 
+    let premiumPlan: typeof PERINTIS_2027.SLUG | typeof PAKET_2_BULAN.SLUG | null = null;
+      if (context.session.user.isPremium) {
+        const latest = await transactionRepo.getLatestSuccessfulSubscriptionByUserId({ userId: id });
+        if (latest?.prodSlug === PAKET_2_BULAN.SLUG) premiumPlan = PAKET_2_BULAN.SLUG;
+        else if (latest?.prodSlug === PERINTIS_2027.SLUG) premiumPlan = PERINTIS_2027.SLUG;
+}
+
     return {
       id,
       name: row?.name ?? context.session.user.name,
@@ -83,6 +93,7 @@ const getProfile = authed
       dailyGoalMinutes: row?.dailyGoalMinutes ?? null,
       hasSeenWelcomeVideo: row?.hasSeenWelcomeVideo ?? false,
       hasJoinedPremiumWhatsapp: row?.hasJoinedPremiumWhatsapp ?? false,
+      premiumPlan,
     };
   });
 
@@ -125,6 +136,7 @@ const updateProfile = authed
     if (Object.keys(updates).length > 0) {
       await db.update(user).set(updates).where(eq(user.id, context.session.user.id));
     }
+
     return { success: true };
   });
 

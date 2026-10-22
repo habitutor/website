@@ -12,6 +12,7 @@ declare global {
           onClose?: () => void;
         },
       ) => void;
+      hide?: () => void;
     };
   }
 }
