@@ -51,7 +51,11 @@ class Logger {
     if (meta && Object.keys(meta).length > 0) {
       const { stack, ...rest } = meta;
       if (Object.keys(rest).length > 0) {
-        line += ` ${JSON.stringify(rest)}`;
+        try {
+          line += ` ${JSON.stringify(rest)}`;
+        } catch {
+          line += " [metadata tidak dapat diserialisasi]";
+        }
       }
       if (stack) {
         line += `\n  Stack: ${stack}`;

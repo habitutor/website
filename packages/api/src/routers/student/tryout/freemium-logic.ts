@@ -46,9 +46,26 @@ export function canStartTryout(params: {
 }
 
 /**
- * Pembahasan lewat jalur freemium: harus sudah bayar dan TO tersebut adalah TO pilihannya.
+ * Pembahasan lewat jalur freemium: TO tersebut sudah dibuka user dengan salah satu jatah pembahasannya.
  */
-export function canViewFreemiumPembahasan(access: FreemiumAccess, tryoutId: string): boolean {
-  if (!access?.paidAt) return false;
-  return access.pembahasanTryoutId === tryoutId;
+export function canViewFreemiumPembahasan(unlockedTryoutIds: readonly string[], tryoutId: string): boolean {
+  return unlockedTryoutIds.includes(tryoutId);
+}
+
+export const FREEMIUM_PROOF_COUNT = 3;
+const FREEMIUM_PROOF_MAX_LENGTH = 6_000_000;
+const FREEMIUM_PROOF_PATTERN = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+
+/**
+ * Bukti syarat: tepat 3 foto (Instagram, TikTok, share BC) dalam bentuk data URL gambar.
+ * Mengembalikan pesan error, atau null kalau valid.
+ */
+export function validateRequirementProofs(proofs: readonly string[]): string | null {
+  if (proofs.length !== FREEMIUM_PROOF_COUNT) {
+    return `Upload ${FREEMIUM_PROOF_COUNT} foto bukti: follow Instagram, follow TikTok, dan share BC ke 5 grup WA`;
+  }
+  const invalid = proofs.some(
+    (proof) => proof.length > FREEMIUM_PROOF_MAX_LENGTH || !FREEMIUM_PROOF_PATTERN.test(proof),
+  );
+  return invalid ? "Bukti harus berupa gambar PNG, JPG, atau WebP dengan ukuran wajar" : null;
 }

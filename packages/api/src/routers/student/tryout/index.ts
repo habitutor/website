@@ -379,7 +379,7 @@ const getFreemiumStatus = authed
   });
 
 /**
- * Tandai syarat freemium sudah dipenuhi (pengakuan user)
+ * Simpan 3 foto bukti syarat; akses langsung terbuka tanpa menunggu admin
  * POST /tryout/freemium/complete-requirements
  */
 const completeFreemiumRequirements = authed
@@ -388,13 +388,14 @@ const completeFreemiumRequirements = authed
     method: "POST",
     tags: ["Student - Tryout"],
   })
-  .handler(async ({ context }) => {
+  .input(type({ proofs: "string[]" }))
+  .handler(async ({ input, context }) => {
     if (!context.session?.user?.id) {
       throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
     }
 
     try {
-      await freemiumRepo.completeRequirements({ userId: context.session.user.id });
+      await freemiumRepo.completeRequirements({ userId: context.session.user.id, proofs: input.proofs });
       return { success: true };
     } catch (error) {
       throw toOrpcError(error, "Gagal menyimpan syarat freemium");

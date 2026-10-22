@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { canStartTryout, canViewFreemiumPembahasan, hasFreemiumAccess } from "./freemium-logic";
+import {
+  canStartTryout,
+  canViewFreemiumPembahasan,
+  hasFreemiumAccess,
+  validateRequirementProofs,
+} from "./freemium-logic";
 
 const now = new Date("2026-10-20T00:00:00.000Z");
 const future = new Date("2027-01-01T00:00:00.000Z");
@@ -77,27 +82,45 @@ describe("canStartTryout", () => {
 });
 
 describe("canViewFreemiumPembahasan", () => {
-  test("hanya memenuhi syarat tidak dapat pembahasan", () => {
-    expect(
-      canViewFreemiumPembahasan({ requirementsCompletedAt: now, paidAt: null, pembahasanTryoutId: "to-1" }, "to-1"),
-    ).toBe(false);
+  test("tanpa TO yang dibuka = false", () => {
+    expect(canViewFreemiumPembahasan([], "to-1")).toBe(false);
   });
 
-  test("sudah bayar tapi belum memilih TO tidak dapat pembahasan", () => {
-    expect(
-      canViewFreemiumPembahasan({ requirementsCompletedAt: null, paidAt: now, pembahasanTryoutId: null }, "to-1"),
-    ).toBe(false);
+  test("TO yang sudah dibuka = true", () => {
+    expect(canViewFreemiumPembahasan(["to-1"], "to-1")).toBe(true);
   });
 
-  test("sudah bayar dan TO sama dapat pembahasan", () => {
-    expect(
-      canViewFreemiumPembahasan({ requirementsCompletedAt: null, paidAt: now, pembahasanTryoutId: "to-1" }, "to-1"),
-    ).toBe(true);
+  test("TO lain yang belum dibuka = false", () => {
+    expect(canViewFreemiumPembahasan(["to-1"], "to-2")).toBe(false);
   });
 
-  test("sudah bayar tapi TO berbeda tidak dapat pembahasan", () => {
-    expect(
-      canViewFreemiumPembahasan({ requirementsCompletedAt: null, paidAt: now, pembahasanTryoutId: "to-1" }, "to-2"),
-    ).toBe(false);
+  test("beli jatah lagi: beberapa TO bisa terbuka bersamaan", () => {
+    expect(canViewFreemiumPembahasan(["to-1", "to-2"], "to-1")).toBe(true);
+    expect(canViewFreemiumPembahasan(["to-1", "to-2"], "to-2")).toBe(true);
+    expect(canViewFreemiumPembahasan(["to-1", "to-2"], "to-3")).toBe(false);
+  });
+});
+
+describe("validateRequirementProofs", () => {
+  const png = "data:image/png;base64,iVBORw0KGgo=";
+
+  test("menerima tepat 3 gambar valid", () => {
+    expect(validateRequirementProofs([png, png, png])).toBeNull();
+  });
+
+  test("menolak jumlah bukti selain 3", () => {
+    expect(validateRequirementProofs([])).not.toBeNull();
+    expect(validateRequirementProofs([png, png])).not.toBeNull();
+    expect(validateRequirementProofs([png, png, png, png])).not.toBeNull();
+  });
+
+  test("menolak data yang bukan gambar", () => {
+    expect(validateRequirementProofs([png, png, "https://evil.example/x.png"])).not.toBeNull();
+    expect(validateRequirementProofs([png, png, "data:text/html;base64,PHNjcmlwdD4="])).not.toBeNull();
+  });
+
+  test("menolak gambar yang terlalu besar", () => {
+    const huge = `data:image/png;base64,${"A".repeat(6_000_001)}`;
+    expect(validateRequirementProofs([png, png, huge])).not.toBeNull();
   });
 });

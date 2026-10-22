@@ -18,10 +18,12 @@ export async function createSubscriptionTransaction({
   name,
   grossAmount,
   session,
+  returnPath,
 }: {
   id: string;
   name: string;
   grossAmount: number;
+  returnPath?: string;
   session: {
     user: {
       name: string;
@@ -48,11 +50,17 @@ export async function createSubscriptionTransaction({
       email: session.user.email,
     },
     credit_card: { secure: true },
-    callbacks: {
-      finish: `${process.env.CORS_ORIGIN}/premium/payment/finish`,
-      error: `${process.env.CORS_ORIGIN}/premium/payment/error`,
-      pending: `${process.env.CORS_ORIGIN}/premium/payment/unfinish`,
-    },
+    callbacks: returnPath
+      ? {
+          finish: `${process.env.CORS_ORIGIN}${returnPath}`,
+          error: `${process.env.CORS_ORIGIN}${returnPath}`,
+          pending: `${process.env.CORS_ORIGIN}${returnPath}`,
+        }
+      : {
+          finish: `${process.env.CORS_ORIGIN}/premium/payment/finish`,
+          error: `${process.env.CORS_ORIGIN}/premium/payment/error`,
+          pending: `${process.env.CORS_ORIGIN}/premium/payment/unfinish`,
+        },
   };
 
   const snapTransaction = await getSnap().createTransaction(params);
@@ -105,7 +113,12 @@ export async function createMobileCharge({
   };
   const payload =
     method === "qris"
-      ? { payment_type: "qris", ...base, qris: { acquirer: "gopay" }, custom_expiry: { expiry_duration: 15, unit: "minute" } }
+      ? {
+          payment_type: "qris",
+          ...base,
+          qris: { acquirer: "gopay" },
+          custom_expiry: { expiry_duration: 15, unit: "minute" },
+        }
       : { payment_type: "bank_transfer", ...base, bank_transfer: { bank } };
 
   const response = await fetch(
