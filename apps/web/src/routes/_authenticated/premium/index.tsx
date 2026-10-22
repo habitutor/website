@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ function RouteComponent() {
   const { session } = Route.useRouteContext();
   const router = useRouter();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
   const validatePromoMutation = useMutation(orpc.transaction.validatePromo.mutationOptions());
   const [paymentToken, setPaymentToken] = useState<string>();
@@ -43,13 +44,28 @@ function RouteComponent() {
   const isPremium = session?.user.isPremium ?? false;
   const pendingPlan = transactionMutation.isPending ? transactionMutation.variables?.name : undefined;
 
+  // premiumTier sama untuk semua paket, jadi paket yang dibeli dibaca dari profil.
+  const { data: profile, isPending: isProfilePending } = useQuery(orpc.profile.me.queryOptions());
+  const isPlanLoading = isPremium && isProfilePending;
+  const subscribedPlan: PlanSlug | undefined = isPremium ? (profile?.premiumPlan ?? "perintis2027") : undefined;
+
   useMidtransScript();
   usePremiumPaymentEffect({
     paymentToken,
     paymentRedirectUrl,
     paymentOrderId,
     invalidateRouter: router.invalidate,
-    onCompleted: () => navigate({ to: "/premium" }),
+    onCompleted: () => {
+      // Paket yang dibeli berubah, jadi profil (premiumPlan) harus dimuat ulang.
+      void queryClient.invalidateQueries({ queryKey: orpc.profile.me.queryKey() });
+      navigate({ to: "/premium" });
+    },
+    onClosed: () => {
+      setPaymentToken(undefined);
+      setPaymentRedirectUrl(undefined);
+      setPaymentOrderId(undefined);
+      setInitiatedPlan(undefined);
+    },
   });
 
   const handleSubscribe = (plan: PlanSlug) => {
@@ -97,41 +113,50 @@ function RouteComponent() {
   return (
     <MotionStagger className="mt-4 flex flex-col gap-6 sm:-mt-3">
       <MotionStaggerItem>
-        <PremiumHeader session={session} />
+        <PremiumHeader
+          session={session}
+          subscribedPlan={isPlanLoading ? undefined : subscribedPlan}
+        />
       </MotionStaggerItem>
 
       <MotionStaggerItem>
         <div className="rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
-          <div
-            className={
-              isPremium
-                ? ""
-                : "mx-auto grid w-full max-w-4xl grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0"
-            }
-          >
-            <Perintis2027Plan
-              isPremium={isPremium}
-              isPending={pendingPlan === "perintis2027"}
-              onSubscribe={() => handleSubscribe("perintis2027")}
-              promoCode={promoCode}
-              onPromoCodeChange={(value) => {
-                setPromoCode(value);
-                setPromoFeedback(undefined);
-              }}
-              onValidatePromo={handleValidatePromo}
-              promoFeedback={promoFeedback}
-              isPromoValidating={validatePromoMutation.isPending}
-              hasInitiatedPurchase={initiatedPlan === "perintis2027"}
-            />
-            {!isPremium && (
-              <Paket2BulanCard
-                mode="checkout"
-                isPending={pendingPlan === "paket2bulan"}
-                onSubscribe={() => handleSubscribe("paket2bulan")}
-                hasInitiatedPurchase={initiatedPlan === "paket2bulan"}
+          {isPlanLoading ? null : subscribedPlan === "paket2bulan" ? (
+            <div className="mx-auto h-full w-full max-w-2xl">
+              <Paket2BulanCard mode="checkout" isPremium />
+            </div>
+          ) : (
+            <div
+              className={
+                isPremium
+                  ? ""
+                  : "mx-auto grid w-full max-w-4xl grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0"
+              }
+            >
+              <Perintis2027Plan
+                isPremium={isPremium}
+                isPending={pendingPlan === "perintis2027"}
+                onSubscribe={() => handleSubscribe("perintis2027")}
+                promoCode={promoCode}
+                onPromoCodeChange={(value) => {
+                  setPromoCode(value);
+                  setPromoFeedback(undefined);
+                }}
+                onValidatePromo={handleValidatePromo}
+                promoFeedback={promoFeedback}
+                isPromoValidating={validatePromoMutation.isPending}
+                hasInitiatedPurchase={initiatedPlan === "perintis2027"}
               />
-            )}
-          </div>
+              {!isPremium && (
+                <Paket2BulanCard
+                  mode="checkout"
+                  isPending={pendingPlan === "paket2bulan"}
+                  onSubscribe={() => handleSubscribe("paket2bulan")}
+                  hasInitiatedPurchase={initiatedPlan === "paket2bulan"}
+                />
+              )}
+            </div>
+          )}
           <PricingExtras />
         </div>
       </MotionStaggerItem>

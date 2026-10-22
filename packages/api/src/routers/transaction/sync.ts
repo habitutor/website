@@ -171,9 +171,14 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
           currentExpiresAt: currentPremium?.premiumExpiresAt,
         }),
       });
-      if (!alreadySuccessful) premiumUnlockedUserIds.push(tx.userId);
+      if (!alreadySuccessful) {
+        premiumUnlockedUserIds.push(tx.userId);
+        // Only on the first transition into success, so replayed webhooks
+        // never re-open the invite for someone who already joined.
+        await transactionRepo.resetPremiumWhatsappJoined({ db: trx, userId: tx.userId });
+      }
     }
-
+          
     // Akses Freemium TryOut (Rp10.000): aktif otomatis begitu pembayaran settle.
     if (existingTransaction.prodSlug === FREEMIUM_PRODUCT.SLUG && tx.userId) {
       await freemiumRepo.activatePaid({ db: trx, userId: tx.userId, transactionId: orderId });

@@ -20,6 +20,7 @@ type Paket2BulanCardProps = {
   isPending?: boolean;
   onSubscribe?: () => void;
   hasInitiatedPurchase?: boolean;
+    isPremium?: boolean;
 };
 
 const CTA_CLASS_NAME = cn(
@@ -29,6 +30,7 @@ const CTA_CLASS_NAME = cn(
 
 export function Paket2BulanCard({
   mode = "marketing",
+  isPremium = false,
   isPending = false,
   onSubscribe,
   hasInitiatedPurchase = false,
@@ -86,19 +88,23 @@ export function Paket2BulanCard({
             <>
               <button
                 type="button"
-                disabled={isPending}
+                disabled={isPremium || isPending}
                 onClick={onSubscribe}
-                className={cn(CTA_CLASS_NAME, "cursor-pointer disabled:cursor-default disabled:opacity-70")}
+                className={cn(
+                  CTA_CLASS_NAME,
+                  "cursor-pointer disabled:cursor-default disabled:opacity-70",
+                  isPremium && "bg-primary-100 text-primary-600 opacity-100",
+                )}
               >
-                {isPending ? "Memproses..." : "Ambil Paket 2 Bulan"}
+                {isPremium ? "Kamu sudah berlangganan paket ini!" : isPending ? "Memproses..." : "Ambil Paket 2 Bulan"}
               </button>
-              {hasInitiatedPurchase && (
+              {hasInitiatedPurchase && !isPremium && (
                 <p className="rounded-lg border border-yellow-300 bg-yellow-50 px-3 py-2 text-center text-xs font-semibold text-yellow-800">
                   Tunggu 15 Menit — pembayaranmu sedang diproses, status premium akan aktif otomatis setelah
                   terkonfirmasi.
                 </p>
-              )}
-            </>
+              )} 
+          </>
           ) : (
             <Link to="/premium" className={CTA_CLASS_NAME}>
               Ambil Paket 2 Bulan

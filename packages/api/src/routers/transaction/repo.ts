@@ -131,6 +131,13 @@ export const transactionRepo = {
     return result;
   },
 
+  // A new paid purchase must show the WhatsApp invite again: the flag is
+  // permanent otherwise, so someone who joined during an earlier package
+  // (e.g. Paket 2 Bulan) would never see the invite for their next one.
+  resetPremiumWhatsappJoined: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+    await db.update(user).set({ hasJoinedPremiumWhatsapp: false }).where(eq(user.id, userId));
+  },
+
   getUserPremiumState: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [result] = await db
       .select({ isPremium: user.isPremium, premiumExpiresAt: user.premiumExpiresAt })

@@ -5,7 +5,7 @@ import { Image } from "@unpic/react";
 import { useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
-import { COMMUNITY_LINKS } from "@/lib/community-links";
+import { COMMUNITY_LINKS, getPremiumWhatsappLink } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
@@ -49,7 +49,7 @@ function RouteComponent() {
     <>
       <WelcomeVideoDialog open={showWelcomeVideo} />
 
-      <PremiumWhatsappDialog open={showPremiumWhatsapp} />
+      <PremiumWhatsappDialog open={showPremiumWhatsapp} plan={profile?.premiumPlan} />
 
       <PWATutorialDialog open={pwaDialog && !showWelcomeVideo && !showPremiumWhatsapp} onOpenChange={setPwaDialog} />
 
@@ -101,8 +101,7 @@ function RouteComponent() {
               </a>
               {session?.user.isPremium && (
                 <a
-                  href={COMMUNITY_LINKS.premiumWhatsapp}
-                  rel="noopener noreferrer"
+                  href={getPremiumWhatsappLink(profile?.premiumPlan)}                  rel="noopener noreferrer"
                   target="_blank"
                   className="group relative overflow-clip bg-primary-300 hover:bg-primary-200"
                 >

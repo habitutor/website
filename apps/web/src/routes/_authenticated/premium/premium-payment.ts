@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { refreshAuthSession } from "@/lib/auth-session";
 import { client } from "@/utils/orpc";
@@ -40,6 +40,7 @@ type PremiumPaymentEffectOptions = {
   paymentOrderId?: string;
   invalidateRouter: () => Promise<void>;
   onCompleted: () => void;
+  onClosed?: () => void; // baru: reset state token di parent
 };
 
 export function usePremiumPaymentEffect({
@@ -48,34 +49,47 @@ export function usePremiumPaymentEffect({
   paymentOrderId,
   invalidateRouter,
   onCompleted,
+  onClosed,
 }: PremiumPaymentEffectOptions) {
+  const latest = useRef({ invalidateRouter, onCompleted, onClosed, paymentOrderId });
+  latest.current = { invalidateRouter, onCompleted, onClosed, paymentOrderId };
+
+const openedTokenRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
     if (!paymentToken) return;
+    if (openedTokenRef.current === paymentToken) return; // cegah double-call
+    openedTokenRef.current = paymentToken;
 
-    const completePremiumUpgrade = async () => {
-      await refreshAuthSession({
-        invalidateRouter,
-      });
-      onCompleted();
+    const reset = () => {
+      openedTokenRef.current = undefined;
+      latest.current.onClosed?.();
     };
 
     if (window.snap) {
+      try {
+        window.snap.hide?.(); // pastikan state Snap bersih
+      } catch {}
+
       window.snap.pay(paymentToken, {
         onSuccess: async () => {
-          if (paymentOrderId) {
-            await waitForPremiumActivation(paymentOrderId);
-          }
-
-          await completePremiumUpgrade();
+          const orderId = latest.current.paymentOrderId;
+          if (orderId) await waitForPremiumActivation(orderId);
+          await refreshAuthSession({ invalidateRouter: latest.current.invalidateRouter });
+          latest.current.onCompleted();
+          reset();
         },
         onPending: () => {
           toast.info("Menunggu pembayaran...");
+          reset();
         },
         onError: () => {
           toast.error("Pembayaran gagal. Silakan coba lagi.");
+          reset();
         },
         onClose: () => {
           toast.warning("Pembayaran dibatalkan.");
+          reset();
         },
       });
       return;
@@ -84,5 +98,5 @@ export function usePremiumPaymentEffect({
     if (paymentRedirectUrl) {
       window.location.href = paymentRedirectUrl;
     }
-  }, [invalidateRouter, onCompleted, paymentOrderId, paymentRedirectUrl, paymentToken]);
+  }, [paymentToken, paymentRedirectUrl]);
 }
