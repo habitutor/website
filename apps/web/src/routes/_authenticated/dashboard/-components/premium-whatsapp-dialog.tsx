@@ -17,8 +17,8 @@ import { orpc } from "@/utils/orpc";
 
 // Link yang masih placeholder (diawali "ISI_") tidak ditampilkan supaya tidak ada tombol rusak.
 const WHATSAPP_GROUPS = [
-  { label: "Gabung Grup Paket Perintis 2027", href: COMMUNITY_LINKS.premiumWhatsapp },
-  { label: "Gabung Grup Paket 2 Bulan", href: COMMUNITY_LINKS.premium2BulanWhatsapp },
+  { label: "Gabung Grup Paket Premium 1 Tahun (Paket Perintis 2027)", href: COMMUNITY_LINKS.premiumWhatsapp },
+  { label: "Gabung Grup Paket Premium 2 Bulan", href: COMMUNITY_LINKS.premium2BulanWhatsapp },
 ].filter((group) => !group.href.startsWith("ISI_"));
 
 export function PremiumWhatsappDialog({ open }: { open: boolean }) {
