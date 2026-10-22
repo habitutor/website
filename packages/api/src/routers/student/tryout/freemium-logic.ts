@@ -1,10 +1,10 @@
 import { isAdminRole } from "@habitutor/shared/auth-domain";
 
 /**
- * Saklar gerbang freemium. Biarkan false sampai tampilan siswa (dialog syarat/bayar) sudah live,
- * lalu ubah jadi true lewat PR terpisah.
+ * Saklar gerbang freemium. true = siswa harus memenuhi syarat atau bayar sebelum mengerjakan TO.
+ * Kembalikan ke false (PR satu baris) untuk membuka TO bagi semua siswa seperti semula.
  */
-export const FREEMIUM_GATE_ENABLED = false;
+export const FREEMIUM_GATE_ENABLED = true;
 
 export const FREEMIUM_REQUIRED_MESSAGE = "Selesaikan syarat atau bayar Rp10.000 untuk mulai mengerjakan TO";
 
