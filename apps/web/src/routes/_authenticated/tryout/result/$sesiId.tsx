@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  ListNumbersIcon,
-  LockKeyIcon,
-  StarIcon,
-} from "@phosphor-icons/react";
+import { ArrowLeftIcon, ArrowRightIcon, CheckCircleIcon, ClockIcon, ListNumbersIcon } from "@phosphor-icons/react";
 import { Image } from "@unpic/react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { cn } from "@/lib/utils";
+import { PembahasanPaywall } from "../-components/freemium-access";
 
 export const Route = createFileRoute("/_authenticated/tryout/result/$sesiId")({
   head: () => ({
@@ -117,25 +110,11 @@ function TryoutResultPage() {
             </div>
 
             {/* Konten Paywall */}
-            <div className="relative z-10 flex flex-col items-center gap-4 px-6">
-              <div className="flex size-20 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 shadow-inner">
-                <LockKeyIcon size={40} weight="fill" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-800 md:text-3xl">Pembahasan Terkunci</h2>
-              <p className="max-w-md text-sm text-slate-600 md:text-base">
-                Akses evaluasi detail, kunci jawaban yang benar, dan pembahasan langkah demi langkah khusus untuk
-                pengguna Premium.
-              </p>
-              <Button
-                asChild
-                size="lg"
-                className="mt-4 bg-[#F2C94C] font-bold text-slate-900 shadow-md hover:bg-[#F2C94C]/90"
-              >
-                <Link to="/premium">
-                  <StarIcon weight="fill" className="mr-2" size={20} /> Upgrade ke Premium
-                </Link>
-              </Button>
-            </div>
+            <PembahasanPaywall
+              tryoutId={result.tryoutId}
+              paid={result.freemium.paid}
+              hasUnusedCredit={result.freemium.hasUnusedCredit}
+            />
           </div>
         ) : (
           <div className="flex flex-col gap-4">

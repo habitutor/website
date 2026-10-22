@@ -11,6 +11,8 @@ import {
 import { user } from "@habitutor/db/schema/user";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { fisherYatesShuffle, hitungRataRataSkor, hitungSkorSkala, TryoutError } from "./logic";
+import { canViewFreemiumPembahasan } from "./freemium-logic";
+import { freemiumRepo } from "./freemium-repo";
 
 type SkalaTryout = { poinMaksimal: Map<string, number>; jumlahSubtes: number };
 
@@ -682,20 +684,30 @@ export const tryoutRepo = {
       }),
     );
 
-    // Cek akses pembahasan
+    // Cek akses pembahasan (premium, atau TO pilihan akses freemium)
     const premiumExpiresAt = sesi.user?.premiumExpiresAt;
-    const aksesPembahasan =
+    const aksesPembahasanPremium =
       Boolean(sesi.user?.isPremium) &&
       premiumExpiresAt !== null &&
       premiumExpiresAt !== undefined &&
       new Date() < premiumExpiresAt;
 
+    const freemiumAccess = await freemiumRepo.getAccess({ db, userId: sesi.userId });
+    const freemiumCredit = await freemiumRepo.getCreditSummary({ db, userId: sesi.userId });
+    const aksesPembahasan =
+      aksesPembahasanPremium || canViewFreemiumPembahasan(freemiumCredit.unlockedTryoutIds, sesi.tryoutId);
+
     return {
       sesiId,
+      tryoutId: sesi.tryoutId,
       judulTryout: sesi.tryout.judul,
       totalSkor,
       peringkat: ranking,
       aksesPembahasan,
+      freemium: {
+        paid: Boolean(freemiumAccess?.paidAt),
+        hasUnusedCredit: freemiumCredit.hasUnusedCredit,
+      },
       skorPerSubtes,
     };
   },
@@ -721,8 +733,22 @@ export const tryoutRepo = {
       },
     });
 
-    if (!userData?.isPremium || !userData.premiumExpiresAt || new Date() >= userData.premiumExpiresAt) {
-      throw new TryoutError("FORBIDDEN", "Pembahasan hanya tersedia untuk member premium");
+    const premiumExpiresAt = userData?.premiumExpiresAt;
+    const hasPremiumAccess =
+      Boolean(userData?.isPremium) &&
+      premiumExpiresAt !== null &&
+      premiumExpiresAt !== undefined &&
+      new Date() < premiumExpiresAt;
+
+    if (!hasPremiumAccess) {
+      const soalTryoutId = await freemiumRepo.getTryoutIdBySoal({ db, soalId });
+      const freemiumCredit = await freemiumRepo.getCreditSummary({ db, userId });
+      if (!soalTryoutId || !canViewFreemiumPembahasan(freemiumCredit.unlockedTryoutIds, soalTryoutId)) {
+        throw new TryoutError(
+          "FORBIDDEN",
+          "Pembahasan hanya tersedia untuk member premium atau TO pilihan akses freemium",
+        );
+      }
     }
 
     // Ambil soal dengan pembahasan

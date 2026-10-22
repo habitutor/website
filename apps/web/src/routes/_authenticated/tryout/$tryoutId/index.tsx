@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 import { createMeta } from "@/lib/seo-utils";
+import { FreemiumAccessCard, useFreemiumStatus } from "../-components/freemium-access";
 
 export const Route = createFileRoute("/_authenticated/tryout/$tryoutId/")({
   head: () => ({
@@ -22,6 +23,11 @@ export const Route = createFileRoute("/_authenticated/tryout/$tryoutId/")({
 function TryoutDetailPage() {
   const navigate = useNavigate();
   const { tryoutId } = Route.useParams();
+  const { session } = Route.useRouteContext();
+  const isPremium = session?.user.isPremium ?? false;
+  const freemiumStatus = useFreemiumStatus();
+  const isAccessGated = freemiumStatus.data?.gateEnabled === true && freemiumStatus.data.hasAccess === false;
+  const isCheckingAccess = freemiumStatus.isPending;
 
   const subtesQuery = useQuery(orpc.tryout.listSubtes.queryOptions({ input: { tryoutId } }));
 
@@ -60,21 +66,25 @@ function TryoutDetailPage() {
         <ArrowLeftIcon weight="bold" /> Kembali
       </Button>
 
+      {freemiumStatus.data?.gateEnabled === true && !isPremium && <FreemiumAccessCard gated={isAccessGated} />}
+
       {/* Banner */}
-      <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-[#fde047] p-8 sm:flex-row sm:items-center">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-0 sm:text-3xl">Mulai Tryout Sekarang, Gratis!</h1>
-        <div className="relative z-10">
-          <div className="absolute -bottom-10 -left-10 -z-10 h-32 w-64 bg-[#f59e0b]" />
-          <Button
-            size="lg"
-            className="bg-[#0284c7] font-semibold text-white hover:bg-[#0369a1]"
-            onClick={() => startMutation.mutate({ tryoutId })}
-            disabled={startMutation.isPending}
-          >
-            {startMutation.isPending ? "Memulai..." : "Mulai Sekarang"} <ArrowRightIcon weight="bold" />
-          </Button>
+      {!isAccessGated && (
+        <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-[#fde047] p-8 sm:flex-row sm:items-center">
+          <h1 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-0 sm:text-3xl">Mulai Tryout Sekarang, Gratis!</h1>
+          <div className="relative z-10">
+            <div className="absolute -bottom-10 -left-10 -z-10 h-32 w-64 bg-[#f59e0b]" />
+            <Button
+              size="lg"
+              className="bg-[#0284c7] font-semibold text-white hover:bg-[#0369a1]"
+              onClick={() => startMutation.mutate({ tryoutId })}
+              disabled={startMutation.isPending || isCheckingAccess}
+            >
+              {startMutation.isPending ? "Memulai..." : "Mulai Sekarang"} <ArrowRightIcon weight="bold" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Guideline */}
       <div className="flex flex-col gap-6 rounded-xl border bg-white p-6 shadow-sm md:p-8">
@@ -103,14 +113,16 @@ function TryoutDetailPage() {
           </div>
         </div>
 
-        <div className="mt-2 border-t pt-6 text-sm">
-          <p className="mb-3 font-semibold">Ingin akses pembahasan lebih lengkap?</p>
-          <Button variant="outline" className="hover:bg-primary-50 w-fit border-primary-300 text-primary-300" asChild>
-            <Link to="/premium">
-              TryOut Premium <ArrowUpRightIcon weight="bold" />
-            </Link>
-          </Button>
-        </div>
+        {!isPremium && (
+          <div className="mt-2 border-t pt-6 text-sm">
+            <p className="mb-3 font-semibold">Ingin akses pembahasan lebih lengkap?</p>
+            <Button variant="outline" className="hover:bg-primary-50 w-fit border-primary-300 text-primary-300" asChild>
+              <Link to="/premium">
+                TryOut Premium <ArrowUpRightIcon weight="bold" />
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* List Subtes */}
@@ -165,17 +177,19 @@ function TryoutDetailPage() {
       </div>
 
       {/* Bottom CTA */}
-      <div className="mt-2">
-        <p className="mb-4 text-lg font-medium">Siap? Yuk mulai tryoutnya! Semangat 💪🔥</p>
-        <Button
-          size="lg"
-          className="w-full text-base font-semibold md:w-auto"
-          onClick={() => startMutation.mutate({ tryoutId })}
-          disabled={startMutation.isPending}
-        >
-          {startMutation.isPending ? "Memulai..." : "Mulai Tryout Sekarang"} <ArrowRightIcon weight="bold" />
-        </Button>
-      </div>
+      {!isAccessGated && (
+        <div className="mt-2">
+          <p className="mb-4 text-lg font-medium">Siap? Yuk mulai tryoutnya! Semangat 💪🔥</p>
+          <Button
+            size="lg"
+            className="w-full text-base font-semibold md:w-auto"
+            onClick={() => startMutation.mutate({ tryoutId })}
+            disabled={startMutation.isPending || isCheckingAccess}
+          >
+            {startMutation.isPending ? "Memulai..." : "Mulai Tryout Sekarang"} <ArrowRightIcon weight="bold" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -16,6 +16,7 @@ import * as referral from "./schema/referral";
 import * as transaction from "./schema/transaction";
 import * as tryout from "./schema/tryout";
 import * as universitas from "./schema/universitas";
+import * as freemium from "./schema/freemium";
 
 const schema = {
   ...auth,
@@ -25,6 +26,7 @@ const schema = {
   ...question,
   ...recording,
   ...flashcard,
+  ...freemium,
   ...dashboard,
   ...referral,
   ...transaction,

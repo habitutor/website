@@ -1,7 +1,7 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { user } from "@habitutor/db/schema/auth";
 import { paymentGroup, product, transaction } from "@habitutor/db/schema/transaction";
-import { and, asc, count, countDistinct, desc, eq, gte, isNotNull, lte, ne, sql } from "drizzle-orm";
+import { and, asc, count, countDistinct, desc, eq, gte, inArray, isNotNull, lte, ne, sql } from "drizzle-orm";
 import { resolvePremiumTierForUpdate } from "./premium-tier";
 
 export const transactionRepo = {
@@ -200,7 +200,13 @@ export const transactionRepo = {
       })
       .from(transaction)
       .innerJoin(product, eq(transaction.productId, product.id))
-      .where(and(eq(transaction.userId, userId), eq(transaction.status, "pending"), eq(product.type, "subscription")))
+      .where(
+        and(
+          eq(transaction.userId, userId),
+          eq(transaction.status, "pending"),
+          inArray(product.type, ["subscription", "product"]),
+        ),
+      )
       .orderBy(desc(transaction.orderedAt))
       .limit(limit);
   },

@@ -2,9 +2,16 @@ import { db } from "@habitutor/db";
 import { ORPCError } from "@orpc/client";
 import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
-import { PATUNGAN_BERTIGA, PERINTIS_2027, PREMIUM_DEADLINE, SNBT_2027_DEADLINE } from "../../lib/constants";
+import {
+  FREEMIUM_PRODUCT,
+  PATUNGAN_BERTIGA,
+  PERINTIS_2027,
+  PREMIUM_DEADLINE,
+  SNBT_2027_DEADLINE,
+} from "../../lib/constants";
 import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
+import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { transactionRepo } from "./repo";
 
 type MidtransStatusResponse = {
@@ -126,6 +133,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
       existingTransaction.prodType === "subscription" ? getPremiumDetails(existingTransaction.prodSlug) : null;
     const alreadySuccessful = tx.status === "success";
     const premiumUnlockedUserIds: string[] = [];
+    const freemiumUnlockedUserIds: string[] = [];
 
     await transactionRepo.updateTransactionStatus({
       db: trx,
@@ -143,6 +151,12 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
         premiumExpiresAt: premiumDetails.expiresAt,
       });
       if (!alreadySuccessful) premiumUnlockedUserIds.push(tx.userId);
+    }
+
+    // Akses Freemium TryOut (Rp10.000): aktif otomatis begitu pembayaran settle.
+    if (existingTransaction.prodSlug === FREEMIUM_PRODUCT.SLUG && tx.userId) {
+      await freemiumRepo.activatePaid({ db: trx, userId: tx.userId, transactionId: orderId });
+      if (!alreadySuccessful) freemiumUnlockedUserIds.push(tx.userId);
     }
 
     // Patungan Bertiga: premium unlocks for every member only once the whole
@@ -168,6 +182,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     return {
       resolvedPaidAt,
       premiumUnlockedUserIds,
+      freemiumUnlockedUserIds,
       // Only process referral once, on the transition into success.
       referral:
         !alreadySuccessful && tx.referralCodeId && tx.userId
@@ -194,6 +209,19 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
       });
     } catch (err) {
       logger.error("Failed to send premium notification", { userId, error: err });
+    }
+  }
+
+  for (const userId of result.freemiumUnlockedUserIds) {
+    try {
+      await notifyUser({
+        userId,
+        type: "system",
+        title: "Akses TryOut aktif! 🎉",
+        body: "Pembayaran Rp10.000 berhasil. Kamu bisa mengerjakan semua TO dan membuka pembahasan untuk 1 TO pilihanmu.",
+      });
+    } catch (err) {
+      logger.error("Failed to send freemium notification", { userId, error: err });
     }
   }
 
@@ -246,6 +274,19 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
         isPremium: Boolean(replacementPremium),
         premiumTier: replacementPremium?.tier ?? null,
         premiumExpiresAt: replacementPremium?.expiresAt ?? null,
+      });
+    }
+
+    if (
+      revokeSuccessfulPayment &&
+      wasSuccessful &&
+      existingTransaction.tx.userId &&
+      existingTransaction.prodSlug === FREEMIUM_PRODUCT.SLUG
+    ) {
+      await freemiumRepo.revokePaid({
+        db: trx,
+        userId: existingTransaction.tx.userId,
+        transactionId: orderId,
       });
     }
 

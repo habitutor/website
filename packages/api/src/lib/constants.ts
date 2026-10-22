@@ -30,3 +30,10 @@ export const PATUNGAN_BERTIGA = {
   GROUP_SIZE: 3,
   WINDOW_HOURS: 48,
 } as const;
+
+// Akses Freemium TryOut: sekali bayar, membuka pengerjaan semua TO + pembahasan untuk satu TO pilihan.
+export const FREEMIUM_PRODUCT = {
+  SLUG: "tryout-freemium",
+  NAME: "Akses Freemium TryOut",
+  PRICE: 10_000,
+} as const;

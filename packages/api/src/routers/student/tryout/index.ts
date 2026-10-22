@@ -4,6 +4,7 @@ import { authed } from "../../../index";
 import { recordStreakActivity } from "../../streak/service";
 import { tryoutRepo } from "./repo";
 import { toOrpcError } from "./logic";
+import { freemiumRepo } from "./freemium-repo";
 
 /**
  * Daftar tryout yang dipublish
@@ -63,6 +64,10 @@ const startTryout = authed
     }
 
     try {
+      await freemiumRepo.assertCanStartTryout({
+        userId: context.session.user.id,
+        tryoutId: input.tryoutId,
+      });
       const result = await tryoutRepo.startTryout({
         userId: context.session.user.id,
         tryoutId: input.tryoutId,
@@ -351,6 +356,78 @@ const getPassingGrade = authed
     }
   });
 
+/**
+ * Status akses freemium milik user
+ * GET /tryout/freemium/status
+ */
+const getFreemiumStatus = authed
+  .route({
+    path: "/tryout/freemium/status",
+    method: "GET",
+    tags: ["Student - Tryout"],
+  })
+  .handler(async ({ context }) => {
+    if (!context.session?.user?.id) {
+      throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
+    }
+
+    try {
+      return await freemiumRepo.getStatus({ userId: context.session.user.id });
+    } catch (error) {
+      throw toOrpcError(error, "Gagal mengambil status akses freemium");
+    }
+  });
+
+/**
+ * Simpan 3 foto bukti syarat; akses langsung terbuka tanpa menunggu admin
+ * POST /tryout/freemium/complete-requirements
+ */
+const completeFreemiumRequirements = authed
+  .route({
+    path: "/tryout/freemium/complete-requirements",
+    method: "POST",
+    tags: ["Student - Tryout"],
+  })
+  .input(type({ proofs: "string[]" }))
+  .handler(async ({ input, context }) => {
+    if (!context.session?.user?.id) {
+      throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
+    }
+
+    try {
+      await freemiumRepo.completeRequirements({ userId: context.session.user.id, proofs: input.proofs });
+      return { success: true };
+    } catch (error) {
+      throw toOrpcError(error, "Gagal menyimpan syarat freemium");
+    }
+  });
+
+/**
+ * Pilih satu TO yang pembahasannya dibuka (hanya untuk yang sudah bayar)
+ * POST /tryout/freemium/pembahasan
+ */
+const selectFreemiumPembahasan = authed
+  .route({
+    path: "/tryout/freemium/pembahasan",
+    method: "POST",
+    tags: ["Student - Tryout"],
+  })
+  .input(type({ tryoutId: "string" }))
+  .handler(async ({ input, context }) => {
+    if (!context.session?.user?.id) {
+      throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
+    }
+
+    try {
+      return await freemiumRepo.selectPembahasanTryout({
+        userId: context.session.user.id,
+        tryoutId: input.tryoutId,
+      });
+    } catch (error) {
+      throw toOrpcError(error, "Gagal memilih TO pembahasan");
+    }
+  });
+
 export const studentTryoutRouter = {
   list: listPublishedTryouts,
   listSubtes: listSubtesByTryout,
@@ -367,5 +444,10 @@ export const studentTryoutRouter = {
   results: getResults,
   pembahasan: getPembahasan,
   history: getHistory,
+  freemium: {
+    status: getFreemiumStatus,
+    completeRequirements: completeFreemiumRequirements,
+    selectPembahasan: selectFreemiumPembahasan,
+  },
   passingGrade: getPassingGrade,
 };
