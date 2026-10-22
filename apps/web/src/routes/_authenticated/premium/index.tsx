@@ -12,6 +12,8 @@ import { usePremiumPaymentEffect } from "./premium-payment";
 import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan-card";
 import { PricingExtras } from "@/routes/home-premium/-components/pricing";
 
+type PlanSlug = "perintis2027" | "paket2bulan";
+
 export const Route = createFileRoute("/_authenticated/premium/")({
   head: () => ({
     meta: createMeta({
@@ -36,9 +38,10 @@ function RouteComponent() {
   const [promoFeedback, setPromoFeedback] = useState<
     { valid: boolean; message: string; discountedPrice?: number } | undefined
   >();
-  const [hasInitiatedPurchase, setHasInitiatedPurchase] = useState(false);
+  const [initiatedPlan, setInitiatedPlan] = useState<PlanSlug>();
 
   const isPremium = session?.user.isPremium ?? false;
+  const pendingPlan = transactionMutation.isPending ? transactionMutation.variables?.name : undefined;
 
   useMidtransScript();
   usePremiumPaymentEffect({
@@ -49,12 +52,13 @@ function RouteComponent() {
     onCompleted: () => navigate({ to: "/premium" }),
   });
 
-  const handleSubscribe = () => {
+  const handleSubscribe = (plan: PlanSlug) => {
     if (transactionMutation.isPending) return;
 
-    setHasInitiatedPurchase(true);
+    setInitiatedPlan(plan);
     transactionMutation.mutate(
-      { name: "perintis2027", promoCode: promoCode.trim() || undefined },
+      // Kode promo hanya berlaku untuk Paket Perintis; Paket 2 Bulan harga tetap.
+      { name: plan, promoCode: plan === "perintis2027" ? promoCode.trim() || undefined : undefined },
       {
         onSuccess: (data) => {
           setPaymentToken(data.token);
@@ -62,7 +66,7 @@ function RouteComponent() {
           setPaymentOrderId(data.orderId);
         },
         onError: (error) => {
-          setHasInitiatedPurchase(false);
+          setInitiatedPlan(undefined);
           toast.error(error.message);
         },
       },
@@ -107,8 +111,8 @@ function RouteComponent() {
           >
             <Perintis2027Plan
               isPremium={isPremium}
-              isPending={transactionMutation.isPending}
-              onSubscribe={handleSubscribe}
+              isPending={pendingPlan === "perintis2027"}
+              onSubscribe={() => handleSubscribe("perintis2027")}
               promoCode={promoCode}
               onPromoCodeChange={(value) => {
                 setPromoCode(value);
@@ -117,9 +121,16 @@ function RouteComponent() {
               onValidatePromo={handleValidatePromo}
               promoFeedback={promoFeedback}
               isPromoValidating={validatePromoMutation.isPending}
-              hasInitiatedPurchase={hasInitiatedPurchase}
+              hasInitiatedPurchase={initiatedPlan === "perintis2027"}
             />
-            {!isPremium && <Paket2BulanCard />}
+            {!isPremium && (
+              <Paket2BulanCard
+                mode="checkout"
+                isPending={pendingPlan === "paket2bulan"}
+                onSubscribe={() => handleSubscribe("paket2bulan")}
+                hasInitiatedPurchase={initiatedPlan === "paket2bulan"}
+              />
+            )}
           </div>
           <PricingExtras />
         </div>

@@ -131,6 +131,15 @@ export const transactionRepo = {
     return result;
   },
 
+  getUserPremiumState: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+    const [result] = await db
+      .select({ isPremium: user.isPremium, premiumExpiresAt: user.premiumExpiresAt })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+    return result;
+  },
+
   getLatestSuccessfulSubscriptionByUserId: async ({
     db = defaultDb,
     userId,
@@ -143,6 +152,8 @@ export const transactionRepo = {
     const [result] = await db
       .select({
         prodSlug: product.slug,
+        paidAt: transaction.paidAt,
+        orderedAt: transaction.orderedAt,
       })
       .from(transaction)
       .innerJoin(product, eq(transaction.productId, product.id))
@@ -320,9 +331,12 @@ export const transactionRepo = {
       premiumExpiresAt,
     });
 
+    // The column is a plain `timestamp` that Drizzle reads/writes as UTC. A raw
+    // Date parameter would be serialized in the process time zone instead, so
+    // pass the UTC ISO string to keep the stored value identical on any server.
     const updates = [
       sql`is_premium = ${isPremium}`,
-      sql`premium_expires_at = ${premiumExpiresAt}`,
+      sql`premium_expires_at = ${premiumExpiresAt ? premiumExpiresAt.toISOString() : null}`,
       sql`updated_at = now()`,
     ];
 

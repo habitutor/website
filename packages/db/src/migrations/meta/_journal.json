@@ -162,6 +162,13 @@
       "when": 1792570601638,
       "tag": "0022_rare_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792638429287,
+      "tag": "0023_seed_paket_2_bulan",
+      "breakpoints": true
     }
   ]
 }

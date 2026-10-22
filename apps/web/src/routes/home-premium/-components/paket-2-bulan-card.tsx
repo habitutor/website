@@ -1,12 +1,11 @@
 import { CheckIcon } from "@phosphor-icons/react";
+import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { PERINTIS_PRICING_COPY, formatRupiah } from "@/lib/perintis-pricing-copy";
 import { cn } from "@/lib/utils";
 
-// GANTI dengan link gform / WhatsApp admin untuk pemesanan paket 2 bulan
-const PAKET_2_BULAN_ORDER_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSczLPA0xW3mIJta75osjrZzYSHm9l9-gc5J7_k1-aKuEDNf7A/viewform";
-
+// Harus sama dengan PAKET_2_BULAN.PRICE di packages/api/src/lib/constants.ts
+// (server yang menentukan nominal tagihan; angka ini hanya untuk tampilan).
 const HARGA = 50_000;
 
 // Isi angka ini HANYA kalau 50k memang harga promo (harga normal yang benar-benar pernah berlaku).
@@ -16,7 +15,24 @@ const HARGA_NORMAL = null as number | null;
 // Sembilan fasilitas inti yang sama dengan Paket Perintis 2027
 const FASILITAS = PERINTIS_PRICING_COPY.features.slice(0, 9);
 
-export function Paket2BulanCard() {
+type Paket2BulanCardProps = {
+  mode?: "marketing" | "checkout";
+  isPending?: boolean;
+  onSubscribe?: () => void;
+  hasInitiatedPurchase?: boolean;
+};
+
+const CTA_CLASS_NAME = cn(
+  buttonVariants({ variant: "darkBlue", size: "lg" }),
+  "w-full border border-neutral-1000 text-base font-bold tracking-wide uppercase",
+);
+
+export function Paket2BulanCard({
+  mode = "marketing",
+  isPending = false,
+  onSubscribe,
+  hasInitiatedPurchase = false,
+}: Paket2BulanCardProps) {
   return (
     <div className="h-full w-full">
       <div className="relative flex h-full w-full flex-col overflow-hidden rounded-2xl border-2 border-primary-400 bg-primary-300 shadow-sm">
@@ -66,19 +82,30 @@ export function Paket2BulanCard() {
         </div>
 
         <div className="relative z-10 mt-auto space-y-3 p-6 pt-0">
-          <a
-            href={PAKET_2_BULAN_ORDER_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              buttonVariants({ variant: "darkBlue", size: "lg" }),
-              "w-full border border-neutral-1000 text-base font-bold tracking-wide uppercase",
-            )}
-          >
-            Ambil Paket 2 Bulan
-          </a>
+          {mode === "checkout" ? (
+            <>
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={onSubscribe}
+                className={cn(CTA_CLASS_NAME, "cursor-pointer disabled:cursor-default disabled:opacity-70")}
+              >
+                {isPending ? "Memproses..." : "Ambil Paket 2 Bulan"}
+              </button>
+              {hasInitiatedPurchase && (
+                <p className="rounded-lg border border-yellow-300 bg-yellow-50 px-3 py-2 text-center text-xs font-semibold text-yellow-800">
+                  Tunggu 15 Menit — pembayaranmu sedang diproses, status premium akan aktif otomatis setelah
+                  terkonfirmasi.
+                </p>
+              )}
+            </>
+          ) : (
+            <Link to="/premium" className={CTA_CLASS_NAME}>
+              Ambil Paket 2 Bulan
+            </Link>
+          )}
           <p className="text-center text-xs text-tertiary-100">
-            Sekali bayar untuk 2 bulan · Tanpa biaya bulanan · Akun diaktifkan oleh admin
+            Sekali bayar untuk 2 bulan · Tanpa biaya bulanan · Aktif otomatis setelah pembayaran
           </p>
         </div>
       </div>

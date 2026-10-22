@@ -3,7 +3,7 @@ import { db } from "@habitutor/db";
 import { logger } from "@habitutor/shared/logger";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
-import { FREEMIUM_PRODUCT, PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
+import { FREEMIUM_PRODUCT, PAKET_2_BULAN, PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { referralRepo } from "../referral/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
@@ -66,9 +66,9 @@ const subscribe = authed
   })
   .input(
     // Older packages (premium, premium2, basic) are no longer sold; the only
-    // purchasable package is Perintis 2027.
+    // purchasable packages are Perintis 2027 and Paket 2 Bulan.
     type({
-      name: "'perintis2027'",
+      name: "'perintis2027' | 'paket2bulan'",
       "referralCode?": "string",
       "promoCode?": "string",
     }),
@@ -89,10 +89,19 @@ const subscribe = authed
     const plan = await transactionRepo.getProductBySlug({ slug: input.name });
     if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
-    // Early-bird price for the first 50 successful payments, then the regular price.
-    const pricing = await getPerintisPricing();
-    let grossAmount = String(pricing.currentPrice);
-    const existingUsage = input.promoCode ? null : await referralRepo.getUserUsage({ userId: context.session.user.id });
+    // Paket 2 Bulan is a fixed-price package: no early bird, referral or promo.
+    const isPaket2Bulan = input.name === PAKET_2_BULAN.SLUG;
+    if (isPaket2Bulan && (input.promoCode || input.referralCode)) {
+      throw errors.UNPROCESSABLE_CONTENT({
+        message: "Kode promo dan kode referral tidak berlaku untuk Paket 2 Bulan.",
+      });
+    }
+
+    // Perintis: early-bird price for the first 50 successful payments, then the regular price.
+    const basePrice = isPaket2Bulan ? PAKET_2_BULAN.PRICE : (await getPerintisPricing()).currentPrice;
+    let grossAmount = String(basePrice);
+    const existingUsage =
+      input.promoCode || isPaket2Bulan ? null : await referralRepo.getUserUsage({ userId: context.session.user.id });
     let appliedReferralCodeId: string | undefined;
 
     if (input.promoCode && input.referralCode) {

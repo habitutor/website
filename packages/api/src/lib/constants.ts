@@ -19,6 +19,17 @@ export const PERINTIS_2027 = {
   EARLY_BIRD_QUOTA: 50,
 } as const;
 
+// Paket 2 Bulan: one-off Midtrans payment that grants premium for a fixed
+// number of calendar months counted from the settlement time (not from a
+// global deadline like Perintis). PRICE must match the seeded product row and
+// the price shown on the web card (apps/web/.../paket-2-bulan-card.tsx).
+export const PAKET_2_BULAN = {
+  SLUG: "paket2bulan",
+  NAME: "Paket 2 Bulan",
+  PRICE: 50_000,
+  DURATION_MONTHS: 2,
+} as const;
+
 // "Patungan Bertiga" group plan (mobile): three people each pay a discounted
 // per-person price; premium unlocks for all members only once every member's
 // payment settles within the completion window.

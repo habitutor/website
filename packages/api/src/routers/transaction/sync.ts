@@ -4,6 +4,7 @@ import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
 import {
   FREEMIUM_PRODUCT,
+  PAKET_2_BULAN,
   PATUNGAN_BERTIGA,
   PERINTIS_2027,
   PREMIUM_DEADLINE,
@@ -12,6 +13,7 @@ import {
 import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
+import { addMonthsUtc, resolveExpiryWithoutShortening } from "./premium-expiry";
 import { transactionRepo } from "./repo";
 
 type MidtransStatusResponse = {
@@ -56,15 +58,26 @@ async function fetchMidtransTransactionStatus(orderId: string): Promise<Midtrans
   return (await statusResponse.json()) as MidtransStatusResponse;
 }
 
-function getPremiumDetails(productSlug: string) {
-  const isPerintis2027 = productSlug === PERINTIS_2027.SLUG;
-  const isPremium = isPerintis2027 || productSlug === PREMIUM_TIERS.PREMIUM || productSlug === PREMIUM_TIERS.PREMIUM_2;
+function resolvePremiumExpiry(productSlug: string, paidAt: Date) {
+  if (productSlug === PAKET_2_BULAN.SLUG) return addMonthsUtc(paidAt, PAKET_2_BULAN.DURATION_MONTHS);
+  if (productSlug === PERINTIS_2027.SLUG) return SNBT_2027_DEADLINE;
+  return PREMIUM_DEADLINE;
+}
+
+// paidAt is the stable settlement time stored on the transaction, so replaying
+// the same webhook/status poll always yields the same expiry.
+function getPremiumDetails(productSlug: string, paidAt: Date) {
+  const isPremium =
+    productSlug === PERINTIS_2027.SLUG ||
+    productSlug === PAKET_2_BULAN.SLUG ||
+    productSlug === PREMIUM_TIERS.PREMIUM ||
+    productSlug === PREMIUM_TIERS.PREMIUM_2;
 
   if (!isPremium) return null;
 
   return {
     tier: productSlug === PREMIUM_TIERS.PREMIUM_2 ? PREMIUM_TIERS.PREMIUM_2 : PREMIUM_TIERS.PREMIUM,
-    expiresAt: isPerintis2027 ? SNBT_2027_DEADLINE : PREMIUM_DEADLINE,
+    expiresAt: resolvePremiumExpiry(productSlug, paidAt),
   };
 }
 
@@ -130,7 +143,9 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     const tx = existingTransaction.tx;
     const resolvedPaidAt = tx.paidAt ?? paidAtFromGateway ?? new Date();
     const premiumDetails =
-      existingTransaction.prodType === "subscription" ? getPremiumDetails(existingTransaction.prodSlug) : null;
+      existingTransaction.prodType === "subscription"
+        ? getPremiumDetails(existingTransaction.prodSlug, resolvedPaidAt)
+        : null;
     const alreadySuccessful = tx.status === "success";
     const premiumUnlockedUserIds: string[] = [];
     const freemiumUnlockedUserIds: string[] = [];
@@ -143,12 +158,18 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     });
 
     if (premiumDetails && tx.userId) {
+      // A short package settling late must never cut a longer active plan.
+      const currentPremium = await transactionRepo.getUserPremiumState({ db: trx, userId: tx.userId });
       await transactionRepo.updateUserPremium({
         db: trx,
         userId: tx.userId,
         isPremium: true,
         premiumTier: premiumDetails.tier,
-        premiumExpiresAt: premiumDetails.expiresAt,
+        premiumExpiresAt: resolveExpiryWithoutShortening({
+          computedExpiresAt: premiumDetails.expiresAt,
+          currentIsPremium: currentPremium?.isPremium,
+          currentExpiresAt: currentPremium?.premiumExpiresAt,
+        }),
       });
       if (!alreadySuccessful) premiumUnlockedUserIds.push(tx.userId);
     }
@@ -266,7 +287,12 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
         userId: existingTransaction.tx.userId,
         excludeOrderId: orderId,
       });
-      const replacementPremium = replacement ? getPremiumDetails(replacement.prodSlug) : null;
+      const replacementPaidAt = replacement?.paidAt ?? replacement?.orderedAt ?? new Date();
+      const replacementCandidate = replacement ? getPremiumDetails(replacement.prodSlug, replacementPaidAt) : null;
+      // A replacement that has already run out (e.g. a finished 2-month plan)
+      // must not bring premium back.
+      const replacementPremium =
+        replacementCandidate && replacementCandidate.expiresAt.getTime() > Date.now() ? replacementCandidate : null;
 
       await transactionRepo.updateUserPremium({
         db: trx,
