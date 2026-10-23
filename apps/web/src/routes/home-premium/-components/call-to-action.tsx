@@ -6,12 +6,12 @@ import { MotionPulse } from "@/components/motion/motion-components";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DATA } from "@/routes/-home/data";
-import { formatRupiah, PERINTIS_DATA } from "./data";
-import { usePerintisPricing } from "./use-perintis-pricing";
+import { formatRupiah, PREMIUM_DATA } from "./data";
+import { usePremiumPackages } from "./use-premium-packages";
 
 export function CallToAction() {
-  const { closing } = PERINTIS_DATA;
-  const pricing = usePerintisPricing();
+  const { closing } = PREMIUM_DATA;
+  const pricing = usePremiumPackages();
 
   return (
     <section className="mx-auto flex w-full flex-col items-center overflow-hidden bg-neutral-100 px-4 py-20">
@@ -57,12 +57,9 @@ export function CallToAction() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
                 >
-                  <span className="relative inline-block font-semibold text-neutral-600">
-                    {formatRupiah(pricing.originalPrice)}
-                    <span className="pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-red-400" />
-                  </span>
+                  <span className="font-semibold text-neutral-600">Mulai dari</span>
                   <span className="text-xl font-black text-primary-300 md:text-3xl">
-                    {formatRupiah(pricing.currentPrice)}
+                    {formatRupiah(pricing.cheapestPrice)}
                   </span>
                   <span className="font-semibold">— sekali bayar.</span>
                 </m.p>

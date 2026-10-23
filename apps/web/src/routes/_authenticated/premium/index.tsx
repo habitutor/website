@@ -4,21 +4,18 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { useMidtransScript } from "@/lib/midtrans";
+import type { PremiumPackageSlug } from "@/lib/premium-packages";
 import { createMeta } from "@/lib/seo-utils";
+import { PremiumFeatureList, PremiumPackageGrid, PricingExtras } from "@/routes/home-premium/-components/pricing";
 import { orpc } from "@/utils/orpc";
-import { Perintis2027Plan } from "./-components/perintis-2027-plan";
 import { PremiumHeader } from "./-components/premium-header";
 import { usePremiumPaymentEffect } from "./premium-payment";
-import { Paket2BulanCard } from "@/routes/home-premium/-components/paket-2-bulan-card";
-import { PricingExtras } from "@/routes/home-premium/-components/pricing";
-
-type PlanSlug = "perintis2027" | "paket2bulan";
 
 export const Route = createFileRoute("/_authenticated/premium/")({
   head: () => ({
     meta: createMeta({
       title: "Premium",
-      description: "Amankan Paket Perintis 2027 untuk akses penuh ke semua fitur dan materi Habitutor.",
+      description: "Pilih paket Premium Habitutor untuk akses penuh ke semua fitur dan materi.",
       noIndex: true,
     }),
   }),
@@ -31,15 +28,10 @@ function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
-  const validatePromoMutation = useMutation(orpc.transaction.validatePromo.mutationOptions());
   const [paymentToken, setPaymentToken] = useState<string>();
   const [paymentRedirectUrl, setPaymentRedirectUrl] = useState<string>();
   const [paymentOrderId, setPaymentOrderId] = useState<string>();
-  const [promoCode, setPromoCode] = useState("");
-  const [promoFeedback, setPromoFeedback] = useState<
-    { valid: boolean; message: string; discountedPrice?: number } | undefined
-  >();
-  const [initiatedPlan, setInitiatedPlan] = useState<PlanSlug>();
+  const [initiatedPlan, setInitiatedPlan] = useState<PremiumPackageSlug>();
 
   const isPremium = session?.user.isPremium ?? false;
   const pendingPlan = transactionMutation.isPending ? transactionMutation.variables?.name : undefined;
@@ -47,7 +39,6 @@ function RouteComponent() {
   // premiumTier sama untuk semua paket, jadi paket yang dibeli dibaca dari profil.
   const { data: profile, isPending: isProfilePending } = useQuery(orpc.profile.me.queryOptions());
   const isPlanLoading = isPremium && isProfilePending;
-  const subscribedPlan: PlanSlug | undefined = isPremium ? (profile?.premiumPlan ?? "perintis2027") : undefined;
 
   useMidtransScript();
   usePremiumPaymentEffect({
@@ -68,13 +59,12 @@ function RouteComponent() {
     },
   });
 
-  const handleSubscribe = (plan: PlanSlug) => {
+  const handleSubscribe = (plan: PremiumPackageSlug) => {
     if (transactionMutation.isPending) return;
 
     setInitiatedPlan(plan);
     transactionMutation.mutate(
-      // Kode promo hanya berlaku untuk Paket Perintis; Paket 2 Bulan harga tetap.
-      { name: plan, promoCode: plan === "perintis2027" ? promoCode.trim() || undefined : undefined },
+      { name: plan },
       {
         onSuccess: (data) => {
           setPaymentToken(data.token);
@@ -89,74 +79,27 @@ function RouteComponent() {
     );
   };
 
-  const handleValidatePromo = () => {
-    if (!promoCode.trim()) return;
-    validatePromoMutation.mutate(
-      { code: promoCode, productSlug: "perintis2027" },
-      {
-        onSuccess: (result) => {
-          setPromoFeedback(
-            result.valid
-              ? {
-                  valid: true,
-                  message: "Kode promo valid.",
-                  discountedPrice: result.discountedPrice,
-                }
-              : { valid: false, message: result.message },
-          );
-        },
-        onError: (error) => setPromoFeedback({ valid: false, message: error.message }),
-      },
-    );
-  };
-
   return (
     <MotionStagger className="mt-4 flex flex-col gap-6 sm:-mt-3">
       <MotionStaggerItem>
-        <PremiumHeader
-          session={session}
-          subscribedPlan={isPlanLoading ? undefined : subscribedPlan}
-        />
+        <PremiumHeader session={session} subscribedPlan={isPlanLoading ? undefined : profile?.premiumPlan} />
       </MotionStaggerItem>
 
       <MotionStaggerItem>
         <div className="rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-10">
-          {isPlanLoading ? null : subscribedPlan === "paket2bulan" ? (
-            <div className="mx-auto h-full w-full max-w-2xl">
-              <Paket2BulanCard mode="checkout" isPremium />
-            </div>
-          ) : (
-            <div
-              className={
-                isPremium
-                  ? ""
-                  : "mx-auto grid w-full max-w-4xl grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0"
-              }
-            >
-              <Perintis2027Plan
-                isPremium={isPremium}
-                isPending={pendingPlan === "perintis2027"}
-                onSubscribe={() => handleSubscribe("perintis2027")}
-                promoCode={promoCode}
-                onPromoCodeChange={(value) => {
-                  setPromoCode(value);
-                  setPromoFeedback(undefined);
-                }}
-                onValidatePromo={handleValidatePromo}
-                promoFeedback={promoFeedback}
-                isPromoValidating={validatePromoMutation.isPending}
-                hasInitiatedPurchase={initiatedPlan === "perintis2027"}
+          <div className="mx-auto w-full max-w-4xl">
+            {isPremium ? (
+              <PremiumFeatureList />
+            ) : (
+              <PremiumPackageGrid
+                mode="checkout"
+                pendingSlug={pendingPlan}
+                initiatedSlug={initiatedPlan}
+                isDisabled={transactionMutation.isPending}
+                onSubscribe={handleSubscribe}
               />
-              {!isPremium && (
-                <Paket2BulanCard
-                  mode="checkout"
-                  isPending={pendingPlan === "paket2bulan"}
-                  onSubscribe={() => handleSubscribe("paket2bulan")}
-                  hasInitiatedPurchase={initiatedPlan === "paket2bulan"}
-                />
-              )}
-            </div>
-          )}
+            )}
+          </div>
           <PricingExtras />
         </div>
       </MotionStaggerItem>

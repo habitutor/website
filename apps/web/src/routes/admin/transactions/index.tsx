@@ -29,7 +29,7 @@ function TransactionsPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [simulation, setSimulation] = useState({
     userId: "",
-    productSlug: "perintis2027",
+    productSlug: "paketmandiri2027",
     status: "success" as "success" | "pending" | "failed",
   });
 

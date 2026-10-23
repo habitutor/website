@@ -1,62 +1,37 @@
 import { isAdminRole } from "@habitutor/shared/auth-domain";
-import { db } from "@habitutor/db";
 import { logger } from "@habitutor/shared/logger";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
-import { FREEMIUM_PRODUCT, PAKET_2_BULAN, PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
+import { FREEMIUM_PRODUCT } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
-import { referralRepo } from "../referral/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { mobileTransactionRouter } from "./mobile";
 import { processMidtransNotification } from "./notification";
-import { getPerintisPricing } from "./pricing";
-import { calculatePromoPrice, promoRepo, type PromoValidationReason } from "./promo-repo";
+import { getPackagePrice, isPackageAvailable, listPremiumPackages } from "./pricing";
 import { transactionRepo } from "./repo";
 import { syncTransactionStatus } from "./sync";
 
-const PROMO_ERROR_MESSAGES: Record<PromoValidationReason, string> = {
-  not_found: "Kode promo tidak ditemukan.",
-  inactive: "Kode promo sedang tidak aktif.",
-  expired: "Kode promo sudah kedaluwarsa.",
-  usage_limit_reached: "Kuota penggunaan kode promo sudah habis.",
-  already_used: "Kamu sudah menggunakan kode promo ini.",
-  wrong_package: "Kode promo tidak berlaku untuk paket ini.",
-};
-
-const availability = pub
+const packages = pub
   .route({
-    path: "/transactions/perintis-2027",
+    path: "/transactions/premium-packages",
     method: "GET",
     tags: ["Payment", "Subscription"],
   })
   .output(
     type({
-      slug: "string",
-      originalPrice: "number",
-      earlyBirdPrice: "number",
-      regularPrice: "number",
+      slug: "'paketmandiri2027' | 'paketutbk2027' | 'paket3bulan' | 'paket1bulan'",
+      name: "string",
+      normalPrice: "number",
+      promoPrice: "number",
       currentPrice: "number",
-      earlyBirdQuota: "number",
-      earlyBirdRemaining: "number",
-      isEarlyBird: "boolean",
+      isPromo: "boolean",
+      promoEndsAt: "string",
+      expiresAt: "string | null",
+      durationMonths: "number | null",
       isAvailable: "boolean",
-    }),
+    }).array(),
   )
-  .handler(async () => {
-    const pricing = await getPerintisPricing();
-
-    return {
-      slug: PERINTIS_2027.SLUG,
-      originalPrice: PERINTIS_2027.ORIGINAL_PRICE,
-      earlyBirdPrice: PERINTIS_2027.EARLY_BIRD_PRICE,
-      regularPrice: PERINTIS_2027.REGULAR_PRICE,
-      currentPrice: pricing.currentPrice,
-      earlyBirdQuota: PERINTIS_2027.EARLY_BIRD_QUOTA,
-      earlyBirdRemaining: pricing.earlyBirdRemaining,
-      isEarlyBird: pricing.isEarlyBird,
-      isAvailable: Date.now() <= SNBT_2027_DEADLINE.getTime(),
-    };
-  });
+  .handler(() => listPremiumPackages());
 
 const subscribe = authed
   .route({
@@ -65,12 +40,9 @@ const subscribe = authed
     tags: ["Payment", "Subscription"],
   })
   .input(
-    // Older packages (premium, premium2, basic) are no longer sold; the only
-    // purchasable packages are Perintis 2027 and Paket 2 Bulan.
+    // Only the four premium packages are sold; referral and promo codes do not apply.
     type({
-      name: "'perintis2027' | 'paket2bulan'",
-      "referralCode?": "string",
-      "promoCode?": "string",
+      name: "'paketmandiri2027' | 'paketutbk2027' | 'paket3bulan' | 'paket1bulan'",
     }),
   )
   .output(
@@ -83,98 +55,22 @@ const subscribe = authed
   .handler(async ({ input, context, errors }) => {
     if (context.session.user.isPremium)
       throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-    if (Date.now() > SNBT_2027_DEADLINE.getTime())
-      throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
+    if (!isPackageAvailable(input.name))
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Paket ini sudah tidak tersedia." });
 
     const plan = await transactionRepo.getProductBySlug({ slug: input.name });
     if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
-    // Paket 2 Bulan is a fixed-price package: no early bird, referral or promo.
-    const isPaket2Bulan = input.name === PAKET_2_BULAN.SLUG;
-    if (isPaket2Bulan && (input.promoCode || input.referralCode)) {
-      throw errors.UNPROCESSABLE_CONTENT({
-        message: "Kode promo dan kode referral tidak berlaku untuk Paket 2 Bulan.",
-      });
-    }
-
-    // Perintis: early-bird price for the first 50 successful payments, then the regular price.
-    const basePrice = isPaket2Bulan ? PAKET_2_BULAN.PRICE : (await getPerintisPricing()).currentPrice;
-    let grossAmount = String(basePrice);
-    const existingUsage =
-      input.promoCode || isPaket2Bulan ? null : await referralRepo.getUserUsage({ userId: context.session.user.id });
-    let appliedReferralCodeId: string | undefined;
-
-    if (input.promoCode && input.referralCode) {
-      throw errors.UNPROCESSABLE_CONTENT({ message: "Kode promo dan kode referral tidak dapat digabungkan." });
-    }
-
-    if (!input.promoCode && input.referralCode) {
-      const code = input.referralCode.trim();
-      const validation = await referralRepo.validateCodeForUser({
-        userId: context.session.user.id,
-        code,
-        allowPendingSameCode: true,
-      });
-
-      if (!validation.ok) {
-        if (validation.reason === "invalid_length") {
-          throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
-        }
-        if (validation.reason === "not_found") {
-          throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });
-        }
-        if (validation.reason === "own_code") {
-          throw errors.UNPROCESSABLE_CONTENT({
-            message: "Kamu tidak bisa menggunakan kode referral milikmu sendiri.",
-          });
-        }
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah pernah menggunakan kode referral." });
-      }
-
-      appliedReferralCodeId = validation.codeRecord.id;
-    } else if (!input.promoCode && existingUsage && !existingUsage.transactionId) {
-      // Referral submitted during registration should be applied automatically
-      // to the first paid transaction.
-      appliedReferralCodeId = existingUsage.referralCodeId;
-    }
-
-    if (appliedReferralCodeId) {
-      const discounted = Math.ceil(Number(grossAmount) * 0.75);
-      grossAmount = String(discounted);
-    }
-
+    // The amount is decided here, never by the client; Midtrans settlement is
+    // later checked against this stored amount.
+    const grossAmount = getPackagePrice(input.name);
     const orderId = `tx_${crypto.randomUUID()}`;
 
-    const createdTransaction = await db.transaction(async (trx) => {
-      let promoCodeId: string | undefined;
-
-      if (input.promoCode) {
-        const validation = await promoRepo.validate({
-          db: trx,
-          code: input.promoCode,
-          productId: plan.id,
-          userId: context.session.user.id,
-          lock: true,
-        });
-        if (!validation.ok) {
-          throw errors.UNPROCESSABLE_CONTENT({ message: PROMO_ERROR_MESSAGES[validation.reason] });
-        }
-
-        grossAmount = String(
-          calculatePromoPrice(Number(grossAmount), validation.promo.discountType, validation.promo.discountValue),
-        );
-        promoCodeId = validation.promo.id;
-      }
-
-      return transactionRepo.createTransaction({
-        db: trx,
-        id: orderId,
-        productId: plan.id,
-        grossAmount: String(grossAmount),
-        userId: context.session.user.id,
-        referralCodeId: appliedReferralCodeId,
-        promoCodeId,
-      });
+    const createdTransaction = await transactionRepo.createTransaction({
+      id: orderId,
+      productId: plan.id,
+      grossAmount: String(grossAmount),
+      userId: context.session.user.id,
     });
     if (!createdTransaction)
       throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
@@ -185,7 +81,7 @@ const subscribe = authed
         id: orderId,
         session: context.session,
         name: plan.name,
-        grossAmount: Number(grossAmount),
+        grossAmount,
       });
     } catch (error) {
       await transactionRepo.updateTransactionStatus({ orderId, status: "failed" });
@@ -264,37 +160,6 @@ const subscribeFreemium = authed
     }
   });
 
-const validatePromo = authed
-  .route({
-    path: "/transactions/promo/validate",
-    method: "POST",
-    tags: ["Payment", "Promo"],
-  })
-  .input(type({ code: "string", productSlug: "'perintis2027'" }))
-  .handler(async ({ input, context, errors }) => {
-    const product = await transactionRepo.getProductBySlug({ slug: input.productSlug });
-    if (!product) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
-
-    const validation = await promoRepo.validate({
-      code: input.code,
-      productId: product.id,
-      userId: context.session.user.id,
-    });
-    if (!validation.ok) {
-      return { valid: false as const, reason: validation.reason, message: PROMO_ERROR_MESSAGES[validation.reason] };
-    }
-
-    const pricing = await getPerintisPricing();
-    return {
-      valid: true as const,
-      discountedPrice: calculatePromoPrice(
-        pricing.currentPrice,
-        validation.promo.discountType,
-        validation.promo.discountValue,
-      ),
-    };
-  });
-
 const notification = pub
   .route({
     path: "/transactions/notification",
@@ -356,7 +221,6 @@ export const transactionRouter = {
   subscribeFreemium,
   webhook: notification,
   status: getStatus,
-  validatePromo,
-  perintisAvailability: availability,
+  packages,
   mobile: mobileTransactionRouter,
 };

@@ -1,5 +1,6 @@
 import { type } from "arktype";
-import { PERINTIS_2027 } from "../../../lib/constants";
+import { PREMIUM_PROMO_ENDS_AT } from "../../../lib/constants";
+import { isPromoActive, listPremiumPackages } from "../../transaction/pricing";
 import { transactionRepo } from "../../transaction/repo";
 import { admin } from "../../../index";
 import { adminMetricsRepo } from "./metrics-repo";
@@ -51,24 +52,26 @@ const audienceInsights = admin
     return adminMetricsRepo.getAudienceInsights({});
   });
 
-const perintisEarlyBird = admin
+const premiumPackageSales = admin
   .route({
-    path: "/admin/statistics/perintis-early-bird",
+    path: "/admin/statistics/premium-package-sales",
     method: "GET",
     tags: ["Admin - Statistics"],
   })
   .handler(async () => {
-    const soldCount = await transactionRepo.countSuccessfulTransactionsBySlug({ slug: PERINTIS_2027.SLUG });
-    const slotsClaimed = soldCount;
-    const slotsRemaining = Math.max(PERINTIS_2027.EARLY_BIRD_QUOTA - soldCount, 0);
+    const packages = await Promise.all(
+      listPremiumPackages().map(async (pkg) => ({
+        slug: pkg.slug,
+        name: pkg.name,
+        currentPrice: pkg.currentPrice,
+        soldCount: await transactionRepo.countSuccessfulTransactionsBySlug({ slug: pkg.slug }),
+      })),
+    );
 
     return {
-      totalSlots: PERINTIS_2027.EARLY_BIRD_QUOTA,
-      slotsClaimed,
-      slotsRemaining,
-      isActive: slotsRemaining > 0,
-      earlyBirdPrice: PERINTIS_2027.EARLY_BIRD_PRICE,
-      regularPrice: PERINTIS_2027.REGULAR_PRICE,
+      isPromoActive: isPromoActive(),
+      promoEndsAt: PREMIUM_PROMO_ENDS_AT.toISOString(),
+      packages,
     };
   });
 
@@ -77,5 +80,5 @@ export const adminStatisticsRouter = {
   businessOverview,
   timeSeries,
   audienceInsights,
-  perintisEarlyBird,
+  premiumPackageSales,
 };

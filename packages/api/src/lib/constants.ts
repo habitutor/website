@@ -1,6 +1,8 @@
 // Premium Deadline config
 export const PREMIUM_DEADLINE = new Date("2026-04-30");
 
+// Perintis 2027: no longer sold (replaced by PREMIUM_PACKAGES). Kept so
+// existing buyers keep their expiry and legacy orders still resolve.
 // Perintis 2027 package config (single package sold until SNBT 2027).
 // This is both the sales cutoff (availability window) AND the premium
 // expiration date granted to every new purchase of this package.
@@ -19,16 +21,59 @@ export const PERINTIS_2027 = {
   EARLY_BIRD_QUOTA: 50,
 } as const;
 
-// Paket 2 Bulan: one-off Midtrans payment that grants premium for a fixed
-// number of calendar months counted from the settlement time (not from a
-// global deadline like Perintis). PRICE must match the seeded product row and
-// the price shown on the web card (apps/web/.../paket-2-bulan-card.tsx).
+// Paket 2 Bulan: no longer sold (replaced by PREMIUM_PACKAGES). Kept so
+// existing buyers and late-settling pending orders still resolve correctly.
 export const PAKET_2_BULAN = {
   SLUG: "paket2bulan",
   NAME: "Paket 2 Bulan",
   PRICE: 50_000,
   DURATION_MONTHS: 2,
 } as const;
+
+// Promo prices apply up to and including 31 Oct 2026 23:59 WIB.
+export const PREMIUM_PROMO_ENDS_AT = new Date("2026-10-31T23:59:59.999+07:00");
+
+// The only premium packages sold. Each grants the same premium access that
+// Perintis 2027 had; they differ only in price and how long access lasts:
+// either until a fixed date (EXPIRES_AT, also the sales cutoff) or for a
+// number of calendar months from settlement (DURATION_MONTHS).
+export const PREMIUM_PACKAGES = {
+  paketmandiri2027: {
+    SLUG: "paketmandiri2027",
+    NAME: "Paket Sampai Mandiri",
+    NORMAL_PRICE: 350_000,
+    PROMO_PRICE: 280_000,
+    EXPIRES_AT: new Date("2027-06-30T23:59:59.999+07:00"),
+  },
+  paketutbk2027: {
+    SLUG: "paketutbk2027",
+    NAME: "Paket Sampai UTBK",
+    NORMAL_PRICE: 250_000,
+    PROMO_PRICE: 200_000,
+    EXPIRES_AT: new Date("2027-04-30T23:59:59.999+07:00"),
+  },
+  paket3bulan: {
+    SLUG: "paket3bulan",
+    NAME: "Paket 3 Bulan",
+    NORMAL_PRICE: 150_000,
+    PROMO_PRICE: 120_000,
+    DURATION_MONTHS: 3,
+  },
+  paket1bulan: {
+    SLUG: "paket1bulan",
+    NAME: "Paket 1 Bulan",
+    NORMAL_PRICE: 100_000,
+    PROMO_PRICE: 50_000,
+    DURATION_MONTHS: 1,
+  },
+} as const;
+
+export type PremiumPackageSlug = keyof typeof PREMIUM_PACKAGES;
+export const PREMIUM_PACKAGE_SLUGS = Object.keys(PREMIUM_PACKAGES) as PremiumPackageSlug[];
+
+export function isPremiumPackageSlug(slug: string): slug is PremiumPackageSlug {
+  return Object.hasOwn(PREMIUM_PACKAGES, slug);
+}
 
 // "Patungan Bertiga" group plan (mobile): three people each pay a discounted
 // per-person price; premium unlocks for all members only once every member's

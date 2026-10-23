@@ -12,17 +12,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { getPremiumWhatsappLink, type PremiumPlan } from "@/lib/community-links";
+import { getPremiumWhatsappLink } from "@/lib/community-links";
+import { PREMIUM_PLAN_NAME, type PremiumPlan } from "@/lib/premium-packages";
 import { orpc } from "@/utils/orpc";
 
-const WHATSAPP_GROUP_LABEL: Record<PremiumPlan, string> = {
-  perintis2027: "Gabung Grup Paket Perintis 2027",
-  paket2bulan: "Gabung Grup Paket 2 Bulan",
-};
-
 export function PremiumWhatsappDialog({ open, plan }: { open: boolean; plan?: PremiumPlan | null }) {
-  const groupLabel = WHATSAPP_GROUP_LABEL[plan ?? "perintis2027"];
-  const groupHref = getPremiumWhatsappLink(plan);
+  const groupLabel = `Gabung Grup ${plan ? PREMIUM_PLAN_NAME[plan] : "Premium"}`;
+  const groupHref = getPremiumWhatsappLink(plan) ?? undefined;
   const queryClient = useQueryClient();
   const [hasJoined, setHasJoined] = useState(false);
   const [dismissed, setDismissed] = useState(false);

@@ -1,6 +1,6 @@
 import { CaretDownIcon } from "@phosphor-icons/react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { PERINTIS_DATA } from "./data";
+import { PREMIUM_DATA } from "./data";
 
 export function FAQ() {
   return (
@@ -14,7 +14,7 @@ export function FAQ() {
         </div>
 
         <div className="w-full space-y-3">
-          {PERINTIS_DATA.faq.map((item) => (
+          {PREMIUM_DATA.faq.map((item) => (
             <Collapsible key={item.id} className="group w-full">
               <CollapsibleTrigger className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg border border-neutral-300 bg-white px-4 py-4 text-left shadow-sm transition-colors group-data-[state=open]:bg-[#FFFCF3] hover:bg-neutral-200/50">
                 <h3 className="font-semibold text-gray-900">{item.question}</h3>

@@ -25,6 +25,7 @@ import {
 import { StreakIndicator } from "@/components/streak/streak-indicator";
 import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
+import { shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
 import { orpc } from "@/utils/orpc";
 
@@ -65,7 +66,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
     isDashboard &&
     (profile === undefined ||
       (WELCOME_VIDEO_ENABLED && !profile.hasSeenWelcomeVideo) ||
-      (Boolean(session?.user.isPremium) && !profile.hasJoinedPremiumWhatsapp));
+      shouldShowPremiumWhatsappInvite({ isPremium: session?.user.isPremium, profile }));
 
   useEffect(() => {
     setAvatarSrc(getAvatarSrc(session?.user.image));

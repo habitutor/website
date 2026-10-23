@@ -4,12 +4,12 @@ import { MotionPulse } from "@/components/motion/motion-components";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { formatRupiah, PERINTIS_DATA } from "./data";
-import { usePerintisPricing } from "./use-perintis-pricing";
+import { formatRupiah, PREMIUM_DATA } from "./data";
+import { usePremiumPackages } from "./use-premium-packages";
 
 export function Hero() {
-  const { hero, proofPoints } = PERINTIS_DATA;
-  const pricing = usePerintisPricing();
+  const { hero, proofPoints } = PREMIUM_DATA;
+  const pricing = usePremiumPackages();
 
   return (
     <section className="relative overflow-hidden bg-background">
@@ -44,7 +44,7 @@ export function Hero() {
               transition={{ duration: 0.3 }}
               className="font-sans text-3xl leading-10 font-extrabold text-pretty sm:text-4xl md:text-5xl md:leading-16"
             >
-              Perintis <span className="text-primary-300">SNBT & TKA 2027</span>, mulai sekarang.
+              Persiapan <span className="text-primary-300">SNBT & TKA 2027</span>, mulai sekarang.
             </m.h1>
 
             <m.p
@@ -62,15 +62,12 @@ export function Hero() {
               transition={{ duration: 0.3, delay: 0.2 }}
               className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 pt-2"
             >
-              <span className="relative text-lg font-bold text-neutral-600 sm:text-2xl">
-                {formatRupiah(pricing.originalPrice)}
-                <span className="pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-red-400" />
-              </span>
+              <span className="text-lg font-bold text-neutral-600 sm:text-2xl">mulai dari</span>
               {pricing.isPending ? (
                 <Skeleton className="h-10 w-40 sm:h-12" />
               ) : (
                 <span className="text-4xl font-black text-primary-300 sm:text-5xl">
-                  {formatRupiah(pricing.currentPrice)}
+                  {formatRupiah(pricing.cheapestPrice)}
                 </span>
               )}
               <span className="w-full text-sm font-semibold sm:w-auto sm:text-lg">{hero.priceSuffix}</span>

@@ -2,10 +2,10 @@ import { SparkleIcon } from "@phosphor-icons/react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { PERINTIS_DATA } from "./data";
+import { PREMIUM_DATA } from "./data";
 
 export function Benefits() {
-  const { benefits, comingSoon } = PERINTIS_DATA;
+  const { benefits, comingSoon } = PREMIUM_DATA;
 
   return (
     <div className="container mx-auto space-y-6 px-4 md:px-0">
@@ -13,7 +13,7 @@ export function Benefits() {
         <h2 className="text-2xl font-extrabold sm:text-3xl">
           Yang <span className="text-primary-300">Lo Dapet</span>
         </h2>
-        <p className="text-sm font-medium md:text-lg">Sekali bayar, semuanya kebuka sampai hari-H.</p>
+        <p className="text-sm font-medium md:text-lg">Sekali bayar, semuanya kebuka selama masa aktif paket lo.</p>
       </div>
 
       <MotionStagger className="grid gap-6 md:grid-cols-3">

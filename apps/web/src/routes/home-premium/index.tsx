@@ -11,9 +11,9 @@ import { StudySchedule } from "./-components/study-schedule";
 export const Route = createFileRoute("/home-premium/")({
   head: () => ({
     meta: createMeta({
-      title: "Perintis SNBT & TKA 2027",
+      title: "Paket Premium SNBT & TKA 2027",
       description:
-        "Belajar bareng sampai hari-H SNBT 2027: playlist video, bank soal, try out, 150+ sesi live, dan komunitas yang jagain lo tetep konsisten.",
+        "Pilih paket Premium Habitutor: playlist video, bank soal, try out, 150+ sesi live, dan komunitas yang jagain lo tetep konsisten.",
     }),
   }),
   component: RouteComponent,
