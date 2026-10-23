@@ -1,4 +1,5 @@
 import { isAdminRole } from "@habitutor/shared/auth-domain";
+import { FREEMIUM_FREE_TRYOUT_SLOTS, FREEMIUM_PRODUCT } from "../../../lib/constants";
 
 /**
  * Saklar gerbang freemium. true = siswa harus memenuhi syarat atau bayar sebelum mengerjakan TO.
@@ -6,7 +7,8 @@ import { isAdminRole } from "@habitutor/shared/auth-domain";
  */
 export const FREEMIUM_GATE_ENABLED = true;
 
-export const FREEMIUM_REQUIRED_MESSAGE = "Selesaikan syarat atau bayar Rp10.000 untuk mulai mengerjakan TO";
+export const FREEMIUM_REQUIRED_MESSAGE =
+  "Pilih TO ini dulu dengan jatah gratis atau Paket 3 TryOut untuk mulai mengerjakan";
 
 export type FreemiumAccessRow = {
   requirementsCompletedAt: Date | null;
@@ -14,10 +16,56 @@ export type FreemiumAccessRow = {
   pembahasanTryoutId: string | null;
 };
 
-type FreemiumAccess = FreemiumAccessRow | null | undefined;
+export type FreemiumSelectionSource = "gratis" | "paket";
 
-export function hasFreemiumAccess(access: FreemiumAccess): boolean {
-  return Boolean(access?.requirementsCompletedAt || access?.paidAt);
+export type FreemiumSnapshot = {
+  requirementsCompleted: boolean;
+  /** Pembelian Rp10.000 di sistem lama: tetap boleh mengerjakan semua TO. */
+  legacyPaid: boolean;
+  activePackageCount: number;
+  selections: readonly { tryoutId: string; source: FreemiumSelectionSource }[];
+  /** TO yang pernah dimulai user (punya sesi apa pun). */
+  startedTryoutIds: readonly string[];
+  purchasedPembahasanTryoutIds: readonly string[];
+  /** Jatah pembahasan sistem lama yang sudah dipakai. */
+  legacyCreditTryoutIds: readonly string[];
+};
+
+function slot(total: number, used: number) {
+  return { total, used, remaining: Math.max(total - used, 0) };
+}
+
+export function summarizeFreemium(snapshot: FreemiumSnapshot) {
+  const selectedIds = new Set(snapshot.selections.map((selection) => selection.tryoutId));
+  // TO yang sudah dikerjakan sebelum ada sistem pilihan TO dihitung sebagai pilihan gratis,
+  // supaya user gratis lama tetap bisa membuka ulang TO yang pernah dikerjakannya.
+  const implicitFreeIds = snapshot.requirementsCompleted
+    ? snapshot.startedTryoutIds.filter((id) => !selectedIds.has(id))
+    : [];
+  const freeUsed = snapshot.selections.filter((selection) => selection.source === "gratis").length;
+  const packageUsed = snapshot.selections.filter((selection) => selection.source === "paket").length;
+  const packageIds = snapshot.selections
+    .filter((selection) => selection.source === "paket")
+    .map((selection) => selection.tryoutId);
+
+  return {
+    unlimited: snapshot.legacyPaid,
+    freeSlots: slot(snapshot.requirementsCompleted ? FREEMIUM_FREE_TRYOUT_SLOTS : 0, freeUsed + implicitFreeIds.length),
+    packageSlots: slot(snapshot.activePackageCount * FREEMIUM_PRODUCT.TRYOUT_SLOTS, packageUsed),
+    startableTryoutIds: [...new Set([...selectedIds, ...implicitFreeIds])],
+    pembahasanTryoutIds: [
+      ...new Set([...packageIds, ...snapshot.purchasedPembahasanTryoutIds, ...snapshot.legacyCreditTryoutIds]),
+    ],
+  };
+}
+
+export type FreemiumSummary = ReturnType<typeof summarizeFreemium>;
+
+/** Paket dipakai lebih dulu karena sudah termasuk pembahasan. */
+export function pickSelectionSource(summary: FreemiumSummary): FreemiumSelectionSource | null {
+  if (summary.packageSlots.remaining > 0) return "paket";
+  if (summary.freeSlots.remaining > 0) return "gratis";
+  return null;
 }
 
 function hasActivePremium(params: {
@@ -34,7 +82,8 @@ export function canStartTryout(params: {
   role: string | null | undefined;
   isPremium: boolean | null | undefined;
   premiumExpiresAt: Date | null | undefined;
-  access: FreemiumAccess;
+  summary: FreemiumSummary;
+  tryoutId: string;
   hasRunningSession: boolean;
   now?: Date;
 }): boolean {
@@ -42,14 +91,12 @@ export function canStartTryout(params: {
   if (isAdminRole(params.role)) return true;
   if (hasActivePremium({ isPremium: params.isPremium, premiumExpiresAt: params.premiumExpiresAt, now })) return true;
   if (params.hasRunningSession) return true;
-  return hasFreemiumAccess(params.access);
+  if (params.summary.unlimited) return true;
+  return params.summary.startableTryoutIds.includes(params.tryoutId);
 }
 
-/**
- * Pembahasan lewat jalur freemium: TO tersebut sudah dibuka user dengan salah satu jatah pembahasannya.
- */
-export function canViewFreemiumPembahasan(unlockedTryoutIds: readonly string[], tryoutId: string): boolean {
-  return unlockedTryoutIds.includes(tryoutId);
+export function canViewFreemiumPembahasan(summary: FreemiumSummary, tryoutId: string): boolean {
+  return summary.pembahasanTryoutIds.includes(tryoutId);
 }
 
 export const FREEMIUM_PROOF_COUNT = 3;

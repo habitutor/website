@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 import { createMeta } from "@/lib/seo-utils";
-import { FreemiumAccessCard, useFreemiumStatus } from "../-components/freemium-access";
+import { TryoutDetailGate, getApiErrorMessage, useFreemiumStatus } from "../-components/freemium-access";
 
 export const Route = createFileRoute("/_authenticated/tryout/$tryoutId/")({
   head: () => ({
@@ -25,8 +25,8 @@ function TryoutDetailPage() {
   const { tryoutId } = Route.useParams();
   const { session } = Route.useRouteContext();
   const isPremium = session?.user.isPremium ?? false;
-  const freemiumStatus = useFreemiumStatus();
-  const isAccessGated = freemiumStatus.data?.gateEnabled === true && freemiumStatus.data.hasAccess === false;
+  const freemiumStatus = useFreemiumStatus(tryoutId);
+  const isAccessGated = freemiumStatus.data?.gateEnabled === true && freemiumStatus.data.canStartTryout === false;
   const isCheckingAccess = freemiumStatus.isPending;
 
   const subtesQuery = useQuery(orpc.tryout.listSubtes.queryOptions({ input: { tryoutId } }));
@@ -48,7 +48,7 @@ function TryoutDetailPage() {
       },
       onError: (err) => {
         toast.error("Gagal memulai tryout", {
-          description: () => <p>{err.message}</p>,
+          description: () => <p>{getApiErrorMessage(err)}</p>,
         });
       },
     }),
@@ -66,7 +66,7 @@ function TryoutDetailPage() {
         <ArrowLeftIcon weight="bold" /> Kembali
       </Button>
 
-      {freemiumStatus.data?.gateEnabled === true && !isPremium && <FreemiumAccessCard gated={isAccessGated} />}
+      {isAccessGated && freemiumStatus.data && <TryoutDetailGate tryoutId={tryoutId} status={freemiumStatus.data} />}
 
       {/* Banner */}
       {!isAccessGated && (

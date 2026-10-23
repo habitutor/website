@@ -366,13 +366,14 @@ const getFreemiumStatus = authed
     method: "GET",
     tags: ["Student - Tryout"],
   })
-  .handler(async ({ context }) => {
+  .input(type({ "tryoutId?": "string" }))
+  .handler(async ({ input, context }) => {
     if (!context.session?.user?.id) {
       throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
     }
 
     try {
-      return await freemiumRepo.getStatus({ userId: context.session.user.id });
+      return await freemiumRepo.getStatus({ userId: context.session.user.id, tryoutId: input.tryoutId });
     } catch (error) {
       throw toOrpcError(error, "Gagal mengambil status akses freemium");
     }
@@ -403,7 +404,7 @@ const completeFreemiumRequirements = authed
   });
 
 /**
- * Pilih satu TO yang pembahasannya dibuka (hanya untuk yang sudah bayar)
+ * Sistem lama: pakai jatah pembahasan pembelian Rp10.000 sebelum ada pilihan TO
  * POST /tryout/freemium/pembahasan
  */
 const selectFreemiumPembahasan = authed
@@ -428,6 +429,52 @@ const selectFreemiumPembahasan = authed
     }
   });
 
+/**
+ * Pakai satu jatah TO (paket dulu, lalu gratis) untuk TO ini
+ * POST /tryout/freemium/select
+ */
+const selectFreemiumTryout = authed
+  .route({
+    path: "/tryout/freemium/select",
+    method: "POST",
+    tags: ["Student - Tryout"],
+  })
+  .input(type({ tryoutId: "string" }))
+  .handler(async ({ input, context }) => {
+    if (!context.session?.user?.id) {
+      throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
+    }
+
+    try {
+      return await freemiumRepo.selectTryout({ userId: context.session.user.id, tryoutId: input.tryoutId });
+    } catch (error) {
+      throw toOrpcError(error, "Gagal memilih TO");
+    }
+  });
+
+/**
+ * Lepas TO pilihan yang belum pernah dimulai supaya jatahnya bisa dipakai TO lain
+ * POST /tryout/freemium/unselect
+ */
+const unselectFreemiumTryout = authed
+  .route({
+    path: "/tryout/freemium/unselect",
+    method: "POST",
+    tags: ["Student - Tryout"],
+  })
+  .input(type({ tryoutId: "string" }))
+  .handler(async ({ input, context }) => {
+    if (!context.session?.user?.id) {
+      throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
+    }
+
+    try {
+      return await freemiumRepo.unselectTryout({ userId: context.session.user.id, tryoutId: input.tryoutId });
+    } catch (error) {
+      throw toOrpcError(error, "Gagal mengganti TO");
+    }
+  });
+
 export const studentTryoutRouter = {
   list: listPublishedTryouts,
   listSubtes: listSubtesByTryout,
@@ -447,6 +494,8 @@ export const studentTryoutRouter = {
   freemium: {
     status: getFreemiumStatus,
     completeRequirements: completeFreemiumRequirements,
+    select: selectFreemiumTryout,
+    unselect: unselectFreemiumTryout,
     selectPembahasan: selectFreemiumPembahasan,
   },
   passingGrade: getPassingGrade,

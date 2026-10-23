@@ -3,6 +3,7 @@ import { ORPCError } from "@orpc/client";
 import { PREMIUM_TIERS } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
 import {
+  FREEMIUM_PEMBAHASAN_PRODUCT,
   FREEMIUM_PRODUCT,
   PAKET_2_BULAN,
   PATUNGAN_BERTIGA,
@@ -65,6 +66,12 @@ function resolvePremiumExpiry(productSlug: string, paidAt: Date) {
   if (productSlug === PAKET_2_BULAN.SLUG) return addMonthsUtc(paidAt, PAKET_2_BULAN.DURATION_MONTHS);
   if (productSlug === PERINTIS_2027.SLUG) return SNBT_2027_DEADLINE;
   return PREMIUM_DEADLINE;
+}
+
+function getFreemiumPurchaseKind(productSlug: string) {
+  if (productSlug === FREEMIUM_PRODUCT.SLUG) return "paket" as const;
+  if (productSlug === FREEMIUM_PEMBAHASAN_PRODUCT.SLUG) return "pembahasan" as const;
+  return null;
 }
 
 // paidAt is the stable settlement time stored on the transaction, so replaying
@@ -152,7 +159,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
         : null;
     const alreadySuccessful = tx.status === "success";
     const premiumUnlockedUserIds: string[] = [];
-    const freemiumUnlockedUserIds: string[] = [];
+    const freemiumUnlocked: { userId: string; kind: "paket" | "pembahasan" }[] = [];
 
     await transactionRepo.updateTransactionStatus({
       db: trx,
@@ -183,10 +190,11 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
       }
     }
 
-    // Akses Freemium TryOut (Rp10.000): aktif otomatis begitu pembayaran settle.
-    if (existingTransaction.prodSlug === FREEMIUM_PRODUCT.SLUG && tx.userId) {
-      await freemiumRepo.activatePaid({ db: trx, userId: tx.userId, transactionId: orderId });
-      if (!alreadySuccessful) freemiumUnlockedUserIds.push(tx.userId);
+    // Paket 3 TryOut (Rp10.000) / pembahasan TO (Rp5.000): aktif otomatis begitu pembayaran settle.
+    const freemiumKind = getFreemiumPurchaseKind(existingTransaction.prodSlug);
+    if (freemiumKind && tx.userId) {
+      await freemiumRepo.activatePurchase({ db: trx, userId: tx.userId, transactionId: orderId, kind: freemiumKind });
+      if (!alreadySuccessful) freemiumUnlocked.push({ userId: tx.userId, kind: freemiumKind });
     }
 
     // Patungan Bertiga: premium unlocks for every member only once the whole
@@ -212,7 +220,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     return {
       resolvedPaidAt,
       premiumUnlockedUserIds,
-      freemiumUnlockedUserIds,
+      freemiumUnlocked,
       // Only process referral once, on the transition into success.
       referral:
         !alreadySuccessful && tx.referralCodeId && tx.userId
@@ -242,13 +250,16 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     }
   }
 
-  for (const userId of result.freemiumUnlockedUserIds) {
+  for (const { userId, kind } of result.freemiumUnlocked) {
     try {
       await notifyUser({
         userId,
         type: "system",
-        title: "Akses TryOut aktif! 🎉",
-        body: "Pembayaran Rp10.000 berhasil. Kamu bisa mengerjakan semua TO dan membuka pembahasan untuk 1 TO pilihanmu.",
+        title: kind === "paket" ? "Paket 3 TryOut aktif! 🎉" : "Pembahasan TO terbuka! 🎉",
+        body:
+          kind === "paket"
+            ? "Pembayaran Rp10.000 berhasil. Pilih 3 TO yang ingin kamu kerjakan, pembahasannya sudah termasuk."
+            : "Pembayaran Rp5.000 berhasil. Pembahasan TO pilihanmu sudah bisa dibuka di halaman hasil.",
       });
     } catch (err) {
       logger.error("Failed to send freemium notification", { userId, error: err });
@@ -316,9 +327,9 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
       revokeSuccessfulPayment &&
       wasSuccessful &&
       existingTransaction.tx.userId &&
-      existingTransaction.prodSlug === FREEMIUM_PRODUCT.SLUG
+      getFreemiumPurchaseKind(existingTransaction.prodSlug)
     ) {
-      await freemiumRepo.revokePaid({
+      await freemiumRepo.revokePurchase({
         db: trx,
         userId: existingTransaction.tx.userId,
         transactionId: orderId,

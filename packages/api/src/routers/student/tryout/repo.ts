@@ -694,8 +694,8 @@ export const tryoutRepo = {
 
     const freemiumAccess = await freemiumRepo.getAccess({ db, userId: sesi.userId });
     const freemiumCredit = await freemiumRepo.getCreditSummary({ db, userId: sesi.userId });
-    const aksesPembahasan =
-      aksesPembahasanPremium || canViewFreemiumPembahasan(freemiumCredit.unlockedTryoutIds, sesi.tryoutId);
+    const freemiumSummary = await freemiumRepo.getSummary({ db, userId: sesi.userId });
+    const aksesPembahasan = aksesPembahasanPremium || canViewFreemiumPembahasan(freemiumSummary, sesi.tryoutId);
 
     return {
       sesiId,
@@ -742,8 +742,7 @@ export const tryoutRepo = {
 
     if (!hasPremiumAccess) {
       const soalTryoutId = await freemiumRepo.getTryoutIdBySoal({ db, soalId });
-      const freemiumCredit = await freemiumRepo.getCreditSummary({ db, userId });
-      if (!soalTryoutId || !canViewFreemiumPembahasan(freemiumCredit.unlockedTryoutIds, soalTryoutId)) {
+      if (!soalTryoutId || !(await freemiumRepo.canViewPembahasan({ db, userId, tryoutId: soalTryoutId }))) {
         throw new TryoutError(
           "FORBIDDEN",
           "Pembahasan hanya tersedia untuk member premium atau TO pilihan akses freemium",

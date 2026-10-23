@@ -7,6 +7,7 @@ import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-com
 import { Button } from "@/components/ui/button";
 import { COMMUNITY_LINKS, getPremiumWhatsappLink, shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
+import { FREEMIUM_WHATSAPP_LINKS } from "@/lib/freemium-links";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
@@ -33,6 +34,17 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 function RouteComponent() {
   const { session } = Route.useRouteContext();
   const { data: profile } = useQuery(orpc.profile.me.queryOptions());
+  const { data: freemiumStatus } = useQuery(orpc.tryout.freemium.status.queryOptions({ input: {} }));
+  // Channel WA: semua yang punya akses (lolos syarat, beli Rp5.000/Rp10.000, premium).
+  const showWhatsappChannel =
+    Boolean(session?.user.isPremium) ||
+    Boolean(
+      freemiumStatus &&
+      (freemiumStatus.requirementsCompleted ||
+        freemiumStatus.hasPackage ||
+        freemiumStatus.hasPembahasanPurchase ||
+        freemiumStatus.paid),
+    );
   useQuery(orpc.dashboard.content.queryOptions());
 
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
@@ -118,6 +130,31 @@ function RouteComponent() {
                     height={70}
                     className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
                   />
+                </a>
+              )}
+              {freemiumStatus?.hasPackage && FREEMIUM_WHATSAPP_LINKS.paketGroup && (
+                <a
+                  href={FREEMIUM_WHATSAPP_LINKS.paketGroup}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
+                >
+                  <div className="z-10">
+                    <p className="text-xs font-semibold text-white/80">Paket 3 TryOut</p>
+                    <p className="w-[60%] font-bold md:w-full">Join Grup WhatsApp</p>
+                  </div>
+                  <ArrowCircleRightIcon size={24} className="z-10" />
+                </a>
+              )}
+              {showWhatsappChannel && FREEMIUM_WHATSAPP_LINKS.channel && (
+                <a
+                  href={FREEMIUM_WHATSAPP_LINKS.channel}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
+                >
+                  <p className="z-10 w-[60%] font-bold md:w-full">Ikuti Channel WhatsApp</p>
+                  <ArrowCircleRightIcon size={24} className="z-10" />
                 </a>
               )}
             </div>
