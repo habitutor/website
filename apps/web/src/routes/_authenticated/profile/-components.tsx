@@ -242,7 +242,7 @@ export default function ProfilePage() {
   return (
     <main>
       {/* Background dan dekorasi */}
-      <div className="relative flex w-full items-start justify-center bg-background pt-20 md:overflow-y-hidden">
+      <div className="relative flex w-full items-start justify-center overflow-x-clip bg-background pt-20">
         {/* Dekorasi bulatan */}
         <MotionPulse>
           <motion.div
@@ -273,7 +273,7 @@ export default function ProfilePage() {
         </MotionPulse>
 
         {/* kartu */}
-        <main className="relative z-2 w-full animate-in items-center space-y-6 border-x border-neutral-300 bg-white py-10 shadow-sm fade-in slide-in-from-bottom-6 md:h-[calc(100vh-80px)]">
+        <main className="relative z-2 w-full animate-in items-center space-y-6 border-x border-neutral-300 bg-white py-10 shadow-sm fade-in slide-in-from-bottom-6 md:min-h-[calc(100vh-80px)]">
           {/* Tombol kembali */}
           <div className="hidden w-full px-12 md:block">
             <Button className="h-8 rounded-md bg-primary-300 px-4 text-xs font-semibold text-white hover:bg-primary-400">

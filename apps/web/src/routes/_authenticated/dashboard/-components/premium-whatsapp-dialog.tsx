@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { getPremiumWhatsappLink } from "@/lib/community-links";
+import { COMMUNITY_LINKS, getPremiumWhatsappLink } from "@/lib/community-links";
 import { PREMIUM_PLAN_NAME, type PremiumPlan } from "@/lib/premium-packages";
 import { orpc } from "@/utils/orpc";
 
@@ -52,7 +52,8 @@ export function PremiumWhatsappDialog({ open, plan }: { open: boolean; plan?: Pr
           </div>
           <DialogTitle>Gabung Komunitas WhatsApp Premium</DialogTitle>
           <DialogDescription>
-            Dapatkan pengumuman kelas, diskusi belajar, dan informasi khusus member premium Habitutor.
+            Gabung grup paketmu untuk pengumuman kelas dan diskusi belajar, lalu ikuti channel Habitutor untuk info
+            terbaru.
           </DialogDescription>
         </DialogHeader>
 
@@ -62,6 +63,16 @@ export function PremiumWhatsappDialog({ open, plan }: { open: boolean; plan?: Pr
         >
           <a href={groupHref} target="_blank" rel="noopener noreferrer">
             {groupLabel}
+            <ArrowSquareOutIcon />
+          </a>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto w-full border-whatsapp px-4 py-3 text-center whitespace-normal text-whatsapp hover:bg-whatsapp/10"
+        >
+          <a href={COMMUNITY_LINKS.whatsappChannel} target="_blank" rel="noopener noreferrer">
+            Ikuti Channel WA Habitutor
             <ArrowSquareOutIcon />
           </a>
         </Button>

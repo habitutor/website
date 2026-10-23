@@ -2,6 +2,7 @@ import { MagnifyingGlass, Package, Plus } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,15 +20,16 @@ function PracticePacksListPage() {
   const [page, setPage] = useState(1);
   const limit = 9;
   const offset = (page - 1) * limit;
+  // Dicari di server (nama pack, deskripsi, dan isi soal) supaya mencakup semua halaman.
+  const search = useDebounceValue(searchQuery.trim(), 300);
 
   const { data, isPending, isError, error } = useQuery(
-    orpc.admin.practicePack.list.queryOptions({ input: { limit, offset } }),
+    orpc.admin.practicePack.list.queryOptions({ input: { limit, offset, search: search || undefined } }),
   );
 
   const packs = data?.data || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / limit);
-  const filteredPacks = packs.filter((pack) => pack.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <AdminContainer>
@@ -49,9 +51,12 @@ function PracticePacksListPage() {
           <Input
             type="search"
             autoComplete="off"
-            placeholder="Search practice packs…"
+            placeholder="Cari nama pack atau isi soal…"
             value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              setPage(1);
+            }}
             className="pl-9"
           />
         </div>
@@ -76,7 +81,7 @@ function PracticePacksListPage() {
         </div>
       )}
 
-      {data && filteredPacks.length === 0 && (
+      {data && packs.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
           <Package className="mb-4 size-12 text-muted-foreground" />
           <h3 className="mb-2 text-lg font-semibold">No practice packs found</h3>
@@ -95,12 +100,12 @@ function PracticePacksListPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-        {filteredPacks?.map((pack) => (
+        {packs?.map((pack) => (
           <PracticePackCard key={pack.id} pack={pack} />
         ))}
       </div>
 
-      {totalPages > 1 && !searchQuery && (
+      {totalPages > 1 && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:mt-8 sm:gap-2">
           <Button
             variant="outline"

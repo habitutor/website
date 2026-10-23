@@ -4,6 +4,21 @@ import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { convertToTiptap } from "../../../lib/tiptap";
 
+// Cocok dengan nama pack, deskripsi, atau isi salah satu soal di dalam pack.
+function packSearchFilter(search: string) {
+  const pattern = `%${search}%`;
+  return or(
+    ilike(practicePack.title, pattern),
+    ilike(practicePack.description, pattern),
+    sql`exists (
+      select 1 from ${practicePackQuestions}
+      inner join ${question} on ${question.id} = ${practicePackQuestions.questionId}
+      where ${practicePackQuestions.practicePackId} = ${practicePack.id}
+        and ${question.content} ilike ${pattern}
+    )`,
+  );
+}
+
 type PackQuestionRow = {
   questionId: number;
   questionOrder: number | null;
@@ -94,19 +109,14 @@ export const adminPracticePackRepo = {
       })
       .from(practicePack);
 
-    const filteredQuery = search
-      ? baseQuery.where(and(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
-      : baseQuery;
+    const filteredQuery = search ? baseQuery.where(packSearchFilter(search)) : baseQuery;
 
     return filteredQuery.limit(limit).offset(offset).orderBy(practicePack.id);
   },
 
   count: async ({ db = defaultDb, search }: { db?: DrizzleDatabase; search: string }) => {
     const [result] = search
-      ? await db
-          .select({ count: count() })
-          .from(practicePack)
-          .where(or(ilike(practicePack.title, `%${search}%`), ilike(practicePack.description, `%${search}%`)))
+      ? await db.select({ count: count() }).from(practicePack).where(packSearchFilter(search))
       : await db.select({ count: count() }).from(practicePack);
     return result?.count ?? 0;
   },

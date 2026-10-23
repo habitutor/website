@@ -206,9 +206,36 @@ function WhatsappButton({ href, label }: { href: string; label: string }) {
 }
 
 /** Channel WA untuk semua yang punya akses; grup WA hanya untuk pembeli Paket 3 TryOut. */
-export function FreemiumWhatsappInvites({ showPaketGroup = false }: { showPaketGroup?: boolean }) {
+export function FreemiumWhatsappInvites({
+  showPaketGroup = false,
+  compact = false,
+}: {
+  showPaketGroup?: boolean;
+  compact?: boolean;
+}) {
   const { channel, paketGroup } = FREEMIUM_WHATSAPP_LINKS;
   if (!channel && !(showPaketGroup && paketGroup)) return null;
+
+  if (compact) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {showPaketGroup && paketGroup && (
+          <Button asChild size="sm" className="bg-whatsapp text-white hover:bg-whatsapp/90">
+            <a href={paketGroup} target="_blank" rel="noopener noreferrer">
+              <WhatsappLogoIcon weight="fill" /> Grup WA Paket 3 TO
+            </a>
+          </Button>
+        )}
+        {channel && (
+          <Button asChild size="sm" variant="outline" className="border-whatsapp text-whatsapp hover:bg-whatsapp/10">
+            <a href={channel} target="_blank" rel="noopener noreferrer">
+              <WhatsappLogoIcon weight="fill" /> Channel WA
+            </a>
+          </Button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -553,6 +580,7 @@ export function FreemiumAccessPanel({ status }: { status: FreemiumStatus }) {
               ? `Sisa ${remaining} TO. Pilih lewat tombol "Pilih TO ini" di kartu TO.`
               : "Semua jatah TO kamu sudah dipilih."}
           </p>
+          <FreemiumWhatsappInvites showPaketGroup={status.hasPackage} compact />
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">

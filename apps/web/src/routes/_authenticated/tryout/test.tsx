@@ -218,8 +218,7 @@ function TryoutTestPage() {
       const q = questions[qIdx];
       if (!q) return { answered: false, doubtful: false };
       return {
-        answered:
-          !!q.jawaban_dipilih || (q.jawaban_dipilih_multi?.length ?? 0) > 0,
+        answered: !!q.jawaban_dipilih || (q.jawaban_dipilih_multi?.length ?? 0) > 0,
         doubtful: !!q.is_ragu,
       };
     },
@@ -237,14 +236,14 @@ function TryoutTestPage() {
 
   return (
     <div className="flex w-full flex-col py-6">
-      <div className="mx-auto w-full max-w-6xl rounded-2xl bg-[#fff8db] p-6 shadow-sm">
+      <div className="mx-auto w-full max-w-6xl rounded-2xl bg-[#fff8db] p-4 shadow-sm sm:p-6">
         {/* Header Section */}
         <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Soal Nomor {activeQuestion}</h1>
             <p className="text-sm text-gray-600">{subtestName}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             {currentQuestion?.is_ragu && (
               <div className="rounded bg-[#eab308] px-3 py-1.5 text-sm font-bold text-black shadow-sm">Ragu-Ragu</div>
             )}
@@ -264,11 +263,11 @@ function TryoutTestPage() {
                   <ListIcon weight="bold" className="mr-2" /> Daftar Soal
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle className="text-xl font-bold">Daftar Soal</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-5 gap-3 border-t pt-4">
+                <div className="grid grid-cols-5 gap-2 border-t pt-4 sm:gap-3">
                   {questions.map((_: unknown, idx: number) => {
                     const qNum = idx + 1;
                     const { answered, doubtful } = getQuestionStatus(idx);
@@ -279,7 +278,7 @@ function TryoutTestPage() {
                         type="button"
                         onClick={() => setActiveQuestion(qNum)}
                         className={cn(
-                          "flex h-12 w-full items-center justify-center rounded-lg border text-lg font-medium transition-colors",
+                          "flex h-10 w-full items-center justify-center rounded-lg border text-base font-medium transition-colors sm:h-12 sm:text-lg",
                           doubtful
                             ? "border-[#facc15] bg-[#fde047] text-gray-900"
                             : answered
@@ -295,7 +294,7 @@ function TryoutTestPage() {
                 </div>
 
                 {/* Summary */}
-                <div className="mt-4 flex gap-4 border-t pt-4 text-xs text-gray-500">
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t pt-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1.5">
                     <div className="size-3 rounded-sm border-[#7dd3fc] bg-[#bae6fd]" /> Dijawab
                   </div>
@@ -325,7 +324,7 @@ function TryoutTestPage() {
         {/* Content Section */}
         <div className="flex min-h-100 flex-col gap-0 rounded-xl bg-white shadow-sm md:flex-row">
           {/* Question Panel */}
-          <div className="flex-1 p-6 md:p-8">
+          <div className="min-w-0 flex-1 p-4 sm:p-6 md:p-8">
             {questionsQuery.isPending ? (
               <div className="flex flex-col gap-4">
                 <div className="h-6 w-3/4 animate-pulse rounded bg-gray-200" />
@@ -335,7 +334,7 @@ function TryoutTestPage() {
             ) : currentQuestion ? (
               <>
                 <div className="mb-6">
-                  <div className="space-y-4 text-lg font-medium text-gray-800">
+                  <div className="space-y-4 text-base font-medium break-words text-gray-800 sm:text-lg">
                     {currentQuestion.pertanyaan
                       .split(/\n+/)
                       .filter((line: string) => line.trim() !== "")
@@ -371,7 +370,6 @@ function TryoutTestPage() {
                       ? selectedIds.includes(opt.id)
                       : currentQuestion.jawaban_dipilih === opt.id;
 
-
                     return (
                       <button
                         key={opt.id}
@@ -400,7 +398,6 @@ function TryoutTestPage() {
                             });
                           }
                         }}
-
                         disabled={isExpired}
                         className={cn(
                           "flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 text-left transition-colors",
@@ -408,16 +405,16 @@ function TryoutTestPage() {
                           isExpired && "cursor-not-allowed opacity-60",
                         )}
                       >
-                      <div className="flex min-w-0 flex-1 flex-col gap-2">
-                        {option.isi && <span className="text-gray-700">{option.isi}</span>}
-                        {option.gambarUrl && (
-                          <img
-                            src={option.gambarUrl}
-                            alt={`Gambar opsi ${option.label}`}
-                            className="mt-1 h-auto max-w-full rounded-lg border border-gray-200 bg-white object-contain"
-                          />
-                        )}
-                      </div>
+                        <div className="flex min-w-0 flex-1 flex-col gap-2">
+                          {option.isi && <span className="text-gray-700">{option.isi}</span>}
+                          {option.gambarUrl && (
+                            <img
+                              src={option.gambarUrl}
+                              alt={`Gambar opsi ${option.label}`}
+                              className="mt-1 h-auto max-w-full rounded-lg border border-gray-200 bg-white object-contain"
+                            />
+                          )}
+                        </div>
                       </button>
                     );
                   })}
@@ -443,17 +440,17 @@ function TryoutTestPage() {
           </Button>
 
           <Button
-          onClick={() => {
-            if (!resolvedSesiId || !currentQuestion || isExpired) return;
+            onClick={() => {
+              if (!resolvedSesiId || !currentQuestion || isExpired) return;
 
-            submitAnswerMutation.mutate({
-              sesiId: resolvedSesiId,
-              sesiSoalId: currentQuestion.sesiSoalId,
-              pilihanId: currentQuestion.jawaban_dipilih ?? null,
-              pilihanIds: currentQuestion.jawaban_dipilih_multi ?? [],
-              isRagu: !currentQuestion.is_ragu,
-            });
-          }}
+              submitAnswerMutation.mutate({
+                sesiId: resolvedSesiId,
+                sesiSoalId: currentQuestion.sesiSoalId,
+                pilihanId: currentQuestion.jawaban_dipilih ?? null,
+                pilihanIds: currentQuestion.jawaban_dipilih_multi ?? [],
+                isRagu: !currentQuestion.is_ragu,
+              });
+            }}
             disabled={isExpired}
             className={cn(
               "h-12 w-full px-8 font-semibold shadow-sm md:w-auto",
