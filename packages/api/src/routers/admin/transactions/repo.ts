@@ -13,6 +13,7 @@ export const adminTransactionRepo = {
     search,
     status,
     paymentType,
+    productSlug,
     from,
     to,
     sortBy,
@@ -24,6 +25,7 @@ export const adminTransactionRepo = {
     search?: string;
     status?: string;
     paymentType?: string;
+    productSlug?: string;
     from?: Date;
     to?: Date;
     sortBy: TransactionSort;
@@ -42,6 +44,7 @@ export const adminTransactionRepo = {
         ? or(eq(transaction.gatewayStatus, status), eq(transaction.status, status as "pending" | "success" | "failed"))
         : undefined,
       paymentType ? eq(transaction.paymentType, paymentType) : undefined,
+      productSlug ? eq(product.slug, productSlug) : undefined,
       from ? gte(transaction.orderedAt, from) : undefined,
       to ? lte(transaction.orderedAt, to) : undefined,
     );
@@ -93,17 +96,19 @@ export const adminTransactionRepo = {
   },
 
   filterOptions: async ({ db = defaultDb }: { db?: DrizzleDatabase } = {}) => {
-    const [statuses, paymentTypes] = await Promise.all([
+    const [statuses, paymentTypes, products] = await Promise.all([
       db
         .selectDistinct({ value: transaction.gatewayStatus })
         .from(transaction)
         .where(isNotNull(transaction.gatewayStatus)),
       db.selectDistinct({ value: transaction.paymentType }).from(transaction).where(isNotNull(transaction.paymentType)),
+      db.select({ slug: product.slug, name: product.name }).from(product).orderBy(product.name),
     ]);
 
     return {
       statuses: statuses.flatMap(({ value }) => (value ? [value] : [])),
       paymentTypes: paymentTypes.flatMap(({ value }) => (value ? [value] : [])),
+      products,
     };
   },
 };

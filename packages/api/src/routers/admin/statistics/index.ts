@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { PREMIUM_PROMO_ENDS_AT } from "../../../lib/constants";
+import { FREEMIUM_PEMBAHASAN_PRODUCT, FREEMIUM_PRODUCT, PREMIUM_PROMO_ENDS_AT } from "../../../lib/constants";
 import { isPromoActive, listPremiumPackages } from "../../transaction/pricing";
 import { transactionRepo } from "../../transaction/repo";
 import { admin } from "../../../index";
@@ -75,7 +75,36 @@ const premiumPackageSales = admin
     };
   });
 
+const freemiumSales = admin
+  .route({
+    path: "/admin/statistics/freemium-sales",
+    method: "GET",
+    tags: ["Admin - Statistics"],
+  })
+  .handler(async () => {
+    const products = [FREEMIUM_PRODUCT, FREEMIUM_PEMBAHASAN_PRODUCT];
+    const [sales, requirementsCompleted] = await Promise.all([
+      adminStatisticsRepo.getProductSales({ slugs: products.map((item) => item.SLUG) }),
+      adminStatisticsRepo.countFreemiumRequirementsCompleted(),
+    ]);
+
+    return {
+      requirementsCompleted,
+      products: products.map((item) => {
+        const row = sales.find((sale) => sale.slug === item.SLUG);
+        return {
+          slug: item.SLUG,
+          name: item.NAME,
+          price: item.PRICE,
+          soldCount: row?.soldCount ?? 0,
+          revenue: row?.revenue ?? 0,
+        };
+      }),
+    };
+  });
+
 export const adminStatisticsRouter = {
+  freemiumSales,
   stats: get,
   businessOverview,
   timeSeries,

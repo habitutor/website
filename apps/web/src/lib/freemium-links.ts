@@ -1,14 +1,18 @@
 export const FREEMIUM_LINKS = {
   instagram: "https://www.instagram.com/habitutor.id/",
   tiktok: "https://www.tiktok.com/@habitutor.id?lang=id-ID",
-  whatsappGroup: "https://chat.whatsapp.com/BYJqvPu29KBK5ZjOHjqjIc?s=cl&p=i&mlu=4&ilr=4",
 } as const;
 
-export const FREEMIUM_PRICE_LABEL = "Rp10.000";
+// ISI LINK DI SINI. Selama null, tombolnya disembunyikan (tidak ada tombol rusak).
+export const FREEMIUM_WHATSAPP_LINKS: { channel: string | null; paketGroup: string | null } = {
+  // Channel WA: untuk semua yang punya akses (lolos syarat, beli Rp5.000/Rp10.000, premium).
+  channel: "https://whatsapp.com/channel/0029Vb8B01GLCoWsj02Zwd0e",
+  // Grup WA khusus pembeli Paket 3 TryOut (Rp10.000).
+  paketGroup: null,
+};
 
-export function isFreemiumLinkReady(value: string) {
-  return !value.startsWith("ISI_");
-}
+export const FREEMIUM_PAKET_PRICE_LABEL = "Rp10.000";
+export const FREEMIUM_PEMBAHASAN_PRICE_LABEL = "Rp5.000";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MONTHS_ID = [
@@ -103,7 +107,7 @@ Bebas pilih 2 mata pelajaran.
 
 📅 Catat waktunya:
 📝 Pendaftaran: ${getRegistrationLabel(now)}
-🏆 Hasil dan skor langsung keluar di web setelah kamu selesai mengerjakan. Pembahasan khusus pengguna premium atau akses berbayar ${FREEMIUM_PRICE_LABEL}
+🏆 Hasil dan skor langsung keluar di web setelah kamu selesai mengerjakan. Pembahasan bisa dibuka ${FREEMIUM_PEMBAHASAN_PRICE_LABEL} per TO, atau ambil Paket 3 TO ${FREEMIUM_PAKET_PRICE_LABEL} yang sudah termasuk pembahasan
 
 ⭐ Kenapa TO Habitutor?
 🔵 Soal sesuai kisi-kisi dan framework penilaian TKA
@@ -114,9 +118,9 @@ Cara daftar:
 2️⃣ Follow TikTok @habitutor.id
 3️⃣ Buka https://habitutor.id lalu pilih TO
 4️⃣ Upload 3 foto bukti (follow IG, follow TikTok, share BC ke 5 grup WA)
-5️⃣ TO langsung terbuka setelah bukti terkirim
+5️⃣ Pilih 1 TO gratis dan langsung kerjakan
 
-🆓 GRATIS — kuota terbatas!
+🆓 1 TO GRATIS — kuota terbatas!
 👉 https://habitutor.id
 
 Ada pertanyaan? DM @habitutor.id`;

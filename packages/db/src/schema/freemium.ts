@@ -1,4 +1,4 @@
-import { index, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { index, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { transaction } from "./transaction";
 import { tryout } from "./tryout";
 import { user } from "./user";
@@ -40,4 +40,54 @@ export const tryoutFreemiumCredit = pgTable(
     index("idx_tryout_freemium_credit_user_id").on(t.userId),
     uniqueIndex("tryout_freemium_credit_user_tryout_unique").on(t.userId, t.tryoutId),
   ],
+);
+
+export const tryoutFreemiumSelectionSourceEnum = pgEnum("tryout_freemium_selection_source", ["gratis", "paket"]);
+
+/**
+ * TO yang dipilih user untuk dikerjakan. Jatah gratis = 1 TO (setelah syarat), tiap paket Rp10.000 = +3 TO.
+ * TO dari paket sudah termasuk pembahasan; TO gratis butuh pembelian pembahasan Rp5.000.
+ */
+export const tryoutFreemiumSelection = pgTable(
+  "tryout_freemium_selection",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    tryoutId: uuid("tryout_id")
+      .notNull()
+      .references(() => tryout.id, { onDelete: "cascade" }),
+    source: tryoutFreemiumSelectionSourceEnum("source").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_tryout_freemium_selection_user_id").on(t.userId),
+    uniqueIndex("tryout_freemium_selection_user_tryout_unique").on(t.userId, t.tryoutId),
+  ],
+);
+
+export const tryoutFreemiumPurchaseKindEnum = pgEnum("tryout_freemium_purchase_kind", ["paket", "pembahasan"]);
+
+/**
+ * Pembelian freemium: paket Rp10.000 (+3 TO) atau pembahasan Rp5.000 untuk satu TO (tryoutId terisi).
+ * Baris dibuat saat checkout dan baru berlaku setelah activatedAt terisi oleh pembayaran yang terverifikasi.
+ * Pemberian manual admin tidak punya transactionId.
+ */
+export const tryoutFreemiumPurchase = pgTable(
+  "tryout_freemium_purchase",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    transactionId: text("transaction_id")
+      .unique()
+      .references(() => transaction.id, { onDelete: "set null" }),
+    kind: tryoutFreemiumPurchaseKindEnum("kind").notNull(),
+    tryoutId: uuid("tryout_id").references(() => tryout.id, { onDelete: "set null" }),
+    activatedAt: timestamp("activated_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("idx_tryout_freemium_purchase_user_id").on(t.userId)],
 );

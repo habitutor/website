@@ -196,7 +196,7 @@ const activateUserFreemium = admin
       });
     }
 
-    await freemiumRepo.activatePaid({ userId: input.id });
+    await freemiumRepo.grantPackage({ userId: input.id });
 
     return {
       id: existingUser.id,

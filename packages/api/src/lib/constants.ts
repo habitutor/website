@@ -87,9 +87,21 @@ export const PATUNGAN_BERTIGA = {
   WINDOW_HOURS: 48,
 } as const;
 
-// Akses Freemium TryOut: sekali bayar, membuka pengerjaan semua TO + pembahasan untuk satu TO pilihan.
+// Paket 3 TryOut (Rp10.000): tiap pembelian menambah 3 TO pilihan, pembahasannya sudah termasuk.
+// Slug lama dipertahankan; pembelian sebelum sistem pilihan TO tetap membuka semua TO (lihat freemium-logic).
 export const FREEMIUM_PRODUCT = {
   SLUG: "tryout-freemium",
-  NAME: "Akses Freemium TryOut",
+  NAME: "Paket 3 TryOut",
   PRICE: 10_000,
+  TRYOUT_SLOTS: 3,
 } as const;
+
+// Pembahasan satu TO (Rp5.000) untuk TO yang sudah selesai dikerjakan.
+export const FREEMIUM_PEMBAHASAN_PRODUCT = {
+  SLUG: "tryout-pembahasan",
+  NAME: "Pembahasan TryOut",
+  PRICE: 5_000,
+} as const;
+
+// Jatah TO gratis setelah syarat promosi terpenuhi.
+export const FREEMIUM_FREE_TRYOUT_SLOTS = 1;

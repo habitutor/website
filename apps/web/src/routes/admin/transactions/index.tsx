@@ -23,6 +23,7 @@ function TransactionsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [paymentType, setPaymentType] = useState("");
+  const [productSlug, setProductSlug] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("date");
@@ -39,6 +40,7 @@ function TransactionsPage() {
     search: search || undefined,
     status: status || undefined,
     paymentType: paymentType || undefined,
+    productSlug: productSlug || undefined,
     from: from ? new Date(`${from}T00:00:00`).toISOString() : undefined,
     to: to ? new Date(`${to}T23:59:59.999`).toISOString() : undefined,
     sortBy,
@@ -115,6 +117,22 @@ function TransactionsPage() {
           {optionsQuery.data?.paymentTypes.map((option) => (
             <option key={option} value={option}>
               {option}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Produk"
+          value={productSlug}
+          onChange={(event) => {
+            setProductSlug(event.target.value);
+            setPage(1);
+          }}
+          className="h-9 rounded-md border bg-background px-3 text-sm"
+        >
+          <option value="">All products</option>
+          {(optionsQuery.data?.products ?? []).map((product) => (
+            <option key={product.slug} value={product.slug}>
+              {product.name}
             </option>
           ))}
         </select>

@@ -176,6 +176,13 @@
       "when": 1792694572049,
       "tag": "0024_seed_premium_packages",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792720906349,
+      "tag": "0025_freemium_selection_purchase",
+      "breakpoints": true
     }
   ]
 }

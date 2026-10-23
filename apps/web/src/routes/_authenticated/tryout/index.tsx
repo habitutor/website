@@ -9,6 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
+import {
+  FreemiumAccessPanel,
+  type FreemiumStatus,
+  TryoutCardAccess,
+  useFreemiumStatus,
+} from "./-components/freemium-access";
 
 export const Route = createFileRoute("/_authenticated/tryout/")({
   head: () => ({
@@ -37,6 +43,7 @@ function asArray<T>(value: unknown): T[] {
 function TryoutPage() {
   const { data: tryoutsData, error, isError, isPending } = useQuery(orpc.tryout.list.queryOptions({ input: {} }));
   const tryouts = asArray<TryoutListItem>(tryoutsData);
+  const freemiumStatus = useFreemiumStatus();
 
   const [selectedUniv, setSelectedUniv] = React.useState<string>("");
   const [selectedJurusan, setSelectedJurusan] = React.useState<string>("");
@@ -148,7 +155,8 @@ function TryoutPage() {
           <TabsTrigger value="hasil">Hasil Tryout</TabsTrigger>
         </TabsList>
         {/* DAFTAR TRYOUT TAB */}
-        <TabsContent value="daftar_tryout">
+        <TabsContent value="daftar_tryout" className="flex flex-col gap-4">
+          {freemiumStatus.data && <FreemiumAccessPanel status={freemiumStatus.data} />}
           {isPending ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -181,7 +189,7 @@ function TryoutPage() {
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {tryouts.map((tryout) => (
-                <TryoutCard key={tryout.id} tryout={tryout} />
+                <TryoutCard key={tryout.id} tryout={tryout} freemiumStatus={freemiumStatus.data} />
               ))}
             </div>
           )}
@@ -319,7 +327,7 @@ function TryoutErrorState({ message }: { message: string }) {
   );
 }
 
-function TryoutCard({ tryout }: { tryout: TryoutListItem }) {
+function TryoutCard({ tryout, freemiumStatus }: { tryout: TryoutListItem; freemiumStatus?: FreemiumStatus }) {
   return (
     <div className="group flex flex-col justify-between gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-primary-300/50 hover:shadow-md">
       <div className="flex flex-col gap-2">
@@ -341,6 +349,8 @@ function TryoutCard({ tryout }: { tryout: TryoutListItem }) {
           {tryout.totalDurasi} Menit
         </span>
       </div>
+
+      <TryoutCardAccess tryoutId={tryout.id} status={freemiumStatus} />
 
       <Button className="w-full" asChild>
         <Link to="/tryout/$tryoutId" params={{ tryoutId: tryout.id }}>

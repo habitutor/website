@@ -1,8 +1,11 @@
 import { isAdminRole } from "@habitutor/shared/auth-domain";
+import { db } from "@habitutor/db";
 import { logger } from "@habitutor/shared/logger";
+import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
+import type { Context } from "../../context";
 import { authed, pub } from "../../index";
-import { FREEMIUM_PRODUCT } from "../../lib/constants";
+import { FREEMIUM_PEMBAHASAN_PRODUCT, FREEMIUM_PRODUCT } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { mobileTransactionRouter } from "./mobile";
@@ -99,65 +102,122 @@ const subscribe = authed
     };
   });
 
+const FREEMIUM_CHECKOUT_OUTPUT = type({
+  token: "string",
+  redirectUrl: "string",
+  orderId: "string",
+});
+
+async function createFreemiumCheckout({
+  session,
+  product,
+  kind,
+  tryoutId,
+  returnPath,
+}: {
+  session: NonNullable<Context["session"]>;
+  product: typeof FREEMIUM_PRODUCT | typeof FREEMIUM_PEMBAHASAN_PRODUCT;
+  kind: "paket" | "pembahasan";
+  tryoutId?: string;
+  returnPath: string;
+}) {
+  const userId = session.user.id;
+  const plan = await transactionRepo.getProductBySlug({ slug: product.SLUG });
+  if (!plan) throw new ORPCError("NOT_FOUND", { message: "Produk tidak ditemukan." });
+
+  // Nominal ditentukan server; pembayaran Midtrans nanti dicocokkan dengan nominal yang tersimpan.
+  const grossAmount = product.PRICE;
+  const orderId = `tx_${crypto.randomUUID()}`;
+
+  const createdTransaction = await db.transaction(async (trx) => {
+    const created = await transactionRepo.createTransaction({
+      db: trx,
+      id: orderId,
+      productId: plan.id,
+      grossAmount: String(grossAmount),
+      userId,
+    });
+    await freemiumRepo.createPurchase({ db: trx, userId, transactionId: orderId, kind, tryoutId });
+    return created;
+  });
+  if (!createdTransaction)
+    throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Gagal membuat transaksi. Silahkan coba lagi." });
+
+  try {
+    const payment = await createSubscriptionTransaction({
+      id: orderId,
+      session,
+      name: plan.name,
+      grossAmount,
+      returnPath,
+    });
+    return { ...payment, orderId };
+  } catch (error) {
+    await transactionRepo.updateTransactionStatus({ orderId, status: "failed" });
+    logger.error("Failed to create Midtrans freemium transaction", {
+      orderId,
+      userId,
+      kind,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
+}
+
 const subscribeFreemium = authed
   .route({
     path: "/transactions/freemium",
     method: "POST",
     tags: ["Payment", "Freemium"],
   })
-  .output(
-    type({
-      token: "string",
-      redirectUrl: "string",
-      orderId: "string",
-    }),
-  )
+  .output(FREEMIUM_CHECKOUT_OUTPUT)
   .handler(async ({ context, errors }) => {
-    const userId = context.session.user.id;
-
     if (context.session.user.isPremium)
       throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah premium, semua TO dan pembahasan sudah terbuka." });
 
-    const { hasUnusedCredit } = await freemiumRepo.getCreditSummary({ userId });
-    if (hasUnusedCredit)
+    const summary = await freemiumRepo.getSummary({ userId: context.session.user.id });
+    if (summary.unlimited) throw errors.UNPROCESSABLE_CONTENT({ message: "Akses kamu sudah mencakup semua TO." });
+    if (summary.packageSlots.remaining > 0)
       throw errors.UNPROCESSABLE_CONTENT({
-        message: "Kamu masih punya jatah pembahasan yang belum dipakai. Pakai dulu di halaman hasil TO.",
+        message: `Kamu masih punya ${summary.packageSlots.remaining} jatah TO dari paket. Pilih TO-nya dulu ya.`,
       });
 
-    const plan = await transactionRepo.getProductBySlug({ slug: FREEMIUM_PRODUCT.SLUG });
-    if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
-
-    const grossAmount = Number(plan.price);
-    const orderId = `tx_${crypto.randomUUID()}`;
-
-    const createdTransaction = await transactionRepo.createTransaction({
-      id: orderId,
-      productId: plan.id,
-      grossAmount: String(grossAmount),
-      userId,
+    return createFreemiumCheckout({
+      session: context.session,
+      product: FREEMIUM_PRODUCT,
+      kind: "paket",
+      returnPath: "/tryout",
     });
-    if (!createdTransaction)
-      throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
+  });
 
-    try {
-      const payment = await createSubscriptionTransaction({
-        id: orderId,
-        session: context.session,
-        name: plan.name,
-        grossAmount,
-        returnPath: "/tryout",
+const subscribeFreemiumPembahasan = authed
+  .route({
+    path: "/transactions/freemium/pembahasan",
+    method: "POST",
+    tags: ["Payment", "Freemium"],
+  })
+  .input(type({ tryoutId: "string" }))
+  .output(FREEMIUM_CHECKOUT_OUTPUT)
+  .handler(async ({ input, context, errors }) => {
+    const userId = context.session.user.id;
+
+    if (context.session.user.isPremium)
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah premium, semua pembahasan sudah terbuka." });
+    if (!(await freemiumRepo.hasFinishedTryout({ userId, tryoutId: input.tryoutId })))
+      throw errors.UNPROCESSABLE_CONTENT({
+        message: "Selesaikan TO ini terlebih dahulu sebelum membuka pembahasannya.",
       });
-      return { ...payment, orderId };
-    } catch (error) {
-      await transactionRepo.updateTransactionStatus({ orderId, status: "failed" });
-      logger.error("Failed to create Midtrans freemium transaction", {
-        orderId,
-        userId,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        errorStack: error instanceof Error ? error.stack : undefined,
-      });
-      throw error;
-    }
+    if (await freemiumRepo.canViewPembahasan({ userId, tryoutId: input.tryoutId }))
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Pembahasan TO ini sudah terbuka." });
+
+    return createFreemiumCheckout({
+      session: context.session,
+      product: FREEMIUM_PEMBAHASAN_PRODUCT,
+      kind: "pembahasan",
+      tryoutId: input.tryoutId,
+      returnPath: "/tryout",
+    });
   });
 
 const notification = pub
@@ -219,6 +279,7 @@ const getStatus = authed
 export const transactionRouter = {
   subscribe,
   subscribeFreemium,
+  subscribeFreemiumPembahasan,
   webhook: notification,
   status: getStatus,
   packages,
