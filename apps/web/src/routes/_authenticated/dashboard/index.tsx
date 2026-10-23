@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { COMMUNITY_LINKS, getPremiumWhatsappLink, shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
 import { FREEMIUM_WHATSAPP_LINKS } from "@/lib/freemium-links";
+import { PREMIUM_PLAN_NAME } from "@/lib/premium-packages";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
@@ -45,13 +46,19 @@ function RouteComponent() {
         freemiumStatus.hasPembahasanPurchase ||
         freemiumStatus.paid),
     );
+  // Satu kartu grup WA sesuai paket yang dibeli; premium didahulukan dari Paket 3 TryOut.
+  const premiumGroupLink = session?.user.isPremium && profile ? getPremiumWhatsappLink(profile.premiumPlan) : null;
+  const whatsappGroup = premiumGroupLink
+    ? { href: premiumGroupLink, label: profile?.premiumPlan ? PREMIUM_PLAN_NAME[profile.premiumPlan] : "Premium" }
+    : freemiumStatus?.hasPackage && FREEMIUM_WHATSAPP_LINKS.paketGroup
+      ? { href: FREEMIUM_WHATSAPP_LINKS.paketGroup, label: "Paket 3 TryOut" }
+      : null;
   useQuery(orpc.dashboard.content.queryOptions());
 
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
   const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
   const [pwaDialog, setPwaDialog] = useState(false);
   const showWelcomeVideo = WELCOME_VIDEO_ENABLED && profile ? !profile.hasSeenWelcomeVideo : false;
-  const premiumWhatsappLink = getPremiumWhatsappLink(profile?.premiumPlan);
   const showPremiumWhatsapp =
     shouldShowPremiumWhatsappInvite({ isPremium: session?.user.isPremium, profile }) && !showWelcomeVideo;
 
@@ -81,49 +88,19 @@ function RouteComponent() {
               </div>
             </div>
 
-            <div className="fixed right-4 bottom-10 z-20 grid grid-cols-1 gap-2 md:static [&>a]:flex [&>a]:justify-between [&>a]:gap-10 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
-              <a
-                href={COMMUNITY_LINKS.whatsapp}
-                rel="noopener noreferrer"
-                target="_blank"
-                className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
-              >
-                <p className="z-10 w-[50%] font-bold md:w-full">Join Whatsapp</p>
-                <ArrowCircleRightIcon size={24} className="z-10" />
-                <Image
-                  src="/icons/whatsapp.svg"
-                  width={70}
-                  height={70}
-                  className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
-                />
-              </a>
-              <a
-                href={COMMUNITY_LINKS.discord}
-                rel="noopener noreferrer"
-                target="_blank"
-                className="group relative overflow-clip bg-discord hover:bg-discord/80"
-              >
-                <p className="z-10 w-[50%] font-bold md:w-full">Join Discord</p>
-                <ArrowCircleRightIcon size={24} className="z-10" />
-                <Image
-                  src="/icons/discord.svg"
-                  width={70}
-                  height={70}
-                  className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
-                />
-              </a>
-              {session?.user.isPremium && profile && premiumWhatsappLink && (
+            <div className="fixed right-4 bottom-10 z-20 grid w-56 max-w-[calc(100vw-2rem)] grid-cols-1 gap-2 md:static md:w-auto md:max-w-none [&>a]:flex [&>a]:items-center [&>a]:justify-between [&>a]:gap-3 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
+              {whatsappGroup && (
                 <a
-                  href={premiumWhatsappLink}
+                  href={whatsappGroup.href}
                   rel="noopener noreferrer"
                   target="_blank"
-                  className="group relative overflow-clip bg-primary-300 hover:bg-primary-200"
+                  className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
                 >
-                  <div className="z-10">
-                    <p className="text-xs font-semibold text-secondary-200">Premium</p>
-                    <p className="w-[60%] font-bold md:w-full">Join WhatsApp Community</p>
+                  <div className="z-10 min-w-0">
+                    <p className="truncate text-xs font-semibold text-white/80">{whatsappGroup.label}</p>
+                    <p className="font-bold">Join WhatsApp</p>
                   </div>
-                  <ArrowCircleRightIcon size={24} className="z-10" />
+                  <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />
                   <Image
                     src="/icons/whatsapp.svg"
                     width={70}
@@ -132,20 +109,21 @@ function RouteComponent() {
                   />
                 </a>
               )}
-              {freemiumStatus?.hasPackage && FREEMIUM_WHATSAPP_LINKS.paketGroup && (
-                <a
-                  href={FREEMIUM_WHATSAPP_LINKS.paketGroup}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
-                >
-                  <div className="z-10">
-                    <p className="text-xs font-semibold text-white/80">Paket 3 TryOut</p>
-                    <p className="w-[60%] font-bold md:w-full">Join Grup WhatsApp</p>
-                  </div>
-                  <ArrowCircleRightIcon size={24} className="z-10" />
-                </a>
-              )}
+              <a
+                href={COMMUNITY_LINKS.discord}
+                rel="noopener noreferrer"
+                target="_blank"
+                className="group relative overflow-clip bg-discord hover:bg-discord/80"
+              >
+                <p className="z-10 min-w-0 font-bold">Join Discord</p>
+                <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />
+                <Image
+                  src="/icons/discord.svg"
+                  width={70}
+                  height={70}
+                  className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
+                />
+              </a>
               {showWhatsappChannel && FREEMIUM_WHATSAPP_LINKS.channel && (
                 <a
                   href={FREEMIUM_WHATSAPP_LINKS.channel}
@@ -153,8 +131,8 @@ function RouteComponent() {
                   target="_blank"
                   className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
                 >
-                  <p className="z-10 w-[60%] font-bold md:w-full">Ikuti Channel WhatsApp</p>
-                  <ArrowCircleRightIcon size={24} className="z-10" />
+                  <p className="z-10 min-w-0 font-bold">Ikuti Channel WhatsApp</p>
+                  <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />
                 </a>
               )}
             </div>

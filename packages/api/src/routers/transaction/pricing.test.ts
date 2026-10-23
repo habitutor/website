@@ -37,7 +37,7 @@ describe("premium package expiry", () => {
   const paidAt = new Date("2026-10-25T03:00:00.000Z");
 
   it("ends fixed-date packages at 23.59 WIB on their end date", () => {
-    expect(getPackageExpiry("paketutbk2027", paidAt).toISOString()).toBe("2027-04-30T16:59:59.999Z");
+    expect(getPackageExpiry("paketutbk2027", paidAt).toISOString()).toBe("2027-05-01T16:59:59.999Z");
     expect(getPackageExpiry("paketmandiri2027", paidAt).toISOString()).toBe("2027-06-30T16:59:59.999Z");
   });
 
@@ -47,7 +47,7 @@ describe("premium package expiry", () => {
   });
 
   it("stops selling fixed-date packages after their end date", () => {
-    const afterUtbk = new Date("2027-05-01T00:00:00.000Z");
+    const afterUtbk = new Date("2027-05-01T17:00:00.000Z");
     expect(isPackageAvailable("paketutbk2027", afterUtbk)).toBe(false);
     expect(isPackageAvailable("paketmandiri2027", afterUtbk)).toBe(true);
     expect(isPackageAvailable("paket1bulan", afterUtbk)).toBe(true);

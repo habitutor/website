@@ -41,7 +41,7 @@ const FALLBACK_PACKAGES = [
     name: "Paket Sampai UTBK",
     normalPrice: 250_000,
     promoPrice: 200_000,
-    expiresAt: "2027-04-30T23:59:59.999+07:00",
+    expiresAt: "2027-05-01T23:59:59.999+07:00",
     durationMonths: null,
   },
   {
@@ -129,7 +129,7 @@ export const PREMIUM_FAQ = [
     id: 3,
     question: "Aksesnya sampai kapan?",
     answer:
-      "Tergantung paket: Paket Sampai UTBK aktif sampai 30 April 2027, Paket Sampai Mandiri sampai 30 Juni 2027, Paket 3 Bulan dan Paket 1 Bulan dihitung sejak pembayaran berhasil. Sekali bayar, gak ada biaya bulanan.",
+      "Tergantung paket: Paket Sampai UTBK aktif sampai 1 Mei 2027, Paket Sampai Mandiri sampai 30 Juni 2027, Paket 3 Bulan dan Paket 1 Bulan dihitung sejak pembayaran berhasil. Sekali bayar, gak ada biaya bulanan.",
   },
   {
     id: 4,

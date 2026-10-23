@@ -50,7 +50,7 @@ export const PREMIUM_PACKAGES = {
     NAME: "Paket Sampai UTBK",
     NORMAL_PRICE: 250_000,
     PROMO_PRICE: 200_000,
-    EXPIRES_AT: new Date("2027-04-30T23:59:59.999+07:00"),
+    EXPIRES_AT: new Date("2027-05-01T23:59:59.999+07:00"),
   },
   paket3bulan: {
     SLUG: "paket3bulan",

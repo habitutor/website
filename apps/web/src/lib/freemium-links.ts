@@ -1,14 +1,16 @@
+import { COMMUNITY_LINKS } from "@/lib/community-links";
+
 export const FREEMIUM_LINKS = {
   instagram: "https://www.instagram.com/habitutor.id/",
   tiktok: "https://www.tiktok.com/@habitutor.id?lang=id-ID",
 } as const;
 
-// ISI LINK DI SINI. Selama null, tombolnya disembunyikan (tidak ada tombol rusak).
+// Selama sebuah link null, tombolnya disembunyikan (tidak ada tombol rusak).
 export const FREEMIUM_WHATSAPP_LINKS: { channel: string | null; paketGroup: string | null } = {
   // Channel WA: untuk semua yang punya akses (lolos syarat, beli Rp5.000/Rp10.000, premium).
-  channel: "https://whatsapp.com/channel/0029Vb8B01GLCoWsj02Zwd0e",
+  channel: COMMUNITY_LINKS.whatsappChannel,
   // Grup WA khusus pembeli Paket 3 TryOut (Rp10.000).
-  paketGroup: null,
+  paketGroup: "https://chat.whatsapp.com/BYJqvPu29KBK5ZjOHjqjIc",
 };
 
 export const FREEMIUM_PAKET_PRICE_LABEL = "Rp10.000";
