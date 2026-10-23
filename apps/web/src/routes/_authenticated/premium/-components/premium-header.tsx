@@ -1,31 +1,21 @@
 import { Image } from "@unpic/react";
 import type { authClient } from "@/lib/auth-client";
-import type { PremiumPlan } from "@/lib/community-links";
+import { PREMIUM_PLAN_NAME, type PremiumPlan, formatWibDate } from "@/lib/premium-packages";
 
 type PremiumHeaderProps = {
   session: typeof authClient.$Infer.Session | null;
-  subscribedPlan?: PremiumPlan;
-};
-
-const HEADER_COPY = {
-  default: {
-    title: "Amankan Paket Perintis 2027!",
-    subtitle: "Sekali bayar, akses penuh sampai hari-H SNBT 2027 — belajar bareng Habitutor mulai hari ini",
-  },
-  paket2bulan: {
-    title: "Paket 2 Bulan kamu sudah aktif!",
-    subtitle: "Semua fasilitas Habitutor bisa kamu pakai selama 2 bulan ke depan — belajar bareng mulai sekarang",
-  },
-} as const;
-
-const PLAN_NAME: Record<PremiumPlan, string> = {
-  perintis2027: "Paket Perintis 2027",
-  paket2bulan: "Paket 2 Bulan",
+  subscribedPlan?: PremiumPlan | null;
 };
 
 export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
   const isPremium = session?.user.isPremium ?? false;
-  const copy = subscribedPlan === "paket2bulan" ? HEADER_COPY.paket2bulan : HEADER_COPY.default;
+  const expiresAt = session?.user.premiumExpiresAt;
+  const planName = subscribedPlan ? PREMIUM_PLAN_NAME[subscribedPlan] : "Premium";
+
+  const title = isPremium ? `${planName} kamu sudah aktif!` : "Pilih Paket Premium Habitutor";
+  const subtitle = isPremium
+    ? "Semua fasilitas Premium Habitutor bisa kamu pakai selama masa aktif paketmu — belajar bareng mulai sekarang"
+    : "Sekali bayar, semua fasilitas Premium langsung terbuka — pilih masa aktif yang paling pas buat kamu";
 
   return (
     <main className="space-y-6">
@@ -44,18 +34,19 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
 
           <div className="relative z-10 col-span-2">
             <h1 className="bg-linear-to-r from-background to-tertiary-100 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
-              {copy.title}
+              {title}
             </h1>
-            <p className="mt-2 text-[14px] leading-5.25 text-white/90">{copy.subtitle}</p>
+            <p className="mt-2 text-[14px] leading-5.25 text-white/90">{subtitle}</p>
           </div>
         </div>
       </div>
 
       {isPremium && (
         <div className="w-full rounded-[10px] border border-green-200 bg-[#EDFCF4] p-4 text-fourtiary-400">
-          <p className="text-xl font-bold sm:text-2xl">
-            Kamu sudah berlangganan {PLAN_NAME[subscribedPlan ?? "perintis2027"]}!
-          </p>
+          <p className="text-xl font-bold sm:text-2xl">Kamu sudah berlangganan {planName}!</p>
+          {expiresAt && (
+            <p className="text-sm font-semibold sm:text-lg">Masa aktif sampai {formatWibDate(expiresAt)}</p>
+          )}
           <p className="text-sm sm:text-lg">Selesaikan pembelajaranmu baru dapat membeli paket kembali</p>
         </div>
       )}

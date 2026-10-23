@@ -5,7 +5,7 @@ import { Image } from "@unpic/react";
 import { useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
-import { COMMUNITY_LINKS, getPremiumWhatsappLink } from "@/lib/community-links";
+import { COMMUNITY_LINKS, getPremiumWhatsappLink, shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
@@ -39,8 +39,9 @@ function RouteComponent() {
   const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
   const [pwaDialog, setPwaDialog] = useState(false);
   const showWelcomeVideo = WELCOME_VIDEO_ENABLED && profile ? !profile.hasSeenWelcomeVideo : false;
+  const premiumWhatsappLink = getPremiumWhatsappLink(profile?.premiumPlan);
   const showPremiumWhatsapp =
-    Boolean(session?.user.isPremium && profile && !profile.hasJoinedPremiumWhatsapp) && !showWelcomeVideo;
+    shouldShowPremiumWhatsappInvite({ isPremium: session?.user.isPremium, profile }) && !showWelcomeVideo;
 
   useProcessReferralCode();
   useSyncOnboardingProfile();
@@ -99,9 +100,10 @@ function RouteComponent() {
                   className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
                 />
               </a>
-              {session?.user.isPremium && (
+              {session?.user.isPremium && profile && premiumWhatsappLink && (
                 <a
-                  href={getPremiumWhatsappLink(profile?.premiumPlan)}                  rel="noopener noreferrer"
+                  href={premiumWhatsappLink}
+                  rel="noopener noreferrer"
                   target="_blank"
                   className="group relative overflow-clip bg-primary-300 hover:bg-primary-200"
                 >

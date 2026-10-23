@@ -1,13 +1,14 @@
 import { logger } from "@habitutor/shared/logger";
 import { type } from "arktype";
 import { authed, pub } from "../../index";
-import { PATUNGAN_BERTIGA, PERINTIS_2027, SNBT_2027_DEADLINE } from "../../lib/constants";
+import { PATUNGAN_BERTIGA, PREMIUM_PACKAGES, SNBT_2027_DEADLINE } from "../../lib/constants";
 import { createMobileCharge } from "../../lib/midtrans";
-import { getPerintisPricing } from "./pricing";
+import { getPackagePrice, isPackageAvailable } from "./pricing";
 import { transactionRepo } from "./repo";
 import { markTransactionAsSuccess } from "./sync";
 
 const QRIS_EXPIRY_MINUTES = 15;
+const SOLO_PACKAGE = PREMIUM_PACKAGES.paketmandiri2027;
 const VA_EXPIRY_HOURS = 24;
 
 /**
@@ -29,16 +30,14 @@ const plans = pub
     method: "GET",
     tags: ["Payment", "Mobile"],
   })
-  .handler(async () => {
-    const pricing = await getPerintisPricing();
-
+  .handler(() => {
     return {
       solo: {
-        slug: PERINTIS_2027.SLUG,
-        name: PERINTIS_2027.NAME,
-        price: pricing.currentPrice,
-        originalPrice: PERINTIS_2027.ORIGINAL_PRICE,
-        isAvailable: Date.now() <= SNBT_2027_DEADLINE.getTime(),
+        slug: SOLO_PACKAGE.SLUG,
+        name: SOLO_PACKAGE.NAME,
+        price: getPackagePrice(SOLO_PACKAGE.SLUG),
+        originalPrice: SOLO_PACKAGE.NORMAL_PRICE,
+        isAvailable: isPackageAvailable(SOLO_PACKAGE.SLUG),
       },
       group: {
         slug: PATUNGAN_BERTIGA.SLUG,
@@ -59,7 +58,7 @@ const charge = authed
   })
   .input(
     type({
-      plan: "'perintis2027' | 'patungan-bertiga'",
+      plan: "'paketmandiri2027' | 'patungan-bertiga'",
       method: "'qris' | 'bank_transfer'",
       "bank?": "'bca' | 'bni' | 'bri'",
       "groupInviteCode?": "string",
@@ -68,8 +67,11 @@ const charge = authed
   .handler(async ({ input, context, errors }) => {
     if (context.session.user.isPremium)
       throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-    if (Date.now() > SNBT_2027_DEADLINE.getTime())
-      throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
+    const isAvailable =
+      input.plan === SOLO_PACKAGE.SLUG
+        ? isPackageAvailable(SOLO_PACKAGE.SLUG)
+        : Date.now() <= SNBT_2027_DEADLINE.getTime();
+    if (!isAvailable) throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
     if (input.method === "bank_transfer" && !input.bank)
       throw errors.UNPROCESSABLE_CONTENT({ message: "Pilih bank tujuan transfer terlebih dahulu." });
 
@@ -103,8 +105,7 @@ const charge = authed
         groupInviteCode = group.inviteCode;
       }
     } else {
-      const pricing = await getPerintisPricing();
-      amount = pricing.currentPrice;
+      amount = getPackagePrice(SOLO_PACKAGE.SLUG);
     }
 
     const orderId = `tx_${crypto.randomUUID()}`;
@@ -122,8 +123,7 @@ const charge = authed
       throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
 
     if (simulated) {
-      const expiryMs =
-        input.method === "qris" ? QRIS_EXPIRY_MINUTES * 60 * 1000 : VA_EXPIRY_HOURS * 60 * 60 * 1000;
+      const expiryMs = input.method === "qris" ? QRIS_EXPIRY_MINUTES * 60 * 1000 : VA_EXPIRY_HOURS * 60 * 60 * 1000;
       await transactionRepo.updateGatewayMetadata({
         orderId,
         gatewayStatus: "simulated_pending",
@@ -190,8 +190,7 @@ const simulatePay = authed
     }
 
     const tx = await transactionRepo.getTransactionById({ orderId: input.orderId });
-    if (!tx || tx.userId !== context.session.user.id)
-      throw errors.NOT_FOUND({ message: "Transaction not found" });
+    if (!tx || tx.userId !== context.session.user.id) throw errors.NOT_FOUND({ message: "Transaction not found" });
     if (!tx.isSimulation) throw errors.FORBIDDEN({ message: "Only simulated transactions can be settled here." });
     if (tx.status !== "pending") return { status: tx.status };
 

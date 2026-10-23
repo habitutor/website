@@ -9,11 +9,13 @@ import {
   PERINTIS_2027,
   PREMIUM_DEADLINE,
   SNBT_2027_DEADLINE,
+  isPremiumPackageSlug,
 } from "../../lib/constants";
 import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { addMonthsUtc, resolveExpiryWithoutShortening } from "./premium-expiry";
+import { getPackageExpiry } from "./pricing";
 import { transactionRepo } from "./repo";
 
 type MidtransStatusResponse = {
@@ -59,6 +61,7 @@ async function fetchMidtransTransactionStatus(orderId: string): Promise<Midtrans
 }
 
 function resolvePremiumExpiry(productSlug: string, paidAt: Date) {
+  if (isPremiumPackageSlug(productSlug)) return getPackageExpiry(productSlug, paidAt);
   if (productSlug === PAKET_2_BULAN.SLUG) return addMonthsUtc(paidAt, PAKET_2_BULAN.DURATION_MONTHS);
   if (productSlug === PERINTIS_2027.SLUG) return SNBT_2027_DEADLINE;
   return PREMIUM_DEADLINE;
@@ -68,6 +71,7 @@ function resolvePremiumExpiry(productSlug: string, paidAt: Date) {
 // the same webhook/status poll always yields the same expiry.
 function getPremiumDetails(productSlug: string, paidAt: Date) {
   const isPremium =
+    isPremiumPackageSlug(productSlug) ||
     productSlug === PERINTIS_2027.SLUG ||
     productSlug === PAKET_2_BULAN.SLUG ||
     productSlug === PREMIUM_TIERS.PREMIUM ||
@@ -178,7 +182,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
         await transactionRepo.resetPremiumWhatsappJoined({ db: trx, userId: tx.userId });
       }
     }
-          
+
     // Akses Freemium TryOut (Rp10.000): aktif otomatis begitu pembayaran settle.
     if (existingTransaction.prodSlug === FREEMIUM_PRODUCT.SLUG && tx.userId) {
       await freemiumRepo.activatePaid({ db: trx, userId: tx.userId, transactionId: orderId });

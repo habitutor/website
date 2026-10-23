@@ -169,6 +169,13 @@
       "when": 1792638429287,
       "tag": "0023_seed_paket_2_bulan",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792694572049,
+      "tag": "0024_seed_premium_packages",
+      "breakpoints": true
     }
   ]
 }

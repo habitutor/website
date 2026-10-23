@@ -3,8 +3,6 @@ import { toast } from "sonner";
 import { refreshAuthSession } from "@/lib/auth-session";
 import { client } from "@/utils/orpc";
 
-export type BundlingVariant = "perintis2027";
-
 const PREMIUM_ACTIVATION_MAX_RETRIES = 5;
 const PREMIUM_ACTIVATION_RETRY_DELAY_MS = 1000;
 
@@ -54,7 +52,7 @@ export function usePremiumPaymentEffect({
   const latest = useRef({ invalidateRouter, onCompleted, onClosed, paymentOrderId });
   latest.current = { invalidateRouter, onCompleted, onClosed, paymentOrderId };
 
-const openedTokenRef = useRef<string | undefined>(undefined);
+  const openedTokenRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!paymentToken) return;

@@ -1,6 +1,6 @@
 import { DiscordLogoIcon, InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 import { COMMUNITY_LINKS } from "@/lib/community-links";
-import { PERINTIS_FAQ } from "@/lib/perintis-pricing-copy";
+import { PREMIUM_FAQ } from "@/lib/premium-packages";
 
 export const DATA = {
   testimonials: [
@@ -170,5 +170,5 @@ export const DATA = {
       // },
     ],
   },
-  faq: PERINTIS_FAQ,
+  faq: PREMIUM_FAQ,
 } as const;

@@ -4,7 +4,7 @@ import { referralCode } from "@habitutor/db/schema/referral";
 import { type } from "arktype";
 import { eq } from "drizzle-orm";
 import { authed } from "..";
-import { PAKET_2_BULAN, PERINTIS_2027 } from "../lib/constants";
+import { PAKET_2_BULAN, PERINTIS_2027, isPremiumPackageSlug, type PremiumPackageSlug } from "../lib/constants";
 import { transactionRepo } from "./transaction/repo";
 
 const LEGACY_AVATAR_PATH_PATTERN = /\/avatar\/profile\/tupai-(\d+)\.webp$/;
@@ -39,7 +39,8 @@ const getProfile = authed
       "dailyGoalMinutes?": "number | null",
       hasSeenWelcomeVideo: "boolean",
       hasJoinedPremiumWhatsapp: "boolean",
-      premiumPlan: "'perintis2027' | 'paket2bulan' | null",
+      premiumPlan:
+        "'paketmandiri2027' | 'paketutbk2027' | 'paket3bulan' | 'paket1bulan' | 'perintis2027' | 'paket2bulan' | null",
     }),
   )
   .handler(async ({ context }) => {
@@ -70,12 +71,14 @@ const getProfile = authed
       await db.update(user).set({ image: canonicalImage }).where(eq(user.id, id));
     }
 
-    let premiumPlan: typeof PERINTIS_2027.SLUG | typeof PAKET_2_BULAN.SLUG | null = null;
-      if (context.session.user.isPremium) {
-        const latest = await transactionRepo.getLatestSuccessfulSubscriptionByUserId({ userId: id });
-        if (latest?.prodSlug === PAKET_2_BULAN.SLUG) premiumPlan = PAKET_2_BULAN.SLUG;
-        else if (latest?.prodSlug === PERINTIS_2027.SLUG) premiumPlan = PERINTIS_2027.SLUG;
-}
+    let premiumPlan: PremiumPackageSlug | typeof PERINTIS_2027.SLUG | typeof PAKET_2_BULAN.SLUG | null = null;
+    if (context.session.user.isPremium) {
+      const latest = await transactionRepo.getLatestSuccessfulSubscriptionByUserId({ userId: id });
+      const slug = latest?.prodSlug;
+      if (slug && (isPremiumPackageSlug(slug) || slug === PERINTIS_2027.SLUG || slug === PAKET_2_BULAN.SLUG)) {
+        premiumPlan = slug;
+      }
+    }
 
     return {
       id,
