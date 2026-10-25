@@ -84,9 +84,56 @@ describe("summarizeFreemium: jatah TO", () => {
   test("riwayat TO tanpa syarat (sebelum ada gerbang) tidak membuka TO", () => {
     expect(summary({ startedTryoutIds: ["lama-1"] }).startableTryoutIds).toEqual([]);
   });
+});
 
-  test("pembeli Rp10.000 sistem lama tetap semua TO", () => {
-    expect(summary({ legacyPaid: true }).unlimited).toBe(true);
+describe("summarizeFreemium: pembeli Rp10.000 sistem lama", () => {
+  test("belum mengerjakan TO = dapat 3 TO pilihan dengan pembahasan", () => {
+    const result = summary({ legacyPaid: true });
+    expect(result.packageSlots).toEqual({ total: 3, used: 0, remaining: 3 });
+    expect(pickSelectionSource(result)).toBe("paket");
+  });
+
+  test("sudah mengerjakan 1 TO = TO itu tetap terbuka + pembahasan, sisa 2 TO", () => {
+    const result = summary({ legacyPaid: true, startedTryoutIds: ["lama-1"] });
+    expect(result.startableTryoutIds).toEqual(["lama-1"]);
+    expect(result.packageSlots.remaining).toBe(2);
+    expect(canViewFreemiumPembahasan(result, "lama-1")).toBe(true);
+  });
+
+  test("sudah mengerjakan lebih dari 3 TO = semua tetap terbuka, pembahasan 3 TO pertama, jatah habis", () => {
+    const result = summary({ legacyPaid: true, startedTryoutIds: ["a", "b", "c", "d", "e"] });
+    expect(result.startableTryoutIds).toEqual(["a", "b", "c", "d", "e"]);
+    expect(result.packageSlots.remaining).toBe(0);
+    expect(pickSelectionSource(result)).toBeNull();
+    expect(["a", "b", "c"].every((id) => canViewFreemiumPembahasan(result, id))).toBe(true);
+    expect(canViewFreemiumPembahasan(result, "d")).toBe(false);
+  });
+
+  test("TO yang dipilih memakai jatah paket lama juga dapat pembahasan", () => {
+    const result = summary({
+      legacyPaid: true,
+      startedTryoutIds: ["lama-1"],
+      selections: [{ tryoutId: "baru-1", source: "paket" }],
+    });
+    expect(result.packageSlots).toEqual({ total: 3, used: 2, remaining: 1 });
+    expect(canViewFreemiumPembahasan(result, "baru-1")).toBe(true);
+  });
+
+  test("jatah pembahasan lama tetap berlaku", () => {
+    const result = summary({ legacyPaid: true, startedTryoutIds: ["a", "b", "c", "d"], legacyCreditTryoutIds: ["d"] });
+    expect(canViewFreemiumPembahasan(result, "d")).toBe(true);
+  });
+
+  test("pembeli lama yang juga lolos syarat tetap dapat 1 TO gratis", () => {
+    const result = summary({ legacyPaid: true, requirementsCompleted: true, startedTryoutIds: ["a", "b", "c"] });
+    expect(result.packageSlots.remaining).toBe(0);
+    expect(result.freeSlots.remaining).toBe(1);
+    expect(pickSelectionSource(result)).toBe("gratis");
+  });
+
+  test("beli Paket 3 TryOut lagi = +3 TO", () => {
+    const result = summary({ legacyPaid: true, activePackageCount: 1, startedTryoutIds: ["a", "b", "c"] });
+    expect(result.packageSlots).toEqual({ total: 6, used: 3, remaining: 3 });
   });
 });
 
@@ -139,8 +186,10 @@ describe("canStartTryout", () => {
     expect(canStartTryout({ ...base, hasRunningSession: true })).toBe(true);
   });
 
-  test("pembeli Rp10.000 sistem lama boleh semua TO", () => {
-    expect(canStartTryout({ ...base, summary: summary({ legacyPaid: true }) })).toBe(true);
+  test("pembeli Rp10.000 sistem lama hanya boleh TO yang sudah dikerjakan atau dipilih", () => {
+    const legacy = summary({ legacyPaid: true, startedTryoutIds: ["to-1"] });
+    expect(canStartTryout({ ...base, summary: legacy })).toBe(true);
+    expect(canStartTryout({ ...base, summary: legacy, tryoutId: "to-2" })).toBe(false);
   });
 });
 

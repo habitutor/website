@@ -177,7 +177,6 @@ const subscribeFreemium = authed
       throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah premium, semua TO dan pembahasan sudah terbuka." });
 
     const summary = await freemiumRepo.getSummary({ userId: context.session.user.id });
-    if (summary.unlimited) throw errors.UNPROCESSABLE_CONTENT({ message: "Akses kamu sudah mencakup semua TO." });
     if (summary.packageSlots.remaining > 0)
       throw errors.UNPROCESSABLE_CONTENT({
         message: `Kamu masih punya ${summary.packageSlots.remaining} jatah TO dari paket. Pilih TO-nya dulu ya.`,

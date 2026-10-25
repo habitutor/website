@@ -7,7 +7,7 @@ import {
 } from "@habitutor/db/schema/freemium";
 import { tryout, tryoutSesi, tryoutSoal, tryoutSubtes } from "@habitutor/db/schema/tryout";
 import { user } from "@habitutor/db/schema/user";
-import { and, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, min, sql } from "drizzle-orm";
 import {
   canStartTryout,
   canViewFreemiumPembahasan,
@@ -61,7 +61,12 @@ async function getSnapshot({ db = defaultDb, userId }: Db & { userId: string }) 
       .from(tryoutFreemiumSelection)
       .where(eq(tryoutFreemiumSelection.userId, userId))
       .orderBy(tryoutFreemiumSelection.createdAt),
-    db.selectDistinct({ tryoutId: tryoutSesi.tryoutId }).from(tryoutSesi).where(eq(tryoutSesi.userId, userId)),
+    db
+      .select({ tryoutId: tryoutSesi.tryoutId })
+      .from(tryoutSesi)
+      .where(eq(tryoutSesi.userId, userId))
+      .groupBy(tryoutSesi.tryoutId)
+      .orderBy(min(tryoutSesi.mulaiAt)),
   ]);
 
   return {
@@ -121,7 +126,7 @@ async function getStatus({ db = defaultDb, userId, tryoutId }: Db & { userId: st
     fullAccess,
     canStartTryout: tryoutId ? fullAccess || canStartTryout({ ...accessParams, tryoutId, hasRunningSession }) : null,
     requirementsCompleted: snapshot.requirementsCompleted,
-    hasPackage: snapshot.activePackageCount > 0,
+    hasPackage: snapshot.activePackageCount > 0 || snapshot.legacyPaid,
     hasPembahasanPurchase: snapshot.purchasedPembahasanTryoutIds.length > 0,
     freeSlots: summary.freeSlots,
     packageSlots: summary.packageSlots,
@@ -189,9 +194,6 @@ async function selectTryout({ db = defaultDb, userId, tryoutId }: Db & { userId:
     await lockUser(trx, userId);
     const summary = await getSummary({ db: trx, userId });
 
-    if (summary.unlimited) {
-      throw new TryoutError("CONFLICT", "Akses kamu sudah mencakup semua TO");
-    }
     if (summary.startableTryoutIds.includes(tryoutId)) {
       throw new TryoutError("CONFLICT", "TO ini sudah kamu pilih");
     }
