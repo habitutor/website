@@ -205,7 +205,7 @@ function WhatsappButton({ href, label }: { href: string; label: string }) {
   );
 }
 
-/** Channel WA untuk semua yang punya akses; grup WA hanya untuk pembeli Paket 3 TryOut. */
+/** Channel WA untuk semua yang punya akses; grup WA TryOut untuk yang lolos syarat gratis dan pembeli paket. */
 export function FreemiumWhatsappInvites({
   showPaketGroup = false,
   compact = false,
@@ -222,7 +222,7 @@ export function FreemiumWhatsappInvites({
         {showPaketGroup && paketGroup && (
           <Button asChild size="sm" className="bg-whatsapp text-white hover:bg-whatsapp/90">
             <a href={paketGroup} target="_blank" rel="noopener noreferrer">
-              <WhatsappLogoIcon weight="fill" /> Grup WA Paket 3 TO
+              <WhatsappLogoIcon weight="fill" /> Grup WA TryOut
             </a>
           </Button>
         )}
@@ -239,7 +239,7 @@ export function FreemiumWhatsappInvites({
 
   return (
     <div className="flex flex-col gap-2">
-      {showPaketGroup && paketGroup && <WhatsappButton href={paketGroup} label="Gabung Grup WA Paket 3 TryOut" />}
+      {showPaketGroup && paketGroup && <WhatsappButton href={paketGroup} label="Gabung Grup WA TryOut" />}
       {channel && <WhatsappButton href={channel} label="Ikuti Channel WA Habitutor" />}
     </div>
   );
@@ -367,7 +367,7 @@ export function FreemiumRequirementsDialog({
                 mulai dikerjakan. Pembahasannya bisa dibuka {FREEMIUM_PEMBAHASAN_PRICE_LABEL} setelah selesai.
               </DialogDescription>
             </DialogHeader>
-            <FreemiumWhatsappInvites />
+            <FreemiumWhatsappInvites showPaketGroup />
             <DialogFooter>
               <Button onClick={() => onOpenChange(false)}>Pilih TO</Button>
             </DialogFooter>
@@ -580,7 +580,7 @@ export function FreemiumAccessPanel({ status }: { status: FreemiumStatus }) {
               ? `Sisa ${remaining} TO. Pilih lewat tombol "Pilih TO ini" di kartu TO.`
               : "Semua jatah TO kamu sudah dipilih."}
           </p>
-          <FreemiumWhatsappInvites showPaketGroup={status.hasPackage} compact />
+          <FreemiumWhatsappInvites showPaketGroup={status.hasPackage || status.requirementsCompleted} compact />
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -649,15 +649,17 @@ export function TryoutCardAccess({ tryoutId, status }: { tryoutId: string; statu
 
   const selection = status.selections.find((item) => item.tryoutId === tryoutId);
   if (selection) {
+    // TO gratis yang sudah dikerjakan bisa pindah ke jatah paket, jadi label mengikuti akses pembahasan.
+    const hasPembahasan = status.pembahasanTryoutIds.includes(tryoutId);
     return (
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span
           className={cn(
             "rounded-full px-3 py-1 text-xs font-semibold",
-            selection.source === "paket" ? "bg-indigo-100 text-indigo-800" : "bg-emerald-100 text-emerald-800",
+            hasPembahasan ? "bg-indigo-100 text-indigo-800" : "bg-emerald-100 text-emerald-800",
           )}
         >
-          {selection.source === "paket" ? "Dipilih · pembahasan termasuk" : "Dipilih · TO gratis"}
+          {hasPembahasan ? "Dipilih · pembahasan termasuk" : "Dipilih · TO gratis"}
         </span>
         {!selection.started && (
           <Button

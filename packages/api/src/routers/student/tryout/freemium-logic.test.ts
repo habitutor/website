@@ -137,6 +137,63 @@ describe("summarizeFreemium: pembeli Rp10.000 sistem lama", () => {
   });
 });
 
+describe("summarizeFreemium: bayar Rp10.000 setelah mengerjakan TO gratis", () => {
+  test("TO gratis yang sudah dikerjakan pindah ke jatah paket, pembahasan terbuka, jatah gratis kembali", () => {
+    const result = summary({
+      requirementsCompleted: true,
+      activePackageCount: 1,
+      selections: [{ tryoutId: "tka-bindo-lanjut", source: "gratis" }],
+      startedTryoutIds: ["tka-bindo-lanjut"],
+    });
+    expect(canViewFreemiumPembahasan(result, "tka-bindo-lanjut")).toBe(true);
+    expect(result.packageSlots).toEqual({ total: 3, used: 1, remaining: 2 });
+    expect(result.freeSlots).toEqual({ total: 1, used: 0, remaining: 1 });
+    expect(result.startableTryoutIds).toContain("tka-bindo-lanjut");
+  });
+
+  test("TO gratis lama (dikerjakan sebelum ada pilihan TO) juga ikut pindah", () => {
+    const result = summary({ requirementsCompleted: true, activePackageCount: 1, startedTryoutIds: ["lama-1"] });
+    expect(canViewFreemiumPembahasan(result, "lama-1")).toBe(true);
+    expect(result.packageSlots.remaining).toBe(2);
+  });
+
+  test("TO gratis yang belum dikerjakan tidak dipindah", () => {
+    const result = summary({
+      requirementsCompleted: true,
+      activePackageCount: 1,
+      selections: [{ tryoutId: "belum", source: "gratis" }],
+    });
+    expect(canViewFreemiumPembahasan(result, "belum")).toBe(false);
+    expect(result.packageSlots.remaining).toBe(3);
+  });
+
+  test("jatah paket penuh = TO gratis tetap gratis", () => {
+    const result = summary({
+      requirementsCompleted: true,
+      activePackageCount: 1,
+      selections: [
+        { tryoutId: "a", source: "paket" },
+        { tryoutId: "b", source: "paket" },
+        { tryoutId: "c", source: "paket" },
+        { tryoutId: "gratis-1", source: "gratis" },
+      ],
+      startedTryoutIds: ["gratis-1"],
+    });
+    expect(canViewFreemiumPembahasan(result, "gratis-1")).toBe(false);
+    expect(result.packageSlots.remaining).toBe(0);
+    expect(result.freeSlots.remaining).toBe(0);
+  });
+
+  test("tanpa paket, TO gratis tetap tanpa pembahasan", () => {
+    const result = summary({
+      requirementsCompleted: true,
+      selections: [{ tryoutId: "gratis-1", source: "gratis" }],
+      startedTryoutIds: ["gratis-1"],
+    });
+    expect(canViewFreemiumPembahasan(result, "gratis-1")).toBe(false);
+  });
+});
+
 describe("summarizeFreemium: pembahasan", () => {
   test("TO dari paket langsung termasuk pembahasan, TO gratis tidak", () => {
     const result = summary({
