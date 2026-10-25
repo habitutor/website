@@ -46,12 +46,16 @@ function RouteComponent() {
         freemiumStatus.hasPembahasanPurchase ||
         freemiumStatus.paid),
     );
-  // Satu kartu grup WA sesuai paket yang dibeli; premium didahulukan dari Paket 3 TryOut.
+  // Satu kartu grup WA sesuai akses user; premium didahulukan dari grup TryOut (gratis & Paket 3 TryOut).
   const premiumGroupLink = session?.user.isPremium && profile ? getPremiumWhatsappLink(profile.premiumPlan) : null;
+  const hasTryoutGroup = Boolean(freemiumStatus?.hasPackage || freemiumStatus?.requirementsCompleted);
   const whatsappGroup = premiumGroupLink
     ? { href: premiumGroupLink, label: profile?.premiumPlan ? PREMIUM_PLAN_NAME[profile.premiumPlan] : "Premium" }
-    : freemiumStatus?.hasPackage && FREEMIUM_WHATSAPP_LINKS.paketGroup
-      ? { href: FREEMIUM_WHATSAPP_LINKS.paketGroup, label: "Paket 3 TryOut" }
+    : hasTryoutGroup && FREEMIUM_WHATSAPP_LINKS.paketGroup
+      ? {
+          href: FREEMIUM_WHATSAPP_LINKS.paketGroup,
+          label: freemiumStatus?.hasPackage ? "Paket 3 TryOut" : "TryOut Gratis",
+        }
       : null;
   useQuery(orpc.dashboard.content.queryOptions());
 

@@ -44,21 +44,35 @@ export function summarizeFreemium(snapshot: FreemiumSnapshot) {
   const implicitPackageIds = snapshot.legacyPaid ? implicitIds : [];
   const implicitFreeIds = snapshot.legacyPaid ? [] : implicitIds;
 
-  const freeUsed = snapshot.selections.filter((selection) => selection.source === "gratis").length;
+  const freeSelectionIds = snapshot.selections
+    .filter((selection) => selection.source === "gratis")
+    .map((selection) => selection.tryoutId);
   const packageIds = snapshot.selections
     .filter((selection) => selection.source === "paket")
     .map((selection) => selection.tryoutId);
   // Pembelian Rp10.000 lama = 1 Paket 3 TryOut; pembahasannya untuk 3 TO pertama yang dikerjakan.
   const packageCount = snapshot.activePackageCount + (snapshot.legacyPaid ? 1 : 0);
+  const packageTotal = packageCount * FREEMIUM_PRODUCT.TRYOUT_SLOTS;
+
+  // TO gratis yang sudah dikerjakan pindah ke sisa jatah paket (pembahasan ikut terbuka) dan jatah gratisnya
+  // kembali; jadi user yang membayar setelah mengerjakan TO gratisnya tetap mendapat pembahasan TO itu.
+  const startedIds = new Set(snapshot.startedTryoutIds);
+  const startedFreeIds = [...freeSelectionIds.filter((id) => startedIds.has(id)), ...implicitFreeIds];
+  const packageCapacityLeft = Math.max(packageTotal - packageIds.length - implicitPackageIds.length, 0);
+  const promotedIds = startedFreeIds.slice(0, packageCapacityLeft);
 
   return {
-    freeSlots: slot(snapshot.requirementsCompleted ? FREEMIUM_FREE_TRYOUT_SLOTS : 0, freeUsed + implicitFreeIds.length),
-    packageSlots: slot(packageCount * FREEMIUM_PRODUCT.TRYOUT_SLOTS, packageIds.length + implicitPackageIds.length),
+    freeSlots: slot(
+      snapshot.requirementsCompleted ? FREEMIUM_FREE_TRYOUT_SLOTS : 0,
+      freeSelectionIds.length + implicitFreeIds.length - promotedIds.length,
+    ),
+    packageSlots: slot(packageTotal, packageIds.length + implicitPackageIds.length + promotedIds.length),
     startableTryoutIds: [...new Set([...selectedIds, ...implicitIds])],
     pembahasanTryoutIds: [
       ...new Set([
         ...packageIds,
         ...implicitPackageIds.slice(0, FREEMIUM_PRODUCT.TRYOUT_SLOTS),
+        ...promotedIds,
         ...snapshot.purchasedPembahasanTryoutIds,
         ...snapshot.legacyCreditTryoutIds,
       ]),
