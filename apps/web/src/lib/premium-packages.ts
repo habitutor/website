@@ -75,11 +75,34 @@ export function getFallbackPremiumPackages(now = Date.now()): PremiumPackage[] {
 }
 
 export const PREMIUM_PACKAGE_COPY: Record<PremiumPackageSlug, { tagline: string; cta: string }> = {
-  paketmandiri2027: { tagline: "akses penuh sampai Ujian Mandiri", cta: "Ambil Paket Sampai Mandiri" },
+  paketmandiri2027: { tagline: "termasuk Paket Intensif SNBT", cta: "Ambil Paket Sampai Mandiri" },
   paketutbk2027: { tagline: "akses penuh sampai UTBK", cta: "Ambil Paket Sampai UTBK" },
   paket3bulan: { tagline: "persiapan intensif 3 bulan", cta: "Ambil Paket 3 Bulan" },
   paket1bulan: { tagline: "coba dulu, tanpa komitmen panjang", cta: "Ambil Paket 1 Bulan" },
 };
+
+// Fasilitas tambahan khusus Paket Sampai Mandiri, di atas semua fasilitas Premium.
+export const MANDIRI_PACKAGE_EXTRAS = {
+  summary: "Persiapan ujian mandiri PTN favorit dalam 1 paket, dengan TPS, TPA, TKA, dan TKDU.",
+  exams: [
+    { campus: "UGM", exam: "UM UGM / UTUL" },
+    { campus: "UI", exam: "SIMAK UI" },
+    { campus: "ITB", exam: "Seleksi Siswa Unggul (SSU)" },
+    { campus: "Unpad", exam: "SMUP" },
+    { campus: "Unair", exam: "SMUA Mandiri" },
+    { campus: "Undip", exam: "UM Undip" },
+    { campus: "UNS", exam: "SM UNS" },
+    { campus: "IPB", exam: "SM-IPB" },
+  ],
+  facilities: [
+    "Live Class 3–5x per minggu: materi ujian mandiri (TPS, TPA, TKA, TKDU) bareng tutor mahasiswa UGM & UI",
+    "Bank soal asli ujian mandiri per kampus (UGM, UI, ITB, Unpad, Unair, Undip, UNS, IPB)",
+    "5x Try Out soal asli simulasi ujian mandiri",
+    "Analisis hasil try out: skor per subtes, kekuatan dan kelemahan, dan rekomendasi bab yang harus dikejar",
+    "3x Free Masterclass Ujian Mandiri: strategi dan info khusus per kampus",
+    "Mentoring mingguan & konsultasi 24/7 bareng kakak-kakak UI, ITB & UGM (bisa bantu esai juga)",
+  ],
+} as const;
 
 export const PREMIUM_PLAN_NAME: Record<PremiumPlan, string> = {
   paketmandiri2027: "Paket Sampai Mandiri",

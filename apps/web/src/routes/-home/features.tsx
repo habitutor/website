@@ -213,10 +213,10 @@ export function Features() {
             </motion.a>
 
             <motion.a
-              href={COMMUNITY_LINKS.whatsapp}
+              href={COMMUNITY_LINKS.whatsappChannel}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Join WhatsApp Habitutor"
+              aria-label="Ikuti Channel WhatsApp Habitutor"
               className="flex size-28 items-center justify-center rounded-full border-4 border-fourtiary-300 bg-green-200 sm:size-32 md:size-36"
               whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
             >
