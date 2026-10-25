@@ -20,11 +20,11 @@ export type FreemiumSelectionSource = "gratis" | "paket";
 
 export type FreemiumSnapshot = {
   requirementsCompleted: boolean;
-  /** Pembelian Rp10.000 di sistem lama: tetap boleh mengerjakan semua TO. */
+  /** Pembelian Rp10.000 di sistem lama: dihitung sebagai 1 Paket 3 TryOut. */
   legacyPaid: boolean;
   activePackageCount: number;
   selections: readonly { tryoutId: string; source: FreemiumSelectionSource }[];
-  /** TO yang pernah dimulai user (punya sesi apa pun). */
+  /** TO yang pernah dimulai user (punya sesi apa pun), urut dari yang pertama dikerjakan. */
   startedTryoutIds: readonly string[];
   purchasedPembahasanTryoutIds: readonly string[];
   /** Jatah pembahasan sistem lama yang sudah dipakai. */
@@ -37,24 +37,31 @@ function slot(total: number, used: number) {
 
 export function summarizeFreemium(snapshot: FreemiumSnapshot) {
   const selectedIds = new Set(snapshot.selections.map((selection) => selection.tryoutId));
-  // TO yang sudah dikerjakan sebelum ada sistem pilihan TO dihitung sebagai pilihan gratis,
-  // supaya user gratis lama tetap bisa membuka ulang TO yang pernah dikerjakannya.
-  const implicitFreeIds = snapshot.requirementsCompleted
-    ? snapshot.startedTryoutIds.filter((id) => !selectedIds.has(id))
-    : [];
+  // TO yang sudah dikerjakan sebelum ada sistem pilihan TO tetap bisa dibuka ulang dan dihitung sebagai jatah:
+  // pembeli Rp10.000 lama memakai jatah paketnya, user gratis lama memakai jatah gratisnya.
+  const hasLegacyAccess = snapshot.legacyPaid || snapshot.requirementsCompleted;
+  const implicitIds = hasLegacyAccess ? snapshot.startedTryoutIds.filter((id) => !selectedIds.has(id)) : [];
+  const implicitPackageIds = snapshot.legacyPaid ? implicitIds : [];
+  const implicitFreeIds = snapshot.legacyPaid ? [] : implicitIds;
+
   const freeUsed = snapshot.selections.filter((selection) => selection.source === "gratis").length;
-  const packageUsed = snapshot.selections.filter((selection) => selection.source === "paket").length;
   const packageIds = snapshot.selections
     .filter((selection) => selection.source === "paket")
     .map((selection) => selection.tryoutId);
+  // Pembelian Rp10.000 lama = 1 Paket 3 TryOut; pembahasannya untuk 3 TO pertama yang dikerjakan.
+  const packageCount = snapshot.activePackageCount + (snapshot.legacyPaid ? 1 : 0);
 
   return {
-    unlimited: snapshot.legacyPaid,
     freeSlots: slot(snapshot.requirementsCompleted ? FREEMIUM_FREE_TRYOUT_SLOTS : 0, freeUsed + implicitFreeIds.length),
-    packageSlots: slot(snapshot.activePackageCount * FREEMIUM_PRODUCT.TRYOUT_SLOTS, packageUsed),
-    startableTryoutIds: [...new Set([...selectedIds, ...implicitFreeIds])],
+    packageSlots: slot(packageCount * FREEMIUM_PRODUCT.TRYOUT_SLOTS, packageIds.length + implicitPackageIds.length),
+    startableTryoutIds: [...new Set([...selectedIds, ...implicitIds])],
     pembahasanTryoutIds: [
-      ...new Set([...packageIds, ...snapshot.purchasedPembahasanTryoutIds, ...snapshot.legacyCreditTryoutIds]),
+      ...new Set([
+        ...packageIds,
+        ...implicitPackageIds.slice(0, FREEMIUM_PRODUCT.TRYOUT_SLOTS),
+        ...snapshot.purchasedPembahasanTryoutIds,
+        ...snapshot.legacyCreditTryoutIds,
+      ]),
     ],
   };
 }
@@ -91,7 +98,6 @@ export function canStartTryout(params: {
   if (isAdminRole(params.role)) return true;
   if (hasActivePremium({ isPremium: params.isPremium, premiumExpiresAt: params.premiumExpiresAt, now })) return true;
   if (params.hasRunningSession) return true;
-  if (params.summary.unlimited) return true;
   return params.summary.startableTryoutIds.includes(params.tryoutId);
 }
 
