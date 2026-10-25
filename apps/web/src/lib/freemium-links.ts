@@ -10,7 +10,7 @@ export const FREEMIUM_WHATSAPP_LINKS: { channel: string | null; paketGroup: stri
   // Channel WA: untuk semua yang punya akses (lolos syarat, beli Rp5.000/Rp10.000, premium).
   channel: COMMUNITY_LINKS.whatsappChannel,
   // Grup WA khusus pembeli Paket 3 TryOut (Rp10.000).
-  paketGroup: "https://chat.whatsapp.com/BYJqvPu29KBK5ZjOHjqjIc",
+  paketGroup: "https://chat.whatsapp.com/JT60S4hebi7B2Nzaw6hvBt",
 };
 
 export const FREEMIUM_PAKET_PRICE_LABEL = "Rp10.000";
