@@ -1,4 +1,4 @@
-import { CheckIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { MotionScaleIn } from "@/components/motion/motion-components";
@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveFakePurchase } from "@/lib/fake-recent-purchases";
 import {
+  MANDIRI_PACKAGE_EXTRAS,
   PREMIUM_PACKAGE_COPY,
   PREMIUM_PRICING_COPY,
   type PremiumPackage,
@@ -61,6 +62,60 @@ export function PremiumFeatureList() {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function MandiriExtras() {
+  const { summary, exams, facilities } = MANDIRI_PACKAGE_EXTRAS;
+
+  return (
+    <div className="relative z-10 space-y-3 px-6 pb-5">
+      <p className="text-sm text-neutral-100">{summary}</p>
+      <ul className="flex flex-wrap gap-1.5" aria-label="Kampus ujian mandiri">
+        {exams.map(({ campus }) => (
+          <li
+            key={campus}
+            className="rounded-full border border-primary-500 bg-primary-400 px-2.5 py-0.5 text-xs font-semibold text-neutral-100"
+          >
+            {campus}
+          </li>
+        ))}
+        <li className="rounded-full px-1 py-0.5 text-xs font-semibold text-tertiary-100">+ PTN lainnya</li>
+      </ul>
+
+      <details className="group rounded-xl border border-primary-500 bg-primary-400/60">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-bold text-neutral-100 [&::-webkit-details-marker]:hidden">
+          Lihat fasilitas khusus Mandiri
+          <CaretDownIcon weight="bold" className="size-4 shrink-0 transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="space-y-4 px-4 pb-4">
+          <div>
+            <p className="text-xs font-semibold tracking-wide text-tertiary-100 uppercase">Ujian mandiri</p>
+            <ul className="mt-2 grid gap-1 text-sm text-neutral-100 sm:grid-cols-2">
+              {exams.map(({ campus, exam }) => (
+                <li key={campus}>
+                  <span className="font-semibold">{campus}</span> · {exam}
+                </li>
+              ))}
+              <li>dan PTN lainnya</li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold tracking-wide text-tertiary-100 uppercase">Fasilitas Mandiri</p>
+            <ul className="mt-2 grid gap-2">
+              {facilities.map((facility) => (
+                <li key={facility} className="flex items-start gap-2 text-sm text-neutral-100">
+                  <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-background p-0.5 text-secondary-1000">
+                    <CheckIcon weight="bold" size={12} />
+                  </span>
+                  {facility}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </details>
     </div>
   );
 }
@@ -138,6 +193,8 @@ export function PremiumPackageCard({
           </p>
         )}
       </div>
+
+      {pkg.slug === "paketmandiri2027" && <MandiriExtras />}
 
       <div className="relative z-10 mt-auto space-y-3 p-6 pt-0">
         {mode === "checkout" ? (

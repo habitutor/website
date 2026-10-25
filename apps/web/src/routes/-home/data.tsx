@@ -151,7 +151,7 @@ export const DATA = {
       {
         label: "WhatsApp",
         icon: WhatsappLogoIcon,
-        url: COMMUNITY_LINKS.whatsapp,
+        url: COMMUNITY_LINKS.whatsappChannel,
       },
       {
         label: "Discord",
