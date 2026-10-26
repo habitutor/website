@@ -27,6 +27,7 @@ import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
 import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
+import { Route as AuthenticatedLiveClassIndexRouteImport } from './routes/_authenticated/live-class/index'
 import { Route as AuthenticatedOnboardingIndexRouteImport } from './routes/_authenticated/onboarding/index'
 import { Route as AuthenticatedPremiumIndexRouteImport } from './routes/_authenticated/premium/index'
 import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authenticated/profile/index'
@@ -158,6 +159,12 @@ const AuthenticatedLatihanSoalIdRoute =
   AuthenticatedLatihanSoalIdRouteImport.update({
     id: '/latihan-soal/$id',
     path: '/latihan-soal/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedLiveClassIndexRoute =
+  AuthenticatedLiveClassIndexRouteImport.update({
+    id: '/live-class/',
+    path: '/live-class/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedOnboardingIndexRoute =
@@ -413,6 +420,7 @@ export interface FileRoutesByFullPath {
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
+  '/live-class/': typeof AuthenticatedLiveClassIndexRoute
   '/onboarding/': typeof AuthenticatedOnboardingIndexRoute
   '/premium/': typeof AuthenticatedPremiumIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
@@ -470,6 +478,7 @@ export interface FileRoutesByTo {
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
+  '/live-class': typeof AuthenticatedLiveClassIndexRoute
   '/onboarding': typeof AuthenticatedOnboardingIndexRoute
   '/premium': typeof AuthenticatedPremiumIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
@@ -531,6 +540,7 @@ export interface FileRoutesById {
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
+  '/_authenticated/live-class/': typeof AuthenticatedLiveClassIndexRoute
   '/_authenticated/onboarding/': typeof AuthenticatedOnboardingIndexRoute
   '/_authenticated/premium/': typeof AuthenticatedPremiumIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/classes/'
     | '/dashboard/'
     | '/latihan-soal/'
+    | '/live-class/'
     | '/onboarding/'
     | '/premium/'
     | '/profile/'
@@ -648,6 +659,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
+    | '/live-class'
     | '/onboarding'
     | '/premium'
     | '/profile'
@@ -708,6 +720,7 @@ export interface FileRouteTypes {
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/latihan-soal/'
+    | '/_authenticated/live-class/'
     | '/_authenticated/onboarding/'
     | '/_authenticated/premium/'
     | '/_authenticated/profile/'
@@ -876,6 +889,13 @@ declare module '@tanstack/react-router' {
       path: '/latihan-soal/$id'
       fullPath: '/latihan-soal/$id'
       preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/live-class/': {
+      id: '/_authenticated/live-class/'
+      path: '/live-class'
+      fullPath: '/live-class/'
+      preLoaderRoute: typeof AuthenticatedLiveClassIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/onboarding/': {
@@ -1205,6 +1225,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
+  AuthenticatedLiveClassIndexRoute: typeof AuthenticatedLiveClassIndexRoute
   AuthenticatedOnboardingIndexRoute: typeof AuthenticatedOnboardingIndexRoute
   AuthenticatedPremiumIndexRoute: typeof AuthenticatedPremiumIndexRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
@@ -1231,6 +1252,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
+  AuthenticatedLiveClassIndexRoute: AuthenticatedLiveClassIndexRoute,
   AuthenticatedOnboardingIndexRoute: AuthenticatedOnboardingIndexRoute,
   AuthenticatedPremiumIndexRoute: AuthenticatedPremiumIndexRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,

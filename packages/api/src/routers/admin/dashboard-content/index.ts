@@ -18,8 +18,13 @@ const normalizeTimeInput = (value: string) => {
   return null;
 };
 
+const MAX_UPCOMING_LIVE_CLASSES = 30;
+
+const isValidDuration = (minutes: number) => Number.isInteger(minutes) && minutes >= 15 && minutes <= 300;
+
 const toScheduleDate = (date: string, time: string) => {
-  const scheduledAt = new Date(`${date}T${time}:00`);
+  // Jadwal live class diisi dalam WIB.
+  const scheduledAt = new Date(`${date}T${time}:00+07:00`);
   return Number.isNaN(scheduledAt.getTime()) ? null : scheduledAt;
 };
 
@@ -30,7 +35,6 @@ const list = admin
     tags: ["Admin - Dashboard Content"],
   })
   .handler(async () => {
-    await adminDashboardContentRepo.cleanupExpiredLiveClasses({});
     await adminDashboardContentRepo.ensurePrimaryAnnouncement({});
 
     const [liveClasses, announcements] = await Promise.all([
@@ -58,17 +62,23 @@ const createLiveClass = admin
       teacher: "string",
       link: "string",
       access: "'3x' | '5x'",
+      category: "'TKA' | 'SNBT' | 'MANDIRI'",
+      durationMinutes: "number",
     }),
   )
   .handler(async ({ input }) => {
     const normalizedDate = normalizeDateInput(input.date);
     const normalizedTime = normalizeTimeInput(input.time);
 
-    const existingLiveClassCount = await adminDashboardContentRepo.countLiveClasses({});
-    if (existingLiveClassCount >= 10) {
+    const upcomingLiveClassCount = await adminDashboardContentRepo.countUpcomingLiveClasses({});
+    if (upcomingLiveClassCount >= MAX_UPCOMING_LIVE_CLASSES) {
       throw new ORPCError("UNPROCESSABLE_CONTENT", {
-        message: "Maksimal 10 live class. Hapus kelas lama sebelum menambahkan yang baru.",
+        message: `Maksimal ${MAX_UPCOMING_LIVE_CLASSES} live class yang belum selesai. Hapus jadwal yang tidak jadi sebelum menambahkan yang baru.`,
       });
+    }
+
+    if (!isValidDuration(input.durationMinutes)) {
+      throw new ORPCError("UNPROCESSABLE_CONTENT", { message: "Durasi kelas harus 15–300 menit" });
     }
 
     if (!input.title.trim() || !input.teacher.trim() || !input.link.trim()) {
@@ -98,6 +108,8 @@ const createLiveClass = admin
         teacher: input.teacher,
         link: input.link,
         access: input.access,
+        category: input.category,
+        durationMinutes: input.durationMinutes,
       },
     });
 
@@ -125,10 +137,16 @@ const updateLiveClass = admin
       teacher: "string",
       link: "string",
       access: "'3x' | '5x'",
+      category: "'TKA' | 'SNBT' | 'MANDIRI'",
+      durationMinutes: "number",
     }),
   )
   .handler(async ({ input }) => {
     const { id, ...updatePayload } = input;
+
+    if (!isValidDuration(updatePayload.durationMinutes)) {
+      throw new ORPCError("UNPROCESSABLE_CONTENT", { message: "Durasi kelas harus 15–300 menit" });
+    }
     const normalizedDate = normalizeDateInput(updatePayload.date);
     const normalizedTime = normalizeTimeInput(updatePayload.time);
 
@@ -160,6 +178,8 @@ const updateLiveClass = admin
         teacher: updatePayload.teacher,
         link: updatePayload.link,
         access: updatePayload.access,
+        category: updatePayload.category,
+        durationMinutes: updatePayload.durationMinutes,
       },
     });
 

@@ -1,0 +1,2 @@
+ALTER TABLE "dashboard_live_class" ADD COLUMN "category" "recording_category" DEFAULT 'SNBT' NOT NULL;--> statement-breakpoint
+ALTER TABLE "dashboard_live_class" ADD COLUMN "duration_minutes" integer DEFAULT 60 NOT NULL;
