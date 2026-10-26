@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 import { product, transaction } from "@habitutor/db/schema/transaction";
@@ -24,10 +24,6 @@ function normalizePrimaryAnnouncement(title: string, description: string) {
 }
 
 export const dashboardRepo = {
-  cleanupExpiredLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
-    await db.delete(dashboardLiveClass).where(sql`(${dashboardLiveClass.date} + ${dashboardLiveClass.time}) < now()`);
-  },
-
   listPublishedAnnouncements: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     const rows = await db
       .select({
@@ -82,13 +78,24 @@ export const dashboardRepo = {
     return row?.slug ?? null;
   },
 
-  listLiveClasses: async ({ db = defaultDb, onlyThreeX }: { db?: DrizzleDatabase; onlyThreeX: boolean }) => {
+  /** Hanya kelas yang belum selesai (jadwal disimpan dalam WIB); kelas lama tetap tersimpan untuk halaman jadwal. */
+  listLiveClasses: async ({
+    db = defaultDb,
+    onlyThreeX,
+    includeMandiri,
+  }: {
+    db?: DrizzleDatabase;
+    onlyThreeX: boolean;
+    includeMandiri: boolean;
+  }) => {
     return db
       .select({
         id: dashboardLiveClass.id,
         title: dashboardLiveClass.title,
         date: sql<string>`to_char(${dashboardLiveClass.date}, 'DD-MM-YYYY')`,
+        isoDate: sql<string>`to_char(${dashboardLiveClass.date}, 'YYYY-MM-DD')`,
         time: sql<string>`to_char(${dashboardLiveClass.time}, 'HH24:MI')`,
+        durationMinutes: dashboardLiveClass.durationMinutes,
         teacher: dashboardLiveClass.teacher,
         link: dashboardLiveClass.link,
         access: dashboardLiveClass.access,
@@ -96,8 +103,14 @@ export const dashboardRepo = {
       })
       .from(dashboardLiveClass)
       .where(
-        and(eq(dashboardLiveClass.isPublished, true), onlyThreeX ? eq(dashboardLiveClass.access, "3x") : undefined),
+        and(
+          eq(dashboardLiveClass.isPublished, true),
+          onlyThreeX ? eq(dashboardLiveClass.access, "3x") : undefined,
+          includeMandiri ? undefined : ne(dashboardLiveClass.category, "MANDIRI"),
+          sql`((${dashboardLiveClass.date} + ${dashboardLiveClass.time}) at time zone 'Asia/Jakarta')
+            + ${dashboardLiveClass.durationMinutes} * interval '1 minute' > now()`,
+        ),
       )
-      .orderBy(asc(dashboardLiveClass.order), asc(dashboardLiveClass.id));
+      .orderBy(asc(dashboardLiveClass.date), asc(dashboardLiveClass.time), asc(dashboardLiveClass.id));
   },
 };

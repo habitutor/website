@@ -1,18 +1,43 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { LiveClassCard } from "@/components/classes/practice";
 import { orpc } from "@/utils/orpc";
 
+function useNow(intervalMs: number) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), intervalMs);
+    return () => window.clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
+function ScheduleLink() {
+  return (
+    <Link to="/live-class" className="shrink-0 text-sm font-semibold text-primary-300 hover:underline">
+      Lihat semua jadwal
+    </Link>
+  );
+}
+
 export const LiveClass = () => {
-  const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
+  // Disegarkan berkala supaya link Gabung muncul tepat waktu dan kelas yang selesai hilang sendiri.
+  const { data: dashboardContent } = useQuery({
+    ...orpc.dashboard.content.queryOptions(),
+    refetchInterval: 60_000,
+  });
   const items = dashboardContent?.liveClasses ?? [];
+  const now = useNow(30_000);
   const [current, setCurrent] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasItems = items.length > 0;
 
+  // Area carousel baru ada setelah data kelas dimuat, jadi ukur ulang saat daftar kelas muncul.
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!hasItems || !containerRef.current) return;
 
     const update = () => {
       setContainerWidth(containerRef.current?.offsetWidth ?? 0);
@@ -24,7 +49,7 @@ export const LiveClass = () => {
     observer.observe(containerRef.current);
 
     return () => observer.disconnect();
-  }, []);
+  }, [hasItems]);
 
   const getVisible = () => {
     if (containerWidth < 640) return 1;
@@ -33,7 +58,8 @@ export const LiveClass = () => {
   };
 
   const visible = getVisible();
-  const cardWidth = containerWidth < 640 ? Math.max(containerWidth, 300) : 304;
+  // Di HP satu kartu selebar area carousel supaya tepi kanannya tidak terpotong; 304px selama belum terukur.
+  const cardWidth = containerWidth > 0 && containerWidth < 640 ? containerWidth : 304;
   const maxIndex = Math.max(0, items.length - visible);
 
   const next = () => {
@@ -47,7 +73,10 @@ export const LiveClass = () => {
   if (!items || items.length === 0) {
     return (
       <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-        <h2 className="font-medium">Live Class bersama Mentor</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-medium">Live Class bersama Mentor</h2>
+          <ScheduleLink />
+        </div>
         <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
           <img src="/avatar/pencil-blue-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
           <p className="text-2xl font-bold text-black">Tunggu ya, Mentor terbaikmu akan segera hadir!</p>
@@ -58,7 +87,10 @@ export const LiveClass = () => {
 
   return (
     <section className="relative rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Live Class bersama Mentor</h2>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h2 className="font-medium">Live Class bersama Mentor</h2>
+        <ScheduleLink />
+      </div>
       <div className="w-full">
         <div ref={containerRef} className="relative w-full overflow-hidden">
           <div
@@ -71,6 +103,7 @@ export const LiveClass = () => {
             {items.map((item) => (
               <div
                 key={item.id}
+                className="flex"
                 style={{
                   width: cardWidth,
                   minWidth: cardWidth,
@@ -82,6 +115,9 @@ export const LiveClass = () => {
                   time={item.time}
                   teacher={item.teacher}
                   link={item.link}
+                  locked={item.locked}
+                  joinOpensAt={item.joinOpensAt}
+                  isLive={now >= Date.parse(item.startsAt) && now < Date.parse(item.endsAt)}
                 />
               </div>
             ))}

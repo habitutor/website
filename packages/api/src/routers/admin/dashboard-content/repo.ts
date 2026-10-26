@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, count, desc, eq, sql } from "drizzle-orm";
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 
@@ -23,10 +23,6 @@ export const adminDashboardContentRepo = {
     return row;
   },
 
-  cleanupExpiredLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
-    await db.delete(dashboardLiveClass).where(sql`(${dashboardLiveClass.date} + ${dashboardLiveClass.time}) < now()`);
-  },
-
   listLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     return db
       .select({
@@ -37,17 +33,24 @@ export const adminDashboardContentRepo = {
         teacher: dashboardLiveClass.teacher,
         link: dashboardLiveClass.link,
         access: dashboardLiveClass.access,
+        category: dashboardLiveClass.category,
+        durationMinutes: dashboardLiveClass.durationMinutes,
         order: dashboardLiveClass.order,
       })
       .from(dashboardLiveClass)
-      .orderBy(asc(dashboardLiveClass.order), asc(dashboardLiveClass.id));
+      .orderBy(desc(dashboardLiveClass.date), desc(dashboardLiveClass.time), desc(dashboardLiveClass.id));
   },
 
-  countLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
-    const rows = await db.query.dashboardLiveClass.findMany({
-      columns: { id: true },
-    });
-    return rows.length;
+  /** Kelas yang belum selesai (jadwal dalam WIB); kelas lama tidak dihitung ke batas jumlah kelas. */
+  countUpcomingLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
+    const [row] = await db
+      .select({ count: count() })
+      .from(dashboardLiveClass)
+      .where(
+        sql`((${dashboardLiveClass.date} + ${dashboardLiveClass.time}) at time zone 'Asia/Jakarta')
+          + ${dashboardLiveClass.durationMinutes} * interval '1 minute' > now()`,
+      );
+    return row?.count ?? 0;
   },
 
   createLiveClass: async ({
@@ -62,6 +65,8 @@ export const adminDashboardContentRepo = {
       teacher: string;
       link: string;
       access: "3x" | "5x";
+      category: "TKA" | "SNBT" | "MANDIRI";
+      durationMinutes: number;
     };
   }) => {
     const existingRows = await db.query.dashboardLiveClass.findMany({
@@ -79,6 +84,8 @@ export const adminDashboardContentRepo = {
         teacher: input.teacher,
         link: input.link,
         access: input.access,
+        category: input.category,
+        durationMinutes: input.durationMinutes,
         isPublished: true,
         order: nextOrder,
       })
@@ -100,6 +107,8 @@ export const adminDashboardContentRepo = {
       teacher: string;
       link: string;
       access: "3x" | "5x";
+      category: "TKA" | "SNBT" | "MANDIRI";
+      durationMinutes: number;
     };
   }) => {
     const [existing] = await db.select().from(dashboardLiveClass).where(eq(dashboardLiveClass.id, id));
@@ -114,6 +123,8 @@ export const adminDashboardContentRepo = {
         teacher: input.teacher,
         link: input.link,
         access: input.access,
+        category: input.category,
+        durationMinutes: input.durationMinutes,
         isPublished: existing.isPublished,
         order: existing.order,
         updatedAt: new Date(),

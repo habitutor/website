@@ -185,11 +185,9 @@ function RouteComponent() {
         <MotionStaggerItem>
           <Announcement />
         </MotionStaggerItem>
-        {session?.user.isPremium && (
-          <MotionStaggerItem>
-            <LiveClass />
-          </MotionStaggerItem>
-        )}
+        <MotionStaggerItem>
+          <LiveClass />
+        </MotionStaggerItem>
         <MotionStaggerItem>
           <LastClasses />
         </MotionStaggerItem>

@@ -28,6 +28,7 @@ import { createSubtest, deleteSubtest, reorderSubtests, updateSubtest } from "./
 import { communityRouter } from "./community";
 import { dashboardRouter } from "./dashboard";
 import { flashcardRouter } from "./flashcard";
+import { liveClassRouter } from "./live-class";
 import { notificationRouter } from "./notification";
 import { practicePackRouter } from "./practice-pack";
 import { profileRouter } from "./profile";
@@ -144,6 +145,7 @@ export const appRouter: {
   streak: typeof streakRouter;
   notification: typeof notificationRouter;
   recording: typeof recordingRouter;
+  liveClass: typeof liveClassRouter;
 } = {
   healthCheck,
   social: socialRouter,
@@ -160,6 +162,7 @@ export const appRouter: {
   streak: streakRouter,
   notification: notificationRouter,
   recording: recordingRouter,
+  liveClass: liveClassRouter,
 };
 
 export type AppRouter = typeof appRouter;

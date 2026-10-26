@@ -190,6 +190,13 @@
       "when": 1792726019954,
       "tag": "0026_extend_paket_utbk_expiry",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1793000824330,
+      "tag": "0027_live_class_category_duration",
+      "breakpoints": true
     }
   ]
 }

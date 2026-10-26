@@ -4,12 +4,15 @@ import {
   ClockIcon,
   EyeIcon,
   EyeSlashIcon,
+  LockKeyIcon,
   UsersIcon,
 } from "@phosphor-icons/react";
+import { Link } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export function PracticeQuestionHeader({ content }: { content: string }) {
   return (
@@ -89,18 +92,60 @@ export function PracticeQuestion({
   );
 }
 
+function formatWibTime(iso: string) {
+  return new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit" })
+    .format(new Date(iso))
+    .replace(":", ".");
+}
+
+function LiveClassAction({ link, locked, joinOpensAt }: { link: string | null; locked: boolean; joinOpensAt: string }) {
+  if (locked) {
+    return (
+      <Link
+        to="/premium"
+        className="flex shrink-0 items-center gap-1 rounded-full bg-secondary-100 px-2.5 py-1 text-xs font-bold text-secondary-1000 hover:bg-secondary-200"
+      >
+        <LockKeyIcon weight="fill" className="size-3.5" /> Premium
+      </Link>
+    );
+  }
+
+  if (link) {
+    return (
+      <a href={link} target="_blank" rel="noopener noreferrer" aria-label="Gabung kelas" className="shrink-0">
+        <ArrowCircleRightIcon size={28} weight="fill" className="text-tertiary-600" />
+      </a>
+    );
+  }
+
+  return (
+    <span
+      className="shrink-0 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-muted-foreground"
+      title="Tombol Gabung aktif 15 menit sebelum kelas dimulai"
+    >
+      Dibuka {formatWibTime(joinOpensAt)}
+    </span>
+  );
+}
+
 export function LiveClassCard({
   title,
   date,
   time,
   teacher,
   link,
+  locked = false,
+  isLive = false,
+  joinOpensAt,
 }: {
   title: string;
   date: string;
   time: string;
   teacher: string;
-  link: string;
+  link: string | null;
+  locked?: boolean;
+  isLive?: boolean;
+  joinOpensAt: string;
 }) {
   const displayDate = /^\d{4}-\d{2}-\d{2}$/.test(date)
     ? `${date.slice(8, 10)}-${date.slice(5, 7)}-${date.slice(0, 4)}`
@@ -108,12 +153,22 @@ export function LiveClassCard({
   const displayTime = /^\d{2}:\d{2}:\d{2}$/.test(time) ? time.slice(0, 5) : time;
 
   return (
-    <Card className="relative w-full gap-4 space-y-1 overflow-hidden rounded-[10px] border border-tertiary-200 bg-background p-4 sm:p-5 md:w-75">
+    <Card
+      className={cn(
+        "relative h-full w-full min-w-0 gap-4 space-y-1 overflow-hidden rounded-[10px] border bg-background p-4 sm:p-5",
+        isLive ? "border-2 border-green-500 bg-green-50" : "border-tertiary-200",
+      )}
+    >
+      {isLive && (
+        <span className="flex w-fit items-center gap-1.5 rounded-full bg-green-600 px-2.5 py-0.5 text-xs font-bold text-white">
+          <span className="size-1.5 animate-pulse rounded-full bg-white" /> Sedang berlangsung
+        </span>
+      )}
       <div className="flex w-full flex-row items-start justify-between gap-4">
-        <h3 className="text-lg font-bold">{title}</h3>
-        <a href={link} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary-300">
-          <ArrowCircleRightIcon size={24} className="text-tertiary-600" />
-        </a>
+        <h3 className="line-clamp-2 min-h-14 min-w-0 text-lg font-bold" title={title}>
+          {title}
+        </h3>
+        <LiveClassAction link={link} locked={locked} joinOpensAt={joinOpensAt} />
       </div>
       <div>
         <div className="flex flex-row items-center gap-1">
