@@ -202,8 +202,8 @@ function LiveClassSchedulePage() {
 function ScheduleHeader() {
   return (
     <div className="relative overflow-hidden rounded-[10px] bg-primary-300 text-white">
-      <div className="pointer-events-none absolute -right-16 -bottom-24 size-56 rounded-full bg-primary-200 sm:right-0 sm:-bottom-32 sm:size-80" />
-      <div className="relative py-8 pr-32 pl-6 sm:py-12 sm:pr-72 sm:pl-10">
+      <div className="pointer-events-none absolute -right-10 -bottom-14 size-32 rounded-full bg-primary-200 sm:right-0 sm:-bottom-32 sm:size-80" />
+      <div className="relative pt-6 pr-6 pb-28 pl-6 sm:py-12 sm:pr-72 sm:pl-10">
         <h1 className="bg-linear-to-r from-background to-tertiary-100 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
           Jadwal Live Class
         </h1>
@@ -217,7 +217,7 @@ function ScheduleHeader() {
         alt=""
         width={320}
         height={320}
-        className="pointer-events-none absolute right-2 bottom-0 h-[70%] w-auto object-contain object-bottom select-none sm:right-10 sm:h-[90%]"
+        className="pointer-events-none absolute right-2 bottom-0 h-24 w-auto object-contain object-bottom select-none sm:right-10 sm:h-[90%]"
       />
     </div>
   );
