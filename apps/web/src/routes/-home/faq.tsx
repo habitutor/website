@@ -32,8 +32,8 @@ export function FAQ() {
             <div key={item.id} className="flex flex-col items-center rounded-lg">
               <button
                 onClick={() => toggleAccordion(item.id)}
-                className={`flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg border px-4 py-4 text-left shadow-sm transition-colors ${
-                  openIds.has(item.id) ? "bg-[#FFFCF3]" : "hover:bg-gray-50"
+                className={`flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg border px-4 py-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-sr-blue-200 hover:shadow-sr-1 ${
+                  openIds.has(item.id) ? "bg-[#FFFCF3]" : "hover:bg-sr-blue-50"
                 }`}
               >
                 <h3 className="font-semibold text-gray-900">{item.question}</h3>

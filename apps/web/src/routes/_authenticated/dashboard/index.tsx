@@ -92,13 +92,13 @@ function RouteComponent() {
               </div>
             </div>
 
-            <div className="fixed right-4 bottom-10 z-20 grid w-56 max-w-[calc(100vw-2rem)] grid-cols-1 gap-2 md:static md:w-auto md:max-w-none [&>a]:flex [&>a]:items-center [&>a]:justify-between [&>a]:gap-3 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white [&>a]:transition-colors">
+            <div className="fixed right-4 bottom-10 z-20 grid w-56 max-w-[calc(100vw-2rem)] grid-cols-1 gap-2 md:static md:w-auto md:max-w-none [&>a]:flex [&>a]:items-center [&>a]:justify-between [&>a]:gap-3 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white">
               {whatsappGroup && (
                 <a
                   href={whatsappGroup.href}
                   rel="noopener noreferrer"
                   target="_blank"
-                  className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
+                  className="group relative sr-action overflow-clip bg-whatsapp hover:bg-whatsapp/80"
                 >
                   <div className="z-10 min-w-0">
                     <p className="truncate text-xs font-semibold text-white/80">{whatsappGroup.label}</p>
@@ -117,7 +117,7 @@ function RouteComponent() {
                 href={COMMUNITY_LINKS.discord}
                 rel="noopener noreferrer"
                 target="_blank"
-                className="group relative overflow-clip bg-discord hover:bg-discord/80"
+                className="group relative sr-action overflow-clip bg-discord hover:bg-discord/80"
               >
                 <p className="z-10 min-w-0 font-bold">Join Discord</p>
                 <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />
@@ -133,7 +133,7 @@ function RouteComponent() {
                   href={FREEMIUM_WHATSAPP_LINKS.channel}
                   rel="noopener noreferrer"
                   target="_blank"
-                  className="group relative overflow-clip bg-whatsapp hover:bg-whatsapp/80"
+                  className="group relative sr-action overflow-clip bg-whatsapp hover:bg-whatsapp/80"
                 >
                   <p className="z-10 min-w-0 font-bold">Ikuti Channel WhatsApp</p>
                   <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />

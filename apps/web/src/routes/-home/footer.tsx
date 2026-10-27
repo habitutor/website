@@ -38,7 +38,7 @@ export default function Footer() {
             Dibangun bersama{" "}
             <a
               href="https://www.instagram.com/omahti_ugm"
-              className="flex items-center gap-2 hover:opacity-80"
+              className="flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90"
               target="_blank"
               rel="noopener noreferrer"
             >

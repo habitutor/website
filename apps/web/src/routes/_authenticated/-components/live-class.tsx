@@ -129,7 +129,7 @@ export const LiveClass = () => {
             <button
               type="button"
               onClick={prev}
-              className="static top-1/2 left-5 rounded-lg bg-primary-200 p-2 text-white md:absolute"
+              className="static top-1/2 left-5 sr-action rounded-lg bg-primary-200 p-2 text-white md:absolute"
               aria-label="Previous live class"
             >
               <ArrowLeftIcon size={20} />
@@ -138,7 +138,7 @@ export const LiveClass = () => {
             <button
               type="button"
               onClick={next}
-              className="static top-1/2 right-5 rounded-lg bg-primary-200 p-2 text-white md:absolute"
+              className="static top-1/2 right-5 sr-action rounded-lg bg-primary-200 p-2 text-white md:absolute"
               aria-label="Next live class"
             >
               <ArrowRightIcon size={20} />

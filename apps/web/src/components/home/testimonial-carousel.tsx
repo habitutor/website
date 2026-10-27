@@ -189,11 +189,11 @@ const Carousel: React.FC<CarouselProps> = ({
       {showNavigation && (
         <Container className="w-full pt-5 lg:hidden">
           <div className="flex justify-between">
-            <button onClick={prev} className="rounded-lg bg-primary-200 p-2 text-white">
+            <button onClick={prev} className="sr-action rounded-lg bg-primary-200 p-2 text-white">
               <ArrowLeftIcon size={22} />
             </button>
 
-            <button onClick={next} className="rounded-lg bg-primary-200 p-2 text-white">
+            <button onClick={next} className="sr-action rounded-lg bg-primary-200 p-2 text-white">
               <ArrowRightIcon size={22} />
             </button>
           </div>
@@ -208,7 +208,7 @@ const Carousel: React.FC<CarouselProps> = ({
             <button
               key={i}
               onClick={() => setCurrent(i)}
-              className={`h-2 w-2 rounded-full ${i === current ? "bg-dot-active scale-125" : "bg-dot-inactive"}`}
+              className={`h-2 w-2 rounded-full transition-transform duration-300 hover:scale-150 ${i === current ? "bg-dot-active scale-125" : "bg-dot-inactive"}`}
             />
           ))}
         </div>

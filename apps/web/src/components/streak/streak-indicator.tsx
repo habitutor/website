@@ -36,7 +36,7 @@ export function StreakIndicator({ autoOpenBlocked = false }: { autoOpenBlocked?:
           setDialogOpen(true);
         }}
         aria-label="Lihat streak belajar"
-        className="flex cursor-pointer items-center gap-1 rounded-full border-2 border-neutral-200 bg-neutral-50 py-1 pr-3 pl-2 transition-colors hover:bg-neutral-100"
+        className="flex cursor-pointer items-center gap-1 rounded-full border-2 border-neutral-200 bg-neutral-50 py-1 pr-3 pl-2 transition-all duration-300 hover:-translate-y-0.5 hover:border-sr-sun-400 hover:bg-sr-sun-100 hover:shadow-sr-1 active:scale-95"
       >
         <FlameIcon weight="fill" className={cn("size-5", lit ? "text-orange-500" : "text-neutral-400")} />
         <span className={cn("text-sm font-bold", lit ? "text-orange-600" : "text-neutral-500")}>

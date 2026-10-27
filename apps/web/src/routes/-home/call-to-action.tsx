@@ -122,7 +122,7 @@ function FooterPanel() {
                 rel="noopener noreferrer"
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
-                  "h-10 w-10 rounded-lg bg-background text-primary-300 hover:bg-primary-100",
+                  "h-10 w-10 rounded-lg bg-background text-primary-300 hover:-translate-y-0.5 hover:bg-primary-100 hover:shadow-sr-1",
                 )}
               >
                 <social.icon className="size-5" weight="bold" />
@@ -138,7 +138,7 @@ function FooterPanel() {
             <span>Build together with</span>
             <a
               href="https://www.instagram.com/omahti_ugm"
-              className="flex items-center transition-opacity hover:opacity-80"
+              className="flex items-center transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90"
               target="_blank"
               rel="noopener noreferrer"
             >

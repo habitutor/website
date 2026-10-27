@@ -41,14 +41,14 @@ export function FlashcardResultBottomBar() {
       <div className="fixed right-0 bottom-0 left-0 z-50 flex h-22.75 items-center justify-end gap-4 border-t border-neutral-500 bg-white px-6">
         <Link
           to="/dashboard"
-          className="flex h-10.5 w-50 items-center justify-center rounded-lg border border-primary-300 text-[15px] text-primary-300 no-underline transition-colors hover:bg-blue-50"
+          className="flex h-10.5 w-50 items-center justify-center rounded-lg border border-primary-300 text-[15px] text-primary-300 no-underline transition-all duration-300 hover:-translate-y-0.5 hover:border-sr-blue-500 hover:bg-sr-blue-50 hover:shadow-sr-1 active:scale-[0.97]"
         >
           Selesaikan
         </Link>
         <button
           onClick={() => startMutation.mutate({})}
           disabled={startMutation.isPending}
-          className="h-10.5 w-50 rounded-lg border border-primary-300 bg-primary-300 text-[15px] text-white transition-colors hover:bg-[#2d4082] disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-10.5 w-50 sr-action rounded-lg border border-primary-300 bg-primary-300 text-[15px] text-white hover:bg-sr-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {startMutation.isPending ? "Memulai..." : "Main Lagi!"}
         </button>
