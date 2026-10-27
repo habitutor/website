@@ -1,14 +1,18 @@
+import { CheckCircleIcon, CircleIcon, LockKeyIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { type } from "arktype";
+import { motion } from "motion/react";
+import { useState } from "react";
 import { toast } from "sonner";
 import Loader from "@/components/feedback/loader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
+import { cn } from "@/lib/utils";
+import { AuthCard, AuthShell, FieldErrors } from "./-components/auth-shell";
+import { PasswordInput } from "./-components/password-input";
 
 export const Route = createFileRoute("/_auth/reset-password")({
   head: () => ({
@@ -25,15 +29,57 @@ export const Route = createFileRoute("/_auth/reset-password")({
   },
 });
 
+const RESET_HIGHLIGHTS = [
+  "Minimal 8 karakter",
+  "Gunakan kombinasi yang mudah kamu ingat",
+  "Langsung bisa dipakai masuk",
+];
+
 function RouteComponent() {
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
   return (
-    <main className="flex min-h-screen w-full flex-col items-center pt-24">
-      <ResetPasswordForm />
-    </main>
+    <AuthShell
+      eyebrow="Hampir selesai"
+      title={
+        <>
+          Bikin password baru, <span className="font-sr-serif text-sr-sun-400 italic">lanjut belajar lagi.</span>
+        </>
+      }
+      description="Satu langkah lagi sebelum kamu kembali ke perjalanan belajarmu."
+      highlights={RESET_HIGHLIGHTS}
+      mascotHidden={isPasswordFocused}
+      footer={
+        <>
+          Sudah punya akun?{" "}
+          <Link to="/login" className="font-bold text-sr-blue-600 underline-offset-4 hover:underline">
+            Masuk
+          </Link>
+        </>
+      }
+    >
+      <ResetPasswordForm onPasswordFocusChange={setIsPasswordFocused} />
+    </AuthShell>
   );
 }
 
-function ResetPasswordForm() {
+function Requirement({ met, label }: { met: boolean; label: string }) {
+  return (
+    <li
+      className={cn(
+        "flex items-center gap-1.5 text-xs font-medium transition-colors",
+        met ? "text-sr-live" : "text-sr-muted",
+      )}
+    >
+      <motion.span key={String(met)} initial={{ scale: 0.4 }} animate={{ scale: 1 }} className="inline-flex">
+        {met ? <CheckCircleIcon weight="fill" className="size-4" /> : <CircleIcon className="size-4" />}
+      </motion.span>
+      {label}
+    </li>
+  );
+}
+
+function ResetPasswordForm({ onPasswordFocusChange }: { onPasswordFocusChange: (focused: boolean) => void }) {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const { isPending } = authClient.useSession();
@@ -76,90 +122,101 @@ function ResetPasswordForm() {
     return <Loader />;
   }
 
+  const focusHandlers = (handleBlur: () => void) => ({
+    onFocus: () => onPasswordFocusChange(true),
+    onBlur: () => {
+      onPasswordFocusChange(false);
+      handleBlur();
+    },
+  });
+
   return (
-    <div className="w-full max-w-md">
-      <Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
-      <div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
-        <div className="flex flex-col items-center gap-2 text-center">
-          {" "}
-          <h1 className="text-3xl text-primary">
-            <span className="font-bold">Reset </span>
-            Password
-          </h1>
-          <p className="text-sm">Masukkan password baru anda</p>
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
-          className="mt-8 space-y-4"
+    <AuthCard>
+      <div className="flex flex-col items-center gap-3 text-center">
+        <motion.span
+          className="flex size-14 items-center justify-center rounded-sr-md bg-sr-blue-50 text-sr-blue-600"
+          initial={{ scale: 0, rotate: -30 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 380, damping: 14, delay: 0.15 }}
         >
-          <div>
-            <form.Field name="nextPassphrase">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Password Baru</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="password"
-                    autoFocus
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-xs text-red-500">
-                      {error?.message}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </form.Field>
-          </div>
-
-          <div>
-            <form.Field name="confirmNextPassphrase">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Konfirmasi Password</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-xs text-red-500">
-                      {error?.message}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </form.Field>
-          </div>
-
-          <form.Subscribe>
-            {(state) => (
-              <Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-                {state.isSubmitting ? "Memuat..." : "Ubah Password"}
-              </Button>
-            )}
-          </form.Subscribe>
-        </form>
+          <LockKeyIcon weight="duotone" className="size-7" />
+        </motion.span>
+        <h1 className="text-3xl font-extrabold text-sr-ink">
+          Reset <span className="font-sr-serif text-sr-blue-600 italic">Password</span>
+        </h1>
+        <p className="text-sm text-sr-muted">Masukkan password baru kamu</p>
       </div>
 
-      <p className="mt-4 text-center text-sm">
-        Sudah punya akun?{" "}
-        <Link to="/login" className="font-bold text-primary">
-          Masuk
-        </Link>
-      </p>
-    </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="mt-8 space-y-4"
+      >
+        <form.Field name="nextPassphrase">
+          {(field) => (
+            <div className="space-y-2">
+              <Label htmlFor={field.name}>Password Baru</Label>
+              <PasswordInput
+                id={field.name}
+                name={field.name}
+                autoFocus
+                autoComplete="new-password"
+                className="h-11"
+                value={field.state.value}
+                {...focusHandlers(field.handleBlur)}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              <FieldErrors errors={field.state.meta.errors} />
+            </div>
+          )}
+        </form.Field>
+
+        <form.Field name="confirmNextPassphrase">
+          {(field) => (
+            <div className="space-y-2">
+              <Label htmlFor={field.name}>Konfirmasi Password</Label>
+              <PasswordInput
+                id={field.name}
+                name={field.name}
+                autoComplete="new-password"
+                className="h-11"
+                value={field.state.value}
+                {...focusHandlers(field.handleBlur)}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              <FieldErrors errors={field.state.meta.errors} />
+            </div>
+          )}
+        </form.Field>
+
+        <form.Subscribe selector={(state) => state.values}>
+          {(values) => (
+            <ul className="space-y-1.5 rounded-sr-sm bg-sr-blue-50 px-3 py-2.5">
+              <Requirement met={values.nextPassphrase.length >= 8} label="Minimal 8 karakter" />
+              <Requirement
+                met={values.confirmNextPassphrase.length > 0 && values.nextPassphrase === values.confirmNextPassphrase}
+                label="Kedua password sama"
+              />
+            </ul>
+          )}
+        </form.Subscribe>
+
+        <form.Subscribe>
+          {(state) => (
+            <Button
+              type="submit"
+              size="lg"
+              className="sr-sheen w-full"
+              disabled={!state.canSubmit || state.isSubmitting}
+            >
+              {state.isSubmitting ? "Memuat..." : "Ubah Password"}
+            </Button>
+          )}
+        </form.Subscribe>
+      </form>
+    </AuthCard>
   );
 }
