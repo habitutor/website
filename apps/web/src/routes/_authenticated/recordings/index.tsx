@@ -1,9 +1,9 @@
-import { LockKeyIcon, MagnifyingGlassIcon, PlayCircleIcon } from "@phosphor-icons/react";
+import { CaretLeftIcon, CaretRightIcon, LockKeyIcon, MagnifyingGlassIcon, PlayCircleIcon } from "@phosphor-icons/react";
 import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { extractYouTubeId } from "@habitutor/shared/youtube";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import YouTubePlayer from "@/components/media/youtube-player";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +35,8 @@ const CATEGORIES = [
 
 type Category = (typeof CATEGORIES)[number]["value"];
 
+const PAGE_SIZE = 9;
+
 const formatDate = (value: string) =>
   new Date(`${value}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
@@ -43,6 +45,8 @@ function RecordingsPage() {
   const canWatch = Boolean(session.data?.user?.isPremium) || isAdminRole(session.data?.user?.role);
   const [category, setCategory] = useState<Category>("TKA");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const listTopRef = useRef<HTMLDivElement>(null);
   const [activeVideo, setActiveVideo] = useState<{ title: string; videoId: string } | null>(null);
 
   const recordings = useQuery({
@@ -56,6 +60,15 @@ function RecordingsPage() {
     if (!keyword) return items;
     return items.filter((item) => `${item.title} ${item.teacher ?? ""}`.toLowerCase().includes(keyword));
   }, [recordings.data, keyword]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredRecordings.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedRecordings = filteredRecordings.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const goToPage = (nextPage: number) => {
+    setPage(nextPage);
+    listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const style = CATEGORIES.find((c) => c.value === category) ?? CATEGORIES[0];
 
@@ -81,7 +94,13 @@ function RecordingsPage() {
         </Card>
       ) : (
         <>
-          <Tabs value={category} onValueChange={(value) => setCategory(value as Category)}>
+          <Tabs
+            value={category}
+            onValueChange={(value) => {
+              setCategory(value as Category);
+              setPage(1);
+            }}
+          >
             <TabsList>
               {CATEGORIES.map((c) => (
                 <TabsTrigger key={c.value} value={c.value}>
@@ -96,7 +115,10 @@ function RecordingsPage() {
             <Input
               placeholder="Cari judul atau pemateri..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="pl-9"
             />
           </div>
@@ -119,34 +141,62 @@ function RecordingsPage() {
             <p className="text-muted-foreground">Tidak ada rekaman yang cocok dengan "{search.trim()}".</p>
           )}
 
-          {filteredRecordings.length > 0 && (
-            <div className="grid grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {filteredRecordings.map((item) => (
-                <Card
-                  key={item.id}
-                  className={cn(
-                    style.card,
-                    "relative min-h-40 overflow-hidden border-0 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
-                  )}
-                >
-                  <div className={cn(style.accent, "absolute right-0 bottom-0 aspect-square h-[70%] w-auto")} />
-                  <div className="relative z-10 flex h-full flex-col justify-between gap-6">
-                    <div>
-                      <p className="text-xs font-medium opacity-80">{formatDate(item.recordedAt)}</p>
-                      <h3 className="mt-1 font-semibold text-pretty">{item.title}</h3>
-                      {item.teacher && <p className="text-sm font-light">Pemateri: {item.teacher}</p>}
+          {pagedRecordings.length > 0 && (
+            <div ref={listTopRef} className="scroll-mt-24 space-y-6">
+              <div className="grid grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {pagedRecordings.map((item) => (
+                  <Card
+                    key={item.id}
+                    className={cn(
+                      style.card,
+                      "relative min-h-40 overflow-hidden border-0 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
+                    )}
+                  >
+                    <div className={cn(style.accent, "absolute right-0 bottom-0 aspect-square h-[70%] w-auto")} />
+                    <div className="relative z-10 flex h-full flex-col justify-between gap-6">
+                      <div>
+                        <p className="text-xs font-medium opacity-80">{formatDate(item.recordedAt)}</p>
+                        <h3 className="mt-1 font-semibold text-pretty">{item.title}</h3>
+                        {item.teacher && <p className="text-sm font-light">Pemateri: {item.teacher}</p>}
+                      </div>
+                      <Button
+                        variant="lightBlue"
+                        size="sm"
+                        className="w-fit"
+                        onClick={() =>
+                          setActiveVideo({ title: item.title, videoId: extractYouTubeId(item.youtubeUrl) })
+                        }
+                      >
+                        <PlayCircleIcon weight="fill" /> Tonton
+                      </Button>
                     </div>
-                    <Button
-                      variant="lightBlue"
-                      size="sm"
-                      className="w-fit"
-                      onClick={() => setActiveVideo({ title: item.title, videoId: extractYouTubeId(item.youtubeUrl) })}
-                    >
-                      <PlayCircleIcon weight="fill" /> Tonton
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={() => goToPage(currentPage - 1)}
+                  >
+                    <CaretLeftIcon /> Sebelumnya
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Halaman {currentPage} dari {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => goToPage(currentPage + 1)}
+                  >
+                    Berikutnya <CaretRightIcon />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </>
