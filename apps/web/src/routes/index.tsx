@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { MotionConfig } from "motion/react";
 import Header from "@/components/navigation/header";
 import { createMeta } from "@/lib/seo-utils";
 import { CallToAction } from "./-home/call-to-action";
@@ -23,17 +24,19 @@ export const Route = createFileRoute("/")({
 
 function HomeComponent() {
   return (
-    <>
-      <Header />
-      <Hero />
-      <FundedBy />
-      <Testimonial />
-      <Statistics />
-      <Features />
-      <Pricing />
-      <FAQ />
-      <CallToAction />
-      {/* <Footer /> */}
-    </>
+    <MotionConfig reducedMotion="user">
+      <div className="overflow-x-clip">
+        <Header />
+        <Hero />
+        <FundedBy />
+        <Testimonial />
+        <Statistics />
+        <Features />
+        <Pricing />
+        <FAQ />
+        <CallToAction />
+        {/* <Footer /> */}
+      </div>
+    </MotionConfig>
   );
 }

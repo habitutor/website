@@ -1,6 +1,7 @@
 import { CalendarBlankIcon, CaretDownIcon, CheckIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { motion } from "motion/react";
 import { MotionFadeUp, MotionScaleIn } from "@/components/motion/motion-components";
 import { buttonVariants } from "@/components/ui/button";
 import { NumberTicker } from "@/components/ui/number-ticker";
@@ -295,7 +296,13 @@ export function PremiumPackageGrid({
     <div>
       <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
         {packages.map((pkg, index) => (
-          <div key={pkg.slug} className="animate-sr-rise" style={{ animationDelay: `${index * 90}ms` }}>
+          <motion.div
+            key={pkg.slug}
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, delay: index * 0.12, ease: [0.2, 0.7, 0.2, 1] }}
+          >
             <PremiumPackageCard
               pkg={pkg}
               isPricePending={isPending}
@@ -305,7 +312,7 @@ export function PremiumPackageGrid({
               onSubscribe={() => onSubscribe?.(pkg.slug)}
               hasInitiatedPurchase={initiatedSlug === pkg.slug}
             />
-          </div>
+          </motion.div>
         ))}
       </div>
       <p className="mt-4 text-center text-xs text-sr-muted">{PREMIUM_PRICING_COPY.footerNote}</p>

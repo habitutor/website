@@ -6,6 +6,7 @@ import { MotionPulse } from "@/components/motion/motion-components";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
+import { Float } from "./motion-bits";
 
 function FloatingCircle({ className }: { className: string }) {
   return (
@@ -23,7 +24,7 @@ function FloatingCircle({ className }: { className: string }) {
 
 function HeroPanel() {
   return (
-    <div className="relative container mx-4 flex min-h-122.25 w-full flex-col overflow-hidden rounded-t-2xl border-x-2 border-t-2 border-[#B3DFF5] bg-[#F4FAFF]">
+    <div className="relative container mx-4 flex min-h-122.25 w-full flex-col overflow-hidden rounded-t-2xl border-x-2 border-t-2 border-[#B3DFF5] bg-linear-to-br from-[#F4FAFF] via-white to-sr-sun-100">
       <div className="relative z-10 flex h-full flex-1 flex-col justify-start px-8 py-8 md:justify-center md:px-10 lg:px-20">
         <div className="flex w-full flex-col lg:flex-row lg:items-center">
           <div className="z-20 flex flex-col items-start gap-6 lg:w-2/3">
@@ -63,7 +64,7 @@ function HeroPanel() {
               </motion.p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="sr-sheen">
                 <Link to="/login">Mulai Perjalananmu</Link>
               </Button>
 
@@ -88,11 +89,13 @@ function HeroPanel() {
               transition={{ delay: 0.3, duration: 0.5 }}
               className="relative z-0"
             >
-              <img
-                src="/avatar/tupai-cta-1.webp"
-                alt="Mascot"
-                className="h-auto w-45 translate-y-2 -scale-x-100 object-contain md:w-75 lg:w-100"
-              />
+              <Float distance={10} duration={4.5}>
+                <img
+                  src="/avatar/tupai-cta-1.webp"
+                  alt="Mascot"
+                  className="h-auto w-45 translate-y-4 -scale-x-100 object-contain drop-shadow-[0_16px_18px_rgba(20,34,78,0.2)] md:w-75 lg:w-100"
+                />
+              </Float>
             </motion.div>
           </div>
         </div>
@@ -103,8 +106,9 @@ function HeroPanel() {
 
 function FooterPanel() {
   return (
-    <div className="relative z-10 container mx-4 w-full rounded-b-2xl border-x-2 border-b-2 border-[#24356B] bg-[#3650A2] py-7 text-white md:py-10">
-      <div className="w-full space-y-4 px-6 md:px-10 lg:px-20">
+    <div className="relative z-10 container mx-4 w-full overflow-hidden rounded-b-2xl border-x-2 border-b-2 border-sr-blue-700 bg-(image:--sr-grad-blue) py-7 text-white md:py-10">
+      <div className="pointer-events-none absolute -top-20 -right-16 size-64 animate-sr-drift rounded-full border-[26px] border-white/10" />
+      <div className="relative w-full space-y-4 px-6 md:px-10 lg:px-20">
         <div className="flex flex-col items-center justify-between border-neutral-100 pb-3 sm:flex-row sm:gap-6 md:border-b">
           <div className="flex flex-col items-center gap-1 sm:items-start">
             <div className="flex items-center gap-2">
@@ -160,7 +164,7 @@ function FooterPanel() {
 
 export function CallToAction() {
   return (
-    <section className="mx-auto flex w-full flex-col items-center overflow-hidden bg-neutral-100 px-4 py-20">
+    <section className="relative mx-auto flex w-full flex-col items-center overflow-hidden bg-neutral-100 px-4 py-20">
       <FloatingCircle className="absolute -right-200 -bottom-100 z-0 size-56 rounded-full border-2 border-[#B3DFF5] bg-tertiary-100 md:size-84" />
       <FloatingCircle className="absolute -bottom-190 -left-200 z-0 size-56 rounded-full border-2 border-[#B3DFF5] bg-tertiary-100 md:size-64" />
       <HeroPanel />
