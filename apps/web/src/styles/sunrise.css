@@ -225,6 +225,7 @@
     }
   }
   &:active:not(:disabled) {
-    transform: translateY(0) scale(0.97);
+    transform: translateY(0) scale(0.96);
+    filter: brightness(0.95);
   }
 }

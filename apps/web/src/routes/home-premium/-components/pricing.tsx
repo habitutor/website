@@ -1,8 +1,9 @@
-import { CalendarBlankIcon, CaretDownIcon, CheckIcon } from "@phosphor-icons/react";
+import { CalendarBlankIcon, CaretDownIcon, CheckIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { MotionScaleIn } from "@/components/motion/motion-components";
+import { MotionFadeUp, MotionScaleIn } from "@/components/motion/motion-components";
 import { buttonVariants } from "@/components/ui/button";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveFakePurchase } from "@/lib/fake-recent-purchases";
 import {
@@ -20,7 +21,7 @@ import { usePremiumPackages } from "./use-premium-packages";
 
 function CheckBadge() {
   return (
-    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink shadow-sr-1">
+    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink shadow-sr-1 transition-transform duration-300 ease-sr-spring group-hover/feature:scale-125 group-hover/feature:rotate-12">
       <CheckIcon weight="bold" size={12} />
     </span>
   );
@@ -47,10 +48,34 @@ function FakePurchaseBubble() {
   );
 }
 
+const MARKER =
+  "bg-[linear-gradient(transparent_62%,var(--color-sr-sun-400)_62%,var(--color-sr-sun-400)_90%,transparent_90%)] px-0.5 font-extrabold";
+
+// Angka di teks (60% dan 2x) diberi stabilo kuning; persen dihitung naik saat terlihat. Teksnya tidak diubah.
+function ProofStrip({ text }: { text: string }) {
+  return (
+    <p className="mx-auto max-w-2xl animate-sr-rise rounded-sr-md border border-sr-sun-200 bg-linear-to-r from-sr-sun-100 via-white to-sr-sun-100 px-5 py-3 text-center text-sm font-semibold text-sr-ink shadow-sr-1 sm:text-base">
+      {text.split(/(\d+%|\d+x)/).map((part, i) =>
+        /^\d+%$/.test(part) ? (
+          <span key={i} className={MARKER}>
+            <NumberTicker value={Number.parseInt(part, 10)} />%
+          </span>
+        ) : /^\d+x$/.test(part) ? (
+          <span key={i} className={MARKER}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </p>
+  );
+}
+
 export function PricingExtras() {
   return (
     <div className="mt-6">
-      <p className="text-center text-xs font-semibold text-sr-ink sm:text-sm">{PREMIUM_PRICING_COPY.proofStrip}</p>
+      <ProofStrip text={PREMIUM_PRICING_COPY.proofStrip} />
       <FakePurchaseBubble />
     </div>
   );
@@ -58,17 +83,20 @@ export function PricingExtras() {
 
 export function PremiumFeatureList() {
   return (
-    <div className="mt-6 rounded-sr-lg border border-sr-line bg-white px-6 py-6 shadow-sr-1">
+    <MotionFadeUp className="mt-6 rounded-sr-lg border border-sr-line bg-white px-6 py-6 shadow-sr-1">
       <p className="text-sm font-extrabold text-sr-ink">{PREMIUM_PRICING_COPY.featuresTitle}</p>
       <ul className="mt-4 grid gap-3 md:grid-cols-2">
         {PREMIUM_PRICING_COPY.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-3 text-sm font-medium text-sr-ink-2">
+          <li
+            key={feature}
+            className="group/feature -mx-3 flex items-start gap-3 rounded-sr-sm px-3 py-2 text-sm font-medium text-sr-ink-2 transition-all duration-300 ease-sr hover:translate-x-1 hover:bg-sr-blue-50 hover:text-sr-ink"
+          >
             <CheckBadge />
             <PricingFeature feature={feature} />
           </li>
         ))}
       </ul>
-    </div>
+    </MotionFadeUp>
   );
 }
 
@@ -90,12 +118,12 @@ function MandiriExtras() {
         <li className="rounded-full px-1 py-0.5 text-xs font-semibold text-sr-sun-200">+ PTN lainnya</li>
       </ul>
 
-      <details className="group rounded-sr-sm border border-white/25 bg-white/10">
+      <details className="group overflow-hidden rounded-sr-sm border border-white/25 bg-white/10 transition-colors hover:bg-white/15">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-bold text-white [&::-webkit-details-marker]:hidden">
           Lihat fasilitas khusus Mandiri
           <CaretDownIcon weight="bold" className="size-4 shrink-0 transition-transform group-open:rotate-180" />
         </summary>
-        <div className="space-y-4 px-4 pb-4">
+        <div className="space-y-4 px-4 pb-4 group-open:animate-sr-rise">
           <div>
             <p className="text-xs font-semibold tracking-wide text-sr-sun-200 uppercase">Ujian mandiri</p>
             <ul className="mt-2 grid gap-1 text-sm text-white sm:grid-cols-2">
@@ -137,7 +165,7 @@ type PremiumPackageCardProps = {
 
 const CTA_CLASS_NAME = cn(
   buttonVariants({ variant: "secondary", size: "lg" }),
-  "h-auto w-full py-3 text-base font-extrabold whitespace-normal",
+  "sr-sheen h-auto w-full py-3 text-center text-base font-extrabold whitespace-normal active:shadow-[inset_0_3px_8px_rgb(0_0_0/0.22)]",
 );
 
 export function PremiumPackageCard({
@@ -166,7 +194,13 @@ export function PremiumPackageCard({
           Promo
         </span>
       )}
-      <div className="relative flex h-full w-full sr-lift flex-col overflow-hidden rounded-sr-lg sr-card-blue">
+      <div
+        className={cn(
+          "relative flex h-full w-full flex-col overflow-hidden rounded-sr-lg sr-card-blue",
+          pkg.isAvailable ? "sr-lift" : "opacity-85 saturate-50",
+          isSubscribed && "ring-2 ring-sr-sun-500 ring-offset-2 ring-offset-sr-ivory",
+        )}
+      >
         <div className="pointer-events-none absolute -top-16 -right-12 z-0 size-48 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -right-12 -bottom-20 z-0 size-45 rounded-full bg-white/5" />
 
@@ -216,8 +250,10 @@ export function PremiumPackageCard({
                   CTA_CLASS_NAME,
                   "cursor-pointer disabled:cursor-default disabled:opacity-70",
                   isSubscribed && "bg-white/20 bg-none text-white opacity-100 shadow-none",
+                  isPending && "opacity-100",
                 )}
               >
+                {isPending && <SpinnerIcon weight="bold" className="size-5 animate-spin" />}
                 {buttonLabel}
               </button>
               {hasInitiatedPurchase && !isSubscribed && (
@@ -258,17 +294,18 @@ export function PremiumPackageGrid({
   return (
     <div>
       <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
-        {packages.map((pkg) => (
-          <PremiumPackageCard
-            key={pkg.slug}
-            pkg={pkg}
-            isPricePending={isPending}
-            mode={mode}
-            isPending={pendingSlug === pkg.slug}
-            isDisabled={isDisabled}
-            onSubscribe={() => onSubscribe?.(pkg.slug)}
-            hasInitiatedPurchase={initiatedSlug === pkg.slug}
-          />
+        {packages.map((pkg, index) => (
+          <div key={pkg.slug} className="animate-sr-rise" style={{ animationDelay: `${index * 90}ms` }}>
+            <PremiumPackageCard
+              pkg={pkg}
+              isPricePending={isPending}
+              mode={mode}
+              isPending={pendingSlug === pkg.slug}
+              isDisabled={isDisabled}
+              onSubscribe={() => onSubscribe?.(pkg.slug)}
+              hasInitiatedPurchase={initiatedSlug === pkg.slug}
+            />
+          </div>
         ))}
       </div>
       <p className="mt-4 text-center text-xs text-sr-muted">{PREMIUM_PRICING_COPY.footerNote}</p>
@@ -288,7 +325,7 @@ export function Pricing() {
             alt="Maskot Habitutor"
             width={224}
             height={224}
-            className="relative size-44 object-contain select-none"
+            className="relative size-44 animate-sr-drift object-contain select-none"
           />
         </div>
 
