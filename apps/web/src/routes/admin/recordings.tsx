@@ -5,9 +5,19 @@ import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
+import { PencilSimple, Trash } from "@phosphor-icons/react";
+
 
 export const Route = createFileRoute("/admin/recordings")({
   component: AdminRecordingsPage,
@@ -15,17 +25,97 @@ export const Route = createFileRoute("/admin/recordings")({
 
 type Category = "TKA" | "SNBT" | "MANDIRI";
 
-const emptyForm = {
-  category: "TKA" as Category,
+type RecordingForm = {
+  category: Category;
+  title: string;
+  teacher: string;
+  youtubeUrl: string;
+  recordedAt: string;
+};
+
+type EditingRecording = RecordingForm & {
+  id: number;
+  isPublished: boolean;
+};
+
+const emptyForm: RecordingForm = {
+  category: "TKA",
   title: "",
   teacher: "",
   youtubeUrl: "",
   recordedAt: "",
 };
 
+const isRecordingFormValid = (form: RecordingForm) =>
+  form.title.trim() !== "" && form.youtubeUrl.trim() !== "" && form.recordedAt.trim() !== "";
+
+function RecordingFormFields({
+  idPrefix,
+  form,
+  onChange,
+}: {
+  idPrefix: string;
+  form: RecordingForm;
+  onChange: (form: RecordingForm) => void;
+}) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="space-y-2">
+        <Label htmlFor={`${idPrefix}-category`}>Kategori</Label>
+        <select
+          id={`${idPrefix}-category`}
+          className="w-full rounded-md border px-3 py-2 text-sm"
+          value={form.category}
+          onChange={(e) => onChange({ ...form, category: e.target.value as Category })}
+        >
+          <option value="TKA">TKA</option>
+          <option value="SNBT">SNBT</option>
+          <option value="MANDIRI">Mandiri</option>
+        </select>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor={`${idPrefix}-date`}>Tanggal live</Label>
+        <Input
+          id={`${idPrefix}-date`}
+          type="date"
+          value={form.recordedAt}
+          onChange={(e) => onChange({ ...form, recordedAt: e.target.value })}
+        />
+      </div>
+      <div className="space-y-2 sm:col-span-2">
+        <Label htmlFor={`${idPrefix}-title`}>Judul</Label>
+        <Input
+          id={`${idPrefix}-title`}
+          placeholder="Contoh: Bedah Soal Matematika TKA"
+          value={form.title}
+          onChange={(e) => onChange({ ...form, title: e.target.value })}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor={`${idPrefix}-teacher`}>Pemateri (opsional)</Label>
+        <Input
+          id={`${idPrefix}-teacher`}
+          value={form.teacher}
+          onChange={(e) => onChange({ ...form, teacher: e.target.value })}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor={`${idPrefix}-youtube`}>Link YouTube</Label>
+        <Input
+          id={`${idPrefix}-youtube`}
+          placeholder="https://www.youtube.com/live/..."
+          value={form.youtubeUrl}
+          onChange={(e) => onChange({ ...form, youtubeUrl: e.target.value })}
+        />
+      </div>
+    </div>
+  );
+}
+
 function AdminRecordingsPage() {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState<RecordingForm>(emptyForm);
+  const [editing, setEditing] = useState<EditingRecording | null>(null);
   const listQuery = useQuery(orpc.admin.recording.list.queryOptions());
 
   const refresh = () => queryClient.invalidateQueries(orpc.admin.recording.list.queryOptions());
@@ -55,6 +145,19 @@ function AdminRecordingsPage() {
     }),
   );
 
+  const editMutation = useMutation(
+    orpc.admin.recording.update.mutationOptions({
+      onSuccess: async () => {
+        toast.success("Perubahan rekaman disimpan");
+        await refresh();
+        setEditing(null);
+      },
+      onError: (error) => {
+        toast.error("Gagal menyimpan perubahan", { description: error.message });
+      },
+    }),
+  );
+
   const removeMutation = useMutation(
     orpc.admin.recording.remove.mutationOptions({
       onSuccess: async () => {
@@ -67,58 +170,17 @@ function AdminRecordingsPage() {
     }),
   );
 
-  const isFormValid =
-    form.title.trim() !== "" && form.youtubeUrl.trim() !== "" && form.recordedAt.trim() !== "";
-
   return (
     <AdminContainer>
       <AdminHeader title="Live Recording" description="Kelola link rekaman YouTube untuk member premium" />
 
       <Card className="mb-6 space-y-4 p-6">
         <h3 className="text-lg font-semibold">Tambah Rekaman</h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Kategori</Label>
-            <select
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value as Category })}
-            >
-              <option value="TKA">TKA</option>
-              <option value="SNBT">SNBT</option>
-              <option value="MANDIRI">Mandiri</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label>Tanggal live</Label>
-            <Input
-              type="date"
-              value={form.recordedAt}
-              onChange={(e) => setForm({ ...form, recordedAt: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label>Judul</Label>
-            <Input
-              placeholder="Contoh: Bedah Soal Matematika TKA"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Pemateri (opsional)</Label>
-            <Input value={form.teacher} onChange={(e) => setForm({ ...form, teacher: e.target.value })} />
-          </div>
-          <div className="space-y-2">
-            <Label>Link YouTube</Label>
-            <Input
-              placeholder="https://www.youtube.com/live/..."
-              value={form.youtubeUrl}
-              onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })}
-            />
-          </div>
-        </div>
-        <Button disabled={!isFormValid || createMutation.isPending} onClick={() => createMutation.mutate(form)}>
+        <RecordingFormFields idPrefix="add" form={form} onChange={setForm} />
+        <Button
+          disabled={!isRecordingFormValid(form) || createMutation.isPending}
+          onClick={() => createMutation.mutate(form)}
+        >
           {createMutation.isPending ? "Menyimpan..." : "Tambah Rekaman"}
         </Button>
       </Card>
@@ -143,6 +205,23 @@ function AdminRecordingsPage() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() =>
+                  setEditing({
+                    id: item.id,
+                    category: item.category,
+                    title: item.title,
+                    teacher: item.teacher ?? "",
+                    youtubeUrl: item.youtubeUrl,
+                    recordedAt: item.recordedAt,
+                    isPublished: item.isPublished,
+                  })
+                }
+              >
+                <PencilSimple className="size-4" /> Edit
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 disabled={updateMutation.isPending}
                 onClick={() =>
                   updateMutation.mutate({
@@ -159,22 +238,45 @@ function AdminRecordingsPage() {
                 {item.isPublished ? "Sembunyikan" : "Tampilkan"}
               </Button>
               <Button
-                variant="ghost"
+                variant="destructive"
                 size="sm"
-                className="text-red-600"
+                aria-label="Hapus rekaman"
                 disabled={removeMutation.isPending}
-                onClick={() => {
-                  if (window.confirm("Hapus rekaman ini? Tindakan ini tidak bisa dibatalkan.")) {
-                    removeMutation.mutate({ id: item.id });
-                  }
-                }}
-              >
-                Hapus
+                onClick={() => removeMutation.mutate({ id: item.id })}
+                >
+              <Trash className="size-4" />
               </Button>
             </div>
           </div>
         ))}
       </Card>
+
+      <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Rekaman</DialogTitle>
+            <DialogDescription>Ubah data rekaman, lalu klik Simpan Perubahan.</DialogDescription>
+          </DialogHeader>
+          {editing && (
+            <RecordingFormFields
+              idPrefix="edit"
+              form={editing}
+              onChange={(next) => setEditing({ ...editing, ...next })}
+            />
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)} disabled={editMutation.isPending}>
+              Batal
+            </Button>
+            <Button
+              disabled={!editing || !isRecordingFormValid(editing) || editMutation.isPending}
+              onClick={() => editing && editMutation.mutate(editing)}
+            >
+              {editMutation.isPending ? "Menyimpan..." : "Simpan Perubahan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminContainer>
   );
 }
