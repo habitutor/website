@@ -64,10 +64,11 @@ type CountUpProps = {
   to: number;
   duration?: number;
   className?: string;
+  prefix?: string;
   suffix?: string;
 };
 
-export function CountUp({ to, duration = 1.6, className, suffix = "" }: CountUpProps) {
+export function CountUp({ to, duration = 1.6, className, prefix = "", suffix = "" }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
   const [value, setValue] = useState(0);
@@ -80,6 +81,7 @@ export function CountUp({ to, duration = 1.6, className, suffix = "" }: CountUpP
 
   return (
     <span ref={ref} className={cn("tabular-nums", className)}>
+      {prefix}
       {value.toLocaleString("id-ID")}
       {suffix}
     </span>

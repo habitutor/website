@@ -18,6 +18,7 @@ import {
   getAccessLabel,
 } from "@/lib/premium-packages";
 import { cn } from "@/lib/utils";
+import { SectionHeading } from "@/routes/-home/motion-bits";
 import { usePremiumPackages } from "./use-premium-packages";
 
 function CheckBadge() {
@@ -323,18 +324,35 @@ export function PremiumPackageGrid({
 
 export function Pricing() {
   return (
-    <div id="paket" className="container mx-auto px-4 md:px-0">
+    <div id="paket" className="container mx-auto scroll-mt-24 px-4 md:px-0">
       <div className="flex flex-col items-center gap-6">
         <div className="pointer-events-none relative hidden shrink-0 md:block">
-          <div className="absolute bottom-0 left-1/2 size-32 -translate-x-1/2 rounded-full bg-sr-sun-200" />
-          <Image
-            src="/avatar/premium-pricing-card-avatar.webp"
-            alt="Maskot Habitutor"
-            width={224}
-            height={224}
-            className="relative size-44 animate-sr-drift object-contain select-none"
-          />
+          <div className="absolute bottom-0 left-1/2 size-32 -translate-x-1/2 animate-sr-halo rounded-full bg-sr-sun-200" />
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 220, damping: 14 }}
+          >
+            <Image
+              src="/avatar/premium-pricing-card-avatar.webp"
+              alt="Maskot Habitutor"
+              width={224}
+              height={224}
+              className="relative size-44 animate-sr-drift object-contain drop-shadow-[0_14px_14px_rgba(20,34,78,0.2)] select-none"
+            />
+          </motion.div>
         </div>
+
+        <SectionHeading
+          eyebrow="Pilih Paket"
+          title={
+            <>
+              Pilih Paket yang <span className="font-sr-serif text-sr-blue-600 italic">Pas Buat Lo</span>
+            </>
+          }
+          description="Bandingin isi dan masa aktifnya, terus pilih yang paling cocok buat target lo."
+        />
 
         <MotionScaleIn className="w-full max-w-4xl min-w-0">
           <PremiumPackageGrid />

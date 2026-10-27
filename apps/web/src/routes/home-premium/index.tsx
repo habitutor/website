@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { MotionConfig } from "motion/react";
 import Header from "@/components/navigation/header";
 import { createMeta } from "@/lib/seo-utils";
 import { Benefits } from "./-components/benefits";
@@ -21,16 +22,18 @@ export const Route = createFileRoute("/home-premium/")({
 
 function RouteComponent() {
   return (
-    <main>
-      <Header />
-      <Hero />
-      <section className="space-y-20 border-b-2 border-tertiary-200 bg-tertiary-100 py-20 md:space-y-24 md:py-24">
-        <Benefits />
-        <Pricing />
-      </section>
-      <StudySchedule />
-      <FAQ />
-      <CallToAction />
-    </main>
+    <MotionConfig reducedMotion="user">
+      <main className="overflow-x-clip">
+        <Header />
+        <Hero />
+        <section className="space-y-14 bg-linear-to-b from-sr-blue-50 via-tertiary-100 to-sr-blue-50 pt-16 pb-12 md:space-y-16 md:pt-20 md:pb-14">
+          <Benefits />
+          <Pricing />
+        </section>
+        <StudySchedule />
+        <FAQ className="py-10 md:py-12" />
+        <CallToAction />
+      </main>
+    </MotionConfig>
   );
 }

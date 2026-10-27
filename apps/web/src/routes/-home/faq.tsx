@@ -1,12 +1,30 @@
 import { ChatCircleDotsIcon, PlusIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
 import { Image } from "@unpic/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
 import { Float } from "./motion-bits";
 
-function FaqIntro() {
+type FaqHeading = {
+  title?: ReactNode;
+  description?: string;
+};
+
+type FaqProps = FaqHeading & {
+  className?: string;
+};
+
+const DEFAULT_TITLE = (
+  <>
+    Punya Pertanyaan? <span className="font-sr-serif text-sr-blue-600 italic">Kami Siap Bantu</span>
+  </>
+);
+
+function FaqIntro({
+  title = DEFAULT_TITLE,
+  description = "Cari jawaban cepat tentang fitur, kelas, dan pengalaman belajar",
+}: FaqHeading) {
   return (
     <motion.div
       className="flex flex-col items-center gap-6 text-center lg:sticky lg:top-28 lg:items-start lg:text-left"
@@ -20,12 +38,8 @@ function FaqIntro() {
         FAQ
       </span>
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-pretty text-sr-ink sm:text-4xl">
-          Punya Pertanyaan? <span className="font-sr-serif text-sr-blue-600 italic">Kami Siap Bantu</span>
-        </h2>
-        <p className="text-sm font-medium text-pretty text-sr-muted md:text-base">
-          Cari jawaban cepat tentang fitur, kelas, dan pengalaman belajar
-        </p>
+        <h2 className="text-2xl font-bold text-pretty text-sr-ink sm:text-4xl">{title}</h2>
+        <p className="text-sm font-medium text-pretty text-sr-muted md:text-base">{description}</p>
       </div>
 
       <div className="relative w-full max-w-sm">
@@ -131,14 +145,19 @@ function FaqRow({
   );
 }
 
-export function FAQ() {
+export function FAQ({ title, description, className }: FaqProps = {}) {
   const [openId, setOpenId] = useState<number | null>(DATA.faq[0]?.id ?? null);
 
   return (
     <section className="relative overflow-clip bg-linear-to-b from-sr-blue-50 via-white to-sr-ivory">
       <div className="pointer-events-none absolute top-20 -left-32 size-96 rounded-full bg-sr-blue-100/60 blur-3xl" />
-      <div className="relative container mx-auto grid w-full max-w-6xl gap-12 px-4 py-20 md:py-24 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
-        <FaqIntro />
+      <div
+        className={cn(
+          "relative container mx-auto grid w-full max-w-6xl gap-12 px-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16",
+          className ?? "py-20 md:py-24",
+        )}
+      >
+        <FaqIntro title={title} description={description} />
         <div className="w-full space-y-3">
           {DATA.faq.map((item, i) => (
             <FaqRow
