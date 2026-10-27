@@ -1,0 +1,142 @@
+/*
+ * Sunrise Momentum: design tokens (fondasi redesign siswa).
+ *
+ * Semua token di sini bersifat tambahan dan memakai awalan `sr-` supaya tidak
+ * menimpa warna bawaan Tailwind maupun token yang sudah ada. Tidak ada kelas
+ * lama yang berubah: tampilan app sama persis sampai token ini dipakai.
+ * `prefers-reduced-motion` sudah ditangani global di index.css.
+ */
+
+@theme {
+  /* Ink (teks dan navy) */
+  --color-sr-ink: #14224e;
+  --color-sr-ink-2: #34426a;
+  --color-sr-muted: #626d8c;
+
+  /* Blue */
+  --color-sr-blue-50: #f1f6ff;
+  --color-sr-blue-100: #dfe9ff;
+  --color-sr-blue-200: #c2d4ff;
+  --color-sr-blue-300: #8fb2ff;
+  --color-sr-blue-500: #2f6bff;
+  --color-sr-blue-600: #2356e8;
+  --color-sr-blue-700: #1b44c4;
+  --color-sr-blue-800: #16339a;
+
+  /* Sun (kuning: aksi dan hadiah) */
+  --color-sr-sun-100: #fff4d2;
+  --color-sr-sun-200: #ffe7a1;
+  --color-sr-sun-400: #ffd65f;
+  --color-sr-sun-500: #ffc83d;
+  --color-sr-amber: #e3a000;
+  --color-sr-amber-700: #8f6106;
+
+  /* Orange */
+  --color-sr-orange-100: #ffeee2;
+  --color-sr-orange-200: #ffcfae;
+  --color-sr-orange-500: #f08a4b;
+  --color-sr-orange-700: #b4521a;
+
+  /* Status dan permukaan */
+  --color-sr-live: #17a36f;
+  --color-sr-ivory: #fffcf5;
+  --color-sr-cream: #fff7e6;
+  --color-sr-line: #e3e9f5;
+  --color-sr-line-2: #d5deef;
+
+  /* Radius */
+  --radius-sr-xs: 8px;
+  --radius-sr-sm: 12px;
+  --radius-sr-md: 18px;
+  --radius-sr-lg: 24px;
+  --radius-sr-xl: 34px;
+
+  /* Bayangan (bernuansa biru) */
+  --shadow-sr-1: 0 1px 2px #14224e0d, 0 10px 26px -14px #14224e33;
+  --shadow-sr-2: 0 2px 4px #14224e0a, 0 26px 50px -26px #2f6bff66;
+  --shadow-sr-3: 0 30px 70px -34px #1b44c499, 0 10px 24px -14px #14224e2e;
+  --shadow-sr-sun: 0 24px 50px -24px #e3a000aa, 0 6px 16px -10px #e3a00066;
+
+  /* Easing */
+  --ease-sr: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-sr-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Font aksen (Lora Italic); font utama tetap Plus Jakarta Sans */
+  --font-sr-serif: "Lora", Georgia, "Times New Roman", serif;
+
+  /* Animasi: dipakai lewat `animate-sr-*` */
+  --animate-sr-rise: sr-rise 0.6s var(--ease-sr) both;
+  --animate-sr-pop: sr-pop 0.4s var(--ease-sr-spring) both;
+  --animate-sr-halo: sr-halo 1.4s var(--ease-sr) infinite;
+  --animate-sr-ripple: sr-ripple 1.2s var(--ease-sr) forwards;
+  --animate-sr-sheen: sr-sheen 2.4s linear infinite;
+  --animate-sr-drift: sr-drift 6s ease-in-out infinite;
+
+  @keyframes sr-rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes sr-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes sr-halo {
+    0% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.32);
+    }
+  }
+  @keyframes sr-ripple {
+    0% {
+      opacity: 0.85;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(4.6);
+    }
+  }
+  @keyframes sr-sheen {
+    0% {
+      background-position: 130% 0;
+    }
+    100% {
+      background-position: -30% 0;
+    }
+  }
+  @keyframes sr-drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0, -8px, 0);
+    }
+  }
+}
+
+/* Gradien: dipakai lewat `bg-(image:--sr-grad-blue)` atau `var(--sr-grad-blue)` */
+:root {
+  --sr-grad-blue:
+    radial-gradient(420px 260px at 88% 0%, #6a98ff 0%, transparent 70%),
+    linear-gradient(145deg, #2f6bff 0%, #2356e8 52%, #1b44c4 100%);
+  --sr-grad-sun:
+    radial-gradient(360px 220px at 85% 0%, #fff3c4 0%, transparent 70%),
+    linear-gradient(150deg, #ffe28a 0%, #ffcf4f 55%, #ffc12e 100%);
+}

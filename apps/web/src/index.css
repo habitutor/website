@@ -5,6 +5,10 @@
 @import "tw-animate-css";
 
 @import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource/lora/latin-500-italic.css";
+@import "@fontsource/lora/latin-600-italic.css";
+
+@import "./styles/sunrise.css";
 
 @custom-variant dark (&:is(.dark *));
 
