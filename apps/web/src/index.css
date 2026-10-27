@@ -114,20 +114,20 @@
   /* Secondary Background */
   --color-secondary-background: #fffbf3;
 
-  /* Primary */
-  --color-primary-100: #91a3da;
-  --color-primary-200: #5a74c8;
-  --color-primary-300: #3650a2;
-  --color-primary-400: #24356b;
-  --color-primary-500: #151f3f;
+  /* Primary (diselaraskan ke Sunrise Momentum) */
+  --color-primary-100: #8fb2ff;
+  --color-primary-200: #5c8dff;
+  --color-primary-300: #2f6bff;
+  --color-primary-400: #16339a;
+  --color-primary-500: #14224e;
 
   /* Secondary */
   --color-secondary-100: #fff5d7;
   --color-secondary-200: #feeaae;
   --color-secondary-300: #fee086;
   --color-secondary-400: #fed65e;
-  --color-secondary-500: #fdcc36;
-  --color-secondary-600: #fdc10e;
+  --color-secondary-500: #ffc83d;
+  --color-secondary-600: #ffc12e;
   --color-secondary-700: #e1a902;
   --color-secondary-800: #b98b02;
   --color-secondary-900: #916d01;
