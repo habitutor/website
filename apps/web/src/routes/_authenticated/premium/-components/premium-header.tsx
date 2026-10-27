@@ -19,10 +19,10 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
 
   return (
     <main className="space-y-6">
-      <div className="relative overflow-hidden rounded-[10px] bg-primary-300 text-white">
+      <div className="relative overflow-hidden rounded-sr-lg sr-card-blue">
         <div className="grid grid-cols-3 gap-6 px-6 py-8 sm:items-center sm:px-10 sm:py-10">
           <div className="relative col-span-1 -mx-6 h-27.5 sm:mx-0 sm:h-auto">
-            <div className="absolute size-45 -translate-x-1/4 translate-y-1/5 rounded-full bg-primary-100 sm:-top-15 sm:left-6" />
+            <div className="absolute size-45 -translate-x-1/4 translate-y-1/5 rounded-full bg-white/15 sm:-top-15 sm:left-6" />
             <Image
               src="/avatar/premium-pricing-card-avatar.webp"
               alt="Premium Avatar"
@@ -33,7 +33,7 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
           </div>
 
           <div className="relative z-10 col-span-2">
-            <h1 className="bg-linear-to-r from-background to-tertiary-100 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
+            <h1 className="bg-linear-to-r from-white to-sr-sun-200 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
               {title}
             </h1>
             <p className="mt-2 text-[14px] leading-5.25 text-white/90">{subtitle}</p>
@@ -42,7 +42,7 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
       </div>
 
       {isPremium && (
-        <div className="w-full rounded-[10px] border border-green-200 bg-[#EDFCF4] p-4 text-fourtiary-400">
+        <div className="w-full rounded-sr-md border border-green-200 bg-[#EDFCF4] p-4 text-fourtiary-400">
           <p className="text-xl font-bold sm:text-2xl">Kamu sudah berlangganan {planName}!</p>
           {expiresAt && (
             <p className="text-sm font-semibold sm:text-lg">Masa aktif sampai {formatWibDate(expiresAt)}</p>
