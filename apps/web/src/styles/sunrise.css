@@ -140,3 +140,68 @@
     radial-gradient(360px 220px at 85% 0%, #fff3c4 0%, transparent 70%),
     linear-gradient(150deg, #ffe28a 0%, #ffcf4f 55%, #ffc12e 100%);
 }
+
+/* ---------- Utilitas interaksi ---------- */
+/* Hover hanya berlaku di perangkat berkursor; di layar sentuh yang terasa adalah efek tekan. */
+
+@utility sr-lift {
+  transition:
+    transform 0.3s var(--ease-sr),
+    box-shadow 0.3s var(--ease-sr);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-sr-2);
+    }
+  }
+  &:active {
+    transform: translateY(-1px) scale(0.99);
+  }
+}
+
+@utility sr-card-blue {
+  background: var(--sr-grad-blue);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-sr-3);
+}
+
+@utility sr-card-sun {
+  background: var(--sr-grad-sun);
+  color: var(--color-sr-ink);
+  border-color: transparent;
+  box-shadow: var(--shadow-sr-sun);
+}
+
+/* Kilau lewat saat hover; pakai pada tombol atau kartu utama saja. */
+@keyframes sr-sheen-sweep {
+  0% {
+    opacity: 1;
+    background-position: 130% 0;
+  }
+  100% {
+    opacity: 1;
+    background-position: -30% 0;
+  }
+}
+
+@utility sr-sheen {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.5) 50%, transparent 65%);
+    background-size: 250% 100%;
+    background-position: 130% 0;
+  }
+  @media (hover: hover) {
+    &:hover::after {
+      animation: sr-sheen-sweep 1s var(--ease-sr) forwards;
+    }
+  }
+}
