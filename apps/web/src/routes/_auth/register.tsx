@@ -1,7 +1,7 @@
-import { ArrowLeft } from "@phosphor-icons/react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { createMeta } from "@/lib/seo-utils";
+import { AuthShell } from "./-components/auth-shell";
 import { OnboardingWizard } from "./-onboarding/onboarding-wizard";
 
 export const Route = createFileRoute("/_auth/register")({
@@ -14,20 +14,28 @@ export const Route = createFileRoute("/_auth/register")({
   component: RouteComponent,
 });
 
+const REGISTER_HIGHLIGHTS = [
+  "Mulai dari 3 menit sehari",
+  "Mentor dari UI, ITB, dan UGM",
+  "Komunitas sesama pejuang PTN",
+];
+
 function RouteComponent() {
+  const [step, setStep] = useState(0);
+
   return (
-    <main className="relative flex min-h-screen w-full flex-col items-center justify-start overflow-y-auto px-4 py-16 md:justify-center">
-      <Button
-        asChild
-        variant="outline"
-        className="absolute top-4 left-4 border border-primary/50 bg-white text-primary hover:bg-primary/10"
-      >
-        <Link to="/">
-          <ArrowLeft />
-          Kembali
-        </Link>
-      </Button>
-      <OnboardingWizard />
-    </main>
+    <AuthShell
+      eyebrow="#MulaiDariHabit"
+      title={
+        <>
+          Mulai perjalananmu ke <span className="font-sr-serif text-sr-sun-400 italic">PTN impian</span>.
+        </>
+      }
+      description="Jawab beberapa pertanyaan singkat supaya Habitutor bisa menyesuaikan belajarmu."
+      highlights={REGISTER_HIGHLIGHTS}
+      mascotKey={step}
+    >
+      <OnboardingWizard showAvatar={false} onStepChange={setStep} />
+    </AuthShell>
   );
 }
