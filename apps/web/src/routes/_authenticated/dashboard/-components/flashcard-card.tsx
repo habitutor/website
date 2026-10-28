@@ -166,7 +166,7 @@ export const FlashcardCard = () => {
               }
             } else if (isSelected) {
               backgroundColor = "#d9effa";
-              borderColor = "#3650a2";
+              borderColor = "#2f6bff";
             }
 
             return (

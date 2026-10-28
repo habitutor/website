@@ -5,6 +5,7 @@ import {
   useInView,
   useMotionTemplate,
   useMotionValue,
+  useReducedMotion,
   useSpring,
   useTransform,
 } from "motion/react";
@@ -71,18 +72,25 @@ type CountUpProps = {
 export function CountUp({ to, duration = 1.6, className, prefix = "", suffix = "" }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
+  const reduceMotion = useReducedMotion();
+  const [hydrated, setHydrated] = useState(false);
   const [value, setValue] = useState(0);
 
+  useEffect(() => setHydrated(true), []);
+
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || reduceMotion) return;
     const controls = animate(0, to, { duration, ease: [0.2, 0.7, 0.2, 1], onUpdate: (v) => setValue(Math.round(v)) });
     return () => controls.stop();
-  }, [isInView, to, duration]);
+  }, [isInView, reduceMotion, to, duration]);
+
+  // Sebelum hidrasi (SSR, tanpa JavaScript) dan saat "kurangi gerakan" aktif, tampilkan angka sebenarnya.
+  const shown = hydrated && !reduceMotion ? value : to;
 
   return (
     <span ref={ref} className={cn("tabular-nums", className)}>
       {prefix}
-      {value.toLocaleString("id-ID")}
+      {shown.toLocaleString("id-ID")}
       {suffix}
     </span>
   );
@@ -96,10 +104,15 @@ type FloatProps = HTMLMotionProps<"div"> & {
 };
 
 export function Float({ distance = 10, duration = 4, delay = 0, rotate = 0, children, ...props }: FloatProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Animasi tak berujung hanya berjalan saat elemen mendekati layar, supaya hemat baterai dan tetap ringan di HP.
+  const inView = useInView(ref, { margin: "120px" });
+
   return (
     <motion.div
-      animate={{ y: [0, -distance, 0], rotate: [0, rotate, 0] }}
-      transition={{ duration, delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+      ref={ref}
+      animate={inView ? { y: [0, -distance, 0], rotate: [0, rotate, 0] } : { y: 0, rotate: 0 }}
+      transition={inView ? { duration, delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" } : { duration: 0 }}
       {...props}
     >
       {children}
