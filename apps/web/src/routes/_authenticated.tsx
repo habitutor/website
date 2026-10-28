@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "@tanstack/react-router";
+import { MotionConfig } from "motion/react";
 import { useEffect, useRef } from "react";
 import { HeaderDashboard } from "@/components/navigation/header-dashboard";
 import { Container } from "@/components/ui/container";
@@ -51,7 +52,7 @@ function AuthedLayout() {
   const pathname = isPending ? stablePathnameRef.current : location.pathname;
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <HeaderDashboard session={context.session} />
 
       {/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
@@ -81,6 +82,6 @@ function AuthedLayout() {
           <Outlet />
         </Container>
       )}
-    </>
+    </MotionConfig>
   );
 }
