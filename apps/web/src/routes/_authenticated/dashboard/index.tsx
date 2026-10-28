@@ -10,6 +10,7 @@ import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
 import { FREEMIUM_WHATSAPP_LINKS } from "@/lib/freemium-links";
 import { PREMIUM_PLAN_NAME } from "@/lib/premium-packages";
 import { createMeta } from "@/lib/seo-utils";
+import { Float } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
 import { useSyncOnboardingProfile } from "@/hooks/data/use-sync-onboarding-profile";
@@ -81,10 +82,15 @@ function RouteComponent() {
         <MotionStaggerItem>
           <section className="flex w-full items-center justify-between gap-0 max-sm:flex-col-reverse max-sm:items-start">
             <div className="flex items-center gap-2">
-              <img src="/avatar/profile/tupai-1.webp" alt="Tupai" className="h-auto w-40 object-cover" />
-              <div className="space-y-1 text-primary">
+              <Float distance={6} duration={3.5}>
+                <img src="/avatar/profile/tupai-1.webp" alt="Tupai" className="h-auto w-40 object-cover" />
+              </Float>
+              <div className="space-y-1 text-sr-ink">
                 <h1 className="text-4xl">
-                  Halo, <strong>{session?.user.name.split(" ")[0]}!</strong>
+                  Halo,{" "}
+                  <strong className="bg-linear-to-r from-sr-blue-600 to-sr-blue-500 bg-clip-text text-transparent">
+                    {session?.user.name.split(" ")[0]}!
+                  </strong>
                 </h1>
                 <p className="">
                   <strong>{dreamText || "Dream major, dream campus"}</strong> menunggumu!
@@ -92,7 +98,7 @@ function RouteComponent() {
               </div>
             </div>
 
-            <div className="fixed right-4 bottom-10 z-20 grid w-56 max-w-[calc(100vw-2rem)] grid-cols-1 gap-2 md:static md:w-auto md:max-w-none [&>a]:flex [&>a]:items-center [&>a]:justify-between [&>a]:gap-3 [&>a]:rounded-lg [&>a]:p-4 [&>a]:text-white">
+            <div className="fixed right-4 bottom-10 z-20 grid w-56 max-w-[calc(100vw-2rem)] grid-cols-1 gap-2 md:static md:w-auto md:max-w-none [&>a]:flex [&>a]:items-center [&>a]:justify-between [&>a]:gap-3 [&>a]:rounded-sr-sm [&>a]:p-4 [&>a]:text-white">
               {whatsappGroup && (
                 <a
                   href={whatsappGroup.href}
@@ -144,11 +150,11 @@ function RouteComponent() {
 
           {session?.user.isPremium && showPremiumBanner ? (
             <div className="mb-6 flex flex-col gap-6">
-              <div className="relative flex w-full flex-row items-end justify-between overflow-hidden bg-secondary-400 p-4 md:p-6">
+              <div className="sr-sheen relative flex w-full flex-row items-end justify-between overflow-hidden rounded-sr-lg sr-card-sun p-4 md:p-6">
                 <button
                   type="button"
                   onClick={() => setShowPremiumBanner(false)}
-                  className="absolute top-0 right-0 z-10 hidden cursor-pointer p-2 text-secondary-1000 md:block"
+                  className="absolute top-0 right-0 z-10 hidden cursor-pointer p-2 text-sr-amber-700 md:block"
                   aria-label="Close banner"
                 >
                   <XIcon weight="bold" size={20} />
@@ -157,15 +163,10 @@ function RouteComponent() {
                   <h5 className="font-bold md:text-2xl">Pindahkan ke Layar Utamamu!</h5>
                   <p className="text-[10px] md:text-base">Gunakan di Mobile. Akses kapanpun</p>
                 </div>
-                <Button
-                  variant="default"
-                  size="icon"
-                  className="z-10 bg-secondary-1000 hover:bg-secondary-900"
-                  onClick={() => setPwaDialog(true)}
-                >
+                <Button variant="darkBlue" size="icon" className="z-10" onClick={() => setPwaDialog(true)}>
                   <ArrowRightIcon weight="bold" />
                 </Button>
-                <div className="absolute right-0 bottom-0 h-8 w-20 bg-secondary-600 md:h-18 md:w-60" />
+                <div className="absolute right-0 bottom-0 h-8 w-20 bg-white/30 md:h-18 md:w-60" />
                 <Image
                   src="/avatar/tutorial-avatar.webp"
                   alt=""

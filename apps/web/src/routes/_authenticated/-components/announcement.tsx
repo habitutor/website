@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { orpc } from "@/utils/orpc";
+import { SectionCard } from "./section-card";
 
 type AnnouncementItem = {
   id: number;
@@ -43,35 +44,29 @@ export const Announcement = () => {
   const cashbackCtaLink = CASHBACK.ctaLink || "/profile";
 
   return (
-    <section className="w-full rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Tips SNBT khusus untukmu</h2>
+    <SectionCard title="Tips SNBT khusus untukmu">
       <div className="flex w-full flex-col gap-4 md:flex-row md:gap-6">
-        <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-secondary-700 bg-secondary-400 p-4 pb-6 md:w-[55%]">
+        <div className="relative w-full sr-lift space-y-1 overflow-hidden rounded-sr-md sr-card-sun p-4 pb-6 md:w-[55%]">
           <h3 className="relative z-10 w-full font-bold md:text-[22px]">{primaryAnnouncement.title}</h3>
           <p className="relative z-10 w-full text-[10px] md:w-[70%] md:text-sm">{primaryAnnouncement.description}</p>
-          <div className="absolute -right-10 -bottom-20 h-42 w-42 rounded-full border border-secondary-700 bg-secondary-600 md:right-0" />
-          <div className="absolute right-2 bottom-23 h-8 w-8 rounded-full border border-secondary-700 bg-secondary-600 md:right-4 md:bottom-22 md:h-11 md:w-11" />
+          <div className="absolute -right-10 -bottom-20 h-42 w-42 rounded-full bg-white/35 md:right-0" />
+          <div className="absolute right-2 bottom-23 h-8 w-8 rounded-full bg-white/35 md:right-4 md:bottom-22 md:h-11 md:w-11" />
         </div>
-        <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-red-200 bg-red-100 p-4 md:w-[45%]">
+        <div className="relative w-full sr-lift space-y-1 overflow-hidden rounded-sr-md border border-sr-orange-200 bg-linear-to-br from-sr-orange-100 to-white p-4 md:w-[45%]">
           <h3 className="relative z-10 font-bold md:text-[22px]">{cashbackAnnouncement.title}</h3>
           <p className="relative z-10 w-[50%] text-[10px] md:text-sm">{cashbackAnnouncement.description}</p>
           <img
             src="/avatar/announcement-avatar.webp"
             alt="avatar"
-            className="absolute -right-15 -bottom-2 z-1 md:right-0"
+            className="absolute -right-15 -bottom-2 z-1 animate-sr-drift md:right-0"
           />
-          <Button
-            variant="default"
-            size="icon"
-            className="absolute right-4 bottom-4 z-10 bg-red-300 hover:bg-red-400"
-            asChild
-          >
+          <Button variant="default" size="icon" className="absolute right-4 bottom-4 z-10" asChild>
             <Link to={cashbackCtaLink}>
-              <ArrowRightIcon weight="bold" className="text-neutral-1000" />
+              <ArrowRightIcon weight="bold" />
             </Link>
           </Button>
         </div>
       </div>
-    </section>
+    </SectionCard>
   );
 };

@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { LiveClassCard } from "@/components/classes/practice";
 import { orpc } from "@/utils/orpc";
+import { SectionCard } from "./section-card";
 
 function useNow(intervalMs: number) {
   const [now, setNow] = useState(() => Date.now());
@@ -16,7 +17,7 @@ function useNow(intervalMs: number) {
 
 function ScheduleLink() {
   return (
-    <Link to="/live-class" className="shrink-0 text-sm font-semibold text-primary-300 hover:underline">
+    <Link to="/live-class" className="shrink-0 text-sm font-semibold text-sr-blue-600 hover:underline">
       Lihat semua jadwal
     </Link>
   );
@@ -72,25 +73,17 @@ export const LiveClass = () => {
 
   if (!items || items.length === 0) {
     return (
-      <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-medium">Live Class bersama Mentor</h2>
-          <ScheduleLink />
-        </div>
+      <SectionCard title="Live Class bersama Mentor" action={<ScheduleLink />}>
         <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
-          <img src="/avatar/pencil-blue-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
+          <img src="/avatar/pencil-blue-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto animate-sr-drift" />
           <p className="text-2xl font-bold text-black">Tunggu ya, Mentor terbaikmu akan segera hadir!</p>
         </div>
-      </section>
+      </SectionCard>
     );
   }
 
   return (
-    <section className="relative rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <h2 className="font-medium">Live Class bersama Mentor</h2>
-        <ScheduleLink />
-      </div>
+    <SectionCard title="Live Class bersama Mentor" action={<ScheduleLink />}>
       <div className="w-full">
         <div ref={containerRef} className="relative w-full overflow-hidden">
           <div
@@ -146,6 +139,6 @@ export const LiveClass = () => {
           </div>
         )}
       </div>
-    </section>
+    </SectionCard>
   );
 };

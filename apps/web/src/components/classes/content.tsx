@@ -300,14 +300,14 @@ export function LastContentViewedCard({
   };
 
   return (
-    <Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
+    <Card className="sr-lift rounded-sr-md border-sr-line p-4 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border border-neutral-200">
-            <p className="text-[12px] font-medium text-primary-300">{index + 1}</p>
+          <div className="flex h-7 w-8 shrink-0 items-center justify-center rounded-sr-xs border border-sr-blue-200 bg-sr-blue-50">
+            <p className="text-[12px] font-bold text-sr-blue-600">{index + 1}</p>
           </div>
 
-          <p className="text-[18px] font-medium text-neutral-1000 sm:text-[20px]">{item.title}</p>
+          <p className="text-[18px] font-bold text-sr-ink sm:text-[20px]">{item.title}</p>
         </div>
 
         <div className="flex items-center gap-2 sm:flex-col sm:items-end">
@@ -324,7 +324,7 @@ export function LastContentViewedCard({
                 to={`${basePath}/$shortName/$contentId/${key}`}
                 params={params}
                 className={cn(
-                  "flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
+                  "flex items-center gap-2 rounded-sr-xs px-4 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-1",
                   "w-full sm:w-auto",
                   className,
                   width,

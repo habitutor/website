@@ -155,12 +155,12 @@ export function LiveClassCard({
   return (
     <Card
       className={cn(
-        "relative h-full w-full min-w-0 gap-4 space-y-1 overflow-hidden rounded-[10px] border bg-background p-4 sm:p-5",
-        isLive ? "border-2 border-green-500 bg-green-50" : "border-tertiary-200",
+        "relative h-full w-full min-w-0 sr-lift gap-4 space-y-1 overflow-hidden rounded-sr-md border-sr-line bg-white p-4 sm:p-5",
+        isLive ? "border-2 border-sr-live bg-sr-live/10" : "border-sr-line",
       )}
     >
       {isLive && (
-        <span className="flex w-fit items-center gap-1.5 rounded-full bg-green-600 px-2.5 py-0.5 text-xs font-bold text-white">
+        <span className="flex w-fit items-center gap-1.5 rounded-full bg-sr-live px-2.5 py-0.5 text-xs font-bold text-white">
           <span className="size-1.5 animate-pulse rounded-full bg-white" /> Sedang berlangsung
         </span>
       )}
@@ -184,7 +184,11 @@ export function LiveClassCard({
           <p className="text-sm">{teacher}</p>
         </div>
       </div>
-      <img src="/avatar/live-class-avatar.webp" alt="Live Class" className="absolute right-1 bottom-0" />
+      <img
+        src="/avatar/live-class-avatar.webp"
+        alt="Live Class"
+        className="absolute right-1 bottom-0 animate-sr-drift"
+      />
     </Card>
   );
 }
