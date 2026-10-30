@@ -31,7 +31,7 @@ export const PAKET_2_BULAN = {
 } as const;
 
 // Promo prices apply up to and including 31 Oct 2026 23:59 WIB.
-export const PREMIUM_PROMO_ENDS_AT = new Date("2026-10-31T23:59:59.999+07:00");
+export const PREMIUM_PROMO_ENDS_AT = new Date("2026-11-14T23:59:59.999+07:00");
 
 // The only premium packages sold. Each grants the same premium access that
 // Perintis 2027 had; they differ only in price and how long access lasts:

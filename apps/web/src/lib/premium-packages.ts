@@ -25,7 +25,7 @@ export function formatWibDate(value: string | Date) {
 
 // Display fallback only: the server decides the amount charged
 // (PREMIUM_PACKAGES in packages/api/src/lib/constants.ts). Keep in sync.
-const PROMO_ENDS_AT = "2026-10-31T23:59:59.999+07:00";
+const PROMO_ENDS_AT = "2026-11-14T23:59:59.999+07:00";
 
 const FALLBACK_PACKAGES = [
   {
