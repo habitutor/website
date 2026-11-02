@@ -42,6 +42,26 @@ const timeSeries = admin
     return adminMetricsRepo.getTimeSeries({ days });
   });
 
+const monthlyStats = admin
+  .route({
+    path: "/admin/statistics/monthly",
+    method: "GET",
+    tags: ["Admin - Statistics"],
+  })
+  .input(
+    type({
+      "year?": "number",
+      "fromMonth?": "number",
+      "toMonth?": "number",
+    }),
+  )
+  .handler(async ({ input }) => {
+    return adminMetricsRepo.getMonthlyStats({
+      year: input.year,
+      fromMonth: input.fromMonth,
+      toMonth: input.toMonth,
+    });
+  });
 const audienceInsights = admin
   .route({
     path: "/admin/statistics/audience-insights",
@@ -108,6 +128,7 @@ export const adminStatisticsRouter = {
   stats: get,
   businessOverview,
   timeSeries,
+  monthlyStats,
   audienceInsights,
   premiumPackageSales,
 };
