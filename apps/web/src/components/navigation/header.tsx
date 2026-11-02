@@ -49,7 +49,7 @@ export default function Header() {
       <div className="fixed inset-x-0 top-0 z-50 flex h-20 flex-row items-center justify-between gap-8 border-b border-neutral-300 bg-white px-6 backdrop-blur-lg md:rounded-lg md:px-8">
         <Link to="/" className="relative size-12 text-primary">
           <Image
-            src={"/logo.svg"}
+            src={"/logo.webp"}
             alt="Logo Habitutor"
             layout="fullWidth"
             className="pointer-events-none select-none"

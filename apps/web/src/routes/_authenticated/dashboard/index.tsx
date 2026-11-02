@@ -1,8 +1,20 @@
-import { ArrowCircleRightIcon, ArrowRightIcon, XIcon } from "@phosphor-icons/react";
+import {
+  ArrowRightIcon,
+  CaretRightIcon,
+  ChatsCircleIcon,
+  DiscordLogoIcon,
+  MoonStarsIcon,
+  SunHorizonIcon,
+  SunIcon,
+  TargetIcon,
+  WhatsappLogoIcon,
+  XIcon,
+} from "@phosphor-icons/react";
+import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { COMMUNITY_LINKS, getPremiumWhatsappLink, shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
@@ -10,7 +22,6 @@ import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
 import { FREEMIUM_WHATSAPP_LINKS } from "@/lib/freemium-links";
 import { PREMIUM_PLAN_NAME } from "@/lib/premium-packages";
 import { createMeta } from "@/lib/seo-utils";
-import { Float } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 import { useProcessReferralCode } from "@/hooks/data/use-process-referral-code";
 import { useSyncOnboardingProfile } from "@/hooks/data/use-sync-onboarding-profile";
@@ -32,6 +43,72 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
   }),
   component: RouteComponent,
 });
+
+// Kalimat penyemangat bergiliran per hari supaya beranda terasa hidup tiap kali dibuka.
+const DAILY_BOOSTS = [
+  "Sedikit-sedikit tiap hari, lama-lama jadi bukit. Yuk mulai dari 1 materi!",
+  "Konsisten kalahkan jenius yang malas. Kamu pasti bisa!",
+  "Satu soal hari ini lebih baik dari sepuluh soal yang cuma direncanakan.",
+  "Kursi PTN impianmu lagi nungguin. Gas belajar bareng Habitutor!",
+  "Capek itu wajar, menyerah jangan. Istirahat sebentar, lalu lanjut lagi ya!",
+  "Streak kecil hari ini = skor besar di hari H.",
+  "Belajar 3 menit tetap belajar. Yang penting jalan terus!",
+];
+
+// Dihitung setelah mount karena zona waktu server (SSR) bisa beda dengan perangkat siswa.
+function useGreeting() {
+  const [greeting, setGreeting] = useState<{ label: string; icon: typeof SunIcon; boost: string } | null>(null);
+
+  useEffect(() => {
+    const now = new Date();
+    const hour = now.getHours();
+    const dayIndex = Math.floor(now.getTime() / 86_400_000 - now.getTimezoneOffset() / 1440);
+    const boost = DAILY_BOOSTS[dayIndex % DAILY_BOOSTS.length];
+    if (hour < 11) setGreeting({ label: "Selamat pagi", icon: SunHorizonIcon, boost });
+    else if (hour < 15) setGreeting({ label: "Selamat siang", icon: SunIcon, boost });
+    else if (hour < 18) setGreeting({ label: "Selamat sore", icon: SunHorizonIcon, boost });
+    else setGreeting({ label: "Selamat malam", icon: MoonStarsIcon, boost });
+  }, []);
+
+  return greeting;
+}
+
+function CommunityLink({
+  href,
+  icon,
+  iconClass,
+  title,
+  subtitle,
+}: {
+  href: string;
+  icon: ReactNode;
+  iconClass: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <a
+      href={href}
+      rel="noopener noreferrer"
+      target="_blank"
+      className="group flex items-center gap-3 rounded-sr-md border border-sr-line bg-sr-ivory/60 p-2.5 transition-all duration-300 hover:border-sr-blue-200 hover:bg-sr-blue-50 hover:shadow-sr-1 motion-safe:hover:-translate-y-0.5"
+    >
+      <span
+        className={`flex size-10 shrink-0 items-center justify-center rounded-sr-sm text-white transition-transform duration-300 ease-sr-spring motion-safe:group-hover:scale-110 ${iconClass}`}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold text-sr-ink">{title}</span>
+        <span className="block truncate text-xs text-sr-muted">{subtitle}</span>
+      </span>
+      <CaretRightIcon
+        weight="bold"
+        className="size-4 shrink-0 text-sr-muted transition-transform group-hover:translate-x-0.5"
+      />
+    </a>
+  );
+}
 
 function RouteComponent() {
   const { session } = Route.useRouteContext();
@@ -61,6 +138,8 @@ function RouteComponent() {
   useQuery(orpc.dashboard.content.queryOptions());
 
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
+  const greeting = useGreeting();
+  const GreetingIcon = greeting?.icon;
   const dreamText = [profile?.dreamMajor, profile?.dreamCampus].filter(Boolean).join(", ");
   const [pwaDialog, setPwaDialog] = useState(false);
   const showWelcomeVideo = WELCOME_VIDEO_ENABLED && profile ? !profile.hasSeenWelcomeVideo : false;
@@ -78,73 +157,85 @@ function RouteComponent() {
 
       <PWATutorialDialog open={pwaDialog && !showWelcomeVideo && !showPremiumWhatsapp} onOpenChange={setPwaDialog} />
 
-      <MotionStagger className="relative z-10 flex flex-col gap-6">
+      <MotionStagger className="relative z-10 flex flex-col gap-10">
         <MotionStaggerItem>
-          <section className="flex w-full items-center justify-between gap-0 max-sm:flex-col-reverse max-sm:items-start">
-            <div className="flex items-center gap-2">
-              <Float distance={6} duration={3.5}>
-                <img src="/avatar/profile/tupai-1.webp" alt="Tupai" className="h-auto w-40 object-cover" />
-              </Float>
-              <div className="space-y-1 text-sr-ink">
-                <h1 className="text-4xl">
-                  Halo,{" "}
-                  <strong className="bg-linear-to-r from-sr-blue-600 to-sr-blue-500 bg-clip-text text-transparent">
-                    {session?.user.name.split(" ")[0]}!
-                  </strong>
-                </h1>
-                <p className="">
-                  <strong>{dreamText || "Dream major, dream campus"}</strong> menunggumu!
+          <section className="mb-10 space-y-4">
+            <div className="group relative overflow-hidden rounded-sr-xl sr-card-blue p-5 md:p-8">
+              <div className="pointer-events-none absolute -top-20 -right-16 size-56 rounded-full bg-white/10 md:-top-24 md:size-72" />
+
+              {/* Di HP maskot berdiri di atas kotak target; mulai md menempel ke dasar kartu. */}
+              <div className="relative min-h-32 pr-28 md:static md:min-h-0 md:pr-60 lg:pr-72">
+                <p
+                  className={`flex min-h-5 items-center gap-1.5 text-sm font-semibold text-sr-sun-400 transition-opacity duration-500 ${greeting ? "opacity-100" : "opacity-0"}`}
+                >
+                  {GreetingIcon && <GreetingIcon weight="fill" className="size-4" />}
+                  {greeting?.label ?? "Halo"}
                 </p>
+                <h1 className="mt-1 text-[28px] leading-tight font-extrabold text-white md:text-[40px]">
+                  Halo, {session?.user.name.split(" ")[0]}!
+                </h1>
+                <p
+                  className={`mt-2 max-w-none text-[13px] leading-relaxed text-white/80 transition-opacity duration-500 md:max-w-2xl md:text-[15px] lg:max-w-3xl ${greeting ? "opacity-100" : "opacity-0"}`}
+                >
+                  {greeting?.boost ?? " "}
+                </p>
+                <img
+                  src="/avatar/testimone-avatar.webp"
+                  alt=""
+                  className="pointer-events-none absolute right-0 bottom-0 h-32 w-auto origin-bottom object-contain transition-transform duration-700 ease-sr-spring select-none motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3 md:right-12 md:h-56"
+                />
+              </div>
+
+              <div className="relative flex items-center gap-3 rounded-sr-md bg-white/12 p-3 ring-1 ring-white/15 md:mt-5 md:w-fit md:max-w-2xl md:px-4 md:py-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink">
+                  <TargetIcon weight="fill" className="size-5" />
+                </span>
+                <div className="min-w-0 md:flex md:items-baseline md:gap-2">
+                  <p className="text-xs font-medium text-white/75 md:text-sm md:shrink-0">Target kamu:</p>
+                  <p className="text-sm leading-snug font-bold text-white md:text-base">
+                    {dreamText || "Isi jurusan & kampus impianmu di profil"}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="fixed right-4 bottom-10 z-20 grid w-56 max-w-[calc(100vw-2rem)] grid-cols-1 gap-2 md:static md:w-auto md:max-w-none [&>a]:flex [&>a]:items-center [&>a]:justify-between [&>a]:gap-3 [&>a]:rounded-sr-sm [&>a]:p-4 [&>a]:text-white">
-              {whatsappGroup && (
-                <a
-                  href={whatsappGroup.href}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="group relative sr-action overflow-clip bg-whatsapp hover:bg-whatsapp/80"
-                >
-                  <div className="z-10 min-w-0">
-                    <p className="truncate text-xs font-semibold text-white/80">{whatsappGroup.label}</p>
-                    <p className="font-bold">Join WhatsApp</p>
-                  </div>
-                  <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />
-                  <Image
-                    src="/icons/whatsapp.svg"
-                    width={70}
-                    height={70}
-                    className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
+            <div className="flex flex-col gap-4 rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-6 lg:py-5">
+              <div className="flex shrink-0 items-center gap-3">
+                <span className="hidden size-11 shrink-0 items-center justify-center rounded-full bg-sr-blue-50 text-sr-blue-600 sm:flex">
+                  <ChatsCircleIcon weight="fill" className="size-6" />
+                </span>
+                <div>
+                  <h2 className="text-lg font-extrabold text-sr-ink">Komunitas belajar</h2>
+                  <p className="text-sm text-sr-muted">Tanya soal, cari teman belajar, dan dapat info terbaru.</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:flex-nowrap lg:shrink-0 [&>a]:sm:flex-1 [&>a]:lg:w-60 xl:[&>a]:w-72">
+                {whatsappGroup && (
+                  <CommunityLink
+                    href={whatsappGroup.href}
+                    icon={<WhatsappLogoIcon weight="fill" className="size-5" />}
+                    iconClass="bg-whatsapp"
+                    title="Grup WhatsApp"
+                    subtitle={whatsappGroup.label}
                   />
-                </a>
-              )}
-              <a
-                href={COMMUNITY_LINKS.discord}
-                rel="noopener noreferrer"
-                target="_blank"
-                className="group relative sr-action overflow-clip bg-discord hover:bg-discord/80"
-              >
-                <p className="z-10 min-w-0 font-bold">Join Discord</p>
-                <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />
-                <Image
-                  src="/icons/discord.svg"
-                  width={70}
-                  height={70}
-                  className="absolute right-0 -bottom-[40%] opacity-100 transition-transform group-hover:-translate-y-1"
+                )}
+                {showWhatsappChannel && FREEMIUM_WHATSAPP_LINKS.channel && (
+                  <CommunityLink
+                    href={FREEMIUM_WHATSAPP_LINKS.channel}
+                    icon={<WhatsappLogoIcon weight="fill" className="size-5" />}
+                    iconClass="bg-whatsapp"
+                    title="Channel WhatsApp"
+                    subtitle="Info & update terbaru"
+                  />
+                )}
+                <CommunityLink
+                  href={COMMUNITY_LINKS.discord}
+                  icon={<DiscordLogoIcon weight="fill" className="size-5" />}
+                  iconClass="bg-discord"
+                  title="Discord Habitutor"
+                  subtitle="Diskusi bareng pejuang PTN"
                 />
-              </a>
-              {showWhatsappChannel && FREEMIUM_WHATSAPP_LINKS.channel && (
-                <a
-                  href={FREEMIUM_WHATSAPP_LINKS.channel}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="group relative sr-action overflow-clip bg-whatsapp hover:bg-whatsapp/80"
-                >
-                  <p className="z-10 min-w-0 font-bold">Ikuti Channel WhatsApp</p>
-                  <ArrowCircleRightIcon size={24} className="z-10 shrink-0" />
-                </a>
-              )}
+              </div>
             </div>
           </section>
 
@@ -193,10 +284,6 @@ function RouteComponent() {
           <LastClasses />
         </MotionStaggerItem>
       </MotionStagger>
-
-      <div className="pointer-events-none fixed right-0 bottom-0 left-0 z-0">
-        <img src="/dashboard-background.webp" alt="" className="block h-auto w-full" />
-      </div>
     </>
   );
 }

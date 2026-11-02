@@ -40,9 +40,9 @@ const CATEGORY_FILTERS: { value: CategoryFilter; label: string }[] = [
 ];
 
 const CATEGORY_STYLE: Record<LiveClassItem["category"], { label: string; badge: string; accent: string }> = {
-  TKA: { label: "TKA", badge: "bg-primary-100 text-primary-300", accent: "bg-primary-200" },
-  SNBT: { label: "SNBT", badge: "bg-tertiary-100 text-primary-300", accent: "bg-tertiary-400" },
-  MANDIRI: { label: "Mandiri", badge: "bg-secondary-100 text-secondary-1000", accent: "bg-secondary-400" },
+  TKA: { label: "TKA", badge: "bg-sr-blue-100 text-sr-blue-700", accent: "bg-sr-blue-500" },
+  SNBT: { label: "SNBT", badge: "bg-sr-sun-100 text-sr-amber-700", accent: "bg-sr-sun-500" },
+  MANDIRI: { label: "Mandiri", badge: "bg-sr-orange-100 text-sr-orange-700", accent: "bg-sr-orange-500" },
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -115,19 +115,36 @@ function LiveClassSchedulePage() {
         </TabsList>
       </Tabs>
 
-      <section className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6" aria-label="Pilih tanggal">
+      <section
+        className="rounded-sr-lg border border-sr-line bg-white/90 p-4 shadow-sr-1 sm:p-6"
+        aria-label="Pilih tanggal"
+      >
         <div className="mb-4 flex items-center justify-between gap-3">
-          <p className="font-bold text-neutral-1000">{formatDay(weekStart, { month: "long", year: "numeric" })}</p>
+          <p className="font-extrabold text-sr-ink capitalize">
+            {formatDay(weekStart, { month: "long", year: "numeric" })}
+          </p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => goToWeek(-1)} aria-label="Minggu sebelumnya">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onClick={() => goToWeek(-1)}
+              aria-label="Minggu sebelumnya"
+            >
               <CaretLeftIcon weight="bold" />
             </Button>
             {weekStart !== mondayOf(today) && (
-              <Button variant="outline" size="sm" onClick={goToToday}>
+              <Button variant="outline" size="sm" className="rounded-full" onClick={goToToday}>
                 Hari ini
               </Button>
             )}
-            <Button variant="outline" size="icon" onClick={() => goToWeek(1)} aria-label="Minggu berikutnya">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onClick={() => goToWeek(1)}
+              aria-label="Minggu berikutnya"
+            >
               <CaretRightIcon weight="bold" />
             </Button>
           </div>
@@ -145,11 +162,11 @@ function LiveClassSchedulePage() {
                 aria-pressed={isSelected}
                 aria-label={formatDay(date, { weekday: "long", day: "numeric", month: "long" })}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-xl border-2 py-2 transition-colors sm:py-3",
+                  "flex flex-col items-center gap-0.5 rounded-sr-sm border-2 py-2 transition-all duration-300 sm:py-3",
                   isSelected
-                    ? "border-primary-300 bg-primary-300 text-white"
-                    : "border-transparent bg-neutral-100 text-neutral-1000 hover:border-primary-100",
-                  date === today && !isSelected && "border-primary-200",
+                    ? "-translate-y-0.5 border-transparent bg-(image:--sr-grad-blue) text-white shadow-sr-2"
+                    : "border-transparent bg-sr-blue-50 text-sr-ink hover:border-sr-blue-200",
+                  date === today && !isSelected && "border-sr-sun-400 bg-sr-sun-100",
                 )}
               >
                 <span className="text-[10px] font-semibold uppercase sm:text-xs">
@@ -159,7 +176,7 @@ function LiveClassSchedulePage() {
                 <span
                   className={cn(
                     "size-1.5 rounded-full",
-                    hasClass ? (isSelected ? "bg-secondary-200" : "bg-primary-300") : "bg-transparent",
+                    hasClass ? (isSelected ? "bg-sr-sun-400" : "bg-sr-blue-500") : "bg-transparent",
                   )}
                 />
               </button>
@@ -170,10 +187,14 @@ function LiveClassSchedulePage() {
 
       <section className="space-y-4" aria-live="polite">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-lg font-bold text-neutral-1000 sm:text-xl">
+          <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">
             {formatDay(selectedDate, { weekday: "long", day: "numeric", month: "long" })}
           </h2>
-          {schedule.data && <span className="text-sm text-muted-foreground">{dayClasses.length} kelas</span>}
+          {schedule.data && (
+            <span className="rounded-full bg-sr-blue-50 px-3 py-1 text-xs font-bold text-sr-blue-700">
+              {dayClasses.length} kelas
+            </span>
+          )}
         </div>
 
         {schedule.isPending ? (
@@ -182,7 +203,7 @@ function LiveClassSchedulePage() {
             <Skeleton className="h-44 w-full rounded-2xl" />
           </div>
         ) : schedule.isError ? (
-          <div className="rounded-2xl border bg-white p-6 text-center text-sm text-red-600">
+          <div className="rounded-sr-md border border-sr-line bg-white p-6 text-center text-sm text-red-600">
             Gagal memuat jadwal. Coba muat ulang halaman.
           </div>
         ) : dayClasses.length === 0 ? (
@@ -201,23 +222,27 @@ function LiveClassSchedulePage() {
 
 function ScheduleHeader() {
   return (
-    <div className="relative overflow-hidden rounded-[10px] bg-primary-300 text-white">
-      <div className="pointer-events-none absolute -right-10 -bottom-14 size-32 rounded-full bg-primary-200 sm:right-0 sm:-bottom-32 sm:size-80" />
-      <div className="relative pt-6 pr-6 pb-28 pl-6 sm:py-12 sm:pr-72 sm:pl-10">
-        <h1 className="bg-linear-to-r from-background to-tertiary-100 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
-          Jadwal Live Class
+    <div className="relative overflow-hidden rounded-sr-xl sr-card-blue text-white">
+      <div className="pointer-events-none absolute -right-10 -bottom-14 size-40 animate-sr-drift rounded-full bg-white/10 sm:right-0 sm:-bottom-32 sm:size-80" />
+      <div className="pointer-events-none absolute -top-10 left-1/3 size-24 rounded-full bg-white/10" />
+      <div className="relative pt-6 pr-6 pb-36 pl-6 sm:py-12 sm:pr-72 sm:pl-10">
+        <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
+          <span className="size-2 animate-pulse rounded-full bg-sr-sun-400" /> Belajar langsung bareng mentor
+        </span>
+        <h1 className="text-[26px] leading-tight font-extrabold sm:text-[34px]">
+          Jadwal <span className="text-sr-sun-400">Live Class</span>
         </h1>
-        <p className="mt-2 max-w-xl text-[14px] leading-5.25 text-white/90">
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/90">
           Belajar langsung bareng mentor. Tombol Gabung aktif 15 menit sebelum kelas dimulai, semua jam dalam WIB.
         </p>
       </div>
       {/* Maskot menempel di sisi bawah banner, sama seperti di kartu live class dashboard. */}
       <Image
-        src="/avatar/live-class-avatar.webp"
+        src="/avatar/login-avatar.webp"
         alt=""
-        width={320}
-        height={320}
-        className="pointer-events-none absolute right-2 bottom-0 h-24 w-auto object-contain object-bottom select-none sm:right-10 sm:h-[90%]"
+        width={260}
+        height={250}
+        className="pointer-events-none absolute right-2 -bottom-4 h-36 w-auto object-contain object-bottom select-none sm:right-10 sm:h-[105%]"
       />
     </div>
   );
@@ -225,18 +250,24 @@ function ScheduleHeader() {
 
 function EmptyDay() {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border bg-white px-6 py-10 text-center">
-      <Image src="/avatar/pencil-blue-avatar.webp" alt="" width={120} height={120} className="h-28 w-auto" />
-      <p className="text-lg font-bold text-neutral-1000">Belum ada kelas di hari ini</p>
+    <div className="flex flex-col items-center gap-3 rounded-sr-lg border border-dashed border-sr-line-2 bg-white/80 px-6 py-10 text-center">
+      <Image
+        src="/avatar/confused-avatar.webp"
+        alt=""
+        width={160}
+        height={160}
+        className="h-32 w-auto animate-sr-drift"
+      />
+      <p className="text-lg font-extrabold text-sr-ink">Belum ada kelas di hari ini</p>
       <p className="max-w-sm text-sm text-muted-foreground">Pilih tanggal lain atau cek minggu berikutnya ya.</p>
     </div>
   );
 }
 
 const STATUS_BADGE: Record<LiveClassItem["status"], { label: string; className: string }> = {
-  upcoming: { label: "Akan datang", className: "bg-neutral-100 text-neutral-1000" },
-  live: { label: "Sedang berlangsung", className: "bg-green-600 text-white" },
-  ended: { label: "Selesai", className: "bg-neutral-200 text-neutral-700" },
+  upcoming: { label: "Akan datang", className: "bg-sr-blue-50 text-sr-blue-700" },
+  live: { label: "Sedang berlangsung", className: "bg-sr-live text-white" },
+  ended: { label: "Selesai", className: "bg-sr-line text-sr-muted" },
 };
 
 function LiveClassCard({ item }: { item: LiveClassItem }) {
@@ -246,8 +277,9 @@ function LiveClassCard({ item }: { item: LiveClassItem }) {
   return (
     <article
       className={cn(
-        "relative flex flex-col gap-4 overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md",
-        item.status === "live" && "border-2 border-green-500 bg-green-50",
+        "relative flex sr-lift flex-col gap-4 overflow-hidden rounded-sr-md border border-sr-line bg-white p-5 pl-6 shadow-sr-1",
+        item.status === "live" && "border-2 border-sr-live shadow-sr-2",
+        item.status === "ended" && "opacity-80",
       )}
     >
       <div className={cn("absolute inset-y-0 left-0 w-1.5", style.accent)} />
@@ -263,13 +295,16 @@ function LiveClassCard({ item }: { item: LiveClassItem }) {
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-lg leading-snug font-bold text-pretty text-neutral-1000">{item.title}</h3>
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <UserIcon className="size-4 shrink-0" /> {item.teacher}
-        </p>
-        <p className="flex items-center gap-2 text-sm font-semibold text-neutral-1000">
-          <ClockIcon className="size-4 shrink-0" /> {formatTime(item.startsAt)}–{formatTime(item.endsAt)} WIB
-        </p>
+        <h3 className="text-lg leading-snug font-bold text-pretty text-sr-ink">{item.title}</h3>
+        <div className="flex flex-wrap gap-2 text-xs font-semibold text-sr-ink-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-sr-blue-50 px-2.5 py-1">
+            <ClockIcon weight="bold" className="size-3.5 shrink-0 text-sr-blue-600" /> {formatTime(item.startsAt)}–
+            {formatTime(item.endsAt)} WIB
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-sr-sun-100 px-2.5 py-1">
+            <UserIcon weight="bold" className="size-3.5 shrink-0 text-sr-amber-700" /> {item.teacher}
+          </span>
+        </div>
       </div>
 
       <div className="mt-auto">
@@ -282,7 +317,7 @@ function LiveClassCard({ item }: { item: LiveClassItem }) {
 function JoinAction({ item }: { item: LiveClassItem }) {
   if (item.lockReason === "premium" || item.lockReason === "mandiri") {
     return (
-      <Link to="/premium" className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
+      <Link to="/premium" className={cn(buttonVariants({ variant: "secondary" }), "w-full rounded-sr-sm")}>
         <LockKeyIcon weight="fill" />
         {item.lockReason === "mandiri" ? "Khusus Paket Sampai Mandiri" : "Khusus member Premium"}
       </Link>
@@ -307,7 +342,7 @@ function JoinAction({ item }: { item: LiveClassItem }) {
 
   if (item.link) {
     return (
-      <Button asChild className="w-full">
+      <Button asChild className="sr-sheen w-full rounded-sr-sm">
         <a href={item.link} target="_blank" rel="noopener noreferrer">
           <VideoCameraIcon weight="fill" /> Gabung Kelas
         </a>

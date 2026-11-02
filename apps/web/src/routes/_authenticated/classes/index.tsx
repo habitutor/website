@@ -30,14 +30,20 @@ function RouteComponent() {
         <SubtestHeader />
       </MotionStaggerItem>
 
-      <hr className="my-3 sm:my-4" />
-
       <MotionStaggerItem>
-        <div>
+        <div className="mt-6 sm:mt-8">
+          <div className="mb-4 flex items-baseline justify-between gap-3">
+            <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">Pilih subtes</h2>
+            {subtests.data && (
+              <span className="rounded-full bg-sr-blue-50 px-3 py-1 text-xs font-bold text-sr-blue-700">
+                {subtests.data.data.length} subtes
+              </span>
+            )}
+          </div>
           {subtests.isPending && (
-            <div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid h-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {Array.from({ length: 9 }).map((_, i) => (
-                <Skeleton key={i.toString()} className="h-40 w-full" />
+                <Skeleton key={i.toString()} className="h-56 w-full rounded-sr-lg" />
               ))}
             </div>
           )}
@@ -47,7 +53,7 @@ function RouteComponent() {
           {subtests.data && subtests.data.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
 
           {subtests.data && subtests.data.data.length > 0 && (
-            <div className="grid h-full grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid h-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {subtests.data.data.map((subtest) => (
                 <SubtestCard key={subtest.id} subtest={subtest} userIsPremium={userIsPremium} userRole={userRole} />
               ))}

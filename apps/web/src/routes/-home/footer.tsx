@@ -11,7 +11,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center justify-center gap-2 sm:justify-start">
             <Image
-              src={"/logo.svg"}
+              src={"/logo.webp"}
               alt="Logo Habitutor"
               layout="fullWidth"
               className="pointer-events-none -ml-2.5 select-none"

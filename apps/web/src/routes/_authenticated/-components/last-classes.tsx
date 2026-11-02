@@ -25,12 +25,19 @@ export const LastClasses = () => {
   if (recentViews.length === 0) {
     return (
       <SectionCard title="Kelas terakhirmu">
-        <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
-          <img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto animate-sr-drift" />
-          <p className="text-2xl font-extrabold text-sr-ink">Kamu belum melihat kelas apapun</p>
-          <Button asChild>
+        <div className="flex flex-col gap-4 rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center md:gap-6 md:p-6">
+          <div className="flex min-w-0 flex-1 items-center gap-4 md:gap-6">
+            <img src="/avatar/confused-avatar.webp" alt="" className="h-20 w-auto shrink-0 object-contain md:h-24" />
+            <div className="min-w-0">
+              <p className="font-extrabold text-sr-ink md:text-lg">Belum ada kelas yang kamu buka</p>
+              <p className="mt-1 text-sm leading-relaxed text-sr-muted">
+                Mulai dari satu materi dulu. Nanti kelasmu muncul di sini biar gampang dilanjutkan.
+              </p>
+            </div>
+          </div>
+          <Button className="w-full shrink-0 rounded-full sm:w-auto" asChild>
             <Link to="/classes">
-              Kelas Sekarang <ArrowRightIcon className="" />
+              Pilih kelas <ArrowRightIcon weight="bold" />
             </Link>
           </Button>
         </div>

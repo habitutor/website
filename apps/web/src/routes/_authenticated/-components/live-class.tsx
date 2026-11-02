@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { LiveClassCard } from "@/components/classes/practice";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { SectionCard } from "./section-card";
 
@@ -15,11 +17,14 @@ function useNow(intervalMs: number) {
   return now;
 }
 
-function ScheduleLink() {
+// Bentuknya sama dengan tombol "Pilih kelas" di Kelas terakhirmu.
+function ScheduleLink({ className }: { className?: string }) {
   return (
-    <Link to="/live-class" className="shrink-0 text-sm font-semibold text-sr-blue-600 hover:underline">
-      Lihat semua jadwal
-    </Link>
+    <Button className={cn("shrink-0 rounded-full", className)} asChild>
+      <Link to="/live-class">
+        Lihat jadwal <ArrowRightIcon weight="bold" />
+      </Link>
+    </Button>
   );
 }
 
@@ -59,8 +64,14 @@ export const LiveClass = () => {
   };
 
   const visible = getVisible();
-  // Di HP satu kartu selebar area carousel supaya tepi kanannya tidak terpotong; 304px selama belum terukur.
-  const cardWidth = containerWidth > 0 && containerWidth < 640 ? containerWidth : 304;
+  const gap = 12;
+  // Di HP satu kartu selebar area carousel; di tablet/desktop bagi rata lebar kontainer supaya tidak ada ruang kosong di kanan.
+  const cardWidth =
+    containerWidth > 0
+      ? containerWidth < 640
+        ? containerWidth
+        : Math.floor((containerWidth - (visible - 1) * gap) / visible)
+      : 304;
   const maxIndex = Math.max(0, items.length - visible);
 
   const next = () => {
@@ -73,24 +84,32 @@ export const LiveClass = () => {
 
   if (!items || items.length === 0) {
     return (
-      <SectionCard title="Live Class bersama Mentor" action={<ScheduleLink />}>
-        <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
-          <img src="/avatar/pencil-blue-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto animate-sr-drift" />
-          <p className="text-2xl font-bold text-black">Tunggu ya, Mentor terbaikmu akan segera hadir!</p>
+      <SectionCard title="Live Class">
+        <div className="flex flex-col gap-4 rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center md:gap-6 md:p-6">
+          <div className="flex min-w-0 flex-1 items-center gap-4 md:gap-6">
+            <img src="/avatar/login-avatar.webp" alt="" className="h-20 w-auto shrink-0 object-contain md:h-24" />
+            <div className="min-w-0">
+              <p className="font-extrabold text-sr-ink md:text-lg">Belum ada jadwal minggu ini</p>
+              <p className="mt-1 text-sm leading-relaxed text-sr-muted">
+                Mentor sedang menyiapkan kelas berikutnya. Cek lagi nanti, ya!
+              </p>
+            </div>
+          </div>
+          <ScheduleLink className="w-full sm:w-auto" />
         </div>
       </SectionCard>
     );
   }
 
   return (
-    <SectionCard title="Live Class bersama Mentor" action={<ScheduleLink />}>
+    <SectionCard title="Live Class" action={<ScheduleLink />}>
       <div className="w-full">
         <div ref={containerRef} className="relative w-full overflow-hidden">
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{
-              gap: 10,
-              transform: `translateX(-${current * (cardWidth + 10)}px)`,
+              gap,
+              transform: `translateX(-${current * (cardWidth + gap)}px)`,
             }}
           >
             {items.map((item) => (
@@ -122,19 +141,19 @@ export const LiveClass = () => {
             <button
               type="button"
               onClick={prev}
-              className="static top-1/2 left-5 sr-action rounded-lg bg-primary-200 p-2 text-white md:absolute"
+              className="static top-1/2 left-3 z-10 sr-action rounded-full border border-sr-line bg-white p-2.5 text-sr-blue-600 shadow-sr-2 md:absolute"
               aria-label="Previous live class"
             >
-              <ArrowLeftIcon size={20} />
+              <ArrowLeftIcon size={20} weight="bold" />
             </button>
 
             <button
               type="button"
               onClick={next}
-              className="static top-1/2 right-5 sr-action rounded-lg bg-primary-200 p-2 text-white md:absolute"
+              className="static top-1/2 right-3 z-10 sr-action rounded-full border border-sr-line bg-white p-2.5 text-sr-blue-600 shadow-sr-2 md:absolute"
               aria-label="Next live class"
             >
-              <ArrowRightIcon size={20} />
+              <ArrowRightIcon size={20} weight="bold" />
             </button>
           </div>
         )}

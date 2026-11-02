@@ -53,7 +53,7 @@ const CONTENT_ACTIONS = [
     label: "Video Materi",
     icon: PlayCircleIcon,
     enabled: (i: ContentActionItem) => i.hasVideo,
-    className: "bg-primary-300 text-white",
+    className: "bg-sr-blue-500 text-white",
     width: "w-fit",
   },
   {
@@ -61,7 +61,7 @@ const CONTENT_ACTIONS = [
     label: "Catatan Materi",
     icon: NoteIcon,
     enabled: (i: ContentActionItem) => i.hasNote,
-    className: "bg-secondary-300 text-neutral-1000",
+    className: "bg-sr-sun-400 text-sr-ink",
     width: "w-fit",
   },
   {
@@ -69,7 +69,7 @@ const CONTENT_ACTIONS = [
     label: "Latihan Soal",
     icon: ExamIcon,
     enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
-    className: "bg-tertiary-200 text-neutral-1000",
+    className: "border border-sr-orange-200 bg-sr-orange-100 text-sr-orange-700",
     width: "w-fit",
   },
 ] as const;
@@ -142,26 +142,26 @@ function ContentCard({
   return (
     <Card
       className={cn(
-        "relative gap-3 rounded-xl border border-border/50 p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
-        !isAdmin && completed && "bg-tertiary-50 border-tertiary-300",
-        isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
+        "relative gap-3 rounded-sr-md border border-sr-line bg-white p-3 shadow-sr-1 transition-all duration-300 sm:gap-5 sm:p-4 lg:p-5",
+        !isAdmin && completed && "border-sr-live/40 bg-linear-to-br from-sr-live/5 to-white",
+        isPremiumContent ? "overflow-hidden" : "hover:-translate-y-0.5 hover:border-sr-blue-200 hover:shadow-sr-2",
       )}
     >
       {isPremiumContent && (
         <>
-          <div className="pointer-events-none absolute inset-0 z-10 bg-black/10 backdrop-blur-[1px]" />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-sr-ivory/40" />
           <div className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">
-            <div className="flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 backdrop-blur-sm">
-              <LockIcon className="size-4 text-white" weight="fill" />
-              <span className="text-xs font-semibold text-white">Premium</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-sr-sun-500 px-2.5 py-1 shadow-sr-1">
+              <LockIcon className="size-4 text-sr-ink" weight="fill" />
+              <span className="text-xs font-bold text-sr-ink">Premium</span>
             </div>
           </div>
         </>
       )}
 
       {!isAdmin && completed && !isPremiumContent && (
-        <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-          <CheckCircleIcon className="size-5 text-fourtiary-300 sm:size-6" weight="fill" />
+        <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-sr-live/10 px-2 py-0.5 text-xs font-bold text-sr-live sm:top-3 sm:right-3">
+          <CheckCircleIcon className="size-4 sm:size-5" weight="fill" /> Selesai
         </div>
       )}
 
@@ -175,12 +175,17 @@ function ContentCard({
               <DotsNineIcon className="size-6" weight="bold" />
             </div>
           )}
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary shadow-sm sm:size-9">
+          <div
+            className={cn(
+              "flex size-8 shrink-0 items-center justify-center rounded-sr-xs text-sm font-extrabold sm:size-9",
+              !isAdmin && completed ? "bg-sr-live text-white" : "bg-sr-blue-50 text-sr-blue-600",
+            )}
+          >
             {index + 1}
           </div>
 
           <div className="flex h-full items-center pt-0.5">
-            <p className="mr-7 text-sm font-bold text-neutral-1000 sm:text-base lg:text-lg">{item.title}</p>
+            <p className="mr-20 text-sm leading-snug font-bold text-sr-ink sm:text-base lg:text-lg">{item.title}</p>
           </div>
         </div>
 
@@ -218,7 +223,7 @@ function ContentCard({
                 to={`${basePath}/$shortName/$contentId/${key}`}
                 params={params}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-3 py-2 transition-all hover:scale-105 active:scale-95 sm:gap-2 sm:px-4 sm:py-2.5",
+                  "flex sr-action items-center gap-1.5 rounded-sr-sm px-3 py-2 font-semibold sm:gap-2 sm:px-4 sm:py-2.5",
                   "w-full sm:w-auto",
                   className,
                   width,
@@ -264,11 +269,11 @@ export function ContentFilters({
           type="button"
           onClick={() => onChange(filter.value)}
           className={cn(
-            "rounded-lg border px-3 py-2 text-xs font-normal whitespace-nowrap transition-all",
+            "rounded-full border px-4 py-2 text-sm font-semibold whitespace-nowrap transition-all duration-300",
             "sm:h-10",
-            "border-primary-300 bg-white text-primary-300",
-            "hover:bg-primary-50",
-            activeFilter === filter.value && "bg-primary-300 text-white",
+            activeFilter === filter.value
+              ? "border-transparent bg-sr-blue-500 text-white shadow-sr-2"
+              : "border-sr-line bg-white text-sr-ink-2 hover:border-sr-blue-200 hover:text-sr-blue-600",
           )}
         >
           {filter.label}
@@ -302,16 +307,20 @@ export function LastContentViewedCard({
   return (
     <Card className="sr-lift rounded-sr-md border-sr-line p-4 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           <div className="flex h-7 w-8 shrink-0 items-center justify-center rounded-sr-xs border border-sr-blue-200 bg-sr-blue-50">
             <p className="text-[12px] font-bold text-sr-blue-600">{index + 1}</p>
           </div>
 
-          <p className="text-[18px] font-bold text-sr-ink sm:text-[20px]">{item.title}</p>
+          <p className="min-w-0 text-[18px] font-bold text-sr-ink sm:text-[20px]">{item.title}</p>
         </div>
 
-        <div className="flex items-center gap-2 sm:flex-col sm:items-end">
-          {shortName && <span className="text-xs text-muted-foreground">{shortName}</span>}
+        <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
+          {shortName && (
+            <span className="rounded-full bg-sr-blue-50 px-2.5 py-0.5 text-xs font-bold text-sr-blue-700 uppercase">
+              {shortName}
+            </span>
+          )}
         </div>
       </div>
 
@@ -324,7 +333,7 @@ export function LastContentViewedCard({
                 to={`${basePath}/$shortName/$contentId/${key}`}
                 params={params}
                 className={cn(
-                  "flex items-center gap-2 rounded-sr-xs px-4 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-1",
+                  "flex sr-action items-center gap-2 rounded-sr-sm px-4 py-2.5 font-semibold",
                   "w-full sm:w-auto",
                   className,
                   width,
@@ -432,9 +441,15 @@ export function ContentList({
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       {!isLoading && !error && (!localItems || localItems.length === 0) && (
-        <div className="flex flex-col items-center justify-center gap-2">
-          <Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
-          <p>Tunggu kontennya diracik dulu ya!</p>
+        <div className="flex flex-col items-center justify-center gap-3 rounded-sr-lg border border-dashed border-sr-line-2 bg-white/80 py-10 text-center">
+          <Image
+            src="/avatar/confused-avatar.webp"
+            alt="Empty State"
+            width={150}
+            height={150}
+            className="animate-sr-drift"
+          />
+          <p className="font-extrabold text-sr-ink">Tunggu kontennya diracik dulu ya!</p>
         </div>
       )}
 

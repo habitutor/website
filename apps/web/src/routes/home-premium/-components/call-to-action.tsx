@@ -113,7 +113,7 @@ export function CallToAction() {
           <div className="flex flex-col items-center justify-between border-neutral-100 pb-3 sm:flex-row sm:gap-6 md:border-b">
             <div className="flex flex-col items-center gap-1 sm:items-start">
               <div className="flex items-center gap-2">
-                <img src={"/logo.svg"} alt="Logo Habitutor" className="pointer-events-none -ml-2.5 select-none" />
+                <img src={"/logo.webp"} alt="Logo Habitutor" className="pointer-events-none -ml-2.5 select-none" />
                 <h3 className="text-2xl font-medium">Habitutor</h3>
               </div>
             </div>
