@@ -292,7 +292,7 @@ function MonthlyReport() {
         <KpiCard
           title="Pemasukan Premium"
           value={totals ? idr.format(totals.revenuePremium) : undefined}
-          hint="Paket Perintis + paket 2 bulan"
+          hint="Total semua paket premium"
           isPending={query.isPending}
         />
         <KpiCard
