@@ -217,12 +217,59 @@ export function PremiumPackageCard({
                 terkonfirmasi.
               </p>
             )}
-          </>
-        ) : (
-          <Link to="/premium" className={CTA_CLASS_NAME}>
-            {copy.cta}
-          </Link>
+
+            <span className="text-xs text-white/80">/ sekali bayar</span>
+          </div>
+          <div className="mt-4 flex items-start gap-3 rounded-sr-sm border border-white/25 bg-white/10 px-4 py-3">
+            <CalendarBlankIcon size={22} weight="duotone" className="mt-0.5 shrink-0 text-sr-sun-200" />
+            <p className="text-sm font-bold text-white">{getAccessLabel(pkg)}</p>
+          </div>
+          {pkg.isPromo && (
+            <p className="mt-2 text-xs text-white/75">
+              Harga promo sampai {formatWibDate(pkg.promoEndsAt)} pukul 23.59 WIB
+            </p>
+          )}
+        </div>
+
+        {pkg.slug === "paketmandiri2027" && <MandiriExtras />}
+        {pkg.slug === "paketutbk2027nolive" && (
+          <p className="relative z-10 mx-6 mb-5 rounded-lg border border-primary-500 bg-primary-400 px-3 py-2 text-xs font-semibold text-neutral-100">
+            Tidak termasuk Live Class. Fasilitas premium lainnya (video, bank soal, try out, komunitas) tetap bisa diakses
+            penuh.
+          </p>
         )}
+
+        <div className="relative z-10 mt-auto space-y-3 p-6 pt-0">
+          {mode === "checkout" ? (
+            <>
+              <button
+                type="button"
+                disabled={isSubscribed || isPending || isDisabled || !pkg.isAvailable}
+                onClick={onSubscribe}
+                className={cn(
+                  CTA_CLASS_NAME,
+                  "cursor-pointer disabled:cursor-default disabled:opacity-70",
+                  isSubscribed && "bg-white/20 bg-none text-white opacity-100 shadow-none",
+                  isPending && "opacity-100",
+                )}
+              >
+                {isPending && <SpinnerIcon weight="bold" className="size-5 animate-spin" />}
+                {buttonLabel}
+              </button>
+              {hasInitiatedPurchase && !isSubscribed && (
+                <p className="rounded-lg border border-sr-sun-400 bg-sr-sun-100 px-3 py-2 text-center text-xs font-semibold text-sr-amber-700">
+                  Tunggu 15 Menit — pembayaranmu sedang diproses, status premium akan aktif otomatis setelah
+                  terkonfirmasi.
+                </p>
+              )}
+            </>
+          ) : (
+            <Link to="/premium" className={CTA_CLASS_NAME}>
+              {copy.cta}
+            </Link>
+          )}
+        </div>
+>>>>>>> 3521b80 (feat(premium): tambah Paket Sampai UTBK Tanpa Live Class (Rp200.000, promo Rp150.000 sampai 14 Nov))
       </div>
     </div>
   );

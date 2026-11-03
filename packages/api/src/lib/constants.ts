@@ -52,6 +52,14 @@ export const PREMIUM_PACKAGES = {
     PROMO_PRICE: 200_000,
     EXPIRES_AT: new Date("2027-05-01T23:59:59.999+07:00"),
   },
+  paketutbk2027nolive: {
+    SLUG: "paketutbk2027nolive",
+    NAME: "Paket Sampai UTBK Tanpa Live Class",
+    NORMAL_PRICE: 200_000,
+    PROMO_PRICE: 150_000,
+    EXPIRES_AT: new Date("2027-05-01T23:59:59.999+07:00"),
+    INCLUDES_LIVE_CLASS: false,
+  },
   paket3bulan: {
     SLUG: "paket3bulan",
     NAME: "Paket 3 Bulan",
@@ -70,6 +78,10 @@ export const PREMIUM_PACKAGES = {
 
 export type PremiumPackageSlug = keyof typeof PREMIUM_PACKAGES;
 export const PREMIUM_PACKAGE_SLUGS = Object.keys(PREMIUM_PACKAGES) as PremiumPackageSlug[];
+
+export const NO_LIVE_CLASS_PACKAGE_SLUGS: readonly string[] = PREMIUM_PACKAGE_SLUGS.filter(
+  (slug) => "INCLUDES_LIVE_CLASS" in PREMIUM_PACKAGES[slug] && !PREMIUM_PACKAGES[slug].INCLUDES_LIVE_CLASS,
+);
 
 export function isPremiumPackageSlug(slug: string): slug is PremiumPackageSlug {
   return Object.hasOwn(PREMIUM_PACKAGES, slug);

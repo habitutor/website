@@ -53,6 +53,14 @@ describe("getLiveClassLock", () => {
     expect(getLiveClassLock({ ...premium, category: "MANDIRI", hasMandiriPackage: true })).toBeNull();
   });
 
+  test("paket tanpa Live Class terkunci untuk semua kelas, admin tetap bisa", () => {
+    const noLive = { ...premium, hasLiveClassAccess: false };
+    expect(getLiveClassLock(noLive)).toBe("package");
+    expect(getLiveClassLock({ ...noLive, category: "TKA" })).toBe("package");
+    expect(getLiveClassLock({ ...noLive, isAdmin: true })).toBeNull();
+    expect(getLiveClassLock({ ...noLive, isPremium: false })).toBe("premium");
+  });
+
   test("tier premium2 lama hanya kelas 3x", () => {
     expect(getLiveClassLock({ ...premium, isPremiumTier2: true })).toBe("tier");
     expect(getLiveClassLock({ ...premium, isPremiumTier2: true, access: "3x" })).toBeNull();

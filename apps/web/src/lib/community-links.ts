@@ -13,6 +13,7 @@ export const COMMUNITY_LINKS = {
 export const PREMIUM_WHATSAPP_LINKS: Record<PremiumPlan, string | null> = {
   paketmandiri2027: "https://chat.whatsapp.com/JiPFDTc6Bhv4tLsrjSrPmF",
   paketutbk2027: COMMUNITY_LINKS.premiumWhatsapp,
+  paketutbk2027nolive: COMMUNITY_LINKS.premiumWhatsapp,
   paket3bulan: "https://chat.whatsapp.com/L4pqYNAHbijDgIlF0V0aQn",
   paket1bulan: COMMUNITY_LINKS.premium2BulanWhatsapp,
   perintis2027: COMMUNITY_LINKS.premiumWhatsapp,

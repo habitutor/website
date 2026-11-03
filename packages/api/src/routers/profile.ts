@@ -40,7 +40,7 @@ const getProfile = authed
       hasSeenWelcomeVideo: "boolean",
       hasJoinedPremiumWhatsapp: "boolean",
       premiumPlan:
-        "'paketmandiri2027' | 'paketutbk2027' | 'paket3bulan' | 'paket1bulan' | 'perintis2027' | 'paket2bulan' | null",
+        "'paketmandiri2027' | 'paketutbk2027' | 'paketutbk2027nolive' | 'paket3bulan' | 'paket1bulan' | 'perintis2027' | 'paket2bulan' | null",
     }),
   )
   .handler(async ({ context }) => {

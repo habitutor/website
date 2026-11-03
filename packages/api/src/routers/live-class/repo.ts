@@ -1,8 +1,8 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 import { product, transaction } from "@habitutor/db/schema/transaction";
-import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
-import { PREMIUM_PACKAGES } from "../../lib/constants";
+import { and, asc, desc, eq, gte, lt, sql } from "drizzle-orm";
+import { NO_LIVE_CLASS_PACKAGE_SLUGS, PREMIUM_PACKAGES } from "../../lib/constants";
 
 export const liveClassRepo = {
   /** Kelas terpublikasi dengan tanggal di rentang [from, to), tanggal format YYYY-MM-DD. */
@@ -28,6 +28,17 @@ export const liveClassRepo = {
         ),
       )
       .orderBy(asc(dashboardLiveClass.date), asc(dashboardLiveClass.time), asc(dashboardLiveClass.id));
+  },
+
+  hasLiveClassAccess: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
+    const [latest] = await db
+      .select({ slug: product.slug })
+      .from(transaction)
+      .innerJoin(product, eq(transaction.productId, product.id))
+      .where(and(eq(transaction.userId, userId), eq(transaction.status, "success"), eq(product.type, "subscription")))
+      .orderBy(desc(transaction.paidAt), desc(transaction.orderedAt))
+      .limit(1);
+    return !(latest && NO_LIVE_CLASS_PACKAGE_SLUGS.includes(latest.slug));
   },
 
   hasMandiriPackage: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {

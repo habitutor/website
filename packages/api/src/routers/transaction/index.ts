@@ -22,7 +22,7 @@ const packages = pub
   })
   .output(
     type({
-      slug: "'paketmandiri2027' | 'paketutbk2027' | 'paket3bulan' | 'paket1bulan'",
+      slug: "'paketmandiri2027' | 'paketutbk2027' | 'paketutbk2027nolive' | 'paket3bulan' | 'paket1bulan'",
       name: "string",
       normalPrice: "number",
       promoPrice: "number",
@@ -45,7 +45,7 @@ const subscribe = authed
   .input(
     // Only the four premium packages are sold; referral and promo codes do not apply.
     type({
-      name: "'paketmandiri2027' | 'paketutbk2027' | 'paket3bulan' | 'paket1bulan'",
+      name: "'paketmandiri2027' | 'paketutbk2027' | 'paketutbk2027nolive' | 'paket3bulan' | 'paket1bulan'",
     }),
   )
   .output(
