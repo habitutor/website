@@ -133,7 +133,7 @@ type PremiumPackageCardProps = {
 
 const CTA_CLASS_NAME = cn(
   buttonVariants({ variant: "darkBlue", size: "lg" }),
-  "h-auto w-full border border-neutral-1000 py-3 text-base font-bold tracking-wide whitespace-normal uppercase",
+  "h-auto w-full justify-center border border-neutral-1000 py-3 text-center text-base font-bold tracking-wide whitespace-normal uppercase",
 );
 
 export function PremiumPackageCard({
@@ -253,7 +253,7 @@ export function PremiumPackageGrid({
 
   return (
     <div>
-      <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
+      <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0 md:[&>*:last-child:nth-child(odd)]:col-span-2 md:[&>*:last-child:nth-child(odd)]:max-w-[calc(50%-0.75rem)] md:[&>*:last-child:nth-child(odd)]:justify-self-center">
         {packages.map((pkg) => (
           <PremiumPackageCard
             key={pkg.slug}
