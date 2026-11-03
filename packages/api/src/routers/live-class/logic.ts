@@ -2,8 +2,7 @@ export const LIVE_CLASS_JOIN_OPEN_MINUTES = 15;
 
 export type LiveClassCategory = "TKA" | "SNBT" | "MANDIRI";
 export type LiveClassStatus = "upcoming" | "live" | "ended";
-export type LiveClassLockReason = "premium" | "mandiri" | "tier";
-
+export type LiveClassLockReason = "premium" | "package" | "mandiri" | "tier";
 const MINUTE_MS = 60_000;
 
 /** Jadwal disimpan sebagai tanggal & jam WIB. */
@@ -39,6 +38,7 @@ export function getLiveClassLock({
   isPremium,
   isPremiumTier2,
   hasMandiriPackage,
+  hasLiveClassAccess = true,
   category,
   access,
 }: {
@@ -46,11 +46,13 @@ export function getLiveClassLock({
   isPremium: boolean;
   isPremiumTier2: boolean;
   hasMandiriPackage: boolean;
+  hasLiveClassAccess?: boolean;
   category: LiveClassCategory;
   access: "3x" | "5x";
 }): LiveClassLockReason | null {
   if (isAdmin) return null;
   if (!isPremium) return "premium";
+  if (!hasLiveClassAccess) return "package";
   if (category === "MANDIRI" && !hasMandiriPackage) return "mandiri";
   if (access === "5x" && isPremiumTier2) return "tier";
   return null;

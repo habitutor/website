@@ -6,8 +6,14 @@ const LAST_PROMO_MOMENT = new Date("2026-11-14T16:59:59.999Z"); // 14 Nov 23.59.
 const FIRST_NORMAL_MOMENT = new Date("2026-11-14T17:00:00.000Z"); // 15 Nov 00.00 WIB
 
 describe("premium package pricing", () => {
-  it("sells exactly four packages", () => {
-    expect(PREMIUM_PACKAGE_SLUGS).toEqual(["paketmandiri2027", "paketutbk2027", "paket3bulan", "paket1bulan"]);
+  it("sells exactly five packages", () => {
+    expect(PREMIUM_PACKAGE_SLUGS).toEqual([
+      "paketmandiri2027",
+      "paketutbk2027",
+      "paketutbk2027nolive",
+      "paket3bulan",
+      "paket1bulan",
+    ]);
   });
 
   it("uses promo prices until 14 November 2026 23.59 WIB", () => {
@@ -16,6 +22,7 @@ describe("premium package pricing", () => {
     expect(getPackagePrice("paketutbk2027", LAST_PROMO_MOMENT)).toBe(200_000);
     expect(getPackagePrice("paket3bulan", LAST_PROMO_MOMENT)).toBe(120_000);
     expect(getPackagePrice("paket1bulan", LAST_PROMO_MOMENT)).toBe(50_000);
+    expect(getPackagePrice("paketutbk2027nolive", LAST_PROMO_MOMENT)).toBe(150_000);
   });
 
   it("uses normal prices from 15 November 2026 00.00 WIB", () => {
@@ -24,11 +31,12 @@ describe("premium package pricing", () => {
     expect(getPackagePrice("paketutbk2027", FIRST_NORMAL_MOMENT)).toBe(250_000);
     expect(getPackagePrice("paket3bulan", FIRST_NORMAL_MOMENT)).toBe(150_000);
     expect(getPackagePrice("paket1bulan", FIRST_NORMAL_MOMENT)).toBe(100_000);
+    expect(getPackagePrice("paketutbk2027nolive", FIRST_NORMAL_MOMENT)).toBe(200_000);
   });
 
   it("lists each package with the price in effect", () => {
     const packages = listPremiumPackages(FIRST_NORMAL_MOMENT);
-    expect(packages).toHaveLength(4);
+    expect(packages).toHaveLength(5);
     expect(packages.every((pkg) => !pkg.isPromo && pkg.currentPrice === pkg.normalPrice)).toBe(true);
   });
 });

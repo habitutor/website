@@ -133,7 +133,7 @@ type PremiumPackageCardProps = {
 
 const CTA_CLASS_NAME = cn(
   buttonVariants({ variant: "darkBlue", size: "lg" }),
-  "h-auto w-full border border-neutral-1000 py-3 text-base font-bold tracking-wide whitespace-normal uppercase",
+  "h-auto w-full justify-center border border-neutral-1000 py-3 text-center text-base font-bold tracking-wide whitespace-normal uppercase",
 );
 
 export function PremiumPackageCard({
@@ -195,6 +195,12 @@ export function PremiumPackageCard({
       </div>
 
       {pkg.slug === "paketmandiri2027" && <MandiriExtras />}
+      {pkg.slug === "paketutbk2027nolive" && (
+        <p className="relative z-10 mx-6 mb-5 rounded-lg border border-primary-500 bg-primary-400 px-3 py-2 text-xs font-semibold text-neutral-100">
+          Tidak termasuk Live Class. Fasilitas premium lainnya (video, bank soal, try out, komunitas) tetap bisa diakses
+          penuh.
+        </p>
+      )}
 
       <div className="relative z-10 mt-auto space-y-3 p-6 pt-0">
         {mode === "checkout" ? (
@@ -247,7 +253,7 @@ export function PremiumPackageGrid({
 
   return (
     <div>
-      <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
+      <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0 md:[&>*:last-child:nth-child(odd)]:col-span-2 md:[&>*:last-child:nth-child(odd)]:max-w-[calc(50%-0.75rem)] md:[&>*:last-child:nth-child(odd)]:justify-self-center">
         {packages.map((pkg) => (
           <PremiumPackageCard
             key={pkg.slug}

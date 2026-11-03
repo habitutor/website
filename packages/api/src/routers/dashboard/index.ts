@@ -42,7 +42,9 @@ const content = authed
     const isAdmin = isAdminRole(context.session.user.role);
     const isPremium = Boolean(context.session.user.isPremium);
     const isPremiumTier2 = context.session.user.premiumTier === PREMIUM_TIERS.PREMIUM_2;
-    const canJoin = isAdmin || isPremium;
+    const hasLiveClassAccess =
+      isAdmin || !isPremium || (await liveClassRepo.hasLiveClassAccess({ userId: context.session.user.id }));
+    const canJoin = isAdmin || (isPremium && hasLiveClassAccess);
 
     const announcements = await dashboardRepo.listPublishedAnnouncements({});
 
