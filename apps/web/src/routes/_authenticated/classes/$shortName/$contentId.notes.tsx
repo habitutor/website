@@ -54,8 +54,8 @@ function RouteComponent() {
   const note = content.data.note;
   if (!note) {
     return (
-      <div className="space-y-4">
-        <p className="text-base font-semibold text-primary-300">Catatan Materi</p>
+      <div className="space-y-5">
+        <p className="text-base font-semibold text-sr-blue-600">Catatan Materi</p>
 
         <div className="flex flex-col items-center justify-center gap-2 text-center text-pretty">
           <Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
@@ -70,10 +70,10 @@ function RouteComponent() {
   }
 
   return (
-    <div className="space-y-4">
-      <p className="text-base font-semibold text-primary-300">Catatan Materi</p>
+    <div className="space-y-5">
+      <p className="text-base font-semibold text-sr-blue-600">Catatan Materi</p>
 
-      <h2 className="text-2xl font-bold">{content.data.title}</h2>
+      <h2 className="text-xl leading-snug font-extrabold text-pretty text-sr-ink sm:text-2xl">{content.data.title}</h2>
 
       <hr />
 

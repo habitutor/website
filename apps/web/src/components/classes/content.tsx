@@ -51,28 +51,66 @@ const CONTENT_ACTIONS = [
   {
     key: "video",
     label: "Video Materi",
+    short: "Video",
     icon: PlayCircleIcon,
     enabled: (i: ContentActionItem) => i.hasVideo,
-    className: "bg-primary-300 text-white",
-    width: "w-fit",
+    className: "bg-sr-blue-500 text-white",
   },
   {
     key: "notes",
     label: "Catatan Materi",
+    short: "Catatan",
     icon: NoteIcon,
     enabled: (i: ContentActionItem) => i.hasNote,
-    className: "bg-secondary-300 text-neutral-1000",
-    width: "w-fit",
+    className: "bg-sr-sun-400 text-sr-ink",
   },
   {
     key: "latihan-soal",
     label: "Latihan Soal",
+    short: "Latihan",
     icon: ExamIcon,
     enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
-    className: "bg-tertiary-200 text-neutral-1000",
-    width: "w-fit",
+    className: "border border-sr-orange-200 bg-sr-orange-100 text-sr-orange-700",
   },
 ] as const;
+
+// Di HP semua aksi tampil sejajar sama lebar (ikon + label pendek) supaya tidak ada yang tersembunyi di balik geseran.
+function ContentActions({
+  item,
+  basePath,
+  params,
+  disabled,
+}: {
+  item: ContentActionItem;
+  basePath: "/classes" | "/admin/classes";
+  params: { shortName: string; contentId: string };
+  disabled?: boolean;
+}) {
+  return (
+    <div className="grid auto-cols-fr grid-flow-col gap-2 sm:flex sm:flex-wrap sm:gap-3">
+      {CONTENT_ACTIONS.map(
+        ({ key, label, short, icon: Icon, enabled, className }) =>
+          enabled(item) && (
+            <Link
+              key={key}
+              to={`${basePath}/$shortName/$contentId/${key}`}
+              params={params}
+              className={cn(
+                "flex min-w-0 sr-action flex-col items-center justify-center gap-1 rounded-sr-sm px-2 py-2.5 text-center font-semibold sm:w-fit sm:flex-row sm:gap-2 sm:px-4 sm:text-left",
+                className,
+                disabled && "pointer-events-none opacity-60",
+              )}
+            >
+              <Icon weight="bold" className="size-5 shrink-0 sm:size-4.5" />
+              <span className="text-xs whitespace-nowrap sm:hidden">{short}</span>
+              <span className="hidden text-sm whitespace-nowrap sm:inline">{label}</span>
+              <CaretRightIcon weight="bold" className="hidden size-4 shrink-0 sm:block" />
+            </Link>
+          ),
+      )}
+    </div>
+  );
+}
 
 function ReorderableContentCard({
   item,
@@ -142,31 +180,31 @@ function ContentCard({
   return (
     <Card
       className={cn(
-        "relative gap-3 rounded-xl border border-border/50 p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
-        !isAdmin && completed && "bg-tertiary-50 border-tertiary-300",
-        isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
+        "relative gap-3 rounded-sr-md border border-sr-line bg-white p-3 shadow-sr-1 transition-all duration-300 sm:gap-5 sm:p-4 lg:p-5",
+        !isAdmin && completed && "border-sr-live/40 bg-linear-to-br from-sr-live/5 to-white",
+        isPremiumContent ? "overflow-hidden" : "hover:-translate-y-0.5 hover:border-sr-blue-200 hover:shadow-sr-2",
       )}
     >
       {isPremiumContent && (
         <>
-          <div className="pointer-events-none absolute inset-0 z-10 bg-black/10 backdrop-blur-[1px]" />
-          <div className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">
-            <div className="flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 backdrop-blur-sm">
-              <LockIcon className="size-4 text-white" weight="fill" />
-              <span className="text-xs font-semibold text-white">Premium</span>
+          <div className="pointer-events-none absolute inset-0 z-10 bg-sr-ivory/40" />
+          <div className="absolute top-3 right-3 z-20 hidden sm:block">
+            <div className="flex items-center gap-1.5 rounded-full bg-sr-sun-500 px-2.5 py-1 shadow-sr-1">
+              <LockIcon className="size-4 text-sr-ink" weight="fill" />
+              <span className="text-xs font-bold text-sr-ink">Premium</span>
             </div>
           </div>
         </>
       )}
 
       {!isAdmin && completed && !isPremiumContent && (
-        <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-          <CheckCircleIcon className="size-5 text-fourtiary-300 sm:size-6" weight="fill" />
+        <div className="absolute top-3 right-3 hidden items-center gap-1 rounded-full bg-sr-live/10 px-2 py-0.5 text-xs font-bold text-sr-live sm:flex">
+          <CheckCircleIcon className="size-4 sm:size-5" weight="fill" /> Selesai
         </div>
       )}
 
       <div className="flex flex-row justify-between gap-3 sm:items-start">
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           {isAdmin && dragControls && (
             <div
               className="mt-0.5 flex size-8 cursor-grab touch-none items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:cursor-grabbing"
@@ -175,12 +213,34 @@ function ContentCard({
               <DotsNineIcon className="size-6" weight="bold" />
             </div>
           )}
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary shadow-sm sm:size-9">
+          <div
+            className={cn(
+              "flex size-8 shrink-0 items-center justify-center rounded-sr-xs text-sm font-extrabold sm:size-9",
+              !isAdmin && completed ? "bg-sr-live text-white" : "bg-sr-blue-50 text-sr-blue-600",
+            )}
+          >
             {index + 1}
           </div>
 
-          <div className="flex h-full items-center pt-0.5">
-            <p className="mr-7 text-sm font-bold text-neutral-1000 sm:text-base lg:text-lg">{item.title}</p>
+          <div className="min-w-0 pt-1 sm:pt-1.5">
+            <p className="text-[15px] leading-snug font-bold text-pretty text-sr-ink sm:mr-24 sm:text-base lg:text-lg">
+              {item.title}
+            </p>
+            {!isAdmin && (isPremiumContent || completed) && (
+              <span
+                className={cn(
+                  "mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold sm:hidden",
+                  isPremiumContent ? "bg-sr-sun-500 text-sr-ink" : "bg-sr-live/10 text-sr-live",
+                )}
+              >
+                {isPremiumContent ? (
+                  <LockIcon weight="fill" className="size-3" />
+                ) : (
+                  <CheckCircleIcon weight="fill" className="size-3.5" />
+                )}
+                {isPremiumContent ? "Premium" : "Selesai"}
+              </span>
+            )}
           </div>
         </div>
 
@@ -209,29 +269,7 @@ function ContentCard({
         </div>
       </div>
 
-      <div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
-        {CONTENT_ACTIONS.map(
-          ({ key, label, icon: Icon, enabled, className, width }) =>
-            enabled(item) && (
-              <Link
-                key={key}
-                to={`${basePath}/$shortName/$contentId/${key}`}
-                params={params}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-3 py-2 transition-all hover:scale-105 active:scale-95 sm:gap-2 sm:px-4 sm:py-2.5",
-                  "w-full sm:w-auto",
-                  className,
-                  width,
-                  isPremiumContent && "pointer-events-none opacity-60",
-                )}
-              >
-                <Icon className="size-4 sm:size-4.5" weight="bold" />
-                <span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
-                <CaretRightIcon className="ml-auto size-4 sm:size-4.5" weight="bold" />
-              </Link>
-            ),
-        )}
-      </div>
+      <ContentActions item={item} basePath={basePath} params={params} disabled={isPremiumContent} />
     </Card>
   );
 }
@@ -264,11 +302,11 @@ export function ContentFilters({
           type="button"
           onClick={() => onChange(filter.value)}
           className={cn(
-            "rounded-lg border px-3 py-2 text-xs font-normal whitespace-nowrap transition-all",
+            "rounded-full border px-4 py-2 text-sm font-semibold whitespace-nowrap transition-all duration-300",
             "sm:h-10",
-            "border-primary-300 bg-white text-primary-300",
-            "hover:bg-primary-50",
-            activeFilter === filter.value && "bg-primary-300 text-white",
+            activeFilter === filter.value
+              ? "border-transparent bg-sr-blue-500 text-white shadow-sr-2"
+              : "border-sr-line bg-white text-sr-ink-2 hover:border-sr-blue-200 hover:text-sr-blue-600",
           )}
         >
           {filter.label}
@@ -300,43 +338,26 @@ export function LastContentViewedCard({
   };
 
   return (
-    <Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
+    <Card className="sr-lift rounded-sr-md border-sr-line p-4 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="flex h-7 w-8 shrink-0 items-center justify-center rounded border border-neutral-200">
-            <p className="text-[12px] font-medium text-primary-300">{index + 1}</p>
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <div className="flex h-7 w-8 shrink-0 items-center justify-center rounded-sr-xs border border-sr-blue-200 bg-sr-blue-50">
+            <p className="text-[12px] font-bold text-sr-blue-600">{index + 1}</p>
           </div>
 
-          <p className="text-[18px] font-medium text-neutral-1000 sm:text-[20px]">{item.title}</p>
+          <p className="min-w-0 text-[18px] font-bold text-sr-ink sm:text-[20px]">{item.title}</p>
         </div>
 
-        <div className="flex items-center gap-2 sm:flex-col sm:items-end">
-          {shortName && <span className="text-xs text-muted-foreground">{shortName}</span>}
+        <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
+          {shortName && (
+            <span className="rounded-full bg-sr-blue-50 px-2.5 py-0.5 text-xs font-bold text-sr-blue-700 uppercase">
+              {shortName}
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto">
-        {CONTENT_ACTIONS.map(
-          ({ key, label, icon: Icon, enabled, className, width }) =>
-            enabled(item) && (
-              <Link
-                key={key}
-                to={`${basePath}/$shortName/$contentId/${key}`}
-                params={params}
-                className={cn(
-                  "flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
-                  "w-full sm:w-auto",
-                  className,
-                  width,
-                )}
-              >
-                <Icon size={18} weight="bold" />
-                <span className="text-[14px] font-medium whitespace-nowrap">{label}</span>
-                <CaretRightIcon size={18} className="ml-auto" weight="bold" />
-              </Link>
-            ),
-        )}
-      </div>
+      <ContentActions item={item} basePath={basePath} params={params} />
     </Card>
   );
 }
@@ -432,9 +453,15 @@ export function ContentList({
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       {!isLoading && !error && (!localItems || localItems.length === 0) && (
-        <div className="flex flex-col items-center justify-center gap-2">
-          <Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
-          <p>Tunggu kontennya diracik dulu ya!</p>
+        <div className="flex flex-col items-center justify-center gap-3 rounded-sr-lg border border-dashed border-sr-line-2 bg-white/80 py-10 text-center">
+          <Image
+            src="/avatar/confused-avatar.webp"
+            alt="Empty State"
+            width={150}
+            height={150}
+            className="animate-sr-drift"
+          />
+          <p className="font-extrabold text-sr-ink">Tunggu kontennya diracik dulu ya!</p>
         </div>
       )}
 

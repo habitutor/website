@@ -55,8 +55,8 @@ function RouteComponent() {
   const practiceQuestions = content.data.practiceQuestions;
   if (!practiceQuestions) {
     return (
-      <div className="space-y-4">
-        <p className="text-base font-semibold text-primary-300">Latihan Soal</p>
+      <div className="space-y-5">
+        <p className="text-base font-semibold text-sr-blue-600">Latihan Soal</p>
 
         <PracticeQuestionHeader content={content.data.title} />
 
@@ -75,8 +75,8 @@ function RouteComponent() {
   }
 
   return (
-    <div className="space-y-4">
-      <p className="text-base font-semibold text-primary-300">Latihan Soal Materi</p>
+    <div className="space-y-5">
+      <p className="text-base font-semibold text-sr-blue-600">Latihan Soal Materi</p>
 
       <PracticeQuestionHeader content={content.data.title} />
 
@@ -97,7 +97,7 @@ function RouteComponent() {
                       <p
                         key={answer.id}
                         className={
-                          answer.isCorrect ? "text-sm font-semibold text-green-600" : "text-sm text-muted-foreground"
+                          answer.isCorrect ? "text-sm font-semibold text-sr-live" : "text-sm text-muted-foreground"
                         }
                       >
                         {answer.code}. {answer.content}
@@ -107,7 +107,7 @@ function RouteComponent() {
                   </div>
                 )}
                 {q.discussion && (
-                  <div className="mt-3 border-t border-neutral-200 pt-3">
+                  <div className="mt-3 border-t border-sr-line pt-3">
                     <p className="mb-1 text-sm font-medium">Pembahasan:</p>
                     <TiptapRenderer content={q.discussion} />
                   </div>

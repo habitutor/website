@@ -48,7 +48,7 @@ export function PWATutorialDialog({ open, onOpenChange }: PWATutorialDialogProps
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className={cn("h-full transition-all duration-300", step === i ? "w-full bg-[#3650A2]" : "w-0")}
+                    className={cn("h-full transition-all duration-300", step === i ? "w-full bg-sr-blue-500" : "w-0")}
                   />
                 </div>
               ))}
@@ -76,7 +76,7 @@ export function PWATutorialDialog({ open, onOpenChange }: PWATutorialDialogProps
           </Button>
           <Button
             onClick={() => (step === 3 ? onOpenChange(false) : nextStep())}
-            className="h-10 bg-[#3650A2] px-6 font-medium text-white hover:bg-[#2e448a]"
+            className="h-10 bg-sr-blue-500 px-6 font-medium text-white hover:bg-sr-blue-600"
           >
             {step === 3 ? "Finish" : "Continue"}
           </Button>

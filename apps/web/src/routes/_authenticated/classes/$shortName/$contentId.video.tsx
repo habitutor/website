@@ -3,7 +3,8 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { useEffect, useRef } from "react";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
-import YouTubePlayer from "@/components/media/youtube-player";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import YouTubePlayer, { youtubeWatchUrl } from "@/components/media/youtube-player";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@habitutor/shared/youtube";
 
@@ -67,8 +68,8 @@ function RouteComponent() {
   const video = content.data.video;
   if (!video) {
     return (
-      <div className="space-y-4">
-        <p className="text-base font-semibold text-primary-300">Video Materi</p>
+      <div className="space-y-5">
+        <p className="text-base font-semibold text-sr-blue-600">Video Materi</p>
 
         <div className="flex flex-col items-center justify-center gap-2 text-center text-pretty">
           <Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
@@ -85,17 +86,29 @@ function RouteComponent() {
   const videoId = extractYouTubeId(video.videoUrl);
 
   return (
-    <div className="space-y-4">
-      <p className="text-base font-semibold text-primary-300">Video Materi</p>
+    <div className="space-y-5">
+      <p className="text-base font-semibold text-sr-blue-600">Video Materi</p>
 
       <div className="aspect-video w-full">
         <YouTubePlayer videoId={videoId} />
       </div>
+      {/* Cadangan kalau pemutar di dalam halaman tidak jalan (mis. dibuka dari browser bawaan WhatsApp/Instagram). */}
+      <p className="flex flex-wrap items-center justify-between gap-2 text-xs text-sr-muted">
+        Video tidak mau diputar?
+        <a
+          href={youtubeWatchUrl(videoId)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 rounded-full bg-sr-blue-50 px-3 py-1.5 font-bold text-sr-blue-700 hover:bg-sr-blue-100"
+        >
+          Buka di YouTube <ArrowSquareOutIcon weight="bold" className="size-3.5" />
+        </a>
+      </p>
 
-      <h2 className="text-2xl font-bold">{content.data.title}</h2>
+      <h2 className="text-xl leading-snug font-extrabold text-pretty text-sr-ink sm:text-2xl">{content.data.title}</h2>
       <hr />
 
-      <h3 className="text-lg font-semibold">Tentang Video</h3>
+      <h3 className="text-base font-bold text-sr-ink sm:text-lg">Tentang Video</h3>
       <TiptapRenderer content={video.content} />
     </div>
   );

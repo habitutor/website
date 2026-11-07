@@ -1,22 +1,26 @@
 import { ArrowRightIcon, EyeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { Button } from "@/components/ui/button";
+import { CountUp } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
+import { Accent, SectionCard } from "./section-card";
 
 export const UserProgress = () => {
   return (
-    <section className="w-full rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Progres Kamu!</h2>
-      <div className="grid gap-4 sm:grid-cols-5">
-        <div className="space-y-4 sm:col-span-2">
-          <Material />
-          <Tryout />
-        </div>
+    <SectionCard
+      title={
+        <>
+          Progres belajar <Accent>kamu</Accent>
+        </>
+      }
+    >
+      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <Flashcard />
+        <Material />
+        <Tryout />
       </div>
-    </section>
+    </SectionCard>
   );
 };
 
@@ -24,54 +28,49 @@ const Material = () => {
   const { data, isPending } = useQuery(orpc.subtest.content.stats.queryOptions());
 
   return (
-    <div className="relative flex min-h-30 w-full items-end justify-between gap-4 overflow-clip rounded-md bg-blue-200 p-4 text-primary">
-      <div className="z-10 space-y-0.5">
-        <h4 className={`text-4xl font-bold sm:text-5xl ${isPending && "animate-pulse"}`}>
-          {!isPending ? (data?.materialsCompleted ?? 0) : "..."}
-        </h4>
-        <p className="font-bold">Materi Dipelajari</p>
-      </div>
-
-      <Button size="icon" className="z-10 bg-tertiary-800" asChild>
-        <Link to="/classes">
-          <ArrowRightIcon weight="bold" />
-        </Link>
-      </Button>
-
-      <div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-blue-300" />
-      <Image
-        src="/avatar/profile/tupai-6.webp"
+    <Link
+      to="/classes"
+      className="group relative flex min-h-48 sr-lift flex-col overflow-hidden rounded-sr-lg sr-card-blue p-4 md:p-5"
+    >
+      <div className="pointer-events-none absolute -right-10 -bottom-12 size-36 rounded-full bg-white/10 md:size-44" />
+      <p className="relative text-sm font-semibold text-white/80">Materi dipelajari</p>
+      <p
+        className={`relative mt-1 text-4xl font-extrabold text-sr-sun-400 md:text-5xl ${isPending ? "animate-pulse" : ""}`}
+      >
+        {isPending ? "–" : <CountUp to={data?.materialsCompleted ?? 0} />}
+      </p>
+      <span className="relative z-10 mt-auto inline-flex w-fit items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-sm font-bold text-white ring-1 ring-white/20 transition-colors group-hover:bg-white/25">
+        <span className="sm:hidden">Belajar</span>
+        <span className="hidden sm:inline">Lanjut belajar</span>
+        <ArrowRightIcon weight="bold" className="size-4 transition-transform group-hover:translate-x-0.5" />
+      </span>
+      <img
+        src="/avatar/subtest/header.webp"
         alt=""
-        width={75}
-        height={75}
-        className="absolute -right-[20%] -bottom-[30%] z-0 h-auto w-55 object-contain"
+        className="pointer-events-none absolute right-1 bottom-0 h-20 w-auto origin-bottom object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-3 md:right-3 md:h-28"
       />
-    </div>
+    </Link>
   );
 };
 
 const Tryout = () => {
   return (
-    <div className="relative flex min-h-30 items-end justify-between gap-4 overflow-clip rounded-md bg-green-200 p-4 text-green-800">
-      <div className="z-10 space-y-0.5">
-        <h2 className="text-2xl font-bold">Kerjakan Tryout</h2>
-      </div>
-
-      <Button asChild size="icon" variant="default" className="z-10 bg-fourtiary-400">
-        <Link to="/tryout" aria-label="Kerjakan Tryout">
-          <ArrowRightIcon />
-        </Link>
-      </Button>
-
-      <div className="absolute -bottom-[10%] -left-[5%] z-0 aspect-square h-full rounded-full bg-green-300" />
-      <Image
-        src="/avatar/tryout-avatar.webp"
+    <Link
+      to="/tryout"
+      className="group relative flex min-h-48 sr-lift flex-col overflow-hidden rounded-sr-lg bg-linear-to-br from-sr-ink to-sr-blue-800 p-4 text-white shadow-sr-3 md:p-5"
+    >
+      <div className="pointer-events-none absolute -right-10 -bottom-12 size-36 rounded-full bg-white/8 md:size-44" />
+      <p className="relative text-sm font-semibold text-sr-sun-400">Try Out SNBT</p>
+      <p className="relative mt-1 text-base leading-tight font-extrabold md:text-xl">Uji kemampuanmu</p>
+      <span className="relative z-10 mt-auto inline-flex w-fit items-center gap-1 rounded-full bg-sr-sun-500 px-3 py-1.5 text-sm font-bold text-sr-ink shadow-sr-sun transition-colors group-hover:bg-sr-sun-400">
+        Mulai <ArrowRightIcon weight="bold" className="size-4 transition-transform group-hover:translate-x-0.5" />
+      </span>
+      <img
+        src="/avatar/subtest/tka.webp"
         alt=""
-        width={200}
-        height={200}
-        className="absolute -right-[10%] -bottom-[30%] z-0 object-contain"
+        className="pointer-events-none absolute right-1 bottom-0 h-20 w-auto origin-bottom object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:rotate-2 md:right-3 md:h-28"
       />
-    </div>
+    </Link>
   );
 };
 
@@ -86,62 +85,50 @@ const Flashcard = () => {
   const totalScore = totalScoreData?.totalScore ?? 0;
 
   return (
-    <div className="relative flex items-end justify-between gap-4 overflow-clip rounded-md border border-primary-400 bg-primary-300 p-4 text-white sm:col-span-3">
-      {!hasDoneToday ? (
-        <div className="flex h-full flex-col justify-between">
-          <div className="rounded-sm border border-red-400 bg-red-200 px-4 py-2 text-xs md:text-sm md:whitespace-nowrap">
-            <p className="font-bold text-white">Streak kamu mati! yuk kejar lagi</p>
-          </div>
-          <div className="space-y-2">
-            <div className="z-10 space-y-0.5">
-              <h4 className={"text-4xl font-bold"}>{totalScore.toLocaleString("id-ID")}</h4>
-              <p className="font-bold">Skor saat ini</p>
-            </div>
-            <div className="z-10 space-y-0.5">
-              <h4 className={"text-4xl font-bold"}>{session.user.flashcardStreak}</h4>
-              <p className="font-bold">Streak Brain Gym</p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <div className="z-10 space-y-0.5">
-            <h4 className={"text-4xl font-bold"}>{totalScore.toLocaleString("id-ID")}</h4>
-            <p className="font-bold">Skor saat ini</p>
-          </div>
-          <div className="z-10 space-y-0.5">
-            <h4 className={"text-4xl font-bold"}>{session.user.flashcardStreak}</h4>
-            <p className="font-bold">Streak Brain Gym</p>
-          </div>
-        </div>
-      )}
+    <div className="group relative col-span-2 flex min-h-56 sr-lift flex-col overflow-hidden rounded-sr-lg sr-card-sun p-5 md:p-6">
+      <div className="pointer-events-none absolute -right-12 -bottom-16 size-56 rounded-full bg-white/40 md:size-64" />
 
-      <div className="z-10 flex flex-col justify-end gap-2 md:flex-row">
-        <Button
-          size="lg"
-          variant="darkBlue"
-          className="z-10 max-sm:h-auto max-sm:py-1 max-sm:text-xs max-sm:text-wrap max-sm:has-[>svg]:px-2"
-          asChild
-        >
-          {session.user.lastCompletedFlashcardAt?.getTime() >= today.getTime() ? (
-            <Link to="/dashboard/flashcard/result">
-              Lihat Hasil <EyeIcon />
-            </Link>
-          ) : (
-            <Link to="/dashboard/flashcard">
-              Mainkan Braingym <ArrowRightIcon />
-            </Link>
-          )}
-        </Button>
+      <div className="relative z-10 max-w-[60%] sm:max-w-none sm:pr-40 md:pr-48">
+        <h3 className="text-2xl font-extrabold">Brain Gym</h3>
+        <p className="mt-1 text-sm leading-relaxed text-sr-ink-2 md:text-base">
+          {hasDoneToday
+            ? "Latihan hari ini sudah beres. Lihat hasilnya, yuk!"
+            : "Latihan singkat hari ini biar streak-mu nggak putus."}
+        </p>
       </div>
 
-      <div className="absolute -bottom-1/2 -left-[5%] z-0 aspect-square h-full rounded-full bg-purple-200/10 sm:-bottom-[20%]" />
-      <Image
+      <div className="relative z-10 mt-5 mb-6 flex items-center gap-5">
+        <div>
+          <p className="text-3xl font-extrabold">
+            <CountUp to={session.user.flashcardStreak} />
+          </p>
+          <p className="text-xs font-semibold text-sr-ink-2">hari streak</p>
+        </div>
+        <div className="h-10 w-px bg-sr-ink/15" />
+        <div>
+          <p className="text-3xl font-extrabold">
+            <CountUp to={totalScore} />
+          </p>
+          <p className="text-xs font-semibold text-sr-ink-2">total skor</p>
+        </div>
+      </div>
+
+      <Button variant="darkBlue" className="relative z-10 mt-auto w-fit rounded-full" asChild>
+        {hasDoneToday ? (
+          <Link to="/dashboard/flashcard/result">
+            Lihat hasil <EyeIcon weight="bold" />
+          </Link>
+        ) : (
+          <Link to="/dashboard/flashcard">
+            Mulai latihan <ArrowRightIcon weight="bold" />
+          </Link>
+        )}
+      </Button>
+
+      <img
         src="/avatar/brain-gym.webp"
         alt=""
-        width={300}
-        height={300}
-        className="absolute -right-20 -bottom-[5%] z-0 object-contain md:right-0"
+        className="pointer-events-none absolute right-0 bottom-0 h-40 w-auto origin-bottom translate-y-1 object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3 sm:right-4 md:h-52"
       />
     </div>
   );

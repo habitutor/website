@@ -1,7 +1,22 @@
-import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
+import {
+  ArrowRightIcon,
+  BooksIcon,
+  CrownIcon,
+  ExamIcon,
+  FilmStripIcon,
+  HouseIcon,
+  ListIcon,
+  SignOutIcon,
+  SparkleIcon,
+  SpinnerIcon,
+  UserCircleIcon,
+  VideoCameraIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -27,33 +42,16 @@ import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
 import { shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 const links = [
-  {
-    name: "Dashboard",
-    to: "/dashboard",
-  },
-  {
-    name: "Tryout",
-    to: "/tryout",
-  },
-  {
-    name: "Kelas",
-    to: "/classes",
-  },
-  {
-    name: "Live Class",
-    to: "/live-class",
-  },
-  {
-    name: "Live Recording",
-    to: "/recordings",
-  },
-  {
-    name: "Premium",
-    to: "/premium",
-  },
+  { name: "Dashboard", to: "/dashboard", icon: HouseIcon },
+  { name: "Try Out", to: "/tryout", icon: ExamIcon },
+  { name: "Kelas", to: "/classes", icon: BooksIcon },
+  { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
+  { name: "Live Recording", to: "/recordings", icon: FilmStripIcon },
+  { name: "Premium", to: "/premium", icon: CrownIcon },
 ] as const;
 
 export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
@@ -95,132 +93,200 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
     };
   }, []);
 
+  const isActive = (to: string) => location.pathname.startsWith(to);
+  const firstInitial = session?.user.name.charAt(0).toUpperCase();
+
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {!session?.user.isPremium && !location.pathname.startsWith("/classes/") && (
-        <div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
-          Dapatkan Semua Fitur dan Akses
-          <Button variant="default" size={"sm"} asChild>
-            <Link to="/premium">
-              Premium Sekarang <ArrowRightIcon />
-            </Link>
-          </Button>
-        </div>
-      )}
-      <div className="flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-b-2 border-accent bg-white px-6 backdrop-blur-lg md:px-8">
-        <Link to="/" className="relative size-12">
-          <Image src="/logo.svg" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
+      {!session?.user.isPremium &&
+        !location.pathname.startsWith("/classes/") &&
+        !/^\/(premium|recordings|classes|live-class)\/?$|^\/tryout(\/.*)?$|^\/dashboard\/flashcard/.test(
+          location.pathname,
+        ) && (
+          <div className="relative flex items-center justify-center gap-2 overflow-hidden bg-(image:--sr-grad-blue) p-2 text-sm font-medium text-white max-sm:flex-col max-sm:text-center sm:gap-4">
+            <div className="pointer-events-none absolute -top-10 -left-6 size-28 animate-sr-drift rounded-full bg-white/10" />
+            <span className="relative flex items-center gap-2">
+              <SparkleIcon weight="fill" className="size-4 text-sr-sun-400" />
+              Dapatkan Semua Fitur dan Akses
+            </span>
+            <Button variant="secondary" size="sm" className="sr-sheen relative" asChild>
+              <Link to="/premium">
+                Premium Sekarang <ArrowRightIcon weight="bold" />
+              </Link>
+            </Button>
+          </div>
+        )}
+      <div className="flex h-20 flex-row items-center justify-between gap-6 border-b border-sr-line bg-white/85 px-6 shadow-sr-1 backdrop-blur-lg md:px-8">
+        <Link to="/" className="relative size-12 shrink-0 transition-transform duration-300 hover:scale-105">
+          <Image src="/logo.webp" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
         </Link>
 
-        <div className="hidden h-full items-center md:flex">
-          {links.map((link) => (
-            <Button
-              key={link.to}
-              variant={"navbar"}
-              size={"full"}
-              data-active={location.pathname.startsWith(link.to) ? "true" : "false"}
-              asChild
-            >
-              <Link to={link.to}>{link.name}</Link>
-            </Button>
-          ))}
-        </div>
+        <nav className="hidden items-center gap-1 rounded-full border border-sr-line bg-sr-blue-50/80 p-1 lg:flex">
+          {links.map((link) => {
+            const active = isActive(link.to);
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={cn(
+                  "relative rounded-full px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors xl:px-4",
+                  active ? "text-sr-blue-600" : "text-sr-ink-2 hover:text-sr-blue-600",
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="dashboard-nav-pill"
+                    className="absolute inset-0 rounded-full bg-white shadow-sr-1"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative">{link.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
           {session && <StreakIndicator autoOpenBlocked={dashboardPopupPending} />}
           <div className="hidden md:flex md:items-center md:gap-4">
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2">
-                {session?.user.isPremium && (
-                  <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                    Premium
-                  </Badge>
-                )}
-                <Avatar>
+              <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-0.5 transition-shadow hover:shadow-sr-2">
+                {session?.user.isPremium && <PremiumBadge />}
+                <Avatar className="ring-2 ring-sr-blue-100">
                   <AvatarImage src={avatarSrc} alt="User Profile Picture" />
-                  <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{firstInitial}</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="rounded-sr-sm">
+                <DropdownMenuLabel className="max-w-64 wrap-break-word whitespace-normal">
+                  {session?.user.name}
+                </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                  <Link to="/profile">Profile</Link>
+                  <Link to="/profile">
+                    <UserCircleIcon />
+                    Profile
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                   <SignOutIcon />
-                  Log Out
+                  Keluar
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-            <ListIcon className="size-6" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full text-sr-ink lg:hidden"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Buka menu"
+          >
+            <ListIcon weight="bold" className="size-6" />
           </Button>
         </div>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white p-6 shadow-lg md:hidden">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="relative size-12" onClick={() => setMobileMenuOpen(false)}>
-              <Image
-                src="/logo.svg"
-                alt="Habitutor Logo"
-                layout="fullWidth"
-                className="pointer-events-none select-none"
-              />
-            </Link>
-            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-              <XIcon className="size-6" />
-            </Button>
-          </div>
-
-          <div className="mt-8 flex flex-col gap-4">
-            {links.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="rounded-md px-4 py-3 text-lg font-medium hover:bg-accent"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-12">
-            <div className="mb-4 flex items-center gap-3 px-4">
-              <Avatar>
-                <AvatarImage src={avatarSrc} alt="User Profile Picture" />
-                <AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <span className="font-medium">{session?.user.name}</span>
-              {session?.user.isPremium && (
-                <Badge variant="default" className="bg-primary text-primary-foreground">
-                  Premium
-                </Badge>
-              )}
-            </div>
-            <Button
-              variant="destructive"
-              className="w-full justify-start"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setOpen(true);
-              }}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 z-50 bg-sr-ink/30 lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.div
+              className="fixed inset-x-0 top-0 z-50 flex max-h-dvh flex-col overflow-y-auto rounded-b-sr-xl bg-sr-ivory p-6 shadow-sr-3 lg:hidden"
+              initial={{ y: "-100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-100%" }}
+              transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
             >
-              <SignOutIcon className="mr-2" />
-              Log Out
-            </Button>
-          </div>
-        </div>
-      )}
+              <div className="flex items-center justify-between">
+                <Link to="/" className="relative size-12" onClick={() => setMobileMenuOpen(false)}>
+                  <Image
+                    src="/logo.webp"
+                    alt="Habitutor Logo"
+                    layout="fullWidth"
+                    className="pointer-events-none select-none"
+                  />
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full text-sr-ink"
+                  onClick={() => setMobileMenuOpen(false)}
+                  aria-label="Tutup menu"
+                >
+                  <XIcon weight="bold" className="size-6" />
+                </Button>
+              </div>
+
+              <div className="mt-5 flex items-start gap-3 rounded-sr-md border border-sr-line bg-white p-3 shadow-sr-1">
+                <Avatar className="ring-2 ring-sr-blue-100">
+                  <AvatarImage src={avatarSrc} alt="User Profile Picture" />
+                  <AvatarFallback>{firstInitial}</AvatarFallback>
+                </Avatar>
+                <span className="min-w-0 flex-1 text-[15px] leading-snug font-bold wrap-break-word text-sr-ink">
+                  {session?.user.name}
+                </span>
+                {session?.user.isPremium && <PremiumBadge />}
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {mobileLinks.map((link) => {
+                  const Icon = link.icon;
+                  const active = isActive(link.to);
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className={cn(
+                        "flex items-center gap-3 rounded-sr-sm border px-3 py-3 font-semibold transition-colors",
+                        active
+                          ? "border-transparent bg-sr-blue-500 text-white shadow-sr-2"
+                          : "border-sr-line bg-white text-sr-ink hover:border-sr-blue-200 hover:bg-sr-blue-50",
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Icon weight={active ? "fill" : "duotone"} className="size-5 shrink-0" />
+                      <span className="truncate text-sm">{link.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <Button
+                variant="destructive"
+                className="mt-6 w-full rounded-sr-sm"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setOpen(true);
+                }}
+              >
+                <SignOutIcon weight="bold" />
+                Keluar
+              </Button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <LogoutDialog open={open} onOpenChange={setOpen} />
     </header>
   );
 }
+
+const mobileLinks = [...links, { name: "Profil", to: "/profile", icon: UserCircleIcon }] as const;
+
+const PremiumBadge = () => (
+  <Badge className="gap-1 border-0 bg-(image:--sr-grad-sun) text-sr-ink shadow-sr-sun">
+    <CrownIcon weight="fill" />
+    Premium
+  </Badge>
+);
 
 const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
   const navigate = useNavigate();

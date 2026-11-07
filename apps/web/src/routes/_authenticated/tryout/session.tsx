@@ -10,8 +10,8 @@ import { createMeta } from "@/lib/seo-utils";
 export const Route = createFileRoute("/_authenticated/tryout/session")({
   head: () => ({
     meta: createMeta({
-      title: "Mulai Tryout",
-      description: "List jenis subtes tryout",
+      title: "Mulai Try Out",
+      description: "Daftar jenis subtes Try Out",
       noIndex: true,
     }),
   }),
@@ -42,7 +42,7 @@ function TryoutSessionPage() {
   const startMutation = useMutation(
     orpc.tryout.start.mutationOptions({
       onSuccess: (data: { sesiSubtesId?: string | null; sesiId: string }) => {
-        toast.success("Tryout dimulai");
+        toast.success("Try Out dimulai");
         if (data.sesiSubtesId && data.sesiId) {
           navigate({
             to: "/tryout/test",
@@ -51,7 +51,7 @@ function TryoutSessionPage() {
         }
       },
       onError: (err: Error) => {
-        toast.error("Gagal memulai tryout", { description: () => <p>{err.message}</p> });
+        toast.error("Gagal memulai Try Out", { description: () => <p>{err.message}</p> });
       },
     }),
   );
@@ -68,7 +68,7 @@ function TryoutSessionPage() {
 
       {/* Banner */}
       <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-[#fde047] p-8 sm:flex-row sm:items-center">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-0 sm:text-3xl">Mulai Tryout Sekarang, Gratis!</h1>
+        <h1 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-0 sm:text-3xl">Mulai Try Out Sekarang, Gratis!</h1>
         <div className="relative z-10">
           {/* Orange decorative block */}
           <div className="absolute -bottom-10 -left-10 -z-10 h-32 w-64 bg-[#f59e0b]" />

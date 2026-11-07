@@ -1,89 +1,97 @@
-import { ArrowRightIcon, LockIcon, LockKeyIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, BooksIcon, CrownIcon, LockIcon, PencilSimpleIcon, StackIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
+import { motion } from "motion/react";
 import { isSubtestPremium } from "@habitutor/shared/content-access";
 import { BackButton } from "@/components/navigation/back-button";
-import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import { orpc } from "@/utils/orpc";
 import type { BodyOutputs } from "@/utils/orpc";
 
-export function SubtestHeader() {
+export function SubtestHeader({ stats }: { stats?: { subtests: number; contents: number } }) {
   const isAdmin = useIsAdmin();
 
   const title = isAdmin ? "Hi Min, ini Subtest-Subtest UTBK" : "Kelas-Kelas UTBK";
 
   const description = isAdmin
     ? "Pilih subtest-subtest UTBK yang ingin diubah, dihapus, atau ditambahkan"
-    : "Yuk belajar bersama untuk sukses dalam UTBK!";
+    : "Semua subtes SNBT tersusun rapi per BAB. Pilih satu, tonton videonya, lalu taklukkan latihan soalnya!";
 
   return (
-    <div className="relative overflow-hidden rounded-[10px] bg-tertiary-200">
-      <div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
-        {/* TEXT — mobile top, desktop LEFT */}
-        <div className="relative z-10 max-w-xl">
-          <h1 className="text-[24px] leading-tight font-bold text-neutral-1000 sm:text-[30px]">{title}</h1>
-          <p className="mt-2 text-[14px] leading-5.25 text-neutral-1000">{description}</p>
-        </div>
+    // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
+    <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
+      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
-        {/* VISUAL */}
-        <div className="relative -mx-6 h-27.5 overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
-          {/* Ellipse */}
-          <div className="absolute top-10 right-4 bottom-0 size-45 rounded-full bg-tertiary-400 sm:top-2" />
+      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
+        <BooksIcon weight="fill" className="size-4 text-sr-sun-400" />
+        Kelas UTBK
+      </span>
+      <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+        {title}
+      </h1>
+      <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">{description}</p>
 
-          {/* Avatar */}
-          <Image
-            src="/avatar/subtest-header-avatar.webp"
-            alt="Subtest Header Avatar"
-            width={260}
-            height={260}
-            className="absolute right-0 size-52.5 -translate-y-10 object-cover select-none sm:bottom-0 sm:translate-y-1/2"
-          />
+      {stats && (
+        <div className="relative mt-5 flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
+            <StackIcon weight="fill" className="size-4 text-sr-sun-400" /> {stats.subtests} subtes
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
+            <BooksIcon weight="fill" className="size-4 text-sr-sun-400" /> {stats.contents} konten belajar
+          </span>
         </div>
-      </div>
+      )}
+
+      <motion.img
+        src="/avatar/subtest/header.webp"
+        alt=""
+        width={528}
+        height={520}
+        className="pointer-events-none absolute right-1/2 bottom-0 h-36 w-auto translate-x-1/2 select-none sm:right-10 sm:h-48 sm:translate-x-0 lg:right-16 lg:h-60"
+        initial={{ y: 40 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
+      />
     </div>
   );
 }
 
-const subtestCardBackground = {
-  pu: "bg-secondary-400",
-  ppu: "bg-tertiary-400",
-  pbm: "bg-fourtiary-300 *:text-white",
-  pk: "bg-primary-200 *:text-white",
-  lbi: "bg-secondary-400",
-  lbing: "bg-tertiary-400",
-  pm: "bg-fourtiary-300 *:text-white",
-  hab: "bg-primary-200 *:text-white",
-  tka: "bg-primary-200 *:text-white",
+// Warna kartu bergiliran biru, kuning, oranye supaya grid subtes tetap ceria tapi satu bahasa visual.
+const TINTS = {
+  blue: { art: "from-sr-blue-100 to-sr-blue-200", chip: "bg-sr-blue-50 text-sr-blue-700", mark: "text-sr-blue-300/60" },
+  sun: { art: "from-sr-sun-100 to-sr-sun-200", chip: "bg-sr-sun-100 text-sr-amber-700", mark: "text-sr-sun-400/60" },
+  orange: {
+    art: "from-sr-orange-100 to-sr-orange-200",
+    chip: "bg-sr-orange-100 text-sr-orange-700",
+    mark: "text-sr-orange-200",
+  },
 } as const;
 
-const subtestCardPattern = {
-  pu: "bg-secondary-600",
-  ppu: "bg-tertiary-200",
-  pbm: "bg-fourtiary-200",
-  pk: "bg-primary-100",
-  lbi: "bg-secondary-600",
-  lbing: "bg-tertiary-200",
-  pm: "bg-fourtiary-200",
-  hab: "bg-primary-100",
-  tka: "bg-primary-100",
-} as const;
+const subtestTint: Record<string, keyof typeof TINTS> = {
+  pu: "sun",
+  ppu: "blue",
+  pbm: "orange",
+  pk: "blue",
+  lbi: "sun",
+  lbing: "blue",
+  pm: "orange",
+  hab: "blue",
+  tka: "sun",
+};
 
-const subtestCardAvatar = {
-  pu: "/avatar/subtest-pu-avatar.webp",
-  ppu: "/avatar/subtest-ppu-avatar.webp",
-  pbm: "/avatar/subtest-pbm-avatar.webp",
-  pk: "/avatar/subtest-pk-avatar.webp",
-  lbi: "/avatar/subtest-lbi-avatar.webp",
-  lbing: "/avatar/subtest-lbing-avatar.webp",
-  pm: "/avatar/subtest-pm-avatar.webp",
-  hab: "/avatar/brain-gym.webp",
-  tka: "/avatar/study-avatar.webp",
-} as const;
+// Versi maskot yang sudah dipangkas pas ke badan tupai, jadi bisa menempel rata di dasar kartu.
+const SUBTEST_AVATARS = new Set(["pu", "ppu", "pbm", "pk", "lbi", "lbing", "pm", "hab", "tka"]);
+
+function getSubtestLook(shortName?: string) {
+  const key = shortName?.toLowerCase() ?? "";
+  return {
+    tint: TINTS[subtestTint[key] ?? "blue"],
+    avatarSrc: `/avatar/subtest/${SUBTEST_AVATARS.has(key) ? key : "pu"}.webp`,
+  };
+}
 
 type SubtestListItem = NonNullable<BodyOutputs["subtest"]["list"]>["data"][number];
 
@@ -91,82 +99,87 @@ export function SubtestCard({
   subtest,
   userIsPremium,
   userRole,
+  index = 0,
 }: {
   subtest: SubtestListItem;
   userIsPremium?: boolean;
   userRole?: string;
+  index?: number;
 }) {
   const isAdmin = useIsAdmin();
-  const shortName = subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
-  const backgroundClass = subtestCardBackground[shortName] || "bg-secondary-400";
-  const patternClass = subtestCardPattern[shortName] || "bg-secondary-600";
-  const avatarSrc = subtestCardAvatar[shortName] || "/avatar/subtest-pu-avatar.webp";
+  const { tint, avatarSrc } = getSubtestLook(subtest?.shortName);
   // Use subtest.order to determine if premium (order > 1 means premium)
   const isPremiumSubtest = isSubtestPremium(subtest?.order ?? 1, userRole, userIsPremium);
   const isLocked = !isAdmin && isPremiumSubtest;
 
   return (
-    <Card
-      className={cn(
-        backgroundClass,
-        "relative min-h-40 overflow-hidden border-0 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
-      )}
+    <div
+      className="group relative flex h-full sr-lift animate-sr-rise flex-col overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1"
+      style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
     >
-      {/* Lock overlay for premium content */}
-      {isLocked && (
-        <>
-          {/* Dark overlay */}
-          <div className="absolute inset-0 z-5 bg-black/40" />
-          {/* Lock badge */}
-          <div className="absolute top-4 left-4 z-10">
-            <div className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
-              <LockKeyIcon size={16} className="text-white" weight="fill" />
-              <span className="text-xs font-semibold text-white">Premium dulu yuk!</span>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Pattern element */}
-      <div className={cn(patternClass, "absolute right-0 bottom-0 aspect-square h-[70%] w-auto")} />
-
-      {/* Avatar image */}
-      <div className="absolute right-13 bottom-0 aspect-square h-[170%] w-auto translate-x-1/2 translate-y-1/4">
-        <Image
+      <div className={cn("relative h-44 overflow-hidden bg-linear-to-br", tint.art)}>
+        <div className="pointer-events-none absolute -right-10 -bottom-16 size-52 rounded-full bg-white/45" />
+        <div className="pointer-events-none absolute -top-10 -left-8 size-28 rounded-full bg-white/30" />
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute bottom-2 left-4 text-6xl leading-none font-extrabold tracking-tight uppercase select-none",
+            tint.mark,
+          )}
+        >
+          {subtest?.shortName}
+        </span>
+        <img
           src={avatarSrc}
-          alt={`${subtest?.name} Avatar`}
-          width={356}
-          height={356}
-          className="pointer-events-none object-cover object-[50%_50%] select-none"
+          alt=""
+          loading="lazy"
+          className={cn(
+            "pointer-events-none absolute right-5 bottom-0 h-[86%] w-auto origin-bottom object-contain transition-transform duration-500 ease-sr-spring select-none motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-105",
+            isLocked && "grayscale-[35%]",
+          )}
         />
+        {isLocked && (
+          <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-sr-ink/85 px-3 py-1 text-xs font-bold text-white shadow-sr-1">
+            <CrownIcon weight="fill" className="size-4 text-sr-sun-400" /> Premium
+          </span>
+        )}
       </div>
-      <div className="flex h-full justify-between">
-        <div className="mt-auto mb-0 w-1/2">
-          <h3 className="font-semibold text-pretty">{subtest?.name}</h3>
-          <p className="text-sm font-light"> {subtest?.totalContent} Konten</p>
+
+      <div className="flex flex-1 items-center justify-between gap-3 p-4">
+        <div className="min-w-0">
+          <h3 className="line-clamp-2 leading-snug font-extrabold text-pretty text-sr-ink transition-colors group-hover:text-sr-blue-600">
+            {subtest?.name}
+          </h3>
+          <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold", tint.chip)}
+            >
+              <BooksIcon weight="fill" className="size-3.5" /> {subtest?.totalContent} konten
+            </span>
+            {isLocked && <span className="text-xs font-semibold text-sr-amber-700">Buka dengan Premium</span>}
+          </p>
         </div>
 
         {isLocked ? (
-          // Disabled button for locked subtests
-          <div
-            className={cn(
-              buttonVariants({ variant: "lightBlue", size: "icon" }),
-              "z-10 mt-auto mb-0 cursor-not-allowed opacity-50",
-            )}
+          <Link
+            to="/premium"
+            aria-label={`Buka ${subtest?.name} dengan Premium`}
+            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink shadow-sr-1 transition-transform group-active:scale-90 after:absolute after:inset-0"
           >
             <LockIcon size={18} weight="bold" />
-          </div>
+          </Link>
         ) : (
           <Link
             to={isAdmin ? "/admin/classes/$shortName" : "/classes/$shortName"}
             params={{ shortName: subtest?.shortName?.toLowerCase() }}
-            className={cn(buttonVariants({ variant: "lightBlue", size: "icon" }), "z-10 mt-auto mb-0")}
+            aria-label={`Buka ${subtest?.name}`}
+            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sr-blue-500 text-white shadow-sr-1 transition-transform group-hover:translate-x-0.5 group-active:scale-90 after:absolute after:inset-0"
           >
             {isAdmin ? <PencilSimpleIcon size={18} weight="bold" /> : <ArrowRightIcon size={18} weight="bold" />}
           </Link>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -178,61 +191,57 @@ export function ClassHeader({ shortName }: { shortName: string }) {
     }),
   );
   const subtest = subtestData?.subtest;
-  const normalizedShortName = subtest?.shortName?.toLowerCase() as keyof typeof subtestCardBackground;
-  const backgroundClass = subtestCardBackground[normalizedShortName] || "bg-secondary-400";
-  const patternClass = subtestCardPattern[normalizedShortName] || "bg-secondary-600";
-  const avatarSrc = subtestCardAvatar[normalizedShortName] || "/avatar/subtest-pu-avatar.webp";
-
-  const forceTextWhite = backgroundClass.includes("text-white");
+  const { tint, avatarSrc } = getSubtestLook(subtest?.shortName ?? shortName);
+  const backTo = isAdmin ? "/admin/classes" : "/classes";
 
   return (
-    <div className={cn(backgroundClass, "relative overflow-hidden rounded-[10px]")}>
-      {/* Back button */}
-      <div className="z-10 mt-6 ml-6 sm:mt-10 sm:ml-10">
-        <BackButton to={isAdmin ? "/admin/classes" : "/classes"} />
+    // Di HP gambar jadi pita atas seperti kartu subtes dan teks dapat lebar penuh; mulai sm gambar pindah ke kanan.
+    <div className="relative overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1 sm:flex sm:flex-row-reverse">
+      <div
+        className={cn(
+          "relative h-40 shrink-0 overflow-hidden bg-linear-to-br sm:h-auto sm:min-h-60 sm:w-2/5",
+          tint.art,
+        )}
+      >
+        <div className="pointer-events-none absolute -right-10 -bottom-16 size-56 rounded-full bg-white/45" />
+        <div className="pointer-events-none absolute -top-10 -left-8 size-28 rounded-full bg-white/30" />
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute bottom-2 left-4 text-6xl leading-none font-extrabold tracking-tight uppercase select-none sm:text-7xl",
+            tint.mark,
+          )}
+        >
+          {subtest?.shortName ?? shortName}
+        </span>
+        <BackButton to={backTo} className="absolute top-3 left-3 z-10 sm:hidden" />
+        <motion.img
+          src={avatarSrc}
+          alt=""
+          className="pointer-events-none absolute right-5 bottom-0 h-[86%] w-auto object-contain select-none sm:right-8 sm:h-[78%]"
+          initial={{ y: 30 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
+        />
       </div>
 
-      <div className="grid grid-cols-1 px-6 pt-4 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:pb-10 md:grid-cols-5">
-        {/* TEXT — mobile top, desktop LEFT */}
-        <div className={cn("relative z-10 max-w-xl md:col-span-3", forceTextWhite && "text-white")}>
-          {isPending ? (
-            <>
-              <Skeleton className={cn("mb-2 h-8 w-3/4", forceTextWhite && "bg-white/20")} />
-              <Skeleton className={cn("h-4 w-full", forceTextWhite && "bg-white/20")} />
-            </>
-          ) : (
-            <>
-              <h1
-                className={cn(
-                  "text-[24px] leading-tight font-bold sm:text-[30px]",
-                  forceTextWhite ? "text-white" : "text-neutral-1000",
-                )}
-              >
-                {subtest?.name}
-              </h1>
-              <p
-                className={cn("mt-2 text-[14px] leading-5.25", forceTextWhite ? "text-white/90" : "text-neutral-1000")}
-              >
-                {subtest?.description}
-              </p>
-            </>
-          )}
-        </div>
-
-        {/* VISUAL */}
-        <div className="relative -mx-6 h-32.5 overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible md:col-span-2">
-          {/* Ellipse */}
-          <div className={cn(patternClass, "absolute top-15 right-4 bottom-0 size-45 rounded-full sm:top-2")} />
-
-          {/* Avatar */}
-          <Image
-            src={avatarSrc}
-            alt={`${subtest?.name} Avatar`}
-            width={260}
-            height={260}
-            className="absolute right-0 size-70 translate-x-1/8 -translate-y-15 object-cover select-none sm:bottom-0 sm:left-0 sm:size-90 sm:translate-x-1/6 sm:translate-y-[55%] sm:object-cover"
-          />
-        </div>
+      <div className="relative min-w-0 flex-1 self-center p-5 sm:p-8 lg:p-10">
+        <BackButton to={backTo} className="mb-4 hidden sm:inline-flex" />
+        {isPending ? (
+          <>
+            <Skeleton className="mb-2 h-8 w-64 max-w-full" />
+            <Skeleton className="h-4 w-80 max-w-full" />
+          </>
+        ) : (
+          <>
+            <h1 className="text-2xl leading-tight font-extrabold text-balance text-sr-ink sm:text-3xl lg:text-[34px]">
+              {subtest?.name}
+            </h1>
+            {subtest?.description && (
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-sr-ink-2 sm:text-base">{subtest.description}</p>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

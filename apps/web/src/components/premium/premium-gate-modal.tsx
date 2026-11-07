@@ -30,7 +30,7 @@ export function PremiumGateModal({ isOpen, onClose, contentType, previewContent 
               <CardTitle className="text-xl">
                 <span>
                   <Image
-                    src="/logo.svg"
+                    src="/logo.webp"
                     alt="Habitutor Logo"
                     width={75}
                     height={75}

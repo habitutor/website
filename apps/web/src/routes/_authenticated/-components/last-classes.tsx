@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { LastContentViewedCard } from "@/components/classes/content";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { Accent, SectionCard } from "./section-card";
 
 export const LastClasses = () => {
   const { data, isPending } = useQuery(orpc.subtest.content.recent.queryOptions());
@@ -11,37 +13,67 @@ export const LastClasses = () => {
 
   if (isPending) {
     return (
-      <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-        <h2 className="mb-2 font-medium">Kelas terakhirmu</h2>
-        <div className="animate-pulse space-y-2">
-          <div className="h-32 rounded-md bg-neutral-200" />
-          <div className="h-32 rounded-md bg-neutral-200" />
+      <SectionCard
+        title={
+          <>
+            Kelas <Accent>terakhirmu</Accent>
+          </>
+        }
+      >
+        <div className="space-y-2">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
         </div>
-      </section>
+      </SectionCard>
     );
   }
 
   if (recentViews.length === 0) {
     return (
-      <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-        <h2 className="font-medium">Kelas terakhirmu</h2>
-        <div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
-          <img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
-          <p className="text-2xl font-bold text-black">Kamu belum melihat kelas apapun</p>
-          <Button asChild>
+      <SectionCard
+        title={
+          <>
+            Kelas <Accent>terakhirmu</Accent>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4 rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center md:gap-6 md:p-6">
+          <div className="flex min-w-0 flex-1 items-center gap-4 md:gap-6">
+            <img src="/avatar/confused-avatar.webp" alt="" className="h-20 w-auto shrink-0 object-contain md:h-24" />
+            <div className="min-w-0">
+              <p className="font-extrabold text-sr-ink md:text-lg">Belum ada kelas yang kamu buka</p>
+              <p className="mt-1 text-sm leading-relaxed text-sr-muted">
+                Mulai dari satu materi dulu. Nanti kelasmu muncul di sini biar gampang dilanjutkan.
+              </p>
+            </div>
+          </div>
+          <Button className="w-full shrink-0 rounded-full sm:w-auto" asChild>
             <Link to="/classes">
-              Kelas Sekarang <ArrowRightIcon className="" />
+              Pilih kelas <ArrowRightIcon weight="bold" />
             </Link>
           </Button>
         </div>
-      </section>
+      </SectionCard>
     );
   }
 
   return (
-    <section className="rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Kelas terakhirmu</h2>
-      <div className="space-y-2">
+    <SectionCard
+      title={
+        <>
+          Kelas <Accent>terakhirmu</Accent>
+        </>
+      }
+      action={
+        // Bentuknya sama dengan tombol "Lihat jadwal" di bagian Live Class.
+        <Button className="shrink-0 rounded-full" asChild>
+          <Link to="/classes">
+            Semua kelas <ArrowRightIcon weight="bold" />
+          </Link>
+        </Button>
+      }
+    >
+      <div className="space-y-3">
         {recentViews.map((view, idx) => (
           <LastContentViewedCard
             key={view.contentId}
@@ -57,6 +89,6 @@ export const LastClasses = () => {
           />
         ))}
       </div>
-    </section>
+    </SectionCard>
   );
 };

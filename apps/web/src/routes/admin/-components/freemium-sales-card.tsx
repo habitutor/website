@@ -11,7 +11,7 @@ export function FreemiumSalesCard() {
   return (
     <Card className="overflow-hidden border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/20 dark:to-background">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">Penjualan TryOut</CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground">Penjualan Try Out</CardTitle>
         <ExamIcon className="size-4 text-emerald-600" weight="bold" />
       </CardHeader>
       <CardContent className="space-y-3">

@@ -159,7 +159,7 @@ const Carousel: React.FC<CarouselProps> = ({
             type="button"
             onClick={prevSlide}
             disabled={isTransitioning}
-            className="absolute top-1/2 left-0 z-40 hidden -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 md:flex"
+            className="absolute top-1/2 left-0 z-40 hidden -translate-x-1/2 -translate-y-1/2 sr-action cursor-pointer rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 md:flex"
           >
             <ArrowLeftIcon size={24} />
           </button>
@@ -168,7 +168,7 @@ const Carousel: React.FC<CarouselProps> = ({
             type="button"
             onClick={nextSlide}
             disabled={isTransitioning}
-            className="absolute top-1/2 right-0 z-40 hidden translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 md:flex"
+            className="absolute top-1/2 right-0 z-40 hidden translate-x-1/2 -translate-y-1/2 sr-action cursor-pointer rounded-xl bg-primary-200 p-3 text-neutral-100 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-200/80 active:scale-95 disabled:opacity-50 md:flex"
           >
             <ArrowRightIcon size={24} />
           </button>
@@ -217,7 +217,7 @@ const Carousel: React.FC<CarouselProps> = ({
               type="button"
               onClick={prevSlide}
               disabled={isTransitioning}
-              className="rounded-lg bg-primary-200 p-2 text-white disabled:opacity-50"
+              className="sr-action rounded-lg bg-primary-200 p-2 text-white disabled:opacity-50"
             >
               <ArrowLeftIcon size={22} />
             </button>
@@ -226,7 +226,7 @@ const Carousel: React.FC<CarouselProps> = ({
               type="button"
               onClick={nextSlide}
               disabled={isTransitioning}
-              className="rounded-lg bg-primary-200 p-2 text-white disabled:opacity-50"
+              className="sr-action rounded-lg bg-primary-200 p-2 text-white disabled:opacity-50"
             >
               <ArrowRightIcon size={22} />
             </button>

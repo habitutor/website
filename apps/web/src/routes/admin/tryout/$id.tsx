@@ -645,9 +645,7 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Pindahkan {selectedSoalIds.length} Soal</DialogTitle>
-                <DialogDescription>
-                  Pilih subtes tujuan. Pilihan jawaban dan pembahasan ikut pindah.
-                </DialogDescription>
+                <DialogDescription>Pilih subtes tujuan. Pilihan jawaban dan pembahasan ikut pindah.</DialogDescription>
               </DialogHeader>
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm"

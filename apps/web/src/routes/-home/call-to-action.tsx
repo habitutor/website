@@ -1,11 +1,11 @@
 import { WhatsappLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import { MotionPulse } from "@/components/motion/motion-components";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { DATA } from "./data";
+import { FooterPanel } from "./footer-panel";
+import { Float } from "./motion-bits";
 
 function FloatingCircle({ className }: { className: string }) {
   return (
@@ -23,7 +23,7 @@ function FloatingCircle({ className }: { className: string }) {
 
 function HeroPanel() {
   return (
-    <div className="relative container mx-4 flex min-h-122.25 w-full flex-col overflow-hidden rounded-t-2xl border-x-2 border-t-2 border-[#B3DFF5] bg-[#F4FAFF]">
+    <div className="relative container flex min-h-122.25 w-full flex-col overflow-hidden rounded-t-2xl border-x-2 border-t-2 border-[#B3DFF5] bg-linear-to-br from-[#F4FAFF] via-white to-sr-sun-100">
       <div className="relative z-10 flex h-full flex-1 flex-col justify-start px-8 py-8 md:justify-center md:px-10 lg:px-20">
         <div className="flex w-full flex-col lg:flex-row lg:items-center">
           <div className="z-20 flex flex-col items-start gap-6 lg:w-2/3">
@@ -63,7 +63,7 @@ function HeroPanel() {
               </motion.p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="sr-sheen">
                 <Link to="/login">Mulai Perjalananmu</Link>
               </Button>
 
@@ -88,69 +88,14 @@ function HeroPanel() {
               transition={{ delay: 0.3, duration: 0.5 }}
               className="relative z-0"
             >
-              <img
-                src="/avatar/tupai-cta-1.webp"
-                alt="Mascot"
-                className="h-auto w-45 translate-y-2 -scale-x-100 object-contain md:w-75 lg:w-100"
-              />
+              <Float distance={10} duration={4.5}>
+                <img
+                  src="/avatar/tupai-cta-1.webp"
+                  alt="Mascot"
+                  className="h-auto w-45 translate-y-4 -scale-x-100 object-contain drop-shadow-[0_16px_18px_rgba(20,34,78,0.2)] md:w-75 lg:w-100"
+                />
+              </Float>
             </motion.div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FooterPanel() {
-  return (
-    <div className="relative z-10 container mx-4 w-full rounded-b-2xl border-x-2 border-b-2 border-[#24356B] bg-[#3650A2] py-7 text-white md:py-10">
-      <div className="w-full space-y-4 px-6 md:px-10 lg:px-20">
-        <div className="flex flex-col items-center justify-between border-neutral-100 pb-3 sm:flex-row sm:gap-6 md:border-b">
-          <div className="flex flex-col items-center gap-1 sm:items-start">
-            <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Logo Habitutor" className="pointer-events-none -ml-2.5 select-none" />
-              <h3 className="text-2xl font-medium">Habitutor</h3>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {DATA.footer.socials.map((social) => (
-              <a
-                key={social.label}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
-                  "h-10 w-10 rounded-lg bg-background text-primary-300 hover:bg-primary-100",
-                )}
-              >
-                <social.icon className="size-5" weight="bold" />
-              </a>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
-          <p className="max-w-70 text-sm md:max-w-none md:text-lg">Ubah Persiapan Ujian Menjadi Investasi Masa Depan</p>
-
-          <div className="flex flex-wrap items-center justify-center gap-2 text-lg">
-            <span>Build together with</span>
-            <a
-              href="https://www.instagram.com/omahti_ugm"
-              className="flex items-center transition-opacity hover:opacity-80"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image
-                src="/icons/OmahTI.webp"
-                alt="OmahTI"
-                width={111}
-                height={15}
-                sizes="60%"
-                className="h-2.5 w-auto md:h-3"
-              />
-            </a>
           </div>
         </div>
       </div>
@@ -160,7 +105,7 @@ function FooterPanel() {
 
 export function CallToAction() {
   return (
-    <section className="mx-auto flex w-full flex-col items-center overflow-hidden bg-neutral-100 px-4 py-20">
+    <section className="relative mx-auto flex w-full flex-col items-center overflow-hidden bg-neutral-100 px-4 pt-10 pb-14 md:pt-12 md:pb-16">
       <FloatingCircle className="absolute -right-200 -bottom-100 z-0 size-56 rounded-full border-2 border-[#B3DFF5] bg-tertiary-100 md:size-84" />
       <FloatingCircle className="absolute -bottom-190 -left-200 z-0 size-56 rounded-full border-2 border-[#B3DFF5] bg-tertiary-100 md:size-64" />
       <HeroPanel />

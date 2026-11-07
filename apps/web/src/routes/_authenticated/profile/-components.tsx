@@ -1,129 +1,374 @@
+import {
+  ArrowLeftIcon,
+  CheckIcon,
+  CopyIcon,
+  CrownSimpleIcon,
+  EnvelopeSimpleIcon,
+  GiftIcon,
+  LockSimpleIcon,
+  PhoneIcon,
+  SparkleIcon,
+  SpinnerIcon,
+  TargetIcon,
+  UserIcon,
+  UsersThreeIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { ArrowLeftIcon, CheckIcon, CopyIcon, SpinnerIcon } from "@phosphor-icons/react";
-import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MotionPulse } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authClient } from "@/lib/auth-client";
 import { getAvatarId, getAvatarSrc } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
+import { AutocompleteInput } from "@/routes/_auth/-onboarding/autocomplete-input";
+import { CAMPUS_SUGGESTIONS, MAJOR_SUGGESTIONS } from "@/routes/_auth/-onboarding/constants";
 import { orpc } from "@/utils/orpc";
 
-const AVATAR = [
-  {
-    id: 1,
-    src: "/avatar/profile/tupai-1.webp",
-    label: "tupai-1",
-    className: "bg-primary-100 border-primary-200",
-    imageClassName: " w-[90px] h-21",
-  },
-  {
-    id: 2,
-    src: "/avatar/profile/tupai-2.webp",
-    label: "tupai-2",
-    className: "bg-secondary-300 border-secondary-700",
-    imageClassName: "w-[81px] h-[71px]",
-  },
-  {
-    id: 3,
-    src: "/avatar/profile/tupai-3.webp",
-    label: "tupai-3",
-    className: "bg-tertiary-300 border-tertiary-500",
-  },
-  {
-    id: 4,
-    src: "/avatar/profile/tupai-4.webp",
-    label: "tupai-4",
-    className: "bg-red-100 border-red-200",
-  },
-  {
-    id: 5,
-    src: "/avatar/profile/tupai-5.webp",
-    label: "tupai-5",
-    className: "bg-primary-300 border-primary-500",
-  },
-  {
-    id: 6,
-    src: "/avatar/profile/tupai-6.webp",
-    label: "tupai-6",
-    className: "bg-secondary-300 border-secondary-700",
-  },
-  {
-    id: 7,
-    src: "/avatar/profile/tupai-7.webp",
-    label: "tupai-7",
-    className: "bg-red-100 border-red-200",
-  },
-  {
-    id: 8,
-    src: "/avatar/profile/tupai-8.webp",
-    label: "tupai-8",
-    className: "bg-primary-300 border-primary-500",
-  },
-  {
-    id: 9,
-    src: "/avatar/profile/tupai-9.webp",
-    label: "tupai-9",
-    className: "bg-tertiary-100 border-tertiary-200",
-  },
-  {
-    id: 10,
-    src: "/avatar/profile/tupai-10.webp",
-    label: "tupai-10",
-    className: "bg-tertiary-300 border-tertiary-500",
-  },
+const AVATAR_IDS = Array.from({ length: 10 }, (_, i) => i + 1);
+const AVATAR_TINTS = [
+  "from-sr-blue-100 to-sr-blue-200",
+  "from-sr-sun-100 to-sr-sun-200",
+  "from-sr-orange-100 to-sr-orange-200",
+  "from-tertiary-100 to-tertiary-200",
+  "from-sr-blue-200 to-sr-blue-300",
+];
+const SPRING = [0.34, 1.56, 0.64, 1] as const;
+
+type Tab = "data" | "customize";
+
+const TABS: { value: Tab; label: string; icon: typeof UserIcon }[] = [
+  { value: "data", label: "Data Diri", icon: UserIcon },
+  { value: "customize", label: "Target & Avatar", icon: SparkleIcon },
 ];
 
-function AvatarItem({
-  avatar,
-  selected,
-  onSelect,
+function Panel({
+  title,
+  icon,
+  children,
+  className,
 }: {
-  avatar: (typeof AVATAR)[0];
-  selected: boolean;
-  onSelect: (id: number) => void;
+  title: string;
+  icon: ReactNode;
+  children: ReactNode;
+  className?: string;
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(avatar.id)}
-      className={cn(
-        "relative flex aspect-square h-21 w-21 cursor-pointer items-end justify-center rounded-lg border-2 transition-all",
-        avatar.className,
-      )}
-    >
-      <Image src={avatar.src} alt={avatar.label} width={80} height={80} className={cn(avatar.imageClassName, "")} />
-
-      <div
-        className={`absolute top-1 left-1 flex size-5 items-center justify-center rounded-full border-2 text-white ${selected ? "border-fourtiary-300 bg-fourtiary-200" : "border-primary-background bg-transparent"}`}
-      >
-        {selected && <CheckIcon className="size-3" />}
-      </div>
-    </button>
+    <section className={cn("rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:p-6", className)}>
+      <h2 className="mb-4 flex items-center gap-2 text-base font-extrabold text-sr-ink sm:text-lg">
+        <span className="flex size-8 items-center justify-center rounded-sr-sm bg-sr-blue-50 text-sr-blue-600">
+          {icon}
+        </span>
+        {title}
+      </h2>
+      {children}
+    </section>
   );
 }
 
-function SaveRow({ onSave }: { onSave: () => void | Promise<void> }) {
+function FieldLabel({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="sticky flex shrink-0 flex-col gap-4 border-t md:pt-6">
-      <div className="flex justify-end">
-        <Button onClick={onSave} className="w-full md:w-fit">
-          Save Changes
-        </Button>
+    <Label className="flex items-center gap-1.5 text-sm font-bold text-sr-ink-2">
+      <span className="text-sr-muted">{icon}</span>
+      {children}
+    </Label>
+  );
+}
+
+function ProfileHero({
+  name,
+  email,
+  avatarId,
+  isPremium,
+  target,
+  completion,
+}: {
+  name: string;
+  email?: string;
+  avatarId: number;
+  isPremium: boolean;
+  target: string;
+  completion: number;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-sr-xl sr-card-blue p-5 sm:p-8">
+      <div className="pointer-events-none absolute -top-20 -right-16 size-64 rounded-full bg-white/10" />
+      <div className="pointer-events-none absolute -bottom-24 left-1/3 size-48 rounded-full bg-sr-sun-400/15 blur-2xl" />
+
+      <div className="relative flex items-center gap-4 sm:gap-6">
+        <motion.div
+          key={avatarId}
+          className="relative flex size-20 shrink-0 items-end justify-center overflow-hidden rounded-full bg-linear-to-b from-sr-sun-200 to-sr-sun-400 ring-4 ring-white/30 sm:size-28"
+          initial={{ scale: 0.6, rotate: -12 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ duration: 0.5, ease: SPRING }}
+        >
+          <Image
+            src={getAvatarSrc(avatarId)}
+            alt="Avatar kamu"
+            width={112}
+            height={112}
+            className="h-[88%] w-auto object-contain"
+          />
+        </motion.div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold text-sr-sun-400 sm:text-sm">Profil kamu</p>
+          <h1 className="text-xl leading-tight font-extrabold wrap-break-word text-white sm:text-4xl">
+            {name || "Pejuang PTN"}
+          </h1>
+          {email && <p className="text-xs break-all text-white/75 sm:text-sm">{email}</p>}
+          {isPremium && (
+            <span className="mt-2.5 inline-flex items-center gap-1 rounded-full bg-sr-sun-500 px-2.5 py-0.5 text-[11px] font-bold text-sr-ink">
+              <CrownSimpleIcon weight="fill" className="size-3.5" /> Premium
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Target selebar kartu dan boleh turun baris, supaya nama kampus tidak terpotong di HP. */}
+      <div className="relative mt-4 flex items-center gap-3 rounded-sr-md bg-white/10 p-3 ring-1 ring-white/15">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink">
+          <TargetIcon weight="fill" className="size-5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[11px] font-medium text-white/75">Target kamu</p>
+          <p className="text-sm leading-snug font-bold text-pretty text-white">{target || "Belum ada target impian"}</p>
+        </div>
+      </div>
+
+      <div className="relative mt-3 rounded-sr-md bg-white/10 p-3 ring-1 ring-white/15">
+        <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-white">
+          <span>Kelengkapan profil</span>
+          <span className="text-sr-sun-400">{completion}%</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-white/15">
+          <motion.div
+            className="h-full rounded-full bg-linear-to-r from-sr-sun-400 to-sr-orange-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${completion}%` }}
+            transition={{ duration: 0.8, ease: [0.2, 0.7, 0.2, 1] }}
+          />
+        </div>
       </div>
     </div>
+  );
+}
+
+function TabSwitch({ tab, onChange }: { tab: Tab; onChange: (tab: Tab) => void }) {
+  return (
+    <div className="flex w-full gap-1 rounded-full border border-sr-line bg-white p-1 shadow-sr-1 sm:w-fit">
+      {TABS.map((item) => (
+        <button
+          key={item.value}
+          type="button"
+          onClick={() => onChange(item.value)}
+          aria-pressed={tab === item.value}
+          className={cn(
+            "relative flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors sm:flex-none",
+            tab === item.value ? "text-white" : "text-sr-muted hover:text-sr-ink",
+          )}
+        >
+          {tab === item.value && (
+            <motion.span
+              layoutId="profile-tab"
+              className="absolute inset-0 rounded-full bg-sr-blue-500 shadow-sr-2"
+              transition={{ type: "spring", stiffness: 400, damping: 32 }}
+            />
+          )}
+          <item.icon weight="bold" className="relative size-4" />
+          <span className="relative">{item.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ReferralCard({
+  code,
+  count,
+  copied,
+  isGenerating,
+  onAction,
+}: {
+  code: string | null;
+  count: number;
+  copied: boolean;
+  isGenerating: boolean;
+  onAction: () => void;
+}) {
+  return (
+    <section className="relative overflow-hidden rounded-sr-xl sr-card-sun p-5 sm:p-6">
+      <div className="pointer-events-none absolute -top-12 -right-12 size-40 rounded-full border-[18px] border-white/30" />
+      <div className="relative flex items-center gap-2">
+        <span className="flex size-9 items-center justify-center rounded-sr-sm bg-white/60 text-sr-amber-700">
+          <GiftIcon weight="fill" className="size-5" />
+        </span>
+        <div>
+          <p className="text-xs font-semibold text-sr-amber-700">Program referral</p>
+          <h2 className="text-base font-extrabold text-sr-ink sm:text-lg">
+            Ajak teman, dapat <span className="font-sr-serif italic">cashback 25%</span>
+          </h2>
+        </div>
+      </div>
+
+      <div className="relative mt-4 flex items-center gap-2 rounded-sr-md border-2 border-dashed border-sr-amber/50 bg-white/70 p-2 pl-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold text-sr-muted">Kode referral kamu</p>
+          <p
+            className={cn(
+              "truncate font-black tracking-wider text-sr-ink",
+              code ? "text-2xl" : "text-base text-sr-muted",
+            )}
+          >
+            {code ?? "Belum punya kode"}
+          </p>
+        </div>
+        <motion.button
+          type="button"
+          onClick={onAction}
+          disabled={isGenerating}
+          whileTap={{ scale: 0.92 }}
+          className="flex h-11 shrink-0 cursor-pointer items-center gap-1.5 rounded-sr-sm bg-sr-ink px-4 text-sm font-bold text-white transition-colors hover:bg-sr-ink-2 disabled:opacity-60"
+        >
+          {isGenerating ? (
+            <SpinnerIcon className="size-4 animate-spin" />
+          ) : code ? (
+            copied ? (
+              <>
+                <CheckIcon weight="bold" className="size-4" /> Tersalin
+              </>
+            ) : (
+              <>
+                <CopyIcon weight="bold" className="size-4" /> Salin
+              </>
+            )
+          ) : (
+            "Buat kode"
+          )}
+        </motion.button>
+      </div>
+
+      <div className="relative mt-3 flex items-center gap-2 rounded-sr-md bg-white/50 px-3 py-2.5">
+        <UsersThreeIcon weight="fill" className="size-5 text-sr-amber-700" />
+        <span className="text-2xl font-black text-sr-ink tabular-nums">{count}</span>
+        <span className="text-xs font-semibold text-sr-ink-2">teman terdaftar pakai kodemu</span>
+      </div>
+
+      <details className="group relative mt-3 rounded-sr-md bg-white/50 px-3 py-2.5 text-xs text-sr-ink-2">
+        <summary className="cursor-pointer list-none font-bold text-sr-ink [&::-webkit-details-marker]:hidden">
+          Syarat & ketentuan <span className="inline-block transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <ul className="mt-2 list-disc space-y-1 pl-4 leading-relaxed">
+          <li>Cashback 25% berlaku untuk pembelian paket oleh teman (pengguna baru).</li>
+          <li>Saldo akan masuk setelah transaksi teman terverifikasi.</li>
+          <li>Habitutor berhak membatalkan reward jika ditemukan indikasi kecurangan.</li>
+        </ul>
+      </details>
+    </section>
+  );
+}
+
+function AvatarPicker({ selected, onSelect }: { selected: number; onSelect: (id: number) => void }) {
+  return (
+    <div className="grid grid-cols-5 gap-2 sm:gap-3">
+      {AVATAR_IDS.map((id, i) => {
+        const isSelected = selected === id;
+        return (
+          <motion.button
+            key={id}
+            type="button"
+            onClick={() => onSelect(id)}
+            aria-pressed={isSelected}
+            aria-label={`Avatar tupai ${id}`}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.92 }}
+            animate={{ scale: isSelected ? 1.06 : 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className={cn(
+              "relative flex aspect-square cursor-pointer items-end justify-center overflow-hidden rounded-sr-md bg-linear-to-b transition-shadow",
+              AVATAR_TINTS[i % AVATAR_TINTS.length],
+              isSelected ? "shadow-sr-2 ring-4 ring-sr-blue-500" : "ring-1 ring-sr-line hover:ring-sr-blue-200",
+            )}
+          >
+            <Image src={getAvatarSrc(id)} alt="" width={80} height={80} className="h-[85%] w-auto object-contain" />
+            <AnimatePresence>
+              {isSelected && (
+                <motion.span
+                  className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-sr-blue-500 text-white shadow-sr-1"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ duration: 0.25, ease: SPRING }}
+                >
+                  <CheckIcon weight="bold" className="size-3" />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+}
+
+function SaveBar({
+  visible,
+  saving,
+  onSave,
+  onReset,
+}: {
+  visible: boolean;
+  saving: boolean;
+  onSave: () => void;
+  onReset: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:bottom-4 sm:px-4 sm:pb-0"
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 320, damping: 30 }}
+        >
+          <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-sr-lg bg-sr-ink p-3 pl-4 text-white shadow-sr-3">
+            <span className="size-2 shrink-0 animate-pulse rounded-full bg-sr-sun-400" />
+            <p className="min-w-0 flex-1 text-sm font-semibold">Ada perubahan yang belum disimpan</p>
+            <button
+              type="button"
+              onClick={onReset}
+              disabled={saving}
+              className="hidden cursor-pointer rounded-sr-sm px-3 py-2 text-sm font-semibold text-white/75 transition-colors hover:bg-white/10 hover:text-white sm:block"
+            >
+              Batal
+            </button>
+            <Button
+              onClick={onSave}
+              disabled={saving}
+              className="shrink-0 bg-sr-sun-500 text-sr-ink hover:bg-sr-sun-400"
+            >
+              {saving ? <SpinnerIcon className="size-4 animate-spin" /> : <CheckIcon weight="bold" />}
+              Simpan
+            </Button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
 export default function ProfilePage() {
   const { session } = useRouteContext({ from: "/_authenticated" });
   const queryClient = useQueryClient();
+  const router = useRouter();
   const profileQuery = useQuery(orpc.profile.me.queryOptions());
-  const [tab, setTab] = useState<"data" | "customize">("data");
+  const [tab, setTab] = useState<Tab>("data");
   const [formData, setFormData] = useState({
     email: session?.user.email,
     phone: "",
@@ -132,28 +377,49 @@ export default function ProfilePage() {
   const [customize, setCustomize] = useState({ kampus: "", jurusan: "" });
   const [selectedAvatar, setSelectedAvatar] = useState(() => getAvatarId(session?.user.image));
   const [copied, setCopied] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const referralCode = profileQuery.data?.referralCode ?? null;
-  const displayReferralCode = referralCode ?? "Belum punya kode";
   const hasReferralCode = Boolean(referralCode);
   const referralCount = profileQuery.data?.referralUsage ?? 0;
 
-  // Sync phone from API once loaded
   const profileData = profileQuery.data;
+
+  const applyProfile = useCallback((data: NonNullable<typeof profileData>) => {
+    setFormData((prev) => ({ ...prev, name: data.name, phone: data.phoneNumber ?? "" }));
+    setCustomize({ kampus: data.dreamCampus ?? "", jurusan: data.dreamMajor ?? "" });
+    setSelectedAvatar(getAvatarId(data.image));
+  }, []);
+
+  // Isi form dari data profil begitu termuat (dan setelah disimpan ulang).
   useEffect(() => {
-    if (profileData) {
-      setFormData((prev) => ({
-        ...prev,
-        name: profileData.name,
-        phone: profileData.phoneNumber ?? "",
-      }));
-      setCustomize((prev) => ({
-        ...prev,
-        kampus: profileData.dreamCampus ?? "",
-        jurusan: profileData.dreamMajor ?? "",
-      }));
-      setSelectedAvatar(getAvatarId(profileData.image));
+    if (profileData) applyProfile(profileData);
+  }, [profileData, applyProfile]);
+
+  const isDirty = Boolean(
+    profileData &&
+    (formData.name !== profileData.name ||
+      formData.phone !== (profileData.phoneNumber ?? "") ||
+      customize.kampus !== (profileData.dreamCampus ?? "") ||
+      customize.jurusan !== (profileData.dreamMajor ?? "") ||
+      selectedAvatar !== getAvatarId(profileData.image)),
+  );
+
+  const completion = Math.round(
+    ([formData.name, formData.phone, customize.kampus, customize.jurusan].filter((value) => value.trim()).length / 4) *
+      100,
+  );
+
+  // Nama di dashboard & header dibaca dari sesi login (cache ["auth","getSession"] + cookie cache better-auth
+  // 5 menit), jadi setelah profil disimpan sesi diambil ulang langsung dari server lalu rute dimuat ulang.
+  const refreshSession = async () => {
+    try {
+      const fresh = await authClient.getSession({ query: { disableCookieCache: true } });
+      if (fresh.data) queryClient.setQueryData(["auth", "getSession"], fresh);
+      await router.invalidate();
+    } catch {
+      // Gagal menyegarkan sesi tidak menggagalkan penyimpanan; nama ikut berubah saat sesi diperbarui berikutnya.
     }
-  }, [profileData]);
+  };
 
   const avatarMutation = useMutation(orpc.profile.avatar.update.mutationOptions());
   const profileMutation = useMutation(orpc.profile.update.mutationOptions());
@@ -223,10 +489,13 @@ export default function ProfilePage() {
       }
     };
 
+    setIsSaving(true);
     const avatarResult = await saveAvatar();
     const profileSaved = await saveProfileDetails();
 
     await queryClient.invalidateQueries({ queryKey: orpc.profile.me.key() });
+    if (avatarResult.saved || profileSaved) await refreshSession();
+    setIsSaving(false);
 
     if (avatarResult.saved && avatarResult.avatarSrc && avatarResult.avatarId) {
       window.dispatchEvent(
@@ -239,233 +508,133 @@ export default function ProfilePage() {
     }
   };
 
+  const target = [customize.jurusan, customize.kampus].filter(Boolean).join(", ");
+
   return (
-    <main>
-      {/* Background dan dekorasi */}
-      <div className="relative flex w-full items-start justify-center overflow-x-clip bg-background pt-20">
-        {/* Dekorasi bulatan */}
-        <MotionPulse>
+    <main className="relative mx-auto w-full max-w-5xl space-y-5 pt-24 pb-28 sm:space-y-6 sm:pt-28">
+      <Link
+        to="/dashboard"
+        className="group inline-flex items-center gap-2 rounded-full border border-sr-line bg-white px-4 py-2 text-sm font-semibold text-sr-blue-700 shadow-sr-1 transition-all hover:-translate-y-0.5 hover:shadow-sr-2"
+      >
+        <ArrowLeftIcon weight="bold" className="size-4 transition-transform group-hover:-translate-x-0.5" />
+        Kembali ke dashboard
+      </Link>
+
+      <ProfileHero
+        name={formData.name}
+        email={formData.email}
+        avatarId={selectedAvatar}
+        isPremium={Boolean(session?.user.isPremium)}
+        target={target}
+        completion={completion}
+      />
+
+      <TabSwitch tab={tab} onChange={setTab} />
+
+      <AnimatePresence mode="wait" initial={false}>
+        {tab === "data" ? (
           <motion.div
-            className="pointer-events-none fixed top-101.5 left-5.5 z-0 hidden size-20 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-          />
-        </MotionPulse>
-        <MotionPulse>
+            key="data"
+            className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+          >
+            <Panel title="Data diri" icon={<UserIcon weight="fill" className="size-4.5" />}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <FieldLabel icon={<EnvelopeSimpleIcon weight="bold" className="size-4" />}>Email</FieldLabel>
+                  <div className="relative">
+                    <Input
+                      type="email"
+                      value={formData.email ?? ""}
+                      className="h-11 cursor-not-allowed bg-sr-blue-50 pr-10"
+                      disabled
+                    />
+                    <LockSimpleIcon
+                      weight="fill"
+                      className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-sr-muted"
+                    />
+                  </div>
+                  <p className="text-xs text-sr-muted">Email dipakai untuk masuk, jadi tidak bisa diubah.</p>
+                </div>
+                <div className="space-y-2">
+                  <FieldLabel icon={<UserIcon weight="bold" className="size-4" />}>Nama</FieldLabel>
+                  <Input
+                    type="text"
+                    value={formData.name}
+                    placeholder="Nama lengkap"
+                    className="h-11"
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <FieldLabel icon={<PhoneIcon weight="bold" className="size-4" />}>Nomor Telepon</FieldLabel>
+                  <Input
+                    type="tel"
+                    value={formData.phone}
+                    placeholder="Contoh: 081234567890"
+                    className="h-11"
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+            </Panel>
+
+            <ReferralCard
+              code={referralCode}
+              count={referralCount}
+              copied={copied}
+              isGenerating={generateReferralMutation.isPending}
+              onAction={handleReferralButtonClick}
+            />
+          </motion.div>
+        ) : (
           <motion.div
-            className="pointer-events-none fixed top-135.5 right-0 z-0 hidden size-78.5 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.3 }}
-          />
-        </MotionPulse>
-        <MotionPulse>
-          <motion.div
-            className="pointer-events-none fixed top-109 -right-10.5 z-0 hidden size-32 rounded-full border-2 border-tertiary-200 bg-tertiary-100 md:block"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5, duration: 0.3 }}
-          />
-        </MotionPulse>
-
-        {/* kartu */}
-        <main className="relative z-2 w-full animate-in items-center space-y-6 border-x border-neutral-300 bg-white py-10 shadow-sm fade-in slide-in-from-bottom-6 md:min-h-[calc(100vh-80px)]">
-          {/* Tombol kembali */}
-          <div className="hidden w-full px-12 md:block">
-            <Button className="h-8 rounded-md bg-primary-300 px-4 text-xs font-semibold text-white hover:bg-primary-400">
-              <ArrowLeftIcon className="size-4" />
-              Kembali
-            </Button>
-          </div>
-
-          {/* Hero banner */}
-          <div className="relative w-full shrink-0 px-12 max-md:px-4">
-            <div className="relative h-29.25 w-full overflow-visible rounded-[10px] border-2 border-tertiary-200 bg-tertiary-100 max-md:h-35">
-              {/* Bulatan biru dalam banner */}
-              <div className="pointer-events-none absolute top-0 right-0 h-full w-70 overflow-hidden rounded-tr-[10px] rounded-br-[10px] max-md:top-auto max-md:bottom-0 max-md:h-46.25 max-md:w-45.75">
-                <div className="absolute -top-11.75 -right-10.25 size-77.5 rounded-full border-2 border-tertiary-400 bg-tertiary-300 max-md:top-auto max-md:-right-13 max-md:-bottom-23 max-md:size-45.75" />
-              </div>
-
-              {/* Teks */}
-              <div className="p-4 md:px-6 md:py-5">
-                <h1 className="m-0 text-[28px] leading-[1.2] font-normal text-primary-300 md:text-[34px]">
-                  Halo, <span className="font-bold">{session?.user.name}!</span>
-                </h1>
-                <p className="m-0 w-2/3 text-[12px] text-primary-300 md:w-full">
-                  Lengkapi informasi profilmu di bawah ini
-                </p>
-              </div>
-
-              {/* Gambar tupai — key berubah tiap ganti avatar → re-mount → animasi ulang */}
-              <div
-                key={selectedAvatar}
-                className="pointer-events-none absolute right-6 bottom-0 z-30 h-51.25 w-55.5 animate-in fade-in slide-in-from-bottom-6 max-md:right-2 max-md:h-26.5 max-md:w-28.75"
-              >
-                <Image
-                  src={`/avatar/profile/tupai-${selectedAvatar}.webp`}
-                  alt="Maskot"
-                  layout="fullWidth"
-                  className="h-full w-full object-contain object-bottom"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Konten */}
-          <div className="relative flex w-full flex-1 flex-col gap-5 px-12 max-md:mt-6 max-md:gap-4 max-md:px-4">
-            {/* Tabs */}
-            <div className="flex shrink-0 gap-3">
-              <Button variant={tab === "data" ? "default" : "outline"} onClick={() => setTab("data")}>
-                Data Dirimu
-              </Button>
-              <Button variant={tab === "customize" ? "default" : "outline"} onClick={() => setTab("customize")}>
-                Customize
-              </Button>
-            </div>
-
-            {/* TAB: Data Diri */}
-            {tab === "data" && (
-              <div className="flex flex-col items-start gap-6 md:flex-row">
-                {/* Kiri: form fields */}
-                <div className="flex w-[48%] flex-col gap-3 max-md:w-full">
-                  <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input type="email" value={formData.email} className="cursor-not-allowed bg-muted" disabled />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Nomor Telepon</Label>
-                    <Input
-                      type="tel"
-                      value={formData.phone}
-                      placeholder="Nomor Telepon"
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Nama</Label>
-                    <Input
-                      type="text"
-                      value={formData.name}
-                      placeholder="Nama"
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    />
-                  </div>
+            key="customize"
+            className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+          >
+            <Panel title="Target impian" icon={<TargetIcon weight="fill" className="size-4.5" />}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <FieldLabel icon={<SparkleIcon weight="bold" className="size-4" />}>Kampus impianmu</FieldLabel>
+                  <AutocompleteInput
+                    value={customize.kampus}
+                    onChange={(kampus) => setCustomize({ ...customize, kampus })}
+                    suggestions={CAMPUS_SUGGESTIONS}
+                    placeholder="Contoh: Universitas Gadjah Mada"
+                  />
                 </div>
-
-                {/* Kanan: affiliate */}
-                <div className="flex flex-col gap-2 max-md:w-full">
-                  <div className="text-xs font-medium">
-                    Ajak Teman, Dapat <strong>Cashback 25%</strong>
-                  </div>
-                  <div className="flex h-23.5 items-stretch overflow-hidden rounded-lg border-2 border-secondary-600 bg-secondary-400">
-                    <div className="flex flex-1 flex-col justify-center gap-1 pl-4">
-                      <span className="text-[10px] font-medium">Kode Affiliatemu</span>
-                      <span className="text-[28px] leading-10.5 font-bold">{displayReferralCode}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleReferralButtonClick}
-                      disabled={generateReferralMutation.isPending}
-                      className="flex w-18 shrink-0 cursor-pointer items-center justify-center border-l-2 border-secondary-700 bg-secondary-600"
-                    >
-                      {generateReferralMutation.isPending ? (
-                        <SpinnerIcon className="size-5 animate-spin" />
-                      ) : hasReferralCode ? (
-                        copied ? (
-                          <CheckIcon className="size-5" />
-                        ) : (
-                          <CopyIcon className="size-5" />
-                        )
-                      ) : (
-                        <span className="text-xs font-semibold">Generate</span>
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex gap-3 max-md:flex-col">
-                    {/* Referral Terdaftar */}
-                    <div className="flex w-27.5 shrink-0 items-center justify-center gap-1.5 rounded-lg border-2 border-tertiary-100 bg-background px-3 py-3.5 max-md:w-full max-md:justify-start">
-                      <span className="text-[20px] font-bold">{referralCount}</span>
-                      <span className="text-[9px] font-medium whitespace-nowrap">
-                        Referral
-                        <br />
-                        Terdaftar
-                      </span>
-                    </div>
-                    {/* Terms and Conditions */}
-                    <div className="flex flex-1 flex-col gap-1 rounded-[10px] border border-background bg-white px-3.5 py-3">
-                      <span className="text-[10px] font-bold">Terms and Conditions</span>
-                      <ul className="m-0 list-disc pl-3.5 text-[10px] leading-3.75">
-                        <li>Cashback 25% berlaku untuk pembelian paket oleh teman (pengguna baru).</li>
-                        <li>Saldo akan masuk setelah transaksi teman terverifikasi.</li>
-                        <li>Habitutor berhak membatalkan reward jika ditemukan indikasi kecurangan.</li>
-                      </ul>
-                    </div>
-                  </div>
+                <div className="space-y-2">
+                  <FieldLabel icon={<SparkleIcon weight="bold" className="size-4" />}>Jurusan impianmu</FieldLabel>
+                  <AutocompleteInput
+                    value={customize.jurusan}
+                    onChange={(jurusan) => setCustomize({ ...customize, jurusan })}
+                    suggestions={MAJOR_SUGGESTIONS}
+                    placeholder="Contoh: Kedokteran"
+                  />
                 </div>
               </div>
-            )}
+            </Panel>
 
-            {/* TAB: Customize */}
-            {tab === "customize" && (
-              <div className="flex w-full flex-col-reverse items-start gap-8 md:flex-row">
-                {/* Kiri: fields */}
-                <div className="flex w-full flex-1 shrink-0 flex-col gap-4">
-                  <div className="space-y-2">
-                    <Label>Pilih Kampus Impianmu</Label>
-                    <Input
-                      type="text"
-                      value={customize.kampus}
-                      placeholder="Kampus"
-                      onChange={(e) => setCustomize({ ...customize, kampus: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Pilih Jurusan Impianmu</Label>
-                    <Input
-                      type="text"
-                      value={customize.jurusan}
-                      placeholder="Jurusan"
-                      onChange={(e) =>
-                        setCustomize({
-                          ...customize,
-                          jurusan: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
+            <Panel title="Pilih avatarmu" icon={<SparkleIcon weight="fill" className="size-4.5" />}>
+              <AvatarPicker selected={selectedAvatar} onSelect={setSelectedAvatar} />
+            </Panel>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-                {/* Kanan: avatar grid — fixed width agar tetap square */}
-                <div className="flex w-full shrink-0 flex-col gap-2.5 overflow-hidden md:w-117.5">
-                  <h2 className="text-xs font-semibold">Pilih Avatarmu</h2>
-                  <div className="flex w-full flex-row gap-2.5 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:overflow-x-visible md:pb-0">
-                    {AVATAR.map((av) => (
-                      <AvatarItem
-                        key={av.id}
-                        avatar={av}
-                        selected={selectedAvatar === av.id}
-                        onSelect={setSelectedAvatar}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Save Changes */}
-          <div className="w-full self-stretch px-12 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:z-50 max-md:bg-white max-md:px-4 max-md:py-4 max-md:shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-            <SaveRow onSave={handleSave} />
-          </div>
-        </main>
-      </div>
+      <SaveBar
+        visible={isDirty}
+        saving={isSaving}
+        onSave={handleSave}
+        onReset={() => profileData && applyProfile(profileData)}
+      />
     </main>
   );
 }

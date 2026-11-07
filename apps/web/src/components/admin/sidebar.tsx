@@ -61,7 +61,7 @@ const adminNavLinks = [
     icon: House,
   },
   {
-    name: "Tryout",
+    name: "Try Out",
     to: "/admin/tryout" as const,
     icon: TicketIcon,
   },
@@ -271,7 +271,7 @@ function SidebarLogo() {
         title="Habitutor Admin"
       >
         <Image
-          src="/logo.svg"
+          src="/logo.webp"
           alt="Habitutor"
           layout="constrained"
           width={32}

@@ -1,22 +1,15 @@
-import {
-  CaretLeftIcon,
-  CaretRightIcon,
-  ClockIcon,
-  LockKeyIcon,
-  PlayCircleIcon,
-  UserIcon,
-  VideoCameraIcon,
-} from "@phosphor-icons/react";
+import { ClockIcon, LockKeyIcon, PlayCircleIcon, VideoCameraIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
+import { motion } from "motion/react";
 import { useMemo, useState } from "react";
+import { LiveClassScheduleCard } from "@/components/classes/live-class-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
 import { client, orpc } from "@/utils/orpc";
+import { WeekPicker } from "./-components/week-picker";
 
 export const Route = createFileRoute("/_authenticated/live-class/")({
   head: () => ({
@@ -38,12 +31,6 @@ const CATEGORY_FILTERS: { value: CategoryFilter; label: string }[] = [
   { value: "SNBT", label: "SNBT" },
   { value: "MANDIRI", label: "Mandiri" },
 ];
-
-const CATEGORY_STYLE: Record<LiveClassItem["category"], { label: string; badge: string; accent: string }> = {
-  TKA: { label: "TKA", badge: "bg-primary-100 text-primary-300", accent: "bg-primary-200" },
-  SNBT: { label: "SNBT", badge: "bg-tertiary-100 text-primary-300", accent: "bg-tertiary-400" },
-  MANDIRI: { label: "Mandiri", badge: "bg-secondary-100 text-secondary-1000", accent: "bg-secondary-400" },
-};
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WIB = "Asia/Jakarta";
@@ -102,95 +89,98 @@ function LiveClassSchedulePage() {
   };
 
   return (
-    <div className="mt-4 space-y-6 sm:-mt-3">
-      <ScheduleHeader />
+    <div className="space-y-6">
+      <ScheduleHeader weekCount={schedule.data ? visibleClasses.length : undefined} />
 
-      <Tabs value={category} onValueChange={(value) => setCategory(value as CategoryFilter)}>
-        <TabsList>
-          {CATEGORY_FILTERS.map((filter) => (
-            <TabsTrigger key={filter.value} value={filter.value}>
-              {filter.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-
-      <section className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6" aria-label="Pilih tanggal">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <p className="font-bold text-neutral-1000">{formatDay(weekStart, { month: "long", year: "numeric" })}</p>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => goToWeek(-1)} aria-label="Minggu sebelumnya">
-              <CaretLeftIcon weight="bold" />
-            </Button>
-            {weekStart !== mondayOf(today) && (
-              <Button variant="outline" size="sm" onClick={goToToday}>
-                Hari ini
-              </Button>
-            )}
-            <Button variant="outline" size="icon" onClick={() => goToWeek(1)} aria-label="Minggu berikutnya">
-              <CaretRightIcon weight="bold" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1.5 sm:gap-3">
-          {days.map((date) => {
-            const isSelected = date === selectedDate;
-            const hasClass = visibleClasses.some((item) => item.date === date);
+      <div className="rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-1 sm:p-4">
+        <div
+          className="flex gap-1.5 overflow-x-auto rounded-full bg-sr-blue-50 p-1 sm:w-fit"
+          role="tablist"
+          aria-label="Kategori live class"
+        >
+          {CATEGORY_FILTERS.map((filter) => {
+            const active = filter.value === category;
             return (
               <button
-                key={date}
+                key={filter.value}
                 type="button"
-                onClick={() => setSelectedDate(date)}
-                aria-pressed={isSelected}
-                aria-label={formatDay(date, { weekday: "long", day: "numeric", month: "long" })}
+                role="tab"
+                aria-selected={active}
+                onClick={() => setCategory(filter.value)}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-xl border-2 py-2 transition-colors sm:py-3",
-                  isSelected
-                    ? "border-primary-300 bg-primary-300 text-white"
-                    : "border-transparent bg-neutral-100 text-neutral-1000 hover:border-primary-100",
-                  date === today && !isSelected && "border-primary-200",
+                  "relative flex-1 rounded-full px-4 py-2 text-sm font-bold whitespace-nowrap transition-colors sm:flex-none sm:px-5",
+                  active ? "text-white" : "text-sr-ink-2 hover:text-sr-blue-600",
                 )}
               >
-                <span className="text-[10px] font-semibold uppercase sm:text-xs">
-                  {formatDay(date, { weekday: "short" })}
-                </span>
-                <span className="text-lg font-bold sm:text-2xl">{formatDay(date, { day: "numeric" })}</span>
-                <span
-                  className={cn(
-                    "size-1.5 rounded-full",
-                    hasClass ? (isSelected ? "bg-secondary-200" : "bg-primary-300") : "bg-transparent",
-                  )}
-                />
+                {active && (
+                  <motion.span
+                    layoutId="live-class-category-pill"
+                    className="absolute inset-0 rounded-full bg-sr-blue-500 shadow-sr-2"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative">{filter.label}</span>
               </button>
             );
           })}
         </div>
-      </section>
+      </div>
+
+      <WeekPicker
+        days={days}
+        today={today}
+        selectedDate={selectedDate}
+        isCurrentWeek={weekStart === mondayOf(today)}
+        hasClassOn={(date) => visibleClasses.some((item) => item.date === date)}
+        formatDay={formatDay}
+        onSelect={setSelectedDate}
+        onShiftWeek={goToWeek}
+        onToday={goToToday}
+      />
 
       <section className="space-y-4" aria-live="polite">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-lg font-bold text-neutral-1000 sm:text-xl">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-extrabold text-sr-ink capitalize sm:text-xl">
             {formatDay(selectedDate, { weekday: "long", day: "numeric", month: "long" })}
           </h2>
-          {schedule.data && <span className="text-sm text-muted-foreground">{dayClasses.length} kelas</span>}
+          {schedule.data && (
+            <span className="shrink-0 rounded-full bg-sr-blue-50 px-3 py-1 text-xs font-bold text-sr-blue-700">
+              {dayClasses.length} kelas
+            </span>
+          )}
         </div>
 
         {schedule.isPending ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            <Skeleton className="h-44 w-full rounded-2xl" />
-            <Skeleton className="h-44 w-full rounded-2xl" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i.toString()} className="overflow-hidden rounded-sr-xl border border-sr-line bg-white">
+                <Skeleton className="h-28 w-full rounded-none" />
+                <div className="space-y-2 p-4">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="mt-4 h-10 w-full rounded-full" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : schedule.isError ? (
-          <div className="rounded-2xl border bg-white p-6 text-center text-sm text-red-600">
-            Gagal memuat jadwal. Coba muat ulang halaman.
-          </div>
+          <EmptyDay title="Jadwal gagal dimuat" description="Coba muat ulang halaman ini, ya." />
         ) : dayClasses.length === 0 ? (
-          <EmptyDay />
+          <EmptyDay
+            title="Belum ada kelas di hari ini"
+            description="Pilih tanggal lain yang ada titiknya, atau cek minggu berikutnya ya."
+          />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {dayClasses.map((item) => (
-              <LiveClassCard key={item.id} item={item} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-3">
+            {dayClasses.map((item, index) => (
+              <motion.div
+                key={`${selectedDate}-${category}-${item.id}`}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.06, ease: [0.2, 0.7, 0.2, 1] }}
+              >
+                <LiveClassCard item={item} />
+              </motion.div>
             ))}
           </div>
         )}
@@ -199,90 +189,77 @@ function LiveClassSchedulePage() {
   );
 }
 
-function ScheduleHeader() {
+function ScheduleHeader({ weekCount }: { weekCount?: number }) {
   return (
-    <div className="relative overflow-hidden rounded-[10px] bg-primary-300 text-white">
-      <div className="pointer-events-none absolute -right-10 -bottom-14 size-32 rounded-full bg-primary-200 sm:right-0 sm:-bottom-32 sm:size-80" />
-      <div className="relative pt-6 pr-6 pb-28 pl-6 sm:py-12 sm:pr-72 sm:pl-10">
-        <h1 className="bg-linear-to-r from-background to-tertiary-100 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
-          Jadwal Live Class
-        </h1>
-        <p className="mt-2 max-w-xl text-[14px] leading-5.25 text-white/90">
-          Belajar langsung bareng mentor. Tombol Gabung aktif 15 menit sebelum kelas dimulai, semua jam dalam WIB.
-        </p>
+    // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
+    <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
+      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
+
+      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
+        <span className="size-2 rounded-full bg-sr-sun-400 motion-safe:animate-pulse" />
+        Belajar langsung bareng mentor
+      </span>
+      <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+        Jadwal Live Class
+      </h1>
+      <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
+        Tanya langsung ke mentor, bahas soal bareng teman. Tombol Gabung aktif 15 menit sebelum kelas dimulai.
+      </p>
+
+      <div className="relative mt-5 flex flex-wrap gap-2">
+        {weekCount !== undefined && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
+            <VideoCameraIcon weight="fill" className="size-4 text-sr-sun-400" /> {weekCount} kelas minggu ini
+          </span>
+        )}
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
+          <ClockIcon weight="fill" className="size-4 text-sr-sun-400" /> Semua jam dalam WIB
+        </span>
       </div>
-      {/* Maskot menempel di sisi bawah banner, sama seperti di kartu live class dashboard. */}
-      <Image
-        src="/avatar/live-class-avatar.webp"
+
+      <motion.img
+        src="/avatar/subtest/ppu.webp"
         alt=""
-        width={320}
-        height={320}
-        className="pointer-events-none absolute right-2 bottom-0 h-24 w-auto object-contain object-bottom select-none sm:right-10 sm:h-[90%]"
+        width={530}
+        height={481}
+        className="pointer-events-none absolute right-1/2 bottom-0 h-36 w-auto translate-x-1/2 select-none sm:right-10 sm:h-48 sm:translate-x-0 lg:right-16 lg:h-60"
+        initial={{ y: 40 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
       />
     </div>
   );
 }
 
-function EmptyDay() {
+function EmptyDay({ title, description }: { title: string; description: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border bg-white px-6 py-10 text-center">
-      <Image src="/avatar/pencil-blue-avatar.webp" alt="" width={120} height={120} className="h-28 w-auto" />
-      <p className="text-lg font-bold text-neutral-1000">Belum ada kelas di hari ini</p>
-      <p className="max-w-sm text-sm text-muted-foreground">Pilih tanggal lain atau cek minggu berikutnya ya.</p>
+    <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-10 text-center">
+      <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto motion-safe:animate-sr-drift" />
+      <p className="text-lg font-extrabold text-sr-ink">{title}</p>
+      <p className="max-w-sm text-sm leading-relaxed text-sr-muted">{description}</p>
     </div>
   );
 }
 
-const STATUS_BADGE: Record<LiveClassItem["status"], { label: string; className: string }> = {
-  upcoming: { label: "Akan datang", className: "bg-neutral-100 text-neutral-1000" },
-  live: { label: "Sedang berlangsung", className: "bg-green-600 text-white" },
-  ended: { label: "Selesai", className: "bg-neutral-200 text-neutral-700" },
-};
-
 function LiveClassCard({ item }: { item: LiveClassItem }) {
-  const style = CATEGORY_STYLE[item.category];
-  const status = STATUS_BADGE[item.status];
-
   return (
-    <article
-      className={cn(
-        "relative flex flex-col gap-4 overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md",
-        item.status === "live" && "border-2 border-green-500 bg-green-50",
-      )}
-    >
-      <div className={cn("absolute inset-y-0 left-0 w-1.5", style.accent)} />
-
-      <div className="flex flex-wrap items-center gap-2">
-        <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-bold", style.badge)}>{style.label}</span>
-        <span
-          className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold", status.className)}
-        >
-          {item.status === "live" && <span className="size-1.5 animate-pulse rounded-full bg-white" />}
-          {status.label}
-        </span>
-      </div>
-
-      <div className="space-y-2">
-        <h3 className="text-lg leading-snug font-bold text-pretty text-neutral-1000">{item.title}</h3>
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <UserIcon className="size-4 shrink-0" /> {item.teacher}
-        </p>
-        <p className="flex items-center gap-2 text-sm font-semibold text-neutral-1000">
-          <ClockIcon className="size-4 shrink-0" /> {formatTime(item.startsAt)}–{formatTime(item.endsAt)} WIB
-        </p>
-      </div>
-
-      <div className="mt-auto">
-        <JoinAction item={item} />
-      </div>
-    </article>
+    <LiveClassScheduleCard
+      title={item.title}
+      teacher={item.teacher}
+      category={item.category}
+      startsAt={item.startsAt}
+      endsAt={item.endsAt}
+      status={item.status}
+      action={<JoinAction item={item} />}
+    />
   );
 }
 
 function JoinAction({ item }: { item: LiveClassItem }) {
   if (item.lockReason === "premium" || item.lockReason === "mandiri") {
     return (
-      <Link to="/premium" className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
+      <Link to="/premium" className={cn(buttonVariants({ variant: "secondary" }), "w-full rounded-full")}>
         <LockKeyIcon weight="fill" />
         {item.lockReason === "mandiri" ? "Khusus Paket Sampai Mandiri" : "Khusus member Premium"}
       </Link>
@@ -291,7 +268,7 @@ function JoinAction({ item }: { item: LiveClassItem }) {
 
   if (item.lockReason === "tier" || item.lockReason === "package") {
     return (
-      <Button variant="outline" className="w-full" disabled>
+      <Button variant="outline" className="w-full rounded-full" disabled>
         <LockKeyIcon weight="fill" /> Tidak termasuk paketmu
       </Button>
     );
@@ -299,15 +276,15 @@ function JoinAction({ item }: { item: LiveClassItem }) {
 
   if (item.status === "ended") {
     return (
-      <Link to="/recordings" className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
-        <PlayCircleIcon weight="fill" /> Kelas selesai · Cek Live Recording
+      <Link to="/recordings" className={cn(buttonVariants({ variant: "outline" }), "w-full rounded-full")}>
+        <PlayCircleIcon weight="fill" /> Tonton rekamannya
       </Link>
     );
   }
 
   if (item.link) {
     return (
-      <Button asChild className="w-full">
+      <Button asChild className="sr-sheen w-full rounded-full">
         <a href={item.link} target="_blank" rel="noopener noreferrer">
           <VideoCameraIcon weight="fill" /> Gabung Kelas
         </a>
@@ -316,7 +293,7 @@ function JoinAction({ item }: { item: LiveClassItem }) {
   }
 
   return (
-    <Button className="w-full" disabled>
+    <Button className="w-full rounded-full" disabled>
       <ClockIcon weight="bold" /> Dibuka pukul {formatTime(item.joinOpensAt)} WIB
     </Button>
   );

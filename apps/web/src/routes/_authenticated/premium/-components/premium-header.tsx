@@ -1,4 +1,5 @@
-import { Image } from "@unpic/react";
+import { CalendarCheckIcon, CrownSimpleIcon, SealCheckIcon } from "@phosphor-icons/react";
+import { motion } from "motion/react";
 import type { authClient } from "@/lib/auth-client";
 import { PREMIUM_PLAN_NAME, type PremiumPlan, formatWibDate } from "@/lib/premium-packages";
 
@@ -14,42 +15,53 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
 
   const title = isPremium ? `${planName} kamu sudah aktif!` : "Pilih Paket Premium Habitutor";
   const subtitle = isPremium
-    ? "Semua fasilitas Premium Habitutor bisa kamu pakai selama masa aktif paketmu — belajar bareng mulai sekarang"
-    : "Sekali bayar, semua fasilitas Premium langsung terbuka — pilih masa aktif yang paling pas buat kamu";
+    ? "Semua fasilitas Premium Habitutor bisa kamu pakai selama masa aktif paketmu. Yuk, mulai belajar bareng sekarang!"
+    : "Sekali bayar, semua fasilitas Premium langsung terbuka. Pilih masa aktif yang paling pas buat kamu.";
 
   return (
-    <main className="space-y-6">
-      <div className="relative overflow-hidden rounded-[10px] bg-primary-300 text-white">
-        <div className="grid grid-cols-3 gap-6 px-6 py-8 sm:items-center sm:px-10 sm:py-10">
-          <div className="relative col-span-1 -mx-6 h-27.5 sm:mx-0 sm:h-auto">
-            <div className="absolute size-45 -translate-x-1/4 translate-y-1/5 rounded-full bg-primary-100 sm:-top-15 sm:left-6" />
-            <Image
-              src="/avatar/premium-pricing-card-avatar.webp"
-              alt="Premium Avatar"
-              width={260}
-              height={260}
-              className="absolute top-5 -left-4 size-40 object-cover select-none sm:size-52.5 sm:-translate-y-1/2"
-            />
-          </div>
+    <div className="space-y-4">
+      {/* Di HP maskot mengintip dari bawah kartu di bawah teks; mulai sm duduk di kanan. */}
+      <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-36 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+        <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
 
-          <div className="relative z-10 col-span-2">
-            <h1 className="bg-linear-to-r from-background to-tertiary-100 bg-clip-text text-[24px] leading-tight font-bold text-transparent sm:text-[30px]">
-              {title}
-            </h1>
-            <p className="mt-2 text-[14px] leading-5.25 text-white/90">{subtitle}</p>
-          </div>
-        </div>
+        <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
+          <CrownSimpleIcon weight="fill" className="size-4 text-sr-sun-400" />
+          {isPremium ? "Member Premium" : "Paket Premium"}
+        </span>
+        <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+          {title}
+        </h1>
+        <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">{subtitle}</p>
+
+        <motion.img
+          src="/avatar/avatar-premium.webp"
+          alt=""
+          width={657}
+          height={519}
+          className="pointer-events-none absolute right-1/2 bottom-0 w-44 translate-x-1/2 select-none sm:right-6 sm:w-60 sm:translate-x-0 lg:right-12 lg:w-72"
+          initial={{ y: 40 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
+        />
       </div>
 
       {isPremium && (
-        <div className="w-full rounded-[10px] border border-green-200 bg-[#EDFCF4] p-4 text-fourtiary-400">
-          <p className="text-xl font-bold sm:text-2xl">Kamu sudah berlangganan {planName}!</p>
+        <div className="flex flex-col gap-3 rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center sm:p-5">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#edfcf4] text-sr-live">
+            <SealCheckIcon weight="fill" className="size-6" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-extrabold text-sr-ink sm:text-lg">Kamu sudah berlangganan {planName}</p>
+            <p className="text-sm text-sr-muted">Selesaikan pembelajaranmu baru dapat membeli paket kembali</p>
+          </div>
           {expiresAt && (
-            <p className="text-sm font-semibold sm:text-lg">Masa aktif sampai {formatWibDate(expiresAt)}</p>
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-sr-blue-50 px-3 py-1.5 text-xs font-bold text-sr-blue-700 sm:text-sm">
+              <CalendarCheckIcon weight="bold" className="size-4" />
+              Aktif sampai {formatWibDate(expiresAt)}
+            </span>
           )}
-          <p className="text-sm sm:text-lg">Selesaikan pembelajaranmu baru dapat membeli paket kembali</p>
         </div>
       )}
-    </main>
+    </div>
   );
 }

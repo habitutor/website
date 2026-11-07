@@ -1,8 +1,10 @@
-import { ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, CaretDownIcon, LightbulbFilamentIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
+import { Accent, SectionCard } from "./section-card";
 
 type AnnouncementItem = {
   id: number;
@@ -28,50 +30,119 @@ const DUMMY_PRIMARY: AnnouncementItem = {
 const CASHBACK: AnnouncementItem = {
   id: 2,
   title: "Dapatkan cashback 25%!",
-  description: "Gunakan Kode Affiliate di profilmu untuk ajak teman bertumbuh bersama",
+  description: "Bagikan kode affiliate di profilmu. Temanmu ikut belajar, kamu dapat cashback.",
   variant: "cashback",
   ctaLink: "/profile",
-  ctaLabel: "Lihat",
+  ctaLabel: "Lihat kode affiliate",
   order: 2,
 };
+
+// Deskripsi panjang dipotong dulu supaya kartu tetap rapi; siswa bisa membuka sisanya.
+const LONG_DESCRIPTION = 200;
 
 export const Announcement = () => {
   const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
   const announcements = dashboardContent?.announcements;
   const primaryAnnouncement = announcements?.find((item) => item.variant === "primary") ?? DUMMY_PRIMARY;
-  const cashbackAnnouncement = CASHBACK;
   const cashbackCtaLink = CASHBACK.ctaLink || "/profile";
+  const [expanded, setExpanded] = useState(false);
+  const isLong = primaryAnnouncement.description.length > LONG_DESCRIPTION;
+  const primaryCta = primaryAnnouncement.ctaLink;
 
   return (
-    <section className="w-full rounded-2xl border bg-neutral-100 p-4 md:p-10">
-      <h2 className="mb-2 font-medium">Tips SNBT khusus untukmu</h2>
-      <div className="flex w-full flex-col gap-4 md:flex-row md:gap-6">
-        <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-secondary-700 bg-secondary-400 p-4 pb-6 md:w-[55%]">
-          <h3 className="relative z-10 w-full font-bold md:text-[22px]">{primaryAnnouncement.title}</h3>
-          <p className="relative z-10 w-full text-[10px] md:w-[70%] md:text-sm">{primaryAnnouncement.description}</p>
-          <div className="absolute -right-10 -bottom-20 h-42 w-42 rounded-full border border-secondary-700 bg-secondary-600 md:right-0" />
-          <div className="absolute right-2 bottom-23 h-8 w-8 rounded-full border border-secondary-700 bg-secondary-600 md:right-4 md:bottom-22 md:h-11 md:w-11" />
-        </div>
-        <div className="relative w-full space-y-1 overflow-hidden rounded-[10px] border border-red-200 bg-red-100 p-4 md:w-[45%]">
-          <h3 className="relative z-10 font-bold md:text-[22px]">{cashbackAnnouncement.title}</h3>
-          <p className="relative z-10 w-[50%] text-[10px] md:text-sm">{cashbackAnnouncement.description}</p>
-          <img
-            src="/avatar/announcement-avatar.webp"
-            alt="avatar"
-            className="absolute -right-15 -bottom-2 z-1 md:right-0"
-          />
-          <Button
-            variant="default"
-            size="icon"
-            className="absolute right-4 bottom-4 z-10 bg-red-300 hover:bg-red-400"
-            asChild
-          >
+    <SectionCard
+      title={
+        <>
+          Tips SNBT <Accent>khusus untukmu</Accent>
+        </>
+      }
+    >
+      <div className="grid w-full gap-4 lg:grid-cols-5">
+        <article className="group relative flex sr-lift flex-col overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1 lg:col-span-3">
+          <div className="flex items-center gap-3 bg-linear-to-r from-sr-sun-500 via-sr-sun-400 to-sr-sun-200 px-5 py-3 md:px-7">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-sr-ink transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-12">
+              <LightbulbFilamentIcon weight="fill" className="size-5" />
+            </span>
+            <p className="text-sm font-extrabold text-sr-ink">Tips minggu ini</p>
+            <img
+              src="/avatar/subtest/pu.webp"
+              alt=""
+              className="pointer-events-none -mb-3 ml-auto h-12 w-auto object-contain select-none md:hidden"
+            />
+          </div>
+
+          <div className="relative flex-1 p-5 md:p-7 md:pr-44">
+            <h3 className="text-xl leading-snug font-extrabold text-balance text-sr-ink md:text-2xl">
+              {primaryAnnouncement.title}
+            </h3>
+            <p
+              className={`mt-2 text-[15px] leading-7 text-pretty text-sr-ink-2 ${isLong && !expanded ? "line-clamp-4" : ""}`}
+            >
+              {primaryAnnouncement.description}
+            </p>
+
+            {(isLong || primaryCta) && (
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                {isLong && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((v) => !v)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-sr-line bg-sr-blue-50 px-4 py-2 text-sm font-bold text-sr-blue-700 transition-colors hover:border-sr-blue-200 hover:bg-sr-blue-100"
+                    aria-expanded={expanded}
+                  >
+                    {expanded ? "Tutup" : "Baca selengkapnya"}
+                    <CaretDownIcon
+                      weight="bold"
+                      className={`size-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                )}
+                {primaryCta && (
+                  <Button variant="darkBlue" className="rounded-full" asChild>
+                    <a
+                      href={primaryCta}
+                      {...(primaryCta.startsWith("/") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                    >
+                      {primaryAnnouncement.ctaLabel || "Selengkapnya"} <ArrowRightIcon weight="bold" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+            )}
+
+            <img
+              src="/avatar/subtest/pu.webp"
+              alt=""
+              className="pointer-events-none absolute right-6 bottom-0 hidden h-36 w-auto object-contain transition-transform duration-500 ease-sr-spring select-none motion-safe:group-hover:-translate-y-1 md:block"
+            />
+          </div>
+        </article>
+
+        <article className="group relative flex min-h-56 sr-lift flex-col overflow-hidden rounded-sr-xl sr-card-blue p-5 md:p-7 lg:col-span-2">
+          <div className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-white/10" />
+          <div className="pointer-events-none absolute -bottom-20 -left-12 size-44 rounded-full bg-white/5" />
+          <div className="relative mb-6">
+            <p className="text-sm font-semibold text-white/80">Ajak teman belajar bareng</p>
+            <p className="mt-1 flex items-baseline gap-2">
+              <span className="text-6xl leading-none font-extrabold text-sr-sun-400">25%</span>
+              <span className="text-lg font-bold text-white">cashback</span>
+            </p>
+            <p className="mt-3 max-w-[62%] text-sm leading-relaxed text-white/85 sm:max-w-none sm:pr-28 md:pr-32 lg:pr-36">
+              {CASHBACK.description}
+            </p>
+          </div>
+          <Button variant="secondary" className="sr-sheen relative z-10 mt-auto w-fit rounded-full" asChild>
             <Link to={cashbackCtaLink}>
-              <ArrowRightIcon weight="bold" className="text-neutral-1000" />
+              {CASHBACK.ctaLabel} <ArrowRightIcon weight="bold" />
             </Link>
           </Button>
-        </div>
+          <img
+            src="/avatar/avatar-premium.webp"
+            alt=""
+            className="pointer-events-none absolute -right-4 bottom-0 h-28 w-auto object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:-translate-y-2 md:h-36"
+          />
+        </article>
       </div>
-    </section>
+    </SectionCard>
   );
 };

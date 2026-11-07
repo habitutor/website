@@ -11,7 +11,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center justify-center gap-2 sm:justify-start">
             <Image
-              src={"/logo.svg"}
+              src={"/logo.webp"}
               alt="Logo Habitutor"
               layout="fullWidth"
               className="pointer-events-none -ml-2.5 select-none"
@@ -38,7 +38,7 @@ export default function Footer() {
             Dibangun bersama{" "}
             <a
               href="https://www.instagram.com/omahti_ugm"
-              className="flex items-center gap-2 hover:opacity-80"
+              className="flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90"
               target="_blank"
               rel="noopener noreferrer"
             >

@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "@tanstack/react-router";
+import { MotionConfig } from "motion/react";
 import { useEffect, useRef } from "react";
 import { HeaderDashboard } from "@/components/navigation/header-dashboard";
 import { Container } from "@/components/ui/container";
@@ -51,7 +52,16 @@ function AuthedLayout() {
   const pathname = isPending ? stablePathnameRef.current : location.pathname;
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
+      {/* Latar hangat ala landing: gradien CSS statis (tanpa filter blur) supaya tetap ringan di HP. */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 bg-sr-ivory"
+        style={{
+          backgroundImage:
+            "radial-gradient(60rem 40rem at 100% 0%, rgb(47 107 255 / 0.10), transparent 60%), radial-gradient(50rem 36rem at 0% 30%, rgb(255 214 95 / 0.16), transparent 60%)",
+        }}
+      />
       <HeaderDashboard session={context.session} />
 
       {/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
@@ -68,11 +78,17 @@ function AuthedLayout() {
         >
           <Outlet />
         </Container>
+      ) : /^\/(premium|recordings|classes|live-class|tryout)\/?$|^\/classes\/[^/]+\/?$|^\/tryout\/.+$/.test(
+          pathname,
+        ) ? (
+        // Banner ajakan Premium disembunyikan di halaman-halaman ini, jadi cukup beri jarak setinggi header.
+        <Container className="flex flex-col gap-6 pt-24 pb-10 sm:pt-26">
+          <Outlet />
+        </Container>
       ) : /^\/dashboard\/flashcard/.test(pathname) ? (
-        <div className="relative min-h-screen bg-[#FFFBF3]">
-          <Container
-            className={`relative z-10 flex flex-col gap-6 ${context.session?.user.isPremium ? "pt-30" : "pt-48 sm:pt-40"}`}
-          >
+        // Banner Premium disembunyikan selama Brain Gym supaya siswa fokus, jadi jaraknya cukup setinggi header.
+        <div className="relative min-h-screen bg-sr-ivory">
+          <Container className="relative z-10 flex flex-col gap-6 pt-24 pb-10 sm:pt-26">
             <Outlet />
           </Container>
         </div>
@@ -81,6 +97,6 @@ function AuthedLayout() {
           <Outlet />
         </Container>
       )}
-    </>
+    </MotionConfig>
   );
 }

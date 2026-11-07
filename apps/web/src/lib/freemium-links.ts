@@ -86,12 +86,12 @@ export function getCountdownLine(now: Date = new Date()) {
 
 /** Teks BC yang disalin siswa. Tanggal dan H-N otomatis, tidak perlu ubah kode tiap batch. */
 export function buildBroadcastText(now: Date = new Date()) {
-  return `🎊 TO TKA GRATIS HABITUTOR 🎊
+  return `🎊 TRY OUT TKA GRATIS HABITUTOR 🎊
 
 ${getCountdownLine(now)}
 Yuk ukur kemampuan kamu sekarang sebelum terlambat!
 
-TO TKA Habitutor hadir dengan soal yang disesuaikan dengan framework dan kisi-kisi resmi terbaru dari Kemendikdasmen.
+Try Out TKA Habitutor hadir dengan soal yang disesuaikan dengan framework dan kisi-kisi resmi terbaru dari Kemendikdasmen.
 
 MAPEL WAJIB:
 🟢 Bahasa Indonesia
@@ -109,20 +109,20 @@ Bebas pilih 2 mata pelajaran.
 
 📅 Catat waktunya:
 📝 Pendaftaran: ${getRegistrationLabel(now)}
-🏆 Hasil dan skor langsung keluar di web setelah kamu selesai mengerjakan. Pembahasan bisa dibuka ${FREEMIUM_PEMBAHASAN_PRICE_LABEL} per TO, atau ambil Paket 3 TO ${FREEMIUM_PAKET_PRICE_LABEL} yang sudah termasuk pembahasan
+🏆 Hasil dan skor langsung keluar di web setelah kamu selesai mengerjakan. Pembahasan bisa dibuka ${FREEMIUM_PEMBAHASAN_PRICE_LABEL} per Try Out, atau ambil Paket 3 Try Out ${FREEMIUM_PAKET_PRICE_LABEL} yang sudah termasuk pembahasan
 
-⭐ Kenapa TO Habitutor?
+⭐ Kenapa Try Out Habitutor?
 🔵 Soal sesuai kisi-kisi dan framework penilaian TKA
 🔴 Analisis skor untuk membantu mengetahui kelemahan kamu
 
 Cara daftar:
 1️⃣ Follow Instagram @habitutor.id
 2️⃣ Follow TikTok @habitutor.id
-3️⃣ Buka https://habitutor.id lalu pilih TO
+3️⃣ Buka https://habitutor.id lalu pilih Try Out
 4️⃣ Upload 3 foto bukti (follow IG, follow TikTok, share BC ke 5 grup WA)
-5️⃣ Pilih 1 TO gratis dan langsung kerjakan
+5️⃣ Pilih 1 Try Out gratis dan langsung kerjakan
 
-🆓 1 TO GRATIS — kuota terbatas!
+🆓 1 Try Out GRATIS — kuota terbatas!
 👉 https://habitutor.id
 
 Ada pertanyaan? DM @habitutor.id`;

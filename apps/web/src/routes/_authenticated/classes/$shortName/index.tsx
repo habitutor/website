@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { ClassHeader } from "@/components/classes";
@@ -7,6 +7,7 @@ import { Container } from "@/components/ui/container";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/")({
@@ -60,13 +61,14 @@ function RouteComponent() {
       // Remove undefined values to avoid ?category=undefined in URL
       const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
 
-      navigate({ search: cleanSearch });
+      // Ganti filter/cari tidak boleh melempar siswa kembali ke atas halaman.
+      navigate({ search: cleanSearch, replace: true, resetScroll: false });
     },
     [navigate, searchParams],
   );
 
-  const data = useQuery(
-    orpc.subtest.byShortName.queryOptions({
+  const data = useQuery({
+    ...orpc.subtest.byShortName.queryOptions({
       input: {
         shortName,
         category: activeFilter === "all" ? undefined : activeFilter,
@@ -75,7 +77,9 @@ function RouteComponent() {
         offset: page * 20,
       },
     }),
-  );
+    // Isi lama tetap tampil selama filter baru dimuat, jadi halaman tidak berganti skeleton dan meloncat.
+    placeholderData: keepPreviousData,
+  });
 
   const matchedClass = data.data?.subtest;
   const contents = data.data?.contents;
@@ -98,23 +102,21 @@ function RouteComponent() {
   if (!matchedClass) return notFound();
 
   return (
-    <div className="mt-2 space-y-4">
+    <div className="space-y-6">
       <ClassHeader shortName={shortName} />
-      <div className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <ContentFilters
-            activeFilter={activeFilter}
-            onChange={(category) =>
-              updateSearch({ category: category === "all" ? undefined : (category as "material" | "tips_and_trick") })
-            }
-          />
-          <div className="max-w-md flex-1">
-            <SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />
-          </div>
+      <div className="flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-1 sm:p-4 md:flex-row md:items-center md:justify-between">
+        <ContentFilters
+          activeFilter={activeFilter}
+          onChange={(category) =>
+            updateSearch({ category: category === "all" ? undefined : (category as "material" | "tips_and_trick") })
+          }
+        />
+        <div className="md:w-80">
+          <SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className={cn("space-y-4 transition-opacity", data.isPlaceholderData && "opacity-60")}>
         <ContentList
           items={contents}
           isLoading={false}

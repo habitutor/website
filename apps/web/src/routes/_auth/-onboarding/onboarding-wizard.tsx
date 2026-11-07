@@ -1,16 +1,28 @@
-import { ArrowLeftIcon, ArrowRightIcon, GoogleLogoIcon } from "@phosphor-icons/react";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  BrainIcon,
+  BuildingsIcon,
+  CakeIcon,
+  CheckIcon,
+  GoogleLogoIcon,
+  GraduationCapIcon,
+  type Icon,
+  PhoneIcon,
+  RocketLaunchIcon,
+  StudentIcon,
+} from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import {
   clearOnboardingDraft,
@@ -22,6 +34,8 @@ import {
 } from "@/lib/onboarding-storage";
 import { cn } from "@/lib/utils";
 import { client } from "@/utils/orpc";
+import { AuthCard, AuthDivider, FieldErrors } from "../-components/auth-shell";
+import { PasswordInput } from "../-components/password-input";
 import { getPostRegisterRedirectPath } from "../auth-routing";
 import {
   CAMPUS_SUGGESTIONS,
@@ -43,10 +57,22 @@ const QUESTION_STEPS = [
 
 const TOTAL_STEPS = QUESTION_STEPS.length + 1; // + account creation step
 
+const STEP_ICONS: Icon[] = [
+  BuildingsIcon,
+  GraduationCapIcon,
+  CakeIcon,
+  StudentIcon,
+  BrainIcon,
+  PhoneIcon,
+  RocketLaunchIcon,
+];
+
 interface OnboardingWizardProps {
   mode?: "register" | "complete";
   initialAnswers?: OnboardingAnswers;
   onComplete?: () => void | Promise<void>;
+  showAvatar?: boolean;
+  onStepChange?: (step: number) => void;
 }
 
 function isStepValid(step: number, answers: OnboardingAnswers): boolean {
@@ -70,7 +96,13 @@ function isStepValid(step: number, answers: OnboardingAnswers): boolean {
   }
 }
 
-export function OnboardingWizard({ mode = "register", initialAnswers, onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({
+  mode = "register",
+  initialAnswers,
+  onComplete,
+  showAvatar = true,
+  onStepChange,
+}: OnboardingWizardProps) {
   const totalSteps = mode === "complete" ? QUESTION_STEPS.length : TOTAL_STEPS;
   const [{ answers, step }, setDraft] = useState({
     answers: initialAnswers ?? EMPTY_ONBOARDING_ANSWERS,
@@ -78,6 +110,13 @@ export function OnboardingWizard({ mode = "register", initialAnswers, onComplete
   });
   const [hydrated, setHydrated] = useState(mode === "complete");
   const [isSaving, setIsSaving] = useState(false);
+  const previousStep = useRef(step);
+  const direction = step >= previousStep.current ? 1 : -1;
+
+  useEffect(() => {
+    previousStep.current = step;
+    onStepChange?.(step);
+  }, [step, onStepChange]);
 
   // Hydrate from localStorage after mount so SSR markup stays deterministic
   useEffect(() => {
@@ -121,31 +160,23 @@ export function OnboardingWizard({ mode = "register", initialAnswers, onComplete
 
   return (
     <div className="relative w-full max-w-md">
-      <div className="absolute -top-8 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2">
-        <Image src="/avatar/login-avatar.webp" alt="Study Avatar" width={120} height={120} />
-      </div>
-
-      <div className="relative z-10 w-full rounded-sm border border-primary/50 bg-white p-8 pt-16 shadow-lg">
-        <div className="mb-6 space-y-2">
-          <p className="text-center text-xs font-medium text-muted-foreground">
-            Langkah {step + 1} dari {totalSteps}
-          </p>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200">
-            <motion.div
-              className="h-full rounded-full bg-primary-300"
-              animate={{ width: `${((step + 1) / totalSteps) * 100}%` }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-            />
-          </div>
+      {showAvatar && (
+        <div className="absolute -top-8 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2">
+          <Image src="/avatar/login-avatar.webp" alt="Study Avatar" width={120} height={120} />
         </div>
+      )}
 
-        <AnimatePresence mode="wait">
+      <AuthCard className={cn(showAvatar && "pt-16 sm:pt-16")}>
+        <StepProgress step={step} totalSteps={totalSteps} />
+
+        <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: 24 }}
+            custom={direction}
+            initial={{ opacity: 0, x: 40 * direction }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, x: -40 * direction }}
+            transition={{ type: "spring", stiffness: 320, damping: 30 }}
           >
             {isAccountStep ? (
               <AccountStep answers={answers} onBack={goBack} />
@@ -163,16 +194,41 @@ export function OnboardingWizard({ mode = "register", initialAnswers, onComplete
             )}
           </motion.div>
         </AnimatePresence>
-      </div>
+      </AuthCard>
 
       {mode === "register" && (
-        <p className="mt-4 text-center text-sm">
+        <p className="mt-5 text-center text-sm text-sr-ink-2">
           Sudah punya akun?{" "}
-          <Link to="/login" className="font-bold text-primary">
+          <Link to="/login" className="font-bold text-sr-blue-600 underline-offset-4 hover:underline">
             Masuk Sekarang
           </Link>
         </p>
       )}
+    </div>
+  );
+}
+
+function StepProgress({ step, totalSteps }: { step: number; totalSteps: number }) {
+  return (
+    <div className="mb-6 space-y-3">
+      <div className="flex items-center justify-between text-xs font-semibold">
+        <span className="text-sr-muted">
+          Langkah <span className="text-sr-blue-600">{step + 1}</span> dari {totalSteps}
+        </span>
+        <span className="text-sr-amber-700">{Math.round(((step + 1) / totalSteps) * 100)}%</span>
+      </div>
+      <div className="flex gap-1.5">
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <div key={i} className="h-2 flex-1 overflow-hidden rounded-full bg-sr-line">
+            <motion.div
+              className="h-full rounded-full bg-linear-to-r from-sr-blue-500 to-sr-sun-400"
+              initial={false}
+              animate={{ width: i <= step ? "100%" : "0%" }}
+              transition={{ duration: 0.4, ease: [0.2, 0.7, 0.2, 1] }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -213,7 +269,11 @@ function QuestionStep({
       className="space-y-6"
     >
       {key === "dreamCampus" && (
-        <StepShell title="Apa kampus impian kamu?" subtitle="Tulis nama PTN atau kampus yang paling kamu incar.">
+        <StepShell
+          step={step}
+          title="Apa kampus impian kamu?"
+          subtitle="Tulis nama PTN atau kampus yang paling kamu incar."
+        >
           <AutocompleteInput
             value={answers.dreamCampus}
             onChange={(value) => setAnswer("dreamCampus", value)}
@@ -225,7 +285,11 @@ function QuestionStep({
       )}
 
       {key === "dreamMajor" && (
-        <StepShell title="Apa jurusan impian kamu?" subtitle="Jurusan yang bakal kamu perjuangin sampai hari-H.">
+        <StepShell
+          step={step}
+          title="Apa jurusan impian kamu?"
+          subtitle="Jurusan yang bakal kamu perjuangin sampai hari-H."
+        >
           <AutocompleteInput
             value={answers.dreamMajor}
             onChange={(value) => setAnswer("dreamMajor", value)}
@@ -237,7 +301,7 @@ function QuestionStep({
       )}
 
       {key === "age" && (
-        <StepShell title="Berapa umur kamu?" subtitle="Biar kami bisa menyesuaikan materi buat kamu.">
+        <StepShell step={step} title="Berapa umur kamu?" subtitle="Biar kami bisa menyesuaikan materi buat kamu.">
           <Input
             type="number"
             min={10}
@@ -245,13 +309,14 @@ function QuestionStep({
             value={answers.age}
             onChange={(e) => setAnswer("age", e.target.value)}
             placeholder="Contoh: 17"
+            className="h-11"
             autoFocus
           />
         </StepShell>
       )}
 
       {key === "educationLevel" && (
-        <StepShell title="Sekarang kamu di jenjang apa?" subtitle="Pilih salah satu.">
+        <StepShell step={step} title="Sekarang kamu di jenjang apa?" subtitle="Pilih salah satu.">
           <div className="flex flex-wrap gap-2">
             {EDUCATION_LEVELS.map((level) => (
               <SelectBubble
@@ -266,7 +331,7 @@ function QuestionStep({
       )}
 
       {key === "difficultSubjects" && (
-        <StepShell title="Mapel apa yang paling sulit buat kamu?" subtitle="Boleh pilih lebih dari satu.">
+        <StepShell step={step} title="Mapel apa yang paling sulit buat kamu?" subtitle="Boleh pilih lebih dari satu.">
           <div className="flex flex-wrap gap-2">
             {SNBT_SUBJECTS.map((subject) => {
               const selected = answers.difficultSubjects.includes(subject);
@@ -291,12 +356,13 @@ function QuestionStep({
       )}
 
       {key === "phoneNumber" && (
-        <StepShell title="Berapa nomor HP kamu?" subtitle="Buat info penting seputar kelas dan komunitas.">
+        <StepShell step={step} title="Berapa nomor HP kamu?" subtitle="Buat info penting seputar kelas dan komunitas.">
           <Input
             type="tel"
             value={answers.phoneNumber}
             onChange={(e) => setAnswer("phoneNumber", e.target.value)}
             placeholder="Contoh: 081234567890"
+            className="h-11"
             autoFocus
           />
           {answers.phoneNumber.trim().length > 0 && !valid && (
@@ -306,25 +372,53 @@ function QuestionStep({
       )}
 
       <div className="flex items-center justify-between gap-4">
-        <Button type="button" variant="outline" onClick={onBack} disabled={step === 0}>
+        <Button type="button" variant="outline" size="lg" onClick={onBack} disabled={step === 0}>
           <ArrowLeftIcon />
           Kembali
         </Button>
-        <Button type="submit" disabled={!valid || isSaving}>
+        <Button type="submit" size="lg" className="group sr-sheen" disabled={!valid || isSaving}>
           {isLastStep ? (isSaving ? "Menyimpan..." : "Selesai") : "Lanjut"}
-          {!isLastStep && <ArrowRightIcon />}
+          {!isLastStep && <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />}
         </Button>
       </div>
     </form>
   );
 }
 
-function StepShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+function StepIcon({ step }: { step: number }) {
+  const StepGlyph = STEP_ICONS[step] ?? RocketLaunchIcon;
+
   return (
-    <div className="space-y-4">
-      <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold text-primary">{title}</h1>
-        <p className="text-sm text-muted-foreground">{subtitle}</p>
+    <motion.span
+      className="mx-auto flex size-14 items-center justify-center rounded-sr-md sr-card-sun"
+      initial={{ scale: 0, rotate: -30 }}
+      animate={{ scale: 1, rotate: 0 }}
+      transition={{ type: "spring", stiffness: 400, damping: 14, delay: 0.05 }}
+    >
+      <StepGlyph weight="duotone" className="size-7" />
+    </motion.span>
+  );
+}
+
+function StepShell({
+  step,
+  title,
+  subtitle,
+  children,
+}: {
+  step: number;
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-3 text-center">
+        <StepIcon step={step} />
+        <div className="space-y-1">
+          <h1 className="text-2xl font-extrabold text-sr-ink">{title}</h1>
+          <p className="text-sm text-sr-muted">{subtitle}</p>
+        </div>
       </div>
       <div className="space-y-2">{children}</div>
     </div>
@@ -333,18 +427,35 @@ function StepShell({ title, subtitle, children }: { title: string; subtitle: str
 
 function SelectBubble({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
+      aria-pressed={selected}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.94 }}
+      animate={selected ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+      transition={{ duration: 0.25 }}
       className={cn(
-        "cursor-pointer rounded-full border-2 px-4 py-2 text-sm font-medium transition-colors",
+        "inline-flex cursor-pointer items-center gap-1.5 rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-colors",
         selected
-          ? "border-primary-300 bg-primary-300 text-white"
-          : "border-neutral-300 bg-white text-neutral-800 hover:border-primary-200 hover:bg-primary-100/30",
+          ? "border-transparent bg-sr-blue-500 text-white shadow-sr-2"
+          : "border-sr-line-2 bg-white text-sr-ink-2 hover:border-sr-blue-200 hover:bg-sr-blue-50",
       )}
     >
+      <AnimatePresence initial={false}>
+        {selected && (
+          <motion.span
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: "auto", opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            className="shrink-0 overflow-hidden"
+          >
+            <CheckIcon weight="bold" className="size-4" />
+          </motion.span>
+        )}
+      </AnimatePresence>
       {label}
-    </button>
+    </motion.button>
   );
 }
 
@@ -403,9 +514,14 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
 
   return (
     <div className="space-y-4">
-      <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold text-primary">Satu langkah terakhir!</h1>
-        <p className="text-sm text-muted-foreground">Buat akun kamu dan mulai belajar hari ini.</p>
+      <div className="space-y-3 text-center">
+        <StepIcon step={QUESTION_STEPS.length} />
+        <div className="space-y-1">
+          <h1 className="text-2xl font-extrabold text-sr-ink">
+            Satu langkah <span className="font-sr-serif text-sr-blue-600 italic">terakhir!</span>
+          </h1>
+          <p className="text-sm text-sr-muted">Buat akun kamu dan mulai belajar hari ini.</p>
+        </div>
       </div>
 
       <form
@@ -423,16 +539,14 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
               <Input
                 id={field.name}
                 name={field.name}
+                className="h-11"
+                autoComplete="name"
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
                 autoFocus
               />
-              {field.state.meta.errors.map((error) => (
-                <p key={error?.message} className="text-xs text-red-500">
-                  {error?.message}
-                </p>
-              ))}
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
@@ -445,15 +559,13 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
                 id={field.name}
                 name={field.name}
                 type="email"
+                autoComplete="email"
+                className="h-11"
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
               />
-              {field.state.meta.errors.map((error) => (
-                <p key={error?.message} className="text-xs text-red-500">
-                  {error?.message}
-                </p>
-              ))}
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
@@ -462,19 +574,16 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
           {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>Password</Label>
-              <Input
+              <PasswordInput
                 id={field.name}
                 name={field.name}
-                type="password"
+                autoComplete="new-password"
+                className="h-11"
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
               />
-              {field.state.meta.errors.map((error) => (
-                <p key={error?.message} className="text-xs text-red-500">
-                  {error?.message}
-                </p>
-              ))}
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
@@ -493,19 +602,16 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
           {(field) => (
             <div className="space-y-2">
               <Label htmlFor={field.name}>Ulangi Password</Label>
-              <Input
+              <PasswordInput
                 id={field.name}
                 name={field.name}
-                type="password"
+                autoComplete="new-password"
+                className="h-11"
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
               />
-              {field.state.meta.errors.map((error, index) => (
-                <p key={`${field.name}-${index}`} className="text-xs text-red-500">
-                  {typeof error === "string" ? error : error?.message}
-                </p>
-              ))}
+              <FieldErrors errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
@@ -518,6 +624,7 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
                 id={field.name}
                 name={field.name}
                 type="text"
+                className="h-11"
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
@@ -528,18 +635,22 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
 
         <form.Subscribe>
           {(state) => (
-            <Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-              {state.isSubmitting ? "Memuat..." : "Daftar"}
+            <Button
+              type="submit"
+              size="lg"
+              className="group sr-sheen w-full"
+              disabled={!state.canSubmit || state.isSubmitting}
+            >
+              {state.isSubmitting ? "Memuat..." : "Daftar & Mulai Belajar"}
+              {!state.isSubmitting && (
+                <RocketLaunchIcon weight="fill" className="transition-transform group-hover:-translate-y-0.5" />
+              )}
             </Button>
           )}
         </form.Subscribe>
       </form>
 
-      <div className="flex items-center gap-4 py-2">
-        <Separator className="flex-1" />
-        <span className="shrink-0 text-xs text-muted-foreground uppercase">atau</span>
-        <Separator className="flex-1" />
-      </div>
+      <AuthDivider />
 
       <Button
         onClick={() =>
@@ -549,13 +660,14 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
           })
         }
         variant="outline"
+        size="lg"
         className="w-full hover:cursor-pointer"
       >
         <GoogleLogoIcon weight="bold" />
         Daftar dengan Google
       </Button>
 
-      <Button type="button" variant="ghost" onClick={onBack} className="w-full">
+      <Button type="button" variant="ghost" onClick={onBack} className="h-auto min-h-9 w-full py-2 whitespace-normal">
         <ArrowLeftIcon />
         Kembali ke pertanyaan sebelumnya
       </Button>

@@ -1,19 +1,33 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  BookOpenIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  ExamIcon,
+  LightbulbFilamentIcon,
+  ListChecksIcon,
+  ListNumbersIcon,
+  SparkleIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { motion } from "motion/react";
+import type React from "react";
 import { toast } from "sonner";
-import { orpc } from "@/utils/orpc";
+import { BackButton } from "@/components/navigation/back-button";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
+import { orpc } from "@/utils/orpc";
 import { TryoutDetailGate, getApiErrorMessage, useFreemiumStatus } from "../-components/freemium-access";
 
 export const Route = createFileRoute("/_authenticated/tryout/$tryoutId/")({
   head: () => ({
     meta: createMeta({
-      title: "Detail Tryout",
-      description: "Petunjuk pengerjaan dan daftar subtes tryout",
+      title: "Detail Try Out",
+      description: "Petunjuk pengerjaan dan daftar subtes Try Out",
       noIndex: true,
     }),
   }),
@@ -34,7 +48,7 @@ function TryoutDetailPage() {
   const startMutation = useMutation(
     orpc.tryout.start.mutationOptions({
       onSuccess: (data) => {
-        toast.success("Tryout dimulai!");
+        toast.success("Try Out dimulai!");
         if (data.sesiSubtesId && data.sesiId) {
           navigate({
             to: "/tryout/test",
@@ -47,7 +61,7 @@ function TryoutDetailPage() {
         }
       },
       onError: (err) => {
-        toast.error("Gagal memulai tryout", {
+        toast.error("Gagal memulai Try Out", {
           description: () => <p>{getApiErrorMessage(err)}</p>,
         });
       },
@@ -55,141 +69,179 @@ function TryoutDetailPage() {
   );
 
   const subtests = subtesQuery.data ?? [];
+  const totalSoal = subtests.reduce((sum, item) => sum + (Number(item.jumlahSoal) || 0), 0);
+  const totalMenit = subtests.reduce((sum, item) => sum + (Number(item.durasiMenit) || 0), 0);
+  const startDisabled = startMutation.isPending || isCheckingAccess;
+  const startLabel = startMutation.isPending ? "Memulai..." : "Mulai Try Out";
 
   return (
-    <div className="flex w-full flex-col gap-6 pt-10">
-      <Button
-        variant="secondary"
-        className="w-fit bg-[#3b5998] text-white hover:bg-[#3b5998]/90"
-        onClick={() => navigate({ to: "/tryout" })}
-      >
-        <ArrowLeftIcon weight="bold" /> Kembali
-      </Button>
+    <div className="flex w-full flex-col gap-6">
+      <BackButton to="/tryout" className="w-fit" />
 
       {isAccessGated && freemiumStatus.data && <TryoutDetailGate tryoutId={tryoutId} status={freemiumStatus.data} />}
 
-      {/* Banner */}
       {!isAccessGated && (
-        <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-[#fde047] p-8 sm:flex-row sm:items-center">
-          <h1 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-0 sm:text-3xl">Mulai Tryout Sekarang, Gratis!</h1>
-          <div className="relative z-10">
-            <div className="absolute -bottom-10 -left-10 -z-10 h-32 w-64 bg-[#f59e0b]" />
-            <Button
-              size="lg"
-              className="bg-[#0284c7] font-semibold text-white hover:bg-[#0369a1]"
-              onClick={() => startMutation.mutate({ tryoutId })}
-              disabled={startMutation.isPending || isCheckingAccess}
-            >
-              {startMutation.isPending ? "Memulai..." : "Mulai Sekarang"} <ArrowRightIcon weight="bold" />
-            </Button>
-          </div>
+        <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:pr-96">
+          <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
+          <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
+            <ExamIcon weight="fill" className="size-4 text-sr-sun-400" /> Siap ujian?
+          </span>
+          <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+            Mulai Try Out sekarang
+          </h1>
+          <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
+            Baca petunjuknya sebentar, siapkan diri, lalu kerjakan dengan tenang. Semangat!
+          </p>
+          <Button
+            size="lg"
+            variant="secondary"
+            className="sr-sheen relative mt-5 rounded-full"
+            onClick={() => startMutation.mutate({ tryoutId })}
+            disabled={startDisabled}
+          >
+            {startLabel} <ArrowRightIcon weight="bold" />
+          </Button>
+          <motion.img
+            src="/avatar/subtest/tka.webp"
+            alt=""
+            className="pointer-events-none absolute right-1/2 bottom-0 h-36 w-auto translate-x-1/2 select-none sm:right-10 sm:h-48 sm:translate-x-0 lg:right-16 lg:h-56"
+            initial={{ y: 40 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
+          />
         </div>
       )}
 
-      {/* Guideline */}
-      <div className="flex flex-col gap-6 rounded-xl border bg-white p-6 shadow-sm md:p-8">
-        <h2 className="text-xl text-primary-300">Petunjuk Pengerjaan Try Out</h2>
+      {!subtesQuery.isPending && subtests.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <SummaryStat icon={<BookOpenIcon weight="fill" />} value={subtests.length} label="Subtes" />
+          <SummaryStat icon={<ListNumbersIcon weight="fill" />} value={totalSoal} label="Soal" />
+          <SummaryStat icon={<ClockIcon weight="fill" />} value={totalMenit} label="Menit" />
+        </div>
+      )}
 
-        <div className="space-y-4">
-          <div>
-            <p className="font-semibold text-yellow-600">Aturan Pengerjaan:</p>
-            <ul className="ml-5 list-disc space-y-1">
-              <li>Setiap subtes hanya 1x</li>
-              <li>Waktu habis / klik Selesai , tidak bisa diulang</li>
-              <li>Pembahasan terbuka setelah semua subtes selesai</li>
-            </ul>
-            <p className="mt-2 text-sm">
-              ⚠️ <span className="italic">Catatan:</span> timer <strong>tetap berjalan</strong>.
+      <div className="grid gap-4 md:grid-cols-2">
+        <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 md:p-6">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-sr-sm bg-sr-blue-50 text-sr-blue-600">
+              <ListChecksIcon weight="fill" className="size-5" />
+            </span>
+            <h2 className="text-lg font-extrabold text-sr-ink">Aturan pengerjaan</h2>
+          </div>
+          <ul className="mt-4 space-y-2.5 text-sm leading-relaxed text-sr-ink-2">
+            {RULES.map((rule) => (
+              <li key={rule} className="flex gap-2.5">
+                <CheckCircleIcon weight="fill" className="mt-0.5 size-4 shrink-0 text-sr-blue-500" />
+                {rule}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex gap-2.5 rounded-sr-md border border-sr-orange-200 bg-sr-orange-100 p-3 text-sm text-sr-orange-700">
+            <WarningCircleIcon weight="fill" className="mt-0.5 size-4 shrink-0" />
+            <p>
+              Timer <strong>tetap berjalan</strong> walau kamu keluar dari halaman atau menutup aplikasi.
             </p>
           </div>
+        </section>
 
-          <div>
-            <p className="flex items-center gap-1 font-semibold text-primary-300">💡 Tips</p>
-            <ul className="mt-1 ml-5 list-disc space-y-1">
-              <li>Pastikan internet & baterai aman</li>
-              <li>Tandai soal ragu untuk dikerjakan nanti</li>
-              <li>Atur waktu, jangan terlalu lama di satu soal</li>
-            </ul>
+        <section className="rounded-sr-xl border border-sr-sun-200 bg-linear-to-br from-sr-cream via-white to-sr-sun-100 p-5 shadow-sr-1 md:p-6">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-sr-sm bg-sr-sun-500 text-sr-ink">
+              <LightbulbFilamentIcon weight="fill" className="size-5" />
+            </span>
+            <h2 className="text-lg font-extrabold text-sr-ink">Tips biar lancar</h2>
           </div>
-        </div>
-
-        {!isPremium && (
-          <div className="mt-2 border-t pt-6 text-sm">
-            <p className="mb-3 font-semibold">Ingin akses pembahasan lebih lengkap?</p>
-            <Button variant="outline" className="hover:bg-primary-50 w-fit border-primary-300 text-primary-300" asChild>
-              <Link to="/premium">
-                TryOut Premium <ArrowUpRightIcon weight="bold" />
-              </Link>
-            </Button>
-          </div>
-        )}
+          <ul className="mt-4 space-y-2.5 text-sm leading-relaxed text-sr-ink-2">
+            {TIPS.map((tip) => (
+              <li key={tip} className="flex gap-2.5">
+                <SparkleIcon weight="fill" className="mt-0.5 size-4 shrink-0 text-sr-amber" />
+                {tip}
+              </li>
+            ))}
+          </ul>
+          {!isPremium && (
+            <Link
+              to="/premium"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-sr-blue-600 hover:underline"
+            >
+              Mau pembahasan lengkap? Lihat Try Out Premium <ArrowUpRightIcon weight="bold" className="size-4" />
+            </Link>
+          )}
+        </section>
       </div>
 
-      {/* List Subtes */}
-      <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-bold text-gray-900">List Jenis Subtes</h2>
-        <div className="overflow-hidden rounded-md border bg-white shadow-sm">
-          <Table>
-            <TableHeader className="bg-[#e0f2fe]">
-              <TableRow>
-                <TableHead className="w-16 font-semibold text-gray-700">No</TableHead>
-                <TableHead className="font-semibold text-gray-700">Nama Subtes</TableHead>
-                <TableHead className="font-semibold text-gray-700">Jumlah Soal</TableHead>
-                <TableHead className="font-semibold text-gray-700">Durasi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {subtesQuery.isPending
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Skeleton className="h-4 w-8" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-40" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-12" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-16" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                : subtests.map((item, index) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium text-gray-600">{index + 1}</TableCell>
-                      <TableCell className="text-gray-600">{item.namaSubtes}</TableCell>
-                      <TableCell className="text-gray-600">{item.jumlahSoal}</TableCell>
-                      <TableCell className="text-gray-600">{item.durasiMenit} Menit</TableCell>
-                    </TableRow>
-                  ))}
-              {!subtesQuery.isPending && subtests.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                    Belum ada subtes untuk tryout ini
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+      <section className="space-y-3">
+        <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">Urutan subtes</h2>
+        <div className="overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1">
+          {subtesQuery.isPending ? (
+            <div className="space-y-3 p-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i.toString()} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : subtests.length === 0 ? (
+            <p className="px-4 py-10 text-center text-sm text-sr-muted">Belum ada subtes untuk try out ini.</p>
+          ) : (
+            <ol className="divide-y divide-sr-line">
+              {subtests.map((item, index) => (
+                <li key={item.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-sr-sm bg-sr-blue-50 text-sm font-extrabold text-sr-blue-600">
+                    {index + 1}
+                  </span>
+                  <p className="min-w-0 flex-1 font-bold text-sr-ink">{item.namaSubtes}</p>
+                  <div className="flex shrink-0 flex-col items-end gap-1 text-xs font-semibold text-sr-ink-2 sm:flex-row sm:gap-2">
+                    <span className="rounded-full bg-sr-blue-50 px-2.5 py-1">{item.jumlahSoal} soal</span>
+                    <span className="rounded-full bg-sr-sun-100 px-2.5 py-1 text-sr-amber-700">
+                      {item.durasiMenit} menit
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
-      </div>
+      </section>
 
-      {/* Bottom CTA */}
       {!isAccessGated && (
-        <div className="mt-2">
-          <p className="mb-4 text-lg font-medium">Siap? Yuk mulai tryoutnya! Semangat 💪🔥</p>
+        <div className="flex flex-col items-start gap-4 rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:flex-row sm:items-center sm:justify-between md:p-6">
+          <div>
+            <p className="text-lg font-extrabold text-sr-ink">Sudah siap? Yuk mulai!</p>
+            <p className="text-sm text-sr-muted">Kerjakan dengan tenang, kamu pasti bisa.</p>
+          </div>
           <Button
             size="lg"
-            className="w-full text-base font-semibold md:w-auto"
+            className="sr-sheen w-full rounded-full sm:w-auto"
             onClick={() => startMutation.mutate({ tryoutId })}
-            disabled={startMutation.isPending || isCheckingAccess}
+            disabled={startDisabled}
           >
-            {startMutation.isPending ? "Memulai..." : "Mulai Tryout Sekarang"} <ArrowRightIcon weight="bold" />
+            {startLabel} <ArrowRightIcon weight="bold" />
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+const RULES = [
+  "Setiap subtes hanya bisa dikerjakan 1 kali.",
+  "Kalau waktu habis atau kamu klik Selesai, subtes tidak bisa diulang.",
+  "Pembahasan terbuka setelah semua subtes selesai.",
+];
+
+const TIPS = [
+  "Pastikan internet dan baterai aman sebelum mulai.",
+  "Tandai soal yang ragu, lalu kerjakan lagi di akhir.",
+  "Atur waktu, jangan terlalu lama di satu soal.",
+];
+
+function SummaryStat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center rounded-sr-xl border border-sr-line bg-white px-2 py-3 text-center shadow-sr-1 sm:flex-row sm:gap-3 sm:px-4 sm:text-left [&_svg]:size-5 [&_svg]:text-sr-blue-600">
+      <span className="flex size-10 items-center justify-center rounded-full bg-sr-blue-50">{icon}</span>
+      <div className="mt-1 sm:mt-0">
+        <p className="text-xl leading-none font-extrabold text-sr-ink sm:text-2xl">{value}</p>
+        <p className="text-xs font-semibold text-sr-muted">{label}</p>
+      </div>
     </div>
   );
 }
