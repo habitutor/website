@@ -92,6 +92,14 @@
       transform: scale(1);
     }
   }
+  @keyframes sr-underline {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
   @keyframes sr-halo {
     0% {
       opacity: 0.9;

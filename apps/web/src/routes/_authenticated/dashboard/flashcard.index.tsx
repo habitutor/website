@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate, useRouteContext } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import Loader from "@/components/feedback/loader";
 import { orpc } from "@/utils/orpc";
-import { FlashcardBackgroundCircles } from "./-components/flashcard-background-circles";
 import { FlashcardCard } from "./-components/flashcard-card";
 import { FlashcardNotStartedView } from "./-components/flashcard-not-started-view";
 
@@ -40,10 +39,7 @@ function RouteComponent() {
 
   return (
     <div className="relative">
-      <FlashcardBackgroundCircles />
-      <div className="relative z-10">
-        <FlashcardCard />
-      </div>
+      <FlashcardCard />
     </div>
   );
 }

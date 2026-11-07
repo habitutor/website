@@ -1,9 +1,11 @@
 import { isDefinedError } from "@orpc/client";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, LightningIcon, TrophyIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
+import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { BackButton } from "@/components/navigation/back-button";
+import { StreakFlame } from "@/components/streak/streak-flame";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
@@ -41,96 +43,69 @@ export function FlashcardStartCard() {
     return null;
   }
 
+  const streak = session.user.flashcardStreak ?? 0;
+
   return (
-    <section className="flex flex-col gap-4 rounded-md border bg-white p-4 sm:p-6">
-      <Button asChild className="w-fit">
-        <Link to="/dashboard">
-          <ArrowLeftIcon />
-          Kembali
-        </Link>
-      </Button>
+    <section className="flex flex-col gap-5">
+      <BackButton to="/dashboard" className="w-fit" />
 
-      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-        <div className="relative h-17.5 w-full shrink-0 overflow-clip rounded-xl border border-secondary-400 bg-secondary-300 sm:h-21.75 sm:w-92">
-          <div className="absolute -top-7 -left-8.25 size-40 sm:-top-9 sm:size-52.25">
-            <svg className="absolute block size-full" fill="none" viewBox="0 0 209 209">
-              <circle cx="104.5" cy="104.5" fill="#FDC10E" r="104.5" />
-            </svg>
-          </div>
-          <p className="absolute top-1/2 left-4.5 -translate-y-1/2 text-[28px] leading-none font-bold whitespace-nowrap text-white sm:left-5.5 sm:text-[45px]">
-            {totalScore.toLocaleString("id-ID")}
-          </p>
-          <div className="absolute top-1/2 left-30 -translate-y-1/2 text-[11px] font-medium whitespace-nowrap text-black sm:left-47 sm:text-[18px]">
-            <p className="mb-0 leading-normal">Capaianmu Sejauh</p>
-            <p className="leading-normal">Ini. Teruskan!</p>
-          </div>
-        </div>
+      {/* Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header halaman lain. */}
+      <div className="relative overflow-hidden rounded-sr-xl sr-card-sun px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+        <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/30" />
+        <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/20" />
 
-        <div className="relative h-17.5 w-full shrink-0 overflow-clip rounded-xl border border-secondary-400 bg-secondary-300 sm:h-21.75 sm:w-85">
-          <div className="absolute -top-7 -left-12.5 size-40 sm:-top-9 sm:size-52.25">
-            <svg className="absolute block size-full" fill="none" viewBox="0 0 209 209">
-              <circle cx="104.5" cy="104.5" fill="#FDC10E" r="104.5" />
-            </svg>
-          </div>
-          <p className="absolute top-1/2 left-4.5 -translate-y-1/2 text-[28px] leading-none font-bold whitespace-nowrap text-white sm:left-5.5 sm:text-[45px]">
-            {session.user.flashcardStreak ?? 0}
-          </p>
-          <div className="absolute top-1/2 left-27.5 -translate-y-1/2 text-[11px] font-medium whitespace-nowrap text-black sm:left-43.5 sm:text-[18px]">
-            {(session.user.flashcardStreak ?? 0) > 0 ? (
-              <>
-                <p className="mb-0 leading-normal">Streak Brain Gym</p>
-                <p className="leading-normal">
-                  Kamu! <span className="text-secondary-900">Keren!</span>
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="mb-0 leading-normal">Streakmu Mati,</p>
-                <p className="leading-normal">Main Lagi Yuk!</p>
-              </>
-            )}
-          </div>
-        </div>
+        <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-xs font-bold text-sr-ink">
+          <LightningIcon weight="fill" className="size-4 text-sr-orange-500" /> Latihan otak harian
+        </span>
+        <h1 className="relative mt-3 text-[28px] leading-tight font-extrabold text-sr-ink sm:text-4xl">Brain Gym</h1>
+        <p className="relative mt-2 max-w-md text-sm leading-relaxed text-sr-ink-2 sm:text-base">
+          Uji kemampuan harianmu dengan flashcard selama 10 menit. Jawab sebanyak mungkin dan jaga streak-mu!
+        </p>
+        <Button
+          size="lg"
+          variant="darkBlue"
+          className="relative mt-5 rounded-full"
+          onClick={() => {
+            startMutation.mutate({});
+          }}
+          disabled={startMutation.isPending}
+        >
+          {startMutation.isPending ? "Menyiapkan..." : "Mulai Sekarang"} <ArrowRightIcon weight="bold" />
+        </Button>
+
+        <img
+          src="/avatar/subtest/hab.webp"
+          alt=""
+          className="pointer-events-none absolute right-1/2 bottom-0 h-36 w-auto translate-x-1/2 select-none motion-safe:animate-[sr-rise_0.8s_var(--ease-sr-spring)_0.15s_backwards] sm:right-12 sm:h-52 sm:translate-x-0 lg:right-20 lg:h-60"
+        />
       </div>
 
-      <div className="relative">
-        <img
-          src={(session.user.flashcardStreak ?? 0) > 0 ? "/decorations/image 30.png" : "/decorations/image 29.png"}
-          alt=""
-          className="pointer-events-none absolute -top-37 right-0 z-10 hidden h-37 w-48.25 md:block"
-        />
-
-        <div className="relative h-auto min-h-40 w-full overflow-clip rounded-[5px] border border-solid border-primary-300 bg-primary-200 sm:h-57.25">
-          <div className="absolute top-10 -left-10 h-50 w-50 sm:top-18 sm:-left-16 sm:h-78 sm:w-80">
-            <svg className="absolute block size-full" fill="none" viewBox="0 0 320 312">
-              <ellipse cx="160" cy="156" fill="#91A3DA" rx="160" ry="156" />
-            </svg>
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
+        <div className="flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center sm:p-5">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sr-sun-100 text-sr-amber-700">
+            <TrophyIcon weight="fill" className="size-6" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-3xl leading-none font-extrabold text-sr-ink tabular-nums">
+              {totalScore.toLocaleString("id-ID")}
+            </p>
+            <p className="mt-1 text-sm font-bold text-sr-ink">Total skor</p>
+            <p className="text-xs text-sr-muted">Capaianmu sejauh ini. Teruskan!</p>
           </div>
-
-          <div className="absolute top-0 -left-5 flex size-40 rotate-y-180 items-center justify-center sm:-top-12.25 sm:-left-15 sm:size-84.75">
-            <div className="size-full -scale-y-100 rotate-180">
-              <img src="/decorations/image 26.png" alt="" className="pointer-events-none h-full w-full object-cover" />
-            </div>
-          </div>
-
-          <div className="absolute top-1/2 left-40 flex w-[calc(100%-170px)] -translate-y-1/2 flex-col items-start pr-2 text-background sm:top-28.5 sm:left-70.75 sm:w-108 sm:translate-y-0 sm:pr-0">
-            <p className="text-[22px] leading-tight font-bold sm:text-[34px] sm:leading-12.75">Flashcard</p>
-            <p className="text-[12px] leading-snug font-medium sm:text-[18px] sm:leading-6.75 sm:whitespace-nowrap">
-              Uji kemampuan harianmu dengan Flashcard selama 10 menit!
+        </div>
+        <div className="flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center sm:p-5">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sr-blue-50">
+            <StreakFlame tone="brain" lit={streak > 0} animated={false} className="h-7 w-6" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-3xl leading-none font-extrabold text-sr-ink tabular-nums">{streak}</p>
+            <p className="mt-1 text-sm font-bold text-sr-ink">Hari streak</p>
+            <p className="text-xs text-sr-muted">
+              {streak > 0 ? "Keren, pertahankan ya!" : "Streak-mu putus, main lagi yuk!"}
             </p>
           </div>
         </div>
       </div>
-
-      <Button
-        onClick={() => {
-          startMutation.mutate({});
-        }}
-        disabled={startMutation.isPending}
-        className="ml-auto"
-      >
-        Mulai Sekarang
-      </Button>
     </section>
   );
 }

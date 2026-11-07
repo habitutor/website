@@ -61,7 +61,7 @@ const adminNavLinks = [
     icon: House,
   },
   {
-    name: "Tryout",
+    name: "Try Out",
     to: "/admin/tryout" as const,
     icon: TicketIcon,
   },

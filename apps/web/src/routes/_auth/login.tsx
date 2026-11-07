@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_auth/login")({
 const LOGIN_HIGHLIGHTS = [
   "Lanjutkan streak belajarmu",
   "250+ video bahas soal",
-  "Tryout rutin & komunitas pejuang PTN",
+  "Try Out rutin & komunitas pejuang PTN",
 ];
 
 function RouteComponent() {

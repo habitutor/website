@@ -39,10 +39,10 @@ const PROBLEMS: Problem[] = [
     solutionIcon: BookOpenIcon,
   },
   {
-    label: "Skor TryOut Stagnan",
+    label: "Skor Try Out Stagnan",
     icon: ShieldCheckIcon,
     tint: "bg-sr-orange-100 text-sr-orange-700",
-    solutionTitle: "Tryout rutin + pembahasan",
+    solutionTitle: "Try Out rutin + pembahasan",
     solution: "Simulasi rutin dengan pembahasan dan analisis progres, jadi kamu tahu bagian mana yang perlu dikejar.",
     solutionIcon: TargetIcon,
   },
@@ -323,7 +323,7 @@ function ChainBreakBanner() {
 export function Statistics() {
   return (
     <section className="relative overflow-hidden bg-linear-to-b from-sr-blue-50 via-white to-sr-blue-50">
-      <div className="relative container mx-auto flex w-full flex-col items-center gap-16 px-4 py-20 md:gap-24 md:py-24">
+      <div className="relative container mx-auto flex w-full flex-col items-center gap-12 px-4 py-12 md:gap-16 md:py-16">
         <div className="flex w-full flex-col items-center gap-8">
           <motion.h2
             className="text-center text-2xl font-bold text-pretty text-sr-ink lg:text-4xl"

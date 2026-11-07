@@ -38,20 +38,23 @@ export function FlashcardResultBottomBar() {
     <>
       {showPremiumAlert && <FlashcardResultPremiumDialog onClose={() => setShowPremiumAlert(false)} />}
 
-      <div className="fixed right-0 bottom-0 left-0 z-50 flex h-22.75 items-center justify-end gap-4 border-t border-neutral-500 bg-white px-6">
-        <Link
-          to="/dashboard"
-          className="flex h-10.5 w-50 items-center justify-center rounded-lg border border-primary-300 text-[15px] text-primary-300 no-underline transition-all duration-300 hover:-translate-y-0.5 hover:border-sr-blue-500 hover:bg-sr-blue-50 hover:shadow-sr-1 active:scale-[0.97]"
-        >
-          Selesaikan
-        </Link>
-        <button
-          onClick={() => startMutation.mutate({})}
-          disabled={startMutation.isPending}
-          className="h-10.5 w-50 sr-action rounded-lg border border-primary-300 bg-primary-300 text-[15px] text-white hover:bg-sr-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {startMutation.isPending ? "Memulai..." : "Main Lagi!"}
-        </button>
+      <div className="fixed right-0 bottom-0 left-0 z-50 border-t border-sr-line bg-white/95 p-3 backdrop-blur sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-xl gap-3 sm:justify-center">
+          <Link
+            to="/dashboard"
+            className="flex h-12 flex-1 items-center justify-center rounded-sr-md border-2 border-sr-line bg-white text-sm font-extrabold text-sr-blue-700 transition-colors hover:border-sr-blue-200 hover:bg-sr-blue-50 sm:w-48 sm:flex-none"
+          >
+            Selesai
+          </Link>
+          <button
+            type="button"
+            onClick={() => startMutation.mutate({})}
+            disabled={startMutation.isPending}
+            className="h-12 flex-1 cursor-pointer rounded-sr-md border-b-4 border-sr-blue-800 bg-sr-blue-500 text-sm font-extrabold tracking-wide text-white uppercase transition-[transform,border-width] active:translate-y-1 active:border-b-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-48 sm:flex-none"
+          >
+            {startMutation.isPending ? "Memulai..." : "Main Lagi!"}
+          </button>
+        </div>
       </div>
     </>
   );

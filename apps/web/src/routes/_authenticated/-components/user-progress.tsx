@@ -4,11 +4,17 @@ import { Link, useRouteContext } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { CountUp } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
-import { SectionCard } from "./section-card";
+import { Accent, SectionCard } from "./section-card";
 
 export const UserProgress = () => {
   return (
-    <SectionCard title="Progres kamu">
+    <SectionCard
+      title={
+        <>
+          Progres belajar <Accent>kamu</Accent>
+        </>
+      }
+    >
       <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <Flashcard />
         <Material />
@@ -24,20 +30,24 @@ const Material = () => {
   return (
     <Link
       to="/classes"
-      className="group relative flex min-h-44 sr-lift flex-col overflow-hidden rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 md:p-5"
+      className="group relative flex min-h-48 sr-lift flex-col overflow-hidden rounded-sr-lg sr-card-blue p-4 md:p-5"
     >
-      <p className="text-sm font-semibold text-sr-muted">Materi dipelajari</p>
-      <p className={`mt-1 text-4xl font-extrabold text-sr-blue-600 ${isPending ? "animate-pulse" : ""}`}>
+      <div className="pointer-events-none absolute -right-10 -bottom-12 size-36 rounded-full bg-white/10 md:size-44" />
+      <p className="relative text-sm font-semibold text-white/80">Materi dipelajari</p>
+      <p
+        className={`relative mt-1 text-4xl font-extrabold text-sr-sun-400 md:text-5xl ${isPending ? "animate-pulse" : ""}`}
+      >
         {isPending ? "–" : <CountUp to={data?.materialsCompleted ?? 0} />}
       </p>
-      <span className="relative z-10 mt-auto inline-flex items-center gap-1 text-sm font-bold text-sr-blue-600">
-        Belajar <ArrowRightIcon weight="bold" className="size-4 transition-transform group-hover:translate-x-1" />
+      <span className="relative z-10 mt-auto inline-flex w-fit items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-sm font-bold text-white ring-1 ring-white/20 transition-colors group-hover:bg-white/25">
+        <span className="sm:hidden">Belajar</span>
+        <span className="hidden sm:inline">Lanjut belajar</span>
+        <ArrowRightIcon weight="bold" className="size-4 transition-transform group-hover:translate-x-0.5" />
       </span>
-      <div className="pointer-events-none absolute -right-8 -bottom-8 size-32 rounded-full bg-sr-blue-50 md:size-36" />
       <img
-        src="/avatar/subtest-header-avatar.webp"
+        src="/avatar/subtest/header.webp"
         alt=""
-        className="pointer-events-none absolute right-0 bottom-0 h-20 w-auto origin-bottom-right translate-y-2 object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-3 md:h-28"
+        className="pointer-events-none absolute right-1 bottom-0 h-20 w-auto origin-bottom object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-3 md:right-3 md:h-28"
       />
     </Link>
   );
@@ -47,18 +57,18 @@ const Tryout = () => {
   return (
     <Link
       to="/tryout"
-      className="group relative flex min-h-44 sr-lift flex-col overflow-hidden rounded-sr-lg border border-sr-orange-200 bg-sr-orange-100 p-4 shadow-sr-1 md:p-5"
+      className="group relative flex min-h-48 sr-lift flex-col overflow-hidden rounded-sr-lg bg-linear-to-br from-sr-ink to-sr-blue-800 p-4 text-white shadow-sr-3 md:p-5"
     >
-      <p className="text-sm font-semibold text-sr-orange-700">Tryout SNBT</p>
-      <p className="mt-1 text-base leading-tight font-extrabold text-sr-ink md:text-xl">Uji kemampuanmu</p>
-      <span className="relative z-10 mt-auto inline-flex items-center gap-1 text-sm font-bold text-sr-orange-700">
-        Mulai <ArrowRightIcon weight="bold" className="size-4 transition-transform group-hover:translate-x-1" />
+      <div className="pointer-events-none absolute -right-10 -bottom-12 size-36 rounded-full bg-white/8 md:size-44" />
+      <p className="relative text-sm font-semibold text-sr-sun-400">Try Out SNBT</p>
+      <p className="relative mt-1 text-base leading-tight font-extrabold md:text-xl">Uji kemampuanmu</p>
+      <span className="relative z-10 mt-auto inline-flex w-fit items-center gap-1 rounded-full bg-sr-sun-500 px-3 py-1.5 text-sm font-bold text-sr-ink shadow-sr-sun transition-colors group-hover:bg-sr-sun-400">
+        Mulai <ArrowRightIcon weight="bold" className="size-4 transition-transform group-hover:translate-x-0.5" />
       </span>
-      <div className="pointer-events-none absolute -right-8 -bottom-8 size-32 rounded-full bg-white/60 md:size-36" />
       <img
-        src="/avatar/study-avatar.webp"
+        src="/avatar/subtest/tka.webp"
         alt=""
-        className="pointer-events-none absolute right-0 bottom-0 h-20 w-auto origin-bottom-right object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:rotate-2 md:h-28"
+        className="pointer-events-none absolute right-1 bottom-0 h-20 w-auto origin-bottom object-contain transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:rotate-2 md:right-3 md:h-28"
       />
     </Link>
   );

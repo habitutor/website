@@ -51,28 +51,66 @@ const CONTENT_ACTIONS = [
   {
     key: "video",
     label: "Video Materi",
+    short: "Video",
     icon: PlayCircleIcon,
     enabled: (i: ContentActionItem) => i.hasVideo,
     className: "bg-sr-blue-500 text-white",
-    width: "w-fit",
   },
   {
     key: "notes",
     label: "Catatan Materi",
+    short: "Catatan",
     icon: NoteIcon,
     enabled: (i: ContentActionItem) => i.hasNote,
     className: "bg-sr-sun-400 text-sr-ink",
-    width: "w-fit",
   },
   {
     key: "latihan-soal",
     label: "Latihan Soal",
+    short: "Latihan",
     icon: ExamIcon,
     enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
     className: "border border-sr-orange-200 bg-sr-orange-100 text-sr-orange-700",
-    width: "w-fit",
   },
 ] as const;
+
+// Di HP semua aksi tampil sejajar sama lebar (ikon + label pendek) supaya tidak ada yang tersembunyi di balik geseran.
+function ContentActions({
+  item,
+  basePath,
+  params,
+  disabled,
+}: {
+  item: ContentActionItem;
+  basePath: "/classes" | "/admin/classes";
+  params: { shortName: string; contentId: string };
+  disabled?: boolean;
+}) {
+  return (
+    <div className="grid auto-cols-fr grid-flow-col gap-2 sm:flex sm:flex-wrap sm:gap-3">
+      {CONTENT_ACTIONS.map(
+        ({ key, label, short, icon: Icon, enabled, className }) =>
+          enabled(item) && (
+            <Link
+              key={key}
+              to={`${basePath}/$shortName/$contentId/${key}`}
+              params={params}
+              className={cn(
+                "flex min-w-0 sr-action flex-col items-center justify-center gap-1 rounded-sr-sm px-2 py-2.5 text-center font-semibold sm:w-fit sm:flex-row sm:gap-2 sm:px-4 sm:text-left",
+                className,
+                disabled && "pointer-events-none opacity-60",
+              )}
+            >
+              <Icon weight="bold" className="size-5 shrink-0 sm:size-4.5" />
+              <span className="text-xs whitespace-nowrap sm:hidden">{short}</span>
+              <span className="hidden text-sm whitespace-nowrap sm:inline">{label}</span>
+              <CaretRightIcon weight="bold" className="hidden size-4 shrink-0 sm:block" />
+            </Link>
+          ),
+      )}
+    </div>
+  );
+}
 
 function ReorderableContentCard({
   item,
@@ -150,7 +188,7 @@ function ContentCard({
       {isPremiumContent && (
         <>
           <div className="pointer-events-none absolute inset-0 z-10 bg-sr-ivory/40" />
-          <div className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">
+          <div className="absolute top-3 right-3 z-20 hidden sm:block">
             <div className="flex items-center gap-1.5 rounded-full bg-sr-sun-500 px-2.5 py-1 shadow-sr-1">
               <LockIcon className="size-4 text-sr-ink" weight="fill" />
               <span className="text-xs font-bold text-sr-ink">Premium</span>
@@ -160,13 +198,13 @@ function ContentCard({
       )}
 
       {!isAdmin && completed && !isPremiumContent && (
-        <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-sr-live/10 px-2 py-0.5 text-xs font-bold text-sr-live sm:top-3 sm:right-3">
+        <div className="absolute top-3 right-3 hidden items-center gap-1 rounded-full bg-sr-live/10 px-2 py-0.5 text-xs font-bold text-sr-live sm:flex">
           <CheckCircleIcon className="size-4 sm:size-5" weight="fill" /> Selesai
         </div>
       )}
 
       <div className="flex flex-row justify-between gap-3 sm:items-start">
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           {isAdmin && dragControls && (
             <div
               className="mt-0.5 flex size-8 cursor-grab touch-none items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:cursor-grabbing"
@@ -184,8 +222,25 @@ function ContentCard({
             {index + 1}
           </div>
 
-          <div className="flex h-full items-center pt-0.5">
-            <p className="mr-20 text-sm leading-snug font-bold text-sr-ink sm:text-base lg:text-lg">{item.title}</p>
+          <div className="min-w-0 pt-1 sm:pt-1.5">
+            <p className="text-[15px] leading-snug font-bold text-pretty text-sr-ink sm:mr-24 sm:text-base lg:text-lg">
+              {item.title}
+            </p>
+            {!isAdmin && (isPremiumContent || completed) && (
+              <span
+                className={cn(
+                  "mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold sm:hidden",
+                  isPremiumContent ? "bg-sr-sun-500 text-sr-ink" : "bg-sr-live/10 text-sr-live",
+                )}
+              >
+                {isPremiumContent ? (
+                  <LockIcon weight="fill" className="size-3" />
+                ) : (
+                  <CheckCircleIcon weight="fill" className="size-3.5" />
+                )}
+                {isPremiumContent ? "Premium" : "Selesai"}
+              </span>
+            )}
           </div>
         </div>
 
@@ -214,29 +269,7 @@ function ContentCard({
         </div>
       </div>
 
-      <div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
-        {CONTENT_ACTIONS.map(
-          ({ key, label, icon: Icon, enabled, className, width }) =>
-            enabled(item) && (
-              <Link
-                key={key}
-                to={`${basePath}/$shortName/$contentId/${key}`}
-                params={params}
-                className={cn(
-                  "flex sr-action items-center gap-1.5 rounded-sr-sm px-3 py-2 font-semibold sm:gap-2 sm:px-4 sm:py-2.5",
-                  "w-full sm:w-auto",
-                  className,
-                  width,
-                  isPremiumContent && "pointer-events-none opacity-60",
-                )}
-              >
-                <Icon className="size-4 sm:size-4.5" weight="bold" />
-                <span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
-                <CaretRightIcon className="ml-auto size-4 sm:size-4.5" weight="bold" />
-              </Link>
-            ),
-        )}
-      </div>
+      <ContentActions item={item} basePath={basePath} params={params} disabled={isPremiumContent} />
     </Card>
   );
 }
@@ -324,28 +357,7 @@ export function LastContentViewedCard({
         </div>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto">
-        {CONTENT_ACTIONS.map(
-          ({ key, label, icon: Icon, enabled, className, width }) =>
-            enabled(item) && (
-              <Link
-                key={key}
-                to={`${basePath}/$shortName/$contentId/${key}`}
-                params={params}
-                className={cn(
-                  "flex sr-action items-center gap-2 rounded-sr-sm px-4 py-2.5 font-semibold",
-                  "w-full sm:w-auto",
-                  className,
-                  width,
-                )}
-              >
-                <Icon size={18} weight="bold" />
-                <span className="text-[14px] font-medium whitespace-nowrap">{label}</span>
-                <CaretRightIcon size={18} className="ml-auto" weight="bold" />
-              </Link>
-            ),
-        )}
-      </div>
+      <ContentActions item={item} basePath={basePath} params={params} />
     </Card>
   );
 }

@@ -272,7 +272,7 @@ export default function Testimonial() {
     <section className="relative overflow-hidden bg-linear-to-b from-sr-ivory via-white to-sr-blue-50">
       <div className="pointer-events-none absolute -top-24 -left-24 size-80 rounded-full bg-sr-sun-200/40 blur-3xl" />
       <div className="pointer-events-none absolute top-1/3 -right-24 size-96 rounded-full bg-sr-blue-200/40 blur-3xl" />
-      <div className="relative container mx-auto flex max-w-7xl flex-col items-center gap-y-8 px-4 py-20 md:py-24 xl:px-0">
+      <div className="relative container mx-auto flex max-w-7xl flex-col items-center gap-y-8 px-4 py-12 md:py-16 xl:px-0">
         <SectionHeading
           eyebrow="Testimoni"
           title={

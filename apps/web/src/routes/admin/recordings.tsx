@@ -18,7 +18,6 @@ import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
 import { PencilSimple, Trash } from "@phosphor-icons/react";
 
-
 export const Route = createFileRoute("/admin/recordings")({
   component: AdminRecordingsPage,
 });
@@ -243,8 +242,8 @@ function AdminRecordingsPage() {
                 aria-label="Hapus rekaman"
                 disabled={removeMutation.isPending}
                 onClick={() => removeMutation.mutate({ id: item.id })}
-                >
-              <Trash className="size-4" />
+              >
+                <Trash className="size-4" />
               </Button>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
-import { SectionCard } from "./section-card";
+import { Accent, SectionCard } from "./section-card";
 
 type AnnouncementItem = {
   id: number;
@@ -50,22 +50,33 @@ export const Announcement = () => {
   const primaryCta = primaryAnnouncement.ctaLink;
 
   return (
-    <SectionCard title="Tips SNBT khusus untukmu">
+    <SectionCard
+      title={
+        <>
+          Tips SNBT <Accent>khusus untukmu</Accent>
+        </>
+      }
+    >
       <div className="grid w-full gap-4 lg:grid-cols-5">
-        <article className="group relative sr-lift overflow-hidden rounded-sr-xl border border-sr-sun-200 bg-linear-to-br from-sr-cream via-white to-sr-sun-100 p-5 shadow-sr-1 md:p-7 lg:col-span-3">
-          <div className="pointer-events-none absolute -top-16 -right-16 size-44 rounded-full bg-sr-sun-200/50" />
-          <div className="relative">
-            <div className="flex items-center gap-3">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-sr-sm bg-sr-sun-500 text-sr-ink shadow-sr-sun transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-12">
-                <LightbulbFilamentIcon weight="fill" className="size-6" />
-              </span>
-              <p className="text-sm font-bold text-sr-amber-700">Tips minggu ini</p>
-            </div>
-            <h3 className="mt-4 text-xl leading-snug font-extrabold text-balance text-sr-ink md:text-2xl md:text-left">
+        <article className="group relative flex sr-lift flex-col overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1 lg:col-span-3">
+          <div className="flex items-center gap-3 bg-linear-to-r from-sr-sun-500 via-sr-sun-400 to-sr-sun-200 px-5 py-3 md:px-7">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-sr-ink transition-transform duration-500 ease-sr-spring motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-12">
+              <LightbulbFilamentIcon weight="fill" className="size-5" />
+            </span>
+            <p className="text-sm font-extrabold text-sr-ink">Tips minggu ini</p>
+            <img
+              src="/avatar/subtest/pu.webp"
+              alt=""
+              className="pointer-events-none -mb-3 ml-auto h-12 w-auto object-contain select-none md:hidden"
+            />
+          </div>
+
+          <div className="relative flex-1 p-5 md:p-7 md:pr-44">
+            <h3 className="text-xl leading-snug font-extrabold text-balance text-sr-ink md:text-2xl">
               {primaryAnnouncement.title}
             </h3>
             <p
-              className={`mt-2 max-w-2xl text-[15px] leading-7 text-pretty text-sr-ink-2 md:max-w-none ${isLong && !expanded ? "line-clamp-4" : ""}`}
+              className={`mt-2 text-[15px] leading-7 text-pretty text-sr-ink-2 ${isLong && !expanded ? "line-clamp-4" : ""}`}
             >
               {primaryAnnouncement.description}
             </p>
@@ -76,7 +87,7 @@ export const Announcement = () => {
                   <button
                     type="button"
                     onClick={() => setExpanded((v) => !v)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-sr-sun-200 bg-white px-4 py-2 text-sm font-bold text-sr-ink shadow-sr-1 transition-colors hover:border-sr-sun-400"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-sr-line bg-sr-blue-50 px-4 py-2 text-sm font-bold text-sr-blue-700 transition-colors hover:border-sr-blue-200 hover:bg-sr-blue-100"
                     aria-expanded={expanded}
                   >
                     {expanded ? "Tutup" : "Baca selengkapnya"}
@@ -98,6 +109,12 @@ export const Announcement = () => {
                 )}
               </div>
             )}
+
+            <img
+              src="/avatar/subtest/pu.webp"
+              alt=""
+              className="pointer-events-none absolute right-6 bottom-0 hidden h-36 w-auto object-contain transition-transform duration-500 ease-sr-spring select-none motion-safe:group-hover:-translate-y-1 md:block"
+            />
           </div>
         </article>
 
@@ -110,7 +127,9 @@ export const Announcement = () => {
               <span className="text-6xl leading-none font-extrabold text-sr-sun-400">25%</span>
               <span className="text-lg font-bold text-white">cashback</span>
             </p>
-            <p className="mt-3 max-w-[62%] text-sm leading-relaxed text-white/85 sm:max-w-none sm:pr-28 md:pr-32 lg:pr-36">{CASHBACK.description}</p>
+            <p className="mt-3 max-w-[62%] text-sm leading-relaxed text-white/85 sm:max-w-none sm:pr-28 md:pr-32 lg:pr-36">
+              {CASHBACK.description}
+            </p>
           </div>
           <Button variant="secondary" className="sr-sheen relative z-10 mt-auto w-fit rounded-full" asChild>
             <Link to={cashbackCtaLink}>

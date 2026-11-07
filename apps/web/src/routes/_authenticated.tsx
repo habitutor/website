@@ -78,11 +78,17 @@ function AuthedLayout() {
         >
           <Outlet />
         </Container>
+      ) : /^\/(premium|recordings|classes|live-class|tryout)\/?$|^\/classes\/[^/]+\/?$|^\/tryout\/.+$/.test(
+          pathname,
+        ) ? (
+        // Banner ajakan Premium disembunyikan di halaman-halaman ini, jadi cukup beri jarak setinggi header.
+        <Container className="flex flex-col gap-6 pt-24 pb-10 sm:pt-26">
+          <Outlet />
+        </Container>
       ) : /^\/dashboard\/flashcard/.test(pathname) ? (
-        <div className="relative min-h-screen bg-[#FFFBF3]">
-          <Container
-            className={`relative z-10 flex flex-col gap-6 ${context.session?.user.isPremium ? "pt-30" : "pt-48 sm:pt-40"}`}
-          >
+        // Banner Premium disembunyikan selama Brain Gym supaya siswa fokus, jadi jaraknya cukup setinggi header.
+        <div className="relative min-h-screen bg-sr-ivory">
+          <Container className="relative z-10 flex flex-col gap-6 pt-24 pb-10 sm:pt-26">
             <Outlet />
           </Container>
         </div>

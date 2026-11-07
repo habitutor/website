@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import { PREMIUM_TIERS, isAdminRole } from "@habitutor/shared/auth-domain";
 import { authed } from "../..";
-import { getLiveClassTiming } from "../live-class/logic";
+import { getLiveClassLock, getLiveClassTiming } from "../live-class/logic";
 import { liveClassRepo } from "../live-class/repo";
 import { dashboardRepo } from "./repo";
 
@@ -35,6 +35,8 @@ const content = authed
         endsAt: "string",
         joinOpensAt: "string",
         locked: "boolean",
+        lockReason: "'premium' | 'mandiri' | 'tier' | null",
+        category: "'TKA' | 'SNBT' | 'MANDIRI'",
       }).array(),
     }),
   )
@@ -42,29 +44,34 @@ const content = authed
     const isAdmin = isAdminRole(context.session.user.role);
     const isPremium = Boolean(context.session.user.isPremium);
     const isPremiumTier2 = context.session.user.premiumTier === PREMIUM_TIERS.PREMIUM_2;
-    const canJoin = isAdmin || isPremium;
 
-    const announcements = await dashboardRepo.listPublishedAnnouncements({});
-
-    // Non-premium tetap melihat jadwal (tanpa link) sebagai ajakan upgrade; kelas Mandiri hanya untuk pembelinya.
-    const includeMandiri =
-      isAdmin || (isPremium && (await liveClassRepo.hasMandiriPackage({ userId: context.session.user.id })));
-    const rows = await dashboardRepo.listLiveClasses({
-      onlyThreeX: canJoin && !isAdmin && isPremiumTier2,
-      includeMandiri,
-    });
+    // Semua jadwal tampil; aksesnya dikunci per kelas sesuai paket, sama seperti halaman jadwal live class.
+    const [announcements, rows, hasMandiriPackage] = await Promise.all([
+      dashboardRepo.listPublishedAnnouncements({}),
+      dashboardRepo.listLiveClasses({}),
+      isPremium ? liveClassRepo.hasMandiriPackage({ userId: context.session.user.id }) : Promise.resolve(false),
+    ]);
     const now = new Date();
 
     const liveClasses = rows.map(({ isoDate, durationMinutes, link, ...row }) => {
       const timing = getLiveClassTiming({ date: isoDate, time: row.time, durationMinutes, now });
+      const lockReason = getLiveClassLock({
+        isAdmin,
+        isPremium,
+        isPremiumTier2,
+        hasMandiriPackage,
+        category: row.category,
+        access: row.access,
+      });
       return {
         ...row,
         startsAt: timing.startsAt.toISOString(),
         endsAt: timing.endsAt.toISOString(),
         joinOpensAt: timing.joinOpensAt.toISOString(),
-        locked: !canJoin,
+        locked: Boolean(lockReason),
+        lockReason,
         // Link Zoom hanya untuk yang berhak dan baru saat ruang kelas sudah dibuka.
-        link: canJoin && timing.isJoinOpen ? link : null,
+        link: !lockReason && timing.isJoinOpen ? link : null,
       };
     });
 

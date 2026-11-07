@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { dashboardAnnouncement, dashboardLiveClass } from "@habitutor/db/schema/dashboard";
 import { product, transaction } from "@habitutor/db/schema/transaction";
@@ -79,15 +79,7 @@ export const dashboardRepo = {
   },
 
   /** Hanya kelas yang belum selesai (jadwal disimpan dalam WIB); kelas lama tetap tersimpan untuk halaman jadwal. */
-  listLiveClasses: async ({
-    db = defaultDb,
-    onlyThreeX,
-    includeMandiri,
-  }: {
-    db?: DrizzleDatabase;
-    onlyThreeX: boolean;
-    includeMandiri: boolean;
-  }) => {
+  listLiveClasses: async ({ db = defaultDb }: { db?: DrizzleDatabase }) => {
     return db
       .select({
         id: dashboardLiveClass.id,
@@ -99,14 +91,13 @@ export const dashboardRepo = {
         teacher: dashboardLiveClass.teacher,
         link: dashboardLiveClass.link,
         access: dashboardLiveClass.access,
+        category: dashboardLiveClass.category,
         order: dashboardLiveClass.order,
       })
       .from(dashboardLiveClass)
       .where(
         and(
           eq(dashboardLiveClass.isPublished, true),
-          onlyThreeX ? eq(dashboardLiveClass.access, "3x") : undefined,
-          includeMandiri ? undefined : ne(dashboardLiveClass.category, "MANDIRI"),
           sql`((${dashboardLiveClass.date} + ${dashboardLiveClass.time}) at time zone 'Asia/Jakarta')
             + ${dashboardLiveClass.durationMinutes} * interval '1 minute' > now()`,
         ),

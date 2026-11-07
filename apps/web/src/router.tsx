@@ -16,9 +16,7 @@ export const getRouter = () => {
     defaultPendingComponent: () => <Loader />,
     defaultNotFoundComponent: () => <NotFound />,
     defaultErrorComponent: ({ error }) => (
-      <ErrorComponent
-        error={error instanceof Error ? error : new Error(String(error))}
-      />
+      <ErrorComponent error={error instanceof Error ? error : new Error(String(error))} />
     ),
     Wrap: ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>,
   });

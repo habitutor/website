@@ -1,3 +1,4 @@
+import { ExamIcon, NoteIcon, PlayCircleIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -6,6 +7,7 @@ import { NextButton } from "@/components/navigation/next-button";
 import { PremiumGateModal } from "@/components/premium/premium-gate-modal";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId")({
@@ -83,7 +85,7 @@ function RouteComponent() {
   // Show premium modal for forbidden content
   if (isForbiddenError) {
     return (
-      <Container className="min-h-screen border-x border-neutral-200 bg-white pt-28 sm:gap-6">
+      <Container className="min-h-screen pt-24 sm:pt-26">
         <PremiumGateModal isOpen={showPremiumModal} onClose={handlePremiumModalClose} contentType="content" />
       </Container>
     );
@@ -109,8 +111,8 @@ function RouteComponent() {
   };
 
   return (
-    <Container className="min-h-screen border-x border-neutral-200 bg-white pt-28 sm:gap-6">
-      <div className="flex justify-between">
+    <Container className="flex min-h-screen flex-col gap-6 pt-24 pb-14 sm:pt-26">
+      <div className="flex items-center justify-between gap-3">
         {currentTab === "video" ? (
           <BackButton to="/classes/$shortName" params={{ shortName }} />
         ) : currentTab === "notes" ? (
@@ -132,11 +134,58 @@ function RouteComponent() {
         )}
       </div>
 
+      {/* Langkah belajar: siswa selalu tahu sedang di tahap mana dan bisa pindah tahap. */}
+      <nav aria-label="Tahap belajar" className="rounded-sr-xl border border-sr-line bg-white p-1.5 shadow-sr-1">
+        <ol className="grid grid-cols-3 gap-1">
+          {CONTENT_STEPS.map((step, index) => {
+            const active = step.value === currentTab;
+            const Icon = step.icon;
+            return (
+              <li key={step.value}>
+                <button
+                  type="button"
+                  onClick={() => handleTabChange(step.value)}
+                  aria-current={active ? "step" : undefined}
+                  className={cn(
+                    "flex w-full flex-col items-center justify-center gap-1 rounded-sr-lg px-1 py-2 text-xs font-bold whitespace-nowrap transition-colors sm:flex-row sm:gap-2 sm:px-2 sm:py-2.5 sm:text-sm",
+                    active
+                      ? "bg-sr-blue-500 text-white shadow-sr-2"
+                      : "text-sr-ink-2 hover:bg-sr-blue-50 hover:text-sr-blue-600",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "hidden size-6 shrink-0 items-center justify-center rounded-full text-xs font-extrabold sm:flex",
+                      active ? "bg-white/20" : "bg-sr-blue-50 text-sr-blue-600",
+                    )}
+                  >
+                    {index + 1}
+                  </span>
+                  <Icon weight={active ? "fill" : "bold"} className="size-5 shrink-0 sm:hidden" />
+                  <span className="leading-none sm:leading-normal">
+                    <span className="sm:hidden">{step.short}</span>
+                    <span className="hidden sm:inline">{step.label}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+
       <Tabs value={currentTab} onValueChange={handleTabChange}>
         <TabsContent value={currentTab}>
-          <Outlet />
+          <div className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:p-7 lg:p-9">
+            <Outlet />
+          </div>
         </TabsContent>
       </Tabs>
     </Container>
   );
 }
+
+const CONTENT_STEPS = [
+  { value: "video", label: "Video Materi", short: "Video", icon: PlayCircleIcon },
+  { value: "notes", label: "Catatan Materi", short: "Catatan", icon: NoteIcon },
+  { value: "latihan-soal", label: "Latihan Soal", short: "Latihan", icon: ExamIcon },
+] as const;

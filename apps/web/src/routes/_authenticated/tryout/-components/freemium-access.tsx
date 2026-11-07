@@ -1,11 +1,15 @@
 import {
+  ArrowRightIcon,
   ArrowSquareOutIcon,
   CheckCircleIcon,
   CopyIcon,
   ImageIcon,
   LockKeyIcon,
   LockKeyOpenIcon,
+  PlusCircleIcon,
+  SparkleIcon,
   StarIcon,
+  TicketIcon,
   WhatsappLogoIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -96,11 +100,11 @@ async function waitForPaymentActivation(orderId: string) {
 
 const PAYMENT_COPY = {
   paket: {
-    success: "Pembayaran berhasil! Kamu dapat 3 jatah TO, pembahasannya sudah termasuk.",
-    pending: "Pembayaran sedang diproses. Jatah TO akan aktif otomatis setelah terkonfirmasi.",
+    success: "Pembayaran berhasil! Kamu dapat 3 jatah Try Out, pembahasannya sudah termasuk.",
+    pending: "Pembayaran sedang diproses. Jatah Try Out akan aktif otomatis setelah terkonfirmasi.",
   },
   pembahasan: {
-    success: "Pembayaran berhasil! Pembahasan TO ini sudah terbuka.",
+    success: "Pembayaran berhasil! Pembahasan Try Out ini sudah terbuka.",
     pending: "Pembayaran sedang diproses. Pembahasan akan terbuka otomatis setelah terkonfirmasi.",
   },
 } as const;
@@ -157,7 +161,9 @@ function useSelectTryout() {
       onSuccess: async (data) => {
         await refresh();
         toast.success(
-          data.source === "paket" ? "TO dipilih. Pembahasannya sudah termasuk paket." : "TO gratis kamu sudah dipilih.",
+          data.source === "paket"
+            ? "Try Out dipilih. Pembahasannya sudah termasuk paket."
+            : "Try Out gratis kamu sudah dipilih.",
         );
       },
       onError: (error) => toast.error(getApiErrorMessage(error)),
@@ -167,7 +173,7 @@ function useSelectTryout() {
     orpc.tryout.freemium.unselect.mutationOptions({
       onSuccess: async () => {
         await refresh();
-        toast.success("Pilihan dilepas. Jatahnya bisa dipakai untuk TO lain.");
+        toast.success("Pilihan dilepas. Jatahnya bisa dipakai untuk Try Out lain.");
       },
       onError: (error) => toast.error(getApiErrorMessage(error)),
     }),
@@ -205,41 +211,14 @@ function WhatsappButton({ href, label }: { href: string; label: string }) {
   );
 }
 
-/** Channel WA untuk semua yang punya akses; grup WA TryOut untuk yang lolos syarat gratis dan pembeli paket. */
-export function FreemiumWhatsappInvites({
-  showPaketGroup = false,
-  compact = false,
-}: {
-  showPaketGroup?: boolean;
-  compact?: boolean;
-}) {
+/** Channel WA untuk semua yang punya akses; grup WA Try Out untuk yang lolos syarat gratis dan pembeli paket. */
+export function FreemiumWhatsappInvites({ showPaketGroup = false }: { showPaketGroup?: boolean }) {
   const { channel, paketGroup } = FREEMIUM_WHATSAPP_LINKS;
   if (!channel && !(showPaketGroup && paketGroup)) return null;
 
-  if (compact) {
-    return (
-      <div className="flex flex-wrap gap-2">
-        {showPaketGroup && paketGroup && (
-          <Button asChild size="sm" className="bg-whatsapp text-white hover:bg-whatsapp/90">
-            <a href={paketGroup} target="_blank" rel="noopener noreferrer">
-              <WhatsappLogoIcon weight="fill" /> Grup WA TryOut
-            </a>
-          </Button>
-        )}
-        {channel && (
-          <Button asChild size="sm" variant="outline" className="border-whatsapp text-whatsapp hover:bg-whatsapp/10">
-            <a href={channel} target="_blank" rel="noopener noreferrer">
-              <WhatsappLogoIcon weight="fill" /> Channel WA
-            </a>
-          </Button>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-2">
-      {showPaketGroup && paketGroup && <WhatsappButton href={paketGroup} label="Gabung Grup WA TryOut" />}
+      {showPaketGroup && paketGroup && <WhatsappButton href={paketGroup} label="Gabung Grup WA Try Out" />}
       {channel && <WhatsappButton href={channel} label="Ikuti Channel WA Habitutor" />}
     </div>
   );
@@ -259,8 +238,8 @@ function BroadcastTextBox() {
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border bg-gray-50 p-3 text-sm">
-      <p className="max-h-48 overflow-y-auto whitespace-pre-wrap text-gray-700">{broadcastText}</p>
+    <div className="flex flex-col gap-2 rounded-sr-sm border bg-sr-ivory p-3 text-sm">
+      <p className="max-h-48 overflow-y-auto whitespace-pre-wrap text-sr-ink-2">{broadcastText}</p>
       <Button type="button" variant="outline" size="sm" className="w-fit" onClick={handleCopy}>
         <CopyIcon /> Salin teks BC
       </Button>
@@ -280,19 +259,19 @@ function ProofSlot({
   return (
     <label
       className={cn(
-        "flex cursor-pointer items-center gap-3 rounded-lg border border-dashed p-3 text-sm transition-colors focus-within:ring-2 focus-within:ring-primary-300 hover:bg-gray-50",
-        preview && "border-emerald-400 bg-emerald-50/40",
+        "flex cursor-pointer items-center gap-3 rounded-sr-sm border border-dashed p-3 text-sm transition-colors focus-within:ring-2 focus-within:ring-sr-blue-300 hover:bg-sr-ivory",
+        preview && "border-sr-live bg-sr-live/5",
       )}
     >
       {preview ? (
-        <img src={preview} alt={label} className="size-14 shrink-0 rounded-md border object-cover" />
+        <img src={preview} alt={label} className="size-14 shrink-0 rounded-sr-xs border object-cover" />
       ) : (
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-400">
+        <span className="flex size-14 shrink-0 items-center justify-center rounded-sr-xs bg-sr-blue-50 text-sr-blue-300">
           <ImageIcon size={24} />
         </span>
       )}
       <span className="flex flex-col">
-        <span className="font-semibold text-gray-800">{label}</span>
+        <span className="font-semibold text-sr-ink">{label}</span>
         <span className="text-xs text-muted-foreground">
           {preview ? "Ketuk untuk ganti foto" : "Ketuk untuk pilih foto"}
         </span>
@@ -358,18 +337,19 @@ export function FreemiumRequirementsDialog({
         {isDone ? (
           <>
             <DialogHeader>
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 sm:mx-0">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-sr-live/10 text-sr-live sm:mx-0">
                 <CheckCircleIcon size={28} weight="fill" />
               </div>
-              <DialogTitle>Syarat terpenuhi, kamu dapat 1 TO gratis!</DialogTitle>
+              <DialogTitle>Syarat terpenuhi, kamu dapat 1 Try Out gratis!</DialogTitle>
               <DialogDescription>
-                Pilih 1 TO lewat tombol "Pilih TO ini" di daftar TO. Pilihan masih bisa diganti selama TO-nya belum
-                mulai dikerjakan. Pembahasannya bisa dibuka {FREEMIUM_PEMBAHASAN_PRICE_LABEL} setelah selesai.
+                Pilih 1 Try Out lewat tombol "Pilih Try Out ini" di daftar Try Out. Pilihan masih bisa diganti selama
+                Try Out-nya belum mulai dikerjakan. Pembahasannya bisa dibuka {FREEMIUM_PEMBAHASAN_PRICE_LABEL} setelah
+                selesai.
               </DialogDescription>
             </DialogHeader>
             <FreemiumWhatsappInvites showPaketGroup />
             <DialogFooter>
-              <Button onClick={() => onOpenChange(false)}>Pilih TO</Button>
+              <Button onClick={() => onOpenChange(false)}>Pilih Try Out</Button>
             </DialogFooter>
           </>
         ) : (
@@ -378,7 +358,7 @@ export function FreemiumRequirementsDialog({
               <DialogTitle>Akses Gratis: Penuhi 3 Syarat</DialogTitle>
               <DialogDescription>
                 Lakukan ketiga hal di bawah, lalu upload foto buktinya. Setelah terkirim, kamu langsung bisa memilih 1
-                TO.
+                Try Out.
               </DialogDescription>
             </DialogHeader>
 
@@ -434,41 +414,157 @@ function FreemiumPaidDialog({ open, onOpenChange }: { open: boolean; onOpenChang
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 sm:mx-0">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-sr-live/10 text-sr-live sm:mx-0">
             <CheckCircleIcon size={28} weight="fill" />
           </div>
-          <DialogTitle>Paket 3 TryOut aktif!</DialogTitle>
+          <DialogTitle>Paket 3 Try Out aktif!</DialogTitle>
           <DialogDescription>
-            Pilih 3 TO lewat tombol "Pilih TO ini" di daftar TO. Pembahasan ketiga TO itu sudah termasuk dan terbuka
-            setelah kamu selesai mengerjakannya.
+            Pilih 3 Try Out lewat tombol "Pilih Try Out ini" di daftar Try Out. Pembahasan ketiga Try Out itu sudah
+            termasuk dan terbuka setelah kamu selesai mengerjakannya.
           </DialogDescription>
         </DialogHeader>
         <FreemiumWhatsappInvites showPaketGroup />
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Pilih TO</Button>
+          <Button onClick={() => onOpenChange(false)}>Pilih Try Out</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-function OptionBenefits({ items }: { items: readonly string[] }) {
+function FreeAccessCard({ onOpenRequirements }: { onOpenRequirements: () => void }) {
   return (
-    <ul className="flex flex-col gap-1.5 text-sm">
-      {items.map((item) => (
-        <li key={item} className="flex items-start gap-2">
-          <CheckCircleIcon size={18} weight="fill" className="mt-px shrink-0" />
-          {item}
-        </li>
-      ))}
-    </ul>
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-sr-xl border-2 border-sr-line bg-white p-6 shadow-sr-1 transition-all duration-300 hover:-translate-y-0.5 hover:border-sr-blue-300 hover:shadow-sr-2 md:p-7">
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-sr-line bg-sr-ivory px-3 py-1 text-xs font-extrabold tracking-wide text-sr-ink-2 uppercase">
+            Jalur Gratis
+          </span>
+          <span className="text-xs font-semibold text-sr-muted">1 jatah Try Out</span>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-extrabold text-sr-ink sm:text-2xl">1 Try Out Gratis</h3>
+          <p className="mt-1 text-xs text-sr-muted">Cukup ikuti 3 langkah pendaftaran sederhana</p>
+        </div>
+
+        <div className="flex items-baseline gap-1.5 border-y border-sr-line/70 py-3.5">
+          <span className="text-3xl font-black text-sr-ink sm:text-4xl">Rp0</span>
+          <span className="text-xs font-semibold text-sr-muted">/ 1 Try Out</span>
+        </div>
+
+        <ul className="flex flex-col gap-3 text-sm">
+          <li className="flex items-start gap-2.5 text-sr-ink-2">
+            <span className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-sr-blue-50 text-sr-blue-600">
+              <CheckCircleIcon size={16} weight="bold" />
+            </span>
+            <span>Follow Instagram & TikTok, lalu bagikan pesan ke 5 grup WA</span>
+          </li>
+          <li className="flex items-start gap-2.5 text-sr-ink-2">
+            <span className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-sr-blue-50 text-sr-blue-600">
+              <CheckCircleIcon size={16} weight="bold" />
+            </span>
+            <span>Bebas pilih 1 Try Out yang ingin kamu kerjakan</span>
+          </li>
+          <li className="flex items-start gap-2.5 text-sr-ink-2">
+            <span className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-sr-blue-50 text-sr-blue-600">
+              <CheckCircleIcon size={16} weight="bold" />
+            </span>
+            <span>Skor dan evaluasi langsung keluar setelah pengerjaan selesai</span>
+          </li>
+          <li className="flex items-start gap-2.5 text-xs text-sr-muted">
+            <span className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full border border-sr-line bg-sr-ivory text-sr-muted">
+              <CheckCircleIcon size={14} weight="regular" />
+            </span>
+            <span>Pembahasan soal bisa dibuka {FREEMIUM_PEMBAHASAN_PRICE_LABEL} per Try Out</span>
+          </li>
+        </ul>
+      </div>
+
+      <div className="mt-6 pt-2">
+        <Button
+          variant="outline"
+          className="w-full rounded-full border-2 border-sr-line-2 bg-white py-3 text-sm font-extrabold text-sr-ink transition-all hover:border-sr-blue-500 hover:bg-sr-blue-50 hover:text-sr-blue-600 hover:shadow-sr-1"
+          onClick={onOpenRequirements}
+        >
+          Penuhi Syarat Gratis
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PaidAccessCard({ onPay, isPending }: { onPay: () => void; isPending: boolean }) {
+  return (
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-sr-xl sr-card-blue p-6 text-white shadow-sr-2 ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-3 md:p-7">
+      <div className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-white/10 blur-xl" />
+      <div className="pointer-events-none absolute -bottom-16 -left-16 size-40 rounded-full bg-white/5 blur-lg" />
+
+      <div className="relative z-10 flex flex-col gap-5">
+        <div className="flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-sr-sun-200 bg-sr-sun-100 px-3 py-1 text-xs font-black tracking-wider text-sr-amber-700 uppercase shadow-sr-1">
+            <SparkleIcon weight="fill" className="size-3 text-sr-amber-700" />
+            Paling Hemat
+          </span>
+          <span className="text-xs font-bold text-sr-sun-200">Akses langsung</span>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-extrabold text-sr-sun-200 sm:text-2xl">Paket 3 Try Out</h3>
+          <p className="mt-1 text-xs text-white/85">Langsung kerjakan tanpa perlu upload bukti pendaftaran</p>
+        </div>
+
+        <div className="flex flex-col gap-2 border-y border-white/20 py-3.5">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-sr-sun-200 sm:text-4xl">{FREEMIUM_PAKET_PRICE_LABEL}</span>
+            <span className="text-xs font-semibold text-white/80">/ 3 Try Out</span>
+          </div>
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-bold text-white">
+            <CheckCircleIcon weight="fill" className="size-3.5 text-sr-sun-400" />
+            Sudah termasuk pembahasan ketiga Try Out
+          </span>
+        </div>
+
+        <ul className="flex flex-col gap-3 text-sm">
+          <li className="flex items-start gap-2.5 text-white/95">
+            <span className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink shadow-sr-1">
+              <CheckCircleIcon size={14} weight="bold" />
+            </span>
+            <span>Bebas pilih dan kerjakan 3 Try Out kapan saja</span>
+          </li>
+          <li className="flex items-start gap-2.5 text-white/95">
+            <span className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink shadow-sr-1">
+              <CheckCircleIcon size={14} weight="bold" />
+            </span>
+            <span>Pembahasan lengkap 3 Try Out sudah otomatis terbuka</span>
+          </li>
+          <li className="flex items-start gap-2.5 text-white/95">
+            <span className="mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink shadow-sr-1">
+              <CheckCircleIcon size={14} weight="bold" />
+            </span>
+            <span>Gabung grup WhatsApp komunitas Try Out Habitutor</span>
+          </li>
+        </ul>
+      </div>
+
+      <div className="relative z-10 mt-6 pt-2">
+        <Button
+          variant="secondary"
+          className="sr-sheen w-full rounded-full py-3 text-base font-extrabold text-sr-ink shadow-sr-sun transition-all active:scale-95"
+          disabled={isPending}
+          onClick={onPay}
+        >
+          {isPending ? "Memproses..." : "Beli Paket 3 Try Out"}
+        </Button>
+      </div>
+    </div>
   );
 }
 
 function SlotChip({ label, used, total }: { label: string; used: number; total: number }) {
   return (
-    <span className="rounded-full border bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-700">
-      {label}: {used}/{total} TO dipakai
+    <span className="rounded-full border border-sr-line bg-sr-ivory px-3 py-1 text-xs font-semibold text-sr-ink-2">
+      {label}: {used}/{total} Try Out dipakai
     </span>
   );
 }
@@ -485,7 +581,6 @@ export function FreemiumAccessPanel({ status }: { status: FreemiumStatus }) {
   const hasAnyAccess = status.requirementsCompleted || status.hasPackage;
   const remaining = status.freeSlots.remaining + status.packageSlots.remaining;
   const canBuyPaket = status.packageSlots.remaining === 0;
-  const payLabel = payment.isPending ? "Memproses..." : `Bayar ${FREEMIUM_PAKET_PRICE_LABEL}`;
 
   const dialogs = (
     <>
@@ -500,60 +595,32 @@ export function FreemiumAccessPanel({ status }: { status: FreemiumStatus }) {
     return (
       <>
         <section
-          aria-labelledby="freemium-access-title"
-          className="flex flex-col gap-4 rounded-xl border bg-white p-5 shadow-sm md:p-6"
+          id="freemium-access-panel"
+          aria-label="Pilihan cara akses Try Out"
+          className="relative flex flex-col gap-5 overflow-hidden rounded-sr-xl border border-sr-line bg-linear-to-b from-sr-ivory/60 via-white to-white p-4 shadow-sr-1 sm:p-5 md:p-6"
         >
-          <div className="flex items-center gap-2 text-primary-300">
-            <LockKeyOpenIcon size={24} weight="bold" />
-            <h2 id="freemium-access-title" className="text-xl font-bold">
-              Pilih Cara Akses TryOut
-            </h2>
+          <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2">
+            <FreeAccessCard onOpenRequirements={() => setRequirementsOpen(true)} />
+            <PaidAccessCard onPay={() => payment.pay()} isPending={payment.isPending} />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col justify-between gap-4 rounded-xl bg-[#6ee7b7] p-5 text-green-950">
-              <div className="flex flex-col gap-2">
-                <p className="text-lg font-bold">Gratis · 1 TO</p>
-                <OptionBenefits
-                  items={[
-                    "Follow IG & TikTok, share BC ke 5 grup WA",
-                    "Kerjakan 1 TO pilihanmu",
-                    `Pembahasan bisa dibuka ${FREEMIUM_PEMBAHASAN_PRICE_LABEL}`,
-                  ]}
-                />
-              </div>
-              <Button
-                className="w-full bg-[#064e3b] text-white hover:bg-[#064e3b]/90"
-                onClick={() => setRequirementsOpen(true)}
-              >
-                Penuhi Syarat
-              </Button>
+          <div className="flex flex-col items-start justify-between gap-3 rounded-sr-lg border border-sr-sun-200 bg-linear-to-r from-sr-sun-100/60 via-sr-cream/40 to-sr-blue-50/60 p-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sr-sun-500 text-sr-ink shadow-sr-1">
+                <StarIcon weight="fill" className="size-4" />
+              </span>
+              <p className="text-xs text-sr-ink-2 sm:text-sm">
+                Ingin akses tanpa batas ke <strong>semua Try Out</strong>, materi kelas, dan{" "}
+                <strong>150+ sesi live</strong>?
+              </p>
             </div>
-
-            <div className="flex flex-col justify-between gap-4 rounded-xl bg-[#818cf8] p-5 text-indigo-950">
-              <div className="flex flex-col gap-2">
-                <p className="text-lg font-bold">Paket 3 TO · {FREEMIUM_PAKET_PRICE_LABEL}</p>
-                <OptionBenefits
-                  items={["Kerjakan 3 TO pilihanmu", "Pembahasan 3 TO sudah termasuk", "Grup WA khusus pembeli paket"]}
-                />
-              </div>
-              <Button
-                className="w-full bg-[#312e81] text-white hover:bg-[#312e81]/90"
-                disabled={payment.isPending}
-                onClick={() => payment.pay()}
-              >
-                {payLabel}
-              </Button>
-            </div>
+            <Link
+              to="/premium"
+              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-sr-blue-600 transition-colors hover:text-sr-blue-700 hover:underline sm:text-sm"
+            >
+              Lihat Paket Premium <ArrowRightIcon weight="bold" className="size-3.5" />
+            </Link>
           </div>
-
-          <p className="text-xs text-muted-foreground">
-            Brain Gym, kelas, dan fitur lain tetap seperti akun gratis.{" "}
-            <Link to="/premium" className="font-semibold text-primary-300 underline-offset-2 hover:underline">
-              Lihat Premium
-            </Link>{" "}
-            untuk akses semua fitur.
-          </p>
         </section>
         {dialogs}
       </>
@@ -563,37 +630,63 @@ export function FreemiumAccessPanel({ status }: { status: FreemiumStatus }) {
   return (
     <>
       <section
-        aria-label="Status akses TryOut"
-        className="flex flex-col gap-3 rounded-xl border bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between"
+        aria-label="Status akses Try Out"
+        className="flex flex-col gap-4 rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1 sm:p-5"
       >
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            {status.requirementsCompleted && (
-              <SlotChip label="Gratis" used={status.freeSlots.used} total={status.freeSlots.total} />
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-sr-sm bg-sr-blue-50 text-sr-blue-600">
+              <TicketIcon weight="fill" className="size-6" />
+            </span>
+            <div className="flex flex-col gap-1.5">
+              <p className="font-extrabold text-sr-ink">Akses Try Out kamu</p>
+              <div className="flex flex-wrap gap-2">
+                {status.requirementsCompleted && (
+                  <SlotChip label="Gratis" used={status.freeSlots.used} total={status.freeSlots.total} />
+                )}
+                {status.packageSlots.total > 0 && (
+                  <SlotChip label="Paket" used={status.packageSlots.used} total={status.packageSlots.total} />
+                )}
+              </div>
+              {remaining > 0 && (
+                <p className="text-sm text-sr-muted">
+                  Sisa {remaining} Try Out. Pilih lewat tombol "Pilih Try Out ini" di kartu Try Out.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:shrink-0">
+            {!status.requirementsCompleted && (
+              <Button
+                variant="outline"
+                className="rounded-full border-sr-line-2 font-semibold hover:border-sr-blue-300 hover:bg-sr-blue-50"
+                onClick={() => setRequirementsOpen(true)}
+              >
+                Dapat 1 Try Out Gratis
+              </Button>
             )}
-            {status.packageSlots.total > 0 && (
-              <SlotChip label="Paket" used={status.packageSlots.used} total={status.packageSlots.total} />
+            {canBuyPaket && (
+              <Button
+                variant="secondary"
+                className="sr-sheen rounded-full px-5 font-bold shadow-sr-sun transition-all"
+                disabled={payment.isPending}
+                onClick={() => payment.pay()}
+              >
+                {payment.isPending ? (
+                  "Memproses..."
+                ) : (
+                  <>
+                    <PlusCircleIcon weight="fill" className="size-4 text-sr-amber-700" />
+                    <span>Tambah 3 Try Out</span>
+                    <span className="rounded-full bg-sr-ink/10 px-2 py-0.5 text-xs font-black text-sr-ink">
+                      {FREEMIUM_PAKET_PRICE_LABEL}
+                    </span>
+                  </>
+                )}
+              </Button>
             )}
           </div>
-          <p className="text-sm text-gray-600">
-            {remaining > 0
-              ? `Sisa ${remaining} TO. Pilih lewat tombol "Pilih TO ini" di kartu TO.`
-              : "Semua jatah TO kamu sudah dipilih."}
-          </p>
-          <FreemiumWhatsappInvites showPaketGroup={status.hasPackage || status.requirementsCompleted} compact />
-        </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row">
-          {!status.requirementsCompleted && (
-            <Button variant="outline" onClick={() => setRequirementsOpen(true)}>
-              Dapat 1 TO Gratis
-            </Button>
-          )}
-          {canBuyPaket && (
-            <Button disabled={payment.isPending} onClick={() => payment.pay()}>
-              {payment.isPending ? "Memproses..." : `Tambah 3 TO · ${FREEMIUM_PAKET_PRICE_LABEL}`}
-            </Button>
-          )}
         </div>
       </section>
       {dialogs}
@@ -619,17 +712,17 @@ function SelectTryoutButton({
   return (
     <>
       <Button className={className} variant={variant} disabled={select.isPending} onClick={() => setConfirmOpen(true)}>
-        {select.isPending ? "Memilih..." : "Pilih TO ini"}
+        {select.isPending ? "Memilih..." : "Pilih Try Out ini"}
       </Button>
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Pilih TO ini?</AlertDialogTitle>
+            <AlertDialogTitle>Pilih Try Out ini?</AlertDialogTitle>
             <AlertDialogDescription>
               {usesPaket
-                ? "Memakai 1 jatah Paket 3 TryOut. Pembahasannya sudah termasuk."
-                : `Memakai jatah TO gratis kamu. Pembahasannya bisa dibuka ${FREEMIUM_PEMBAHASAN_PRICE_LABEL} setelah selesai.`}{" "}
-              Pilihan masih bisa diganti selama TO ini belum mulai dikerjakan.
+                ? "Memakai 1 jatah Paket 3 Try Out. Pembahasannya sudah termasuk."
+                : `Memakai jatah Try Out gratis kamu. Pembahasannya bisa dibuka ${FREEMIUM_PEMBAHASAN_PRICE_LABEL} setelah selesai.`}{" "}
+              Pilihan masih bisa diganti selama Try Out ini belum mulai dikerjakan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -642,35 +735,43 @@ function SelectTryoutButton({
   );
 }
 
-/** Aksi pilih/ganti TO di kartu daftar TO. Null kalau user punya akses penuh atau gerbang mati. */
+/** Aksi pilih/ganti Try Out di kartu daftar Try Out. Null kalau user punya akses penuh atau gerbang mati. */
 export function TryoutCardAccess({ tryoutId, status }: { tryoutId: string; status: FreemiumStatus | undefined }) {
   const { unselect } = useSelectTryout();
   if (!status || !status.gateEnabled || status.fullAccess) return null;
 
   const selection = status.selections.find((item) => item.tryoutId === tryoutId);
   if (selection) {
-    // TO gratis yang sudah dikerjakan bisa pindah ke jatah paket, jadi label mengikuti akses pembahasan.
+    // Try Out gratis yang sudah dikerjakan bisa pindah ke jatah paket, jadi label mengikuti akses pembahasan.
     const hasPembahasan = status.pembahasanTryoutIds.includes(tryoutId);
     return (
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span
-          className={cn(
-            "rounded-full px-3 py-1 text-xs font-semibold",
-            hasPembahasan ? "bg-indigo-100 text-indigo-800" : "bg-emerald-100 text-emerald-800",
-          )}
-        >
-          {hasPembahasan ? "Dipilih · pembahasan termasuk" : "Dipilih · TO gratis"}
-        </span>
+      <div
+        className={cn(
+          "flex items-center gap-2.5 rounded-sr-md border px-3 py-2.5",
+          hasPembahasan ? "border-sr-blue-200 bg-sr-blue-50" : "border-sr-live/30 bg-sr-live/10",
+        )}
+      >
+        <CheckCircleIcon
+          weight="fill"
+          className={cn("size-5 shrink-0", hasPembahasan ? "text-sr-blue-600" : "text-sr-live")}
+        />
+        <div className="min-w-0 flex-1 leading-tight">
+          <p className={cn("text-sm font-extrabold", hasPembahasan ? "text-sr-blue-700" : "text-sr-live")}>
+            Try Out ini sudah kamu pilih
+          </p>
+          <p className="text-xs text-sr-ink-2">
+            {hasPembahasan ? "Pembahasan sudah termasuk" : "Pakai jatah Try Out gratis"}
+          </p>
+        </div>
         {!selection.started && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground"
+          <button
+            type="button"
+            className="shrink-0 text-xs font-bold text-sr-blue-600 hover:underline disabled:opacity-50"
             disabled={unselect.isPending}
             onClick={() => unselect.mutate({ tryoutId })}
           >
-            Ganti TO
-          </Button>
+            Ganti Try Out
+          </button>
         )}
       </div>
     );
@@ -678,32 +779,32 @@ export function TryoutCardAccess({ tryoutId, status }: { tryoutId: string; statu
 
   if (status.startableTryoutIds.includes(tryoutId)) {
     return (
-      <span className="w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-        Sudah pernah dikerjakan
-      </span>
+      <div className="flex items-center gap-2 rounded-sr-md border border-sr-live/30 bg-sr-live/10 px-3 py-2.5 text-sm font-bold text-sr-live">
+        <CheckCircleIcon weight="fill" className="size-5 shrink-0" /> Sudah pernah dikerjakan
+      </div>
     );
   }
 
   if (status.freeSlots.remaining + status.packageSlots.remaining > 0) {
-    return <SelectTryoutButton tryoutId={tryoutId} status={status} variant="outline" className="w-full" />;
+    return <SelectTryoutButton tryoutId={tryoutId} status={status} variant="outline" className="w-full rounded-full" />;
   }
 
   return null;
 }
 
-/** Ditampilkan di halaman detail saat TO ini belum bisa dikerjakan. */
+/** Ditampilkan di halaman detail saat Try Out ini belum bisa dikerjakan. */
 export function TryoutDetailGate({ tryoutId, status }: { tryoutId: string; status: FreemiumStatus }) {
   const remaining = status.freeSlots.remaining + status.packageSlots.remaining;
   if (remaining === 0) return <FreemiumAccessPanel status={status} />;
 
   return (
-    <section className="flex flex-col gap-3 rounded-xl border bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between md:p-6">
+    <section className="flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:flex-row sm:items-center sm:justify-between md:p-6">
       <div className="flex items-start gap-3">
-        <LockKeyIcon size={24} weight="bold" className="mt-0.5 shrink-0 text-primary-300" />
+        <LockKeyIcon size={24} weight="bold" className="mt-0.5 shrink-0 text-sr-blue-600" />
         <div>
-          <h2 className="font-bold text-gray-900">TO ini belum kamu pilih</h2>
-          <p className="text-sm text-gray-600">
-            Kamu masih punya {remaining} jatah TO. Pilih TO ini untuk mulai mengerjakan.
+          <h2 className="font-bold text-sr-ink">Try Out ini belum kamu pilih</h2>
+          <p className="text-sm text-sr-muted">
+            Kamu masih punya {remaining} jatah Try Out. Pilih Try Out ini untuk mulai mengerjakan.
           </p>
         </div>
       </div>
@@ -739,7 +840,7 @@ export function PembahasanPaywall({
       {
         onSuccess: async () => {
           await refresh();
-          toast.success("Pembahasan TO ini sudah terbuka!");
+          toast.success("Pembahasan Try Out ini sudah terbuka!");
         },
         onError: (error) => toast.error(getApiErrorMessage(error)),
       },
@@ -747,18 +848,18 @@ export function PembahasanPaywall({
   };
 
   const description = canUseLegacyCredit
-    ? "Kamu punya 1 jatah pembahasan. Pakai untuk TO ini? Jatah yang sudah dipakai tidak bisa dipindah ke TO lain."
+    ? "Kamu punya 1 jatah pembahasan. Pakai untuk Try Out ini? Jatah yang sudah dipakai tidak bisa dipindah ke Try Out lain."
     : canPay
-      ? `Buka pembahasan TO ini cukup ${FREEMIUM_PEMBAHASAN_PRICE_LABEL}, atau upgrade ke Premium untuk pembahasan semua TO.`
+      ? `Buka pembahasan Try Out ini cukup ${FREEMIUM_PEMBAHASAN_PRICE_LABEL}, atau upgrade ke Premium untuk pembahasan semua Try Out.`
       : "Akses evaluasi detail, kunci jawaban yang benar, dan pembahasan langkah demi langkah khusus untuk pengguna Premium.";
 
   return (
     <div className="relative z-10 flex flex-col items-center gap-4 px-6">
-      <div className="flex size-20 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 shadow-inner">
+      <div className="flex size-20 items-center justify-center rounded-full bg-sr-blue-50 text-sr-blue-600">
         <LockKeyIcon size={40} weight="fill" />
       </div>
-      <h2 className="text-2xl font-bold text-slate-800 md:text-3xl">Pembahasan Terkunci</h2>
-      <p className="max-w-md text-sm text-slate-600 md:text-base">{description}</p>
+      <h2 className="text-2xl font-bold text-sr-ink md:text-3xl">Pembahasan Terkunci</h2>
+      <p className="max-w-md text-sm text-sr-muted md:text-base">{description}</p>
 
       <div className="mt-4 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
         {canUseLegacyCredit && (
@@ -768,7 +869,7 @@ export function PembahasanPaywall({
             disabled={selectMutation.isPending}
             onClick={() => setConfirmOpen(true)}
           >
-            <LockKeyOpenIcon weight="bold" /> Buka Pembahasan TO Ini
+            <LockKeyOpenIcon weight="bold" /> Buka Pembahasan Try Out Ini
           </Button>
         )}
         {canPay && (
@@ -777,7 +878,11 @@ export function PembahasanPaywall({
           </Button>
         )}
 
-        <Button asChild size="lg" className="bg-[#F2C94C] font-bold text-slate-900 shadow-md hover:bg-[#F2C94C]/90">
+        <Button
+          asChild
+          size="lg"
+          className="rounded-full bg-sr-sun-500 font-bold text-sr-ink shadow-sr-sun hover:bg-sr-sun-400"
+        >
           <Link to="/premium">
             <StarIcon weight="fill" className="mr-2" size={20} /> Upgrade ke Premium
           </Link>
@@ -787,15 +892,15 @@ export function PembahasanPaywall({
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Buka pembahasan TO ini?</AlertDialogTitle>
+            <AlertDialogTitle>Buka pembahasan Try Out ini?</AlertDialogTitle>
             <AlertDialogDescription>
-              Jatah ini akan dipakai untuk TO ini dan tidak bisa dipindah ke TO lain. Pembahasan TO ini tetap terbuka
-              selamanya.
+              Jatah ini akan dipakai untuk Try Out ini dan tidak bisa dipindah ke Try Out lain. Pembahasan Try Out ini
+              tetap terbuka selamanya.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSelect}>Ya, buka TO ini</AlertDialogAction>
+            <AlertDialogAction onClick={handleSelect}>Ya, buka Try Out ini</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

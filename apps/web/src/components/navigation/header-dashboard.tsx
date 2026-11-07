@@ -47,7 +47,7 @@ import { orpc } from "@/utils/orpc";
 
 const links = [
   { name: "Dashboard", to: "/dashboard", icon: HouseIcon },
-  { name: "Tryout", to: "/tryout", icon: ExamIcon },
+  { name: "Try Out", to: "/tryout", icon: ExamIcon },
   { name: "Kelas", to: "/classes", icon: BooksIcon },
   { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
   { name: "Live Recording", to: "/recordings", icon: FilmStripIcon },
@@ -98,20 +98,24 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {!session?.user.isPremium && !location.pathname.startsWith("/classes/") && (
-        <div className="relative flex items-center justify-center gap-2 overflow-hidden bg-(image:--sr-grad-blue) p-2 text-sm font-medium text-white max-sm:flex-col max-sm:text-center sm:gap-4">
-          <div className="pointer-events-none absolute -top-10 -left-6 size-28 animate-sr-drift rounded-full bg-white/10" />
-          <span className="relative flex items-center gap-2">
-            <SparkleIcon weight="fill" className="size-4 text-sr-sun-400" />
-            Dapatkan Semua Fitur dan Akses
-          </span>
-          <Button variant="secondary" size="sm" className="sr-sheen relative" asChild>
-            <Link to="/premium">
-              Premium Sekarang <ArrowRightIcon weight="bold" />
-            </Link>
-          </Button>
-        </div>
-      )}
+      {!session?.user.isPremium &&
+        !location.pathname.startsWith("/classes/") &&
+        !/^\/(premium|recordings|classes|live-class)\/?$|^\/tryout(\/.*)?$|^\/dashboard\/flashcard/.test(
+          location.pathname,
+        ) && (
+          <div className="relative flex items-center justify-center gap-2 overflow-hidden bg-(image:--sr-grad-blue) p-2 text-sm font-medium text-white max-sm:flex-col max-sm:text-center sm:gap-4">
+            <div className="pointer-events-none absolute -top-10 -left-6 size-28 animate-sr-drift rounded-full bg-white/10" />
+            <span className="relative flex items-center gap-2">
+              <SparkleIcon weight="fill" className="size-4 text-sr-sun-400" />
+              Dapatkan Semua Fitur dan Akses
+            </span>
+            <Button variant="secondary" size="sm" className="sr-sheen relative" asChild>
+              <Link to="/premium">
+                Premium Sekarang <ArrowRightIcon weight="bold" />
+              </Link>
+            </Button>
+          </div>
+        )}
       <div className="flex h-20 flex-row items-center justify-between gap-6 border-b border-sr-line bg-white/85 px-6 shadow-sr-1 backdrop-blur-lg md:px-8">
         <Link to="/" className="relative size-12 shrink-0 transition-transform duration-300 hover:scale-105">
           <Image src="/logo.webp" alt="Habitutor Logo" layout="fullWidth" className="pointer-events-none select-none" />
@@ -154,7 +158,9 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-sr-sm">
-                <DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
+                <DropdownMenuLabel className="max-w-64 wrap-break-word whitespace-normal">
+                  {session?.user.name}
+                </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
                   <Link to="/profile">
                     <UserCircleIcon />
@@ -163,7 +169,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                   <SignOutIcon />
-                  Log Out
+                  Keluar
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -218,12 +224,14 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 </Button>
               </div>
 
-              <div className="mt-5 flex items-center gap-3 rounded-sr-md border border-sr-line bg-white p-3 shadow-sr-1">
+              <div className="mt-5 flex items-start gap-3 rounded-sr-md border border-sr-line bg-white p-3 shadow-sr-1">
                 <Avatar className="ring-2 ring-sr-blue-100">
                   <AvatarImage src={avatarSrc} alt="User Profile Picture" />
                   <AvatarFallback>{firstInitial}</AvatarFallback>
                 </Avatar>
-                <span className="min-w-0 flex-1 truncate font-bold text-sr-ink">{session?.user.name}</span>
+                <span className="min-w-0 flex-1 text-[15px] leading-snug font-bold wrap-break-word text-sr-ink">
+                  {session?.user.name}
+                </span>
                 {session?.user.isPremium && <PremiumBadge />}
               </div>
 
@@ -259,7 +267,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                 }}
               >
                 <SignOutIcon weight="bold" />
-                Log Out
+                Keluar
               </Button>
             </motion.div>
           </>

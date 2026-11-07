@@ -80,13 +80,13 @@ function RouteComponent() {
   };
 
   return (
-    <MotionStagger className="mt-4 flex flex-col gap-6 sm:-mt-3">
+    <MotionStagger className="flex flex-col gap-5 sm:gap-6">
       <MotionStaggerItem>
         <PremiumHeader session={session} subscribedPlan={isPlanLoading ? undefined : profile?.premiumPlan} />
       </MotionStaggerItem>
 
       <MotionStaggerItem>
-        <div className="rounded-sr-lg border border-sr-line bg-sr-ivory p-6 sm:p-10">
+        <div className="rounded-sr-xl border border-sr-line bg-white/80 p-4 shadow-sr-1 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-4xl">
             {isPremium ? (
               <PremiumFeatureList />

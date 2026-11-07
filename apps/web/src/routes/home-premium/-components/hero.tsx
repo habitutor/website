@@ -177,7 +177,7 @@ export function Hero() {
         </motion.div>
       ))}
 
-      <div className="relative mx-auto flex w-full flex-col items-center justify-center px-4 pt-22 pb-14 md:pb-20">
+      <div className="relative mx-auto flex w-full flex-col items-center justify-center px-4 pt-22 pb-12 md:pb-14">
         <div className="z-1 container flex shrink-0 flex-col items-center space-y-8 pt-8 md:mx-auto md:pt-16">
           <div className="flex max-w-4xl flex-col items-center gap-4 text-center md:gap-5">
             <motion.span

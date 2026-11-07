@@ -192,36 +192,34 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="tipe-soal">Tipe Soal</Label>
+            <select
+              id="tipe-soal"
+              value={tipe}
+              onChange={(e) => {
+                const nextTipe = e.target.value as "pilgan" | "multiple";
+                setTipe(nextTipe);
 
-<div className="space-y-2">
-  <Label htmlFor="tipe-soal">Tipe Soal</Label>
-  <select
-    id="tipe-soal"
-    value={tipe}
-    onChange={(e) => {
-      const nextTipe = e.target.value as "pilgan" | "multiple";
-      setTipe(nextTipe);
-
-      if (nextTipe === "pilgan") {
-        setOptions((prev) => {
-          let found = false;
-          return prev.map((opt) => {
-            if (opt.isBenar && !found) {
-              found = true;
-              return opt;
-            }
-            return { ...opt, isBenar: false };
-          });
-        });
-      }
-    }}
-    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-  >
-    <option value="pilgan">Pilihan Ganda (satu jawaban benar)</option>
-    <option value="multiple">Multiple Answer (beberapa jawaban benar)</option>
-  </select>
-</div>
-
+                if (nextTipe === "pilgan") {
+                  setOptions((prev) => {
+                    let found = false;
+                    return prev.map((opt) => {
+                      if (opt.isBenar && !found) {
+                        found = true;
+                        return opt;
+                      }
+                      return { ...opt, isBenar: false };
+                    });
+                  });
+                }
+              }}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            >
+              <option value="pilgan">Pilihan Ganda (satu jawaban benar)</option>
+              <option value="multiple">Multiple Answer (beberapa jawaban benar)</option>
+            </select>
+          </div>
 
           <div className="space-y-2">
             <Label>Poin</Label>
@@ -271,16 +269,10 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
                   variant={opt.isBenar ? "default" : "outline"}
                   size="sm"
                   className={opt.isBenar ? "mt-1 bg-green-600 hover:bg-green-700" : "mt-1"}
-
                   onClick={() => {
                     const newOpts = options.map((o, i) => ({
                       ...o,
-                      isBenar:
-                        tipe === "multiple"
-                          ? i === idx
-                            ? !o.isBenar
-                            : o.isBenar
-                          : i === idx,
+                      isBenar: tipe === "multiple" ? (i === idx ? !o.isBenar : o.isBenar) : i === idx,
                     }));
                     setOptions(newOpts);
                   }}
@@ -581,15 +573,10 @@ export function EditSoalDialog({
                 }}
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               >
-                <option value="pilgan">
-                  Pilihan Ganda (satu jawaban benar)
-                </option>
-                <option value="multiple">
-                  Multiple Answer (beberapa jawaban benar)
-                </option>
+                <option value="pilgan">Pilihan Ganda (satu jawaban benar)</option>
+                <option value="multiple">Multiple Answer (beberapa jawaban benar)</option>
               </select>
             </div>
-
 
             <div className="space-y-2">
               <Label>Pertanyaan</Label>
@@ -654,22 +641,22 @@ export function EditSoalDialog({
                     variant={opt.isBenar ? "default" : "outline"}
                     size="sm"
                     className={opt.isBenar ? "mt-1 bg-green-600 hover:bg-green-700" : "mt-1"}
-                      onClick={() => {
-                        const newOpts = options.map((o, i) => {
-                          if (i === idx) {
-                            return { ...o, isBenar: !o.isBenar };
-                          }
+                    onClick={() => {
+                      const newOpts = options.map((o, i) => {
+                        if (i === idx) {
+                          return { ...o, isBenar: !o.isBenar };
+                        }
 
-                          if (tipe === "pilgan") {
-                            return { ...o, isBenar: false };
-                          }
+                        if (tipe === "pilgan") {
+                          return { ...o, isBenar: false };
+                        }
 
-                          return o;
-                        });
+                        return o;
+                      });
 
-                        setOptions(newOpts);
-                      }}
-                      >
+                      setOptions(newOpts);
+                    }}
+                  >
                     {opt.isBenar ? "✓ Benar" : "Benar?"}
                   </Button>
                 </div>

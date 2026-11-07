@@ -26,7 +26,7 @@ function RouteComponent() {
       <main className="overflow-x-clip">
         <Header />
         <Hero />
-        <section className="space-y-14 bg-linear-to-b from-sr-blue-50 via-tertiary-100 to-sr-blue-50 pt-16 pb-12 md:space-y-16 md:pt-20 md:pb-14">
+        <section className="space-y-14 bg-linear-to-b from-sr-blue-50 via-tertiary-100 to-sr-blue-50 pt-12 pb-10 md:space-y-16 md:pt-14 md:pb-12">
           <Benefits />
           <Pricing />
         </section>

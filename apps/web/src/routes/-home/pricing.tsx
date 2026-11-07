@@ -7,7 +7,7 @@ import { SectionHeading } from "./motion-bits";
 
 export function Pricing() {
   return (
-    <div className="flex border-2 border-secondary-100 bg-[#FFFCF3] py-16">
+    <div className="flex border-2 border-secondary-100 bg-[#FFFCF3] py-12 md:py-14">
       <div className="container mx-auto min-w-0 items-center gap-8 space-y-11 px-4">
         <SectionHeading
           eyebrow="Paket Premium"

@@ -1,38 +1,73 @@
-import { useState } from "react";
+import { PlayIcon } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
 import YouTube from "react-youtube";
 
-export default function YouTubePlayer({ videoId }: { videoId: string }) {
-  const [ready, setReady] = useState(false);
+/** Tautan cadangan kalau pemutar di dalam halaman tidak jalan (mis. browser bawaan aplikasi). */
+export function youtubeWatchUrl(videoId: string) {
+  return `https://www.youtube.com/watch?v=${videoId}`;
+}
 
-  const opts = {
-    width: "100%",
-    playerVars: {
-      autoplay: 0,
-      controls: 1,
-      modestbranding: 0,
-      rel: 0,
-    },
-  };
+/**
+ * Pemutar YouTube dengan sampul dulu: sebelum diketuk yang tampil thumbnail resolusi tinggi + tombol play,
+ * jadi sampulnya tajam (embed YouTube di layar kecil memakai pratinjau buram) dan halaman lebih ringan.
+ * Setelah diketuk, pemutar dimuat dan langsung mencoba memutar.
+ */
+export default function YouTubePlayer({ videoId }: { videoId: string }) {
+  const [started, setStarted] = useState(false);
+  const [thumbnail, setThumbnail] = useState(`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
+
+  useEffect(() => {
+    setStarted(false);
+    setThumbnail(`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
+  }, [videoId]);
+
+  if (!started) {
+    const fallbackThumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+    return (
+      <button
+        type="button"
+        onClick={() => setStarted(true)}
+        aria-label="Putar video"
+        className="group relative block size-full overflow-hidden rounded-xl bg-sr-ink"
+      >
+        <img
+          src={thumbnail}
+          alt=""
+          // maxresdefault tidak selalu ada; YouTube lalu mengirim gambar abu-abu 120px, jadi pakai hqdefault.
+          onLoad={(e) => {
+            if (e.currentTarget.naturalWidth <= 120 && thumbnail !== fallbackThumbnail) setThumbnail(fallbackThumbnail);
+          }}
+          onError={() => thumbnail !== fallbackThumbnail && setThumbnail(fallbackThumbnail)}
+          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <span className="absolute inset-0 bg-linear-to-t from-sr-ink/50 via-transparent to-transparent" />
+        <span className="absolute top-1/2 left-1/2 flex size-16 -translate-1/2 items-center justify-center rounded-full bg-white/95 text-sr-blue-600 shadow-sr-3 transition-transform duration-300 group-hover:scale-110 sm:size-20">
+          <PlayIcon weight="fill" className="ml-1 size-7 sm:size-9" />
+        </span>
+      </button>
+    );
+  }
 
   return (
-    <div className="relative h-full w-full">
-      <div
-        className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${
-          ready ? "pointer-events-none opacity-0" : "opacity-100"
-        }`}
-        aria-hidden={ready}
-      >
-        <div className="aspect-video h-full w-full animate-pulse rounded-xl bg-muted" />
-      </div>
-      <div className={`transition-opacity duration-300 ${ready ? "opacity-100" : "pointer-events-none opacity-0"}`}>
-        <YouTube
-          videoId={videoId}
-          opts={opts}
-          iframeClassName="w-full h-full aspect-video rounded-xl"
-          onReady={() => setReady(true)}
-          onError={() => setReady(true)}
-        />
-      </div>
+    <div className="size-full overflow-hidden rounded-xl bg-sr-ink">
+      <YouTube
+        videoId={videoId}
+        className="size-full"
+        iframeClassName="size-full"
+        opts={{
+          width: "100%",
+          height: "100%",
+          playerVars: {
+            autoplay: 1,
+            controls: 1,
+            rel: 0,
+            // Di iPhone video diputar di dalam halaman, tidak dipaksa layar penuh.
+            playsinline: 1,
+            origin: window.location.origin,
+          },
+        }}
+        onReady={(event) => event.target.playVideo()}
+      />
     </div>
   );
 }

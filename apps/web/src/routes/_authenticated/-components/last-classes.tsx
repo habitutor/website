@@ -5,7 +5,7 @@ import { LastContentViewedCard } from "@/components/classes/content";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
-import { SectionCard } from "./section-card";
+import { Accent, SectionCard } from "./section-card";
 
 export const LastClasses = () => {
   const { data, isPending } = useQuery(orpc.subtest.content.recent.queryOptions());
@@ -13,7 +13,13 @@ export const LastClasses = () => {
 
   if (isPending) {
     return (
-      <SectionCard title="Kelas terakhirmu">
+      <SectionCard
+        title={
+          <>
+            Kelas <Accent>terakhirmu</Accent>
+          </>
+        }
+      >
         <div className="space-y-2">
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
@@ -24,7 +30,13 @@ export const LastClasses = () => {
 
   if (recentViews.length === 0) {
     return (
-      <SectionCard title="Kelas terakhirmu">
+      <SectionCard
+        title={
+          <>
+            Kelas <Accent>terakhirmu</Accent>
+          </>
+        }
+      >
         <div className="flex flex-col gap-4 rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center md:gap-6 md:p-6">
           <div className="flex min-w-0 flex-1 items-center gap-4 md:gap-6">
             <img src="/avatar/confused-avatar.webp" alt="" className="h-20 w-auto shrink-0 object-contain md:h-24" />
@@ -46,8 +58,22 @@ export const LastClasses = () => {
   }
 
   return (
-    <SectionCard title="Kelas terakhirmu">
-      <div className="space-y-2">
+    <SectionCard
+      title={
+        <>
+          Kelas <Accent>terakhirmu</Accent>
+        </>
+      }
+      action={
+        // Bentuknya sama dengan tombol "Lihat jadwal" di bagian Live Class.
+        <Button className="shrink-0 rounded-full" asChild>
+          <Link to="/classes">
+            Semua kelas <ArrowRightIcon weight="bold" />
+          </Link>
+        </Button>
+      }
+    >
+      <div className="space-y-3">
         {recentViews.map((view, idx) => (
           <LastContentViewedCard
             key={view.contentId}

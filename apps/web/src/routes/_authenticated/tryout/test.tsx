@@ -3,7 +3,16 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { orpc, queryClient } from "@/utils/orpc";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeftIcon, ArrowRightIcon, CheckSquare, ListIcon, Square } from "@phosphor-icons/react";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  CheckSquare,
+  FlagIcon,
+  Square,
+  SquaresFourIcon,
+  TimerIcon,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
@@ -24,8 +33,8 @@ export const Route = createFileRoute("/_authenticated/tryout/test")({
   }),
   head: () => ({
     meta: createMeta({
-      title: "Tryout Test",
-      description: "Pengerjaan Soal Tryout",
+      title: "Tes Try Out",
+      description: "Pengerjaan Soal Try Out",
       noIndex: true,
     }),
   }),
@@ -81,6 +90,8 @@ function TryoutTestPage() {
   const [activeQuestion, setActiveQuestion] = useState(1);
   const [timeExpiredDialogOpen, setTimeExpiredDialogOpen] = useState(false);
   const [hasAutoSubmitted, setHasAutoSubmitted] = useState(false);
+  const [questionListOpen, setQuestionListOpen] = useState(false);
+  const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
 
   // --- Fetch sesi subtes info (for timer + subtest name) ---
   const sesiInfoQuery = useQuery({
@@ -95,8 +106,17 @@ function TryoutTestPage() {
   const subtestName = sesiInfo?.namaSubtes ?? "Subtest";
   const resolvedSesiId = sesiId || sesiInfo?.sesiId || "";
 
+  // Setelah subtes terakhir siswa langsung melihat hasilnya; tanpa ID sesi kembali ke daftar try out.
+  const goToResult = useCallback(() => {
+    if (resolvedSesiId) {
+      navigate({ to: "/tryout/result/$sesiId", params: { sesiId: resolvedSesiId } });
+    } else {
+      navigate({ to: "/tryout" });
+    }
+  }, [navigate, resolvedSesiId]);
+
   // --- Countdown timer ---
-  const { formatted: timerFormatted, isExpired, isReady: isTimerReady } = useCountdown(deadlineAt);
+  const { formatted: timerFormatted, isExpired, isReady: isTimerReady, remainingMs } = useCountdown(deadlineAt);
 
   // --- Fetch questions ---
   const questionsQuery = useQuery({
@@ -151,11 +171,9 @@ function TryoutTestPage() {
           });
         } else {
           // All subtests done, go to results
-          toast.success("Tryout selesai! Melihat hasil...");
+          toast.success("Try Out selesai! Melihat hasil...");
           queryClient.invalidateQueries({ queryKey: orpc.streak.get.key() });
-          navigate({
-            to: "/tryout",
-          });
+          goToResult();
         }
       },
       onError: (err: Error) => {
@@ -202,9 +220,9 @@ function TryoutTestPage() {
         },
       });
     } else {
-      navigate({ to: "/tryout" });
+      goToResult();
     }
-  }, [autoSubmitMutation.data, navigate, resolvedSesiId]);
+  }, [autoSubmitMutation.data, navigate, resolvedSesiId, goToResult]);
 
   // --- Handle manual submit ---
   const handleSubmitSubtest = useCallback(() => {
@@ -228,46 +246,71 @@ function TryoutTestPage() {
 
   if (!sesiSubtesId) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">Sesi tidak valid. Kembali ke halaman tryout.</p>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
+        <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto" />
+        <p className="text-lg font-extrabold text-sr-ink">Sesi try out tidak valid</p>
+        <Button className="rounded-full" onClick={() => navigate({ to: "/tryout" })}>
+          Kembali ke Daftar Try Out
+        </Button>
       </div>
     );
   }
 
+  const answeredCount = questions.filter((_: unknown, idx: number) => getQuestionStatus(idx).answered).length;
+  const doubtfulCount = questions.filter((_: unknown, idx: number) => getQuestionStatus(idx).doubtful).length;
+  const unansweredCount = Math.max(0, totalQuestions - answeredCount);
+  const progressPercent = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+  const isLowTime = isTimerReady && !isExpired && remainingMs <= 5 * 60 * 1000;
+
+  // Subtes tidak bisa diulang, jadi kumpulkan selalu lewat konfirmasi dulu.
+  const requestSubmit = () => {
+    setQuestionListOpen(false);
+    setConfirmSubmitOpen(true);
+  };
+
   return (
-    <div className="flex w-full flex-col py-6">
-      <div className="mx-auto w-full max-w-6xl rounded-2xl bg-[#fff8db] p-4 shadow-sm sm:p-6">
-        {/* Header Section */}
-        <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Soal Nomor {activeQuestion}</h1>
-            <p className="text-sm text-gray-600">{subtestName}</p>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 pb-28 md:pb-8">
+      {/* Bilah atas menempel saat digulir: nama subtes, posisi soal, timer, dan daftar soal. */}
+      <div className="sticky top-20 z-30 rounded-sr-xl border border-sr-line bg-white/95 p-3 shadow-sr-1 backdrop-blur sm:p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-xs font-bold text-sr-blue-600 sm:text-sm">{subtestName}</p>
+            <p className="text-base font-extrabold text-sr-ink sm:text-lg">
+              Soal {activeQuestion}
+              <span className="font-semibold text-sr-muted"> dari {totalQuestions || "–"}</span>
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            {currentQuestion?.is_ragu && (
-              <div className="rounded bg-[#eab308] px-3 py-1.5 text-sm font-bold text-black shadow-sm">Ragu-Ragu</div>
-            )}
+          <div className="flex shrink-0 items-center gap-2">
             <div
               className={cn(
-                "rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm",
-                isExpired ? "border-red-300 bg-red-100 text-red-700" : "border-gray-200 bg-white text-gray-800",
+                "flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-extrabold tabular-nums",
+                isExpired
+                  ? "bg-rose-100 text-rose-700"
+                  : isLowTime
+                    ? "bg-sr-orange-100 text-sr-orange-700 motion-safe:animate-pulse"
+                    : "bg-sr-blue-50 text-sr-blue-700",
               )}
+              aria-label="Sisa waktu"
             >
-              Sisa waktu: <span className="font-bold">{timerFormatted}</span>
+              <TimerIcon weight="bold" className="size-4" />
+              {timerFormatted}
             </div>
 
-            {/* Question List Dialog */}
-            <Dialog>
+            <Dialog open={questionListOpen} onOpenChange={setQuestionListOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#3b5998] text-white hover:bg-[#3b5998]/90">
-                  <ListIcon weight="bold" className="mr-2" /> Daftar Soal
+                <Button variant="darkBlue" className="rounded-full max-sm:size-10 max-sm:px-0">
+                  <SquaresFourIcon weight="bold" />
+                  <span className="max-sm:sr-only">Daftar Soal</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
+              <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-sr-lg sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-bold">Daftar Soal</DialogTitle>
+                  <DialogTitle className="text-left text-xl font-extrabold text-sr-ink">Daftar Soal</DialogTitle>
+                  <DialogDescription className="text-left">
+                    {answeredCount} dari {totalQuestions} soal sudah dijawab
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="grid grid-cols-5 gap-2 border-t pt-4 sm:gap-3">
+                <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
                   {questions.map((_: unknown, idx: number) => {
                     const qNum = idx + 1;
                     const { answered, doubtful } = getQuestionStatus(idx);
@@ -276,15 +319,18 @@ function TryoutTestPage() {
                       <button
                         key={qNum}
                         type="button"
-                        onClick={() => setActiveQuestion(qNum)}
+                        onClick={() => {
+                          setActiveQuestion(qNum);
+                          setQuestionListOpen(false);
+                        }}
                         className={cn(
-                          "flex h-10 w-full items-center justify-center rounded-lg border text-base font-medium transition-colors sm:h-12 sm:text-lg",
+                          "flex h-11 w-full items-center justify-center rounded-sr-sm border text-base font-bold transition-all sm:h-12",
                           doubtful
-                            ? "border-[#facc15] bg-[#fde047] text-gray-900"
+                            ? "border-sr-sun-400 bg-sr-sun-200 text-sr-ink"
                             : answered
-                              ? "border-[#7dd3fc] bg-[#bae6fd] text-gray-900"
-                              : "border-gray-300 bg-white text-gray-900 hover:bg-gray-50",
-                          activeQuestion === qNum && "ring-2 ring-[#3b5998] ring-offset-2",
+                              ? "border-transparent bg-sr-blue-500 text-white"
+                              : "border-sr-line bg-white text-sr-ink hover:border-sr-blue-200",
+                          activeQuestion === qNum && "ring-2 ring-sr-ink ring-offset-2",
                         )}
                       >
                         {qNum}
@@ -293,153 +339,190 @@ function TryoutTestPage() {
                   })}
                 </div>
 
-                {/* Summary */}
-                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t pt-4 text-xs text-gray-500">
-                  <div className="flex items-center gap-1.5">
-                    <div className="size-3 rounded-sm border-[#7dd3fc] bg-[#bae6fd]" /> Dijawab
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="size-3 rounded-sm border-[#facc15] bg-[#fde047]" /> Ragu-ragu
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="size-3 rounded-sm border-gray-300 bg-white" /> Belum dijawab
-                  </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-sr-muted">
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-3 rounded-sm bg-sr-blue-500" /> Dijawab
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-3 rounded-sm border border-sr-sun-400 bg-sr-sun-200" /> Ragu-ragu
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-3 rounded-sm border border-sr-line bg-white" /> Belum dijawab
+                  </span>
                 </div>
 
-                {/* Submit button */}
-                <div className="mt-2 border-t pt-4">
-                  <Button
-                    className="w-full bg-[#3b5998] text-white hover:bg-[#3b5998]/90"
-                    onClick={handleSubmitSubtest}
-                    disabled={submitSubtestMutation.isPending || isExpired}
-                  >
-                    {submitSubtestMutation.isPending ? "Menyimpan..." : "Selesai & Lanjut Subtest"}
-                  </Button>
-                </div>
+                <Button
+                  className="w-full rounded-full bg-sr-live text-white hover:bg-sr-live/90"
+                  onClick={requestSubmit}
+                  disabled={submitSubtestMutation.isPending || isExpired}
+                >
+                  {submitSubtestMutation.isPending ? "Menyimpan..." : "Selesai & Kumpulkan Subtes"}
+                </Button>
               </DialogContent>
             </Dialog>
           </div>
         </div>
 
-        {/* Content Section */}
-        <div className="flex min-h-100 flex-col gap-0 rounded-xl bg-white shadow-sm md:flex-row">
-          {/* Question Panel */}
-          <div className="min-w-0 flex-1 p-4 sm:p-6 md:p-8">
-            {questionsQuery.isPending ? (
-              <div className="flex flex-col gap-4">
-                <div className="h-6 w-3/4 animate-pulse rounded bg-gray-200" />
-                <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
-                <div className="h-4 w-2/3 animate-pulse rounded bg-gray-200" />
-              </div>
-            ) : currentQuestion ? (
-              <>
-                <div className="mb-6">
-                  <div className="space-y-4 text-base font-medium break-words text-gray-800 sm:text-lg">
-                    {currentQuestion.pertanyaan
-                      .split(/\n+/)
-                      .filter((line: string) => line.trim() !== "")
-                      .map((line: string, i: number) => (
-                        <p key={i.toString()} className="leading-relaxed">
-                          {line}
-                        </p>
-                      ))}
-                  </div>
-                  {currentQuestion.gambarUrl && (
-                    <img
-                      src={currentQuestion.gambarUrl}
-                      alt={`Gambar soal ${activeQuestion}`}
-                      className="mt-4 max-w-full rounded-lg"
-                    />
-                  )}
-                </div>
-
-                {/* Answer Options */}
-                <div className="flex flex-col gap-3">
-                  {currentQuestion.pilihan.map((opt: { id: string; label: string; isi: string }) => {
-                    const option = opt as {
-                      id: string;
-                      label: string;
-                      isi: string;
-                      gambarUrl?: string | null;
-                    };
-
-                    const isMultiple = currentQuestion.tipe === "multiple";
-                    const selectedIds = currentQuestion.jawaban_dipilih_multi ?? [];
-
-                    const isSelected = isMultiple
-                      ? selectedIds.includes(opt.id)
-                      : currentQuestion.jawaban_dipilih === opt.id;
-
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => {
-                          if (!resolvedSesiId || isExpired) return;
-
-                          if (isMultiple) {
-                            const nextIds = isSelected
-                              ? selectedIds.filter((id) => id !== opt.id)
-                              : [...selectedIds, opt.id];
-
-                            submitAnswerMutation.mutate({
-                              sesiId: resolvedSesiId,
-                              sesiSoalId: currentQuestion.sesiSoalId,
-                              pilihanId: null,
-                              pilihanIds: nextIds,
-                              isRagu: currentQuestion.is_ragu ?? false,
-                            });
-                          } else {
-                            submitAnswerMutation.mutate({
-                              sesiId: resolvedSesiId,
-                              sesiSoalId: currentQuestion.sesiSoalId,
-                              pilihanId: opt.id,
-                              isRagu: currentQuestion.is_ragu ?? false,
-                            });
-                          }
-                        }}
-                        disabled={isExpired}
-                        className={cn(
-                          "flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 text-left transition-colors",
-                          isSelected ? "border-blue-400 bg-blue-50" : "border-transparent hover:bg-gray-50",
-                          isExpired && "cursor-not-allowed opacity-60",
-                        )}
-                      >
-                        <div className="flex min-w-0 flex-1 flex-col gap-2">
-                          {option.isi && <span className="text-gray-700">{option.isi}</span>}
-                          {option.gambarUrl && (
-                            <img
-                              src={option.gambarUrl}
-                              alt={`Gambar opsi ${option.label}`}
-                              className="mt-1 h-auto max-w-full rounded-lg border border-gray-200 bg-white object-contain"
-                            />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                {questionsQuery.isError ? `Error: ${questionsQuery.error.message}` : "Tidak ada soal"}
-              </p>
-            )}
-          </div>
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-sr-blue-50"
+          role="progressbar"
+          aria-valuenow={progressPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Soal terjawab"
+        >
+          <div
+            className="h-full rounded-full bg-(image:--sr-grad-blue) transition-[width] duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
+      </div>
 
-        {/* Footer Section: Controls */}
-        <div className="mt-6 flex flex-col items-center justify-between gap-4 md:flex-row">
+      <div className="rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1 sm:p-6 md:p-8">
+        {questionsQuery.isPending ? (
+          <div className="flex flex-col gap-4">
+            <div className="h-6 w-3/4 animate-pulse rounded bg-sr-blue-50" />
+            <div className="h-4 w-full animate-pulse rounded bg-sr-blue-50" />
+            <div className="h-4 w-2/3 animate-pulse rounded bg-sr-blue-50" />
+          </div>
+        ) : currentQuestion ? (
+          <>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-sr-blue-50 px-3 py-1 text-xs font-bold text-sr-blue-700">
+                No. {activeQuestion}
+              </span>
+              {currentQuestion.tipe === "multiple" && (
+                <span className="rounded-full bg-sr-orange-100 px-3 py-1 text-xs font-bold text-sr-orange-700">
+                  Pilih semua jawaban yang benar
+                </span>
+              )}
+              {currentQuestion.is_ragu && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-sr-sun-500 px-3 py-1 text-xs font-bold text-sr-ink">
+                  <FlagIcon weight="fill" className="size-3.5" /> Ditandai ragu-ragu
+                </span>
+              )}
+            </div>
+
+            <div className="mb-6">
+              <div className="space-y-4 text-base font-medium wrap-break-word text-sr-ink sm:text-lg">
+                {currentQuestion.pertanyaan
+                  .split(/\n+/)
+                  .filter((line: string) => line.trim() !== "")
+                  .map((line: string, i: number) => (
+                    <p key={i.toString()} className="leading-relaxed">
+                      {line}
+                    </p>
+                  ))}
+              </div>
+              {currentQuestion.gambarUrl && (
+                <img
+                  src={currentQuestion.gambarUrl}
+                  alt={`Gambar soal ${activeQuestion}`}
+                  className="mt-4 max-w-full rounded-sr-sm"
+                />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              {currentQuestion.pilihan.map((opt: { id: string; label: string; isi: string }) => {
+                const option = opt as {
+                  id: string;
+                  label: string;
+                  isi: string;
+                  gambarUrl?: string | null;
+                };
+
+                const isMultiple = currentQuestion.tipe === "multiple";
+                const selectedIds = currentQuestion.jawaban_dipilih_multi ?? [];
+
+                const isSelected = isMultiple
+                  ? selectedIds.includes(opt.id)
+                  : currentQuestion.jawaban_dipilih === opt.id;
+
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => {
+                      if (!resolvedSesiId || isExpired) return;
+
+                      if (isMultiple) {
+                        const nextIds = isSelected
+                          ? selectedIds.filter((id) => id !== opt.id)
+                          : [...selectedIds, opt.id];
+
+                        submitAnswerMutation.mutate({
+                          sesiId: resolvedSesiId,
+                          sesiSoalId: currentQuestion.sesiSoalId,
+                          pilihanId: null,
+                          pilihanIds: nextIds,
+                          isRagu: currentQuestion.is_ragu ?? false,
+                        });
+                      } else {
+                        submitAnswerMutation.mutate({
+                          sesiId: resolvedSesiId,
+                          sesiSoalId: currentQuestion.sesiSoalId,
+                          pilihanId: opt.id,
+                          isRagu: currentQuestion.is_ragu ?? false,
+                        });
+                      }
+                    }}
+                    disabled={isExpired}
+                    className={cn(
+                      "flex cursor-pointer items-start gap-3 rounded-sr-md border-2 p-3 text-left transition-all duration-200 sm:p-4",
+                      isSelected
+                        ? "border-sr-blue-500 bg-sr-blue-50 shadow-sr-1"
+                        : "border-sr-line bg-white hover:border-sr-blue-200 hover:bg-sr-ivory",
+                      isExpired && "cursor-not-allowed opacity-60",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "flex size-8 shrink-0 items-center justify-center text-sm font-extrabold transition-colors",
+                        isMultiple ? "rounded-sr-xs" : "rounded-full",
+                        isSelected ? "bg-sr-blue-500 text-white" : "bg-sr-blue-50 text-sr-blue-700",
+                      )}
+                    >
+                      {option.label}
+                    </span>
+                    <div className="flex min-w-0 flex-1 flex-col gap-2 pt-1">
+                      {option.isi && <span className="leading-relaxed text-sr-ink-2">{option.isi}</span>}
+                      {option.gambarUrl && (
+                        <img
+                          src={option.gambarUrl}
+                          alt={`Gambar opsi ${option.label}`}
+                          className="mt-1 h-auto max-w-full rounded-sr-sm border border-sr-line bg-white object-contain"
+                        />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <p className="py-8 text-center text-sm text-sr-muted">
+            {questionsQuery.isError ? `Error: ${questionsQuery.error.message}` : "Tidak ada soal"}
+          </p>
+        )}
+      </div>
+
+      {/* Navigasi soal: di HP menempel di bawah layar supaya selalu terjangkau jempol. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-sr-line bg-white/95 p-3 shadow-sr-3 backdrop-blur md:static md:rounded-sr-xl md:border md:p-4 md:shadow-sr-1">
+        <div className="mx-auto grid max-w-5xl grid-cols-3 gap-2 md:gap-3">
           <Button
             variant="outline"
             onClick={() => setActiveQuestion(Math.max(1, activeQuestion - 1))}
             disabled={activeQuestion <= 1}
-            className="h-12 w-full border-gray-300 bg-white px-6 shadow-sm md:w-auto"
+            className="h-12 rounded-full px-2"
           >
-            <ArrowLeftIcon weight="bold" className="mr-2" /> Sebelumnya
+            <ArrowLeftIcon weight="bold" />
+            <span className="max-sm:hidden">Sebelumnya</span>
           </Button>
 
           <Button
+            variant="secondary"
             onClick={() => {
               if (!resolvedSesiId || !currentQuestion || isExpired) return;
 
@@ -452,52 +535,102 @@ function TryoutTestPage() {
               });
             }}
             disabled={isExpired}
-            className={cn(
-              "h-12 w-full px-8 font-semibold shadow-sm md:w-auto",
-              "bg-[#eab308] text-black hover:bg-[#ca8a04]",
-            )}
+            className={cn("h-12 rounded-full px-2", currentQuestion?.is_ragu && "ring-2 ring-sr-amber ring-offset-1")}
           >
             {currentQuestion?.is_ragu ? (
-              <CheckSquare weight="fill" className="mr-2 h-5 w-5" />
+              <CheckSquare weight="fill" className="size-5" />
             ) : (
-              <Square weight="bold" className="mr-2 h-5 w-5" />
+              <Square weight="bold" className="size-5" />
             )}
-            Ragu-Ragu
+            Ragu-ragu
           </Button>
 
           {activeQuestion < totalQuestions ? (
             <Button
               onClick={() => setActiveQuestion(Math.min(totalQuestions, activeQuestion + 1))}
-              className="h-12 w-full bg-[#3b5998] px-6 text-white shadow-sm hover:bg-[#273f72] md:w-auto"
+              className="h-12 rounded-full px-2"
             >
-              Selanjutnya <ArrowRightIcon weight="bold" className="ml-2" />
+              <span className="max-sm:hidden">Selanjutnya</span>
+              <span className="sm:hidden">Lanjut</span>
+              <ArrowRightIcon weight="bold" />
             </Button>
           ) : (
             <Button
-              onClick={handleSubmitSubtest}
+              onClick={requestSubmit}
               disabled={submitSubtestMutation.isPending || isExpired}
-              className="h-12 w-full bg-green-600 px-6 text-white shadow-sm hover:bg-green-700 md:w-auto"
+              className="h-12 rounded-full bg-sr-live px-2 text-white hover:bg-sr-live/90"
             >
-              {submitSubtestMutation.isPending ? "Menyimpan..." : "Selesai Subtest →"}
+              {submitSubtestMutation.isPending ? "Menyimpan..." : "Selesai"}
+              <CheckCircleIcon weight="fill" />
             </Button>
           )}
         </div>
       </div>
 
-      {/* ===== TIME EXPIRED DIALOG ===== */}
-      <Dialog open={timeExpiredDialogOpen} onOpenChange={setTimeExpiredDialogOpen}>
-        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      {/* ===== KONFIRMASI KUMPULKAN SUBTES ===== */}
+      <Dialog open={confirmSubmitOpen} onOpenChange={setConfirmSubmitOpen}>
+        <DialogContent className="rounded-sr-lg sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-orange-600">Waktu Anda sudah habis !</DialogTitle>
-            <DialogDescription className="text-sm text-gray-600">
-              Jawaban Anda akan otomatis terkumpul dan hasil akan keluar secara langsung
+            <DialogTitle className="text-left text-xl font-extrabold text-sr-ink">Kumpulkan subtes ini?</DialogTitle>
+            <DialogDescription className="text-left">
+              Setelah dikumpulkan, subtes <strong>{subtestName}</strong> tidak bisa dibuka atau diulang lagi.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setTimeExpiredDialogOpen(false)}>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-sr-md bg-sr-blue-50 p-3">
+              <p className="text-2xl font-extrabold text-sr-blue-700">{answeredCount}</p>
+              <p className="text-xs font-semibold text-sr-muted">Dijawab</p>
+            </div>
+            <div className="rounded-sr-md bg-sr-sun-100 p-3">
+              <p className="text-2xl font-extrabold text-sr-amber-700">{doubtfulCount}</p>
+              <p className="text-xs font-semibold text-sr-muted">Ragu-ragu</p>
+            </div>
+            <div className={cn("rounded-sr-md p-3", unansweredCount > 0 ? "bg-rose-50" : "bg-sr-blue-50")}>
+              <p className={cn("text-2xl font-extrabold", unansweredCount > 0 ? "text-rose-600" : "text-sr-ink")}>
+                {unansweredCount}
+              </p>
+              <p className="text-xs font-semibold text-sr-muted">Belum dijawab</p>
+            </div>
+          </div>
+          {unansweredCount > 0 && (
+            <p className="rounded-sr-md bg-rose-50 p-3 text-sm text-rose-700">
+              Masih ada {unansweredCount} soal kosong. Yakin mau dikumpulkan sekarang?
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <Button variant="outline" className="rounded-full" onClick={() => setConfirmSubmitOpen(false)}>
+              Cek lagi
+            </Button>
+            <Button
+              className="rounded-full bg-sr-live text-white hover:bg-sr-live/90"
+              disabled={submitSubtestMutation.isPending || isExpired}
+              onClick={() => {
+                setConfirmSubmitOpen(false);
+                handleSubmitSubtest();
+              }}
+            >
+              Ya, kumpulkan
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== TIME EXPIRED DIALOG ===== */}
+      <Dialog open={timeExpiredDialogOpen} onOpenChange={setTimeExpiredDialogOpen}>
+        <DialogContent className="rounded-sr-lg sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-left text-lg font-extrabold text-sr-orange-700">
+              <TimerIcon weight="fill" className="size-5" /> Waktu kamu sudah habis!
+            </DialogTitle>
+            <DialogDescription className="text-left text-sm">
+              Jawabanmu otomatis terkumpul. Klik Lanjutkan untuk ke subtes berikutnya atau melihat hasil.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" className="rounded-full" onClick={() => setTimeExpiredDialogOpen(false)}>
               Batal
             </Button>
-            <Button className="bg-[#eab308] text-black hover:bg-[#ca8a04]" onClick={handleTimeExpiredContinue}>
+            <Button variant="secondary" className="rounded-full" onClick={handleTimeExpiredContinue}>
               Lanjutkan
             </Button>
           </div>

@@ -72,7 +72,7 @@ function RootDocument() {
       <body className="min-h-screen">
         <MotionProvider>
           <Outlet />
-          <Toaster richColors />
+          <Toaster richColors closeButton duration={2500} />
         </MotionProvider>
         <TanStackRouterDevtools position="bottom-left" />
         <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />

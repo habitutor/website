@@ -43,6 +43,27 @@ export function StudySchedule() {
           description="Jadwal belajar 150+ live class"
         />
 
+        <ul className="-mt-2 flex w-full max-w-[560px] flex-wrap justify-center gap-2 lg:hidden">
+          {SCHEDULE_BADGES.map((badge, i) => (
+            <motion.li
+              key={badge.label}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full py-1.5 pr-3 pl-1.5 text-xs font-semibold shadow-sr-1",
+                badge.tint,
+              )}
+            >
+              <span className="flex size-6 items-center justify-center rounded-full bg-white/25">
+                <badge.icon weight="fill" className="size-3.5" />
+              </span>
+              {badge.label}
+            </motion.li>
+          ))}
+        </ul>
+
         <motion.div
           className="relative w-full max-w-[560px]"
           initial={{ opacity: 0, y: 40, rotate: -2 }}

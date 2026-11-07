@@ -110,7 +110,7 @@ function CommunityCard() {
 
 export function Features() {
   return (
-    <section className="relative overflow-x-hidden bg-linear-to-b from-sr-blue-50 via-tertiary-100 to-sr-blue-50 py-16 md:py-24">
+    <section className="relative overflow-x-hidden bg-linear-to-b from-sr-blue-50 via-tertiary-100 to-sr-blue-50 py-12 md:py-16">
       <Float
         distance={14}
         duration={5}
@@ -268,10 +268,10 @@ export function Features() {
             badge="Gratis"
             motionProps={{ transition: { duration: 0.5, delay: 0.1 } }}
             imageSrc="/images/try-out.webp"
-            imageAlt="Tryout"
+            imageAlt="Try Out"
             title={
               <>
-                Simulasi dengan <span className="text-sr-blue-600">Tryout</span> Rutin.
+                Simulasi dengan <span className="text-sr-blue-600">Try Out</span> Rutin.
               </>
             }
             description={

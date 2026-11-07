@@ -43,7 +43,7 @@ function FaqIntro({
       </div>
 
       <div className="relative w-full max-w-sm">
-        <Float distance={10} duration={4} className="absolute -top-20 right-2 z-10 w-28 md:w-32">
+        <Float distance={10} duration={4} className="absolute -top-20 -right-4 z-10 w-28 md:w-32">
           <motion.div whileHover={{ rotate: [0, -8, 8, 0] }} transition={{ duration: 0.6 }}>
             <Image
               src="/avatar/tupai-cta-2.webp"
@@ -154,7 +154,7 @@ export function FAQ({ title, description, className }: FaqProps = {}) {
       <div
         className={cn(
           "relative container mx-auto grid w-full max-w-6xl gap-12 px-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16",
-          className ?? "py-20 md:py-24",
+          className ?? "py-12 md:py-16",
         )}
       >
         <FaqIntro title={title} description={description} />
