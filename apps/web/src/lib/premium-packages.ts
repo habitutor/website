@@ -1,4 +1,9 @@
-export type PremiumPackageSlug = "paketmandiri2027" | "paketutbk2027" | "paket3bulan" | "paket1bulan";
+export type PremiumPackageSlug =
+  | "paketmandiri2027"
+  | "paketutbk2027"
+  | "paketutbk2027nolive"
+  | "paket3bulan"
+  | "paket1bulan";
 export type LegacyPremiumPlan = "perintis2027" | "paket2bulan";
 export type PremiumPlan = PremiumPackageSlug | LegacyPremiumPlan;
 
@@ -25,7 +30,7 @@ export function formatWibDate(value: string | Date) {
 
 // Display fallback only: the server decides the amount charged
 // (PREMIUM_PACKAGES in packages/api/src/lib/constants.ts). Keep in sync.
-const PROMO_ENDS_AT = "2026-10-31T23:59:59.999+07:00";
+const PROMO_ENDS_AT = "2026-11-14T23:59:59.999+07:00";
 
 const FALLBACK_PACKAGES = [
   {
@@ -41,6 +46,14 @@ const FALLBACK_PACKAGES = [
     name: "Paket Sampai UTBK",
     normalPrice: 250_000,
     promoPrice: 200_000,
+    expiresAt: "2027-05-01T23:59:59.999+07:00",
+    durationMonths: null,
+  },
+  {
+    slug: "paketutbk2027nolive",
+    name: "Paket Sampai UTBK Tanpa Live Class",
+    normalPrice: 200_000,
+    promoPrice: 150_000,
     expiresAt: "2027-05-01T23:59:59.999+07:00",
     durationMonths: null,
   },
@@ -77,6 +90,10 @@ export function getFallbackPremiumPackages(now = Date.now()): PremiumPackage[] {
 export const PREMIUM_PACKAGE_COPY: Record<PremiumPackageSlug, { tagline: string; cta: string }> = {
   paketmandiri2027: { tagline: "termasuk Paket Intensif SNBT", cta: "Ambil Paket Sampai Mandiri" },
   paketutbk2027: { tagline: "akses penuh sampai UTBK", cta: "Ambil Paket Sampai UTBK" },
+  paketutbk2027nolive: {
+    tagline: "akses penuh sampai UTBK tanpa Live Class",
+    cta: "Ambil Paket Sampai UTBK Tanpa Live Class",
+  },
   paket3bulan: { tagline: "persiapan intensif 3 bulan", cta: "Ambil Paket 3 Bulan" },
   paket1bulan: { tagline: "coba dulu, tanpa komitmen panjang", cta: "Ambil Paket 1 Bulan" },
 };
@@ -107,6 +124,7 @@ export const MANDIRI_PACKAGE_EXTRAS = {
 export const PREMIUM_PLAN_NAME: Record<PremiumPlan, string> = {
   paketmandiri2027: "Paket Sampai Mandiri",
   paketutbk2027: "Paket Sampai UTBK",
+  paketutbk2027nolive: "Paket Sampai UTBK Tanpa Live Class",
   paket3bulan: "Paket 3 Bulan",
   paket1bulan: "Paket 1 Bulan",
   perintis2027: "Paket Perintis 2027",
@@ -121,7 +139,7 @@ export function getAccessLabel(pkg: Pick<PremiumPackage, "expiresAt" | "duration
 export const PREMIUM_PRICING_COPY = {
   footerNote: "Langsung aktif setelah bayar · QRIS / transfer bank · Sekali bayar, tanpa biaya bulanan",
   proofStrip: "Lebih dari 60% siswa Habitutor yang melapor lolos PTN di SNBT 2026 — hampir 2x rata-rata nasional.",
-  featuresTitle: "Semua paket mendapat fasilitas Premium yang sama:",
+  featuresTitle: "Semua paket mendapat fasilitas Premium yang sama (kecuali Live Class di Paket Tanpa Live Class):",
   features: [
     "200+ video belajar (fundamental, materi prioritas, kelas habit dan anti-burnout)",
     "Belajar dari fundamental dan materi tiap subtest",
@@ -152,7 +170,7 @@ export const PREMIUM_FAQ = [
     id: 3,
     question: "Aksesnya sampai kapan?",
     answer:
-      "Tergantung paket: Paket Sampai UTBK aktif sampai 1 Mei 2027, Paket Sampai Mandiri sampai 30 Juni 2027, Paket 3 Bulan dan Paket 1 Bulan dihitung sejak pembayaran berhasil. Sekali bayar, gak ada biaya bulanan.",
+      "Tergantung paket: Paket Sampai UTBK dan Paket Sampai UTBK Tanpa Live Class aktif sampai 1 Mei 2027, Paket Sampai Mandiri sampai 30 Juni 2027, Paket 3 Bulan dan Paket 1 Bulan dihitung sejak pembayaran berhasil. Sekali bayar, gak ada biaya bulanan.",
   },
   {
     id: 4,

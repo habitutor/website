@@ -266,7 +266,7 @@ function JoinAction({ item }: { item: LiveClassItem }) {
     );
   }
 
-  if (item.lockReason === "tier") {
+  if (item.lockReason === "tier" || item.lockReason === "package") {
     return (
       <Button variant="outline" className="w-full rounded-full" disabled>
         <LockKeyIcon weight="fill" /> Tidak termasuk paketmu

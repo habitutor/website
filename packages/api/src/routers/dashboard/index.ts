@@ -35,7 +35,7 @@ const content = authed
         endsAt: "string",
         joinOpensAt: "string",
         locked: "boolean",
-        lockReason: "'premium' | 'mandiri' | 'tier' | null",
+        lockReason: "'premium' | 'package' | 'mandiri' | 'tier' | null",
         category: "'TKA' | 'SNBT' | 'MANDIRI'",
       }).array(),
     }),
@@ -46,10 +46,12 @@ const content = authed
     const isPremiumTier2 = context.session.user.premiumTier === PREMIUM_TIERS.PREMIUM_2;
 
     // Semua jadwal tampil; aksesnya dikunci per kelas sesuai paket, sama seperti halaman jadwal live class.
-    const [announcements, rows, hasMandiriPackage] = await Promise.all([
+    // hasLiveClassAccess false untuk pembeli paket "Tanpa Live Class": mereka melihat jadwal tapi tanpa link.
+    const [announcements, rows, hasMandiriPackage, hasLiveClassAccess] = await Promise.all([
       dashboardRepo.listPublishedAnnouncements({}),
       dashboardRepo.listLiveClasses({}),
       isPremium ? liveClassRepo.hasMandiriPackage({ userId: context.session.user.id }) : Promise.resolve(false),
+      isPremium ? liveClassRepo.hasLiveClassAccess({ userId: context.session.user.id }) : Promise.resolve(true),
     ]);
     const now = new Date();
 
@@ -60,6 +62,7 @@ const content = authed
         isPremium,
         isPremiumTier2,
         hasMandiriPackage,
+        hasLiveClassAccess,
         category: row.category,
         access: row.access,
       });

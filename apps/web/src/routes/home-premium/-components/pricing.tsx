@@ -240,6 +240,12 @@ export function PremiumPackageCard({
         </div>
 
         {pkg.slug === "paketmandiri2027" && <MandiriExtras />}
+        {pkg.slug === "paketutbk2027nolive" && (
+          <p className="relative z-10 mx-6 mb-5 rounded-sr-sm border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold text-white/90">
+            Tidak termasuk Live Class. Fasilitas premium lainnya (video, bank soal, try out, komunitas) tetap bisa
+            diakses penuh.
+          </p>
+        )}
 
         <div className="relative z-10 mt-auto space-y-3 p-6 pt-0">
           {mode === "checkout" ? (
@@ -295,7 +301,7 @@ export function PremiumPackageGrid({
 
   return (
     <div>
-      <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0">
+      <div className="grid w-full grid-cols-1 items-stretch gap-6 md:grid-cols-2 [&>*]:min-w-0 md:[&>*:last-child:nth-child(odd)]:col-span-2">
         {packages.map((pkg, index) => (
           <motion.div
             key={pkg.slug}

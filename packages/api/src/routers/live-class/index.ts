@@ -24,9 +24,10 @@ const schedule = authed
     const user = context.session.user;
     const isAdmin = isAdminRole(user.role);
     const isPremium = Boolean(user.isPremium);
-    const [rows, hasMandiriPackage] = await Promise.all([
+    const [rows, hasMandiriPackage, hasLiveClassAccess] = await Promise.all([
       liveClassRepo.listPublishedBetween({ from: input.weekStart, to: addDays(input.weekStart, 7) }),
       isPremium ? liveClassRepo.hasMandiriPackage({ userId: user.id }) : Promise.resolve(false),
+      isPremium ? liveClassRepo.hasLiveClassAccess({ userId: user.id }) : Promise.resolve(true),
     ]);
     const now = new Date();
 
@@ -37,6 +38,7 @@ const schedule = authed
         isPremium,
         isPremiumTier2: user.premiumTier === PREMIUM_TIERS.PREMIUM_2,
         hasMandiriPackage,
+        hasLiveClassAccess,
         category: row.category,
         access: row.access,
       });

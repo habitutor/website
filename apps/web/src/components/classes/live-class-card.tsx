@@ -5,11 +5,12 @@ import { cn } from "@/lib/utils";
 
 export type LiveClassCategory = "TKA" | "SNBT" | "MANDIRI";
 export type LiveClassStatus = "upcoming" | "live" | "ended";
-export type LiveClassLockReason = "premium" | "mandiri" | "tier";
+export type LiveClassLockReason = "premium" | "package" | "mandiri" | "tier";
 
 const LOCK_LABEL: Record<LiveClassLockReason, string> = {
   premium: "Buka dengan Premium",
   mandiri: "Upgrade ke Paket Mandiri",
+  package: "Tidak termasuk paketmu",
   tier: "Tidak termasuk paketmu",
 };
 
@@ -25,7 +26,7 @@ export function LiveClassJoinAction({
   lockReason: LiveClassLockReason | null;
   joinOpensAt: string;
 }) {
-  if (lockReason === "tier") {
+  if (lockReason === "tier" || lockReason === "package") {
     return (
       <span className={cn(ACTION_BASE, "border border-sr-line-2 bg-sr-ivory font-semibold text-sr-muted")}>
         <LockKeyIcon weight="fill" className="size-4" /> {LOCK_LABEL.tier}
