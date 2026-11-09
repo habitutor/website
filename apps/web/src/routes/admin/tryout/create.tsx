@@ -29,7 +29,7 @@ function CreateTryoutPage() {
       onSuccess: () => {
         toast.success("Tryout berhasil dibuat");
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.tryout.list.tryout.queryKey({ input: {} }),
+          queryKey: orpc.admin.tryout.list.tryout.key(),
         });
         navigate({ to: "/admin/tryout" });
       },
