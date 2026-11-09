@@ -1,7 +1,7 @@
 import { PlusIcon, PencilIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { orpc, queryClient } from "@/utils/orpc";
+import { getTryoutPagination, TRYOUT_PAGE_SIZE, TryoutPagination } from "./-components/pagination";
 
 export const Route = createFileRoute("/admin/tryout/")({
   component: TryoutListPage,
@@ -26,14 +27,21 @@ export const Route = createFileRoute("/admin/tryout/")({
 function TryoutListPage() {
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
-  const { data, isPending } = useQuery(
+  const { data, isPending, isFetching, isError, refetch } = useQuery(
     orpc.admin.tryout.list.tryout.queryOptions({
-      input: {},
+      input: { page, limit: TRYOUT_PAGE_SIZE },
     }),
   );
 
   const tryouts = data?.items ?? [];
+  const validPage = data ? getTryoutPagination(page, data.total).currentPage : page;
+
+  // Deletions (including by another admin) can remove the final page.
+  useEffect(() => {
+    if (!isFetching && !isError && page !== validPage) setPage(validPage);
+  }, [isFetching, isError, page, validPage]);
 
   const deleteMutation = useMutation(
     orpc.admin.tryout.delete.tryout.mutationOptions({
@@ -41,7 +49,7 @@ function TryoutListPage() {
         toast.success("Tryout berhasil dihapus");
         setDeleteId(null);
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.tryout.list.tryout.queryKey({ input: {} }),
+          queryKey: orpc.admin.tryout.list.tryout.key(),
         });
       },
       onError: (err) => {
@@ -87,7 +95,7 @@ function TryoutListPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isPending ? (
+              {isPending || (!isError && page !== validPage) ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell>
@@ -107,6 +115,17 @@ function TryoutListPage() {
                     </TableCell>
                   </TableRow>
                 ))
+              ) : isError ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="py-8 text-center">
+                    <p role="alert" className="mb-3 text-sm text-red-600">
+                      Gagal memuat daftar Try Out. Silakan coba lagi.
+                    </p>
+                    <Button variant="outline" disabled={isFetching} onClick={() => void refetch()}>
+                      {isFetching ? "Memuat..." : "Coba lagi"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
               ) : tryouts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
@@ -166,6 +185,21 @@ function TryoutListPage() {
               )}
             </TableBody>
           </Table>
+          {data && !isError && page === validPage && (
+            <TryoutPagination
+              page={page}
+              total={data.total}
+              isLoading={isFetching || deleteMutation.isPending}
+              onPageChange={setPage}
+            />
+          )}
+          {isError && page > 1 && (
+            <div className="border-t p-4">
+              <Button variant="outline" disabled={isFetching} onClick={() => setPage(1)}>
+                Kembali ke halaman pertama
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
