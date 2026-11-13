@@ -1,123 +1,131 @@
-import {
-  CalendarBlankIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  MagnifyingGlassIcon,
-  SparkleIcon,
-  UsersThreeIcon,
-} from "@phosphor-icons/react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { MagnifyingGlassIcon, SparkleIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Container } from "@/components/ui/container";
-import { orpc } from "@/utils/orpc";
 import { authClient } from "@/lib/auth-client";
-import { EVENT_CATEGORIES, type PtnTourEvent, PTN_TOUR_EVENTS as FALLBACK_EVENTS } from "./data";
+import { cn } from "@/lib/utils";
+import { orpc } from "@/utils/orpc";
+import { EventCard, EventCardSkeleton } from "./-components/event-card";
+import { EVENT_CATEGORIES } from "./-lib";
 
-export const Route = createFileRoute("/ptntour/")({
-  head: () => ({
-    meta: [
-      { title: "PTN Tour Gratis | Habitutor" },
-      {
-        name: "description",
-        content: "Daftar event gratis Habitutor: Masterclass, PTN Tour, dan sesi intensif persiapan SNBT.",
-      },
-    ],
-  }),
-  component: PtnTourListPage,
-});
+export const Route = createFileRoute("/ptntour/")({ component: PtnTourListPage });
+
+type Tab = "upcoming" | "registered" | "recordings";
+
+const TABS: ReadonlyArray<{ value: Tab; label: string }> = [
+  { value: "upcoming", label: "Akan Datang" },
+  { value: "registered", label: "Terdaftar" },
+  { value: "recordings", label: "Rekaman" },
+];
 
 function PtnTourListPage() {
-  const { data: apiEvents, isPending } = useQuery(orpc.ptnTour.list.queryOptions());
   const { data: session } = authClient.useSession();
-  const { data: registeredEvents } = useQuery({ ...orpc.ptnTour.me.queryOptions(), enabled: Boolean(session?.user) });
+  const isPremium = Boolean(session?.user.isPremium);
+  const {
+    data: events,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery({
+    ...orpc.ptnTour.list.queryOptions(),
+    // Status "terdaftar" milik pengguna; ambil ulang kalau pengguna berganti (login/logout).
+    queryKey: [...orpc.ptnTour.list.queryKey(), session?.user.id ?? "anon"],
+  });
+  const [tab, setTab] = useState<Tab>("upcoming");
   const [category, setCategory] = useState<(typeof EVENT_CATEGORIES)[number]>("Semua");
-  const [tab, setTab] = useState<"upcoming" | "registered" | "recordings">("upcoming");
   const [search, setSearch] = useState("");
-  const sourceEvents =
-    apiEvents?.map((event) => ({
-      ...event,
-      registered: event.registered || registeredEvents?.some((registered) => registered.slug === event.slug),
-      date: new Date(event.startsAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
-      time: new Date(event.startsAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) + " WIB",
-      poster: event.posterUrl,
-      bonus: [],
-    })) ?? FALLBACK_EVENTS;
-  const events = useMemo(
-    () =>
-      sourceEvents.filter(
-        (event) =>
-          (tab === "upcoming"
-            ? event.status === "Akan datang"
-            : tab === "recordings"
-              ? event.status === "Selesai"
-              : event.registered) &&
-          (category === "Semua" || event.category === category) &&
-          `${event.title} ${event.tutor}`.toLowerCase().includes(search.toLowerCase()),
-      ),
-    [category, search, tab, apiEvents, registeredEvents],
+
+  const counts = useMemo(
+    () => ({
+      upcoming: events?.filter((event) => event.phase !== "ended").length ?? 0,
+      registered: events?.filter((event) => event.registered).length ?? 0,
+      recordings: events?.filter((event) => event.phase === "ended" && event.hasRecording).length ?? 0,
+    }),
+    [events],
   );
 
+  const visible = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
+    const filtered = (events ?? []).filter((event) => {
+      if (tab === "upcoming" && event.phase === "ended") return false;
+      if (tab === "registered" && !event.registered) return false;
+      if (tab === "recordings" && !(event.phase === "ended" && event.hasRecording)) return false;
+      if (category !== "Semua" && event.category !== category) return false;
+      return !keyword || `${event.title} ${event.tutor} ${event.campus}`.toLowerCase().includes(keyword);
+    });
+    // Terdekat dulu untuk yang akan datang; rekaman terbaru dulu.
+    return filtered.sort((a, b) =>
+      tab === "recordings"
+        ? new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime()
+        : new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+    );
+  }, [events, tab, category, search]);
+
   return (
-    <Container className="flex flex-col gap-6 pt-8 pb-16 sm:gap-8 sm:pt-12">
+    <>
       <section className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 py-7 text-white shadow-sr-2 sm:px-8 sm:py-9">
         <div className="pointer-events-none absolute -top-24 -right-12 size-64 rounded-full bg-white/10" />
         <div className="relative max-w-2xl">
-          <p className="text-sr-sun-300 text-sm font-bold">Event Habitutor</p>
-          <h1 className="mt-2 text-3xl leading-tight font-black sm:text-4xl">PTN Tour</h1>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
-            Ikuti Masterclass, PTN Tour, dan sesi intensif gratis untuk persiapan SNBT.
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-sr-sun-400 px-3 py-1 text-xs font-black text-sr-ink">
+            <SparkleIcon weight="fill" className="size-3.5" /> GRATIS
+          </span>
+          <h1 className="mt-3 text-3xl leading-tight font-black sm:text-4xl">PTN Tour & Masterclass</h1>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
+            Event mingguan bareng mentor dari berbagai PTN. Daftar dengan akun Habitutor, ikut live, lalu tonton ulang
+            rekamannya kapan saja.
           </p>
         </div>
       </section>
-      <div className="rounded-sr-xl border border-sr-line bg-white p-2 shadow-sr-1 sm:p-3">
-        <div className="grid grid-cols-3 gap-1 rounded-full bg-sr-blue-50 p-1" role="tablist" aria-label="Daftar event">
-          {(
-            [
-              ["upcoming", "Akan Datang"],
-              ["registered", "Terdaftar"],
-              ["recordings", "Rekaman"],
-            ] as const
-          ).map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={tab === value}
-              className={`rounded-full px-2 py-2.5 text-xs font-bold transition-colors sm:px-5 sm:text-sm ${tab === value ? "bg-sr-blue-500 text-white shadow-sr-2" : "text-sr-ink-2 hover:text-sr-blue-600"}`}
-              onClick={() => setTab(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+
+      <div
+        className="flex gap-1 rounded-full border border-sr-line bg-white p-1 shadow-sr-1"
+        role="tablist"
+        aria-label="Daftar event"
+      >
+        {TABS.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            role="tab"
+            aria-selected={tab === item.value}
+            onClick={() => setTab(item.value)}
+            className={cn(
+              "flex-1 rounded-full px-2 py-2.5 text-xs font-bold transition-all duration-200 sm:text-sm",
+              tab === item.value
+                ? "bg-sr-blue-500 text-white shadow-sr-2"
+                : "text-sr-muted hover:bg-sr-blue-50 hover:text-sr-ink",
+            )}
+          >
+            {item.label}
+            {events && (
+              <span className={cn("ml-1.5 text-[11px]", tab === item.value ? "text-white/80" : "text-sr-muted")}>
+                {counts[item.value]}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
-      <div className="flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1 sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-black text-sr-ink">Cari event yang kamu butuhkan</h2>
-            <p className="mt-1 text-xs text-sr-muted">Filter berdasarkan jenis event atau cari tutor favoritmu.</p>
-          </div>
-          <div className="relative sm:w-72">
-            <MagnifyingGlassIcon className="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-sr-muted" />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Cari event atau tutor..."
-              className="pl-10"
-            />
-          </div>
+
+      <div className="flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1">
+        <div className="relative">
+          <MagnifyingGlassIcon className="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-sr-muted" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Cari judul, tutor, atau kampus…"
+            className="pl-10"
+            aria-label="Cari event"
+          />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Filter kategori">
           {EVENT_CATEGORIES.map((item) => (
             <Button
               key={item}
               size="sm"
               variant={category === item ? "default" : "outline"}
+              aria-pressed={category === item}
               className="shrink-0 rounded-full"
               onClick={() => setCategory(item)}
             >
@@ -126,85 +134,63 @@ function PtnTourListPage() {
           ))}
         </div>
       </div>
-      {isPending && (
-        <div className="rounded-sr-xl border border-sr-line bg-white p-8 text-center text-sm text-sr-muted">
-          Memuat event...
+
+      {isError ? (
+        <div className="flex flex-col items-center gap-3 rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-white/70 px-6 py-12 text-center">
+          <WarningCircleIcon className="size-8 text-destructive" />
+          <p className="font-bold text-sr-ink">Event belum bisa dimuat</p>
+          <p className="text-sm text-sr-muted">Periksa koneksi kamu lalu coba lagi.</p>
+          <Button variant="outline" onClick={() => refetch()}>
+            Coba lagi
+          </Button>
+        </div>
+      ) : isPending ? (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <EventCardSkeleton key={index.toString()} />
+          ))}
+        </div>
+      ) : visible.length === 0 ? (
+        <EmptyState
+          tab={tab}
+          loggedIn={Boolean(session?.user)}
+          hasFilter={category !== "Semua" || search.trim() !== ""}
+        />
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((event, index) => (
+            <EventCard key={event.slug} event={event} isPremium={isPremium} index={index} />
+          ))}
         </div>
       )}
-      <motion.div
-        key={`${tab}-${category}-${search}`}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        {events.map((event) => (
-          <EventCard key={event.slug} event={event} />
-        ))}
-      </motion.div>
-      {events.length === 0 && (
-        <div className="rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-sr-blue-50/50 px-6 py-14 text-center">
-          <SparkleIcon className="text-sr-blue-400 mx-auto mb-3 size-8" />
-          <p className="font-bold text-sr-ink">Belum ada event di tab ini</p>
-          <p className="mt-1 text-sm text-sr-muted">Coba pilih tab atau filter yang lain.</p>
-        </div>
-      )}
-    </Container>
+    </>
   );
 }
 
-function EventCard({ event }: { event: PtnTourEvent }) {
+function EmptyState({ tab, loggedIn, hasFilter }: { tab: Tab; loggedIn: boolean; hasFilter: boolean }) {
+  const needsLogin = tab === "registered" && !loggedIn;
+  const text = needsLogin
+    ? { title: "Masuk untuk melihat event kamu", body: "Event yang sudah kamu daftar akan muncul di sini." }
+    : hasFilter
+      ? { title: "Tidak ada event yang cocok", body: "Coba ubah kata kunci atau pilih kategori lain." }
+      : tab === "registered"
+        ? { title: "Kamu belum mendaftar event apa pun", body: "Pilih event di tab Akan Datang dan daftar gratis." }
+        : tab === "recordings"
+          ? { title: "Belum ada rekaman", body: "Rekaman muncul di sini setelah event selesai." }
+          : { title: "Belum ada event terjadwal", body: "Event baru tayang tiap pekan. Cek lagi sebentar lagi ya." };
+
   return (
-    <article className="group flex flex-col overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1 transition-all hover:-translate-y-1 hover:shadow-sr-2">
-      <Link to="/ptntour/$slug" params={{ slug: event.slug }} className="relative block overflow-hidden">
-        <img
-          src={event.poster}
-          alt={`Poster ${event.title}`}
-          className="aspect-4/5 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-        <span className="absolute top-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-sr-ink shadow-sm">
-          {event.registered ? "✓ Terdaftar" : event.status}
-        </span>
-      </Link>
-      <div className="flex flex-col gap-3 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-bold text-sr-blue-500">{event.category}</span>
-        </div>
-        <div>
-          <h2 className="text-lg font-black text-sr-ink">{event.title}</h2>
-          <p className="mt-1 line-clamp-2 text-sm text-sr-muted">{event.description}</p>
-        </div>
-        <p className="text-sm font-bold text-sr-ink">
-          {event.tutor} · {event.campus}
-        </p>
-        <div className="grid grid-cols-3 gap-2 text-xs text-sr-muted">
-          <span>
-            <CalendarBlankIcon className="mb-1 size-4 text-sr-blue-500" />
-            {event.date}
-          </span>
-          <span>
-            <ClockIcon className="mb-1 size-4 text-sr-blue-500" />
-            {event.time}
-          </span>
-          <span>
-            {event.registered ? (
-              <CheckCircleIcon className="mb-1 size-4 text-emerald-500" />
-            ) : (
-              <UsersThreeIcon className="mb-1 size-4 text-sr-blue-500" />
-            )}
-            {event.registered ? "Sudah daftar" : event.spotsLeft ? `${event.spotsLeft} tersisa` : "Terbuka"}
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {event.bonus.map((bonus) => (
-            <span key={bonus} className="rounded-full bg-sr-sun-100 px-2 py-1 text-[11px] font-bold text-sr-amber-700">
-              + {bonus}
-            </span>
-          ))}
-        </div>
-        <Link to="/ptntour/$slug" params={{ slug: event.slug }}>
-          <Button className="w-full">{event.status === "Selesai" ? "Tonton Rekaman" : "Daftar Gratis"}</Button>
-        </Link>
-      </div>
-    </article>
+    <div className="rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-sr-blue-50/50 px-6 py-14 text-center">
+      <SparkleIcon className="text-sr-blue-400 mx-auto mb-3 size-8" />
+      <p className="font-bold text-sr-ink">{text.title}</p>
+      <p className="mt-1 text-sm text-sr-muted">{text.body}</p>
+      {needsLogin && (
+        <Button asChild className="mt-4">
+          <Link to="/login" search={{ redirect: "/ptntour" }}>
+            Masuk
+          </Link>
+        </Button>
+      )}
+    </div>
   );
 }

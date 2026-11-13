@@ -1,6 +1,12 @@
 import { db } from "../index";
 import { ptnTourEvent } from "../schema/ptn-tour";
 
+// Data contoh untuk pengembangan lokal. Event asli dibuat lewat panel admin, jadi jangan dijalankan di produksi.
+if (process.env.NODE_ENV === "production") {
+  console.error("Seed PTN Tour dinonaktifkan di produksi.");
+  process.exit(1);
+}
+
 const events = [
   {
     slug: "bedah-tka-gel-2",

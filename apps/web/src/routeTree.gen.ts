@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as PtntourRouteImport } from './routes/ptntour'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
@@ -55,6 +56,7 @@ import { Route as AdminTryoutIdRouteImport } from './routes/admin/tryout/$id'
 import { Route as AdminTryoutCreateRouteImport } from './routes/admin/tryout/create'
 import { Route as AdminTryoutPassingGradeRouteImport } from './routes/admin/tryout/passing-grade'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
+import { Route as PtntourSlugIndexRouteImport } from './routes/ptntour/$slug.index'
 import { Route as PtntourSlugSuccessRouteImport } from './routes/ptntour/$slug.success'
 import { Route as AuthenticatedClassesShortNameIndexRouteImport } from './routes/_authenticated/classes/$shortName/index'
 import { Route as AuthenticatedClassesShortNameContentIdRouteImport } from './routes/_authenticated/classes/$shortName/$contentId'
@@ -70,6 +72,7 @@ import { Route as AuthenticatedTryoutTryoutIdIndexRouteImport } from './routes/_
 import { Route as AuthenticatedTryoutResultSesiIdRouteImport } from './routes/_authenticated/tryout/result/$sesiId'
 import { Route as AdminClassesShortNameIndexRouteImport } from './routes/admin/classes/$shortName/index'
 import { Route as AdminClassesShortNameContentIdRouteImport } from './routes/admin/classes/$shortName/$contentId'
+import { Route as AdminPtntourIdIndexRouteImport } from './routes/admin/ptntour/$id.index'
 import { Route as AdminPtntourIdParticipantsRouteImport } from './routes/admin/ptntour/$id.participants'
 import { Route as AuthenticatedClassesShortNameContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$shortName/$contentId.latihan-soal'
 import { Route as AuthenticatedClassesShortNameContentIdNotesRouteImport } from './routes/_authenticated/classes/$shortName/$contentId.notes'
@@ -94,6 +97,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PtntourRoute = PtntourRouteImport.update({
+  id: '/ptntour',
+  path: '/ptntour',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
@@ -157,14 +165,14 @@ const HomePremiumIndexRoute = HomePremiumIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const PtntourIndexRoute = PtntourIndexRouteImport.update({
-  id: '/ptntour/',
-  path: '/ptntour/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => PtntourRoute,
 } as any)
 const PtntourSlugRoute = PtntourSlugRouteImport.update({
-  id: '/ptntour/$slug',
-  path: '/ptntour/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PtntourRoute,
 } as any)
 const AuthenticatedClassesIndexRoute =
   AuthenticatedClassesIndexRouteImport.update({
@@ -318,6 +326,11 @@ const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => AdminRoute,
 } as any)
+const PtntourSlugIndexRoute = PtntourSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PtntourSlugRoute,
+} as any)
 const PtntourSlugSuccessRoute = PtntourSlugSuccessRouteImport.update({
   id: '/success',
   path: '/success',
@@ -407,6 +420,11 @@ const AdminClassesShortNameContentIdRoute =
     path: '/classes/$shortName/$contentId',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminPtntourIdIndexRoute = AdminPtntourIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminPtntourIdRoute,
+} as any)
 const AdminPtntourIdParticipantsRoute =
   AdminPtntourIdParticipantsRouteImport.update({
     id: '/participants',
@@ -453,6 +471,7 @@ const AdminClassesShortNameContentIdVideoRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ptntour': typeof PtntourRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
@@ -496,6 +515,7 @@ export interface FileRoutesByFullPath {
   '/admin/transactions/': typeof AdminTransactionsIndexRoute
   '/admin/tryout/': typeof AdminTryoutIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
+  '/ptntour/$slug/': typeof PtntourSlugIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   '/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
@@ -511,6 +531,7 @@ export interface FileRoutesByFullPath {
   '/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
   '/tryout/$tryoutId/': typeof AuthenticatedTryoutTryoutIdIndexRoute
   '/admin/classes/$shortName/': typeof AdminClassesShortNameIndexRoute
+  '/admin/ptntour/$id/': typeof AdminPtntourIdIndexRoute
   '/classes/$shortName/$contentId/latihan-soal': typeof AuthenticatedClassesShortNameContentIdLatihanSoalRoute
   '/classes/$shortName/$contentId/notes': typeof AuthenticatedClassesShortNameContentIdNotesRoute
   '/classes/$shortName/$contentId/video': typeof AuthenticatedClassesShortNameContentIdVideoRoute
@@ -530,7 +551,6 @@ export interface FileRoutesByTo {
   '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
-  '/ptntour/$slug': typeof PtntourSlugRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/home-premium': typeof HomePremiumIndexRoute
   '/ptntour': typeof PtntourIndexRoute
@@ -539,7 +559,6 @@ export interface FileRoutesByTo {
   '/tryout/test': typeof AuthenticatedTryoutTestRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
-  '/admin/ptntour/$id': typeof AdminPtntourIdRouteWithChildren
   '/admin/ptntour/create': typeof AdminPtntourCreateRoute
   '/admin/questions/$id': typeof AdminQuestionsIdRoute
   '/admin/tryout/$id': typeof AdminTryoutIdRoute
@@ -563,6 +582,7 @@ export interface FileRoutesByTo {
   '/admin/transactions': typeof AdminTransactionsIndexRoute
   '/admin/tryout': typeof AdminTryoutIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
+  '/ptntour/$slug': typeof PtntourSlugIndexRoute
   '/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   '/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
@@ -578,6 +598,7 @@ export interface FileRoutesByTo {
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdIndexRoute
   '/admin/classes/$shortName': typeof AdminClassesShortNameIndexRoute
+  '/admin/ptntour/$id': typeof AdminPtntourIdIndexRoute
   '/classes/$shortName/$contentId/latihan-soal': typeof AuthenticatedClassesShortNameContentIdLatihanSoalRoute
   '/classes/$shortName/$contentId/notes': typeof AuthenticatedClassesShortNameContentIdNotesRoute
   '/classes/$shortName/$contentId/video': typeof AuthenticatedClassesShortNameContentIdVideoRoute
@@ -591,6 +612,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
+  '/ptntour': typeof PtntourRouteWithChildren
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
@@ -634,6 +656,7 @@ export interface FileRoutesById {
   '/admin/transactions/': typeof AdminTransactionsIndexRoute
   '/admin/tryout/': typeof AdminTryoutIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
+  '/ptntour/$slug/': typeof PtntourSlugIndexRoute
   '/_authenticated/classes/$shortName/$contentId': typeof AuthenticatedClassesShortNameContentIdRouteWithChildren
   '/_authenticated/dashboard/flashcard/intro': typeof AuthenticatedDashboardFlashcardIntroRoute
   '/_authenticated/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
@@ -649,6 +672,7 @@ export interface FileRoutesById {
   '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
   '/_authenticated/tryout/$tryoutId/': typeof AuthenticatedTryoutTryoutIdIndexRoute
   '/admin/classes/$shortName/': typeof AdminClassesShortNameIndexRoute
+  '/admin/ptntour/$id/': typeof AdminPtntourIdIndexRoute
   '/_authenticated/classes/$shortName/$contentId/latihan-soal': typeof AuthenticatedClassesShortNameContentIdLatihanSoalRoute
   '/_authenticated/classes/$shortName/$contentId/notes': typeof AuthenticatedClassesShortNameContentIdNotesRoute
   '/_authenticated/classes/$shortName/$contentId/video': typeof AuthenticatedClassesShortNameContentIdVideoRoute
@@ -661,6 +685,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/ptntour'
     | '/forgot-password'
     | '/login'
     | '/register'
@@ -704,6 +729,7 @@ export interface FileRouteTypes {
     | '/admin/transactions/'
     | '/admin/tryout/'
     | '/admin/users/'
+    | '/ptntour/$slug/'
     | '/classes/$shortName/$contentId'
     | '/dashboard/flashcard/intro'
     | '/dashboard/flashcard/result'
@@ -719,6 +745,7 @@ export interface FileRouteTypes {
     | '/latihan-soal/riwayat/'
     | '/tryout/$tryoutId/'
     | '/admin/classes/$shortName/'
+    | '/admin/ptntour/$id/'
     | '/classes/$shortName/$contentId/latihan-soal'
     | '/classes/$shortName/$contentId/notes'
     | '/classes/$shortName/$contentId/video'
@@ -738,7 +765,6 @@ export interface FileRouteTypes {
     | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
-    | '/ptntour/$slug'
     | '/admin'
     | '/home-premium'
     | '/ptntour'
@@ -747,7 +773,6 @@ export interface FileRouteTypes {
     | '/tryout/test'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
-    | '/admin/ptntour/$id'
     | '/admin/ptntour/create'
     | '/admin/questions/$id'
     | '/admin/tryout/$id'
@@ -771,6 +796,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/tryout'
     | '/admin/users'
+    | '/ptntour/$slug'
     | '/classes/$shortName/$contentId'
     | '/dashboard/flashcard/intro'
     | '/dashboard/flashcard/result'
@@ -786,6 +812,7 @@ export interface FileRouteTypes {
     | '/latihan-soal/riwayat'
     | '/tryout/$tryoutId'
     | '/admin/classes/$shortName'
+    | '/admin/ptntour/$id'
     | '/classes/$shortName/$contentId/latihan-soal'
     | '/classes/$shortName/$contentId/notes'
     | '/classes/$shortName/$contentId/video'
@@ -798,6 +825,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_authenticated'
     | '/admin'
+    | '/ptntour'
     | '/_auth/forgot-password'
     | '/_auth/login'
     | '/_auth/register'
@@ -841,6 +869,7 @@ export interface FileRouteTypes {
     | '/admin/transactions/'
     | '/admin/tryout/'
     | '/admin/users/'
+    | '/ptntour/$slug/'
     | '/_authenticated/classes/$shortName/$contentId'
     | '/_authenticated/dashboard/flashcard/intro'
     | '/_authenticated/dashboard/flashcard/result'
@@ -856,6 +885,7 @@ export interface FileRouteTypes {
     | '/_authenticated/latihan-soal/riwayat/'
     | '/_authenticated/tryout/$tryoutId/'
     | '/admin/classes/$shortName/'
+    | '/admin/ptntour/$id/'
     | '/_authenticated/classes/$shortName/$contentId/latihan-soal'
     | '/_authenticated/classes/$shortName/$contentId/notes'
     | '/_authenticated/classes/$shortName/$contentId/video'
@@ -869,9 +899,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  PtntourSlugRoute: typeof PtntourSlugRouteWithChildren
+  PtntourRoute: typeof PtntourRouteWithChildren
   HomePremiumIndexRoute: typeof HomePremiumIndexRoute
-  PtntourIndexRoute: typeof PtntourIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -902,6 +931,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ptntour': {
+      id: '/ptntour'
+      path: '/ptntour'
+      fullPath: '/ptntour'
+      preLoaderRoute: typeof PtntourRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/forgot-password': {
@@ -990,17 +1026,17 @@ declare module '@tanstack/react-router' {
     }
     '/ptntour/': {
       id: '/ptntour/'
-      path: '/ptntour'
+      path: '/'
       fullPath: '/ptntour/'
       preLoaderRoute: typeof PtntourIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof PtntourRoute
     }
     '/ptntour/$slug': {
       id: '/ptntour/$slug'
-      path: '/ptntour/$slug'
+      path: '/$slug'
       fullPath: '/ptntour/$slug'
       preLoaderRoute: typeof PtntourSlugRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof PtntourRoute
     }
     '/_authenticated/classes/': {
       id: '/_authenticated/classes/'
@@ -1198,6 +1234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/ptntour/$slug/': {
+      id: '/ptntour/$slug/'
+      path: '/'
+      fullPath: '/ptntour/$slug/'
+      preLoaderRoute: typeof PtntourSlugIndexRouteImport
+      parentRoute: typeof PtntourSlugRoute
+    }
     '/ptntour/$slug/success': {
       id: '/ptntour/$slug/success'
       path: '/success'
@@ -1302,6 +1345,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/classes/$shortName/$contentId'
       preLoaderRoute: typeof AdminClassesShortNameContentIdRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/admin/ptntour/$id/': {
+      id: '/admin/ptntour/$id/'
+      path: '/'
+      fullPath: '/admin/ptntour/$id/'
+      preLoaderRoute: typeof AdminPtntourIdIndexRouteImport
+      parentRoute: typeof AdminPtntourIdRoute
     }
     '/admin/ptntour/$id/participants': {
       id: '/admin/ptntour/$id/participants'
@@ -1461,10 +1511,12 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface AdminPtntourIdRouteChildren {
   AdminPtntourIdParticipantsRoute: typeof AdminPtntourIdParticipantsRoute
+  AdminPtntourIdIndexRoute: typeof AdminPtntourIdIndexRoute
 }
 
 const AdminPtntourIdRouteChildren: AdminPtntourIdRouteChildren = {
   AdminPtntourIdParticipantsRoute: AdminPtntourIdParticipantsRoute,
+  AdminPtntourIdIndexRoute: AdminPtntourIdIndexRoute,
 }
 
 const AdminPtntourIdRouteWithChildren = AdminPtntourIdRoute._addFileChildren(
@@ -1553,24 +1605,38 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface PtntourSlugRouteChildren {
   PtntourSlugSuccessRoute: typeof PtntourSlugSuccessRoute
+  PtntourSlugIndexRoute: typeof PtntourSlugIndexRoute
 }
 
 const PtntourSlugRouteChildren: PtntourSlugRouteChildren = {
   PtntourSlugSuccessRoute: PtntourSlugSuccessRoute,
+  PtntourSlugIndexRoute: PtntourSlugIndexRoute,
 }
 
 const PtntourSlugRouteWithChildren = PtntourSlugRoute._addFileChildren(
   PtntourSlugRouteChildren,
 )
 
+interface PtntourRouteChildren {
+  PtntourSlugRoute: typeof PtntourSlugRouteWithChildren
+  PtntourIndexRoute: typeof PtntourIndexRoute
+}
+
+const PtntourRouteChildren: PtntourRouteChildren = {
+  PtntourSlugRoute: PtntourSlugRouteWithChildren,
+  PtntourIndexRoute: PtntourIndexRoute,
+}
+
+const PtntourRouteWithChildren =
+  PtntourRoute._addFileChildren(PtntourRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  PtntourSlugRoute: PtntourSlugRouteWithChildren,
+  PtntourRoute: PtntourRouteWithChildren,
   HomePremiumIndexRoute: HomePremiumIndexRoute,
-  PtntourIndexRoute: PtntourIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
