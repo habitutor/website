@@ -26,7 +26,8 @@
     "db:seed": "bun run src/seed/index.ts",
     "db:sync-hab-order": "bun run src/scripts/sync-hab-subtest-order.ts",
     "db:identify-legacy-premium": "bun run src/scripts/identify-legacy-premium.ts",
-    "db:revoke-legacy-premium": "bun run src/scripts/revoke-legacy-premium.ts"
+    "db:revoke-legacy-premium": "bun run src/scripts/revoke-legacy-premium.ts",
+    "db:seed-ptn-tour": "bun run src/seed/ptn-tour.ts"
   },
   "dependencies": {
     "dotenv": "catalog:",

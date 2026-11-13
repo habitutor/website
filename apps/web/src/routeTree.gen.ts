@@ -25,6 +25,8 @@ import { Route as AdminLiveClassRouteImport } from './routes/admin/live-class'
 import { Route as AdminRecordingsRouteImport } from './routes/admin/recordings'
 import { Route as AdminReferralsRouteImport } from './routes/admin/referrals'
 import { Route as HomePremiumIndexRouteImport } from './routes/home-premium/index'
+import { Route as PtntourIndexRouteImport } from './routes/ptntour/index'
+import { Route as PtntourSlugRouteImport } from './routes/ptntour/$slug'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
@@ -42,6 +44,9 @@ import { Route as AdminPracticePacksIndexRouteImport } from './routes/admin/prac
 import { Route as AdminPracticePacksIdRouteImport } from './routes/admin/practice-packs/$id'
 import { Route as AdminPracticePacksCreateRouteImport } from './routes/admin/practice-packs/create'
 import { Route as AdminPromosIndexRouteImport } from './routes/admin/promos/index'
+import { Route as AdminPtntourIndexRouteImport } from './routes/admin/ptntour/index'
+import { Route as AdminPtntourIdRouteImport } from './routes/admin/ptntour/$id'
+import { Route as AdminPtntourCreateRouteImport } from './routes/admin/ptntour/create'
 import { Route as AdminQuestionsIndexRouteImport } from './routes/admin/questions/index'
 import { Route as AdminQuestionsIdRouteImport } from './routes/admin/questions/$id'
 import { Route as AdminTransactionsIndexRouteImport } from './routes/admin/transactions/index'
@@ -50,6 +55,7 @@ import { Route as AdminTryoutIdRouteImport } from './routes/admin/tryout/$id'
 import { Route as AdminTryoutCreateRouteImport } from './routes/admin/tryout/create'
 import { Route as AdminTryoutPassingGradeRouteImport } from './routes/admin/tryout/passing-grade'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
+import { Route as PtntourSlugSuccessRouteImport } from './routes/ptntour/$slug.success'
 import { Route as AuthenticatedClassesShortNameIndexRouteImport } from './routes/_authenticated/classes/$shortName/index'
 import { Route as AuthenticatedClassesShortNameContentIdRouteImport } from './routes/_authenticated/classes/$shortName/$contentId'
 import { Route as AuthenticatedDashboardFlashcardIndexRouteImport } from './routes/_authenticated/dashboard/flashcard.index'
@@ -64,6 +70,7 @@ import { Route as AuthenticatedTryoutTryoutIdIndexRouteImport } from './routes/_
 import { Route as AuthenticatedTryoutResultSesiIdRouteImport } from './routes/_authenticated/tryout/result/$sesiId'
 import { Route as AdminClassesShortNameIndexRouteImport } from './routes/admin/classes/$shortName/index'
 import { Route as AdminClassesShortNameContentIdRouteImport } from './routes/admin/classes/$shortName/$contentId'
+import { Route as AdminPtntourIdParticipantsRouteImport } from './routes/admin/ptntour/$id.participants'
 import { Route as AuthenticatedClassesShortNameContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$shortName/$contentId.latihan-soal'
 import { Route as AuthenticatedClassesShortNameContentIdNotesRouteImport } from './routes/_authenticated/classes/$shortName/$contentId.notes'
 import { Route as AuthenticatedClassesShortNameContentIdVideoRouteImport } from './routes/_authenticated/classes/$shortName/$contentId.video'
@@ -147,6 +154,16 @@ const AdminReferralsRoute = AdminReferralsRouteImport.update({
 const HomePremiumIndexRoute = HomePremiumIndexRouteImport.update({
   id: '/home-premium/',
   path: '/home-premium/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PtntourIndexRoute = PtntourIndexRouteImport.update({
+  id: '/ptntour/',
+  path: '/ptntour/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PtntourSlugRoute = PtntourSlugRouteImport.update({
+  id: '/ptntour/$slug',
+  path: '/ptntour/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedClassesIndexRoute =
@@ -246,6 +263,21 @@ const AdminPromosIndexRoute = AdminPromosIndexRouteImport.update({
   path: '/promos/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPtntourIndexRoute = AdminPtntourIndexRouteImport.update({
+  id: '/ptntour/',
+  path: '/ptntour/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPtntourIdRoute = AdminPtntourIdRouteImport.update({
+  id: '/ptntour/$id',
+  path: '/ptntour/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPtntourCreateRoute = AdminPtntourCreateRouteImport.update({
+  id: '/ptntour/create',
+  path: '/ptntour/create',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminQuestionsIndexRoute = AdminQuestionsIndexRouteImport.update({
   id: '/questions/',
   path: '/questions/',
@@ -285,6 +317,11 @@ const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
   getParentRoute: () => AdminRoute,
+} as any)
+const PtntourSlugSuccessRoute = PtntourSlugSuccessRouteImport.update({
+  id: '/success',
+  path: '/success',
+  getParentRoute: () => PtntourSlugRoute,
 } as any)
 const AuthenticatedClassesShortNameIndexRoute =
   AuthenticatedClassesShortNameIndexRouteImport.update({
@@ -370,6 +407,12 @@ const AdminClassesShortNameContentIdRoute =
     path: '/classes/$shortName/$contentId',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminPtntourIdParticipantsRoute =
+  AdminPtntourIdParticipantsRouteImport.update({
+    id: '/participants',
+    path: '/participants',
+    getParentRoute: () => AdminPtntourIdRoute,
+  } as any)
 const AuthenticatedClassesShortNameContentIdLatihanSoalRoute =
   AuthenticatedClassesShortNameContentIdLatihanSoalRouteImport.update({
     id: '/latihan-soal',
@@ -420,17 +463,22 @@ export interface FileRoutesByFullPath {
   '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
+  '/ptntour/$slug': typeof PtntourSlugRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
+  '/ptntour/': typeof PtntourIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/tryout/session': typeof AuthenticatedTryoutSessionRoute
   '/tryout/test': typeof AuthenticatedTryoutTestRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
+  '/admin/ptntour/$id': typeof AdminPtntourIdRouteWithChildren
+  '/admin/ptntour/create': typeof AdminPtntourCreateRoute
   '/admin/questions/$id': typeof AdminQuestionsIdRoute
   '/admin/tryout/$id': typeof AdminTryoutIdRoute
   '/admin/tryout/create': typeof AdminTryoutCreateRoute
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
+  '/ptntour/$slug/success': typeof PtntourSlugSuccessRoute
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
@@ -443,6 +491,7 @@ export interface FileRoutesByFullPath {
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
   '/admin/promos/': typeof AdminPromosIndexRoute
+  '/admin/ptntour/': typeof AdminPtntourIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
   '/admin/transactions/': typeof AdminTransactionsIndexRoute
   '/admin/tryout/': typeof AdminTryoutIndexRoute
@@ -456,6 +505,7 @@ export interface FileRoutesByFullPath {
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/tryout/result/$sesiId': typeof AuthenticatedTryoutResultSesiIdRoute
   '/admin/classes/$shortName/$contentId': typeof AdminClassesShortNameContentIdRouteWithChildren
+  '/admin/ptntour/$id/participants': typeof AdminPtntourIdParticipantsRoute
   '/classes/$shortName/': typeof AuthenticatedClassesShortNameIndexRoute
   '/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -480,17 +530,22 @@ export interface FileRoutesByTo {
   '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
+  '/ptntour/$slug': typeof PtntourSlugRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/home-premium': typeof HomePremiumIndexRoute
+  '/ptntour': typeof PtntourIndexRoute
   '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/tryout/session': typeof AuthenticatedTryoutSessionRoute
   '/tryout/test': typeof AuthenticatedTryoutTestRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
+  '/admin/ptntour/$id': typeof AdminPtntourIdRouteWithChildren
+  '/admin/ptntour/create': typeof AdminPtntourCreateRoute
   '/admin/questions/$id': typeof AdminQuestionsIdRoute
   '/admin/tryout/$id': typeof AdminTryoutIdRoute
   '/admin/tryout/create': typeof AdminTryoutCreateRoute
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
+  '/ptntour/$slug/success': typeof PtntourSlugSuccessRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
@@ -503,6 +558,7 @@ export interface FileRoutesByTo {
   '/admin/classes': typeof AdminClassesIndexRoute
   '/admin/practice-packs': typeof AdminPracticePacksIndexRoute
   '/admin/promos': typeof AdminPromosIndexRoute
+  '/admin/ptntour': typeof AdminPtntourIndexRoute
   '/admin/questions': typeof AdminQuestionsIndexRoute
   '/admin/transactions': typeof AdminTransactionsIndexRoute
   '/admin/tryout': typeof AdminTryoutIndexRoute
@@ -516,6 +572,7 @@ export interface FileRoutesByTo {
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/tryout/result/$sesiId': typeof AuthenticatedTryoutResultSesiIdRoute
   '/admin/classes/$shortName/$contentId': typeof AdminClassesShortNameContentIdRouteWithChildren
+  '/admin/ptntour/$id/participants': typeof AdminPtntourIdParticipantsRoute
   '/classes/$shortName': typeof AuthenticatedClassesShortNameIndexRoute
   '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -544,17 +601,22 @@ export interface FileRoutesById {
   '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
+  '/ptntour/$slug': typeof PtntourSlugRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
+  '/ptntour/': typeof PtntourIndexRoute
   '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/tryout/session': typeof AuthenticatedTryoutSessionRoute
   '/_authenticated/tryout/test': typeof AuthenticatedTryoutTestRoute
   '/admin/practice-packs/$id': typeof AdminPracticePacksIdRoute
   '/admin/practice-packs/create': typeof AdminPracticePacksCreateRoute
+  '/admin/ptntour/$id': typeof AdminPtntourIdRouteWithChildren
+  '/admin/ptntour/create': typeof AdminPtntourCreateRoute
   '/admin/questions/$id': typeof AdminQuestionsIdRoute
   '/admin/tryout/$id': typeof AdminTryoutIdRoute
   '/admin/tryout/create': typeof AdminTryoutCreateRoute
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
+  '/ptntour/$slug/success': typeof PtntourSlugSuccessRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
@@ -567,6 +629,7 @@ export interface FileRoutesById {
   '/admin/classes/': typeof AdminClassesIndexRoute
   '/admin/practice-packs/': typeof AdminPracticePacksIndexRoute
   '/admin/promos/': typeof AdminPromosIndexRoute
+  '/admin/ptntour/': typeof AdminPtntourIndexRoute
   '/admin/questions/': typeof AdminQuestionsIndexRoute
   '/admin/transactions/': typeof AdminTransactionsIndexRoute
   '/admin/tryout/': typeof AdminTryoutIndexRoute
@@ -580,6 +643,7 @@ export interface FileRoutesById {
   '/_authenticated/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/_authenticated/tryout/result/$sesiId': typeof AuthenticatedTryoutResultSesiIdRoute
   '/admin/classes/$shortName/$contentId': typeof AdminClassesShortNameContentIdRouteWithChildren
+  '/admin/ptntour/$id/participants': typeof AdminPtntourIdParticipantsRoute
   '/_authenticated/classes/$shortName/': typeof AuthenticatedClassesShortNameIndexRoute
   '/_authenticated/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
   '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
@@ -607,17 +671,22 @@ export interface FileRouteTypes {
     | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
+    | '/ptntour/$slug'
     | '/admin/'
     | '/home-premium/'
+    | '/ptntour/'
     | '/latihan-soal/$id'
     | '/tryout/session'
     | '/tryout/test'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
+    | '/admin/ptntour/$id'
+    | '/admin/ptntour/create'
     | '/admin/questions/$id'
     | '/admin/tryout/$id'
     | '/admin/tryout/create'
     | '/admin/tryout/passing-grade'
+    | '/ptntour/$slug/success'
     | '/classes/'
     | '/dashboard/'
     | '/latihan-soal/'
@@ -630,6 +699,7 @@ export interface FileRouteTypes {
     | '/admin/classes/'
     | '/admin/practice-packs/'
     | '/admin/promos/'
+    | '/admin/ptntour/'
     | '/admin/questions/'
     | '/admin/transactions/'
     | '/admin/tryout/'
@@ -643,6 +713,7 @@ export interface FileRouteTypes {
     | '/premium/payment/unfinish'
     | '/tryout/result/$sesiId'
     | '/admin/classes/$shortName/$contentId'
+    | '/admin/ptntour/$id/participants'
     | '/classes/$shortName/'
     | '/dashboard/flashcard/'
     | '/latihan-soal/riwayat/'
@@ -667,17 +738,22 @@ export interface FileRouteTypes {
     | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
+    | '/ptntour/$slug'
     | '/admin'
     | '/home-premium'
+    | '/ptntour'
     | '/latihan-soal/$id'
     | '/tryout/session'
     | '/tryout/test'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
+    | '/admin/ptntour/$id'
+    | '/admin/ptntour/create'
     | '/admin/questions/$id'
     | '/admin/tryout/$id'
     | '/admin/tryout/create'
     | '/admin/tryout/passing-grade'
+    | '/ptntour/$slug/success'
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
@@ -690,6 +766,7 @@ export interface FileRouteTypes {
     | '/admin/classes'
     | '/admin/practice-packs'
     | '/admin/promos'
+    | '/admin/ptntour'
     | '/admin/questions'
     | '/admin/transactions'
     | '/admin/tryout'
@@ -703,6 +780,7 @@ export interface FileRouteTypes {
     | '/premium/payment/unfinish'
     | '/tryout/result/$sesiId'
     | '/admin/classes/$shortName/$contentId'
+    | '/admin/ptntour/$id/participants'
     | '/classes/$shortName'
     | '/dashboard/flashcard'
     | '/latihan-soal/riwayat'
@@ -730,17 +808,22 @@ export interface FileRouteTypes {
     | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
+    | '/ptntour/$slug'
     | '/admin/'
     | '/home-premium/'
+    | '/ptntour/'
     | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/tryout/session'
     | '/_authenticated/tryout/test'
     | '/admin/practice-packs/$id'
     | '/admin/practice-packs/create'
+    | '/admin/ptntour/$id'
+    | '/admin/ptntour/create'
     | '/admin/questions/$id'
     | '/admin/tryout/$id'
     | '/admin/tryout/create'
     | '/admin/tryout/passing-grade'
+    | '/ptntour/$slug/success'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/latihan-soal/'
@@ -753,6 +836,7 @@ export interface FileRouteTypes {
     | '/admin/classes/'
     | '/admin/practice-packs/'
     | '/admin/promos/'
+    | '/admin/ptntour/'
     | '/admin/questions/'
     | '/admin/transactions/'
     | '/admin/tryout/'
@@ -766,6 +850,7 @@ export interface FileRouteTypes {
     | '/_authenticated/premium/payment/unfinish'
     | '/_authenticated/tryout/result/$sesiId'
     | '/admin/classes/$shortName/$contentId'
+    | '/admin/ptntour/$id/participants'
     | '/_authenticated/classes/$shortName/'
     | '/_authenticated/dashboard/flashcard/'
     | '/_authenticated/latihan-soal/riwayat/'
@@ -784,7 +869,9 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  PtntourSlugRoute: typeof PtntourSlugRouteWithChildren
   HomePremiumIndexRoute: typeof HomePremiumIndexRoute
+  PtntourIndexRoute: typeof PtntourIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -899,6 +986,20 @@ declare module '@tanstack/react-router' {
       path: '/home-premium'
       fullPath: '/home-premium/'
       preLoaderRoute: typeof HomePremiumIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ptntour/': {
+      id: '/ptntour/'
+      path: '/ptntour'
+      fullPath: '/ptntour/'
+      preLoaderRoute: typeof PtntourIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ptntour/$slug': {
+      id: '/ptntour/$slug'
+      path: '/ptntour/$slug'
+      fullPath: '/ptntour/$slug'
+      preLoaderRoute: typeof PtntourSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/classes/': {
@@ -1020,6 +1121,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPromosIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ptntour/': {
+      id: '/admin/ptntour/'
+      path: '/ptntour'
+      fullPath: '/admin/ptntour/'
+      preLoaderRoute: typeof AdminPtntourIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ptntour/$id': {
+      id: '/admin/ptntour/$id'
+      path: '/ptntour/$id'
+      fullPath: '/admin/ptntour/$id'
+      preLoaderRoute: typeof AdminPtntourIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ptntour/create': {
+      id: '/admin/ptntour/create'
+      path: '/ptntour/create'
+      fullPath: '/admin/ptntour/create'
+      preLoaderRoute: typeof AdminPtntourCreateRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/questions/': {
       id: '/admin/questions/'
       path: '/questions'
@@ -1075,6 +1197,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/users/'
       preLoaderRoute: typeof AdminUsersIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/ptntour/$slug/success': {
+      id: '/ptntour/$slug/success'
+      path: '/success'
+      fullPath: '/ptntour/$slug/success'
+      preLoaderRoute: typeof PtntourSlugSuccessRouteImport
+      parentRoute: typeof PtntourSlugRoute
     }
     '/_authenticated/classes/$shortName/': {
       id: '/_authenticated/classes/$shortName/'
@@ -1173,6 +1302,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/classes/$shortName/$contentId'
       preLoaderRoute: typeof AdminClassesShortNameContentIdRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/admin/ptntour/$id/participants': {
+      id: '/admin/ptntour/$id/participants'
+      path: '/participants'
+      fullPath: '/admin/ptntour/$id/participants'
+      preLoaderRoute: typeof AdminPtntourIdParticipantsRouteImport
+      parentRoute: typeof AdminPtntourIdRoute
     }
     '/_authenticated/classes/$shortName/$contentId/latihan-soal': {
       id: '/_authenticated/classes/$shortName/$contentId/latihan-soal'
@@ -1323,6 +1459,18 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AdminPtntourIdRouteChildren {
+  AdminPtntourIdParticipantsRoute: typeof AdminPtntourIdParticipantsRoute
+}
+
+const AdminPtntourIdRouteChildren: AdminPtntourIdRouteChildren = {
+  AdminPtntourIdParticipantsRoute: AdminPtntourIdParticipantsRoute,
+}
+
+const AdminPtntourIdRouteWithChildren = AdminPtntourIdRoute._addFileChildren(
+  AdminPtntourIdRouteChildren,
+)
+
 interface AdminClassesShortNameContentIdRouteChildren {
   AdminClassesShortNameContentIdLatihanSoalRoute: typeof AdminClassesShortNameContentIdLatihanSoalRoute
   AdminClassesShortNameContentIdNotesRoute: typeof AdminClassesShortNameContentIdNotesRoute
@@ -1354,6 +1502,8 @@ interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPracticePacksIdRoute: typeof AdminPracticePacksIdRoute
   AdminPracticePacksCreateRoute: typeof AdminPracticePacksCreateRoute
+  AdminPtntourIdRoute: typeof AdminPtntourIdRouteWithChildren
+  AdminPtntourCreateRoute: typeof AdminPtntourCreateRoute
   AdminQuestionsIdRoute: typeof AdminQuestionsIdRoute
   AdminTryoutIdRoute: typeof AdminTryoutIdRoute
   AdminTryoutCreateRoute: typeof AdminTryoutCreateRoute
@@ -1361,6 +1511,7 @@ interface AdminRouteChildren {
   AdminClassesIndexRoute: typeof AdminClassesIndexRoute
   AdminPracticePacksIndexRoute: typeof AdminPracticePacksIndexRoute
   AdminPromosIndexRoute: typeof AdminPromosIndexRoute
+  AdminPtntourIndexRoute: typeof AdminPtntourIndexRoute
   AdminQuestionsIndexRoute: typeof AdminQuestionsIndexRoute
   AdminTransactionsIndexRoute: typeof AdminTransactionsIndexRoute
   AdminTryoutIndexRoute: typeof AdminTryoutIndexRoute
@@ -1379,6 +1530,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AdminPracticePacksIdRoute: AdminPracticePacksIdRoute,
   AdminPracticePacksCreateRoute: AdminPracticePacksCreateRoute,
+  AdminPtntourIdRoute: AdminPtntourIdRouteWithChildren,
+  AdminPtntourCreateRoute: AdminPtntourCreateRoute,
   AdminQuestionsIdRoute: AdminQuestionsIdRoute,
   AdminTryoutIdRoute: AdminTryoutIdRoute,
   AdminTryoutCreateRoute: AdminTryoutCreateRoute,
@@ -1386,6 +1539,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClassesIndexRoute: AdminClassesIndexRoute,
   AdminPracticePacksIndexRoute: AdminPracticePacksIndexRoute,
   AdminPromosIndexRoute: AdminPromosIndexRoute,
+  AdminPtntourIndexRoute: AdminPtntourIndexRoute,
   AdminQuestionsIndexRoute: AdminQuestionsIndexRoute,
   AdminTransactionsIndexRoute: AdminTransactionsIndexRoute,
   AdminTryoutIndexRoute: AdminTryoutIndexRoute,
@@ -1397,12 +1551,26 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface PtntourSlugRouteChildren {
+  PtntourSlugSuccessRoute: typeof PtntourSlugSuccessRoute
+}
+
+const PtntourSlugRouteChildren: PtntourSlugRouteChildren = {
+  PtntourSlugSuccessRoute: PtntourSlugSuccessRoute,
+}
+
+const PtntourSlugRouteWithChildren = PtntourSlugRoute._addFileChildren(
+  PtntourSlugRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  PtntourSlugRoute: PtntourSlugRouteWithChildren,
   HomePremiumIndexRoute: HomePremiumIndexRoute,
+  PtntourIndexRoute: PtntourIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

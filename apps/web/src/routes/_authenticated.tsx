@@ -78,7 +78,7 @@ function AuthedLayout() {
         >
           <Outlet />
         </Container>
-      ) : /^\/(premium|recordings|classes|live-class|tryout)\/?$|^\/classes\/[^/]+\/?$|^\/tryout\/.+$/.test(
+      ) : /^\/(premium|recordings|classes|live-class|tryout|ptntour)\/?$|^\/classes\/[^/]+\/?$|^\/(tryout|ptntour)\/.+$/.test(
           pathname,
         ) ? (
         // Banner ajakan Premium disembunyikan di halaman-halaman ini, jadi cukup beri jarak setinggi header.

@@ -47,6 +47,7 @@ import { orpc } from "@/utils/orpc";
 
 const links = [
   { name: "Dashboard", to: "/dashboard", icon: HouseIcon },
+  { name: "PTN Tour", to: "/ptntour", icon: SparkleIcon },
   { name: "Try Out", to: "/tryout", icon: ExamIcon },
   { name: "Kelas", to: "/classes", icon: BooksIcon },
   { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
@@ -100,7 +101,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
     <header className="fixed inset-x-0 top-0 z-50">
       {!session?.user.isPremium &&
         !location.pathname.startsWith("/classes/") &&
-        !/^\/(premium|recordings|classes|live-class)\/?$|^\/tryout(\/.*)?$|^\/dashboard\/flashcard/.test(
+        !/^\/(premium|recordings|classes|live-class|ptntour)\/?$|^\/(tryout|ptntour)(\/.*)?$|^\/dashboard\/flashcard/.test(
           location.pathname,
         ) && (
           <div className="relative flex items-center justify-center gap-2 overflow-hidden bg-(image:--sr-grad-blue) p-2 text-sm font-medium text-white max-sm:flex-col max-sm:text-center sm:gap-4">
