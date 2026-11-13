@@ -31,7 +31,7 @@ export function QuestionNavigator({
   return (
     <Card className="sticky top-24 overflow-hidden border-none py-0 shadow-md">
       <CardContent className="p-3">
-        <nav className="grid grid-cols-5 gap-1.5" aria-label="Question navigator">
+        <nav className="grid grid-cols-5 gap-1.5" aria-label="Navigasi soal">
           {visibleQuestions.map((question, idx) => {
             const absoluteIndex = startIndex + idx;
             const originalIndex = questions.findIndex((q) => q.id === question.id);
@@ -69,7 +69,7 @@ export function QuestionNavigator({
             >
               <CaretLeftIcon className="size-3.5" />
             </button>
-            <span className="font-mono text-[10px] text-muted-foreground tabular-nums" aria-live="polite">
+            <span className="font-mono text-[10px] text-sr-muted tabular-nums" aria-live="polite">
               {startIndex + 1}–{endIndex}
             </span>
             <button

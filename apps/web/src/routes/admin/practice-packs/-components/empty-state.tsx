@@ -11,17 +11,17 @@ export function EmptyState({ onCreateNew, onAddExisting }: EmptyStateProps) {
     <div className="flex flex-col items-center justify-center space-y-6 rounded-xl border border-dashed py-16 text-center">
       <img src="/avatar/confused-avatar.webp" alt="No questions" className="h-32 w-auto sm:h-40" />
       <div className="space-y-2">
-        <h3 className="text-xl font-bold text-foreground">This pack is empty</h3>
-        <p className="text-muted-foreground">Add questions to get started.</p>
+        <h3 className="text-xl font-bold text-foreground">Pack ini masih kosong</h3>
+        <p className="text-sr-muted">Tambahkan soal untuk memulai.</p>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button onClick={onAddExisting} variant="lightBlue" size="lg" className="gap-2">
           <MagnifyingGlassIcon className="size-4" />
-          Add Existing
+          Tambah dari Bank Soal
         </Button>
         <Button onClick={onCreateNew} size="lg" className="gap-2">
           <PlusIcon className="size-4" />
-          Create New Question
+          Buat Soal Baru
         </Button>
       </div>
     </div>

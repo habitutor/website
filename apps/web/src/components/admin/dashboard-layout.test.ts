@@ -7,7 +7,7 @@ describe("generateBreadcrumbs", () => {
     expect(breadcrumbs).toEqual([
       { label: "Admin", href: "/admin/dashboard" },
       { label: "Practice Packs", href: "/admin/practice-packs" },
-      { label: "Create" },
+      { label: "Buat Baru" },
     ]);
   });
 

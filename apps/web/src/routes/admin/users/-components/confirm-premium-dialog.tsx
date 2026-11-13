@@ -41,7 +41,7 @@ export function ConfirmPremiumDialog({ user, open, onOpenChange, selectedDate, o
         onSuccess();
       },
       onError: (error: Error) => {
-        toast.error("Failed to update premium status", {
+        toast.error("Gagal memperbarui status premium", {
           description: error.message,
         });
       },

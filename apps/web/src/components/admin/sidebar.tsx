@@ -2,6 +2,7 @@
 
 import {
   BooksIcon,
+  Broadcast,
   House,
   Megaphone,
   Package,
@@ -18,6 +19,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -71,24 +73,29 @@ const adminNavLinks = [
     icon: Package,
   },
   {
-    name: "Questions",
+    name: "Bank Soal",
     to: "/admin/questions" as const,
     icon: Question,
   },
   {
-    name: "Classes",
+    name: "Kelas",
     to: "/admin/classes" as const,
     icon: BooksIcon,
   },
   {
-    name: "Dashboard Content",
-    to: "/admin/dashboard-content" as const,
-    icon: Megaphone,
+    name: "Live Class",
+    to: "/admin/live-class" as const,
+    icon: Broadcast,
   },
   {
     name: "Recordings",
     to: "/admin/recordings" as const,
     icon: VideoCameraIcon,
+  },
+  {
+    name: "Pengumuman",
+    to: "/admin/announcement" as const,
+    icon: Megaphone,
   },
   {
     name: "Users",
@@ -112,29 +119,51 @@ const adminNavLinks = [
   },
 ];
 
+const workspaceLinks = adminNavLinks.slice(0, 8);
+const businessLinks = adminNavLinks.slice(8);
+
 export function AdminSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
+    <Sidebar collapsible="icon" variant="floating" className="border-sr-line bg-sidebar shadow-sr-2">
       <SidebarHeader className="p-0">
         <SidebarLogo />
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+        <SidebarGroup className="gap-2 px-3 pt-5">
+          <SidebarGroupLabel className="px-3 text-[10px] font-bold tracking-[0.16em] text-sr-muted uppercase">
+            Workspace
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {adminNavLinks.map((link) => {
+            <SidebarMenu className="gap-1">
+              {workspaceLinks.map((link) => {
                 const isActive = location.pathname.startsWith(link.to);
                 const Icon = link.icon;
 
                 return (
                   <SidebarMenuItem key={link.to}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={link.name}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={link.name}
+                      className={cn(
+                        "relative h-11 rounded-sr-sm px-3 text-sr-ink-2 transition-all duration-200 hover:translate-x-1 hover:bg-white hover:shadow-sr-1",
+                        isActive && "bg-sr-blue-500 font-bold text-white shadow-sr-2 hover:bg-sr-blue-600",
+                      )}
+                    >
                       <Link to={link.to}>
-                        <Icon className="size-5" weight={isActive ? "fill" : "regular"} />
+                        {isActive && (
+                          <motion.span
+                            layoutId="admin-sidebar-active"
+                            className="bg-sr-sun-300 absolute left-1 h-6 w-1 rounded-full"
+                            transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                          />
+                        )}
+                        <motion.span whileHover={{ scale: 1.08 }} transition={{ duration: 0.15 }}>
+                          <Icon className="size-5" weight={isActive ? "fill" : "regular"} />
+                        </motion.span>
                         <span>{link.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -145,12 +174,46 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Other</SidebarGroupLabel>
+        <SidebarGroup className="gap-2 px-3 pt-5">
+          <SidebarGroupLabel className="px-3 text-[10px] font-bold tracking-[0.16em] text-sr-muted uppercase">
+            Business
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1">
+              {businessLinks.map((link) => {
+                const isActive = location.pathname.startsWith(link.to);
+                const Icon = link.icon;
+                return (
+                  <SidebarMenuItem key={link.to}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={link.name}
+                      className={cn(
+                        "relative h-11 rounded-sr-sm px-3 text-sr-ink-2 transition-all duration-200 hover:translate-x-1 hover:bg-white hover:shadow-sr-1",
+                        isActive && "bg-sr-blue-500 font-bold text-white shadow-sr-2 hover:bg-sr-blue-600",
+                      )}
+                    >
+                      <Link to={link.to}>
+                        {isActive && (
+                          <motion.span
+                            layoutId="admin-sidebar-active"
+                            className="bg-sr-sun-300 absolute left-1 h-6 w-1 rounded-full"
+                          />
+                        )}
+                        <Icon className="size-5" weight={isActive ? "fill" : "regular"} />
+                        <span>{link.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="User Dashboard">
+                <SidebarMenuButton
+                  asChild
+                  tooltip="User Dashboard"
+                  className="h-11 rounded-sr-sm px-3 text-sr-ink-2 transition-all hover:translate-x-1 hover:bg-white hover:shadow-sr-1"
+                >
                   <Link to="/dashboard">
                     <UserSwitchIcon className="size-5" />
                     <span>User Dashboard</span>
@@ -162,7 +225,7 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sr-line/70 bg-white/40 p-3">
         <SidebarMenu>
           <SidebarUserNav />
         </SidebarMenu>
@@ -229,7 +292,7 @@ function SidebarUserNav() {
               {state !== "collapsed" && (
                 <div className="flex min-w-0 flex-col">
                   <span className="truncate text-sm font-medium">{user.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                  <span className="truncate text-xs text-sr-muted">{user.email}</span>
                 </div>
               )}
               {state !== "collapsed" && <CaretUp className="ml-auto size-4 shrink-0 opacity-50" />}
@@ -261,12 +324,12 @@ function SidebarLogo() {
   const isCollapsed = state === "collapsed";
 
   return (
-    <div className={cn("flex h-16 items-center", isCollapsed ? "justify-center" : "border-b px-4")}>
+    <div className={cn("flex h-20 items-center", isCollapsed ? "justify-center" : "border-b border-sr-line px-3 py-3")}>
       <Link
         to="/admin/dashboard"
         className={cn(
-          "flex items-center gap-2 text-lg font-bold text-primary",
-          isCollapsed ? "justify-center" : "w-full",
+          "flex items-center gap-3 rounded-sr-md text-base font-bold text-primary transition-transform duration-200 hover:scale-[1.02]",
+          isCollapsed ? "justify-center" : "w-full min-w-0 bg-sr-blue-50 px-3 py-2",
         )}
         title="Habitutor Admin"
       >
@@ -276,9 +339,9 @@ function SidebarLogo() {
           layout="constrained"
           width={32}
           height={32}
-          className="size-8 shrink-0"
+          className="size-9 shrink-0"
         />
-        {!isCollapsed && <span className="truncate">Habitutor Admin</span>}
+        {!isCollapsed && <span className="whitespace-nowrap">Habitutor Admin</span>}
       </Link>
     </div>
   );

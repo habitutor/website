@@ -18,8 +18,10 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAnnouncementRouteImport } from './routes/admin/announcement'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard-content'
+import { Route as AdminLiveClassRouteImport } from './routes/admin/live-class'
 import { Route as AdminRecordingsRouteImport } from './routes/admin/recordings'
 import { Route as AdminReferralsRouteImport } from './routes/admin/referrals'
 import { Route as HomePremiumIndexRouteImport } from './routes/home-premium/index'
@@ -112,6 +114,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAnnouncementRoute = AdminAnnouncementRouteImport.update({
+  id: '/announcement',
+  path: '/announcement',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -120,6 +127,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 const AdminDashboardContentRoute = AdminDashboardContentRouteImport.update({
   id: '/dashboard-content',
   path: '/dashboard-content',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLiveClassRoute = AdminLiveClassRouteImport.update({
+  id: '/live-class',
+  path: '/live-class',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminRecordingsRoute = AdminRecordingsRouteImport.update({
@@ -402,8 +414,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
+  '/admin/announcement': typeof AdminAnnouncementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/': typeof AdminIndexRoute
@@ -460,8 +474,10 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
+  '/admin/announcement': typeof AdminAnnouncementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin': typeof AdminIndexRoute
@@ -522,8 +538,10 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
+  '/admin/announcement': typeof AdminAnnouncementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
+  '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/': typeof AdminIndexRoute
@@ -583,8 +601,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/admin/announcement'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
     | '/admin/'
@@ -641,8 +661,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/admin/announcement'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
     | '/admin'
@@ -702,8 +724,10 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_auth/reset-password'
+    | '/admin/announcement'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
+    | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
     | '/admin/'
@@ -828,6 +852,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/announcement': {
+      id: '/admin/announcement'
+      path: '/announcement'
+      fullPath: '/admin/announcement'
+      preLoaderRoute: typeof AdminAnnouncementRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/dashboard'
@@ -840,6 +871,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard-content'
       fullPath: '/admin/dashboard-content'
       preLoaderRoute: typeof AdminDashboardContentRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/live-class': {
+      id: '/admin/live-class'
+      path: '/live-class'
+      fullPath: '/admin/live-class'
+      preLoaderRoute: typeof AdminLiveClassRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/recordings': {
@@ -1307,8 +1345,10 @@ const AdminClassesShortNameContentIdRouteWithChildren =
   )
 
 interface AdminRouteChildren {
+  AdminAnnouncementRoute: typeof AdminAnnouncementRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboardContentRoute: typeof AdminDashboardContentRoute
+  AdminLiveClassRoute: typeof AdminLiveClassRoute
   AdminRecordingsRoute: typeof AdminRecordingsRoute
   AdminReferralsRoute: typeof AdminReferralsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1330,8 +1370,10 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnnouncementRoute: AdminAnnouncementRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboardContentRoute: AdminDashboardContentRoute,
+  AdminLiveClassRoute: AdminLiveClassRoute,
   AdminRecordingsRoute: AdminRecordingsRoute,
   AdminReferralsRoute: AdminReferralsRoute,
   AdminIndexRoute: AdminIndexRoute,

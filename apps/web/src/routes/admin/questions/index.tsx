@@ -5,6 +5,7 @@ import { type } from "arktype";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { AdminCursorPagination } from "@/components/admin/pagination";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import {
   AlertDialog,
@@ -126,26 +127,26 @@ function QuestionsPage() {
 
   return (
     <AdminContainer>
-      <AdminHeader title="Question Bank" description="Manage all questions across practice packs" />
+      <AdminHeader title="Bank Soal" description="Kelola semua soal dari seluruh practice pack" />
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-sr-muted" />
           <Input
-            placeholder="Search questions..."
+            placeholder="Cari soal…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
           />
         </div>
-        <div className="flex items-center gap-1 rounded-lg border p-1">
+        <div className="flex items-center gap-1 rounded-full border border-sr-line bg-sr-ivory p-1">
           <Button
             variant={flashcardParam === undefined ? "secondary" : "ghost"}
             size="sm"
             className="h-7 px-3 text-xs"
             onClick={() => handleFlashcardFilter(undefined)}
           >
-            All
+            Semua
           </Button>
           <Button
             variant={flashcardParam === "true" ? "secondary" : "ghost"}
@@ -162,16 +163,18 @@ function QuestionsPage() {
             className="h-7 px-3 text-xs"
             onClick={() => handleFlashcardFilter("false")}
           >
-            No Flashcard
+            Tanpa Flashcard
           </Button>
         </div>
       </div>
 
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-          {Array.from({ length: 12 }).map((_, i) => (
-            // biome-ignore lint: skeleton items don't need stable keys
-            <Card key={i} className="relative flex flex-col overflow-hidden py-0">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <Card
+              key={index}
+              className="relative flex sr-card-hover flex-col overflow-hidden rounded-sr-lg border-sr-line bg-sr-ivory/50 py-0 shadow-sr-1"
+            >
               <div className="flex flex-1 flex-col px-6 py-6">
                 {/* Content area */}
                 <div className="mb-4 flex-1 space-y-3">
@@ -206,11 +209,11 @@ function QuestionsPage() {
           ))}
         </div>
       ) : !questions || questions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
-          <Exam className="mb-4 size-12 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">No questions found</h3>
-          <p className="text-sm text-muted-foreground">
-            {searchQuery ? "Try adjusting your search query" : "Get started by creating questions from practice packs"}
+        <div className="flex flex-col items-center justify-center rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-sr-blue-50/40 p-12 text-center">
+          <Exam className="text-sr-blue-400 mb-4 size-12" />
+          <h3 className="mb-2 text-lg font-black text-sr-ink">Belum ada soal</h3>
+          <p className="text-sm text-sr-muted">
+            {searchQuery ? "Coba ubah kata kunci pencarian." : "Mulai dengan membuat soal dari halaman Practice Packs."}
           </p>
         </div>
       ) : (
@@ -222,27 +225,16 @@ function QuestionsPage() {
       )}
 
       {(hasPrevious || hasMore) && (
-        <div className="mt-6 flex items-center justify-center gap-4 sm:mt-8">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasPrevious || isLoading}
-            onClick={handlePrevious}
-            className="h-9 px-4"
-          >
-            Previous
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasMore || isLoading}
-            onClick={() => nextCursor && handleNext(nextCursor)}
-            className="h-9 px-4"
-          >
-            Next
-          </Button>
-        </div>
+        <AdminCursorPagination
+          className="mt-6"
+          label="soal"
+          shown={questions?.length ?? 0}
+          hasPrevious={hasPrevious}
+          hasNext={hasMore}
+          onPrevious={handlePrevious}
+          onNext={() => nextCursor && handleNext(nextCursor)}
+          isLoading={isLoading}
+        />
       )}
     </AdminContainer>
   );
@@ -273,7 +265,7 @@ function QuestionCard({
         setDeleteDialogOpen(false);
       },
       onError: (error) => {
-        toast.error("Failed to delete question", {
+        toast.error("Gagal menghapus soal", {
           description: String(error),
         });
       },
@@ -289,7 +281,7 @@ function QuestionCard({
         });
       },
       onError: (error) => {
-        toast.error("Failed to update flashcard status", {
+        toast.error("Gagal memperbarui status flashcard", {
           description: String(error),
         });
       },
@@ -306,7 +298,7 @@ function QuestionCard({
     <>
       <Card
         className={cn(
-          "group relative flex flex-col overflow-hidden py-0 transition-all hover:shadow-md",
+          "group relative flex flex-col overflow-hidden rounded-sr-lg border-sr-line bg-linear-to-br from-white via-sr-blue-50/40 to-sr-sun-100/30 py-0 shadow-sr-1 transition-all duration-300 hover:-translate-y-1 hover:shadow-sr-2",
           isUnused && "border-dashed bg-muted/30",
         )}
       >
@@ -321,21 +313,21 @@ function QuestionCard({
             </div>
 
             {/* Mini Discussion Preview */}
-            <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
-              <span>Discussion Preview</span>
+            <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider text-sr-muted uppercase">
+              <span>Pratinjau Pembahasan</span>
             </div>
-            <div className="line-clamp-1 text-xs text-muted-foreground italic opacity-80">
+            <div className="line-clamp-1 text-xs text-sr-muted italic opacity-80">
               <TiptapRenderer content={question.discussion} />
             </div>
           </div>
 
           {/* Metadata */}
-          <div className="mt-auto flex items-center gap-4 text-xs font-medium text-muted-foreground">
+          <div className="mt-auto flex items-center gap-4 text-xs font-medium text-sr-muted">
             <div className="flex items-center gap-1.5">
               {question.packCount > 0 ? (
                 <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-800 dark:bg-green-900/30 dark:text-green-400">
                   <Package className="mr-1 size-3" />
-                  Used in {question.packCount} pack{question.packCount !== 1 ? "s" : ""}
+                  Dipakai di {question.packCount} pack
                 </span>
               ) : (
                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-800 dark:bg-gray-800 dark:text-gray-300">
@@ -351,7 +343,7 @@ function QuestionCard({
                 </span>
               ) : (
                 <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                  No Flashcard
+                  Tanpa Flashcard
                 </span>
               )}
             </div>

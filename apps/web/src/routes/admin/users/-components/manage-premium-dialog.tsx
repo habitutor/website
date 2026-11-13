@@ -41,7 +41,7 @@ export function ManagePremiumDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isPremium ? "Manage Premium" : "Grant Premium"}</DialogTitle>
+          <DialogTitle>{isPremium ? "Kelola Premium" : "Beri Premium"}</DialogTitle>
           <DialogDescription>
             {isPremium ? `Update premium status for ${user.name}` : `Grant premium access to ${user.name}`}
           </DialogDescription>
@@ -53,7 +53,7 @@ export function ManagePremiumDialog({
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className={cn("w-full justify-start text-left font-normal", !selectedDate && "text-muted-foreground")}
+                  className={cn("w-full justify-start text-left font-normal", !selectedDate && "text-sr-muted")}
                 >
                   {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
                 </Button>
@@ -68,7 +68,7 @@ export function ManagePremiumDialog({
                 />
               </PopoverContent>
             </Popover>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-sr-muted">
               {isPremium
                 ? "Select a new expiry date to extend or modify premium access."
                 : "Select an expiry date for the premium access."}

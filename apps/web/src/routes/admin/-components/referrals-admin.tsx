@@ -2,11 +2,12 @@ import { MagnifyingGlassIcon, TicketIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useRef, useState } from "react";
-import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { AdminContainer, AdminHeader, STICKY_FIRST_COLUMN } from "@/components/admin/dashboard-layout";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
+import { cn } from "@/lib/utils";
 import { client } from "@/utils/orpc";
 import { CursorPagination } from "../users/-components/pagination";
 
@@ -37,6 +38,7 @@ interface ReferralsAdminPageProps {
   cursor: string | null;
   searchParam: string;
   hasPrevious: boolean;
+  pageNumber: number;
   onSearchChange: (value: string) => void;
   onNext: (nextCursor: string) => void;
   onPrevious: () => void;
@@ -46,6 +48,7 @@ export function ReferralsAdminPage({
   cursor,
   searchParam,
   hasPrevious,
+  pageNumber,
   onSearchChange,
   onNext,
   onPrevious,
@@ -86,9 +89,9 @@ export function ReferralsAdminPage({
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <MagnifyingGlassIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-sr-muted" />
           <Input
-            placeholder="Search by code, buyer, owner, or order id..."
+            placeholder="Cari kode, pembeli, pemilik, atau order ID…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -99,6 +102,10 @@ export function ReferralsAdminPage({
       <ReferralsTable rows={rows} isPending={isPending} />
 
       <CursorPagination
+        className="mt-5"
+        label="transaksi"
+        page={pageNumber}
+        shown={rows.length}
         hasPrevious={hasPrevious}
         hasNext={hasMore}
         onPrevious={onPrevious}
@@ -123,27 +130,27 @@ function formatCurrency(amount: string | null) {
 function ReferralsTable({ rows, isPending }: { rows: ReferralTransactionRow[]; isPending: boolean }) {
   if (!isPending && rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
-        <TicketIcon className="mb-4 size-12 text-muted-foreground" />
-        <h3 className="mb-2 text-lg font-semibold">No referral transactions found</h3>
-        <p className="text-sm text-muted-foreground">Try adjusting your search query</p>
+      <div className="flex flex-col items-center justify-center rounded-sr-lg border-2 border-dashed border-sr-blue-200 bg-white/60 p-12 text-center">
+        <TicketIcon className="text-sr-blue-400 mb-4 size-12" />
+        <h3 className="mb-2 text-lg font-black text-sr-ink">Belum ada transaksi referral</h3>
+        <p className="text-sm text-sr-muted">Coba ubah kata kunci pencarian.</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-clip rounded-md border bg-white">
-      <Table>
+    <div className="sr-card-hover overflow-clip rounded-sr-lg border border-sr-line bg-white shadow-sr-1">
+      <Table className={cn("min-w-[960px]", STICKY_FIRST_COLUMN)}>
         <TableHeader>
           <TableRow>
             <TableHead>Order ID</TableHead>
-            <TableHead>Buyer</TableHead>
-            <TableHead>Referral Code</TableHead>
-            <TableHead>Code Owner</TableHead>
-            <TableHead>Transaction Amount</TableHead>
+            <TableHead>Pembeli</TableHead>
+            <TableHead>Kode Referral</TableHead>
+            <TableHead>Pemilik Kode</TableHead>
+            <TableHead>Nominal Transaksi</TableHead>
             <TableHead>Cashback</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Paid At</TableHead>
+            <TableHead>Dibayar Pada</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -156,14 +163,14 @@ function ReferralsTable({ rows, isPending }: { rows: ReferralTransactionRow[]; i
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-medium">{row.usedByName}</span>
-                    <span className="text-xs text-muted-foreground">{row.usedByEmail}</span>
+                    <span className="text-xs text-sr-muted">{row.usedByEmail}</span>
                   </div>
                 </TableCell>
                 <TableCell className="font-mono text-xs">{row.referralCode}</TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-medium">{row.ownerName}</span>
-                    <span className="text-xs text-muted-foreground">{row.ownerEmail}</span>
+                    <span className="text-xs text-sr-muted">{row.ownerEmail}</span>
                   </div>
                 </TableCell>
                 <TableCell>{formatCurrency(row.transactionGrossAmount)}</TableCell>

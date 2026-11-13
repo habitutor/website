@@ -146,7 +146,7 @@ function RouteComponent() {
   }
 
   if (content.isError) {
-    return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+    return <p className="text-sm text-destructive">Error: {content.error.message}</p>;
   }
 
   if (!content.data || Number.isNaN(parsedContentId)) return notFound();

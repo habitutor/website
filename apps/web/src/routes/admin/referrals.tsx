@@ -17,6 +17,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate();
   const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
+  const pageNumber = Route.useSearch({ select: (s) => (s.cursorHistory?.length ?? 0) + (s.cursor ? 1 : 0) + 1 });
   const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
 
   const handleSearchChange = (value: string) => {
@@ -62,6 +63,7 @@ function RouteComponent() {
       cursor={cursor}
       searchParam={searchParam}
       hasPrevious={hasPrevious}
+      pageNumber={pageNumber}
       onSearchChange={handleSearchChange}
       onNext={handleNext}
       onPrevious={handlePrevious}

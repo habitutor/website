@@ -107,7 +107,7 @@ export function PracticeQuestionLinkingView({
 }: PracticeQuestionLinkingViewProps) {
   return (
     <AdminContainer>
-      <AdminHeader title="Edit Practice Questions" description="Link practice questions to this content" />
+      <AdminHeader title="Edit Latihan Soal" description="Hubungkan latihan soal ke konten ini" />
       <div className="mt-6 space-y-6">
         <div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
           <h2 className="text-lg font-semibold">Edit Latihan Soal</h2>
@@ -153,7 +153,7 @@ export function PracticeQuestionLinkingView({
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-base font-semibold">Soal yang Sudah Terhubung</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-sr-muted">
                     {existingQuestions.length} soal sudah terhubung dengan konten ini
                   </p>
                 </div>
@@ -180,7 +180,7 @@ export function PracticeQuestionLinkingView({
                                 <p
                                   key={answer.id}
                                   className={`text-sm ${
-                                    answer.isCorrect ? "font-semibold text-green-600" : "text-muted-foreground"
+                                    answer.isCorrect ? "font-semibold text-green-600" : "text-sr-muted"
                                   }`}
                                 >
                                   {answer.isCorrect ? "✓ " : "  "}
@@ -218,15 +218,13 @@ export function PracticeQuestionLinkingView({
                       placeholder="Cari practice pack..."
                       value={searchQuery}
                       onChange={(event) => onSearchQueryChange(event.target.value)}
-                      className="flex h-10 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+                      className="flex h-10 w-full bg-transparent py-3 text-sm outline-none placeholder:text-sr-muted"
                     />
                   </div>
                   <div className="max-h-60 overflow-y-auto p-1">
-                    {practicePacksPending && (
-                      <p className="py-6 text-center text-sm text-muted-foreground">Memuat...</p>
-                    )}
+                    {practicePacksPending && <p className="py-6 text-center text-sm text-sr-muted">Memuat...</p>}
                     {practicePacks.length === 0 && (
-                      <p className="py-6 text-center text-sm text-muted-foreground">Tidak ada hasil</p>
+                      <p className="py-6 text-center text-sm text-sr-muted">Tidak ada hasil</p>
                     )}
                     {practicePacks.map((pack) => (
                       <DropdownMenuItem key={pack.id} onSelect={() => onPackSelect(pack.id)} className="cursor-pointer">
@@ -279,7 +277,7 @@ export function PracticeQuestionLinkingView({
                                   <p
                                     key={answer.id}
                                     className={`text-sm ${
-                                      answer.isCorrect ? "font-semibold text-green-600" : "text-muted-foreground"
+                                      answer.isCorrect ? "font-semibold text-green-600" : "text-sr-muted"
                                     }`}
                                   >
                                     {answer.isCorrect ? "✓ " : "  "}
@@ -297,7 +295,7 @@ export function PracticeQuestionLinkingView({
               </div>
             )}
 
-            {packQuestionsPending && <p className="text-sm text-muted-foreground">Memuat soal...</p>}
+            {packQuestionsPending && <p className="text-sm text-sr-muted">Memuat soal...</p>}
           </div>
         </div>
       </div>

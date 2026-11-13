@@ -92,10 +92,7 @@ export function useQuestionNavigation({
 
 export function KeyboardShortcutsHint() {
   return (
-    <Badge
-      variant="outline"
-      className="gap-1.5 border-border/50 bg-muted/30 font-mono text-[10px] text-muted-foreground"
-    >
+    <Badge variant="outline" className="gap-1.5 border-border/50 bg-muted/30 font-mono text-[10px] text-sr-muted">
       <CaretLeftIcon className="size-3" />
       <CaretRightIcon className="size-3" />
       <span>to navigate</span>

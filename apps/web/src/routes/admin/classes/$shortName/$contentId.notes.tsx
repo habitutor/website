@@ -96,7 +96,7 @@ function RouteComponent() {
   }
 
   if (content.isError) {
-    return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+    return <p className="text-sm text-destructive">Error: {content.error.message}</p>;
   }
 
   if (!content.data) return notFound();
@@ -105,7 +105,7 @@ function RouteComponent() {
 
   return (
     <AdminContainer>
-      <AdminHeader title="Edit Notes" description="Manage notes and study materials" />
+      <AdminHeader title="Edit Catatan" description="Kelola catatan dan materi belajar" />
       <div className="mt-6 space-y-6">
         <div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
           <h2 className="text-lg font-semibold">Edit Catatan Materi</h2>
@@ -167,7 +167,7 @@ function RouteComponent() {
                   <TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
                 </Suspense>
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-sm text-red-500">
+                  <p key={error?.message} className="text-sm text-destructive">
                     {error?.message}
                   </p>
                 ))}

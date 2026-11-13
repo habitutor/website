@@ -70,7 +70,7 @@ function QuestionEditPage() {
   if (isLoading) {
     return (
       <AdminContainer>
-        <AdminHeader title="Edit Question" description="Update question content and answer options" />
+        <AdminHeader title="Edit Soal" description="Perbarui isi soal dan pilihan jawabannya" />
 
         <Card className="overflow-hidden rounded-xl py-0 shadow-sm">
           <CardHeader className="bg-muted/30 py-4">

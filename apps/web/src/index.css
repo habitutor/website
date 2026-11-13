@@ -220,6 +220,40 @@
 	transform-origin: center;
 }
 
+/*
+ * Panel admin: animasi hover tetap ada, tetapi saat diklik elemen tidak "memantul"
+ * (turun dari posisi hover lalu mengecil, kemudian naik lagi saat dilepas).
+ * Saat ditekan, elemen ditahan di posisi hover-nya dan tidak diskalakan.
+ * Atribut data-admin-calm dipasang oleh layout admin (routes/admin.tsx); halaman siswa tidak terpengaruh.
+ */
+html[data-admin-calm] [class*="active:scale-"]:active {
+  scale: none;
+}
+
+html[data-admin-calm] [class*="active:translate-"]:active {
+  translate: none;
+}
+
+@media (hover: hover) {
+  html[data-admin-calm] [class*="hover:-translate-y-0.5"]:active {
+    translate: 0 -0.125rem;
+  }
+
+  html[data-admin-calm] [class*="hover:-translate-y-1"]:active {
+    translate: 0 -0.25rem;
+  }
+
+  html[data-admin-calm] .sr-lift:active {
+    transform: translateY(-4px);
+  }
+}
+
+@media (hover: none) {
+  html[data-admin-calm] .sr-lift:active {
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -246,7 +246,7 @@ export function ContentDialogs({ controller }: ContentDialogsProps) {
                     placeholder="Masukkan judul konten"
                   />
                   {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-sm text-red-500">
+                    <p key={error?.message} className="text-sm text-destructive">
                       {error?.message}
                     </p>
                   ))}
@@ -309,7 +309,7 @@ export function ContentDialogs({ controller }: ContentDialogsProps) {
                     placeholder="Masukkan judul konten"
                   />
                   {field.state.meta.errors.map((error) => (
-                    <p key={error?.message} className="text-sm text-red-500">
+                    <p key={error?.message} className="text-sm text-destructive">
                       {error?.message}
                     </p>
                   ))}

@@ -265,7 +265,7 @@ export function QuestionForm({
             <div className="space-y-3">
               <Item variant="outline">
                 <ItemMedia variant="icon">
-                  <span className="text-sm text-muted-foreground">ℹ️</span>
+                  <span className="text-sm text-sr-muted">ℹ️</span>
                 </ItemMedia>
                 <ItemContent>
                   <ItemDescription>

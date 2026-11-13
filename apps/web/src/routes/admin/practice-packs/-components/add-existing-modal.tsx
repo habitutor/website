@@ -30,7 +30,7 @@ export function AddExistingQuestionModal({
   const addMutation = useMutation(
     orpc.admin.practicePack.question.add.mutationOptions({
       onSuccess: () => {
-        toast.success("Question added to pack");
+        toast.success("Soal ditambahkan ke pack");
         queryClient.invalidateQueries(
           orpc.admin.practicePack.question.list.queryOptions({
             input: { id: practicePackId },
@@ -38,7 +38,7 @@ export function AddExistingQuestionModal({
         );
       },
       onError: (error) => {
-        toast.error("Failed to add question", {
+        toast.error("Gagal menambahkan soal", {
           description: String(error),
         });
       },
@@ -62,8 +62,8 @@ export function AddExistingQuestionModal({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add Existing Question</CardTitle>
-        <CardDescription>Select questions from your question bank</CardDescription>
+        <CardTitle>Tambah dari Bank Soal</CardTitle>
+        <CardDescription>Pilih soal dari bank soal</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="max-h-96 space-y-2 overflow-y-auto">
@@ -74,7 +74,7 @@ export function AddExistingQuestionModal({
                   <div className="prose prose-sm max-w-none font-medium">
                     <TiptapRenderer content={q.content} />
                   </div>
-                  <div className="line-clamp-1 text-sm text-muted-foreground">
+                  <div className="line-clamp-1 text-sm text-sr-muted">
                     <TiptapRenderer content={q.discussion} />
                   </div>
                 </div>
@@ -84,7 +84,7 @@ export function AddExistingQuestionModal({
               </div>
             ))
           ) : (
-            <div className="py-8 text-center text-muted-foreground">
+            <div className="py-8 text-center text-sr-muted">
               No available questions. All questions are already in this pack or create new questions first.
             </div>
           )}

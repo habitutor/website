@@ -118,7 +118,7 @@ function RouteComponent() {
   }
 
   if (content.isError) {
-    return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+    return <p className="text-sm text-destructive">Error: {content.error.message}</p>;
   }
 
   if (!content.data) return notFound();
@@ -127,7 +127,7 @@ function RouteComponent() {
 
   return (
     <AdminContainer>
-      <AdminHeader title="Edit Video" description="Manage video content and description" />
+      <AdminHeader title="Edit Video" description="Kelola video dan deskripsinya" />
       <div className="mt-6 space-y-6">
         <div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
           <h2 className="text-lg font-semibold">Edit Video Materi</h2>
@@ -202,7 +202,7 @@ function RouteComponent() {
                   placeholder="https://www.youtube.com/watch?v=..."
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-sm text-red-500">
+                  <p key={error?.message} className="text-sm text-destructive">
                     {error?.message}
                   </p>
                 ))}
@@ -219,7 +219,7 @@ function RouteComponent() {
                 </div>
               ) : (
                 <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted/50">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-sr-muted">
                     {debouncedVideoUrl ? "URL tidak valid" : "Masukkan URL YouTube untuk preview"}
                   </p>
                 </div>
@@ -241,7 +241,7 @@ function RouteComponent() {
                 </Suspense>
 
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-sm text-red-500">
+                  <p key={error?.message} className="text-sm text-destructive">
                     {error?.message}
                   </p>
                 ))}

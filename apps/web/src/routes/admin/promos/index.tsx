@@ -3,13 +3,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { AdminContainer, AdminHeader, STICKY_FIRST_COLUMN } from "@/components/admin/dashboard-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/promos/")({
@@ -33,11 +34,11 @@ function PromosPage() {
   const createMutation = useMutation(
     orpc.admin.promos.create.mutationOptions({
       onSuccess: async (promo) => {
-        toast.success(`Promo ${promo?.code ?? ""} created`);
+        toast.success(`Promo ${promo?.code ?? ""} berhasil dibuat`);
         setForm((current) => ({ ...current, code: "", discountValue: "", expiresAt: "", totalUsageLimit: "" }));
         await queryClient.invalidateQueries({ queryKey: orpc.admin.promos.list.queryKey() });
       },
-      onError: (error) => toast.error("Failed to create promo", { description: error.message }),
+      onError: (error) => toast.error("Gagal membuat promo", { description: error.message }),
     }),
   );
   const updateMutation = useMutation(
@@ -45,33 +46,33 @@ function PromosPage() {
       onSuccess: async () => {
         await queryClient.invalidateQueries({ queryKey: orpc.admin.promos.list.queryKey() });
       },
-      onError: (error) => toast.error("Failed to update promo", { description: error.message }),
+      onError: (error) => toast.error("Gagal memperbarui promo", { description: error.message }),
     }),
   );
 
   return (
     <AdminContainer>
-      <AdminHeader title="Promo Codes" description="Create fixed-price or percentage package promotions" />
-      <Card className="mb-6 space-y-4 p-5">
+      <AdminHeader title="Promo Codes" description="Buat dan kelola promosi paket Habitutor." />
+      <Card className="mb-6 sr-lift space-y-4 rounded-sr-xl border-sr-line bg-linear-to-br from-white to-sr-sun-100/60 p-5 shadow-sr-1">
         <div className="flex items-center gap-2">
           <Tag className="size-5" />
-          <h2 className="font-semibold">Generate promo code</h2>
+          <h2 className="font-semibold">Buat kode promo</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Field label="Code (blank = generated)">
+          <Field label="Kode (kosongkan untuk dibuat otomatis)">
             <Input
               value={form.code}
               onChange={(event) => setForm((current) => ({ ...current, code: event.target.value.toUpperCase() }))}
               placeholder="PROMO-2027"
             />
           </Field>
-          <Field label="Package">
+          <Field label="Paket">
             <select
               value={form.productId}
               onChange={(event) => setForm((current) => ({ ...current, productId: event.target.value }))}
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="h-10 w-full rounded-full border border-sr-line bg-white px-3 text-sm text-sr-ink focus:border-sr-blue-300 focus:ring-4 focus:ring-sr-blue-100"
             >
-              <option value="">Select package</option>
+              <option value="">Pilih paket</option>
               {productsQuery.data?.map((product) => (
                 <option key={product.slug} value={product.slug}>
                   {product.name}
@@ -79,7 +80,7 @@ function PromosPage() {
               ))}
             </select>
           </Field>
-          <Field label="Discount type">
+          <Field label="Jenis diskon">
             <select
               value={form.discountType}
               onChange={(event) =>
@@ -88,10 +89,10 @@ function PromosPage() {
                   discountType: event.target.value as "percentage" | "fixed_price",
                 }))
               }
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="h-10 w-full rounded-full border border-sr-line bg-white px-3 text-sm text-sr-ink focus:border-sr-blue-300 focus:ring-4 focus:ring-sr-blue-100"
             >
-              <option value="percentage">Percentage discount</option>
-              <option value="fixed_price">Fixed final price</option>
+              <option value="percentage">Diskon persentase</option>
+              <option value="fixed_price">Harga akhir tetap</option>
             </select>
           </Field>
           <Field label={form.discountType === "percentage" ? "Discount (%)" : "Final price (Rp)"}>
@@ -103,23 +104,23 @@ function PromosPage() {
               onChange={(event) => setForm((current) => ({ ...current, discountValue: event.target.value }))}
             />
           </Field>
-          <Field label="Expiration date">
+          <Field label="Berlaku sampai">
             <Input
               type="datetime-local"
               value={form.expiresAt}
               onChange={(event) => setForm((current) => ({ ...current, expiresAt: event.target.value }))}
             />
           </Field>
-          <Field label="Total usage limit">
+          <Field label="Batas pemakaian total">
             <Input
               type="number"
               min={1}
-              placeholder="Unlimited"
+              placeholder="Tanpa batas"
               value={form.totalUsageLimit}
               onChange={(event) => setForm((current) => ({ ...current, totalUsageLimit: event.target.value }))}
             />
           </Field>
-          <Field label="Per-user limit">
+          <Field label="Batas per user">
             <Input
               type="number"
               min={1}
@@ -146,21 +147,21 @@ function PromosPage() {
             });
           }}
         >
-          <Plus className="size-4" /> Create promo
+          <Plus className="size-4" /> Buat promo
         </Button>
       </Card>
 
-      <div className="overflow-x-auto rounded-md border bg-white">
-        <Table>
+      <div className="sr-card-hover overflow-x-auto rounded-sr-xl border border-sr-line bg-white shadow-sr-1">
+        <Table className={cn("min-w-[720px]", STICKY_FIRST_COLUMN)}>
           <TableHeader>
             <TableRow>
-              <TableHead>Code</TableHead>
-              <TableHead>Package</TableHead>
-              <TableHead>Discount</TableHead>
-              <TableHead>Usage</TableHead>
-              <TableHead>Expires</TableHead>
+              <TableHead>Kode</TableHead>
+              <TableHead>Paket</TableHead>
+              <TableHead>Diskon</TableHead>
+              <TableHead>Pemakaian</TableHead>
+              <TableHead>Berakhir</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -176,10 +177,12 @@ function PromosPage() {
                 <TableCell>
                   {promo.usageCount}/{promo.totalUsageLimit ?? "∞"} total · {promo.perUserLimit}/user
                 </TableCell>
-                <TableCell>{promo.expiresAt ? new Date(promo.expiresAt).toLocaleString("id-ID") : "Never"}</TableCell>
+                <TableCell>
+                  {promo.expiresAt ? new Date(promo.expiresAt).toLocaleString("id-ID") : "Tidak ada batas"}
+                </TableCell>
                 <TableCell>
                   <Badge variant={promo.isActive ? "default" : "secondary"}>
-                    {promo.isActive ? "Active" : "Inactive"}
+                    {promo.isActive ? "Aktif" : "Nonaktif"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">

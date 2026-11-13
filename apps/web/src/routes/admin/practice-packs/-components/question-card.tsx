@@ -53,7 +53,7 @@ export function QuestionCard({
           <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
             {currentIndex + 1}
           </span>
-          <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
+          <Badge variant="outline" className="font-mono text-[10px] text-sr-muted">
             ID: {question.id}
           </Badge>
           <Badge
@@ -66,14 +66,14 @@ export function QuestionCard({
             )}
           >
             <CardsIcon className="size-3" />
-            {question.isFlashcard ? "Flashcard" : "No Flashcard"}
+            {question.isFlashcard ? "Flashcard" : "Tanpa Flashcard"}
           </Badge>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-7">
               <DotsThreeOutlineIcon className="size-4" />
-              <span className="sr-only">Question options</span>
+              <span className="sr-only">Opsi soal</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -93,7 +93,7 @@ export function QuestionCard({
               className="text-destructive focus:text-destructive"
             >
               <TrashIcon className="size-4" />
-              Remove
+              Hapus dari pack
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -112,7 +112,7 @@ export function QuestionCard({
         </div>
 
         <div className="rounded-lg bg-muted/30 p-3">
-          <h3 className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">Answer Options</h3>
+          <h3 className="mb-2 text-xs font-medium tracking-wide text-sr-muted uppercase">Pilihan Jawaban</h3>
           <div className="grid gap-2 sm:grid-cols-2">
             {question.answers?.map((answer) => (
               <div
@@ -125,7 +125,7 @@ export function QuestionCard({
                 <span
                   className={cn(
                     "flex size-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold",
-                    answer.isCorrect ? "bg-green-500 text-white" : "bg-muted text-muted-foreground",
+                    answer.isCorrect ? "bg-green-500 text-white" : "bg-muted text-sr-muted",
                   )}
                 >
                   {answer.code}
@@ -140,12 +140,12 @@ export function QuestionCard({
         </div>
 
         <Collapsible>
-          <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&[data-state=open]>svg]:rotate-180">
-            <span>Discussion</span>
+          <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-left text-xs text-sr-muted transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&[data-state=open]>svg]:rotate-180">
+            <span>Pembahasan</span>
             <CaretDownIcon className="ml-auto size-3 transition-transform duration-200" />
           </CollapsibleTrigger>
           <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-            <div className="prose prose-sm max-w-none border-t px-3 pt-3 pb-1 text-sm text-muted-foreground">
+            <div className="prose prose-sm max-w-none border-t px-3 pt-3 pb-1 text-sm text-sr-muted">
               <TiptapRenderer content={question.discussion} />
             </div>
           </CollapsibleContent>
@@ -163,7 +163,7 @@ export function QuestionCard({
             Previous
           </Button>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-muted-foreground">
+            <span className="font-mono text-xs text-sr-muted">
               {currentIndex + 1}/{totalQuestions}
             </span>
             <KeyboardShortcutsHint />
