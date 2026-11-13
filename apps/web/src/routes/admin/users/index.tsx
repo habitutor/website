@@ -5,21 +5,21 @@ import { type } from "arktype";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { AdminPagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { orpc } from "@/utils/orpc";
-import { CursorPagination } from "./-components/pagination";
 import { downloadUsersCsv } from "./-components/export-users-csv";
 import { type AdminUser, UserCard, UserRow } from "./-components/user-row";
 
 const usersSearchSchema = type({
   "search?": "string",
-  "cursor?": "string",
-  "cursorHistory?": "string[]",
+  "page?": "number",
   "premium?": "'all' | 'premium' | 'free'",
+  "role?": "'all' | 'user' | 'admin'",
   "package?": "string",
   "createdFrom?": "string",
   "createdTo?": "string",
@@ -33,14 +33,13 @@ export const Route = createFileRoute("/admin/users/")({
 function UsersPage() {
   const navigate = useNavigate({ from: Route.fullPath });
   const queryClient = useQueryClient();
-  const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
   const premiumFilter = Route.useSearch({ select: (s) => s.premium ?? "all" });
+  const roleFilter = Route.useSearch({ select: (s) => s.role ?? "all" });
   const packageFilter = Route.useSearch({ select: (s) => s.package ?? "" });
   const createdFrom = Route.useSearch({ select: (s) => s.createdFrom ?? "" });
   const createdTo = Route.useSearch({ select: (s) => s.createdTo ?? "" });
-  const pageNumber = Route.useSearch({ select: (s) => (s.cursorHistory?.length ?? 0) + (s.cursor ? 1 : 0) + 1 });
-  const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
+  const page = Route.useSearch({ select: (s) => s.page ?? 1 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 500);
@@ -57,43 +56,17 @@ function UsersPage() {
       search: (prev) => ({
         ...prev,
         search: debouncedSearch || undefined,
-        cursor: undefined,
-        cursorHistory: undefined,
+        page: undefined,
       }),
       replace: true,
     });
   }, [debouncedSearch, navigate]);
 
-  const handleNext = (nextCursor: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
-        cursor: nextCursor,
-      }),
-    });
-  };
-
-  const handlePrevious = () => {
-    navigate({
-      search: (prev) => {
-        const history = prev.cursorHistory ?? [];
-        if (history.length > 0) {
-          return {
-            ...prev,
-            cursor: history[history.length - 1],
-            cursorHistory: history.slice(0, -1),
-          };
-        }
-        return { ...prev, cursor: undefined, cursorHistory: undefined };
-      },
-    });
-  };
-
   const listFilters = {
     search: searchParam,
     isPremium: premiumFilter === "premium" ? true : premiumFilter === "free" ? false : undefined,
     packageSlug: packageFilter || undefined,
+    role: roleFilter === "all" ? undefined : roleFilter,
     createdFrom: createdFrom || undefined,
     createdTo: createdTo || undefined,
   };
@@ -102,7 +75,7 @@ function UsersPage() {
     orpc.admin.users.list.queryOptions({
       input: {
         limit,
-        cursor: cursor ?? undefined,
+        page,
         ...listFilters,
       },
     }),
@@ -125,8 +98,7 @@ function UsersPage() {
   };
 
   const users = data?.data || [];
-  const hasMore = data?.hasMore || false;
-  const nextCursor = data?.nextCursor || null;
+  const total = data?.total ?? 0;
 
   return (
     <AdminContainer>
@@ -153,8 +125,7 @@ function UsersPage() {
                     ...prev,
                     package: event.target.value || undefined,
                     premium: event.target.value ? "premium" : prev.premium,
-                    cursor: undefined,
-                    cursorHistory: undefined,
+                    page: undefined,
                   }),
                   replace: true,
                 })
@@ -184,8 +155,7 @@ function UsersPage() {
                     search: (prev) => ({
                       ...prev,
                       premium: option.value === "all" ? undefined : option.value,
-                      cursor: undefined,
-                      cursorHistory: undefined,
+                      page: undefined,
                     }),
                     replace: true,
                   })
@@ -195,6 +165,38 @@ function UsersPage() {
               </Button>
             ))}
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 rounded-sr-lg border border-sr-line bg-white/70 p-3">
+          <span className="text-xs font-bold tracking-wide text-sr-muted uppercase">Role</span>
+          {(
+            [
+              { value: "all", label: "Semua role" },
+              { value: "user", label: "User" },
+              { value: "admin", label: "Admin" },
+            ] as const
+          ).map((option) => (
+            <Button
+              key={option.value}
+              type="button"
+              size="sm"
+              variant={roleFilter === option.value ? "default" : "outline"}
+              aria-pressed={roleFilter === option.value}
+              className="rounded-full"
+              onClick={() =>
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    role: option.value === "all" ? undefined : option.value,
+                    page: undefined,
+                  }),
+                  replace: true,
+                })
+              }
+            >
+              {option.label}
+            </Button>
+          ))}
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -208,8 +210,7 @@ function UsersPage() {
                   search: (prev) => ({
                     ...prev,
                     createdFrom: event.target.value || undefined,
-                    cursor: undefined,
-                    cursorHistory: undefined,
+                    page: undefined,
                   }),
                   replace: true,
                 })
@@ -226,8 +227,7 @@ function UsersPage() {
                   search: (prev) => ({
                     ...prev,
                     createdTo: event.target.value || undefined,
-                    cursor: undefined,
-                    cursorHistory: undefined,
+                    page: undefined,
                   }),
                   replace: true,
                 })
@@ -244,17 +244,17 @@ function UsersPage() {
 
       <UsersTable users={users} isPending={isPending} />
 
-      <CursorPagination
-        className="mt-5"
-        label="user"
-        page={pageNumber}
-        shown={users.length}
-        hasPrevious={hasPrevious}
-        hasNext={hasMore}
-        onPrevious={handlePrevious}
-        onNext={() => nextCursor && handleNext(nextCursor)}
-        isLoading={isPending}
-      />
+      {total > 0 && (
+        <AdminPagination
+          className="mt-5"
+          label="User"
+          page={page}
+          total={total}
+          pageSize={limit}
+          isLoading={isPending}
+          onPageChange={(next) => navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })}
+        />
+      )}
     </AdminContainer>
   );
 }

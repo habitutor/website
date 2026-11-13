@@ -180,7 +180,7 @@ function RouteComponent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
+      <div className="sticky top-16 z-20 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full flex-1 sm:max-w-md">
             <SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />

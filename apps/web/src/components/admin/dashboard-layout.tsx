@@ -146,7 +146,7 @@ export function AdminHeader({ title, description, children, backTo }: AdminHeade
   return (
     <div className="relative mb-6 flex flex-col gap-4 overflow-hidden rounded-sr-xl sr-card-blue p-5 shadow-sr-2 transition-shadow duration-300 hover:shadow-sr-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between sm:p-7">
       <div aria-hidden className="pointer-events-none absolute -top-20 -right-12 size-56 rounded-full bg-white/10" />
-      <div className="relative z-10 min-w-0">
+      <div className="relative min-w-0">
         {backTo && (
           <Link
             to={backTo}
@@ -167,7 +167,7 @@ export function AdminHeader({ title, description, children, backTo }: AdminHeade
         </div>
       </div>
       {children && (
-        <div className="relative z-10 flex flex-wrap items-center gap-2 [&_[data-slot=button]]:border-transparent [&_[data-slot=button]]:text-sr-ink [&_[data-slot=button]]:shadow-sr-sun [&_[data-slot=button]]:[background:var(--sr-grad-sun)]">
+        <div className="relative flex flex-wrap items-center gap-2 [&_[data-slot=button]]:border-transparent [&_[data-slot=button]]:text-sr-ink [&_[data-slot=button]]:shadow-sr-sun [&_[data-slot=button]]:[background:var(--sr-grad-sun)]">
           {children}
         </div>
       )}

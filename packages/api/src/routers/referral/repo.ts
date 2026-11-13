@@ -202,12 +202,14 @@ export const referralRepo = {
   listAdminReferralTransactions: async ({
     db = defaultDb,
     limit,
+    offset = 0,
     cursorCreatedAt,
     cursorId,
     search,
   }: {
     db?: DrizzleDatabase;
     limit: number;
+    offset?: number;
     cursorCreatedAt: Date | null;
     cursorId: string | null;
     search: string;
@@ -280,6 +282,27 @@ export const referralRepo = {
         ),
       )
       .orderBy(desc(referralUsage.createdAt), desc(referralUsage.id))
-      .limit(limit + 1);
+      .limit(limit + 1)
+      .offset(offset);
+  },
+
+  countAdminReferralTransactions: async ({ db = defaultDb, search }: { db?: DrizzleDatabase; search: string }) => {
+    const likeKeyword = `%${search}%`;
+    const [row] = await db
+      .select({ total: sql<number>`cast(count(*) as integer)` })
+      .from(referralUsage)
+      .innerJoin(referralCode, eq(referralUsage.referralCodeId, referralCode.id))
+      .innerJoin(transaction, eq(referralUsage.transactionId, transaction.id))
+      .where(
+        search.length > 0
+          ? or(
+              sql`${referralCode.code} ilike ${likeKeyword}`,
+              sql`exists (select 1 from "user" used_u where used_u.id = ${referralUsage.userId} and (used_u.name ilike ${likeKeyword} or used_u.email ilike ${likeKeyword}))`,
+              sql`exists (select 1 from "user" owner_u where owner_u.id = ${referralCode.userId} and (owner_u.name ilike ${likeKeyword} or owner_u.email ilike ${likeKeyword}))`,
+              sql`${referralUsage.transactionId} ilike ${likeKeyword}`,
+            )
+          : undefined,
+      );
+    return row?.total ?? 0;
   },
 };

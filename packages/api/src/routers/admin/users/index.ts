@@ -43,10 +43,12 @@ const listUsers = admin
   .input(
     type({
       "limit?": "number",
+      "page?": "number",
       "cursor?": "string",
       "search?": "string",
       "isPremium?": "boolean",
       "packageSlug?": "string",
+      "role?": "string",
       "createdFrom?": "string",
       "createdTo?": "string",
     }),
@@ -56,11 +58,23 @@ const listUsers = admin
     const search = input.search || "";
     const { from: createdFrom, to: createdTo } = parseDateRange(input.createdFrom, input.createdTo);
 
-    const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
+    const page = input.page ? Math.max(1, Math.floor(input.page)) : null;
+    const cursorData = !page && input.cursor ? decodeCursor(input.cursor) : null;
     const cursorCreatedAt = cursorData ? new Date(cursorData.createdAt) : null;
+    const filters = {
+      search,
+      isPremium: input.isPremium,
+      packageSlug: input.packageSlug,
+      role: input.role || undefined,
+      createdFrom,
+      createdTo,
+    };
+    const total = page ? await adminUserRepo.count(filters) : null;
 
     const users = await adminUserRepo.list({
       limit,
+      offset: page ? (page - 1) * limit : 0,
+      role: input.role || undefined,
       cursorCreatedAt,
       cursorId: cursorData?.id ?? null,
       search,
@@ -75,6 +89,7 @@ const listUsers = admin
         data: [],
         nextCursor: null,
         hasMore: false,
+        total: total ?? 0,
       };
 
     const hasMore = users.length > limit;
@@ -93,6 +108,7 @@ const listUsers = admin
       data,
       nextCursor,
       hasMore,
+      total: total ?? data.length,
     };
   });
 
@@ -161,6 +177,7 @@ const exportUsers = admin
       "search?": "string",
       "isPremium?": "boolean",
       "packageSlug?": "string",
+      "role?": "string",
       "createdFrom?": "string",
       "createdTo?": "string",
     }),
@@ -173,6 +190,7 @@ const exportUsers = admin
       search,
       isPremium: input.isPremium,
       packageSlug: input.packageSlug,
+      role: input.role || undefined,
       createdFrom,
       createdTo,
     });

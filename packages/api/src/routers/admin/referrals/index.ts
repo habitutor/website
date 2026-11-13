@@ -29,6 +29,7 @@ const listReferralTransactions = admin
   .input(
     type({
       "limit?": "number",
+      "page?": "number",
       "cursor?": "string",
       "search?": "string",
     }),
@@ -37,11 +38,14 @@ const listReferralTransactions = admin
     const limit = Math.min(input.limit || 10, 50);
     const search = input.search?.trim() ?? "";
 
-    const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
+    const page = input.page ? Math.max(1, Math.floor(input.page)) : null;
+    const cursorData = !page && input.cursor ? decodeCursor(input.cursor) : null;
     const cursorCreatedAt = cursorData ? new Date(cursorData.createdAt) : null;
+    const total = page ? await referralRepo.countAdminReferralTransactions({ search }) : null;
 
     const rows = await referralRepo.listAdminReferralTransactions({
       limit,
+      offset: page ? (page - 1) * limit : 0,
       cursorCreatedAt,
       cursorId: cursorData?.id ?? null,
       search,
@@ -52,6 +56,7 @@ const listReferralTransactions = admin
         data: [],
         nextCursor: null,
         hasMore: false,
+        total: total ?? 0,
       };
     }
 
@@ -71,6 +76,7 @@ const listReferralTransactions = admin
       data,
       nextCursor,
       hasMore,
+      total: total ?? data.length,
     };
   });
 
