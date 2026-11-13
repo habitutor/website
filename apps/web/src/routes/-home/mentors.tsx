@@ -8,14 +8,21 @@ import {
   TrophyIcon,
 } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
 import { SectionHeading } from "./motion-bits";
 
-type Mentor = (typeof DATA.mentor)[number];
+type Mentor = {
+  id: number;
+  name: string;
+  major: string;
+  university: string;
+  mentor: string;
+  achievement?: string;
+  image: string;
+};
 
 const CIRCLE_TONES = [
   "border-secondary-600 bg-secondary-400",
@@ -24,29 +31,44 @@ const CIRCLE_TONES = [
   "border-sr-orange-200 bg-sr-orange-100",
 ];
 
+// Angka saja = skor UTBK (tampil besar di belakang kartu); selain itu teks pencapaian biasa.
+const isScore = (value: string) => /^[\d.,\s]+$/.test(value);
+const formatAchievement = (value: string) => (isScore(value) ? `Skor ${value.trim()}` : value);
+
+const splitSubjects = (list: string) =>
+  list
+    .split(",")
+    .map((subject) => subject.trim())
+    .filter(Boolean);
+
 function MentorFace({ mentor, index }: { mentor: Mentor; index: number }) {
   const circle = CIRCLE_TONES[index % CIRCLE_TONES.length];
 
   return (
     <div className="absolute inset-0 overflow-hidden rounded-sr-lg border-2 border-sr-line bg-white p-5 text-left shadow-sr-1 transition-[border-color,box-shadow] duration-300 backface-hidden group-hover:border-sr-blue-200 group-hover:shadow-sr-2">
-      <div className="relative z-10">
+      <div className="relative z-20">
         <div className="border-b-2 border-sr-blue-100 pb-2">
           <h3 className="flex items-center gap-1 text-base font-bold text-sr-ink">
             {mentor.name}
             <SealCheckIcon weight="fill" className="size-4 shrink-0 text-sr-blue-500" />
           </h3>
-          <p className="text-sm text-sr-ink-2">{mentor.major}</p>
+          <p className="line-clamp-1 text-sm text-sr-ink-2">{mentor.major}</p>
           <p className="text-sm text-sr-muted">{mentor.university}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5 pt-2">
-          {mentor.mentor && (
-            <span className="rounded-full bg-sr-blue-50 px-2 py-0.5 text-[11px] font-semibold text-sr-blue-700">
-              Pengajar {mentor.mentor}
-            </span>
-          )}
-          {mentor.score_snbt && (
-            <span className="rounded-full bg-sr-sun-100 px-2 py-0.5 text-[11px] font-semibold text-sr-amber-700">
-              {mentor.score_snbt} SNBT'25
+        {/* Satu chip per baris dan dipotong satu baris, supaya tidak menumpuk di atas foto. */}
+        <div className="flex flex-col items-start gap-1.5 pt-2">
+          <span
+            title={mentor.mentor}
+            className="max-w-full truncate rounded-full bg-sr-blue-50 px-2 py-0.5 text-[11px] font-semibold text-sr-blue-700"
+          >
+            Pengajar {mentor.mentor}
+          </span>
+          {mentor.achievement && (
+            <span
+              title={mentor.achievement}
+              className="max-w-full truncate rounded-full bg-sr-sun-100 px-2 py-0.5 text-[11px] font-semibold text-sr-amber-700"
+            >
+              {formatAchievement(mentor.achievement)}
             </span>
           )}
         </div>
@@ -64,12 +86,13 @@ function MentorFace({ mentor, index }: { mentor: Mentor; index: number }) {
           circle,
         )}
       />
-      <Image
+      {/* Foto sudah dipotong sepinggang dengan tinggi seragam, tinggal ditempel ke kanan-bawah kartu. */}
+      <img
         src={mentor.image}
         alt={mentor.name}
-        width={180}
-        height={180}
-        className="absolute right-0 bottom-0 z-10 h-auto w-40 translate-x-6 transition-transform duration-500 ease-(--ease-sr) group-hover:translate-x-3 group-hover:-translate-y-1 group-hover:scale-105"
+        loading="lazy"
+        decoding="async"
+        className="absolute right-0 bottom-0 z-10 h-[11.875rem] w-auto max-w-none origin-bottom-right transition-transform duration-500 ease-(--ease-sr) select-none group-hover:-translate-y-1 group-hover:scale-105"
       />
       <span className="absolute bottom-3 left-4 z-20 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-sr-blue-600 shadow-sr-1 transition-transform duration-300 group-hover:-translate-y-0.5">
         <HandPointingIcon weight="fill" className="size-3" />
@@ -80,45 +103,61 @@ function MentorFace({ mentor, index }: { mentor: Mentor; index: number }) {
 }
 
 function MentorBack({ mentor }: { mentor: Mentor }) {
+  const score = mentor.achievement && isScore(mentor.achievement);
+
   return (
-    <div className="absolute inset-0 flex rotate-y-180 flex-col gap-4 overflow-hidden rounded-sr-lg sr-card-blue p-5 text-left backface-hidden">
+    <div className="absolute inset-0 flex rotate-y-180 flex-col gap-3 overflow-hidden rounded-sr-lg sr-card-blue p-5 text-left backface-hidden">
       <div className="pointer-events-none absolute -top-12 -right-12 size-40 rounded-full border-[20px] border-white/10" />
-      <div className="border-b border-white/20 pb-3">
+      <div className="relative border-b border-white/20 pb-2.5">
         <p className="text-[11px] font-semibold tracking-wide text-sr-sun-400 uppercase">Mentor Habitutor</p>
         <h3 className="text-lg font-bold">{mentor.name}</h3>
       </div>
 
-      <dl className="space-y-2.5 text-sm">
+      <dl className="relative -mr-2 min-h-0 flex-1 space-y-2.5 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,black_calc(100%-18px),transparent)] pr-2 text-sm [scrollbar-color:rgb(255_255_255/0.35)_transparent] [scrollbar-width:thin]">
         <div className="flex items-start gap-2">
           <GraduationCapIcon weight="duotone" className="mt-0.5 size-4.5 shrink-0 text-sr-sun-400" />
-          <div>
+          <div className="min-w-0">
             <dt className="text-[11px] text-white/70">Kuliah di</dt>
-            <dd className="font-semibold">
+            <dd className="leading-snug font-semibold">
               {mentor.major}, {mentor.university}
             </dd>
           </div>
         </div>
-        {mentor.mentor && (
-          <div className="flex items-start gap-2">
-            <SealCheckIcon weight="duotone" className="mt-0.5 size-4.5 shrink-0 text-sr-sun-400" />
-            <div>
-              <dt className="text-[11px] text-white/70">Pengajar subtes</dt>
-              <dd className="font-semibold">{mentor.mentor}</dd>
-            </div>
+        <div className="flex items-start gap-2">
+          <SealCheckIcon weight="duotone" className="mt-0.5 size-4.5 shrink-0 text-sr-sun-400" />
+          <div className="min-w-0">
+            <dt className="text-[11px] text-white/70">Pengajar subtes</dt>
+            <dd className="mt-1 flex flex-wrap gap-1">
+              {splitSubjects(mentor.mentor).map((subject) => (
+                <span
+                  key={subject}
+                  className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] leading-snug font-semibold"
+                >
+                  {subject}
+                </span>
+              ))}
+            </dd>
           </div>
-        )}
-        {mentor.score_snbt && (
+        </div>
+        {mentor.achievement && (
           <div className="flex items-start gap-2">
             <TrophyIcon weight="duotone" className="mt-0.5 size-4.5 shrink-0 text-sr-sun-400" />
-            <div>
-              <dt className="text-[11px] text-white/70">Skor SNBT 2025</dt>
-              <dd className="text-2xl font-extrabold text-sr-sun-400">{mentor.score_snbt}</dd>
+            <div className="min-w-0">
+              <dt className="text-[11px] text-white/70">{score ? "Skor SNBT" : "Pencapaian"}</dt>
+              <dd
+                className={cn(
+                  "font-extrabold text-sr-sun-400",
+                  score ? "text-2xl leading-tight" : "text-sm leading-snug",
+                )}
+              >
+                {mentor.achievement}
+              </dd>
             </div>
           </div>
         )}
       </dl>
 
-      <div className="mt-auto flex items-center justify-between gap-2">
+      <div className="relative mt-auto flex items-center justify-between gap-2">
         <Link
           to="/login"
           onClick={(e) => e.stopPropagation()}
