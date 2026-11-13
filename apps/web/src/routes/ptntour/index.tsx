@@ -35,7 +35,7 @@ const TABS: ReadonlyArray<{ value: Tab; label: string }> = [
 const STEPS = [
   {
     icon: UserPlusIcon,
-    title: "Daftar gratis",
+    title: "Daftar",
     text: "Isi satu layar, data profilmu terisi otomatis.",
     tone: "bg-sr-blue-50 text-sr-blue-600",
   },
@@ -245,61 +245,47 @@ function PtnTourListPage() {
 }
 
 function Hero({ upcoming, participants, loaded }: { upcoming: number; participants: number; loaded: boolean }) {
+  // Ukuran dan susunan sama dengan header Premium, Live Class, dan Recordings supaya konsisten.
   return (
-    <section className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-7 pb-8 text-white shadow-sr-2 sm:px-9 sm:py-10 sm:pr-72 lg:pr-96">
-      <div className="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-white/10" />
-      <div className="pointer-events-none absolute -bottom-28 left-1/3 size-64 rounded-full bg-sr-sun-400/15" />
-      <div className="relative max-w-xl">
-        <motion.span
-          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          className="sr-sheen inline-flex items-center gap-1.5 rounded-full bg-sr-sun-400 px-3 py-1 text-xs font-black text-sr-ink shadow-sr-sun"
-        >
-          <SparkleIcon weight="fill" className="size-3.5" /> 100% GRATIS
-        </motion.span>
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.08, ease: [0.2, 0.7, 0.2, 1] }}
-          className="mt-3 text-[28px] leading-[1.15] font-black text-balance sm:text-4xl lg:text-5xl"
-        >
-          Ngobrol langsung sama <span className="font-sr-serif text-sr-sun-400 italic">mentor PTN</span> impianmu
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.16, ease: [0.2, 0.7, 0.2, 1] }}
-          className="mt-3 text-sm leading-relaxed text-white/85 sm:text-base"
-        >
-          Masterclass dan PTN Tour tiap pekan: ikut live, tanya apa saja, lalu tonton ulang rekamannya kapan pun.
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.24, ease: [0.2, 0.7, 0.2, 1] }}
-          className="mt-5 flex flex-wrap gap-2.5"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3.5 py-2 text-xs font-bold ring-1 ring-white/20 backdrop-blur sm:text-sm">
-            <CalendarCheckIcon weight="fill" className="size-4 text-sr-sun-400" />
-            {loaded ? <CountUp to={upcoming} /> : "…"} event akan datang
+    <section className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
+      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
+
+      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
+        <SparkleIcon weight="fill" className="size-4 text-sr-sun-400" />
+        Ngobrol bareng mentor PTN
+      </span>
+      <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+        PTN Tour & Masterclass
+      </h1>
+      <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
+        Ikut live, tanya apa saja ke mentor dari PTN impianmu, lalu tonton ulang rekamannya kapan pun. Tombol Join aktif
+        15 menit sebelum acara dimulai.
+      </p>
+
+      <div className="relative mt-5 flex flex-wrap gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
+          <CalendarCheckIcon weight="fill" className="size-4 text-sr-sun-400" />
+          {loaded ? <CountUp to={upcoming} /> : "…"} event akan datang
+        </span>
+        {participants > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
+            <UserPlusIcon weight="fill" className="size-4 text-sr-sun-400" />
+            <CountUp to={participants} suffix="+" /> peserta ikut
           </span>
-          {participants > 0 && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3.5 py-2 text-xs font-bold ring-1 ring-white/20 backdrop-blur sm:text-sm">
-              <UserPlusIcon weight="fill" className="size-4 text-sr-sun-400" />
-              <CountUp to={participants} suffix="+" /> peserta ikut
-            </span>
-          )}
-        </motion.div>
+        )}
       </div>
+
       <motion.img
-        src="/avatar/live-class-avatar.webp"
+        src="/avatar/login-avatar.webp"
         alt=""
         aria-hidden
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
-        className="pointer-events-none absolute right-2 -bottom-1 hidden w-60 select-none sm:block lg:right-8 lg:w-80"
+        width={783}
+        height={749}
+        className="pointer-events-none absolute right-1/2 bottom-0 w-40 translate-x-1/2 select-none sm:right-6 sm:w-56 sm:translate-x-0 lg:right-12 lg:w-72"
+        initial={{ y: 40 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
       />
     </section>
   );
@@ -316,7 +302,7 @@ function FeaturedEvent({ event, isPremium }: { event: PtnEvent; isPremium: boole
           ? "Lihat Detail"
           : isPremium
             ? "Lihat Event"
-            : "Daftar Gratis";
+            : "Daftar Sekarang";
   return (
     <motion.section
       initial={{ opacity: 0, y: 24 }}

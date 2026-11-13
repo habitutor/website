@@ -200,7 +200,7 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
               variant={status.key === "registered" ? "outline" : "default"}
             >
               <Link to="/ptntour/$slug" params={{ slug: event.slug }}>
-                {status.key === "registered" ? "Lihat Detail" : isPremium ? "Lihat Event" : "Daftar Gratis"}
+                {status.key === "registered" ? "Lihat Detail" : isPremium ? "Lihat Event" : "Daftar Sekarang"}
               </Link>
             </Button>
           )}

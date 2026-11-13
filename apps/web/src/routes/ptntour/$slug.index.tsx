@@ -2,7 +2,6 @@ import {
   ArrowLeftIcon,
   CalendarBlankIcon,
   CalendarPlusIcon,
-  CaretDownIcon,
   CheckCircleIcon,
   ClockIcon,
   CrownIcon,
@@ -72,7 +71,7 @@ function EventDetailPage() {
   const join = useJoinEvent();
   const watch = useWatchRecording();
 
-  // Setelah login dari tombol "Daftar Gratis", pengguna kembali ke sini dan formulir langsung terbuka.
+  // Setelah login dari tombol "Daftar Sekarang", pengguna kembali ke sini dan formulir langsung terbuka.
   const autoOpen = Boolean(daftar && session?.user && event && !event.registered && event.phase !== "ended");
   const registerOpen = dialogOpen || autoOpen;
 
@@ -312,10 +311,6 @@ function EventDetailPage() {
             </motion.div>
           )}
 
-          <motion.div {...fadeUp}>
-            <Faq event={event} />
-          </motion.div>
-
           {event.phase === "ended" && !isPremium && <UpsellBanner event={event} />}
         </div>
 
@@ -464,47 +459,6 @@ function Benefits({ event, materialCount }: { event: PtnEvent; materialCount: nu
   );
 }
 
-function Faq({ event }: { event: PtnEvent }) {
-  const items = [
-    {
-      q: "Kapan tombol Join Zoom aktif?",
-      a: "15 menit sebelum acara dimulai, langsung di halaman ini. Kamu juga akan dapat email pengingat 1 hari dan 1 jam sebelumnya.",
-    },
-    {
-      q: "Apa syarat daftar gratis?",
-      a: "Follow akun Habitutor dan bagikan poster ke 5 grup, lalu unggah screenshotnya. Kalau tidak sempat, kamu bisa daftar dengan membayar Rp10.000. Member Premium tidak perlu syarat apa pun.",
-    },
-    {
-      q: "Apakah ada rekamannya?",
-      a:
-        event.accessMode === "mixed"
-          ? "Ada. Rekaman event ini khusus member Premium."
-          : event.recordingFreeDays > 0
-            ? `Ada. Peserta terdaftar bisa menonton ulang sampai ${event.recordingFreeDays} hari setelah acara, member Premium tanpa batas.`
-            : "Ada, selama event masih tayang. Member Premium bisa menonton tanpa batas waktu.",
-    },
-    {
-      q: "Bagaimana kalau aku berhalangan hadir?",
-      a: "Tidak masalah. Tetap daftar supaya dapat akses rekaman dan materinya setelah acara.",
-    },
-  ];
-  return (
-    <Section title="Pertanyaan yang sering muncul">
-      <div className="divide-y divide-sr-line">
-        {items.map((item) => (
-          <details key={item.q} className="group py-3 first:pt-0 last:pb-0">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-sr-ink marker:hidden sm:text-base [&::-webkit-details-marker]:hidden">
-              {item.q}
-              <CaretDownIcon weight="bold" className="size-4 shrink-0 text-sr-muted transition-transform duration-300 group-open:rotate-180" />
-            </summary>
-            <p className="mt-2 text-sm leading-relaxed text-sr-muted">{item.a}</p>
-          </details>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:p-7">
@@ -600,7 +554,7 @@ function PrimaryAction({
       </Button>
     );
   }
-  const label = event.phase === "ended" ? "Daftar untuk Tonton Rekaman" : "Daftar Gratis";
+  const label = event.phase === "ended" ? "Daftar untuk Tonton Rekaman" : "Daftar Sekarang";
   if (!loggedIn) {
     return (
       <Button size="lg" className={primary} asChild>

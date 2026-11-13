@@ -237,7 +237,7 @@ export function RegisterDialog({
             {(
               [
                 { value: "free", title: "Gratis", hint: "Follow + share poster" },
-                { value: "pay", title: PAY_PRICE_LABEL, hint: "Bayar, tanpa syarat" },
+                { value: "pay", title: `Bayar ${PAY_PRICE_LABEL}`, hint: "Langsung daftar, tanpa syarat" },
               ] as const
             ).map((option) => (
               <button
