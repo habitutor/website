@@ -88,3 +88,46 @@ export function checkPembahasanAccess(isPremium: boolean, premiumExpiresAt: Date
   if (!premiumExpiresAt) return false;
   return new Date() < premiumExpiresAt;
 }
+
+export const IMPORT_SOAL_MAX_BATCH = 200;
+export const IMPORT_TEXT_MAX_LENGTH = 20000;
+const IMPORT_LABELS = ["A", "B", "C", "D", "E"] as const;
+
+export type ImportSoalInput = {
+  pertanyaan: string;
+  tipe: "pilgan" | "multiple";
+  poin: number;
+  pembahasan?: string | null;
+  pilihan: Array<{ label: string; isi: string; isBenar: boolean }>;
+};
+
+/**
+ * Validasi impor soal massal. Mengembalikan pesan error pertama, atau null jika valid.
+ * Aturannya sama dengan yang dibutuhkan halaman siswa agar soal tampil dan dinilai dengan benar.
+ */
+export function validateImportSoal(items: ImportSoalInput[]): string | null {
+  if (items.length === 0) return "Tidak ada soal untuk diimpor";
+  if (items.length > IMPORT_SOAL_MAX_BATCH) return `Maksimal ${IMPORT_SOAL_MAX_BATCH} soal per impor`;
+
+  for (const [index, item] of items.entries()) {
+    const nomor = `Soal ke-${index + 1}`;
+    if (!item.pertanyaan.trim()) return `${nomor}: pertanyaan kosong`;
+    if (item.pertanyaan.length > IMPORT_TEXT_MAX_LENGTH) return `${nomor}: pertanyaan terlalu panjang`;
+    if ((item.pembahasan?.length ?? 0) > IMPORT_TEXT_MAX_LENGTH) return `${nomor}: pembahasan terlalu panjang`;
+    if (!Number.isInteger(item.poin) || item.poin < 1 || item.poin > 1000) return `${nomor}: poin harus 1–1000`;
+    if (item.pilihan.length < 2) return `${nomor}: minimal 2 pilihan jawaban`;
+    if (item.pilihan.length > IMPORT_LABELS.length) return `${nomor}: maksimal 5 pilihan jawaban`;
+
+    for (const [i, opt] of item.pilihan.entries()) {
+      if (opt.label !== IMPORT_LABELS[i]) return `${nomor}: label pilihan harus berurutan mulai dari A`;
+      if (!opt.isi.trim()) return `${nomor}: pilihan ${opt.label} kosong`;
+      if (opt.isi.length > IMPORT_TEXT_MAX_LENGTH) return `${nomor}: pilihan ${opt.label} terlalu panjang`;
+    }
+
+    const correct = item.pilihan.filter((opt) => opt.isBenar).length;
+    if (correct === 0) return `${nomor}: belum ada kunci jawaban`;
+    if (item.tipe === "pilgan" && correct > 1) return `${nomor}: pilihan ganda hanya boleh satu kunci jawaban`;
+  }
+
+  return null;
+}

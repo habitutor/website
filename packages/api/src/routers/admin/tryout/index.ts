@@ -15,6 +15,7 @@ const listTryouts = admin
       "status?": "'draft' | 'published' | 'archived'",
       "page?": "number",
       "limit?": "number",
+      "search?": "string",
     }),
   )
   .handler(async ({ input }) => {
@@ -23,6 +24,7 @@ const listTryouts = admin
         status: input.status,
         page: input.page,
         limit: input.limit,
+        search: input.search,
       });
     } catch (error) {
       throw toOrpcError(error, "Gagal mengambil daftar tryout");
@@ -271,6 +273,50 @@ const createSoal = admin
     }
   });
 
+const duplicateTryout = admin
+  .route({
+    path: "/admin/tryouts/{tryoutId}/duplicate",
+    method: "POST",
+    tags: ["Admin - Tryout"],
+  })
+  .input(type({ tryoutId: "string" }))
+  .handler(async ({ input, context }) => {
+    if (!context.session?.user?.id) {
+      throw new ORPCError("UNAUTHORIZED", { message: "User tidak terautentikasi" });
+    }
+    try {
+      return await tryoutRepo.duplicateTryout({ tryoutId: input.tryoutId, dibuatOleh: context.session.user.id });
+    } catch (error) {
+      throw toOrpcError(error, "Gagal menduplikat tryout");
+    }
+  });
+
+const importSoalBulk = admin
+  .route({
+    path: "/admin/tryouts/subtes/{subtesId}/soal/import",
+    method: "POST",
+    tags: ["Admin - Tryout"],
+  })
+  .input(
+    type({
+      subtesId: "string",
+      soal: type({
+        pertanyaan: "string",
+        tipe: "'pilgan' | 'multiple'",
+        poin: "number",
+        "pembahasan?": "string | null",
+        pilihan: type({ label: "string", isi: "string", isBenar: "boolean" }).array(),
+      }).array(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    try {
+      return await tryoutRepo.importSoalBulk(input);
+    } catch (error) {
+      throw toOrpcError(error, "Gagal mengimpor soal");
+    }
+  });
+
 const listSoalBySubtes = admin
   .route({
     path: "/admin/tryouts/subtes/{subtesId}/soal",
@@ -353,8 +399,8 @@ const deleteSoal = admin
       throw toOrpcError(error, "Gagal menghapus soal");
     }
   });
-  
-  const moveSoal = admin
+
+const moveSoal = admin
   .route({ path: "/admin/tryouts/soal/{soalId}/move", method: "PATCH", tags: ["Admin - Tryout"] })
   .input(type({ soalId: "string", targetSubtesId: "string" }))
   .handler(async ({ input }) => {
@@ -375,8 +421,6 @@ const moveSoalBulk = admin
       throw toOrpcError(error, "Gagal memindahkan soal");
     }
   });
-
-
 
 const createPilihanJawaban = admin
   .route({
@@ -786,10 +830,12 @@ export const adminTryoutRouter = {
     subtes: getSubtesDetail,
     soal: getSoalDetail,
   },
+  duplicate: duplicateTryout,
   create: {
     tryout: createTryout,
     subtes: createSubtes,
     soal: createSoal,
+    soalBulk: importSoalBulk,
     pilihan: createPilihanJawaban,
   },
   update: {
