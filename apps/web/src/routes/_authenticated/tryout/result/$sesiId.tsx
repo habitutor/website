@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 import { PembahasanPaywall } from "../-components/freemium-access";
 
@@ -157,7 +158,9 @@ function TryoutResultPage() {
         </h1>
         <p className="relative mt-2 text-sm text-white/80">Kerja bagus sudah menyelesaikannya! Ini skor kamu:</p>
         <p className="relative mt-3 flex items-baseline gap-2">
-          <span className="text-6xl leading-none font-extrabold text-sr-sun-400 tabular-nums">{result.totalSkor}</span>
+          <span className="text-6xl leading-none font-extrabold text-sr-sun-400 tabular-nums">
+            {Number.isInteger(result.totalSkor) ? <CountUp to={result.totalSkor} duration={1.4} /> : result.totalSkor}
+          </span>
           <span className="text-sm font-bold text-white/80">total skor</span>
         </p>
         <motion.img
@@ -254,7 +257,9 @@ function ResultStat({ icon, value, label }: { icon: React.ReactNode; value: numb
     <div className="flex min-w-0 flex-col items-center rounded-sr-xl border border-sr-line bg-white px-2 py-3 text-center shadow-sr-1 sm:flex-row sm:gap-3 sm:px-4 sm:text-left [&_svg]:size-5 [&_svg]:text-sr-blue-600">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sr-blue-50">{icon}</span>
       <div className="mt-1 min-w-0 sm:mt-0">
-        <p className="text-xl leading-none font-extrabold text-sr-ink tabular-nums sm:text-2xl">{value}</p>
+        <p className="text-xl leading-none font-extrabold text-sr-ink tabular-nums sm:text-2xl">
+          {Number.isInteger(value) ? <CountUp to={value} duration={1.2} /> : value}
+        </p>
         <p className="line-clamp-2 text-xs font-semibold text-sr-muted">{label}</p>
       </div>
     </div>

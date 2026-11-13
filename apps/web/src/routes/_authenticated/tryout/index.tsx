@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 import {
   FreemiumAccessPanel,
@@ -192,11 +193,11 @@ function TryoutHeader({ stats }: { stats?: { available: number; finished?: numbe
       {stats && (
         <div className="relative mt-5 flex flex-wrap gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
-            <ExamIcon weight="fill" className="size-4 text-sr-sun-400" /> {stats.available} try out tersedia
+            <ExamIcon weight="fill" className="size-4 text-sr-sun-400" /> <CountUp to={stats.available} /> try out tersedia
           </span>
           {stats.finished !== undefined && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
-              <TrophyIcon weight="fill" className="size-4 text-sr-sun-400" /> {stats.finished} sudah kamu kerjakan
+              <TrophyIcon weight="fill" className="size-4 text-sr-sun-400" /> <CountUp to={stats.finished} /> sudah kamu kerjakan
             </span>
           )}
         </div>
