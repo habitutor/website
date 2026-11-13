@@ -30,7 +30,6 @@ function PracticePacksListPage() {
 
   const packs = data?.data || [];
   const total = data?.total || 0;
-  const totalPages = Math.ceil(total / limit);
 
   return (
     <AdminContainer>
@@ -106,7 +105,7 @@ function PracticePacksListPage() {
         ))}
       </div>
 
-      {totalPages > 1 && (
+      {total > 0 && (
         <AdminPagination
           className="mt-6"
           label="Pack"

@@ -8,18 +8,21 @@ function buildUserListFilters({
   search,
   isPremium,
   packageSlug,
+  role,
   createdFrom,
   createdTo,
 }: {
   search: string;
   isPremium?: boolean;
   packageSlug?: string;
+  role?: string;
   createdFrom?: Date;
   createdTo?: Date;
 }) {
   return and(
     search.length > 0 ? or(ilike(user.name, `%${search}%`), ilike(user.email, `%${search}%`)) : undefined,
     isPremium === undefined ? undefined : eq(user.isPremium, isPremium),
+    role ? (role === "user" ? or(eq(user.role, "user"), sql`${user.role} is null`) : eq(user.role, role)) : undefined,
     packageSlug
       ? sql`(
           SELECT ${product.slug}
@@ -72,25 +75,29 @@ export const adminUserRepo = {
   list: async ({
     db = defaultDb,
     limit,
+    offset = 0,
     cursorCreatedAt,
     cursorId,
     search,
     isPremium,
     packageSlug,
+    role,
     createdFrom,
     createdTo,
   }: {
     db?: DrizzleDatabase;
     limit: number;
+    offset?: number;
     cursorCreatedAt: Date | null;
     cursorId: string | null;
     search: string;
     isPremium?: boolean;
     packageSlug?: string;
+    role?: string;
     createdFrom?: Date;
     createdTo?: Date;
   }) => {
-    const filters = buildUserListFilters({ search, isPremium, packageSlug, createdFrom, createdTo });
+    const filters = buildUserListFilters({ search, isPremium, packageSlug, role, createdFrom, createdTo });
 
     return db
       .select(userListSelect)
@@ -105,7 +112,32 @@ export const adminUserRepo = {
         ),
       )
       .orderBy(desc(user.createdAt), desc(user.id))
-      .limit(limit + 1);
+      .limit(limit + 1)
+      .offset(offset);
+  },
+
+  count: async ({
+    db = defaultDb,
+    search,
+    isPremium,
+    packageSlug,
+    role,
+    createdFrom,
+    createdTo,
+  }: {
+    db?: DrizzleDatabase;
+    search: string;
+    isPremium?: boolean;
+    packageSlug?: string;
+    role?: string;
+    createdFrom?: Date;
+    createdTo?: Date;
+  }) => {
+    const [row] = await db
+      .select({ total: sql<number>`cast(count(*) as integer)` })
+      .from(user)
+      .where(buildUserListFilters({ search, isPremium, packageSlug, role, createdFrom, createdTo }));
+    return row?.total ?? 0;
   },
 
   listForExport: async ({
@@ -113,6 +145,7 @@ export const adminUserRepo = {
     search,
     isPremium,
     packageSlug,
+    role,
     createdFrom,
     createdTo,
     limit = 10_000,
@@ -121,11 +154,12 @@ export const adminUserRepo = {
     search: string;
     isPremium?: boolean;
     packageSlug?: string;
+    role?: string;
     createdFrom?: Date;
     createdTo?: Date;
     limit?: number;
   }) => {
-    const filters = buildUserListFilters({ search, isPremium, packageSlug, createdFrom, createdTo });
+    const filters = buildUserListFilters({ search, isPremium, packageSlug, role, createdFrom, createdTo });
 
     return db
       .select(userListSelect)

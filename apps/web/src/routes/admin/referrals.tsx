@@ -4,8 +4,7 @@ import { ReferralsAdminPage } from "./-components/referrals-admin";
 
 const referralSearchSchema = type({
   "search?": "string",
-  "cursor?": "string",
-  "cursorHistory?": "string[]",
+  "page?": "number",
 });
 
 export const Route = createFileRoute("/admin/referrals")({
@@ -15,58 +14,30 @@ export const Route = createFileRoute("/admin/referrals")({
 
 function RouteComponent() {
   const navigate = Route.useNavigate();
-  const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
-  const pageNumber = Route.useSearch({ select: (s) => (s.cursorHistory?.length ?? 0) + (s.cursor ? 1 : 0) + 1 });
-  const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
+  const page = Route.useSearch({ select: (s) => s.page ?? 1 });
 
   const handleSearchChange = (value: string) => {
     navigate({
       search: (prev) => ({
         ...prev,
         search: value || undefined,
-        cursor: undefined,
-        cursorHistory: undefined,
+        page: undefined,
       }),
       replace: true,
     });
   };
 
-  const handleNext = (nextCursor: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
-        cursor: nextCursor,
-      }),
-    });
-  };
-
-  const handlePrevious = () => {
-    navigate({
-      search: (prev) => {
-        const history = prev.cursorHistory ?? [];
-        if (history.length > 0) {
-          return {
-            ...prev,
-            cursor: history[history.length - 1],
-            cursorHistory: history.slice(0, -1),
-          };
-        }
-        return { ...prev, cursor: undefined, cursorHistory: undefined };
-      },
-    });
+  const handlePageChange = (next: number) => {
+    navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) });
   };
 
   return (
     <ReferralsAdminPage
-      cursor={cursor}
+      page={page}
       searchParam={searchParam}
-      hasPrevious={hasPrevious}
-      pageNumber={pageNumber}
       onSearchChange={handleSearchChange}
-      onNext={handleNext}
-      onPrevious={handlePrevious}
+      onPageChange={handlePageChange}
     />
   );
 }

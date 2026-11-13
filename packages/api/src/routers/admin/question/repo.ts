@@ -7,12 +7,14 @@ export const adminQuestionRepo = {
   list: async ({
     db = defaultDb,
     limit,
+    offset = 0,
     cursorId,
     search,
     isFlashcardQuestion,
   }: {
     db?: DrizzleDatabase;
     limit: number;
+    offset?: number;
     cursorId: number | null;
     search: string;
     isFlashcardQuestion?: boolean;
@@ -38,7 +40,29 @@ export const adminQuestionRepo = {
       .leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
       .groupBy(question.id)
       .orderBy(desc(question.id))
-      .limit(limit + 1);
+      .limit(limit + 1)
+      .offset(offset);
+  },
+
+  count: async ({
+    db = defaultDb,
+    search,
+    isFlashcardQuestion,
+  }: {
+    db?: DrizzleDatabase;
+    search: string;
+    isFlashcardQuestion?: boolean;
+  }) => {
+    const [row] = await db
+      .select({ total: sql<number>`cast(count(*) as integer)` })
+      .from(question)
+      .where(
+        and(
+          search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
+          isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
+        ),
+      );
+    return row?.total ?? 0;
   },
 
   getById: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {

@@ -29,6 +29,7 @@ const list = admin
   .input(
     type({
       "limit?": "number",
+      "page?": "number",
       "cursor?": "string",
       "search?": "string",
       "isFlashcardQuestion?": "boolean",
@@ -37,10 +38,15 @@ const list = admin
   .handler(async ({ input }) => {
     const limit = Math.min(input.limit || 20, 50);
     const search = input.search || "";
-    const cursorData = input.cursor ? decodeCursor(input.cursor) : null;
+    const page = input.page ? Math.max(1, Math.floor(input.page)) : null;
+    const cursorData = !page && input.cursor ? decodeCursor(input.cursor) : null;
+    const total = page
+      ? await adminQuestionRepo.count({ search, isFlashcardQuestion: input.isFlashcardQuestion })
+      : null;
 
     const rawData = await adminQuestionRepo.list({
       limit,
+      offset: page ? (page - 1) * limit : 0,
       cursorId: cursorData?.id ?? null,
       search,
       isFlashcardQuestion: input.isFlashcardQuestion,
@@ -72,6 +78,7 @@ const list = admin
       ),
       nextCursor,
       hasMore,
+      total: total ?? data.length,
     };
   });
 

@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 const CHART_COLORS = ["#2356e8", "#ffc83d", "#f08a4b", "#17a36f", "#8fb2ff", "#b4521a"];
@@ -229,7 +230,7 @@ export function MonthlyReport() {
     <section id="monthly-report">
       <style>{PRINT_STYLE}</style>
       <div className="mb-4 sr-card-hover rounded-sr-xl border border-sr-line bg-linear-to-br from-sr-ivory via-white to-sr-blue-50/50 p-4 shadow-sr-1 sm:p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4">
           <div className="flex items-start gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-sr-sm bg-sr-blue-100 text-sr-blue-600">
               <ChartLineUp className="size-5" weight="fill" />
@@ -243,13 +244,14 @@ export function MonthlyReport() {
               </p>
             </div>
           </div>
-          <div className="no-print grid w-full sr-card-hover grid-cols-1 gap-3 rounded-sr-lg border border-sr-line bg-white/80 p-3 shadow-sr-1 sm:grid-cols-[auto_1fr_auto_auto] lg:w-auto">
-            <div className="flex w-full items-center gap-2 rounded-sr-sm bg-sr-ivory p-1 sm:w-auto">
+          <div className="no-print flex flex-wrap items-center gap-x-4 gap-y-3">
+            <div className="flex items-center gap-1 rounded-full bg-sr-ivory p-1" role="group" aria-label="Tahun">
               {years.map((y) => (
                 <Button
                   key={y}
                   size="sm"
                   variant={year === y ? "default" : "outline"}
+                  aria-pressed={year === y}
                   className="rounded-full"
                   onClick={() => {
                     setYear(y);
@@ -261,8 +263,8 @@ export function MonthlyReport() {
                 </Button>
               ))}
             </div>
-            <div className="flex w-full items-center gap-2 rounded-sr-sm border border-sr-line bg-sr-ivory/60 px-2 py-1 sm:w-auto">
-              <label className="flex items-center gap-1 text-xs font-bold text-sr-muted">
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-sr-muted">
                 Dari
                 <select
                   className={selectClass}
@@ -280,8 +282,10 @@ export function MonthlyReport() {
                   ))}
                 </select>
               </label>
-              <span className="text-sr-line">→</span>
-              <label className="flex items-center gap-1 text-xs font-bold text-sr-muted">
+              <span aria-hidden className="text-sr-muted">
+                →
+              </span>
+              <label className="flex items-center gap-1.5 text-xs font-bold text-sr-muted">
                 Sampai
                 <select
                   className={selectClass}
@@ -299,23 +303,14 @@ export function MonthlyReport() {
                 </select>
               </label>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full rounded-full sm:w-auto"
-              disabled={!totals}
-              onClick={handleExportCsv}
-            >
-              Export CSV
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="w-full rounded-full sm:w-auto"
-              onClick={() => window.print()}
-            >
-              Cetak / PDF
-            </Button>
+            <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+              <Button size="sm" variant="outline" className="rounded-full" disabled={!totals} onClick={handleExportCsv}>
+                Export CSV
+              </Button>
+              <Button size="sm" variant="secondary" className="rounded-full" onClick={() => window.print()}>
+                Cetak PDF
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -363,7 +358,7 @@ export function MonthlyReport() {
         />
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <ChartCard title="User Baru per Bulan" description="Akun baru yang mendaftar" isPending={query.isPending}>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={months} margin={{ top: 12, right: 8, left: -18, bottom: 0 }}>
@@ -410,7 +405,12 @@ export function MonthlyReport() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Pemasukan per Bulan" description="Rincian per jenis produk (IDR)" isPending={query.isPending}>
+        <ChartCard
+          title="Pemasukan per Bulan"
+          description="Rincian per jenis produk (IDR)"
+          isPending={query.isPending}
+          className="lg:col-span-2"
+        >
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={months} margin={{ top: 12, right: 8, left: -18, bottom: 0 }}>
               <SunriseChartDefs />
@@ -431,7 +431,9 @@ export function MonthlyReport() {
                 name="Premium"
                 stackId="rev"
                 fill="#17a36f"
-                radius={[6, 6, 0, 0]}
+                stroke="#ffffff"
+                strokeWidth={1.5}
+                maxBarSize={44}
               />
               <Bar
                 isAnimationActive
@@ -440,7 +442,10 @@ export function MonthlyReport() {
                 dataKey="revenueTo10k"
                 name="TO 10.000"
                 stackId="rev"
-                fill="url(#srBlueChart)"
+                fill="#2356e8"
+                stroke="#ffffff"
+                strokeWidth={1.5}
+                maxBarSize={44}
               />
               <Bar
                 isAnimationActive
@@ -449,7 +454,10 @@ export function MonthlyReport() {
                 dataKey="revenueTo5k"
                 name="Pembahasan 5.000"
                 stackId="rev"
-                fill="url(#srSunChart)"
+                fill="#ffc83d"
+                stroke="#ffffff"
+                strokeWidth={1.5}
+                maxBarSize={44}
               />
               <Bar
                 isAnimationActive
@@ -459,7 +467,9 @@ export function MonthlyReport() {
                 name="Lainnya"
                 stackId="rev"
                 fill="#9aa6c2"
-                radius={[6, 6, 0, 0]}
+                stroke="#ffffff"
+                strokeWidth={1.5}
+                maxBarSize={44}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -577,7 +587,10 @@ export function MonthlyReport() {
                   <TableFooter>
                     <TableRow className="border-sr-blue-200 bg-linear-to-r from-sr-blue-100 to-sr-sun-100 font-black text-sr-ink">
                       <TableCell className="px-5">Total</TableCell>
-                      <TableCell className="text-right">—</TableCell>
+                      <TableCell className="text-right">{totals.signups.toLocaleString("id-ID")}</TableCell>
+                      <TableCell className="text-right">
+                        {lastRow ? lastRow.totalUsers.toLocaleString("id-ID") : "—"}
+                      </TableCell>
                       <TableCell className="text-right">{totals.premiumCustomers.toLocaleString("id-ID")}</TableCell>
                       <TableCell className="text-right">{idr.format(totals.revenuePremium)}</TableCell>
                       <TableCell className="text-right">{idr.format(totals.revenueTo10k)}</TableCell>
@@ -897,14 +910,21 @@ function ChartCard({
   description,
   isPending,
   children,
+  className,
 }: {
   title: string;
   description: string;
   isPending: boolean;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <Card className="sr-lift rounded-sr-lg border-sr-line shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2">
+    <Card
+      className={cn(
+        "sr-lift rounded-sr-lg border-sr-line shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2",
+        className,
+      )}
+    >
       <CardHeader className="border-b border-sr-line bg-sr-ivory/60">
         <CardTitle className="text-base font-black text-sr-ink">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

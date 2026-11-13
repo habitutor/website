@@ -5,7 +5,7 @@ import { type } from "arktype";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import { AdminCursorPagination } from "@/components/admin/pagination";
+import { AdminPagination } from "@/components/admin/pagination";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import {
   AlertDialog,
@@ -34,8 +34,7 @@ import { orpc } from "@/utils/orpc";
 
 const questionsSearchSchema = type({
   "search?": "string",
-  "cursor?": "string",
-  "cursorHistory?": "string[]",
+  "page?": "number",
   "flashcard?": "'true' | 'false'",
 });
 
@@ -46,10 +45,9 @@ export const Route = createFileRoute("/admin/questions/")({
 
 function QuestionsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
-  const cursor = Route.useSearch({ select: (s) => s.cursor ?? null });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
   const flashcardParam = Route.useSearch({ select: (s) => s.flashcard ?? undefined });
-  const hasPrevious = Route.useSearch({ select: (s) => Boolean(s.cursor) || (s.cursorHistory?.length ?? 0) > 0 });
+  const page = Route.useSearch({ select: (s) => s.page ?? 1 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 300);
@@ -65,46 +63,18 @@ function QuestionsPage() {
       search: (prev) => ({
         ...prev,
         search: debouncedSearch || undefined,
-        cursor: undefined,
-        cursorHistory: undefined,
+        page: undefined,
       }),
       replace: true,
     });
   }, [debouncedSearch, navigate]);
-
-  const handleNext = (nextCursor: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        cursorHistory: prev.cursor ? [...(prev.cursorHistory ?? []), prev.cursor] : (prev.cursorHistory ?? []),
-        cursor: nextCursor,
-      }),
-    });
-  };
-
-  const handlePrevious = () => {
-    navigate({
-      search: (prev) => {
-        const history = prev.cursorHistory ?? [];
-        if (history.length > 0) {
-          return {
-            ...prev,
-            cursor: history[history.length - 1],
-            cursorHistory: history.slice(0, -1),
-          };
-        }
-        return { ...prev, cursor: undefined, cursorHistory: undefined };
-      },
-    });
-  };
 
   const handleFlashcardFilter = (value: "true" | "false" | undefined) => {
     navigate({
       search: (prev) => ({
         ...prev,
         flashcard: value,
-        cursor: undefined,
-        cursorHistory: undefined,
+        page: undefined,
       }),
       replace: true,
     });
@@ -114,7 +84,7 @@ function QuestionsPage() {
     orpc.admin.question.list.queryOptions({
       input: {
         limit,
-        cursor: cursor ?? undefined,
+        page,
         search: searchParam,
         isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
       },
@@ -122,8 +92,7 @@ function QuestionsPage() {
   );
 
   const questions = data?.data || [];
-  const hasMore = data?.hasMore || false;
-  const nextCursor = data?.nextCursor || null;
+  const total = data?.total ?? 0;
 
   return (
     <AdminContainer>
@@ -224,16 +193,15 @@ function QuestionsPage() {
         </div>
       )}
 
-      {(hasPrevious || hasMore) && (
-        <AdminCursorPagination
+      {total > 0 && (
+        <AdminPagination
           className="mt-6"
-          label="soal"
-          shown={questions?.length ?? 0}
-          hasPrevious={hasPrevious}
-          hasNext={hasMore}
-          onPrevious={handlePrevious}
-          onNext={() => nextCursor && handleNext(nextCursor)}
+          label="Soal"
+          page={page}
+          total={total}
+          pageSize={limit}
           isLoading={isLoading}
+          onPageChange={(next) => navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })}
         />
       )}
     </AdminContainer>
