@@ -302,7 +302,7 @@ function FeaturedEvent({ event, isPremium }: { event: PtnEvent; isPremium: boole
           ? "Lihat Detail"
           : isPremium
             ? "Lihat Event"
-            : "Daftar Sekarang";
+            : "Daftar Gratis";
   return (
     <motion.section
       initial={{ opacity: 0, y: 24 }}

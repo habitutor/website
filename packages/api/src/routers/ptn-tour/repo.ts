@@ -2,13 +2,14 @@ import { db as defaultDb, type DrizzleDatabase } from "@habitutor/db";
 import {
   ptnTourEvent,
   ptnTourMaterial,
+  ptnTourExportLog,
   ptnTourPayment,
   ptnTourProof,
   ptnTourRegistration,
   ptnTourSetting,
 } from "@habitutor/db/schema/ptn-tour";
 import { user } from "@habitutor/db/schema/user";
-import { and, asc, eq, gt, inArray, lt, lte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, lt, lte, sql } from "drizzle-orm";
 import { uploadTryoutImage } from "../../lib/cloudinary";
 import {
   canAttend,
@@ -78,6 +79,9 @@ function toPublicEvent(
     rundown: row.rundown,
     tutor: row.tutor,
     campus: row.campus,
+    tutorPhotoUrl: row.tutorPhotoUrl,
+    tutorAchievement: row.tutorAchievement,
+    reward: row.reward,
     posterUrl: row.posterUrl,
     startsAt: row.startsAt,
     endsAt,
@@ -612,6 +616,37 @@ export const ptnTourRepo = {
       );
     await db.update(ptnTourPayment).set({ activatedAt: null }).where(eq(ptnTourPayment.id, payment.id));
   },
+
+  logExport: async ({
+    db = defaultDb,
+    eventId,
+    adminId,
+    format,
+    rowCount,
+  }: {
+    db?: DrizzleDatabase;
+    eventId: number;
+    adminId: string;
+    format: string;
+    rowCount: number;
+  }) => {
+    await db.insert(ptnTourExportLog).values({ eventId, adminId, format, rowCount });
+  },
+
+  exportLog: async ({ db = defaultDb, eventId }: { db?: DrizzleDatabase; eventId: number }) =>
+    db
+      .select({
+        id: ptnTourExportLog.id,
+        format: ptnTourExportLog.format,
+        rowCount: ptnTourExportLog.rowCount,
+        createdAt: ptnTourExportLog.createdAt,
+        adminName: user.name,
+      })
+      .from(ptnTourExportLog)
+      .leftJoin(user, eq(user.id, ptnTourExportLog.adminId))
+      .where(eq(ptnTourExportLog.eventId, eventId))
+      .orderBy(desc(ptnTourExportLog.createdAt))
+      .limit(5),
 
   /** Data event apa adanya (untuk membandingkan sebelum/sesudah edit). */
   getRaw: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {

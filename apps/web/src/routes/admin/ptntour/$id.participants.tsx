@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { CheckCircleIcon, DownloadSimpleIcon, UsersThreeIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
@@ -86,10 +86,19 @@ function ParticipantsPage() {
     return { headers, rows };
   };
 
+  const queryClient = useQueryClient();
+  const logExport = useMutation(
+    orpc.ptnTour.admin.exports.log.mutationOptions({
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: orpc.ptnTour.admin.exports.key() }),
+    }),
+  );
+  const { data: exportLog } = useQuery(orpc.ptnTour.admin.exports.list.queryOptions({ input: { eventId } }));
+
   const download = () => {
     const table = buildTable();
     if (!table) return;
     const { headers, rows } = table;
+    logExport.mutate({ eventId, format: "csv", rowCount: rows.length });
     // BOM supaya Excel membaca UTF-8 dengan benar.
     const blob = new Blob([`﻿${[headers, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n")}`], {
       type: "text/csv;charset=utf-8",
@@ -106,6 +115,7 @@ function ParticipantsPage() {
   const copyForSheets = async () => {
     const table = buildTable();
     if (!table) return;
+    logExport.mutate({ eventId, format: "sheets", rowCount: table.rows.length });
     const cell = (value: unknown) => String(value ?? "").replace(/[\t\r\n]+/g, " ");
     const text = [table.headers, ...table.rows]
       .map((row) => row.map(cell).map((v) => (/^[=+\-@]/.test(v) ? `'${v}` : v)).join("\t"))
@@ -128,6 +138,15 @@ function ParticipantsPage() {
           <DownloadSimpleIcon /> Ekspor CSV
         </Button>
       </AdminHeader>
+
+      {exportLog && exportLog.length > 0 && (
+        <p className="mb-4 rounded-sr-md border border-sr-line bg-white px-4 py-2.5 text-xs text-sr-muted shadow-sr-1">
+          <span className="font-bold text-sr-ink-2">Riwayat ekspor data:</span>{" "}
+          {exportLog
+            .map((log) => `${log.adminName ?? "Admin"} · ${log.format === "csv" ? "CSV" : "Sheets"} · ${formatStamp(log.createdAt)}`)
+            .join("  |  ")}
+        </p>
+      )}
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat

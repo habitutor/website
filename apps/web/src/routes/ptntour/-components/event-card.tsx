@@ -93,12 +93,16 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
         </div>
 
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sr-blue-50 text-sm font-black text-sr-blue-700">
-            {event.tutor
-              .replace(/^Kak\s+/i, "")
-              .charAt(0)
-              .toUpperCase()}
-          </span>
+          {event.tutorPhotoUrl ? (
+            <img src={event.tutorPhotoUrl} alt="" className="size-8 shrink-0 rounded-full object-cover" />
+          ) : (
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sr-blue-50 text-sm font-black text-sr-blue-700">
+              {event.tutor
+                .replace(/^Kak\s+/i, "")
+                .charAt(0)
+                .toUpperCase()}
+            </span>
+          )}
           <p className="min-w-0 truncate text-sm font-bold text-sr-ink">
             {event.tutor} <span className="font-medium text-sr-muted">· {event.campus}</span>
           </p>
@@ -200,7 +204,7 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
               variant={status.key === "registered" ? "outline" : "default"}
             >
               <Link to="/ptntour/$slug" params={{ slug: event.slug }}>
-                {status.key === "registered" ? "Lihat Detail" : isPremium ? "Lihat Event" : "Daftar Sekarang"}
+                {status.key === "registered" ? "Lihat Detail" : isPremium ? "Lihat Event" : "Daftar Gratis"}
               </Link>
             </Button>
           )}

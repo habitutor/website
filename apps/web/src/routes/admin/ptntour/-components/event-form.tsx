@@ -28,6 +28,9 @@ export type EventFormValues = {
   quota: string;
   tutor: string;
   campus: string;
+  tutorPhotoUrl: string;
+  tutorAchievement: string;
+  reward: string;
   posterUrl: string;
   description: string;
   longDescription: string;
@@ -51,6 +54,9 @@ export const EMPTY_EVENT_FORM: EventFormValues = {
   quota: "",
   tutor: "",
   campus: "",
+  tutorPhotoUrl: "",
+  tutorAchievement: "",
+  reward: "",
   posterUrl: "/event-placeholder.svg",
   description: "",
   longDescription: "",
@@ -148,15 +154,23 @@ function SubjectPicker({ value, onChange }: { value: string[]; onChange: (value:
   );
 }
 
-function PosterUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
+function PosterUpload({
+  onUploaded,
+  label = "Poster",
+  maxSize = 1600,
+}: {
+  onUploaded: (url: string) => void;
+  label?: string;
+  maxSize?: number;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const upload = useMutation(
     orpc.ptnTour.admin.uploadPoster.mutationOptions({
       onSuccess: ({ url }) => {
         onUploaded(url);
-        toast.success("Poster diunggah");
+        toast.success(`${label} diunggah`);
       },
-      onError: (error) => toast.error("Gagal mengunggah poster", { description: error.message }),
+      onError: (error) => toast.error(`Gagal mengunggah ${label.toLowerCase()}`, { description: error.message }),
     }),
   );
   return (
@@ -180,7 +194,7 @@ function PosterUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
           event.target.value = "";
           if (!file) return;
           try {
-            upload.mutate({ image: await compressImage(file, { maxSize: 1600, quality: 0.85 }) });
+            upload.mutate({ image: await compressImage(file, { maxSize, quality: 0.85 }) });
           } catch {
             toast.error("Gambar belum bisa diproses", { description: "Pilih file PNG, JPG, atau WebP." });
           }
@@ -276,6 +290,33 @@ export function EventForm({
             required
           />
         </Field>
+        <Field
+          label="Prestasi singkat tutor"
+          hint="Satu kredensial, maks 140 karakter. Contoh: Peraih skor UTBK tertinggi se-Jawa Tengah."
+          className="sm:col-span-2"
+        >
+          <Input
+            value={form.tutorAchievement}
+            onChange={(e) => set("tutorAchievement", e.target.value)}
+            maxLength={140}
+            placeholder="Peraih skor UTBK 2025 tertinggi di sekolahnya"
+          />
+        </Field>
+        <Field label="Foto tutor" hint="Boleh kosong, nanti tampil inisial nama. Rasio persegi lebih rapi.">
+          <Input
+            value={form.tutorPhotoUrl}
+            onChange={(e) => set("tutorPhotoUrl", e.target.value)}
+            placeholder="https://… (atau unggah di bawah)"
+          />
+          <PosterUpload label="Foto tutor" maxSize={600} onUploaded={(url) => set("tutorPhotoUrl", url)} />
+        </Field>
+        <div className="flex items-center justify-center rounded-sr-lg border border-dashed border-sr-line bg-sr-ivory/60 p-3">
+          {form.tutorPhotoUrl ? (
+            <img src={form.tutorPhotoUrl} alt="Pratinjau foto tutor" className="size-24 rounded-full object-cover shadow-sr-1" />
+          ) : (
+            <p className="text-sm text-sr-muted">Pratinjau foto tutor</p>
+          )}
+        </div>
         <Field
           label="Deskripsi singkat (untuk kartu) *"
           hint={`${shortLength}/160 karakter. Targetkan sekitar 120: apa yang dibahas + hasil untuk peserta.`}
@@ -375,6 +416,18 @@ export function EventForm({
           className="sm:col-span-2"
         >
           <Textarea value={form.longDescription} onChange={(e) => set("longDescription", e.target.value)} rows={6} />
+        </Field>
+        <div className="flex flex-wrap items-center gap-3 rounded-sr-md border border-sr-blue-100 bg-sr-blue-50/50 p-3 sm:col-span-2">
+          <p className="min-w-0 flex-1 text-xs leading-relaxed text-sr-ink-2">
+            Malas menulis dari nol? Isi judul, tanggal, tutor, lalu salin prompt ini ke AI. Hasilnya (deskripsi singkat
+            dan lengkap) tinggal ditempel ke kolom di atas dan di bawah.
+          </p>
+          <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => void copyAiPrompt(form)}>
+            Salin prompt AI
+          </Button>
+        </div>
+        <Field label="Reward (kalau ada)" hint="Contoh: E-sertifikat untuk 50 peserta aktif. Maks 200 karakter." className="sm:col-span-2">
+          <Input value={form.reward} onChange={(e) => set("reward", e.target.value)} maxLength={200} />
         </Field>
         <Field label="Rundown acara" hint="Satu baris per sesi, format: 19.30 | Pembukaan" className="sm:col-span-2">
           <Textarea
@@ -476,6 +529,38 @@ export function EventForm({
 }
 
 /** Ubah isian form menjadi payload API (string kosong -> null, angka -> number). */
+/** Prompt AI dari brief: admin tinggal mengisi data dasar, hasilnya ditempel ke kolom deskripsi. */
+export function buildAiPrompt(form: EventFormValues) {
+  const isRecording = form.startsAt.trim() === "";
+  const when = form.startsAt ? `${form.startsAt.replace("T", ", ")} WIB` : "(kosongkan kalau rekaman)";
+  const tutor = [form.tutor, form.campus, form.tutorAchievement].filter((part) => part.trim()).join(", ");
+  return `Buatin deskripsi event gratis Habitutor (bimbel online SNBT) buat website.
+
+Judul: ${form.title || "[judul event]"}
+Status: ${isRecording ? "rekaman" : "akan datang"}
+Tanggal & jam: ${when}
+Tutor: ${tutor || "[nama, kampus/jurusan, kredensial]"}
+Yang dibahas: [poin-poin materi]
+Bonus: ${form.reward || "[kalau ada]"}
+
+Bikin 2 versi:
+1. Deskripsi singkat maks 120 karakter: apa yang dibahas + hasilnya buat peserta.
+2. Deskripsi lengkap: hook 1 kalimat, profil tutor, "YANG KALIAN DAPET" 3-5 poin, bonus, penutup "Ada pertanyaan? DM IG @habitutor.id".
+
+Kalau status rekaman: tulis sebagai rekaman yang bisa ditonton kapan aja, jangan pakai tanggal, "live", atau "daftar sebelum...". Ajakan di penutup jadi "tonton rekamannya".
+
+Gaya: santai pakai "kalian", emoji secukupnya, tanpa tanda bintang, jangan lebay, jangan janji lolos PTN.`;
+}
+
+async function copyAiPrompt(form: EventFormValues) {
+  try {
+    await navigator.clipboard.writeText(buildAiPrompt(form));
+    toast.success("Prompt disalin. Tempel ke AI, lalu isi bagian [yang dibahas].");
+  } catch {
+    toast.error("Gagal menyalin prompt");
+  }
+}
+
 export function toEventPayload(form: EventFormValues) {
   const nullable = (value: string) => (value.trim() ? value.trim() : null);
   return {
@@ -488,6 +573,9 @@ export function toEventPayload(form: EventFormValues) {
     rundown: nullable(form.rundown),
     tutor: form.tutor.trim(),
     campus: form.campus.trim(),
+    tutorPhotoUrl: nullable(form.tutorPhotoUrl),
+    tutorAchievement: nullable(form.tutorAchievement),
+    reward: nullable(form.reward),
     posterUrl: form.posterUrl.trim(),
     startsAt: fromWibInput(form.startsAt),
     durationMinutes: Number(form.durationMinutes) || 120,

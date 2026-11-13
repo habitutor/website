@@ -71,7 +71,7 @@ function EventDetailPage() {
   const join = useJoinEvent();
   const watch = useWatchRecording();
 
-  // Setelah login dari tombol "Daftar Sekarang", pengguna kembali ke sini dan formulir langsung terbuka.
+  // Setelah login dari tombol "Daftar Gratis", pengguna kembali ke sini dan formulir langsung terbuka.
   const autoOpen = Boolean(daftar && session?.user && event && !event.registered && event.phase !== "ended");
   const registerOpen = dialogOpen || autoOpen;
 
@@ -192,16 +192,29 @@ function EventDetailPage() {
             </div>
 
             <div className="flex items-center gap-3 rounded-sr-lg bg-white/10 p-3 ring-1 ring-white/20 backdrop-blur sm:w-fit sm:pr-6">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sr-sun-400 text-lg font-black text-sr-ink">
-                {event.tutor
-                  .replace(/^Kak\s+/i, "")
-                  .charAt(0)
-                  .toUpperCase()}
-              </span>
+              {event.tutorPhotoUrl ? (
+                <img
+                  src={event.tutorPhotoUrl}
+                  alt={`Foto ${event.tutor}`}
+                  className="size-14 shrink-0 rounded-full border-2 border-white/60 object-cover shadow-sr-2"
+                />
+              ) : (
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sr-sun-400 text-lg font-black text-sr-ink">
+                  {event.tutor
+                    .replace(/^Kak\s+/i, "")
+                    .charAt(0)
+                    .toUpperCase()}
+                </span>
+              )}
               <div className="min-w-0">
                 <p className="text-[10px] font-bold tracking-wider text-white/70 uppercase">Pemateri</p>
                 <p className="truncate font-black">{event.tutor}</p>
                 <p className="truncate text-xs text-white/80">{event.campus}</p>
+                {event.tutorAchievement && (
+                  <p className="mt-0.5 line-clamp-2 max-w-xs text-xs font-semibold text-sr-sun-200">
+                    {event.tutorAchievement}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -228,10 +241,6 @@ function EventDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
         <div className="flex min-w-0 flex-col gap-6">
-          <motion.div {...fadeUp}>
-            <Benefits event={event} materialCount={materials?.length ?? 0} />
-          </motion.div>
-
           {event.longDescription && (
             <motion.div {...fadeUp}>
               <Section title="Tentang event ini">
@@ -308,6 +317,20 @@ function EventDetailPage() {
                   ))}
                 </div>
               </Section>
+            </motion.div>
+          )}
+
+          {event.reward && (
+            <motion.div {...fadeUp}>
+              <section className="flex items-start gap-3 rounded-sr-xl border border-sr-sun-200 bg-sr-sun-100/60 p-5 shadow-sr-1 sm:p-6">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-sr-md bg-sr-sun-400 text-xl text-sr-ink">
+                  <GiftIcon weight="fill" />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-base font-black text-sr-ink sm:text-lg">Reward</h2>
+                  <p className="mt-0.5 text-sm leading-relaxed text-sr-ink-2">{event.reward}</p>
+                </div>
+              </section>
             </motion.div>
           )}
 
@@ -408,57 +431,6 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** Empat alasan ikut, supaya calon peserta langsung paham apa yang didapat. */
-function Benefits({ event, materialCount }: { event: PtnEvent; materialCount: number }) {
-  const items = [
-    {
-      icon: <VideoCameraIcon weight="fill" />,
-      title: "Live interaktif di Zoom",
-      text: "Tanya langsung ke mentor, jawabannya hari itu juga.",
-      tone: "bg-emerald-50 text-emerald-600",
-    },
-    {
-      icon: <PlayCircleIcon weight="fill" />,
-      title: "Rekaman bisa ditonton ulang",
-      text: event.recordingFreeDays > 0 ? `Akun gratis bisa menonton ${event.recordingFreeDays} hari.` : "Tonton ulang selama event tayang.",
-      tone: "bg-sr-blue-50 text-sr-blue-600",
-    },
-    {
-      icon: <GiftIcon weight="fill" />,
-      title: "Materi & bonus",
-      text: materialCount > 0 ? `${materialCount} materi siap diunduh.` : "Materi pendukung dari mentor.",
-      tone: "bg-sr-sun-100 text-sr-amber-700",
-    },
-    {
-      icon: <WhatsappLogoIcon weight="fill" />,
-      title: "Grup WhatsApp event",
-      text: "Info Zoom dan pengingat langsung ke HP kamu.",
-      tone: "bg-emerald-50 text-emerald-600",
-    },
-  ];
-  return (
-    <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:p-7">
-      <h2 className="text-lg font-black text-sr-ink sm:text-xl">Yang kamu dapatkan</h2>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {items.map((item) => (
-          <div
-            key={item.title}
-            className="flex items-start gap-3 rounded-sr-md border border-sr-line bg-sr-ivory/40 p-3.5 transition-all hover:-translate-y-0.5 hover:border-sr-blue-200 hover:bg-white hover:shadow-sr-1"
-          >
-            <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-sr-sm text-xl", item.tone)}>
-              {item.icon}
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-black text-sr-ink">{item.title}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-sr-muted">{item.text}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:p-7">
@@ -554,7 +526,7 @@ function PrimaryAction({
       </Button>
     );
   }
-  const label = event.phase === "ended" ? "Daftar untuk Tonton Rekaman" : "Daftar Sekarang";
+  const label = event.phase === "ended" ? "Daftar untuk Tonton Rekaman" : "Daftar Gratis";
   if (!loggedIn) {
     return (
       <Button size="lg" className={primary} asChild>

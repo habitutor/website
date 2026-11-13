@@ -93,7 +93,7 @@ export function NearestEvents() {
                           ? "Dibatalkan"
                           : status.key === "full"
                           ? "Kuota penuh"
-                          : "Daftar Sekarang"}
+                          : "Daftar Gratis"}
                   <ArrowRightIcon weight="bold" />
                 </span>
               </div>

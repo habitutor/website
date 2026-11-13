@@ -15,6 +15,9 @@ export const ptnTourEvent = pgTable(
     rundown: text(),
     tutor: text().notNull(),
     campus: text().notNull(),
+    tutorPhotoUrl: text("tutor_photo_url"),
+    tutorAchievement: text("tutor_achievement"),
+    reward: text(),
     posterUrl: text("poster_url").notNull(),
     startsAt: timestamp("starts_at").notNull(),
     durationMinutes: integer("duration_minutes").notNull().default(120),
@@ -129,4 +132,20 @@ export const ptnTourPayment = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [index("ptn_tour_payment_event_user_idx").on(table.eventId, table.userId)],
+);
+
+/** Catatan siapa mengekspor data peserta, supaya pengunduhan data pribadi bisa ditelusuri. */
+export const ptnTourExportLog = pgTable(
+  "ptn_tour_export_log",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    eventId: integer("event_id")
+      .notNull()
+      .references(() => ptnTourEvent.id, { onDelete: "cascade" }),
+    adminId: text("admin_id").references(() => user.id, { onDelete: "set null" }),
+    format: text().notNull(),
+    rowCount: integer("row_count").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [index("ptn_tour_export_log_event_idx").on(table.eventId)],
 );

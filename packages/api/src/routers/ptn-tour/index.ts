@@ -64,6 +64,9 @@ type EventFields = {
   recordingFreeDays?: number;
   accessMode?: string;
   scheduleStatus?: string;
+  tutorPhotoUrl?: string | null;
+  tutorAchievement?: string | null;
+  reward?: string | null;
   isPublished?: boolean;
 };
 
@@ -129,6 +132,21 @@ function normalizeEventInput(input: EventFields) {
     if (!(ACCESS_MODES as readonly string[]).includes(input.accessMode)) throw new PtnTourError("BAD_REQUEST", "Mode akses tidak valid.");
     out.accessMode = input.accessMode;
   }
+  if (input.tutorPhotoUrl !== undefined) {
+    const photo = blankToNull(input.tutorPhotoUrl);
+    if (photo && !isValidAssetUrl(photo)) throw new PtnTourError("BAD_REQUEST", "Foto tutor harus berupa tautan gambar yang valid.");
+    out.tutorPhotoUrl = photo;
+  }
+  if (input.tutorAchievement !== undefined) {
+    const achievement = blankToNull(input.tutorAchievement);
+    if (achievement && achievement.length > 140) throw new PtnTourError("BAD_REQUEST", "Prestasi tutor maksimal 140 karakter.");
+    out.tutorAchievement = achievement;
+  }
+  if (input.reward !== undefined) {
+    const reward = blankToNull(input.reward);
+    if (reward && reward.length > 200) throw new PtnTourError("BAD_REQUEST", "Reward maksimal 200 karakter.");
+    out.reward = reward;
+  }
   if (input.scheduleStatus !== undefined) {
     if (!(SCHEDULE_STATUSES as readonly string[]).includes(input.scheduleStatus)) throw new PtnTourError("BAD_REQUEST", "Status jadwal tidak valid.");
     out.scheduleStatus = input.scheduleStatus;
@@ -157,6 +175,9 @@ const eventFieldsSchema = {
   "recordingFreeDays?": "number.integer",
   "accessMode?": accessModeType,
   "scheduleStatus?": scheduleStatusType,
+  "tutorPhotoUrl?": "string | null",
+  "tutorAchievement?": "string | null",
+  "reward?": "string | null",
   "isPublished?": "boolean",
 } as const;
 
@@ -347,6 +368,9 @@ const adminCreate = admin
       "recordingUrl?": "string | null",
       "recordingFreeDays?": "number.integer",
       "accessMode?": accessModeType,
+      "tutorPhotoUrl?": "string | null",
+      "tutorAchievement?": "string | null",
+      "reward?": "string | null",
       "isPublished?": "boolean",
     }),
   )
@@ -405,6 +429,19 @@ const adminParticipants = admin
   .route({ path: "/admin/ptn-tour/{eventId}/participants", method: "GET", tags: ["Admin - PTN Tour"] })
   .input(type({ eventId: "number.integer" }))
   .handler(({ input }) => ptnTourRepo.adminParticipants({ eventId: input.eventId }));
+
+const adminLogExport = admin
+  .route({ path: "/admin/ptn-tour/{eventId}/exports", method: "POST", tags: ["Admin - PTN Tour"] })
+  .input(type({ eventId: "number.integer", format: "'csv' | 'sheets'", rowCount: "number.integer" }))
+  .handler(async ({ input, context }) => {
+    await ptnTourRepo.logExport({ ...input, adminId: context.session.user.id });
+    return { ok: true };
+  });
+
+const adminExportLog = admin
+  .route({ path: "/admin/ptn-tour/{eventId}/exports", method: "GET", tags: ["Admin - PTN Tour"] })
+  .input(type({ eventId: "number.integer" }))
+  .handler(({ input }) => ptnTourRepo.exportLog({ eventId: input.eventId }));
 
 const adminSettingsUpdate = admin
   .route({ path: "/admin/ptn-tour-settings", method: "PUT", tags: ["Admin - PTN Tour"] })
@@ -558,6 +595,7 @@ export const ptnTourRouter = {
     proofs: adminProofs,
     settings: { update: adminSettingsUpdate },
     uploadPoster: adminUploadPoster,
+    exports: { log: adminLogExport, list: adminExportLog },
     materials: {
       list: adminMaterials,
       create: adminMaterialCreate,
