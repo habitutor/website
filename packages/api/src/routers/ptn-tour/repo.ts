@@ -2,6 +2,7 @@ import { db as defaultDb, type DrizzleDatabase } from "@habitutor/db";
 import {
   ptnTourEvent,
   ptnTourMaterial,
+  ptnTourPayment,
   ptnTourProof,
   ptnTourRegistration,
   ptnTourSetting,
@@ -471,6 +472,145 @@ export const ptnTourRepo = {
       if (isUniqueViolation(error)) throw new PtnTourError("CONFLICT", "Slug sudah dipakai event lain.");
       throw error;
     }
+  },
+
+  /**
+   * Validasi + simpan data checkout berbayar. Pendaftaran sendiri baru dibuat setelah pembayaran terverifikasi
+   * (activatePayment), jadi kuota tidak tertahan oleh checkout yang tidak dibayar.
+   */
+  prepareCheckout: async ({
+    db = defaultDb,
+    eventId,
+    userId,
+    isPremium,
+    schoolName,
+    classLevel,
+    phoneNumber,
+    dreamCampus,
+    educationLevel,
+    consent,
+  }: {
+    db?: DrizzleDatabase;
+    eventId: number;
+    userId: string;
+    isPremium: boolean;
+    schoolName: string;
+    classLevel: string;
+    phoneNumber: string;
+    dreamCampus: string;
+    educationLevel: string;
+    consent: boolean;
+  }) => {
+    if (!consent) throw new PtnTourError("BAD_REQUEST", "Persetujuan penggunaan data wajib dicentang.");
+    if (isPremium) throw new PtnTourError("BAD_REQUEST", "Member Premium tidak perlu membayar, langsung daftar saja.");
+    const phone = normalizePhone(phoneNumber);
+    const school = schoolName.trim();
+    const level = classLevel.trim();
+    if (!school || !level) throw new PtnTourError("BAD_REQUEST", "Asal sekolah dan kelas wajib diisi.");
+
+    const [event] = await db
+      .select()
+      .from(ptnTourEvent)
+      .where(and(eq(ptnTourEvent.id, eventId), eq(ptnTourEvent.isPublished, true)))
+      .limit(1);
+    if (!event) throw new PtnTourError("NOT_FOUND", "Event tidak ditemukan.");
+    if (event.scheduleStatus === "cancelled") throw new PtnTourError("BAD_REQUEST", "Event ini dibatalkan.");
+    if (!canAttend({ accessMode: event.accessMode, isPremium })) {
+      throw new PtnTourError("FORBIDDEN", "Event ini khusus member Premium.");
+    }
+    const [already] = await db
+      .select({ id: ptnTourRegistration.id })
+      .from(ptnTourRegistration)
+      .where(and(eq(ptnTourRegistration.eventId, eventId), eq(ptnTourRegistration.userId, userId)))
+      .limit(1);
+    if (already) throw new PtnTourError("CONFLICT", "Kamu sudah terdaftar di event ini.");
+    if (event.quota !== null && getPhase(event) !== "ended") {
+      const [row] = await db
+        .select({ total: sql<number>`cast(count(*) as integer)` })
+        .from(ptnTourRegistration)
+        .where(eq(ptnTourRegistration.eventId, eventId));
+      if (Number(row?.total ?? 0) >= event.quota) throw new PtnTourError("CONFLICT", "Kuota event ini sudah penuh.");
+    }
+    return { event, profile: { school, level, phone, dreamCampus, educationLevel } };
+  },
+
+  createPayment: async ({
+    db = defaultDb,
+    eventId,
+    userId,
+    transactionId,
+    profile,
+  }: {
+    db?: DrizzleDatabase;
+    eventId: number;
+    userId: string;
+    transactionId: string;
+    profile: { school: string; level: string; phone: string; dreamCampus: string; educationLevel: string };
+  }) => {
+    await db.insert(ptnTourPayment).values({
+      eventId,
+      userId,
+      transactionId,
+      schoolName: profile.school,
+      classLevel: profile.level,
+      phoneNumber: profile.phone,
+      dreamCampus: profile.dreamCampus,
+      educationLevel: profile.educationLevel,
+      consentAt: new Date(),
+    });
+  },
+
+  /**
+   * Dipanggil saat pembayaran settle: membuat pendaftaran (accessMethod "paid"). Idempoten; peserta yang sudah
+   * membayar tidak ditolak walau kuota terlanjur penuh (uangnya sudah masuk).
+   */
+  activatePayment: async ({ db = defaultDb, transactionId }: { db?: DrizzleDatabase; transactionId: string }) => {
+    const [payment] = await db
+      .select()
+      .from(ptnTourPayment)
+      .where(eq(ptnTourPayment.transactionId, transactionId))
+      .limit(1);
+    if (!payment) return null;
+    await db
+      .update(user)
+      .set({ phoneNumber: payment.phoneNumber, dreamCampus: payment.dreamCampus, educationLevel: payment.educationLevel })
+      .where(eq(user.id, payment.userId));
+    await db
+      .insert(ptnTourRegistration)
+      .values({
+        eventId: payment.eventId,
+        userId: payment.userId,
+        schoolName: payment.schoolName,
+        classLevel: payment.classLevel,
+        dataConsentAt: payment.consentAt,
+        accessMethod: "paid",
+      })
+      .onConflictDoNothing();
+    await db
+      .update(ptnTourPayment)
+      .set({ activatedAt: payment.activatedAt ?? new Date() })
+      .where(eq(ptnTourPayment.id, payment.id));
+    return { userId: payment.userId, eventId: payment.eventId };
+  },
+
+  /** Refund/chargeback: cabut pendaftaran yang berasal dari pembayaran ini. */
+  revokePayment: async ({ db = defaultDb, transactionId }: { db?: DrizzleDatabase; transactionId: string }) => {
+    const [payment] = await db
+      .select()
+      .from(ptnTourPayment)
+      .where(eq(ptnTourPayment.transactionId, transactionId))
+      .limit(1);
+    if (!payment) return;
+    await db
+      .delete(ptnTourRegistration)
+      .where(
+        and(
+          eq(ptnTourRegistration.eventId, payment.eventId),
+          eq(ptnTourRegistration.userId, payment.userId),
+          eq(ptnTourRegistration.accessMethod, "paid"),
+        ),
+      );
+    await db.update(ptnTourPayment).set({ activatedAt: null }).where(eq(ptnTourPayment.id, payment.id));
   },
 
   /** Data event apa adanya (untuk membandingkan sebelum/sesudah edit). */

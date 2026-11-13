@@ -108,6 +108,13 @@ export const FREEMIUM_PRODUCT = {
   TRYOUT_SLOTS: 3,
 } as const;
 
+// Pendaftaran event PTN Tour berbayar (Rp10.000), alternatif follow + share.
+export const PTN_TOUR_EVENT_PRODUCT = {
+  SLUG: "ptn-tour-event",
+  NAME: "Pendaftaran Event PTN Tour",
+  PRICE: 10_000,
+} as const;
+
 // Pembahasan satu TO (Rp5.000) untuk TO yang sudah selesai dikerjakan.
 export const FREEMIUM_PEMBAHASAN_PRODUCT = {
   SLUG: "tryout-pembahasan",

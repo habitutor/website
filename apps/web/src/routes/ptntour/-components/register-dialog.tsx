@@ -23,8 +23,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { compressImage } from "@/lib/compress-image";
-import { orpc } from "@/utils/orpc";
+import { useMidtransScript } from "@/lib/midtrans";
+import { client, orpc } from "@/utils/orpc";
 import { buildShareCaption, formatDate, formatTime, type PtnEvent, SOCIAL_LINKS } from "../-lib";
+
+const PAY_PRICE_LABEL = "Rp10.000";
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Tunggu webhook/sinkronisasi Midtrans sampai pendaftaran aktif (maks ~8 detik). */
+async function waitForPaymentActivation(orderId: string) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      const result = await client.transaction.status({ orderId });
+      if (result.status === "success") return true;
+      if (result.status === "failed") return false;
+    } catch (error) {
+      console.error("Failed to sync PTN Tour payment status", error);
+    }
+    await sleep(1000);
+  }
+  return false;
+}
 
 const CLASS_LEVELS = ["10 SMA/SMK", "11 SMA/SMK", "12 SMA/SMK", "Gap year", "Lainnya"] as const;
 
@@ -42,6 +62,7 @@ export function RegisterDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  useMidtransScript();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { data: profile } = useQuery({ ...orpc.profile.me.queryOptions(), enabled: open });
@@ -52,6 +73,7 @@ export function RegisterDialog({
   const [followProofs, setFollowProofs] = useState<string[]>([]);
   const [shareProofs, setShareProofs] = useState<string[]>([]);
   const [consent, setConsent] = useState(false);
+  const [method, setMethod] = useState<"free" | "pay">("free");
 
   // Data profil terisi otomatis; pengguna hanya melengkapi yang kurang.
   useEffect(() => {
@@ -63,16 +85,50 @@ export function RegisterDialog({
   const register = useMutation(
     orpc.ptnTour.register.mutationOptions({
       onSuccess: async () => {
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: orpc.ptnTour.list.queryKey() }),
-          queryClient.invalidateQueries({ queryKey: orpc.ptnTour.detail.queryKey({ input: { slug: event.slug } }) }),
-          queryClient.invalidateQueries({ queryKey: orpc.ptnTour.me.queryKey() }),
-          queryClient.invalidateQueries({ queryKey: orpc.ptnTour.materials.queryKey({ input: { slug: event.slug } }) }),
-        ]);
+        await refreshEvent();
         onOpenChange(false);
         navigate({ to: "/ptntour/$slug/success", params: { slug: event.slug } });
       },
       onError: (error) => toast.error("Pendaftaran belum berhasil", { description: error.message }),
+    }),
+  );
+
+  const refreshEvent = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: orpc.ptnTour.list.queryKey() }),
+      queryClient.invalidateQueries({ queryKey: orpc.ptnTour.detail.queryKey({ input: { slug: event.slug } }) }),
+      queryClient.invalidateQueries({ queryKey: orpc.ptnTour.me.queryKey() }),
+      queryClient.invalidateQueries({ queryKey: orpc.ptnTour.materials.queryKey({ input: { slug: event.slug } }) }),
+    ]);
+
+  const finishPayment = async (orderId: string) => {
+    const activated = await waitForPaymentActivation(orderId);
+    await refreshEvent();
+    if (activated) {
+      toast.success("Pembayaran berhasil, kamu sudah terdaftar!");
+      navigate({ to: "/ptntour/$slug/success", params: { slug: event.slug } });
+      return;
+    }
+    toast.info("Pembayaran sedang diproses. Pendaftaran aktif otomatis setelah terkonfirmasi.");
+  };
+
+  const checkout = useMutation(
+    orpc.ptnTour.checkout.mutationOptions({
+      onSuccess: (data) => {
+        // Tutup dialog dulu supaya popup Midtrans tidak terhalang overlay dialog.
+        onOpenChange(false);
+        if (window.snap) {
+          window.snap.pay(data.token, {
+            onSuccess: () => void finishPayment(data.orderId),
+            onPending: () => toast.info("Pembayaran sedang diproses. Pendaftaran aktif otomatis setelah terkonfirmasi."),
+            onError: () => toast.error("Pembayaran gagal. Silakan coba lagi."),
+            onClose: () => toast.warning("Pembayaran dibatalkan."),
+          });
+          return;
+        }
+        window.location.href = data.redirectUrl;
+      },
+      onError: (error) => toast.error("Pembayaran belum bisa dimulai", { description: error.message }),
     }),
   );
 
@@ -93,8 +149,10 @@ export function RegisterDialog({
     classLevel &&
     campus.trim() &&
     consent &&
-    (isPremium || (followProofs.length > 0 && shareProofs.length > 0)) &&
-    !register.isPending;
+    (isPremium || method === "pay" || (followProofs.length > 0 && shareProofs.length > 0)) &&
+    !register.isPending &&
+    !checkout.isPending;
+  const paying = !isPremium && method === "pay";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -102,7 +160,7 @@ export function RegisterDialog({
         <DialogHeader>
           <DialogTitle>Daftar {event.title}</DialogTitle>
           <DialogDescription>
-            {formatDate(event.startsAt)} · {formatTime(event.startsAt)}. Gratis dan cuma butuh satu layar.
+            {formatDate(event.startsAt)} · {formatTime(event.startsAt)}. Daftar gratis atau bayar Rp10.000, cukup satu layar.
           </DialogDescription>
         </DialogHeader>
 
@@ -162,6 +220,31 @@ export function RegisterDialog({
             atas.
           </p>
         ) : (
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Cara daftar">
+            {(
+              [
+                { value: "free", title: "Gratis", hint: "Follow + share poster" },
+                { value: "pay", title: PAY_PRICE_LABEL, hint: "Bayar, tanpa syarat" },
+              ] as const
+            ).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={method === option.value}
+                onClick={() => setMethod(option.value)}
+                className={`rounded-sr-lg border-2 p-3 text-left transition-colors ${
+                  method === option.value ? "border-sr-blue-500 bg-sr-blue-50" : "border-sr-line bg-white"
+                }`}
+              >
+                <span className="block text-sm font-black text-sr-ink">{option.title}</span>
+                <span className="block text-xs text-sr-muted">{option.hint}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!isPremium && method === "free" && (
           <div className="grid gap-3 rounded-sr-lg border border-sr-line bg-sr-ivory/70 p-3">
             <div>
               <p className="text-sm font-black text-sr-ink">1. Follow akun Habitutor</p>
@@ -214,6 +297,13 @@ export function RegisterDialog({
           </div>
         )}
 
+        {paying && (
+          <p className="rounded-sr-md bg-sr-ivory p-3 text-sm text-sr-muted">
+            Bayar {PAY_PRICE_LABEL} lewat QRIS, e-wallet, atau transfer. Kamu langsung terdaftar begitu pembayaran
+            terkonfirmasi, tanpa follow atau share.
+          </p>
+        )}
+
         <label className="flex items-start gap-2 text-xs leading-relaxed text-sr-muted">
           <input
             type="checkbox"
@@ -229,7 +319,19 @@ export function RegisterDialog({
           <Button
             className="w-full"
             disabled={!canSubmit}
-            onClick={() =>
+            onClick={() => {
+              if (paying) {
+                checkout.mutate({
+                  eventId: event.id,
+                  phoneNumber: phone,
+                  schoolName: school,
+                  classLevel,
+                  dreamCampus: campus,
+                  educationLevel: profile?.educationLevel || "SMA",
+                  consent,
+                });
+                return;
+              }
               register.mutate({
                 eventId: event.id,
                 phoneNumber: phone,
@@ -240,11 +342,17 @@ export function RegisterDialog({
                 consent,
                 followProofs: isPremium ? [] : followProofs,
                 shareProofs: isPremium ? [] : shareProofs,
-              })
-            }
+              });
+            }}
           >
             <CheckCircleIcon weight="fill" />
-            {register.isPending ? "Mendaftarkan…" : "Daftar Sekarang"}
+            {paying
+              ? checkout.isPending
+                ? "Membuka pembayaran…"
+                : `Bayar ${PAY_PRICE_LABEL} & Daftar`
+              : register.isPending
+                ? "Mendaftarkan…"
+                : "Daftar Sekarang"}
           </Button>
         </DialogFooter>
       </DialogContent>

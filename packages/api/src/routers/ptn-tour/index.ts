@@ -1,5 +1,10 @@
+import { db } from "@habitutor/db";
 import { type } from "arktype";
+import { logger } from "@habitutor/shared/logger";
 import { admin, authedRateLimited, pub } from "../..";
+import { PTN_TOUR_EVENT_PRODUCT } from "../../lib/constants";
+import { createSubscriptionTransaction } from "../../lib/midtrans";
+import { transactionRepo } from "../transaction/repo";
 import {
   ACCESS_MODES,
   assertOptionalUrl,
@@ -216,6 +221,68 @@ const register = authedRateLimited
         isPremium: Boolean(context.session.user.isPremium),
       }),
     ),
+  );
+
+/** Daftar berbayar Rp10.000 (alternatif follow + share). Nominal ditentukan server; pendaftaran dibuat saat pembayaran settle. */
+const checkout = authedRateLimited
+  .route({ path: "/ptn-tour/{eventId}/checkout", method: "POST", tags: ["PTN Tour", "Payment"] })
+  .input(
+    type({
+      eventId: "number.integer",
+      schoolName: "string",
+      classLevel: "string",
+      phoneNumber: "string",
+      dreamCampus: "string",
+      educationLevel: "string",
+      consent: "boolean",
+    }),
+  )
+  .handler(({ input, context, errors }) =>
+    run(errors as unknown as Errors, async () => {
+      const userId = context.session.user.id;
+      const { event, profile } = await ptnTourRepo.prepareCheckout({
+        ...input,
+        dreamCampus: input.dreamCampus.trim(),
+        educationLevel: input.educationLevel.trim() || "SMA",
+        userId,
+        isPremium: Boolean(context.session.user.isPremium),
+      });
+      const plan = await transactionRepo.getProductBySlug({ slug: PTN_TOUR_EVENT_PRODUCT.SLUG });
+      if (!plan) throw new PtnTourError("NOT_FOUND", "Produk pendaftaran belum tersedia.");
+
+      const orderId = `tx_${crypto.randomUUID()}`;
+      const created = await db.transaction(async (trx) => {
+        const tx = await transactionRepo.createTransaction({
+          db: trx,
+          id: orderId,
+          productId: plan.id,
+          grossAmount: String(PTN_TOUR_EVENT_PRODUCT.PRICE),
+          userId,
+        });
+        await ptnTourRepo.createPayment({ db: trx, eventId: event.id, userId, transactionId: orderId, profile });
+        return tx;
+      });
+      if (!created) throw new PtnTourError("BAD_REQUEST", "Gagal membuat transaksi. Silakan coba lagi.");
+
+      try {
+        const payment = await createSubscriptionTransaction({
+          id: orderId,
+          session: context.session,
+          name: `Daftar ${event.title}`.slice(0, 50),
+          grossAmount: PTN_TOUR_EVENT_PRODUCT.PRICE,
+          returnPath: `/ptntour/${event.slug}`,
+        });
+        return { ...payment, orderId, slug: event.slug };
+      } catch (error) {
+        await transactionRepo.updateTransactionStatus({ orderId, status: "failed" });
+        logger.error("Failed to create Midtrans transaction for PTN Tour", {
+          orderId,
+          userId,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
+    }),
   );
 
 const join = authedRateLimited
@@ -476,6 +543,7 @@ export const ptnTourRouter = {
   me: mine,
   materials,
   register,
+  checkout,
   join,
   watch,
   settings,

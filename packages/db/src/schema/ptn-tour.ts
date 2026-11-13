@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { boolean, index, integer, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { transaction } from "./transaction";
 import { user } from "./user";
 
 export const ptnTourEvent = pgTable(
@@ -99,3 +100,33 @@ export const ptnTourSetting = pgTable("ptn_tour_setting", {
   value: text().notNull(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+/**
+ * Pendaftaran berbayar (Rp10.000) sebagai alternatif follow + share. Baris dibuat saat checkout bersama data profil
+ * yang diisi pengguna; pendaftaran baru dibuat setelah pembayaran Midtrans terverifikasi (activatedAt terisi).
+ */
+export const ptnTourPayment = pgTable(
+  "ptn_tour_payment",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    eventId: integer("event_id")
+      .notNull()
+      .references(() => ptnTourEvent.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    transactionId: text("transaction_id")
+      .notNull()
+      .unique()
+      .references(() => transaction.id, { onDelete: "cascade" }),
+    schoolName: text("school_name").notNull(),
+    classLevel: text("class_level").notNull(),
+    phoneNumber: text("phone_number").notNull(),
+    dreamCampus: text("dream_campus").notNull(),
+    educationLevel: text("education_level").notNull(),
+    consentAt: timestamp("consent_at").notNull(),
+    activatedAt: timestamp("activated_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [index("ptn_tour_payment_event_user_idx").on(table.eventId, table.userId)],
+);
