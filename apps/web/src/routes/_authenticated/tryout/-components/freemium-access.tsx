@@ -3,16 +3,22 @@ import {
   ArrowSquareOutIcon,
   CheckCircleIcon,
   CopyIcon,
+  CheckIcon,
   ImageIcon,
+  InstagramLogoIcon,
+  ListChecksIcon,
   LockKeyIcon,
   LockKeyOpenIcon,
   PlusCircleIcon,
   SparkleIcon,
   StarIcon,
   TicketIcon,
+  TiktokLogoIcon,
+  UploadSimpleIcon,
   WhatsappLogoIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
 import type React from "react";
 import { useState } from "react";
@@ -52,10 +58,25 @@ const PAYMENT_ACTIVATION_RETRY_DELAY_MS = 1000;
 const PROOF_MAX_SIDE = 1280;
 const PROOF_QUALITY = 0.8;
 
-const PROOF_SLOTS = [
-  { key: "instagram", label: "Bukti follow Instagram" },
-  { key: "tiktok", label: "Bukti follow TikTok" },
-  { key: "broadcast", label: "Bukti share BC ke 5 grup WA" },
+const REQUIREMENT_STEPS = [
+  {
+    key: "instagram",
+    title: "Follow Instagram Habitutor",
+    hint: "Buka akun Habitutor, tekan Follow, lalu screenshot.",
+    proofLabel: "Screenshot follow Instagram",
+  },
+  {
+    key: "tiktok",
+    title: "Follow TikTok Habitutor",
+    hint: "Buka akun Habitutor, tekan Follow, lalu screenshot.",
+    proofLabel: "Screenshot follow TikTok",
+  },
+  {
+    key: "broadcast",
+    title: "Share BC ke 5 grup WhatsApp",
+    hint: "Salin teks di bawah, kirim ke 5 grup, lalu screenshot.",
+    proofLabel: "Screenshot share ke 5 grup",
+  },
 ] as const;
 
 export type FreemiumStatus = Awaited<ReturnType<typeof client.tryout.freemium.status>>;
@@ -238,9 +259,11 @@ function BroadcastTextBox() {
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-sr-sm border bg-sr-ivory p-3 text-sm">
-      <p className="max-h-48 overflow-y-auto whitespace-pre-wrap text-sr-ink-2">{broadcastText}</p>
-      <Button type="button" variant="outline" size="sm" className="w-fit" onClick={handleCopy}>
+    <div className="flex flex-col gap-2 rounded-sr-md border border-sr-line bg-sr-ivory/80 p-3 text-sm">
+      <p className="max-h-32 overflow-y-auto text-xs leading-relaxed whitespace-pre-wrap text-sr-ink-2">
+        {broadcastText}
+      </p>
+      <Button type="button" variant="outline" size="sm" className="w-fit rounded-full" onClick={handleCopy}>
         <CopyIcon /> Salin teks BC
       </Button>
     </div>
@@ -259,23 +282,26 @@ function ProofSlot({
   return (
     <label
       className={cn(
-        "flex cursor-pointer items-center gap-3 rounded-sr-sm border border-dashed p-3 text-sm transition-colors focus-within:ring-2 focus-within:ring-sr-blue-300 hover:bg-sr-ivory",
-        preview && "border-sr-live bg-sr-live/5",
+        "group flex cursor-pointer items-center gap-3 rounded-sr-md border-2 border-dashed p-2.5 text-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-sr-blue-300",
+        preview
+          ? "border-sr-live/50 bg-white"
+          : "border-sr-blue-200 bg-sr-blue-50/40 hover:border-sr-blue-400 hover:bg-sr-blue-50",
       )}
     >
       {preview ? (
-        <img src={preview} alt={label} className="size-14 shrink-0 rounded-sr-xs border object-cover" />
+        <img src={preview} alt={label} className="size-14 shrink-0 rounded-sr-sm border border-sr-line object-cover" />
       ) : (
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-sr-xs bg-sr-blue-50 text-sr-blue-300">
-          <ImageIcon size={24} />
+        <span className="flex size-14 shrink-0 items-center justify-center rounded-sr-sm bg-white text-sr-blue-500 shadow-sr-1 transition-transform duration-200 group-hover:scale-105">
+          <ImageIcon size={26} weight="duotone" />
         </span>
       )}
-      <span className="flex flex-col">
-        <span className="font-semibold text-sr-ink">{label}</span>
-        <span className="text-xs text-muted-foreground">
-          {preview ? "Ketuk untuk ganti foto" : "Ketuk untuk pilih foto"}
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="font-bold text-sr-ink">{label}</span>
+        <span className="text-xs text-sr-muted">
+          {preview ? "Ketuk untuk ganti foto" : "Ketuk untuk pilih foto dari galeri"}
         </span>
       </span>
+      {!preview && <UploadSimpleIcon size={20} weight="bold" className="shrink-0 text-sr-blue-500" />}
       <input
         type="file"
         accept="image/png,image/jpeg,image/webp"
@@ -290,6 +316,57 @@ function ProofSlot({
   );
 }
 
+/** Satu syarat = satu kartu: apa yang harus dilakukan, tombol aksinya, dan tempat mengunggah bukti. */
+function RequirementCard({
+  index,
+  title,
+  hint,
+  proofLabel,
+  preview,
+  onPick,
+  children,
+}: {
+  index: number;
+  title: string;
+  hint: string;
+  proofLabel: string;
+  preview: string | null;
+  onPick: (file: File) => void;
+  children: React.ReactNode;
+}) {
+  const done = preview !== null;
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.08, ease: [0.2, 0.7, 0.2, 1] }}
+      className={cn(
+        "flex flex-col gap-3 rounded-sr-lg border-2 p-3.5 transition-colors duration-300",
+        done ? "border-sr-live/40 bg-sr-live/5" : "border-sr-line bg-white",
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <span
+          className={cn(
+            "flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-black transition-colors duration-300",
+            done ? "bg-sr-live text-white" : "bg-sr-blue-500 text-white",
+          )}
+        >
+          {done ? <CheckIcon weight="bold" className="size-4" /> : index + 1}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-black text-sr-ink">{title}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-sr-muted">{hint}</p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 pl-10">
+        {children}
+        <ProofSlot label={proofLabel} preview={preview} onPick={onPick} />
+      </div>
+    </motion.li>
+  );
+}
+
 export function FreemiumRequirementsDialog({
   open,
   onOpenChange,
@@ -298,12 +375,13 @@ export function FreemiumRequirementsDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const refresh = useRefreshFreemium();
-  const [previews, setPreviews] = useState<(string | null)[]>(PROOF_SLOTS.map(() => null));
+  const [previews, setPreviews] = useState<(string | null)[]>(REQUIREMENT_STEPS.map(() => null));
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const submitMutation = useMutation(orpc.tryout.freemium.completeRequirements.mutationOptions());
 
-  const allPicked = previews.every((preview) => preview !== null);
+  const pickedCount = previews.filter((preview) => preview !== null).length;
+  const allPicked = pickedCount === REQUIREMENT_STEPS.length;
 
   const handlePick = async (index: number, file: File) => {
     setIsProcessing(true);
@@ -333,14 +411,28 @@ export function FreemiumRequirementsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto sm:max-w-lg">
         {isDone ? (
           <>
-            <DialogHeader>
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-sr-live/10 text-sr-live sm:mx-0">
-                <CheckCircleIcon size={28} weight="fill" />
+            <DialogHeader className="items-center text-center sm:items-center sm:text-center">
+              <div className="relative flex size-20 items-center justify-center">
+                <motion.span
+                  aria-hidden
+                  initial={{ scale: 0.6, opacity: 0.6 }}
+                  animate={{ scale: 1.9, opacity: 0 }}
+                  transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+                  className="absolute inset-0 rounded-full bg-sr-live/40"
+                />
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 15, delay: 0.05 }}
+                  className="relative flex size-20 items-center justify-center rounded-full bg-sr-live text-white shadow-[0_12px_28px_-8px_rgb(16_185_129/0.6)]"
+                >
+                  <CheckIcon weight="bold" className="size-10" />
+                </motion.span>
               </div>
-              <DialogTitle>Syarat terpenuhi, kamu dapat 1 Try Out gratis!</DialogTitle>
+              <DialogTitle className="mt-2 text-xl">Syarat terpenuhi, kamu dapat 1 Try Out gratis!</DialogTitle>
               <DialogDescription>
                 Pilih 1 Try Out lewat tombol "Pilih Try Out ini" di daftar Try Out. Pilihan masih bisa diganti selama
                 Try Out-nya belum mulai dikerjakan. Pembahasannya bisa dibuka {FREEMIUM_PEMBAHASAN_PRICE_LABEL} setelah
@@ -349,57 +441,88 @@ export function FreemiumRequirementsDialog({
             </DialogHeader>
             <FreemiumWhatsappInvites showPaketGroup />
             <DialogFooter>
-              <Button onClick={() => onOpenChange(false)}>Pilih Try Out</Button>
+              <Button className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
+                Pilih Try Out
+              </Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Akses Gratis: Penuhi 3 Syarat</DialogTitle>
-              <DialogDescription>
-                Lakukan ketiga hal di bawah, lalu upload foto buktinya. Setelah terkirim, kamu langsung bisa memilih 1
-                Try Out.
-              </DialogDescription>
+              <div className="flex items-start gap-3 text-left">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-sr-md bg-sr-blue-50 text-sr-blue-600">
+                  <ListChecksIcon weight="fill" className="size-6" />
+                </span>
+                <div className="min-w-0">
+                  <DialogTitle className="text-left leading-snug">Akses Gratis: Penuhi 3 Syarat</DialogTitle>
+                  <DialogDescription className="mt-1 text-left">
+                    Lakukan tiap langkah, lalu unggah screenshot buktinya. Setelah terkirim, kamu langsung bisa memilih
+                    1 Try Out.
+                  </DialogDescription>
+                </div>
+              </div>
+              <div className="mt-1">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-sr-ink-2">Bukti terkumpul</span>
+                  <span className={allPicked ? "text-sr-live" : "text-sr-blue-600"}>
+                    {pickedCount} dari {REQUIREMENT_STEPS.length}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-sr-blue-50">
+                  <motion.div
+                    initial={false}
+                    animate={{ width: `${(pickedCount / REQUIREMENT_STEPS.length) * 100}%` }}
+                    transition={{ duration: 0.5, ease: [0.2, 0.7, 0.2, 1] }}
+                    className={cn(
+                      "h-full rounded-full",
+                      allPicked ? "bg-sr-live" : "bg-linear-to-r from-sr-blue-400 to-sr-blue-600",
+                    )}
+                  />
+                </div>
+              </div>
             </DialogHeader>
 
-            <ol className="flex flex-col gap-3 text-sm">
-              <li className="flex flex-col gap-2">
-                <span className="font-semibold">1. Follow Instagram Habitutor</span>
-                <Button asChild variant="outline" size="sm" className="w-fit">
-                  <a href={FREEMIUM_LINKS.instagram} target="_blank" rel="noopener noreferrer">
-                    Buka Instagram <ArrowSquareOutIcon />
-                  </a>
-                </Button>
-              </li>
-              <li className="flex flex-col gap-2">
-                <span className="font-semibold">2. Follow TikTok Habitutor</span>
-                <Button asChild variant="outline" size="sm" className="w-fit">
-                  <a href={FREEMIUM_LINKS.tiktok} target="_blank" rel="noopener noreferrer">
-                    Buka TikTok <ArrowSquareOutIcon />
-                  </a>
-                </Button>
-              </li>
-              <li className="flex flex-col gap-2">
-                <span className="font-semibold">3. Share BC ke 5 grup WhatsApp</span>
-                <BroadcastTextBox />
-              </li>
-            </ol>
-
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-semibold">Upload foto bukti</p>
-              {PROOF_SLOTS.map((slot, index) => (
-                <ProofSlot
-                  key={slot.key}
-                  label={slot.label}
+            <ol className="flex flex-col gap-3">
+              {REQUIREMENT_STEPS.map((step, index) => (
+                <RequirementCard
+                  key={step.key}
+                  index={index}
+                  title={step.title}
+                  hint={step.hint}
+                  proofLabel={step.proofLabel}
                   preview={previews[index] ?? null}
                   onPick={(file) => void handlePick(index, file)}
-                />
+                >
+                  {step.key === "instagram" && (
+                    <Button asChild variant="outline" size="sm" className="w-fit rounded-full">
+                      <a href={FREEMIUM_LINKS.instagram} target="_blank" rel="noopener noreferrer">
+                        <InstagramLogoIcon /> Buka Instagram <ArrowSquareOutIcon />
+                      </a>
+                    </Button>
+                  )}
+                  {step.key === "tiktok" && (
+                    <Button asChild variant="outline" size="sm" className="w-fit rounded-full">
+                      <a href={FREEMIUM_LINKS.tiktok} target="_blank" rel="noopener noreferrer">
+                        <TiktokLogoIcon /> Buka TikTok <ArrowSquareOutIcon />
+                      </a>
+                    </Button>
+                  )}
+                  {step.key === "broadcast" && <BroadcastTextBox />}
+                </RequirementCard>
               ))}
-            </div>
+            </ol>
 
-            <DialogFooter>
-              <Button disabled={!allPicked || isProcessing || submitMutation.isPending} onClick={handleSubmit}>
-                {submitMutation.isPending ? "Mengirim..." : "Kirim Bukti"}
+            <DialogFooter className="sticky -bottom-6 -mx-6 -mb-6 border-t border-sr-line bg-white/95 px-6 py-3 backdrop-blur">
+              <Button
+                className="w-full"
+                disabled={!allPicked || isProcessing || submitMutation.isPending}
+                onClick={handleSubmit}
+              >
+                {submitMutation.isPending
+                  ? "Mengirim..."
+                  : allPicked
+                    ? "Kirim Bukti"
+                    : `Lengkapi ${REQUIREMENT_STEPS.length - pickedCount} bukti lagi`}
               </Button>
             </DialogFooter>
           </>
