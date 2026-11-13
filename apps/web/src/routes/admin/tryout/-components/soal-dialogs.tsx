@@ -18,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc, queryClient, client } from "@/utils/orpc";
 import { Image } from "@unpic/react";
+import { LockedTryoutNotice, useTryoutHasSesi } from "./locked-tryout-notice";
 
 // --- Helpers ---
 export function fileToBase64(file: File): Promise<string> {
@@ -84,8 +85,9 @@ export function ImageUploadPreview({
 }
 
 // --- Add Soal Dialog ---
-export function AddSoalDialog({ subtesId }: { subtesId: string }) {
+export function AddSoalDialog({ tryoutId, subtesId }: { tryoutId: string; subtesId: string }) {
   const [open, setOpen] = useState(false);
+  const { hasSesi } = useTryoutHasSesi(tryoutId, open);
   const [pertanyaan, setPertanyaan] = useState("");
   const [gambarUrl, setGambarUrl] = useState<string | null>(null);
   const [poin, setPoin] = useState(20);
@@ -144,6 +146,7 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (hasSesi) return;
     if (!pertanyaan.trim() && !gambarUrl) {
       toast.error("Pertanyaan atau gambar harus diisi");
       return;
@@ -176,116 +179,119 @@ export function AddSoalDialog({ subtesId }: { subtesId: string }) {
           <DialogTitle>Tambah Soal Baru</DialogTitle>
           <DialogDescription>Isi pertanyaan dan pilihan jawaban. Tandai jawaban yang benar.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label>Pertanyaan</Label>
-            <Textarea
-              placeholder="Tuliskan pertanyaan..."
-              value={pertanyaan}
-              onChange={(e) => setPertanyaan(e.target.value)}
-              rows={3}
-            />
-            <ImageUploadPreview
-              url={gambarUrl}
-              onUpload={async (f) => setGambarUrl(await fileToBase64(f))}
-              onRemove={() => setGambarUrl(null)}
-            />
-          </div>
+        {hasSesi && <LockedTryoutNotice tryoutId={tryoutId} onDone={() => setOpen(false)} />}
+        <form onSubmit={handleSubmit}>
+          <fieldset disabled={hasSesi} className="min-w-0 space-y-4 border-0 p-0 disabled:opacity-50">
+            <div className="space-y-2">
+              <Label>Pertanyaan</Label>
+              <Textarea
+                placeholder="Tuliskan pertanyaan..."
+                value={pertanyaan}
+                onChange={(e) => setPertanyaan(e.target.value)}
+                rows={3}
+              />
+              <ImageUploadPreview
+                url={gambarUrl}
+                onUpload={async (f) => setGambarUrl(await fileToBase64(f))}
+                onRemove={() => setGambarUrl(null)}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="tipe-soal">Tipe Soal</Label>
-            <select
-              id="tipe-soal"
-              value={tipe}
-              onChange={(e) => {
-                const nextTipe = e.target.value as "pilgan" | "multiple";
-                setTipe(nextTipe);
+            <div className="space-y-2">
+              <Label htmlFor="tipe-soal">Tipe Soal</Label>
+              <select
+                id="tipe-soal"
+                value={tipe}
+                onChange={(e) => {
+                  const nextTipe = e.target.value as "pilgan" | "multiple";
+                  setTipe(nextTipe);
 
-                if (nextTipe === "pilgan") {
-                  setOptions((prev) => {
-                    let found = false;
-                    return prev.map((opt) => {
-                      if (opt.isBenar && !found) {
-                        found = true;
-                        return opt;
-                      }
-                      return { ...opt, isBenar: false };
+                  if (nextTipe === "pilgan") {
+                    setOptions((prev) => {
+                      let found = false;
+                      return prev.map((opt) => {
+                        if (opt.isBenar && !found) {
+                          found = true;
+                          return opt;
+                        }
+                        return { ...opt, isBenar: false };
+                      });
                     });
-                  });
-                }
-              }}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-            >
-              <option value="pilgan">Pilihan Ganda (satu jawaban benar)</option>
-              <option value="multiple">Multiple Answer (beberapa jawaban benar)</option>
-            </select>
-          </div>
+                  }
+                }}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              >
+                <option value="pilgan">Pilihan Ganda (satu jawaban benar)</option>
+                <option value="multiple">Multiple Answer (beberapa jawaban benar)</option>
+              </select>
+            </div>
 
-          <div className="space-y-2">
-            <Label>Poin</Label>
-            <Input
-              type="number"
-              min={1}
-              value={poin}
-              onChange={(e) => setPoin(Number(e.target.value))}
-              className="w-32"
-            />
-          </div>
+            <div className="space-y-2">
+              <Label>Poin</Label>
+              <Input
+                type="number"
+                min={1}
+                value={poin}
+                onChange={(e) => setPoin(Number(e.target.value))}
+                className="w-32"
+              />
+            </div>
 
-          <div className="space-y-3">
-            <Label>Pilihan Jawaban</Label>
-            {options.map((opt, idx) => (
-              <div key={opt.label} className="flex items-start gap-3">
-                <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gray-100 font-bold text-gray-700">
-                  {opt.label}
+            <div className="space-y-3">
+              <Label>Pilihan Jawaban</Label>
+              {options.map((opt, idx) => (
+                <div key={opt.label} className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:gap-3">
+                  <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gray-100 font-bold text-gray-700">
+                    {opt.label}
+                  </div>
+                  <div className="min-w-0 flex-1 basis-48 space-y-2">
+                    <Input
+                      placeholder={`Isi pilihan ${opt.label}...`}
+                      value={opt.isi}
+                      onChange={(e) => {
+                        const newOpts = [...options];
+                        newOpts[idx].isi = e.target.value;
+                        setOptions(newOpts);
+                      }}
+                    />
+                    <ImageUploadPreview
+                      url={opt.gambarUrl}
+                      onUpload={async (f) => {
+                        const base64 = await fileToBase64(f);
+                        const newOpts = [...options];
+                        newOpts[idx].gambarUrl = base64;
+                        setOptions(newOpts);
+                      }}
+                      onRemove={() => {
+                        const newOpts = [...options];
+                        newOpts[idx].gambarUrl = null;
+                        setOptions(newOpts);
+                      }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant={opt.isBenar ? "default" : "outline"}
+                    size="sm"
+                    className={opt.isBenar ? "mt-1 bg-green-600 hover:bg-green-700" : "mt-1"}
+                    onClick={() => {
+                      const newOpts = options.map((o, i) => ({
+                        ...o,
+                        isBenar: tipe === "multiple" ? (i === idx ? !o.isBenar : o.isBenar) : i === idx,
+                      }));
+                      setOptions(newOpts);
+                    }}
+                  >
+                    {opt.isBenar ? "✓ Benar" : "Benar?"}
+                  </Button>
                 </div>
-                <div className="flex-1 space-y-2">
-                  <Input
-                    placeholder={`Isi pilihan ${opt.label}...`}
-                    value={opt.isi}
-                    onChange={(e) => {
-                      const newOpts = [...options];
-                      newOpts[idx].isi = e.target.value;
-                      setOptions(newOpts);
-                    }}
-                  />
-                  <ImageUploadPreview
-                    url={opt.gambarUrl}
-                    onUpload={async (f) => {
-                      const base64 = await fileToBase64(f);
-                      const newOpts = [...options];
-                      newOpts[idx].gambarUrl = base64;
-                      setOptions(newOpts);
-                    }}
-                    onRemove={() => {
-                      const newOpts = [...options];
-                      newOpts[idx].gambarUrl = null;
-                      setOptions(newOpts);
-                    }}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant={opt.isBenar ? "default" : "outline"}
-                  size="sm"
-                  className={opt.isBenar ? "mt-1 bg-green-600 hover:bg-green-700" : "mt-1"}
-                  onClick={() => {
-                    const newOpts = options.map((o, i) => ({
-                      ...o,
-                      isBenar: tipe === "multiple" ? (i === idx ? !o.isBenar : o.isBenar) : i === idx,
-                    }));
-                    setOptions(newOpts);
-                  }}
-                >
-                  {opt.isBenar ? "✓ Benar" : "Benar?"}
-                </Button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <Button type="submit" className="w-full" disabled={createSoalMutation.isPending}>
-            {createSoalMutation.isPending ? "Menyimpan..." : "Simpan Soal"}
-          </Button>
+            <Button type="submit" className="w-full" disabled={createSoalMutation.isPending}>
+              {createSoalMutation.isPending ? "Menyimpan..." : "Simpan Soal"}
+            </Button>
+          </fieldset>
         </form>
       </DialogContent>
     </Dialog>
@@ -328,7 +334,7 @@ export function DetailSoalDialog({
                 <span className="rounded bg-primary/10 px-2 py-1 text-sm font-semibold text-primary">
                   Poin: {data.poin}
                 </span>
-                <span className="text-xs text-muted-foreground uppercase">{data.tipe}</span>
+                <span className="text-xs text-sr-muted uppercase">{data.tipe}</span>
               </div>
               <p className="font-medium whitespace-pre-wrap">{data.pertanyaan}</p>
               {data.gambarUrl && (
@@ -402,7 +408,7 @@ export function DetailSoalDialog({
             ) : null}
           </div>
         ) : (
-          <p className="py-4 text-center text-muted-foreground">Data soal tidak ditemukan.</p>
+          <p className="py-4 text-center text-sr-muted">Data soal tidak ditemukan.</p>
         )}
       </DialogContent>
     </Dialog>
@@ -607,11 +613,11 @@ export function EditSoalDialog({
             <div className="space-y-3">
               <Label>Pilihan Jawaban</Label>
               {options.map((opt, idx) => (
-                <div key={opt.label} className="flex items-start gap-3">
+                <div key={opt.label} className="flex flex-wrap items-start gap-2 sm:flex-nowrap sm:gap-3">
                   <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gray-100 font-bold text-gray-700">
                     {opt.label}
                   </div>
-                  <div className="flex-1 space-y-2">
+                  <div className="min-w-0 flex-1 basis-48 space-y-2">
                     <Input
                       placeholder={`Isi pilihan ${opt.label}...`}
                       value={opt.isi}

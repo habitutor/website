@@ -49,7 +49,7 @@ function RouteComponent() {
       ) : content.isError ? (
         <AdminHeader title={`Error: ${content.error.message}`} />
       ) : (
-        <AdminHeader title={displayTitle} description="Manage video, notes, and practice questions" />
+        <AdminHeader title={displayTitle} description="Kelola video, catatan, dan latihan soal" />
       )}
 
       <Tabs value={currentTab} onValueChange={handleTabChange} className="mt-6">

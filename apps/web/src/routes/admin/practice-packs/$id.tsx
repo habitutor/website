@@ -32,7 +32,7 @@ function PracticePackDetailPage() {
   if (Number.isNaN(packId)) {
     return (
       <AdminContainer>
-        <p className="text-destructive">Invalid practice pack ID</p>
+        <p className="text-destructive">ID practice pack tidak valid</p>
       </AdminContainer>
     );
   }
@@ -43,10 +43,11 @@ function PracticePackDetailPage() {
         <PackInfoHeader packId={packId} backTo="/admin/practice-packs" />
 
         <div className="space-y-4">
-          <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="flex items-center gap-4 text-xl font-bold tracking-tight sm:text-2xl">
-              Questions
-              <span className="rounded-lg bg-blue-100 px-2 py-1 font-mono text-base font-medium text-muted-foreground">
+          <div className="flex sr-card-hover flex-col gap-3 rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="flex items-center gap-3 text-lg font-black tracking-tight text-sr-ink sm:text-xl">
+              <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
+              Daftar Soal
+              <span className="rounded-full bg-sr-blue-50 px-2.5 py-0.5 text-sm font-bold text-sr-blue-700">
                 {data?.questions?.length || 0}
               </span>
             </h2>
@@ -58,11 +59,11 @@ function PracticePackDetailPage() {
                   className="gap-2 text-xs sm:text-sm"
                 >
                   <MagnifyingGlassIcon className="size-3.5 sm:size-4" />
-                  Add Existing
+                  Tambah dari Bank Soal
                 </Button>
                 <Button onClick={() => setShowCreateForm(true)} className="gap-2 text-xs shadow-sm sm:text-sm">
                   <PlusIcon className="size-3.5 sm:size-4" />
-                  Create New Question
+                  Buat Soal Baru
                 </Button>
               </div>
             )}

@@ -58,7 +58,7 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
 
   return (
     <>
-      <Card className="group relative flex flex-col overflow-hidden py-0 transition-all hover:shadow-md">
+      <Card className="group relative flex flex-col overflow-hidden rounded-sr-lg border-sr-line bg-linear-to-br from-white via-sr-blue-50/50 to-sr-sun-100/40 py-0 shadow-sr-1 transition-all duration-300 hover:-translate-y-1 hover:shadow-sr-2">
         <Link
           to={"/admin/practice-packs/$id"}
           params={{
@@ -67,8 +67,10 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
           className="flex flex-1 flex-col px-6 py-6"
         >
           <div className="mb-4 flex-1">
-            <h3 className="mb-2 text-lg font-bold tracking-tight group-hover:text-primary">{pack.title}</h3>
-            <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+            <h3 className="mb-2 text-lg font-black tracking-tight text-sr-ink transition-colors group-hover:text-sr-blue-600">
+              {pack.title}
+            </h3>
+            <p className="line-clamp-2 text-sm leading-relaxed text-sr-muted">
               {pack.description || "No description provided."}
             </p>
           </div>
@@ -79,7 +81,7 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8 bg-background/80 backdrop-blur-sm">
                 <DotsThree className="size-5" weight="bold" />
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Buka menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
@@ -93,7 +95,7 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
                 className="text-destructive focus:text-destructive"
               >
                 <Trash className="mr-2 size-4" />
-                Delete
+                Hapus
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -103,20 +105,20 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Practice Pack?</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Practice Pack?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{pack.title}"? This action cannot be undone and will remove all
-              associated questions.
+              Yakin ingin menghapus "{pack.title}"? Tindakan ini tidak bisa dibatalkan dan semua soal di dalam pack ikut
+              terhapus.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-white hover:bg-destructive/80"
             >
-              {deleteMutation.isPending ? "Deleting…" : "Delete"}
+              {deleteMutation.isPending ? "Menghapus…" : "Hapus"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

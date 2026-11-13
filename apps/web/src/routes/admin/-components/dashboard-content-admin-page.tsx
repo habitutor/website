@@ -3,6 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { ADMIN_ROW_CLASS, AdminSearchInput, FilterChips, rowDelay, usePagedList } from "@/components/admin/list-tools";
+import { cn } from "@/lib/utils";
+import { AdminPagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -51,12 +54,30 @@ function toLiveClassPayload(form: LiveClassForm) {
   return { ...form, durationMinutes: Number(form.durationMinutes) };
 }
 
-export function DashboardContentAdminPage() {
+type LiveClassFilter = "ALL" | CategoryType;
+
+const LIVE_CLASS_FILTERS: ReadonlyArray<{ value: LiveClassFilter; label: string }> = [
+  { value: "ALL", label: "Semua" },
+  { value: "TKA", label: "TKA" },
+  { value: "SNBT", label: "SNBT" },
+  { value: "MANDIRI", label: "Mandiri" },
+];
+
+const matchesLiveClass = (item: { title: string; teacher: string }, query: string) =>
+  `${item.title} ${item.teacher}`.toLowerCase().includes(query);
+
+export function DashboardContentAdminPage({ tab }: { tab: DashboardContentTab }) {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<DashboardContentTab>("live-class");
   const [liveClassForm, setLiveClassForm] = useState(EMPTY_LIVE_CLASS_FORM);
 
   const contentQuery = useQuery(orpc.admin.dashboardContent.list.queryOptions());
+  const [liveClassFilter, setLiveClassFilter] = useState<LiveClassFilter>("ALL");
+  const liveClassesByCategory = useMemo(
+    () =>
+      contentQuery.data?.liveClasses.filter((item) => liveClassFilter === "ALL" || item.category === liveClassFilter),
+    [contentQuery.data?.liveClasses, liveClassFilter],
+  );
+  const liveClasses = usePagedList(liveClassesByCategory, { pageSize: 8, matches: matchesLiveClass });
   const primaryAnnouncement = useMemo(
     () => contentQuery.data?.announcements.find((item) => item.variant === "primary") ?? null,
     [contentQuery.data?.announcements],
@@ -103,56 +124,96 @@ export function DashboardContentAdminPage() {
   const updateAnnouncementMutation = useMutation(
     orpc.admin.dashboardContent.announcement.update.mutationOptions({
       onSuccess: async () => {
-        toast.success("Announcement berhasil diperbarui");
+        toast.success("Pengumuman berhasil diperbarui");
         await queryClient.invalidateQueries(orpc.admin.dashboardContent.list.queryOptions());
       },
       onError: (error) => {
-        toast.error("Gagal memperbarui announcement", { description: error.message });
+        toast.error("Gagal memperbarui pengumuman", { description: error.message });
       },
     }),
   );
 
   return (
     <AdminContainer>
-      <AdminHeader title="Dashboard Content" description="Kelola Live Class dan Announcement untuk dashboard user" />
-
-      <div className="mb-4 flex items-center gap-2">
-        <Button
-          type="button"
-          variant={activeTab === "live-class" ? "default" : "outline"}
-          onClick={() => setActiveTab("live-class")}
-        >
-          Live Class
-        </Button>
-        <Button
-          type="button"
-          variant={activeTab === "announcement" ? "default" : "outline"}
-          onClick={() => setActiveTab("announcement")}
-        >
-          Announcement
-        </Button>
-      </div>
-
-      {activeTab === "live-class" ? (
-        <Card className="space-y-2 p-6">
-          <h3 className="text-lg font-semibold">Tambah Live Class</h3>
-          <LiveClassFields form={liveClassForm} onChange={setLiveClassForm} />
-          <Button
-            onClick={() => createLiveClassMutation.mutate(toLiveClassPayload(liveClassForm))}
-            disabled={createLiveClassMutation.isPending || !isLiveClassFormValid(liveClassForm)}
-          >
-            <Plus className="mr-2 size-4" /> Tambah Live Class
-          </Button>
-
-          <div className="space-y-3 pt-4">
-            {contentQuery.data?.liveClasses.map((item) => (
-              <LiveClassRow key={item.id} item={item} onDelete={(id) => deleteLiveClassMutation.mutate({ id })} />
-            ))}
-          </div>
-        </Card>
+      {tab === "live-class" ? (
+        <AdminHeader title="Live Class" description="Jadwalkan live class yang tampil di dashboard siswa." />
       ) : (
-        <Card className="space-y-2 p-6">
-          <h3 className="text-lg font-semibold">Announcement</h3>
+        <AdminHeader title="Pengumuman" description="Atur pengumuman utama yang tampil di dashboard siswa." />
+      )}
+
+      {tab === "live-class" ? (
+        <div className="space-y-6">
+          <Card className="space-y-3 rounded-sr-xl p-5 sm:p-6">
+            <div className="flex items-center gap-3">
+              <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
+              <h3 className="text-lg font-black text-sr-ink">Tambah Live Class</h3>
+            </div>
+            <LiveClassFields form={liveClassForm} onChange={setLiveClassForm} />
+            <Button
+              onClick={() => createLiveClassMutation.mutate(toLiveClassPayload(liveClassForm))}
+              disabled={createLiveClassMutation.isPending || !isLiveClassFormValid(liveClassForm)}
+            >
+              <Plus className="mr-2 size-4" /> Tambah Live Class
+            </Button>
+          </Card>
+
+          <Card className="space-y-4 rounded-sr-xl p-5 sm:p-6">
+            <div className="flex items-center gap-3">
+              <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
+              <h3 className="text-lg font-black text-sr-ink">Daftar Live Class</h3>
+              <span className="rounded-full bg-sr-blue-50 px-2.5 py-0.5 text-sm font-bold text-sr-blue-700">
+                {liveClasses.total}
+              </span>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <AdminSearchInput
+                className="flex-1"
+                value={liveClasses.query}
+                onChange={liveClasses.setQuery}
+                placeholder="Cari judul atau pengajar…"
+              />
+              <FilterChips
+                label="Filter kategori"
+                value={liveClassFilter}
+                onChange={setLiveClassFilter}
+                options={LIVE_CLASS_FILTERS}
+              />
+            </div>
+            {contentQuery.isPending && <p className="text-sm text-sr-muted">Memuat…</p>}
+            {contentQuery.data && liveClasses.total === 0 && (
+              <p className="rounded-sr-md border border-dashed border-sr-line p-6 text-center text-sm text-sr-muted">
+                {contentQuery.data.liveClasses.length === 0
+                  ? "Belum ada live class."
+                  : "Tidak ada live class yang cocok dengan pencarian."}
+              </p>
+            )}
+            <div className="space-y-3">
+              {liveClasses.pageItems.map((item, index) => (
+                <LiveClassRow
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  onDelete={(id) => deleteLiveClassMutation.mutate({ id })}
+                />
+              ))}
+            </div>
+            {liveClasses.total > liveClasses.pageSize && (
+              <AdminPagination
+                label="Live Class"
+                page={liveClasses.page}
+                total={liveClasses.total}
+                pageSize={liveClasses.pageSize}
+                onPageChange={liveClasses.setPage}
+              />
+            )}
+          </Card>
+        </div>
+      ) : (
+        <Card className="space-y-3 rounded-sr-xl p-5 sm:p-6">
+          <div className="flex items-center gap-3">
+            <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
+            <h3 className="text-lg font-black text-sr-ink">Pengumuman Utama</h3>
+          </div>
           {primaryAnnouncement ? (
             <div className="space-y-3">
               <Input
@@ -179,12 +240,12 @@ export function DashboardContentAdminPage() {
                   announcementForm.description.trim() === ""
                 }
               >
-                Simpan Announcement
+                Simpan Pengumuman
               </Button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              Announcement utama belum tersedia. Hubungi pengembang untuk inisialisasi data awal.
+            <p className="text-sm text-sr-muted">
+              Pengumuman utama belum tersedia. Hubungi pengembang untuk inisialisasi data awal.
             </p>
           )}
         </Card>
@@ -204,7 +265,7 @@ function LiveClassFields({
     onChange((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 [&>*]:min-w-0">
       <Input placeholder="Judul" value={form.title} onChange={(event) => set("title", event.target.value)} />
       <Input type="date" aria-label="Tanggal" value={form.date} onChange={(event) => set("date", event.target.value)} />
       <Input
@@ -221,19 +282,19 @@ function LiveClassFields({
         onChange={(event) => set("link", event.target.value)}
         className="md:col-span-2"
       />
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-sm font-semibold text-sr-ink">
         Kategori
         <select
           value={form.category}
           onChange={(event) => set("category", event.target.value as CategoryType)}
-          className="h-9 rounded-md border px-3 text-sm"
+          className="h-9 min-w-0 flex-1 rounded-md border border-sr-line bg-white px-3 text-sm"
         >
           <option value="TKA">TKA</option>
           <option value="SNBT">SNBT</option>
           <option value="MANDIRI">Mandiri (khusus Paket Sampai Mandiri)</option>
         </select>
       </label>
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-sm font-semibold text-sr-ink">
         Durasi (menit)
         <Input
           type="number"
@@ -245,14 +306,22 @@ function LiveClassFields({
           className="w-24"
         />
       </label>
-      <p className="text-xs text-muted-foreground md:col-span-2">
+      <p className="text-xs text-sr-muted md:col-span-2">
         Tanggal & jam dalam WIB. Tombol Gabung aktif 15 menit sebelum kelas dimulai.
       </p>
     </div>
   );
 }
 
-function LiveClassRow({ item, onDelete }: { item: LiveClassItem; onDelete: (id: number) => void }) {
+function LiveClassRow({
+  item,
+  index,
+  onDelete,
+}: {
+  item: LiveClassItem;
+  index: number;
+  onDelete: (id: number) => void;
+}) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState(() => toLiveClassForm(item));
@@ -297,7 +366,7 @@ function LiveClassRow({ item, onDelete }: { item: LiveClassItem; onDelete: (id: 
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center">
+    <div className={cn(ADMIN_ROW_CLASS, "flex flex-col gap-3 sm:flex-row sm:items-center")} style={rowDelay(index)}>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border px-2.5 py-0.5 text-xs font-semibold">
@@ -305,10 +374,10 @@ function LiveClassRow({ item, onDelete }: { item: LiveClassItem; onDelete: (id: 
           </span>
         </div>
         <p className="font-semibold wrap-break-word">{item.title}</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-sr-muted">
           {item.date} · {item.time} WIB · {item.durationMinutes} menit · {item.teacher}
         </p>
-        <p className="truncate text-xs text-muted-foreground">{item.link}</p>
+        <p className="truncate text-xs text-sr-muted">{item.link}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <Button size="sm" variant="outline" onClick={startEditing}>

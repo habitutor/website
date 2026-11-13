@@ -34,9 +34,9 @@ export function QuestionNavigatorSheet({ questions, currentIndex, onQuestionClic
       </SheetTrigger>
       <SheetContent side="bottom" className="h-[60vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Jump to Question</SheetTitle>
+          <SheetTitle>Lompat ke Soal</SheetTitle>
         </SheetHeader>
-        <nav className="grid grid-cols-5 gap-2 p-4" aria-label="Question navigator">
+        <nav className="grid grid-cols-5 gap-2 p-4" aria-label="Navigasi soal">
           {questions.map((question, idx) => {
             const isActive = idx === currentIndex;
 

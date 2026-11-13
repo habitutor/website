@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { AdminBreadcrumbs } from "@/components/admin/dashboard-layout";
 import { AdminSidebar } from "@/components/admin/sidebar";
@@ -40,10 +41,17 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
+  // Panel admin: hover tetap beranimasi, tetapi tombol/kartu tidak "memantul" saat diklik (lihat index.css).
+  // Dipasang di <html> agar ikut berlaku pada dialog yang dirender lewat portal.
+  useEffect(() => {
+    document.documentElement.setAttribute("data-admin-calm", "");
+    return () => document.documentElement.removeAttribute("data-admin-calm");
+  }, []);
+
   return (
     <SidebarProvider>
       <AdminSidebar />
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-sidebar px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
           <AdminBreadcrumbs />

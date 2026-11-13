@@ -37,7 +37,7 @@ export function RemoveQuestionDialog({
   const removeMutation = useMutation(
     orpc.admin.practicePack.question.remove.mutationOptions({
       onSuccess: () => {
-        toast.success("Question removed from pack");
+        toast.success("Soal dihapus dari pack");
         queryClient.invalidateQueries(
           orpc.admin.practicePack.question.list.queryOptions({
             input: { id: packId },
@@ -46,7 +46,7 @@ export function RemoveQuestionDialog({
         setOpen(false);
       },
       onError: (error) => {
-        toast.error("Failed to remove question", {
+        toast.error("Gagal menghapus soal dari pack", {
           description: String(error),
         });
       },
@@ -69,22 +69,22 @@ export function RemoveQuestionDialog({
           className="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <TrashIcon className="size-4" />
-          Remove
+          Hapus dari pack
         </Button>
       )}
 
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Question from Pack?</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Soal dari Pack?</AlertDialogTitle>
             <AlertDialogDescription>
               This will remove the question from this practice pack. The question will still exist in the question bank.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
             <Button onClick={handleRemove} disabled={removeMutation.isPending} variant="destructive">
-              {removeMutation.isPending ? "Removing…" : "Remove"}
+              {removeMutation.isPending ? "Menghapus…" : "Hapus"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

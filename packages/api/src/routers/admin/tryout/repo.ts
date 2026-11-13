@@ -11,8 +11,22 @@ import {
   tryoutSubtes,
 } from "@habitutor/db/schema/tryout";
 import { user } from "@habitutor/db/schema/user";
-import { and, desc, eq, gt, inArray, sql } from "drizzle-orm";
-import { fisherYatesShuffle, TryoutError } from "./logic";
+import { and, desc, eq, gt, ilike, inArray, or, sql } from "drizzle-orm";
+import { fisherYatesShuffle, type ImportSoalInput, TryoutError, validateImportSoal } from "./logic";
+
+/** Tolak perubahan struktur jika sudah ada siswa yang mengerjakan tryout (nilai antarsiswa harus tetap adil). */
+async function assertTryoutNotTaken(db: DrizzleDatabase, tryoutId: string, aksi: string) {
+  const sesi = await db.query.tryoutSesi.findFirst({
+    where: eq(tryoutSesi.tryoutId, tryoutId),
+    columns: { id: true },
+  });
+  if (sesi) {
+    throw new TryoutError(
+      "BAD_REQUEST",
+      `Tryout sudah pernah dikerjakan siswa, ${aksi}. Gunakan tombol Duplikat untuk membuat salinan yang bisa diubah.`,
+    );
+  }
+}
 
 export const tryoutRepo = {
   listTryouts: async ({
@@ -20,15 +34,24 @@ export const tryoutRepo = {
     status,
     page = 1,
     limit = 20,
+    search,
   }: {
     db?: DrizzleDatabase;
     status?: "draft" | "published" | "archived";
     page?: number;
     limit?: number;
+    search?: string;
   }) => {
     const safeLimit = Math.max(1, Math.min(limit, 100));
     const offset = (Math.max(page, 1) - 1) * safeLimit;
-    const where = status ? eq(tryout.status, status) : undefined;
+    const searchTerm = search?.trim();
+    const searchWhere = searchTerm
+      ? or(ilike(tryout.judul, `%${searchTerm}%`), ilike(tryout.deskripsi, `%${searchTerm}%`))
+      : undefined;
+    const where =
+      status && searchWhere
+        ? and(eq(tryout.status, status), searchWhere)
+        : (searchWhere ?? (status ? eq(tryout.status, status) : undefined));
 
     const [rows, countRows] = await Promise.all([
       db.query.tryout.findMany({
@@ -278,6 +301,136 @@ export const tryoutRepo = {
     return deleted;
   },
 
+  /**
+   * Menyalin tryout beserta subtes, soal, dan pilihan jawaban menjadi tryout draft baru.
+   * Tryout asli dan hasil siswa tidak disentuh. Gambar diunggah ulang agar menghapus/mengganti
+   * gambar di salinan tidak ikut menghapus gambar di tryout asli.
+   */
+  duplicateTryout: async ({
+    db = defaultDb,
+    tryoutId,
+    dibuatOleh,
+  }: {
+    db?: DrizzleDatabase;
+    tryoutId: string;
+    dibuatOleh: string;
+  }) => {
+    const source = await db.query.tryout.findFirst({
+      where: eq(tryout.id, tryoutId),
+      with: {
+        subtes: {
+          orderBy: (s, { asc: a }) => [a(s.urutan)],
+          with: {
+            soal: {
+              orderBy: (q, { asc: a }) => [a(q.createdAt)],
+              with: { pilihanJawaban: { orderBy: (p, { asc: a }) => [a(p.label)] } },
+            },
+          },
+        },
+      },
+    });
+    if (!source) throw new TryoutError("NOT_FOUND", "Tryout tidak ditemukan");
+
+    const imageUrls = new Set<string>();
+    for (const st of source.subtes) {
+      for (const q of st.soal) {
+        if (q.gambarUrl) imageUrls.add(q.gambarUrl);
+        if (q.pembahasanGambar) imageUrls.add(q.pembahasanGambar);
+        for (const p of q.pilihanJawaban) if (p.gambarUrl) imageUrls.add(p.gambarUrl);
+      }
+    }
+
+    const copiedImages = new Map<string, string>();
+    const uploadedNew: string[] = [];
+    try {
+      const urls = [...imageUrls];
+      for (let i = 0; i < urls.length; i += 5) {
+        await Promise.all(
+          urls.slice(i, i + 5).map(async (url) => {
+            const copy = await uploadTryoutImage(url, "habitutor/tryout/Soal");
+            copiedImages.set(url, copy);
+            if (copy !== url) uploadedNew.push(copy);
+          }),
+        );
+      }
+    } catch (error) {
+      await Promise.all(uploadedNew.map((url) => deleteCloudinaryImageByUrl(url)));
+      throw new TryoutError(
+        "INTERNAL_SERVER_ERROR",
+        `Gagal menyalin gambar soal: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+    const img = (url: string | null) => (url ? (copiedImages.get(url) ?? null) : null);
+
+    try {
+      return await db.transaction(async (tx) => {
+        const [created] = await tx
+          .insert(tryout)
+          .values({
+            dibuatOleh,
+            judul: `${source.judul} (Salinan)`,
+            deskripsi: source.deskripsi,
+            status: "draft",
+            mulaiAt: null,
+            selesaiAt: null,
+          })
+          .returning();
+        if (!created) throw new Error("Gagal membuat salinan tryout");
+
+        let soalCount = 0;
+        const baseTime = Date.now();
+        for (const st of source.subtes) {
+          const subtesId = crypto.randomUUID();
+          await tx.insert(tryoutSubtes).values({
+            id: subtesId,
+            tryoutId: created.id,
+            namaSubtes: st.namaSubtes,
+            jumlahSoal: st.jumlahSoal,
+            durasiMenit: st.durasiMenit,
+            urutan: st.urutan,
+            nilaiMinimum: st.nilaiMinimum,
+          });
+          if (st.soal.length === 0) continue;
+
+          const soalRows = st.soal.map((q) => ({ newId: crypto.randomUUID(), q }));
+          await tx.insert(tryoutSoal).values(
+            soalRows.map(({ newId, q }) => {
+              const createdAt = new Date(baseTime + soalCount++);
+              return {
+                id: newId,
+                subtesId,
+                pertanyaan: q.pertanyaan,
+                gambarUrl: img(q.gambarUrl),
+                tipe: q.tipe,
+                poin: q.poin,
+                pembahasan: q.pembahasan,
+                pembahasanGambar: img(q.pembahasanGambar),
+                createdAt,
+                updatedAt: createdAt,
+              };
+            }),
+          );
+
+          const pilihanRows = soalRows.flatMap(({ newId, q }) =>
+            q.pilihanJawaban.map((p) => ({
+              soalId: newId,
+              label: p.label,
+              isi: p.isi,
+              gambarUrl: img(p.gambarUrl),
+              isBenar: p.isBenar,
+            })),
+          );
+          if (pilihanRows.length > 0) await tx.insert(tryoutPilihanJawaban).values(pilihanRows);
+        }
+
+        return { id: created.id, judul: created.judul, subtesCount: source.subtes.length, soalCount };
+      });
+    } catch (error) {
+      await Promise.all(uploadedNew.map((url) => deleteCloudinaryImageByUrl(url)));
+      throw error;
+    }
+  },
+
   createSubtes: async ({
     db = defaultDb,
     tryoutId,
@@ -295,6 +448,7 @@ export const tryoutRepo = {
     urutan: number;
     nilaiMinimum?: number | null;
   }) => {
+    await assertTryoutNotTaken(db, tryoutId, "subtest baru tidak bisa ditambahkan agar nilai antarsiswa tetap adil");
     const [created] = await db
       .insert(tryoutSubtes)
       .values({
@@ -345,6 +499,17 @@ export const tryoutRepo = {
   },
 
   deleteSubtes: async ({ db = defaultDb, subtesId }: { db?: DrizzleDatabase; subtesId: string }) => {
+    const parent = await db.query.tryoutSubtes.findFirst({
+      where: eq(tryoutSubtes.id, subtesId),
+      columns: { tryoutId: true },
+    });
+    if (!parent) throw new TryoutError("NOT_FOUND", "Subtes tidak ditemukan");
+    await assertTryoutNotTaken(
+      db,
+      parent.tryoutId,
+      "subtest tidak bisa dihapus karena jawaban dan nilai siswa ikut terhapus",
+    );
+
     const soalList = await db.query.tryoutSoal.findMany({
       where: eq(tryoutSoal.subtesId, subtesId),
       with: {
@@ -393,6 +558,24 @@ export const tryoutRepo = {
     pembahasan?: string | null;
     pembahasanGambar?: string | null;
   }) => {
+    // Cek sebelum mengunggah gambar: tryout yang sudah dikerjakan siswa tidak boleh ketambahan soal,
+    // karena siswa lama dan baru akan mengerjakan set soal yang berbeda dalam satu peringkat.
+    const parent = await db.query.tryoutSubtes.findFirst({
+      where: eq(tryoutSubtes.id, subtesId),
+      columns: { tryoutId: true },
+    });
+    if (!parent) throw new TryoutError("NOT_FOUND", "Subtes tidak ditemukan");
+    const sesi = await db.query.tryoutSesi.findFirst({
+      where: eq(tryoutSesi.tryoutId, parent.tryoutId),
+      columns: { id: true },
+    });
+    if (sesi) {
+      throw new TryoutError(
+        "BAD_REQUEST",
+        "Tryout sudah pernah dikerjakan siswa, soal baru tidak bisa ditambahkan agar nilai antarsiswa tetap adil. Gunakan tombol Duplikat untuk membuat salinan yang bisa diubah.",
+      );
+    }
+
     const uploadedGambarUrl = gambarUrl ? await uploadTryoutImage(gambarUrl, "habitutor/tryout/Soal") : null;
     const uploadedPembahasanGambar = pembahasanGambar
       ? await uploadTryoutImage(pembahasanGambar, "habitutor/tryout/Soal")
@@ -517,7 +700,7 @@ export const tryoutRepo = {
     return deleted;
   },
 
-    moveSoal: async ({
+  moveSoal: async ({
     db = defaultDb,
     soalId,
     targetSubtesId,
@@ -532,8 +715,7 @@ export const tryoutRepo = {
         with: { subtes: true },
       });
       if (!soal) throw new TryoutError("NOT_FOUND", "Soal tidak ditemukan");
-      if (soal.subtesId === targetSubtesId)
-        throw new TryoutError("BAD_REQUEST", "Soal sudah ada di subtes tersebut");
+      if (soal.subtesId === targetSubtesId) throw new TryoutError("BAD_REQUEST", "Soal sudah ada di subtes tersebut");
 
       const target = await tx.query.tryoutSubtes.findFirst({
         where: eq(tryoutSubtes.id, targetSubtesId),
@@ -546,8 +728,7 @@ export const tryoutRepo = {
         where: eq(tryoutSesi.tryoutId, target.tryoutId),
         columns: { id: true },
       });
-      if (sesi)
-        throw new TryoutError("BAD_REQUEST", "Tryout sudah pernah dikerjakan siswa, soal tidak bisa dipindah");
+      if (sesi) throw new TryoutError("BAD_REQUEST", "Tryout sudah pernah dikerjakan siswa, soal tidak bisa dipindah");
 
       const [moved] = await tx
         .update(tryoutSoal)
@@ -558,7 +739,7 @@ export const tryoutRepo = {
     });
   },
 
-    moveSoalBulk: async ({
+  moveSoalBulk: async ({
     db = defaultDb,
     soalIds,
     targetSubtesId,
@@ -590,8 +771,7 @@ export const tryoutRepo = {
         where: eq(tryoutSesi.tryoutId, target.tryoutId),
         columns: { id: true },
       });
-      if (sesi)
-        throw new TryoutError("BAD_REQUEST", "Tryout sudah pernah dikerjakan siswa, soal tidak bisa dipindah");
+      if (sesi) throw new TryoutError("BAD_REQUEST", "Tryout sudah pernah dikerjakan siswa, soal tidak bisa dipindah");
 
       const moved = await tx
         .update(tryoutSoal)
@@ -599,6 +779,79 @@ export const tryoutRepo = {
         .where(inArray(tryoutSoal.id, ids))
         .returning({ id: tryoutSoal.id });
       return { count: moved.length };
+    });
+  },
+
+  importSoalBulk: async ({
+    db = defaultDb,
+    subtesId,
+    soal,
+  }: {
+    db?: DrizzleDatabase;
+    subtesId: string;
+    soal: ImportSoalInput[];
+  }) => {
+    const validationError = validateImportSoal(soal);
+    if (validationError) throw new TryoutError("BAD_REQUEST", validationError);
+
+    return db.transaction(async (tx) => {
+      const subtes = await tx.query.tryoutSubtes.findFirst({
+        where: eq(tryoutSubtes.id, subtesId),
+        columns: { id: true, tryoutId: true, jumlahSoal: true },
+      });
+      if (!subtes) throw new TryoutError("NOT_FOUND", "Subtes tidak ditemukan");
+
+      const sesi = await tx.query.tryoutSesi.findFirst({
+        where: eq(tryoutSesi.tryoutId, subtes.tryoutId),
+        columns: { id: true },
+      });
+      if (sesi) {
+        throw new TryoutError(
+          "BAD_REQUEST",
+          "Tryout sudah pernah dikerjakan siswa, impor massal dinonaktifkan agar skor antarsiswa tetap adil. Gunakan tombol Duplikat untuk membuat salinan yang bisa diubah.",
+        );
+      }
+
+      const rows = soal.map((item) => ({ id: crypto.randomUUID(), item }));
+      // Daftar soal admin diurutkan per createdAt; beri selisih 1 ms agar urutan impor sama dengan urutan dokumen.
+      const baseTime = Date.now();
+
+      await tx.insert(tryoutSoal).values(
+        rows.map(({ id, item }, index) => ({
+          id,
+          subtesId,
+          pertanyaan: item.pertanyaan.trim(),
+          tipe: item.tipe,
+          poin: item.poin,
+          pembahasan: item.pembahasan?.trim() || null,
+          createdAt: new Date(baseTime + index),
+          updatedAt: new Date(baseTime + index),
+        })),
+      );
+
+      await tx.insert(tryoutPilihanJawaban).values(
+        rows.flatMap(({ id, item }) =>
+          item.pilihan.map((opt) => ({
+            soalId: id,
+            label: opt.label,
+            isi: opt.isi.trim(),
+            isBenar: opt.isBenar,
+          })),
+        ),
+      );
+
+      const [countRow] = await tx
+        .select({ total: sql<number>`count(*)::int` })
+        .from(tryoutSoal)
+        .where(eq(tryoutSoal.subtesId, subtesId));
+      const jumlahSoal = Number(countRow?.total ?? 0);
+      const jumlahSoalSebelumnya = subtes.jumlahSoal;
+
+      if (jumlahSoal !== jumlahSoalSebelumnya) {
+        await tx.update(tryoutSubtes).set({ jumlahSoal, updatedAt: new Date() }).where(eq(tryoutSubtes.id, subtesId));
+      }
+
+      return { count: rows.length, jumlahSoal, jumlahSoalSebelumnya };
     });
   },
 

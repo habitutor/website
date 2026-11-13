@@ -152,6 +152,21 @@
 /* ---------- Utilitas interaksi ---------- */
 /* Hover hanya berlaku di perangkat berkursor; di layar sentuh yang terasa adalah efek tekan. */
 
+/* Kartu besar/panel admin: gerak lebih halus dari sr-lift supaya isi form tidak terasa melompat. */
+@utility sr-card-hover {
+  transition:
+    transform 0.3s var(--ease-sr),
+    box-shadow 0.3s var(--ease-sr),
+    border-color 0.3s var(--ease-sr);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sr-2);
+      border-color: var(--color-sr-blue-200);
+    }
+  }
+}
+
 @utility sr-lift {
   transition:
     transform 0.3s var(--ease-sr),

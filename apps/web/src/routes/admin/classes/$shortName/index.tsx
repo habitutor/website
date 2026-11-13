@@ -1,9 +1,24 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useState } from "react";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
 import { ContentFilters, ContentList } from "@/components/classes/content";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { orpc } from "@/utils/orpc";
+import { toast } from "sonner";
+import { ClassFormDialog } from "../-components/class-form-dialog";
 import { ContentDialogs, useContentDialogs } from "./content-dialogs";
 
 export const Route = createFileRoute("/admin/classes/$shortName/")({
@@ -79,6 +94,20 @@ function RouteComponent() {
     }),
   );
 
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const removeMutation = useMutation(
+    orpc.admin.subtest.subtest.remove.mutationOptions({
+      onSuccess: async (result) => {
+        toast.success(result.message);
+        await queryClient.invalidateQueries({ queryKey: orpc.subtest.list.queryKey({ input: {} }) });
+        navigate({ to: "/admin/classes" });
+      },
+      onError: (error) => toast.error("Gagal menghapus kelas", { description: error.message }),
+    }),
+  );
+  const nextOrder = Math.max(1, ...(subtests.data?.data ?? []).map((item) => item.order ?? 1)) + 1;
+
   const dialogs = useContentDialogs({
     matchedClassId: matchedClass?.id ?? null,
     contentItems: contents.data,
@@ -89,7 +118,7 @@ function RouteComponent() {
   if (subtests.isPending) {
     return (
       <AdminContainer>
-        <p className="animate-pulse text-sm">Memuat kelas...</p>
+        <p className="animate-pulse text-sm">Memuat kelas…</p>
       </AdminContainer>
     );
   }
@@ -97,7 +126,7 @@ function RouteComponent() {
   if (subtests.isError) {
     return (
       <AdminContainer>
-        <p className="text-sm text-red-500">Error: {subtests.error.message}</p>
+        <p className="text-sm text-destructive">Error: {subtests.error.message}</p>
       </AdminContainer>
     );
   }
@@ -106,7 +135,51 @@ function RouteComponent() {
 
   return (
     <AdminContainer>
-      <AdminHeader title={matchedClass.name} description="Manage content for this class" />
+      <AdminHeader title={matchedClass.name} description="Kelola konten untuk kelas ini" backTo="/admin/classes">
+        <Button variant="outline" onClick={() => setEditOpen(true)}>
+          <PencilSimpleIcon className="size-4" />
+          Edit Kelas
+        </Button>
+        <button
+          type="button"
+          onClick={() => setDeleteOpen(true)}
+          className="inline-flex h-9 sr-action items-center gap-1.5 rounded-sr-sm bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/30 transition-colors hover:bg-destructive"
+        >
+          <TrashIcon className="size-4" />
+          Hapus
+        </button>
+      </AdminHeader>
+      <ClassFormDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        subject={matchedClass}
+        nextOrder={nextOrder}
+        onSaved={(newShortName) => {
+          if (newShortName.toLowerCase() !== shortName) {
+            navigate({ to: "/admin/classes/$shortName", params: { shortName: newShortName.toLowerCase() } });
+          }
+        }}
+      />
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus kelas {matchedClass.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Semua konten di kelas ini (video, catatan, dan latihan soal) ikut terhapus dan tidak bisa dikembalikan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={removeMutation.isPending}
+              onClick={() => removeMutation.mutate({ id: matchedClass.id })}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {removeMutation.isPending ? "Menghapus…" : "Hapus Kelas"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full flex-1 sm:max-w-md">

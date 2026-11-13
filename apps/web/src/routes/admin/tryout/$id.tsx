@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
+import { AdminContainer } from "@/components/admin/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,10 +30,22 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { PlusIcon, TrashIcon, EyeIcon, EyeSlashIcon, PencilIcon } from "@phosphor-icons/react";
+import {
+  ArrowLeftIcon,
+  CopyIcon,
+  ExamIcon,
+  PlusIcon,
+  TrashIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  PencilIcon,
+} from "@phosphor-icons/react";
 import { orpc, queryClient } from "@/utils/orpc";
-import { SubtestExplanationManager } from "./-components/explanation-editor";
+import { SubtestExplanationCard } from "./-components/explanation-editor";
 import { AddSoalDialog, DetailSoalDialog, EditSoalDialog } from "./-components/soal-dialogs";
+import { ImportSoalDialog } from "./-components/import-soal/import-soal-dialog";
+import { DuplicateTryoutDialog } from "./-components/duplicate-tryout-dialog";
+import { LockedTryoutNotice, useTryoutHasSesi } from "./-components/locked-tryout-notice";
 
 export const Route = createFileRoute("/admin/tryout/$id")({
   loader: async ({ params }) => {
@@ -142,14 +154,35 @@ function TryoutDetailPage() {
     });
   };
 
-  const displayTitle = isTryoutPending ? "Loading..." : ((tryout as TryoutType)?.judul ?? "Tryout");
+  const displayTitle = isTryoutPending ? "Memuat…" : ((tryout as TryoutType)?.judul ?? "Tryout");
   const tryoutStatus = (tryout as TryoutType)?.status ?? "draft";
   const isPublished = tryoutStatus === "published";
+  const { hasSesi } = useTryoutHasSesi(id, true);
 
   return (
     <AdminContainer>
-      <div className="flex items-center justify-between">
-        <AdminHeader title={displayTitle} description="Edit dan kelola tryout" />
+      <div className="flex flex-col gap-4 rounded-sr-xl sr-card-blue p-5 shadow-sr-2 transition-shadow duration-300 hover:shadow-sr-3 sm:p-7 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-3">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="mt-1 shrink-0 rounded-full text-white hover:bg-white/15 hover:text-white"
+          >
+            <Link to="/admin/tryout" aria-label="Kembali ke daftar Try Out">
+              <ArrowLeftIcon weight="bold" />
+            </Link>
+          </Button>
+          <div className="flex items-start gap-3">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-sr-md bg-white/15 text-sr-sun-400 ring-1 ring-white/20">
+              <ExamIcon weight="fill" className="size-6" />
+            </span>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">{displayTitle}</h1>
+              <p className="mt-1 text-sm text-white/80">Edit dan kelola Try Out</p>
+            </div>
+          </div>
+        </div>
         {/* Publish/Unpublish Button */}
         {!isTryoutPending && (
           <Button
@@ -162,7 +195,11 @@ function TryoutDetailPage() {
               }
             }}
             disabled={publishMutation.isPending || unpublishMutation.isPending}
-            className={isPublished ? "border-orange-300 text-orange-600 hover:bg-orange-50" : ""}
+            className={
+              isPublished
+                ? "rounded-full border-sr-sun-200 bg-sr-sun-100 text-sr-amber-700 hover:bg-sr-sun-200"
+                : "sr-sheen rounded-full bg-sr-sun-500 font-extrabold text-sr-ink shadow-sr-sun hover:bg-sr-sun-400"
+            }
           >
             {isPublished ? (
               <>
@@ -177,40 +214,68 @@ function TryoutDetailPage() {
         )}
       </div>
 
-      <Tabs defaultValue="overview" className="w-full space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Ringkasan</TabsTrigger>
-          <TabsTrigger value="subtests">Subtest</TabsTrigger>
-          <TabsTrigger value="explanations">Pembahasan</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="overview" className="mt-8 w-full space-y-6">
+        <div className="-mx-1 overflow-x-auto px-1 pb-1">
+          <TabsList className="grid h-auto min-w-[480px] sr-card-hover grid-cols-3 gap-1 rounded-sr-lg border border-sr-line bg-sr-ivory p-1.5 shadow-sr-1 sm:inline-flex sm:min-w-0 sm:gap-2">
+            <TabsTrigger
+              value="overview"
+              className="rounded-full border-transparent px-4 py-2 font-bold text-sr-muted hover:bg-white hover:text-sr-blue-600 data-[state=active]:bg-sr-blue-500 data-[state=active]:text-white data-[state=active]:shadow-sr-2"
+            >
+              Ringkasan
+            </TabsTrigger>
+            <TabsTrigger
+              value="subtests"
+              className="rounded-full border-transparent px-4 py-2 font-bold text-sr-muted hover:bg-white hover:text-sr-blue-600 data-[state=active]:bg-sr-blue-500 data-[state=active]:text-white data-[state=active]:shadow-sr-2"
+            >
+              Subtest
+            </TabsTrigger>
+            <TabsTrigger
+              value="explanations"
+              className="rounded-full border-transparent px-4 py-2 font-bold text-sr-muted hover:bg-white hover:text-sr-blue-600 data-[state=active]:bg-sr-blue-500 data-[state=active]:text-white data-[state=active]:shadow-sr-2"
+            >
+              Pembahasan
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle>Informasi Tryout</CardTitle>
+          <Card className="sr-lift overflow-hidden rounded-sr-xl border-sr-line shadow-sr-1">
+            <CardHeader className="flex flex-col gap-3 border-b border-sr-line bg-sr-ivory/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle className="text-xl font-black text-sr-ink">Informasi Try Out</CardTitle>
+                <CardDescription>Detail dasar dan status publikasi simulasi.</CardDescription>
+              </div>
               {!isTryoutPending && (
-                <Dialog open={isEditTryoutOpen} onOpenChange={setIsEditTryoutOpen}>
-                  <DialogTrigger asChild>
+                <div className="flex flex-wrap items-center gap-2">
+                  <DuplicateTryoutDialog tryoutId={id} judul={(tryout as TryoutType)?.judul ?? "Try Out"}>
                     <Button variant="outline" size="sm">
-                      <PencilIcon className="mr-2" />
-                      Edit Info
+                      <CopyIcon className="mr-2" />
+                      Duplikat
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Edit Informasi Tryout</DialogTitle>
-                      <DialogDescription>Ubah judul atau deskripsi tryout</DialogDescription>
-                    </DialogHeader>
-                    <EditTryoutForm
-                      tryout={tryout as TryoutType}
-                      isPending={editTryoutMutation.isPending}
-                      onEdit={(judul, deskripsi) => {
-                        editTryoutMutation.mutate({ tryoutId: id, judul, deskripsi });
-                      }}
-                    />
-                  </DialogContent>
-                </Dialog>
+                  </DuplicateTryoutDialog>
+                  <Dialog open={isEditTryoutOpen} onOpenChange={setIsEditTryoutOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <PencilIcon className="mr-2" />
+                        Edit Info
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Informasi Tryout</DialogTitle>
+                        <DialogDescription>Ubah judul atau deskripsi tryout</DialogDescription>
+                      </DialogHeader>
+                      <EditTryoutForm
+                        tryout={tryout as TryoutType}
+                        isPending={editTryoutMutation.isPending}
+                        onEdit={(judul, deskripsi) => {
+                          editTryoutMutation.mutate({ tryoutId: id, judul, deskripsi });
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
               )}
             </CardHeader>
             <CardContent className="space-y-4">
@@ -228,11 +293,11 @@ function TryoutDetailPage() {
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Judul</label>
+                    <label className="text-sm font-medium text-sr-muted">Judul</label>
                     <p className="text-lg font-semibold">{(tryout as TryoutType)?.judul}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Status</label>
+                    <label className="text-sm font-medium text-sr-muted">Status</label>
                     <p className="text-lg font-semibold">
                       <span
                         className={
@@ -248,7 +313,7 @@ function TryoutDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Deskripsi</label>
+                    <label className="text-sm font-medium text-sr-muted">Deskripsi</label>
                     <p className="text-lg font-semibold">{(tryout as TryoutType)?.deskripsi || "-"}</p>
                   </div>
                 </div>
@@ -259,11 +324,17 @@ function TryoutDetailPage() {
 
         {/* Subtests Tab */}
         <TabsContent value="subtests" className="space-y-4">
-          <div className="flex items-center justify-between">
+          {hasSesi && <LockedTryoutNotice tryoutId={id} />}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-semibold">Daftar Subtest</h3>
             <Dialog>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button
+                  size="sm"
+                  disabled={hasSesi}
+                  title={hasSesi ? "Tryout sudah dikerjakan siswa. Gunakan Duplikat." : undefined}
+                  className="w-full sm:w-auto"
+                >
                   <PlusIcon className="mr-2" />
                   Tambah Subtest
                 </Button>
@@ -293,15 +364,15 @@ function TryoutDetailPage() {
               ))}
             </div>
           ) : subtests.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
+            <Card className="sr-lift overflow-hidden rounded-sr-xl border-sr-line shadow-sr-1">
+              <CardContent className="py-8 text-center text-sr-muted">
                 Belum ada subtest. Tambahkan yang pertama!
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
               {subtests.map((subtest: unknown) => (
-                <SubtestCard key={(subtest as SubtestType).id} subtest={subtest} />
+                <SubtestCard key={(subtest as SubtestType).id} subtest={subtest} locked={hasSesi} />
               ))}
             </div>
           )}
@@ -309,27 +380,33 @@ function TryoutDetailPage() {
 
         {/* Explanations Tab */}
         <TabsContent value="explanations" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Kelola Pembahasan Soal</CardTitle>
-              <CardDescription>
-                Tambahkan pembahasan untuk setiap soal dalam tryout ini (hanya untuk member premium)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {subtests.map((subtest: unknown) => (
-                  <div key={(subtest as SubtestType).id} className="space-y-3">
-                    <h4 className="text-sm font-semibold">{(subtest as SubtestType).namaSubtes}</h4>
-                    <SubtestExplanationManager subtestId={(subtest as SubtestType).id} />
-                  </div>
-                ))}
-                {subtests.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Tambahkan subtest terlebih dahulu</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <div>
+            <h3 className="text-lg font-semibold">Pembahasan Soal</h3>
+            <p className="text-sm text-sr-muted">
+              Pembahasan tampil untuk member premium setelah menyelesaikan tryout. Buka subtest untuk menulis atau
+              mengubah pembahasan setiap soal.
+            </p>
+          </div>
+
+          {isSubtestsPending ? (
+            <div className="space-y-4">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full rounded-sr-xl" />
+              ))}
+            </div>
+          ) : subtests.length === 0 ? (
+            <Card className="sr-lift overflow-hidden rounded-sr-xl border-sr-line shadow-sr-1">
+              <CardContent className="py-8 text-center text-sr-muted">
+                Belum ada subtest. Tambahkan subtest dan soal terlebih dahulu di tab Subtest.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {subtests.map((subtest: unknown) => (
+                <SubtestExplanationCard key={(subtest as SubtestType).id} subtest={subtest as SubtestType} />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </AdminContainer>
@@ -337,7 +414,7 @@ function TryoutDetailPage() {
 }
 
 // --- Subtest Card with Soal Management ---
-function SubtestCard({ subtest }: { subtest: unknown }) {
+function SubtestCard({ subtest, locked }: { subtest: unknown; locked: boolean }) {
   const { id: tryoutId } = Route.useParams();
   const [showSoal, setShowSoal] = useState(false);
   const [detailSoalId, setDetailSoalId] = useState<string | null>(null);
@@ -451,17 +528,17 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <div>
+    <Card className="sr-lift overflow-hidden rounded-sr-xl border-sr-line shadow-sr-1">
+      <CardHeader className="flex flex-col gap-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <CardTitle className="text-base">{typedSubtest.namaSubtes}</CardTitle>
           <CardDescription>
-            {typedSubtest.jumlahSoal} soal · {typedSubtest.durasiMenit} menit
+            Target {typedSubtest.jumlahSoal} soal · {typedSubtest.durasiMenit} menit
           </CardDescription>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowSoal(!showSoal)}>
-            {showSoal ? "Sembunyikan Soal" : "Kelola Soal"}
+            {showSoal ? "Tutup Daftar Soal" : "Kelola Soal"}
           </Button>
           <Dialog open={isEditSubtestOpen} onOpenChange={setIsEditSubtestOpen}>
             <DialogTrigger asChild>
@@ -483,7 +560,14 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
           </Dialog>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-red-600" disabled={deleteSubtestMutation.isPending}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600"
+                disabled={deleteSubtestMutation.isPending || locked}
+                title={locked ? "Tryout sudah dikerjakan siswa, subtest tidak bisa dihapus." : undefined}
+                aria-label="Hapus subtest"
+              >
                 <TrashIcon />
               </Button>
             </AlertDialogTrigger>
@@ -511,15 +595,24 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
 
       {showSoal && (
         <CardContent className="border-t pt-4">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h4 className="text-sm font-semibold">Daftar Soal ({(soalList as SoalType[]).length})</h4>
-            <AddSoalDialog subtesId={typedSubtest.id} />
+            <div className="flex flex-wrap items-center gap-2">
+              <ImportSoalDialog
+                tryoutId={tryoutId}
+                subtesId={typedSubtest.id}
+                namaSubtes={typedSubtest.namaSubtes}
+                jumlahSoalTarget={typedSubtest.jumlahSoal}
+                existingPertanyaan={(soalList as SoalType[]).map((s) => s.pertanyaan)}
+              />
+              <AddSoalDialog tryoutId={tryoutId} subtesId={typedSubtest.id} />
+            </div>
           </div>
 
           {selectedSoalIds.length > 0 && (
-            <div className="mb-3 flex items-center justify-between rounded-md border bg-muted/50 px-3 py-2">
+            <div className="mb-3 flex flex-col gap-2 rounded-md border bg-muted/50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm font-medium">{selectedSoalIds.length} soal dipilih</span>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setSelectedSoalIds([])}>
                   Batal pilih
                 </Button>
@@ -537,7 +630,7 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
               ))}
             </div>
           ) : (soalList as SoalType[]).length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">Belum ada soal. Tambahkan yang pertama!</p>
+            <p className="py-4 text-center text-sm text-sr-muted">Belum ada soal. Tambahkan yang pertama!</p>
           ) : (
             <Table>
               <TableHeader>
@@ -551,9 +644,9 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                   </TableHead>
                   <TableHead className="w-12">#</TableHead>
                   <TableHead>Pertanyaan</TableHead>
-                  <TableHead className="w-20">Tipe</TableHead>
-                  <TableHead className="w-16">Poin</TableHead>
-                  <TableHead className="w-24 text-center">Pilihan</TableHead>
+                  <TableHead className="hidden w-20 sm:table-cell">Tipe</TableHead>
+                  <TableHead className="hidden w-16 md:table-cell">Poin</TableHead>
+                  <TableHead className="hidden w-24 text-center md:table-cell">Pilihan</TableHead>
                   <TableHead className="w-28 text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -568,12 +661,14 @@ function SubtestCard({ subtest }: { subtest: unknown }) {
                       />
                     </TableCell>
                     <TableCell className="font-medium">{idx + 1}</TableCell>
-                    <TableCell className="max-w-xs truncate">{soal.pertanyaan}</TableCell>
-                    <TableCell>
+                    <TableCell className="max-w-[10rem] truncate sm:max-w-xs">{soal.pertanyaan}</TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <span className="rounded bg-gray-100 px-2 py-0.5 text-xs">{soal.tipe}</span>
                     </TableCell>
-                    <TableCell>{soal.poin}</TableCell>
-                    <TableCell className="text-center">{soal.pilihanJawaban?.length ?? 0} opsi</TableCell>
+                    <TableCell className="hidden md:table-cell">{soal.poin}</TableCell>
+                    <TableCell className="hidden text-center md:table-cell">
+                      {soal.pilihanJawaban?.length ?? 0} opsi
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button

@@ -56,7 +56,7 @@ function CreatePracticePackPage() {
 
   return (
     <AdminContainer>
-      <AdminHeader title="Create Practice Pack" description="Buat paket latihan soal baru" />
+      <AdminHeader title="Buat Practice Pack" description="Buat paket latihan soal baru" />
 
       <Card className="w-full rounded-xl p-4 shadow-sm sm:max-w-2xl sm:p-6">
         <form
@@ -93,7 +93,7 @@ function CreatePracticePackPage() {
             <form.Field name="description">
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor={field.name}>Description</Label>
+                  <Label htmlFor={field.name}>Deskripsi</Label>
                   <textarea
                     id={field.name}
                     name={field.name}
@@ -101,7 +101,7 @@ function CreatePracticePackPage() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     placeholder="Describe what this practice pack is about..."
-                    className="flex min-h-30 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-30 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-sr-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   {field.state.meta.errors.map((error) => (
                     <p key={String(error)} className="text-sm text-destructive">
@@ -120,7 +120,7 @@ function CreatePracticePackPage() {
                     disabled={!state.canSubmit || state.isSubmitting || createMutation.isPending}
                     className="w-full sm:w-auto"
                   >
-                    {createMutation.isPending ? "Creating..." : "Create Practice Pack"}
+                    {createMutation.isPending ? "Membuat…" : "Buat Practice Pack"}
                   </Button>
                 )}
               </form.Subscribe>

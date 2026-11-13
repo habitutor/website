@@ -108,7 +108,7 @@ function CreateTryoutPage() {
           <CardDescription>Tambahkan subtest setelah membuat tryout</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Buat tryout terlebih dahulu untuk menambahkan subtest</p>
+          <p className="text-sm text-sr-muted">Buat tryout terlebih dahulu untuk menambahkan subtest</p>
         </CardContent>
       </Card>
     </AdminContainer>

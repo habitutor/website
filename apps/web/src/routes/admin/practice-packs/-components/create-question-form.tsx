@@ -42,7 +42,7 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
       questionId: question.id,
     });
 
-    toast.success("Question created successfully");
+    toast.success("Soal berhasil dibuat");
     queryClient.invalidateQueries(
       orpc.admin.practicePack.question.list.queryOptions({ input: { id: practicePackId } }),
     );
@@ -51,11 +51,11 @@ export function CreateQuestionForm({ practicePackId, onSuccess, onCancel }: Crea
 
   return (
     <QuestionForm
-      title="Create New Question"
+      title="Buat Soal Baru"
       onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
-      submitLabel="Create Question"
+      submitLabel="Buat Soal"
     />
   );
 }

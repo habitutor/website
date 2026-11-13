@@ -50,7 +50,7 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
         setOpen(false);
       },
       onError: (error) => {
-        toast.error("Failed to update practice pack", {
+        toast.error("Gagal memperbarui practice pack", {
           description: String(error),
         });
       },
@@ -82,8 +82,8 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Pack Information</DialogTitle>
-          <DialogDescription>Update the title and description for this practice pack.</DialogDescription>
+          <DialogTitle>Edit Informasi Pack</DialogTitle>
+          <DialogDescription>Ubah judul dan deskripsi practice pack ini.</DialogDescription>
         </DialogHeader>
 
         {pack ? (
@@ -97,7 +97,7 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
             <form.Field name="title">
               {(field) => (
                 <div>
-                  <Label htmlFor="edit-title">Title *</Label>
+                  <Label htmlFor="edit-title">Judul *</Label>
                   <Input
                     id="edit-title"
                     value={field.state.value}
@@ -114,7 +114,7 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
             <form.Field name="description">
               {(field) => (
                 <div>
-                  <Label htmlFor="edit-description">Description</Label>
+                  <Label htmlFor="edit-description">Deskripsi</Label>
                   <Textarea
                     id="edit-description"
                     value={field.state.value}
@@ -134,23 +134,23 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
                 onClick={() => setOpen(false)}
                 disabled={updateMutation.isPending}
               >
-                Cancel
+                Batal
               </Button>
               <Button type="submit" disabled={updateMutation.isPending}>
                 {updateMutation.isPending ? (
                   <>
                     <SpinnerIcon className="animate-spin" />
-                    Saving…
+                    Menyimpan…
                   </>
                 ) : (
-                  "Save Changes"
+                  "Simpan Perubahan"
                 )}
               </Button>
             </DialogFooter>
           </form>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-4 py-8">
-            <p className="text-destructive">Practice pack not found</p>
+            <p className="text-destructive">Practice pack tidak ditemukan</p>
           </div>
         )}
       </DialogContent>
