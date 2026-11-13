@@ -77,7 +77,7 @@ function PassingGradePage() {
               </Card>
             ))
           ) : (universitasList as UniversitasType[]).length === 0 ? (
-            <div className="rounded-lg border bg-white p-8 text-center text-muted-foreground">
+            <div className="rounded-lg border bg-white p-8 text-center text-sr-muted">
               Belum ada data universitas. Tambahkan yang pertama!
             </div>
           ) : (
@@ -191,7 +191,7 @@ function UniversitasCard({ universitas }: { universitas: UniversitasType }) {
           </div>
 
           {universitas.programStudi.length === 0 ? (
-            <p className="rounded border bg-gray-50/50 py-4 text-center text-sm text-muted-foreground">
+            <p className="rounded border bg-gray-50/50 py-4 text-center text-sm text-sr-muted">
               Belum ada program studi. Tambahkan yang pertama!
             </p>
           ) : (
