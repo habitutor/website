@@ -158,11 +158,23 @@ export function RegisterDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92dvh] gap-4 overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Daftar {event.title}</DialogTitle>
-          <DialogDescription>
-            {formatDate(event.startsAt)} · {formatTime(event.startsAt)}. Daftar gratis atau bayar Rp10.000, cukup satu layar.
-          </DialogDescription>
+          <div className="flex items-center gap-3 text-left">
+            <img
+              src={event.posterUrl}
+              alt=""
+              aria-hidden
+              className="aspect-4/5 w-14 shrink-0 rounded-sr-md object-cover shadow-sr-2 ring-1 ring-sr-line"
+            />
+            <div className="min-w-0">
+              <DialogTitle className="text-left leading-snug">Daftar {event.title}</DialogTitle>
+              <DialogDescription className="mt-1 text-left">
+                {formatDate(event.startsAt)} · {formatTime(event.startsAt)}. Cukup satu layar.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
+
+        <StepLabel number={1} title="Data dirimu" />
 
         <div className="grid gap-3">
           <div className="grid gap-1.5">
@@ -214,6 +226,7 @@ export function RegisterDialog({
           </div>
         </div>
 
+        <StepLabel number={2} title={isPremium ? "Akses Premium" : "Pilih cara daftar"} />
         {isPremium ? (
           <p className="rounded-sr-md bg-sr-sun-100 p-3 text-sm text-sr-amber-700">
             Akunmu <strong>Premium</strong>, jadi tidak perlu follow atau membagikan poster. Cukup lengkapi data di
@@ -233,11 +246,20 @@ export function RegisterDialog({
                 role="radio"
                 aria-checked={method === option.value}
                 onClick={() => setMethod(option.value)}
-                className={`rounded-sr-lg border-2 p-3 text-left transition-colors ${
-                  method === option.value ? "border-sr-blue-500 bg-sr-blue-50" : "border-sr-line bg-white"
+                className={`relative rounded-sr-lg border-2 p-3 text-left transition-all duration-200 ${
+                  method === option.value
+                    ? "border-sr-blue-500 bg-sr-blue-50 shadow-sr-1"
+                    : "border-sr-line bg-white hover:border-sr-blue-200"
                 }`}
               >
-                <span className="block text-sm font-black text-sr-ink">{option.title}</span>
+                <span
+                  className={`absolute top-2.5 right-2.5 flex size-5 items-center justify-center rounded-full border-2 transition-colors ${
+                    method === option.value ? "border-sr-blue-500 bg-sr-blue-500 text-white" : "border-sr-line-2 bg-white"
+                  }`}
+                >
+                  {method === option.value && <CheckCircleIcon weight="fill" className="size-4" />}
+                </span>
+                <span className="block text-base font-black text-sr-ink">{option.title}</span>
                 <span className="block text-xs text-sr-muted">{option.hint}</span>
               </button>
             ))}
@@ -304,6 +326,7 @@ export function RegisterDialog({
           </p>
         )}
 
+        <StepLabel number={3} title="Konfirmasi" />
         <label className="flex items-start gap-2 text-xs leading-relaxed text-sr-muted">
           <input
             type="checkbox"
@@ -357,6 +380,18 @@ export function RegisterDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function StepLabel({ number, title }: { number: number; title: string }) {
+  return (
+    <p className="flex items-center gap-2 text-xs font-black tracking-wider text-sr-ink uppercase">
+      <span className="flex size-5 items-center justify-center rounded-full bg-sr-blue-500 text-[11px] text-white">
+        {number}
+      </span>
+      {title}
+      <span aria-hidden className="h-px flex-1 bg-sr-line" />
+    </p>
   );
 }
 

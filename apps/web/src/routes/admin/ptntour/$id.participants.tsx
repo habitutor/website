@@ -8,6 +8,7 @@ import { AdminSearchInput, FilterChips, usePagedList } from "@/components/admin/
 import { AdminPagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CountUp } from "@/routes/-home/motion-bits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -192,8 +193,8 @@ function ParticipantsPage() {
                   </TableCell>
                 </TableRow>
               )}
-              {list.pageItems.map((row) => (
-                <TableRow key={row.id} className="group">
+              {list.pageItems.map((row, index) => (
+                <TableRow key={row.id} className="group animate-sr-rise" style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}>
                   <TableCell className="px-4">
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sr-blue-50 text-sm font-black text-sr-blue-700 ring-1 ring-sr-blue-100 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
@@ -334,7 +335,7 @@ function Stat({
   pending: boolean;
 }) {
   return (
-    <div className="rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1">
+    <div className="animate-sr-rise rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-2">
       <div className="flex items-center justify-between text-sm font-bold text-sr-muted">
         {label}
         {icon && <span className="text-sr-blue-500 [&>svg]:size-5">{icon}</span>}
@@ -342,7 +343,9 @@ function Stat({
       {pending ? (
         <Skeleton className="mt-2 h-8 w-16" />
       ) : (
-        <p className="mt-1 text-3xl font-black text-sr-ink">{(value ?? 0).toLocaleString("id-ID")}</p>
+        <p className="mt-1 text-3xl font-black text-sr-ink">
+          <CountUp to={value ?? 0} />
+        </p>
       )}
       {hint && <p className="mt-0.5 text-xs text-sr-muted">{hint}</p>}
     </div>

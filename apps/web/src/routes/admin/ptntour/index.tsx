@@ -228,8 +228,8 @@ function AdminPtnTourPage() {
                   </TableCell>
                 </TableRow>
               )}
-              {list.pageItems.map((event) => (
-                <TableRow key={event.id} className="group">
+              {list.pageItems.map((event, index) => (
+                <TableRow key={event.id} className="group animate-sr-rise" style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}>
                   <TableCell className="px-4">
                     <div className="flex min-w-0 items-center gap-3">
                       <img

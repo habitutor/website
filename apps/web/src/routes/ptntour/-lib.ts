@@ -75,6 +75,9 @@ export function parseRundown(rundown: string | null | undefined) {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
+      // Format yang diterima: "19.30 | Pembukaan", "19.30 - Pembukaan", atau "19.30 Pembukaan".
+      const match = line.match(/^(\d{1,2}[.:]\d{2}(?:\s*[-–]\s*\d{1,2}[.:]\d{2})?)\s*(?:[|\-–:]\s*)?(.+)$/);
+      if (match?.[1] && match[2]) return { time: match[1].trim(), text: match[2].trim() };
       const [time, ...rest] = line.split("|");
       return rest.length ? { time: time?.trim() ?? "", text: rest.join("|").trim() } : { time: "", text: line };
     });
@@ -108,6 +111,40 @@ export function useCountdown(target: Date | string, active = true) {
     return () => window.clearInterval(timer);
   }, [target, active]);
   return label;
+}
+
+export type CountdownParts = { days: number; hours: number; minutes: number; seconds: number };
+
+/** Hitung mundur per detik untuk ubin angka di halaman detail. Null bila waktu sudah lewat atau tidak aktif. */
+export function useCountdownParts(target: Date | string, active = true) {
+  const [parts, setParts] = useState<CountdownParts | null>(null);
+  useEffect(() => {
+    if (!active) {
+      setParts(null);
+      return;
+    }
+    const tick = () => {
+      const ms = new Date(target).getTime() - Date.now();
+      if (ms <= 0) return setParts(null);
+      const total = Math.floor(ms / 1000);
+      setParts({
+        days: Math.floor(total / 86_400),
+        hours: Math.floor((total % 86_400) / 3600),
+        minutes: Math.floor((total % 3600) / 60),
+        seconds: total % 60,
+      });
+    };
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [target, active]);
+  return parts;
+}
+
+/** Seberapa penuh kuota (0..1) untuk bar di kartu; null kalau tanpa batas atau sudah selesai. */
+export function getSpotsFill(event: Pick<PtnEvent, "quota" | "registrationCount" | "phase">) {
+  if (event.phase === "ended" || event.quota === null || event.quota <= 0) return null;
+  return Math.min(1, event.registrationCount / event.quota);
 }
 
 export const SOCIAL_LINKS = {
