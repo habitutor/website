@@ -81,6 +81,7 @@ function TryoutDetailPage() {
     orpc.admin.tryout.update.tryout.mutationOptions({
       onSuccess: () => {
         toast.success("Informasi tryout berhasil diperbarui");
+        queryClient.invalidateQueries({ queryKey: orpc.admin.tryout.list.tryout.key() });
         queryClient.invalidateQueries({
           queryKey: orpc.admin.tryout.detail.tryout.queryKey({ input: { tryoutId: id } }),
         });
@@ -121,6 +122,7 @@ function TryoutDetailPage() {
     orpc.admin.tryout.publish.mutationOptions({
       onSuccess: () => {
         toast.success("Tryout berhasil dipublish!");
+        queryClient.invalidateQueries({ queryKey: orpc.admin.tryout.list.tryout.key() });
         queryClient.invalidateQueries({
           queryKey: orpc.admin.tryout.detail.tryout.queryKey({ input: { tryoutId: id } }),
         });
@@ -133,6 +135,7 @@ function TryoutDetailPage() {
     orpc.admin.tryout.unpublish.mutationOptions({
       onSuccess: () => {
         toast.success("Tryout dikembalikan ke draft");
+        queryClient.invalidateQueries({ queryKey: orpc.admin.tryout.list.tryout.key() });
         queryClient.invalidateQueries({
           queryKey: orpc.admin.tryout.detail.tryout.queryKey({ input: { tryoutId: id } }),
         });

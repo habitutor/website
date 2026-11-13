@@ -352,6 +352,13 @@ function TryoutListPage() {
               onPageChange={setPage}
             />
           )}
+          {isError && page > 1 && (
+            <div className="border-t p-4">
+              <Button variant="outline" disabled={isFetching} onClick={() => setPage(1)}>
+                Kembali ke halaman pertama
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
