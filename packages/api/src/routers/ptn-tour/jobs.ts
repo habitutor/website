@@ -1,6 +1,6 @@
 import { logger } from "@habitutor/shared/logger";
 import { deleteCloudinaryImageByUrl } from "../../lib/cloudinary";
-import { renderEventReminderEmail, sendEmail } from "../../lib/mailer";
+import { renderEventReminderEmail, renderScheduleChangeEmail, sendEmail } from "../../lib/mailer";
 import { ptnTourRepo } from "./repo";
 
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
@@ -39,6 +39,29 @@ export async function sendDueEventReminders(now = new Date()) {
     sent += 1;
   }
   return { due: due.length, sent };
+}
+
+/** Beri tahu semua terdaftar saat event dibatalkan atau jadwalnya digeser (tetap dijaga EVENT_EMAIL_ENABLED). */
+export async function notifyScheduleChange({ eventId, kind }: { eventId: number; kind: "cancelled" | "rescheduled" }) {
+  const event = await ptnTourRepo.getRaw({ id: eventId });
+  if (!event) return 0;
+  const contacts = await ptnTourRepo.registrantContacts({ eventId });
+  let sent = 0;
+  for (const contact of contacts) {
+    const ok = await sendEmail({
+      to: contact.email,
+      subject: kind === "cancelled" ? `Dibatalkan: ${event.title}` : `Jadwal baru: ${event.title}`,
+      html: renderScheduleChangeEmail({
+        name: contact.name,
+        title: event.title,
+        whenLabel: formatWhen(event.startsAt),
+        eventUrl: `${siteUrl()}/ptntour/${event.slug}`,
+        kind,
+      }),
+    });
+    if (ok) sent += 1;
+  }
+  return sent;
 }
 
 export async function purgeExpiredPtnTourProofs() {

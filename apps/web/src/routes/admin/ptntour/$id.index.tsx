@@ -72,6 +72,7 @@ function EditPtnTourPage() {
     recordingUrl: event.recordingUrl ?? "",
     recordingFreeDays: String(event.recordingFreeDays),
     accessMode: event.accessMode as EventFormValues["accessMode"],
+    scheduleStatus: event.scheduleStatus as EventFormValues["scheduleStatus"],
     isPublished: event.isPublished,
   };
 

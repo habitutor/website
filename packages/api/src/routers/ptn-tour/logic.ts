@@ -156,6 +156,8 @@ export function validateProofs({ follow, share, required }: { follow: readonly s
 }
 
 /** Event khusus Premium hanya bisa didaftar/diikuti member Premium. */
+export const SCHEDULE_STATUSES = ["normal", "rescheduled", "cancelled"] as const;
+
 export function canAttend({ accessMode, isPremium }: { accessMode: string; isPremium: boolean }) {
   return accessMode !== "premium" || isPremium;
 }

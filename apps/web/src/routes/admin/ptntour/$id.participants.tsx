@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { CheckCircleIcon, DownloadSimpleIcon, UsersThreeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -53,8 +54,8 @@ function ParticipantsPage() {
   const list = usePagedList(byAccess, { pageSize: 15, matches: matchesParticipant });
   const attendRate = data && data.total > 0 ? Math.round((data.attended / data.total) * 100) : 0;
 
-  const download = () => {
-    if (!data) return;
+  const buildTable = () => {
+    if (!data) return null;
     const headers = [
       "Nama",
       "Email",
@@ -81,6 +82,13 @@ function ParticipantsPage() {
       formatStamp(item.registeredAt),
       item.attendedAt ? formatStamp(item.attendedAt) : "Tidak",
     ]);
+    return { headers, rows };
+  };
+
+  const download = () => {
+    const table = buildTable();
+    if (!table) return;
+    const { headers, rows } = table;
     // BOM supaya Excel membaca UTF-8 dengan benar.
     const blob = new Blob([`﻿${[headers, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n")}`], {
       type: "text/csv;charset=utf-8",
@@ -93,9 +101,28 @@ function ParticipantsPage() {
     URL.revokeObjectURL(url);
   };
 
+  /** Tab-separated supaya langsung rapi per kolom saat ditempel di Google Sheets. */
+  const copyForSheets = async () => {
+    const table = buildTable();
+    if (!table) return;
+    const cell = (value: unknown) => String(value ?? "").replace(/[\t\r\n]+/g, " ");
+    const text = [table.headers, ...table.rows]
+      .map((row) => row.map(cell).map((v) => (/^[=+\-@]/.test(v) ? `'${v}` : v)).join("\t"))
+      .join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Tabel disalin. Tempel (Ctrl+V) di Google Sheets.");
+    } catch {
+      toast.error("Gagal menyalin. Coba Ekspor CSV.");
+    }
+  };
+
   return (
     <AdminContainer>
       <AdminHeader title="Peserta Event" description={event?.title ?? `Event #${eventId}`} backTo="/admin/ptntour">
+        <Button variant="outline" onClick={copyForSheets} disabled={!data || data.total === 0}>
+          Salin untuk Google Sheets
+        </Button>
         <Button onClick={download} disabled={!data || data.total === 0}>
           <DownloadSimpleIcon /> Ekspor CSV
         </Button>

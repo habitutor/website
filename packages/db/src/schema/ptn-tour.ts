@@ -23,6 +23,7 @@ export const ptnTourEvent = pgTable(
     recordingUrl: text("recording_url"),
     recordingFreeDays: integer("recording_free_days").notNull().default(30),
     accessMode: text("access_mode").notNull().default("free"),
+    scheduleStatus: text("schedule_status").notNull().default("normal"),
     subjects: text().array().notNull().default(sql`'{}'::text[]`),
     isPublished: boolean("is_published").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),

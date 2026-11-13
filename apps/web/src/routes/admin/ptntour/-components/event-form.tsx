@@ -37,6 +37,7 @@ export type EventFormValues = {
   recordingUrl: string;
   recordingFreeDays: string;
   accessMode: "free" | "premium" | "mixed";
+  scheduleStatus: "normal" | "rescheduled" | "cancelled";
   isPublished: boolean;
 };
 
@@ -59,6 +60,7 @@ export const EMPTY_EVENT_FORM: EventFormValues = {
   recordingUrl: "",
   recordingFreeDays: "30",
   accessMode: "free",
+  scheduleStatus: "normal",
   isPublished: false,
 };
 
@@ -330,6 +332,17 @@ export function EventForm({
             ))}
           </select>
         </Field>
+        <Field label="Status jadwal">
+          <select
+            className={selectClass}
+            value={form.scheduleStatus}
+            onChange={(e) => set("scheduleStatus", e.target.value as EventFormValues["scheduleStatus"])}
+          >
+            <option value="normal">Normal</option>
+            <option value="rescheduled">Dijadwal ulang (tampilkan label)</option>
+            <option value="cancelled">Dibatalkan (pendaftar diberi email)</option>
+          </select>
+        </Field>
       </Group>
 
       <Group title="Poster" description="Pakai poster dari Canva apa adanya, rasio 4:5 (seperti poster IG).">
@@ -484,6 +497,7 @@ export function toEventPayload(form: EventFormValues) {
     recordingUrl: nullable(form.recordingUrl),
     recordingFreeDays: Number(form.recordingFreeDays) || 0,
     accessMode: form.accessMode,
+    scheduleStatus: form.scheduleStatus,
     isPublished: form.isPublished,
   };
 }

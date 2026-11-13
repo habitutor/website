@@ -89,7 +89,9 @@ export function NearestEvents() {
                       ? "Lihat detail"
                       : locked
                         ? "Khusus Premium"
-                        : status.key === "full"
+                        : status.key === "cancelled"
+                          ? "Dibatalkan"
+                          : status.key === "full"
                           ? "Kuota penuh"
                           : "Daftar Gratis"}
                   <ArrowRightIcon weight="bold" />

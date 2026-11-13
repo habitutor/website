@@ -239,6 +239,13 @@
       "when": 1794598351162,
       "tag": "0033_greedy_wendell_rand",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794600159242,
+      "tag": "0034_parched_lizard",
+      "breakpoints": true
     }
   ]
 }

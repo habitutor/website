@@ -1,0 +1,1 @@
+ALTER TABLE "ptn_tour_event" ADD COLUMN "schedule_status" text DEFAULT 'normal' NOT NULL;

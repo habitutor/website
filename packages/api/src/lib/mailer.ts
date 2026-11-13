@@ -87,3 +87,30 @@ ${whatsappGroupUrl ? `<p style="margin:0;font-size:13px;line-height:1.6"><a href
 <p style="max-width:520px;font-size:12px;color:#8a94ad;line-height:1.6">Email otomatis dari Habitutor karena kamu mendaftar event ini.</p>
 </td></tr></table></body></html>`;
 }
+
+export function renderScheduleChangeEmail({
+  name,
+  title,
+  whenLabel,
+  eventUrl,
+  kind,
+}: {
+  name: string;
+  title: string;
+  whenLabel: string;
+  eventUrl: string;
+  kind: "cancelled" | "rescheduled";
+}) {
+  const lead =
+    kind === "cancelled"
+      ? `Mohon maaf, event <strong>${escapeHtml(title)}</strong> dibatalkan.`
+      : `Jadwal event <strong>${escapeHtml(title)}</strong> berubah. Jadwal terbarunya:`;
+  return `<!doctype html><html><body style="margin:0;background:#f4f7ff;font-family:Arial,Helvetica,sans-serif;color:#17203a">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
+<table width="100%" style="max-width:520px;background:#fff;border-radius:16px;padding:28px"><tr><td>
+<p style="margin:0 0 12px;font-size:15px">Halo ${escapeHtml(name)},</p>
+<p style="margin:0 0 12px;font-size:15px;line-height:1.6">${lead}</p>
+${kind === "rescheduled" ? `<p style="margin:0 0 20px;font-size:15px;line-height:1.6"><strong>${escapeHtml(whenLabel)}</strong></p>` : ""}
+<p style="margin:0"><a href="${escapeHtml(eventUrl)}" style="display:inline-block;background:#2356e8;color:#fff;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:999px">Lihat halaman event</a></p>
+</td></tr></table></td></tr></table></body></html>`;
+}

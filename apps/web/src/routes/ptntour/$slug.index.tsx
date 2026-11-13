@@ -333,6 +333,13 @@ function PrimaryAction({
       </Button>
     );
   }
+  if (status.key === "cancelled") {
+    return (
+      <Button size="lg" disabled>
+        Event Dibatalkan
+      </Button>
+    );
+  }
   if (status.key === "full") {
     return (
       <Button size="lg" disabled>

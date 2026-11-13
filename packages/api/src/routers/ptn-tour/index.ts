@@ -8,15 +8,18 @@ import {
   isValidAssetUrl,
   MATERIAL_UNLOCKS,
   normalizeSubjects,
+  SCHEDULE_STATUSES,
   SETTING_KEYS,
   parseDateOrThrow,
   PtnTourError,
 } from "./logic";
 import { uploadTryoutImage } from "../../lib/cloudinary";
 import { ptnTourRepo } from "./repo";
+import { notifyScheduleChange } from "./jobs";
 
 const categoryType = "'Masterclass' | 'Kelas Gratis PTN Tour' | 'Intensif'";
 const accessModeType = "'free' | 'premium' | 'mixed'";
+const scheduleStatusType = "'normal' | 'rescheduled' | 'cancelled'";
 const unlockType = "'after_register' | 'after_event'";
 
 type Errors = Record<string, (data?: { message?: string }) => Error>;
@@ -55,6 +58,7 @@ type EventFields = {
   recordingUrl?: string | null;
   recordingFreeDays?: number;
   accessMode?: string;
+  scheduleStatus?: string;
   isPublished?: boolean;
 };
 
@@ -120,6 +124,10 @@ function normalizeEventInput(input: EventFields) {
     if (!(ACCESS_MODES as readonly string[]).includes(input.accessMode)) throw new PtnTourError("BAD_REQUEST", "Mode akses tidak valid.");
     out.accessMode = input.accessMode;
   }
+  if (input.scheduleStatus !== undefined) {
+    if (!(SCHEDULE_STATUSES as readonly string[]).includes(input.scheduleStatus)) throw new PtnTourError("BAD_REQUEST", "Status jadwal tidak valid.");
+    out.scheduleStatus = input.scheduleStatus;
+  }
   if (input.isPublished !== undefined) out.isPublished = input.isPublished;
   return out;
 }
@@ -143,6 +151,7 @@ const eventFieldsSchema = {
   "recordingUrl?": "string | null",
   "recordingFreeDays?": "number.integer",
   "accessMode?": accessModeType,
+  "scheduleStatus?": scheduleStatusType,
   "isPublished?": "boolean",
 } as const;
 
@@ -286,8 +295,18 @@ const adminUpdate = admin
   .handler(({ input, errors }) =>
     run(errors as unknown as Errors, async () => {
       const { id, ...fields } = input;
+      const before = await ptnTourRepo.getRaw({ id });
       const event = await ptnTourRepo.adminUpdate({ id, input: normalizeEventInput(fields) });
       if (!event) throw new PtnTourError("NOT_FOUND", "Event tidak ditemukan.");
+      if (before && event.isPublished) {
+        const kind =
+          event.scheduleStatus === "cancelled" && before.scheduleStatus !== "cancelled"
+            ? "cancelled"
+            : event.startsAt.getTime() !== before.startsAt.getTime() && event.scheduleStatus !== "cancelled"
+              ? "rescheduled"
+              : null;
+        if (kind) void notifyScheduleChange({ eventId: id, kind }).catch(() => {});
+      }
       return event;
     }),
   );

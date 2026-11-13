@@ -82,6 +82,7 @@ function toPublicEvent(
     endsAt,
     durationMinutes: row.durationMinutes,
     accessMode: row.accessMode,
+    scheduleStatus: row.scheduleStatus,
     quota: row.quota,
     registrationCount: extra.registrationCount,
     spotsLeft,
@@ -202,6 +203,7 @@ export const ptnTourRepo = {
       .where(and(eq(ptnTourEvent.id, eventId), eq(ptnTourEvent.isPublished, true)))
       .limit(1);
     if (!event0) throw new PtnTourError("NOT_FOUND", "Event tidak ditemukan.");
+    if (event0.scheduleStatus === "cancelled") throw new PtnTourError("BAD_REQUEST", "Event ini dibatalkan.");
     if (!canAttend({ accessMode: event0.accessMode, isPremium })) {
       throw new PtnTourError("FORBIDDEN", "Event ini khusus member Premium.");
     }
@@ -288,6 +290,7 @@ export const ptnTourRepo = {
       .where(and(eq(ptnTourEvent.id, eventId), eq(ptnTourEvent.isPublished, true)))
       .limit(1);
     if (!event) throw new PtnTourError("NOT_FOUND", "Event tidak ditemukan.");
+    if (event.scheduleStatus === "cancelled") throw new PtnTourError("BAD_REQUEST", "Event ini dibatalkan.");
     if (!event.zoomUrl) throw new PtnTourError("NOT_FOUND", "Link Zoom untuk event ini belum tersedia.");
     if (!canAttend({ accessMode: event.accessMode, isPremium })) {
       throw new PtnTourError("FORBIDDEN", "Event ini khusus member Premium.");
@@ -469,6 +472,20 @@ export const ptnTourRepo = {
       throw error;
     }
   },
+
+  /** Data event apa adanya (untuk membandingkan sebelum/sesudah edit). */
+  getRaw: async ({ db = defaultDb, id }: { db?: DrizzleDatabase; id: number }) => {
+    const [row] = await db.select().from(ptnTourEvent).where(eq(ptnTourEvent.id, id)).limit(1);
+    return row ?? null;
+  },
+
+  /** Penerima pemberitahuan perubahan jadwal: semua yang terdaftar. */
+  registrantContacts: async ({ db = defaultDb, eventId }: { db?: DrizzleDatabase; eventId: number }) =>
+    db
+      .select({ name: user.name, email: user.email })
+      .from(ptnTourRegistration)
+      .innerJoin(user, eq(user.id, ptnTourRegistration.userId))
+      .where(eq(ptnTourRegistration.eventId, eventId)),
 
   adminUpdate: async ({
     db = defaultDb,

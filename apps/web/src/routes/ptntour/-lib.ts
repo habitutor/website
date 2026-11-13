@@ -26,17 +26,19 @@ export const formatTime = (date: Date | string) =>
     .toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: TIME_ZONE })
     .replace(":", ".")} WIB`;
 
-export type EventStatusKey = "open" | "registered" | "live" | "ended" | "full";
+export type EventStatusKey = "open" | "registered" | "live" | "ended" | "full" | "cancelled";
 
 /** Satu sumber kebenaran untuk badge status dan tombol aksi kartu/detail. */
 export function getEventStatus(
   event: PtnEvent,
   isPremium = false,
 ): { key: EventStatusKey; label: string; tone: string } {
+  if (event.scheduleStatus === "cancelled") return { key: "cancelled", label: "Dibatalkan", tone: "bg-destructive text-white" };
   if (event.phase === "ended") return { key: "ended", label: "Selesai", tone: "bg-sr-ink/85 text-white" };
   if (event.phase === "live") return { key: "live", label: "Live sekarang", tone: "bg-sr-live text-white" };
   if (event.registered) return { key: "registered", label: "Terdaftar", tone: "bg-sr-blue-500 text-white" };
   if (event.isFull && !isPremium) return { key: "full", label: "Penuh", tone: "bg-destructive text-white" };
+  if (event.scheduleStatus === "rescheduled") return { key: "open", label: "Dijadwal ulang", tone: "bg-sr-sun-100 text-sr-amber-700" };
   return { key: "open", label: "Daftar dibuka", tone: "bg-white/95 text-sr-ink" };
 }
 

@@ -111,6 +111,10 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
               <VideoCameraIcon weight="fill" />
               {join.isPending ? "Membuka Zoom…" : "Join Zoom"}
             </Button>
+          ) : status.key === "cancelled" ? (
+            <Button className="w-full" disabled>
+              Event Dibatalkan
+            </Button>
           ) : status.key === "ended" ? (
             event.hasRecording && (event.registered || isPremium) ? (
               <Button className="w-full" disabled={watch.isPending} onClick={() => watch.mutate(event.slug)}>
