@@ -14,6 +14,8 @@ import {
 } from "../../lib/constants";
 import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
+import { computeCommission, AFFILIATE, getCommissionAvailableAt } from "../affiliate/logic";
+import { affiliateRepo } from "../affiliate/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { addMonthsUtc, resolveExpiryWithoutShortening } from "./premium-expiry";
 import { getPackageExpiry } from "./pricing";
@@ -99,6 +101,8 @@ async function processReferralReward(input: {
   userId: string;
   referralCodeId: string;
   productSlug: string;
+  grossAmount: number;
+  paidAt: Date;
 }) {
   try {
     await db.transaction(async (trx) => {
@@ -108,8 +112,22 @@ async function processReferralReward(input: {
       });
       if (alreadyRecorded) return;
 
-      const originalProduct = await transactionRepo.getProductBySlug({ db: trx, slug: input.productSlug });
-      const cashback = originalProduct ? String(Math.floor(Number(originalProduct.price) * 0.25)) : "0";
+      // Komisi afiliator = 10% dari uang yang benar-benar dibayar teman (sudah setelah diskon 15%).
+      const commission = computeCommission(input.grossAmount);
+      const cashback = String(commission);
+      const affiliateUserId = await affiliateRepo.getCodeOwner({ db: trx, referralCodeId: input.referralCodeId });
+      if (affiliateUserId && affiliateUserId !== input.userId && commission > 0) {
+        await affiliateRepo.createCommission({
+          db: trx,
+          affiliateUserId,
+          buyerUserId: input.userId,
+          transactionId: input.orderId,
+          baseAmount: input.grossAmount,
+          ratePercent: AFFILIATE.COMMISSION_PERCENT,
+          amount: commission,
+          availableAt: getCommissionAvailableAt(input.paidAt),
+        });
+      }
 
       const linkedUsage = await referralRepo.attachPendingUsageToTransaction({
         db: trx,
@@ -224,7 +242,13 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
       // Only process referral once, on the transition into success.
       referral:
         !alreadySuccessful && tx.referralCodeId && tx.userId
-          ? { userId: tx.userId, referralCodeId: tx.referralCodeId, productSlug: existingTransaction.prodSlug }
+          ? {
+              userId: tx.userId,
+              referralCodeId: tx.referralCodeId,
+              productSlug: existingTransaction.prodSlug,
+              grossAmount: Number(tx.grossAmount ?? 0),
+              paidAt: resolvedPaidAt,
+            }
           : null,
     };
   });
@@ -321,6 +345,10 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
         premiumTier: replacementPremium?.tier ?? null,
         premiumExpiresAt: replacementPremium?.expiresAt ?? null,
       });
+    }
+
+    if (revokeSuccessfulPayment && wasSuccessful) {
+      await affiliateRepo.voidCommission({ db: trx, transactionId: orderId });
     }
 
     if (

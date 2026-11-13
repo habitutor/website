@@ -2,9 +2,7 @@ import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { referralCode, referralUsage } from "@habitutor/db/schema/referral";
 import { transaction } from "@habitutor/db/schema/transaction";
 import { and, desc, eq, or, sql } from "drizzle-orm";
-
-const REFERRAL_CODE_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
-const REFERRAL_CODE_LENGTH = 11;
+import { generateFriendlyCode, isPlausibleReferralCode, normalizeReferralCode } from "../affiliate/logic";
 
 export type ReferralValidationReason = "invalid_length" | "not_found" | "own_code" | "already_used";
 
@@ -19,13 +17,6 @@ type ReferralValidationResult =
       reason: ReferralValidationReason;
     };
 
-function generateCode(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(REFERRAL_CODE_LENGTH));
-  return Array.from(bytes)
-    .map((byte) => REFERRAL_CODE_CHARS[byte % REFERRAL_CODE_CHARS.length])
-    .join("");
-}
-
 export const referralRepo = {
   getCodeByUserId: async ({ db = defaultDb, userId }: { db?: DrizzleDatabase; userId: string }) => {
     const [result] = await db.select().from(referralCode).where(eq(referralCode.userId, userId)).limit(1);
@@ -33,7 +24,11 @@ export const referralRepo = {
   },
 
   getCodeByCode: async ({ db = defaultDb, code }: { db?: DrizzleDatabase; code: string }) => {
-    const [result] = await db.select().from(referralCode).where(eq(referralCode.code, code)).limit(1);
+    const [result] = await db
+      .select()
+      .from(referralCode)
+      .where(eq(referralCode.code, normalizeReferralCode(code)))
+      .limit(1);
     return result;
   },
 
@@ -53,7 +48,7 @@ export const referralRepo = {
     code: string;
     allowPendingSameCode?: boolean;
   }): Promise<ReferralValidationResult> => {
-    if (code.length !== REFERRAL_CODE_LENGTH) {
+    if (!isPlausibleReferralCode(normalizeReferralCode(code))) {
       return { ok: false, reason: "invalid_length" };
     }
 
@@ -88,7 +83,7 @@ export const referralRepo = {
   }): Promise<typeof referralCode.$inferSelect> => {
     const maxRetries = 5;
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      const code = generateCode();
+      const code = generateFriendlyCode();
       try {
         const [result] = await db
           .insert(referralCode)

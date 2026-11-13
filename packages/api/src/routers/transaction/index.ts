@@ -7,6 +7,8 @@ import type { Context } from "../../context";
 import { authed, pub } from "../../index";
 import { FREEMIUM_PEMBAHASAN_PRODUCT, FREEMIUM_PRODUCT } from "../../lib/constants";
 import { createSubscriptionTransaction } from "../../lib/midtrans";
+import { applyBuyerDiscount } from "../affiliate/logic";
+import { AffiliateError, affiliateRepo } from "../affiliate/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { mobileTransactionRouter } from "./mobile";
 import { processMidtransNotification } from "./notification";
@@ -46,6 +48,7 @@ const subscribe = authed
     // Only the four premium packages are sold; referral and promo codes do not apply.
     type({
       name: "'paketmandiri2027' | 'paketutbk2027' | 'paketutbk2027nolive' | 'paket3bulan' | 'paket1bulan'",
+      "referralCode?": "string",
     }),
   )
   .output(
@@ -66,7 +69,16 @@ const subscribe = authed
 
     // The amount is decided here, never by the client; Midtrans settlement is
     // later checked against this stored amount.
-    const grossAmount = getPackagePrice(input.name);
+    // Diskon afiliasi (pembelian Premium pertama) dihitung di server; klien hanya mengirim kodenya.
+    let referral: Awaited<ReturnType<typeof affiliateRepo.resolveDiscount>>;
+    try {
+      referral = await affiliateRepo.resolveDiscount({ userId: context.session.user.id, code: input.referralCode });
+    } catch (error) {
+      if (error instanceof AffiliateError) throw new ORPCError(error.code, { message: error.message });
+      throw error;
+    }
+    const basePrice = getPackagePrice(input.name);
+    const grossAmount = referral ? applyBuyerDiscount(basePrice) : basePrice;
     const orderId = `tx_${crypto.randomUUID()}`;
 
     const createdTransaction = await transactionRepo.createTransaction({
@@ -74,6 +86,7 @@ const subscribe = authed
       productId: plan.id,
       grossAmount: String(grossAmount),
       userId: context.session.user.id,
+      referralCodeId: referral?.id,
     });
     if (!createdTransaction)
       throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });

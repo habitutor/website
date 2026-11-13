@@ -14,7 +14,7 @@ import {
 } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { AnimatePresence, motion } from "motion/react";
@@ -462,6 +462,8 @@ function SelectBubble({ label, selected, onClick }: { label: string; selected: b
 function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: () => void }) {
   const navigate = useNavigate({ from: "/" });
   const queryClient = useQueryClient();
+  // Kode dari tautan ajakan teman (/r/KODE) terisi otomatis, tetap bisa diubah.
+  const { ref } = useSearch({ strict: false }) as { ref?: string };
 
   const form = useForm({
     defaultValues: {
@@ -469,7 +471,7 @@ function AccountStep({ answers, onBack }: { answers: OnboardingAnswers; onBack: 
       email: "",
       accountPassphrase: "",
       confirmAccountPassphrase: "",
-      referralCode: "",
+      referralCode: ref ?? "",
     },
     onSubmit: async ({ value }) => {
       if (value.accountPassphrase !== value.confirmAccountPassphrase) {

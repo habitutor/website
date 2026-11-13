@@ -15,6 +15,7 @@ import {
   VideoCameraIcon,
   UserSwitchIcon,
   CaretUp,
+  HandCoinsIcon,
 } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
@@ -106,6 +107,11 @@ const adminNavLinks = [
     name: "Referral Transactions",
     to: "/admin/referrals" as const,
     icon: TicketIcon,
+  },
+  {
+    name: "Afiliasi",
+    to: "/admin/affiliate" as const,
+    icon: HandCoinsIcon,
   },
   {
     name: "Transactions",

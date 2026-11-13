@@ -2,6 +2,7 @@ import {
   ArrowLeftIcon,
   BooksIcon,
   Broadcast,
+  HandCoinsIcon,
   House,
   Megaphone,
   Package,
@@ -31,6 +32,7 @@ const ROUTE_LABELS: Record<string, string> = {
   "dashboard-content": "Live Class",
   recordings: "Recordings",
   referrals: "Referral Transactions",
+  affiliate: "Afiliasi",
   transactions: "Transactions",
   promos: "Promo Codes",
 };
@@ -48,6 +50,7 @@ const SECTION_ICONS: Record<string, Icon> = {
   recordings: VideoCameraIcon,
   users: User,
   referrals: TicketIcon,
+  affiliate: HandCoinsIcon,
   transactions: ReceiptIcon,
   promos: TagIcon,
 };

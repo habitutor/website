@@ -4,6 +4,7 @@ import {
   CrownIcon,
   ExamIcon,
   FilmStripIcon,
+  HandCoinsIcon,
   HouseIcon,
   ListIcon,
   SignOutIcon,
@@ -52,6 +53,7 @@ const links = [
   { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
   { name: "Live Recording", to: "/recordings", icon: FilmStripIcon },
   { name: "Premium", to: "/premium", icon: CrownIcon },
+  { name: "Ajak Teman", to: "/affiliate", icon: HandCoinsIcon },
 ] as const;
 
 export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {

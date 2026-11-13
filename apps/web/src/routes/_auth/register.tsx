@@ -11,6 +11,9 @@ export const Route = createFileRoute("/_auth/register")({
       description: "Buat akun baru di Habitutor dan mulai persiapan SNBT/UTBK kamu sekarang.",
     }),
   }),
+  validateSearch: (search: Record<string, unknown>): { ref?: string } => ({
+    ref: typeof search.ref === "string" && search.ref.trim() ? search.ref.trim().slice(0, 32) : undefined,
+  }),
   component: RouteComponent,
 });
 
