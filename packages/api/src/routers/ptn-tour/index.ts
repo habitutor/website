@@ -7,9 +7,12 @@ import {
   EVENT_CATEGORIES,
   isValidAssetUrl,
   MATERIAL_UNLOCKS,
+  normalizeSubjects,
+  SETTING_KEYS,
   parseDateOrThrow,
   PtnTourError,
 } from "./logic";
+import { uploadTryoutImage } from "../../lib/cloudinary";
 import { ptnTourRepo } from "./repo";
 
 const categoryType = "'Masterclass' | 'Kelas Gratis PTN Tour' | 'Intensif'";
@@ -37,6 +40,7 @@ type EventFields = {
   slug?: string;
   title?: string;
   category?: string;
+  subjects?: string[];
   description?: string;
   longDescription?: string | null;
   rundown?: string | null;
@@ -75,6 +79,7 @@ function normalizeEventInput(input: EventFields) {
     if (!(EVENT_CATEGORIES as readonly string[]).includes(input.category)) throw new PtnTourError("BAD_REQUEST", "Kategori tidak valid.");
     out.category = input.category;
   }
+  if (input.subjects !== undefined) out.subjects = normalizeSubjects(input.subjects);
   const description = requireText(input.description, "Deskripsi singkat");
   if (description !== undefined) {
     if (description.length > 160) throw new PtnTourError("BAD_REQUEST", "Deskripsi singkat maksimal 160 karakter.");
@@ -123,6 +128,7 @@ const eventFieldsSchema = {
   "slug?": "string",
   "title?": "string",
   "category?": categoryType,
+  "subjects?": "string[]",
   "description?": "string",
   "longDescription?": "string | null",
   "rundown?": "string | null",
@@ -172,6 +178,10 @@ const materials = pub
     ),
   );
 
+const settings = pub
+  .route({ path: "/ptn-tour-settings", method: "GET", tags: ["PTN Tour"] })
+  .handler(() => ptnTourRepo.getSettings());
+
 const register = authedRateLimited
   .route({ path: "/ptn-tour/{eventId}/register", method: "POST", tags: ["PTN Tour"] })
   .input(
@@ -183,7 +193,8 @@ const register = authedRateLimited
       dreamCampus: "string",
       educationLevel: "string",
       consent: "boolean",
-      confirmedSteps: "boolean",
+      followProofs: "string[]",
+      shareProofs: "string[]",
     }),
   )
   .handler(({ input, context, errors }) =>
@@ -245,6 +256,7 @@ const adminCreate = admin
       slug: "string",
       title: "string",
       category: categoryType,
+      "subjects?": "string[]",
       description: "string",
       "longDescription?": "string | null",
       "rundown?": "string | null",
@@ -307,6 +319,51 @@ const adminParticipants = admin
   .route({ path: "/admin/ptn-tour/{eventId}/participants", method: "GET", tags: ["Admin - PTN Tour"] })
   .input(type({ eventId: "number.integer" }))
   .handler(({ input }) => ptnTourRepo.adminParticipants({ eventId: input.eventId }));
+
+const adminSettingsUpdate = admin
+  .route({ path: "/admin/ptn-tour-settings", method: "PUT", tags: ["Admin - PTN Tour"] })
+  .input(
+    type({
+      "whatsapp_channel_url?": "string",
+      "promo_title?": "string",
+      "promo_text?": "string",
+      "promo_cta_label?": "string",
+      "promo_cta_url?": "string",
+    }),
+  )
+  .handler(({ input, errors }) =>
+    run(errors as unknown as Errors, async () => {
+      const values: Record<string, string> = {};
+      for (const key of SETTING_KEYS) {
+        const value = (input as Record<string, string | undefined>)[key];
+        if (value === undefined) continue;
+        const trimmed = value.trim();
+        if (!trimmed) throw new PtnTourError("BAD_REQUEST", "Pengaturan tidak boleh kosong.");
+        if ((key === "whatsapp_channel_url") && !isValidAssetUrl(trimmed)) throw new PtnTourError("BAD_REQUEST", "Link channel WhatsApp tidak valid.");
+        if (key === "promo_cta_url" && !isValidAssetUrl(trimmed)) throw new PtnTourError("BAD_REQUEST", "Link tombol promo tidak valid.");
+        values[key] = trimmed;
+      }
+      return ptnTourRepo.updateSettings({ values });
+    }),
+  );
+
+const adminProofs = admin
+  .route({ path: "/admin/ptn-tour/registrations/{registrationId}/proofs", method: "GET", tags: ["Admin - PTN Tour"] })
+  .input(type({ registrationId: "number.integer" }))
+  .handler(({ input }) => ptnTourRepo.adminProofs({ registrationId: input.registrationId }));
+
+const adminUploadPoster = admin
+  .route({ path: "/admin/ptn-tour/poster", method: "POST", tags: ["Admin - PTN Tour"] })
+  .input(type({ image: "string" }))
+  .handler(({ input, errors }) =>
+    run(errors as unknown as Errors, async () => {
+      if (!/^data:image\/(png|jpe?g|webp);base64,/.test(input.image) || input.image.length > 8_000_000) {
+        throw new PtnTourError("BAD_REQUEST", "Poster harus gambar PNG, JPG, atau WebP di bawah ±6 MB.");
+      }
+      const url = await uploadTryoutImage(input.image, "habitutor/ptn-tour/poster");
+      return { url };
+    }),
+  );
 
 const adminMaterials = admin
   .route({ path: "/admin/ptn-tour/{eventId}/materials", method: "GET", tags: ["Admin - PTN Tour"] })
@@ -402,6 +459,7 @@ export const ptnTourRouter = {
   register,
   join,
   watch,
+  settings,
   admin: {
     list: adminList,
     get: adminGet,
@@ -410,6 +468,9 @@ export const ptnTourRouter = {
     delete: adminDelete,
     duplicate: adminDuplicate,
     participants: adminParticipants,
+    proofs: adminProofs,
+    settings: { update: adminSettingsUpdate },
+    uploadPoster: adminUploadPoster,
     materials: {
       list: adminMaterials,
       create: adminMaterialCreate,

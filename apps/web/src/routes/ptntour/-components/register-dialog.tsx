@@ -2,12 +2,14 @@ import {
   CheckCircleIcon,
   CopyIcon,
   DownloadSimpleIcon,
+  ImageSquareIcon,
   InstagramLogoIcon,
   TiktokLogoIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { compressImage } from "@/lib/compress-image";
 import { orpc } from "@/utils/orpc";
 import { buildShareCaption, formatDate, formatTime, type PtnEvent, SOCIAL_LINKS } from "../-lib";
 
@@ -46,7 +49,8 @@ export function RegisterDialog({
   const [school, setSchool] = useState("");
   const [classLevel, setClassLevel] = useState<string>("");
   const [campus, setCampus] = useState("");
-  const [stepsDone, setStepsDone] = useState(false);
+  const [followProofs, setFollowProofs] = useState<string[]>([]);
+  const [shareProofs, setShareProofs] = useState<string[]>([]);
   const [consent, setConsent] = useState(false);
 
   // Data profil terisi otomatis; pengguna hanya melengkapi yang kurang.
@@ -89,7 +93,7 @@ export function RegisterDialog({
     classLevel &&
     campus.trim() &&
     consent &&
-    (isPremium || stepsDone) &&
+    (isPremium || (followProofs.length > 0 && shareProofs.length > 0)) &&
     !register.isPending;
 
   return (
@@ -193,15 +197,20 @@ export function RegisterDialog({
                 </Button>
               </div>
             </div>
-            <label className="flex items-start gap-2 text-sm font-semibold text-sr-ink">
-              <input
-                type="checkbox"
-                checked={stepsDone}
-                onChange={(e) => setStepsDone(e.target.checked)}
-                className="mt-1 size-4 accent-[#2356e8]"
-              />
-              Aku sudah follow dan membagikan poster ke 5 grup.
-            </label>
+            <ProofPicker
+              label="Screenshot follow (maks 5)"
+              hint="Bukti kamu sudah follow Instagram dan TikTok Habitutor."
+              max={5}
+              images={followProofs}
+              onChange={setFollowProofs}
+            />
+            <ProofPicker
+              label="Screenshot share poster (maks 10)"
+              hint="Bukti kamu sudah membagikan teks dan poster ke 5 grup."
+              max={10}
+              images={shareProofs}
+              onChange={setShareProofs}
+            />
           </div>
         )}
 
@@ -229,7 +238,8 @@ export function RegisterDialog({
                 dreamCampus: campus,
                 educationLevel: profile?.educationLevel || "SMA",
                 consent,
-                confirmedSteps: isPremium || stepsDone,
+                followProofs: isPremium ? [] : followProofs,
+                shareProofs: isPremium ? [] : shareProofs,
               })
             }
           >
@@ -239,5 +249,84 @@ export function RegisterDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ProofPicker({
+  label,
+  hint,
+  max,
+  images,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  max: number;
+  images: string[];
+  onChange: (images: string[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const addFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setBusy(true);
+    try {
+      const room = max - images.length;
+      const picked = Array.from(files).slice(0, room);
+      const compressed = await Promise.all(picked.map((file) => compressImage(file)));
+      onChange([...images, ...compressed]);
+      if (files.length > room) toast.info(`Maksimal ${max} gambar, sisanya diabaikan.`);
+    } catch {
+      toast.error("Gambar belum bisa diproses", { description: "Coba pilih file PNG, JPG, atau WebP." });
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div>
+      <p className="text-sm font-black text-sr-ink">{label}</p>
+      <p className="text-xs text-sr-muted">{hint}</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {images.map((src, index) => (
+          <span key={`${index.toString()}-${src.length}`} className="relative">
+            <img
+              src={src}
+              alt={`Bukti ${index + 1}`}
+              className="size-14 rounded-sr-sm object-cover ring-1 ring-sr-line"
+            />
+            <button
+              type="button"
+              aria-label={`Hapus bukti ${index + 1}`}
+              onClick={() => onChange(images.filter((_, i) => i !== index))}
+              className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-sr-ink text-white"
+            >
+              <XIcon className="size-3" weight="bold" />
+            </button>
+          </span>
+        ))}
+        {images.length < max && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => inputRef.current?.click()}
+            className="flex size-14 flex-col items-center justify-center gap-0.5 rounded-sr-sm border-2 border-dashed border-sr-blue-300 bg-white text-[10px] font-bold text-sr-blue-600 transition-colors hover:bg-sr-blue-50 disabled:opacity-60"
+          >
+            <ImageSquareIcon className="size-5" />
+            {busy ? "…" : "Tambah"}
+          </button>
+        )}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        multiple
+        className="sr-only"
+        onChange={(event) => void addFiles(event.target.files)}
+      />
+    </div>
   );
 }

@@ -16,6 +16,8 @@ import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout
 import { AdminSearchInput, FilterChips, usePagedList } from "@/components/admin/list-tools";
 import { AdminPagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -199,6 +201,7 @@ function AdminPtnTourPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Pendaftar</TableHead>
                 <TableHead>Hadir</TableHead>
+                <TableHead>Beli paket</TableHead>
                 <TableHead className="text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -206,14 +209,14 @@ function AdminPtnTourPage() {
               {isPending &&
                 Array.from({ length: 4 }).map((_, index) => (
                   <TableRow key={index.toString()}>
-                    <TableCell colSpan={6}>
+                    <TableCell colSpan={7}>
                       <Skeleton className="h-12 w-full" />
                     </TableCell>
                   </TableRow>
                 ))}
               {!isPending && list.pageItems.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-14 text-center">
+                  <TableCell colSpan={7} className="py-14 text-center">
                     <p className="font-extrabold text-sr-ink">
                       {events?.length ? "Tidak ada event yang cocok" : "Belum ada event"}
                     </p>
@@ -251,6 +254,7 @@ function AdminPtnTourPage() {
                     {event.quota !== null && <span className="font-normal text-sr-muted"> / {event.quota}</span>}
                   </TableCell>
                   <TableCell className="text-sm font-bold text-sr-ink">{event.attendedCount}</TableCell>
+                  <TableCell className="text-sm font-bold text-sr-ink">{event.purchasedCount}</TableCell>
                   <TableCell>{actions(event)}</TableCell>
                 </TableRow>
               ))}
@@ -300,6 +304,74 @@ function AdminPtnTourPage() {
           onPageChange={list.setPage}
         />
       )}
+      <SettingsCard />
     </AdminContainer>
+  );
+}
+
+const SETTING_FIELDS = [
+  {
+    key: "whatsapp_channel_url",
+    label: "Link channel WhatsApp Habitutor",
+    hint: "Tampil di halaman sukses daftar untuk semua event.",
+  },
+  {
+    key: "promo_title",
+    label: "Judul ajakan Premium",
+    hint: "Dipakai di banner rekaman, pop-up terkunci, dan halaman sukses.",
+  },
+  {
+    key: "promo_text",
+    label: "Teks ajakan Premium",
+    hint: "Tulis promo/harga di sini sekali; semua halaman ikut berubah.",
+  },
+  { key: "promo_cta_label", label: "Teks tombol", hint: "" },
+  { key: "promo_cta_url", label: "Tujuan tombol", hint: "Contoh: /premium" },
+] as const;
+
+/** Pengaturan pusat: link channel WA dan teks promo yang sama untuk semua event. */
+function SettingsCard() {
+  const queryClient = useQueryClient();
+  const { data } = useQuery(orpc.ptnTour.settings.queryOptions());
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const save = useMutation(
+    orpc.ptnTour.admin.settings.update.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: orpc.ptnTour.settings.queryKey() });
+        setDraft({});
+        toast.success("Pengaturan disimpan");
+      },
+      onError: (error) => toast.error("Gagal menyimpan pengaturan", { description: error.message }),
+    }),
+  );
+  const dirty = Object.keys(draft).length > 0;
+
+  return (
+    <section className="mt-6 rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
+        <div>
+          <h2 className="font-black text-sr-ink">Pengaturan pusat</h2>
+          <p className="text-xs text-sr-muted">
+            Berlaku untuk semua event, jadi harga atau tanggal promo tidak perlu diubah satu per satu.
+          </p>
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {SETTING_FIELDS.map((field) => (
+          <div key={field.key} className={cn("grid gap-1.5", field.key === "promo_text" && "sm:col-span-2")}>
+            <Label>{field.label}</Label>
+            <Input
+              value={draft[field.key] ?? data?.[field.key] ?? ""}
+              onChange={(e) => setDraft((current) => ({ ...current, [field.key]: e.target.value }))}
+            />
+            {field.hint && <p className="text-xs text-sr-muted">{field.hint}</p>}
+          </div>
+        ))}
+      </div>
+      <Button className="mt-4" disabled={!dirty || save.isPending} onClick={() => save.mutate(draft)}>
+        {save.isPending ? "Menyimpan…" : "Simpan Pengaturan"}
+      </Button>
+    </section>
   );
 }

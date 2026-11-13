@@ -3,6 +3,8 @@ import type { client } from "@/utils/orpc";
 
 export type PtnEvent = Awaited<ReturnType<typeof client.ptnTour.list>>[number];
 
+export const EVENT_SUBJECTS = ["PU", "PK", "Literasi", "TKA", "Strategi"] as const;
+
 export const EVENT_CATEGORIES = ["Semua", "Masterclass", "Kelas Gratis PTN Tour", "Intensif"] as const;
 
 const TIME_ZONE = "Asia/Jakarta";
@@ -114,4 +116,15 @@ export const SOCIAL_LINKS = {
 
 export function buildShareCaption(event: Pick<PtnEvent, "title" | "slug">, origin: string) {
   return `Ikut ${event.title} dari Habitutor, GRATIS! Daftar di ${origin}/ptntour/${event.slug} #PTNTour #SNBT #Habitutor`;
+}
+
+/** Label akses di kartu/detail: gratis untuk semua, sebagian gratis, atau khusus Premium. */
+export function getAccessBadge(event: Pick<PtnEvent, "accessMode">) {
+  if (event.accessMode === "premium") return { label: "PREMIUM", tone: "bg-sr-ink text-sr-sun-400" };
+  if (event.accessMode === "mixed") return { label: "SEBAGIAN GRATIS", tone: "bg-sr-sun-400 text-sr-ink" };
+  return { label: "GRATIS", tone: "bg-sr-sun-400 text-sr-ink" };
+}
+
+export function isPremiumLocked(event: Pick<PtnEvent, "accessMode">, isPremium: boolean) {
+  return event.accessMode === "premium" && !isPremium;
 }

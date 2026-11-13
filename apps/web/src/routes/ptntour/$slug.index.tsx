@@ -21,13 +21,16 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
+import { RecordingLockedDialog } from "./-components/recording-locked-dialog";
 import { RegisterDialog } from "./-components/register-dialog";
-import { useJoinEvent, useWatchRecording } from "./-hooks";
+import { useJoinEvent, usePtnTourSettings, useWatchRecording } from "./-hooks";
 import {
   formatLongDate,
   formatTime,
+  getAccessBadge,
   getEventStatus,
   getSpotsLabel,
+  isPremiumLocked,
   parseRundown,
   type PtnEvent,
   useCountdown,
@@ -137,7 +140,9 @@ function EventDetailPage() {
               <span className="rounded-full bg-sr-sun-100 px-3 py-1 text-xs font-bold text-sr-amber-700">
                 {event.category}
               </span>
-              <span className="rounded-full bg-sr-sun-400 px-2.5 py-1 text-[11px] font-black text-sr-ink">GRATIS</span>
+              <span className={cn("rounded-full px-2.5 py-1 text-[11px] font-black", getAccessBadge(event).tone)}>
+                {getAccessBadge(event).label}
+              </span>
             </div>
             <h1 className="mt-3 text-3xl leading-tight font-black text-sr-ink sm:text-4xl">{event.title}</h1>
             <p className="mt-3 text-base leading-relaxed text-sr-muted">{event.description}</p>
@@ -268,6 +273,7 @@ function EventDetailPage() {
         </div>
       </div>
 
+      <RecordingLockedDialog message={watch.locked} onClose={watch.closeLocked} />
       <RegisterDialog event={event} isPremium={isPremium} open={registerOpen} onOpenChange={setDialogOpen} />
     </>
   );
@@ -334,6 +340,13 @@ function PrimaryAction({
       </Button>
     );
   }
+  if (isPremiumLocked(event, isPremium)) {
+    return (
+      <Button size="lg" asChild>
+        <Link to="/premium">Khusus Premium · Lihat Paket</Link>
+      </Button>
+    );
+  }
   const label = event.phase === "ended" ? "Daftar untuk Tonton Rekaman" : "Daftar Gratis";
   if (!loggedIn) {
     return (
@@ -387,6 +400,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 }
 
 function UpsellBanner({ event }: { event: PtnEvent }) {
+  const { data: settings } = usePtnTourSettings();
   const days = event.recordingFreeDays;
   return (
     <section className="relative overflow-hidden rounded-sr-xl sr-card-blue p-5 text-white shadow-sr-2 sm:p-7">
@@ -395,12 +409,14 @@ function UpsellBanner({ event }: { event: PtnEvent }) {
         <div className="flex items-start gap-3">
           <CrownIcon weight="fill" className="mt-1 size-6 shrink-0 text-sr-sun-400" />
           <div>
-            <h2 className="font-black">Mau tonton rekaman tanpa batas waktu?</h2>
+            <h2 className="font-black">{settings?.promo_title ?? "Mau tonton rekaman tanpa batas waktu?"}</h2>
             <p className="mt-1 text-sm text-white/85">
-              {days > 0
-                ? `Akun gratis bisa menonton ${days} hari setelah event.`
-                : "Akun gratis bisa menonton selama event masih tayang."}{" "}
-              Premium membuka semua rekaman dan sesi intensif selamanya.
+              {event.accessMode === "mixed"
+                ? "Rekaman event ini khusus member Premium."
+                : days > 0
+                  ? `Akun gratis bisa menonton ${days} hari setelah event.`
+                  : "Akun gratis bisa menonton selama event masih tayang."}{" "}
+              {settings?.promo_text}
             </p>
           </div>
         </div>
@@ -408,7 +424,9 @@ function UpsellBanner({ event }: { event: PtnEvent }) {
           asChild
           className="shrink-0 border-transparent text-sr-ink shadow-sr-sun [background:var(--sr-grad-sun)]"
         >
-          <Link to="/premium">Lihat Paket Premium</Link>
+          <Link to={(settings?.promo_cta_url ?? "/premium") as "/premium"}>
+            {settings?.promo_cta_label ?? "Lihat Paket Premium"}
+          </Link>
         </Button>
       </div>
     </section>

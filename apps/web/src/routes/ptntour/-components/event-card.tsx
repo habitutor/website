@@ -3,7 +3,17 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useJoinEvent, useWatchRecording } from "../-hooks";
-import { formatDate, formatTime, getEventStatus, getSpotsLabel, type PtnEvent, useCountdown } from "../-lib";
+import {
+  formatDate,
+  formatTime,
+  getAccessBadge,
+  getEventStatus,
+  getSpotsLabel,
+  isPremiumLocked,
+  type PtnEvent,
+  useCountdown,
+} from "../-lib";
+import { RecordingLockedDialog } from "./recording-locked-dialog";
 
 export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; isPremium: boolean; index?: number }) {
   const status = getEventStatus(event, isPremium);
@@ -11,6 +21,8 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
   const join = useJoinEvent();
   const watch = useWatchRecording();
   const canJoin = status.key === "live" && (event.registered || isPremium);
+  const access = getAccessBadge(event);
+  const premiumLocked = isPremiumLocked(event, isPremium);
 
   return (
     <article
@@ -33,8 +45,13 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
           {status.key === "live" && <span className="size-2 animate-pulse rounded-full bg-white" />}
           {status.label}
         </span>
-        <span className="absolute top-3 right-3 rounded-full bg-sr-sun-400 px-2.5 py-1 text-[11px] font-black text-sr-ink shadow-sr-1">
-          GRATIS
+        <span
+          className={cn(
+            "absolute top-3 right-3 rounded-full px-2.5 py-1 text-[11px] font-black shadow-sr-1",
+            access.tone,
+          )}
+        >
+          {access.label}
         </span>
       </Link>
 
@@ -107,6 +124,10 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
                 </Link>
               </Button>
             )
+          ) : premiumLocked ? (
+            <Button asChild className="w-full" variant="outline">
+              <Link to="/premium">Khusus Premium</Link>
+            </Button>
           ) : status.key === "full" ? (
             <Button className="w-full" disabled>
               Kuota Penuh
@@ -120,6 +141,7 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
           )}
         </div>
       </div>
+      <RecordingLockedDialog message={watch.locked} onClose={watch.closeLocked} />
     </article>
   );
 }

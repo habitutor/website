@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { ImageSquareIcon } from "@phosphor-icons/react";
+import { useMutation } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { compressImage } from "@/lib/compress-image";
 import { cn } from "@/lib/utils";
+import { orpc } from "@/utils/orpc";
 
 export const EVENT_CATEGORY_OPTIONS = ["Masterclass", "Kelas Gratis PTN Tour", "Intensif"] as const;
+export const SUBJECT_OPTIONS = ["PU", "PK", "Literasi", "TKA", "Strategi"] as const;
 export const ACCESS_MODE_OPTIONS = [
   { value: "free", label: "Gratis", hint: "Semua akun boleh ikut" },
   { value: "premium", label: "Premium", hint: "Khusus member Premium" },
@@ -16,6 +22,7 @@ export type EventFormValues = {
   title: string;
   slug: string;
   category: (typeof EVENT_CATEGORY_OPTIONS)[number];
+  subjects: string[];
   startsAt: string; // "YYYY-MM-DDTHH:mm" dalam WIB
   durationMinutes: string;
   quota: string;
@@ -37,6 +44,7 @@ export const EMPTY_EVENT_FORM: EventFormValues = {
   title: "",
   slug: "",
   category: "Masterclass",
+  subjects: [],
   startsAt: "",
   durationMinutes: "120",
   quota: "",
@@ -112,6 +120,74 @@ function Group({ title, description, children }: { title: string; description?: 
   );
 }
 
+function SubjectPicker({ value, onChange }: { value: string[]; onChange: (value: string[]) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Subtes">
+      {SUBJECT_OPTIONS.map((subject) => {
+        const active = value.includes(subject);
+        return (
+          <button
+            key={subject}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(active ? value.filter((item) => item !== subject) : [...value, subject])}
+            className={cn(
+              "rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-all",
+              active
+                ? "border-sr-blue-500 bg-sr-blue-500 text-white shadow-sr-1"
+                : "border-sr-line bg-white text-sr-muted hover:border-sr-blue-200 hover:text-sr-ink",
+            )}
+          >
+            {subject}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function PosterUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const upload = useMutation(
+    orpc.ptnTour.admin.uploadPoster.mutationOptions({
+      onSuccess: ({ url }) => {
+        onUploaded(url);
+        toast.success("Poster diunggah");
+      },
+      onError: (error) => toast.error("Gagal mengunggah poster", { description: error.message }),
+    }),
+  );
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-fit rounded-full"
+        disabled={upload.isPending}
+        onClick={() => inputRef.current?.click()}
+      >
+        <ImageSquareIcon /> {upload.isPending ? "Mengunggah…" : "Unggah dari komputer"}
+      </Button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="sr-only"
+        onChange={async (event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (!file) return;
+          try {
+            upload.mutate({ image: await compressImage(file, { maxSize: 1600, quality: 0.85 }) });
+          } catch {
+            toast.error("Gambar belum bisa diproses", { description: "Pilih file PNG, JPG, atau WebP." });
+          }
+        }}
+      />
+    </>
+  );
+}
+
 export function EventForm({
   initial,
   mode,
@@ -183,6 +259,9 @@ export function EventForm({
               </option>
             ))}
           </select>
+        </Field>
+        <Field label="Subtes / mapel" hint="Dipakai untuk filter di daftar event siswa." className="sm:col-span-2">
+          <SubjectPicker value={form.subjects} onChange={(value) => set("subjects", value)} />
         </Field>
         <Field label="Tutor *">
           <Input value={form.tutor} onChange={(e) => set("tutor", e.target.value)} placeholder="Kak Zhafir" required />
@@ -261,6 +340,7 @@ export function EventForm({
             placeholder="https://… atau /event-placeholder.svg"
             required
           />
+          <PosterUpload onUploaded={(url) => set("posterUrl", url)} />
         </Field>
         <div className="flex items-center justify-center rounded-sr-lg border border-dashed border-sr-line bg-sr-ivory/60 p-3">
           {form.posterUrl ? (
@@ -389,6 +469,7 @@ export function toEventPayload(form: EventFormValues) {
     slug: form.slug.trim(),
     title: form.title.trim(),
     category: form.category,
+    subjects: form.subjects,
     description: form.description.trim(),
     longDescription: nullable(form.longDescription),
     rundown: nullable(form.rundown),

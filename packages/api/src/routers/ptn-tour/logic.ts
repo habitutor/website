@@ -125,3 +125,68 @@ export function normalizePhone(value: string) {
   if (!match) throw new PtnTourError("BAD_REQUEST", "Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx.");
   return `0${match[1]}`;
 }
+
+export const EVENT_SUBJECTS = ["PU", "PK", "Literasi", "TKA", "Strategi"] as const;
+
+export function normalizeSubjects(values: readonly string[]) {
+  const allowed = new Set<string>(EVENT_SUBJECTS);
+  const unique = Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+  const invalid = unique.find((value) => !allowed.has(value));
+  if (invalid) throw new PtnTourError("BAD_REQUEST", `Subtes "${invalid}" tidak dikenal.`);
+  return unique;
+}
+
+/** Batas bukti: follow maks 5 gambar, share maks 10 gambar, masing-masing minimal 1 untuk akun gratis. */
+export const MAX_FOLLOW_PROOFS = 5;
+export const MAX_SHARE_PROOFS = 10;
+export const MAX_PROOF_LENGTH = 450_000; // karakter data URL; klien mengompres gambar sebelum kirim
+const PROOF_PATTERN = /^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/;
+
+export function validateProofs({ follow, share, required }: { follow: readonly string[]; share: readonly string[]; required: boolean }) {
+  if (required && (follow.length < 1 || share.length < 1)) {
+    throw new PtnTourError("BAD_REQUEST", "Unggah minimal 1 screenshot follow dan 1 screenshot share poster.");
+  }
+  if (follow.length > MAX_FOLLOW_PROOFS) throw new PtnTourError("BAD_REQUEST", `Screenshot follow maksimal ${MAX_FOLLOW_PROOFS} gambar.`);
+  if (share.length > MAX_SHARE_PROOFS) throw new PtnTourError("BAD_REQUEST", `Screenshot share maksimal ${MAX_SHARE_PROOFS} gambar.`);
+  for (const proof of [...follow, ...share]) {
+    if (proof.length > MAX_PROOF_LENGTH || !PROOF_PATTERN.test(proof)) {
+      throw new PtnTourError("BAD_REQUEST", "Bukti harus berupa gambar PNG, JPG, atau WebP dengan ukuran wajar.");
+    }
+  }
+}
+
+/** Event khusus Premium hanya bisa didaftar/diikuti member Premium. */
+export function canAttend({ accessMode, isPremium }: { accessMode: string; isPremium: boolean }) {
+  return accessMode !== "premium" || isPremium;
+}
+
+/** Event campuran: live gratis, tetapi rekamannya khusus Premium. */
+export function isRecordingPremiumOnly({ accessMode }: { accessMode: string }) {
+  return accessMode === "mixed" || accessMode === "premium";
+}
+
+const HOUR_MS = 60 * 60 * 1000;
+
+/** Reminder H-1: dikirim saat sisa waktu <= 24 jam tetapi masih > 1 jam (jangan menimpa reminder 1 jam). */
+export function isDayReminderDue(startsAt: Date, now = new Date()) {
+  const remaining = startsAt.getTime() - now.getTime();
+  return remaining <= 24 * HOUR_MS && remaining > HOUR_MS;
+}
+
+/** Reminder 1 jam: dikirim saat sisa waktu <= 1 jam dan acara belum mulai. */
+export function isHourReminderDue(startsAt: Date, now = new Date()) {
+  const remaining = startsAt.getTime() - now.getTime();
+  return remaining <= HOUR_MS && remaining > 0;
+}
+
+export const PROOF_RETENTION_DAYS = 60;
+
+export const DEFAULT_SETTINGS = {
+  whatsapp_channel_url: "https://whatsapp.com/channel/0029Vb8B01GLCoWsj02Zwd0e",
+  promo_title: "Siap lanjut belajar lebih serius?",
+  promo_text: "Premium membuka live class, semua rekaman event, dan bank soal lengkap untuk SNBT.",
+  promo_cta_label: "Lihat Paket Premium",
+  promo_cta_url: "/premium",
+} as const;
+export type SettingKey = keyof typeof DEFAULT_SETTINGS;
+export const SETTING_KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];

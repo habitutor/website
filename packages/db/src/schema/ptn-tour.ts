@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { boolean, index, integer, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { user } from "./user";
 
@@ -22,6 +23,7 @@ export const ptnTourEvent = pgTable(
     recordingUrl: text("recording_url"),
     recordingFreeDays: integer("recording_free_days").notNull().default(30),
     accessMode: text("access_mode").notNull().default("free"),
+    subjects: text().array().notNull().default(sql`'{}'::text[]`),
     isPublished: boolean("is_published").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -44,6 +46,8 @@ export const ptnTourRegistration = pgTable(
     dataConsentAt: timestamp("data_consent_at"),
     accessMethod: text("access_method").notNull().default("share"),
     attendedAt: timestamp("attended_at"),
+    reminderDayAt: timestamp("reminder_day_at"),
+    reminderHourAt: timestamp("reminder_hour_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [
@@ -69,3 +73,28 @@ export const ptnTourMaterial = pgTable(
   },
   (table) => [index("ptn_tour_material_event_idx").on(table.eventId, table.isPublished)],
 );
+
+/** Bukti follow/share yang diunggah peserta. Hanya pengingat syarat, dihapus otomatis setelah masa simpan. */
+export const ptnTourProof = pgTable(
+  "ptn_tour_proof",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    registrationId: integer("registration_id")
+      .notNull()
+      .references(() => ptnTourRegistration.id, { onDelete: "cascade" }),
+    kind: text().notNull(),
+    url: text().notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("ptn_tour_proof_registration_idx").on(table.registrationId),
+    index("ptn_tour_proof_created_at_idx").on(table.createdAt),
+  ],
+);
+
+/** Pengaturan pusat (link channel WA, teks promo) yang sama untuk semua event. */
+export const ptnTourSetting = pgTable("ptn_tour_setting", {
+  key: text().primaryKey(),
+  value: text().notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

@@ -28,6 +28,7 @@ import { useSyncOnboardingProfile } from "@/hooks/data/use-sync-onboarding-profi
 import { Announcement } from "../-components/announcement";
 import { LastClasses } from "../-components/last-classes";
 import { LiveClass } from "../-components/live-class";
+import { NearestEvents } from "../-components/nearest-events";
 import { UserProgress } from "../-components/user-progress";
 import { PWATutorialDialog } from "./-components/pwa-tutorial-dialog";
 import { PremiumWhatsappDialog } from "./-components/premium-whatsapp-dialog";
@@ -305,6 +306,9 @@ function RouteComponent() {
         </MotionStaggerItem>
         <MotionStaggerItem>
           <Announcement />
+        </MotionStaggerItem>
+        <MotionStaggerItem>
+          <NearestEvents />
         </MotionStaggerItem>
         <MotionStaggerItem>
           <LiveClass />

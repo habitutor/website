@@ -57,6 +57,7 @@ function EditPtnTourPage() {
     title: event.title,
     slug: event.slug,
     category: event.category as EventFormValues["category"],
+    subjects: event.subjects,
     startsAt: toWibInput(event.startsAt),
     durationMinutes: String(event.durationMinutes),
     quota: event.quota === null ? "" : String(event.quota),

@@ -6,6 +6,7 @@ import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout
 import { AdminSearchInput, FilterChips, usePagedList } from "@/components/admin/list-tools";
 import { AdminPagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ function ParticipantsPage() {
   const { data, isPending } = useQuery(orpc.ptnTour.admin.participants.queryOptions({ input: { eventId } }));
   const { data: event } = useQuery(orpc.ptnTour.admin.get.queryOptions({ input: { id: eventId } }));
   const [access, setAccess] = useState<Access>("all");
+  const [proofsFor, setProofsFor] = useState<{ id: number; name: string } | null>(null);
 
   const byAccess = useMemo(
     () => data?.participants.filter((row) => access === "all" || row.accessMethod === access),
@@ -53,7 +55,19 @@ function ParticipantsPage() {
 
   const download = () => {
     if (!data) return;
-    const headers = ["Nama", "Email", "WhatsApp", "Sekolah", "Kelas", "Target PTN", "Cara akses", "Terdaftar", "Hadir"];
+    const headers = [
+      "Nama",
+      "Email",
+      "WhatsApp",
+      "Sekolah",
+      "Kelas",
+      "Target PTN",
+      "Cara akses",
+      "Jumlah bukti",
+      "Beli paket setelahnya",
+      "Terdaftar",
+      "Hadir",
+    ];
     const rows = data.participants.map((item) => [
       item.name,
       item.email,
@@ -62,6 +76,8 @@ function ParticipantsPage() {
       item.classLevel,
       item.dreamCampus,
       ACCESS_LABEL[item.accessMethod] ?? item.accessMethod,
+      item.proofCount,
+      item.purchasedAfter ? "Ya" : "Tidak",
       formatStamp(item.registeredAt),
       item.attendedAt ? formatStamp(item.attendedAt) : "Tidak",
     ]);
@@ -102,9 +118,9 @@ function ParticipantsPage() {
         />
         <Stat label="Akun Premium" value={data?.premium} hint="Join tanpa daftar" pending={isPending} />
         <Stat
-          label="Lewat share poster"
-          value={data ? data.total - data.premium : undefined}
-          hint="Tanpa verifikasi manual"
+          label="Beli paket setelahnya"
+          value={data?.purchased}
+          hint="Premium dibeli setelah event mulai"
           pending={isPending}
         />
       </div>
@@ -130,19 +146,21 @@ function ParticipantsPage() {
                 <TableHead>Target PTN</TableHead>
                 <TableHead>Cara akses</TableHead>
                 <TableHead>Hadir</TableHead>
+                <TableHead>Bukti</TableHead>
+                <TableHead>Beli paket</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isPending && (
                 <TableRow>
-                  <TableCell colSpan={6}>
+                  <TableCell colSpan={8}>
                     <Skeleton className="h-12 w-full" />
                   </TableCell>
                 </TableRow>
               )}
               {!isPending && list.pageItems.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-14 text-center text-sm text-sr-muted">
+                  <TableCell colSpan={8} className="py-14 text-center text-sm text-sr-muted">
                     {data?.total ? "Tidak ada peserta yang cocok." : "Belum ada peserta yang mendaftar."}
                   </TableCell>
                 </TableRow>
@@ -187,6 +205,29 @@ function ParticipantsPage() {
                       <span className="text-sm text-sr-muted">Belum</span>
                     )}
                   </TableCell>
+
+                  <TableCell>
+                    {row.proofCount > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => setProofsFor({ id: row.id, name: row.name })}
+                        className="text-sm font-bold text-sr-blue-600 hover:underline"
+                      >
+                        {row.proofCount} gambar
+                      </button>
+                    ) : (
+                      <span className="text-sm text-sr-muted">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {row.purchasedAfter ? (
+                      <span className="inline-flex rounded-full bg-sr-sun-100 px-2.5 py-1 text-xs font-bold text-sr-amber-700">
+                        Premium
+                      </span>
+                    ) : (
+                      <span className="text-sm text-sr-muted">-</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -204,7 +245,51 @@ function ParticipantsPage() {
           onPageChange={list.setPage}
         />
       )}
+      <ProofsDialog target={proofsFor} onClose={() => setProofsFor(null)} />
     </AdminContainer>
+  );
+}
+
+function ProofsDialog({ target, onClose }: { target: { id: number; name: string } | null; onClose: () => void }) {
+  const { data, isPending } = useQuery({
+    ...orpc.ptnTour.admin.proofs.queryOptions({ input: { registrationId: target?.id ?? 0 } }),
+    enabled: target !== null,
+  });
+  return (
+    <Dialog open={target !== null} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Bukti dari {target?.name}</DialogTitle>
+          <DialogDescription>
+            Hanya pengingat syarat, tidak diverifikasi. Gambar dihapus otomatis setelah 60 hari.
+          </DialogDescription>
+        </DialogHeader>
+        {isPending ? (
+          <Skeleton className="h-40 w-full" />
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {data?.map((proof) => (
+              <a
+                key={proof.id}
+                href={proof.url}
+                target="_blank"
+                rel="noreferrer"
+                className="group block overflow-hidden rounded-sr-md border border-sr-line"
+              >
+                <img
+                  src={proof.url}
+                  alt={`Bukti ${proof.kind}`}
+                  className="aspect-3/4 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <span className="block bg-sr-ivory px-2 py-1 text-xs font-bold text-sr-muted capitalize">
+                  {proof.kind === "follow" ? "Follow" : "Share poster"}
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 

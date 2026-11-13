@@ -1,6 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import {
   assertSlug,
+  canAttend,
+  isDayReminderDue,
+  isHourReminderDue,
+  isRecordingPremiumOnly,
+  normalizeSubjects,
+  validateProofs,
   getEndsAt,
   getPhase,
   getRecordingAccess,
@@ -87,5 +93,50 @@ describe("input helpers", () => {
     expect(() => assertSlug("intro-snbt-2027")).not.toThrow();
     expect(() => assertSlug("Intro SNBT")).toThrow(PtnTourError);
     expect(() => assertSlug("-salah")).toThrow(PtnTourError);
+  });
+});
+
+const PNG = "data:image/png;base64,iVBORw0KGgo=";
+
+describe("access gates", () => {
+  it("restricts premium events and recordings of mixed events", () => {
+    expect(canAttend({ accessMode: "free", isPremium: false })).toBe(true);
+    expect(canAttend({ accessMode: "mixed", isPremium: false })).toBe(true);
+    expect(canAttend({ accessMode: "premium", isPremium: false })).toBe(false);
+    expect(canAttend({ accessMode: "premium", isPremium: true })).toBe(true);
+    expect(isRecordingPremiumOnly({ accessMode: "free" })).toBe(false);
+    expect(isRecordingPremiumOnly({ accessMode: "mixed" })).toBe(true);
+  });
+});
+
+describe("proof validation", () => {
+  it("requires at least one follow and one share image for free accounts", () => {
+    expect(() => validateProofs({ follow: [], share: [PNG], required: true })).toThrow(PtnTourError);
+    expect(() => validateProofs({ follow: [PNG], share: [], required: true })).toThrow(PtnTourError);
+    expect(() => validateProofs({ follow: [PNG], share: [PNG], required: true })).not.toThrow();
+    expect(() => validateProofs({ follow: [], share: [], required: false })).not.toThrow();
+  });
+
+  it("enforces counts and image format", () => {
+    expect(() => validateProofs({ follow: Array(6).fill(PNG), share: [PNG], required: true })).toThrow(PtnTourError);
+    expect(() => validateProofs({ follow: [PNG], share: Array(11).fill(PNG), required: true })).toThrow(PtnTourError);
+    expect(() => validateProofs({ follow: ["https://evil.example/x.png"], share: [PNG], required: true })).toThrow(PtnTourError);
+  });
+});
+
+describe("subjects and reminders", () => {
+  it("accepts only known subjects without duplicates", () => {
+    expect(normalizeSubjects(["PU", "PK", "PU"])).toEqual(["PU", "PK"]);
+    expect(() => normalizeSubjects(["Fisika"])).toThrow(PtnTourError);
+  });
+
+  it("sends the day reminder once within 24h to 1h and the hour reminder within the last hour", () => {
+    const start = new Date("2026-11-20T12:30:00.000Z");
+    expect(isDayReminderDue(start, new Date("2026-11-19T12:29:00.000Z"))).toBe(false);
+    expect(isDayReminderDue(start, new Date("2026-11-19T12:31:00.000Z"))).toBe(true);
+    expect(isDayReminderDue(start, new Date("2026-11-20T11:40:00.000Z"))).toBe(false);
+    expect(isHourReminderDue(start, new Date("2026-11-20T11:30:00.000Z"))).toBe(true);
+    expect(isHourReminderDue(start, new Date("2026-11-20T11:29:00.000Z"))).toBe(false);
+    expect(isHourReminderDue(start, new Date("2026-11-20T12:30:00.000Z"))).toBe(false);
   });
 });

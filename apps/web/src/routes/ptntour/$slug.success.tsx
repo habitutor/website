@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { COMMUNITY_LINKS } from "@/lib/community-links";
 import { orpc } from "@/utils/orpc";
+import { usePtnTourSettings } from "./-hooks";
 import { formatLongDate, formatTime, getGoogleCalendarUrl } from "./-lib";
 
 export const Route = createFileRoute("/ptntour/$slug/success")({ component: RegistrationSuccessPage });
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/ptntour/$slug/success")({ component: Regi
 function RegistrationSuccessPage() {
   const { slug } = Route.useParams();
   const { data: session, isPending: sessionPending } = authClient.useSession();
+  const { data: settings } = usePtnTourSettings();
   const {
     data: event,
     isPending,
@@ -56,7 +58,11 @@ function RegistrationSuccessPage() {
             </Button>
           )}
           <Button asChild variant="outline" className="h-auto justify-start gap-3 rounded-sr-md px-4 py-3">
-            <a href={COMMUNITY_LINKS.whatsappChannel} target="_blank" rel="noreferrer">
+            <a
+              href={settings?.whatsapp_channel_url ?? COMMUNITY_LINKS.whatsappChannel}
+              target="_blank"
+              rel="noreferrer"
+            >
               <WhatsappLogoIcon weight="fill" className="size-5 text-emerald-600" />
               <span>
                 Follow WhatsApp Channel Habitutor
@@ -96,16 +102,16 @@ function RegistrationSuccessPage() {
           <div className="relative flex items-start gap-3">
             <CrownIcon weight="fill" className="mt-0.5 size-6 shrink-0 text-sr-sun-400" />
             <div>
-              <p className="font-black">Siap lanjut belajar lebih serius?</p>
-              <p className="mt-1 text-sm text-white/85">
-                Premium membuka live class, semua rekaman event, dan bank soal lengkap untuk SNBT.
-              </p>
+              <p className="font-black">{settings?.promo_title ?? "Siap lanjut belajar lebih serius?"}</p>
+              <p className="mt-1 text-sm text-white/85">{settings?.promo_text}</p>
               <Button
                 asChild
                 size="sm"
                 className="mt-3 border-transparent text-sr-ink shadow-sr-sun [background:var(--sr-grad-sun)]"
               >
-                <Link to="/premium">Lihat Paket Premium</Link>
+                <Link to={(settings?.promo_cta_url ?? "/premium") as "/premium"}>
+                  {settings?.promo_cta_label ?? "Lihat Paket Premium"}
+                </Link>
               </Button>
             </div>
           </div>

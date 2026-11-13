@@ -8,7 +8,7 @@ import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { EventCard, EventCardSkeleton } from "./-components/event-card";
-import { EVENT_CATEGORIES } from "./-lib";
+import { EVENT_CATEGORIES, EVENT_SUBJECTS } from "./-lib";
 
 export const Route = createFileRoute("/ptntour/")({ component: PtnTourListPage });
 
@@ -35,6 +35,7 @@ function PtnTourListPage() {
   });
   const [tab, setTab] = useState<Tab>("upcoming");
   const [category, setCategory] = useState<(typeof EVENT_CATEGORIES)[number]>("Semua");
+  const [subject, setSubject] = useState<string>("Semua");
   const [search, setSearch] = useState("");
 
   const counts = useMemo(
@@ -46,6 +47,8 @@ function PtnTourListPage() {
     [events],
   );
 
+  const hasSubjects = useMemo(() => events?.some((event) => event.subjects.length > 0) ?? false, [events]);
+
   const visible = useMemo(() => {
     const keyword = search.trim().toLowerCase();
     const filtered = (events ?? []).filter((event) => {
@@ -53,6 +56,7 @@ function PtnTourListPage() {
       if (tab === "registered" && !event.registered) return false;
       if (tab === "recordings" && !(event.phase === "ended" && event.hasRecording)) return false;
       if (category !== "Semua" && event.category !== category) return false;
+      if (subject !== "Semua" && !event.subjects.includes(subject)) return false;
       return !keyword || `${event.title} ${event.tutor} ${event.campus}`.toLowerCase().includes(keyword);
     });
     // Terdekat dulu untuk yang akan datang; rekaman terbaru dulu.
@@ -61,7 +65,7 @@ function PtnTourListPage() {
         ? new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime()
         : new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
     );
-  }, [events, tab, category, search]);
+  }, [events, tab, category, subject, search]);
 
   return (
     <>
@@ -133,6 +137,27 @@ function PtnTourListPage() {
             </Button>
           ))}
         </div>
+        {hasSubjects && (
+          <div
+            className="-mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-1"
+            role="group"
+            aria-label="Filter subtes"
+          >
+            <span className="shrink-0 text-xs font-bold tracking-wide text-sr-muted uppercase">Subtes</span>
+            {["Semua", ...EVENT_SUBJECTS].map((item) => (
+              <Button
+                key={item}
+                size="sm"
+                variant={subject === item ? "default" : "outline"}
+                aria-pressed={subject === item}
+                className="shrink-0 rounded-full"
+                onClick={() => setSubject(item)}
+              >
+                {item === "Semua" ? "Semua mapel" : item}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
       {isError ? (
@@ -154,7 +179,7 @@ function PtnTourListPage() {
         <EmptyState
           tab={tab}
           loggedIn={Boolean(session?.user)}
-          hasFilter={category !== "Semua" || search.trim() !== ""}
+          hasFilter={category !== "Semua" || subject !== "Semua" || search.trim() !== ""}
         />
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

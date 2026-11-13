@@ -1,6 +1,8 @@
 import { logger } from "@habitutor/shared/logger";
 import { reconcileStalePendingTransactions } from "./routers/transaction/sync";
 
+export { startPtnTourJobs, stopPtnTourJobs } from "./routers/ptn-tour/jobs";
+
 const RECONCILIATION_INTERVAL_MS = 5 * 60 * 1000;
 
 let reconciliationTimer: ReturnType<typeof setInterval> | null = null;
