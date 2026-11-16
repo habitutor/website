@@ -1,8 +1,11 @@
 import { logger } from "@habitutor/shared/logger";
 import { type } from "arktype";
+import { ORPCError } from "@orpc/server";
 import { authed, pub } from "../../index";
 import { PATUNGAN_BERTIGA, PREMIUM_PACKAGES, SNBT_2027_DEADLINE } from "../../lib/constants";
 import { createMobileCharge } from "../../lib/midtrans";
+import { applyBuyerDiscount } from "../affiliate/logic";
+import { AffiliateError, affiliateRepo } from "../affiliate/repo";
 import { getPackagePrice, isPackageAvailable } from "./pricing";
 import { transactionRepo } from "./repo";
 import { markTransactionAsSuccess } from "./sync";
@@ -62,6 +65,7 @@ const charge = authed
       method: "'qris' | 'bank_transfer'",
       "bank?": "'bca' | 'bni' | 'bri'",
       "groupInviteCode?": "string",
+      "referralCode?": "string",
     }),
   )
   .handler(async ({ input, context, errors }) => {
@@ -79,10 +83,13 @@ const charge = authed
     if (!product) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
     let amount: number;
+    let referralCodeId: string | undefined;
     let paymentGroupId: string | undefined;
     let groupInviteCode: string | undefined;
 
     if (input.plan === PATUNGAN_BERTIGA.SLUG) {
+      if (input.referralCode?.trim())
+        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral tidak berlaku untuk Patungan Bertiga." });
       amount = PATUNGAN_BERTIGA.PRICE_PER_PERSON;
 
       if (input.groupInviteCode) {
@@ -105,7 +112,17 @@ const charge = authed
         groupInviteCode = group.inviteCode;
       }
     } else {
-      amount = getPackagePrice(SOLO_PACKAGE.SLUG);
+      // Diskon afiliasi untuk pembelian Premium pertama, dihitung di server seperti di web.
+      let referral: Awaited<ReturnType<typeof affiliateRepo.resolveDiscount>>;
+      try {
+        referral = await affiliateRepo.resolveDiscount({ userId: context.session.user.id, code: input.referralCode });
+      } catch (error) {
+        if (error instanceof AffiliateError) throw new ORPCError(error.code, { message: error.message });
+        throw error;
+      }
+      const basePrice = getPackagePrice(SOLO_PACKAGE.SLUG);
+      amount = referral ? applyBuyerDiscount(basePrice) : basePrice;
+      referralCodeId = referral?.id;
     }
 
     const orderId = `tx_${crypto.randomUUID()}`;
@@ -118,6 +135,7 @@ const charge = authed
       userId: context.session.user.id,
       isSimulation: simulated,
       paymentGroupId,
+      referralCodeId,
     });
     if (!createdTransaction)
       throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });

@@ -59,5 +59,6 @@ Komisi yang dibayarkan ke individu bisa menjadi objek pajak penghasilan. Sebelum
 - Tabel baru: `affiliate_commission` (satu baris per pembelian pertama teman) dan `affiliate_payout` (permintaan pencairan). Kode referral memakai tabel yang sudah ada.
 - Kode baru 8 karakter huruf besar tanpa huruf yang mirip (mudah diketik). Kode lama 11 karakter tetap berlaku; pemilik yang belum dipakai teman boleh menukarnya.
 - Semua angka bisnis ada di `packages/api/src/routers/affiliate/logic.ts` (`AFFILIATE`) dan teruji di `logic.test.ts`.
-- Checkout mobile (`transaction/mobile.ts`) belum memakai diskon referral; web sudah.
+- Diskon referral berlaku di checkout web dan mobile (paket solo). Patungan Bertiga tidak ikut program ini.
+- Afiliator mendapat notifikasi saat komisi dari temannya tercatat.
 - Migrasi: dibuat sebagai 0029 di branch ini. Kalau branch PTN Tour (migrasi 0029-0035) di-merge lebih dulu, migrasi ini perlu dibuat ulang (`bun run db:generate`) di atas nomor terakhir.

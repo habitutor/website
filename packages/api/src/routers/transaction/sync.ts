@@ -104,6 +104,7 @@ async function processReferralReward(input: {
   grossAmount: number;
   paidAt: Date;
 }) {
+  let earned = null as { affiliateUserId: string; amount: number } | null;
   try {
     await db.transaction(async (trx) => {
       const alreadyRecorded = await referralRepo.getUsageByTransactionId({
@@ -127,6 +128,7 @@ async function processReferralReward(input: {
           amount: commission,
           availableAt: getCommissionAvailableAt(input.paidAt),
         });
+        earned = { affiliateUserId, amount: commission };
       }
 
       const linkedUsage = await referralRepo.attachPendingUsageToTransaction({
@@ -161,6 +163,7 @@ async function processReferralReward(input: {
       });
     }
   }
+  return earned;
 }
 
 export async function markTransactionAsSuccess(orderId: string, paidAtFromGateway?: Date) {
@@ -256,7 +259,20 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
   if (!result) return null;
 
   if (result.referral) {
-    await processReferralReward({ orderId, ...result.referral });
+    const earned = await processReferralReward({ orderId, ...result.referral });
+    if (earned) {
+      // Beri tahu afiliator; kegagalan kirim tidak boleh mengganggu pembayaran yang sudah sukses.
+      try {
+        await notifyUser({
+          userId: earned.affiliateUserId,
+          type: "system",
+          title: "Komisi masuk! 🎉",
+          body: `Temanmu membeli Premium lewat kodemu. Komisi Rp${earned.amount.toLocaleString("id-ID")} tercatat dan bisa dicairkan setelah ${AFFILIATE.HOLD_DAYS} hari.`,
+        });
+      } catch (err) {
+        logger.error("Failed to send affiliate commission notification", { orderId, error: err });
+      }
+    }
   }
 
   // Inbox + push happen outside the DB transaction: delivery must never roll
