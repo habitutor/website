@@ -19,6 +19,7 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAffiliateRouteImport } from './routes/admin/affiliate'
 import { Route as AdminAnnouncementRouteImport } from './routes/admin/announcement'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard-content'
@@ -28,6 +29,8 @@ import { Route as AdminReferralsRouteImport } from './routes/admin/referrals'
 import { Route as HomePremiumIndexRouteImport } from './routes/home-premium/index'
 import { Route as PtntourIndexRouteImport } from './routes/ptntour/index'
 import { Route as PtntourSlugRouteImport } from './routes/ptntour/$slug'
+import { Route as RCodeRouteImport } from './routes/r.$code'
+import { Route as AuthenticatedAffiliateIndexRouteImport } from './routes/_authenticated/affiliate/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
@@ -129,6 +132,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAffiliateRoute = AdminAffiliateRouteImport.update({
+  id: '/affiliate',
+  path: '/affiliate',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAnnouncementRoute = AdminAnnouncementRouteImport.update({
   id: '/announcement',
   path: '/announcement',
@@ -174,6 +182,17 @@ const PtntourSlugRoute = PtntourSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => PtntourRoute,
 } as any)
+const RCodeRoute = RCodeRouteImport.update({
+  id: '/r/$code',
+  path: '/r/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAffiliateIndexRoute =
+  AuthenticatedAffiliateIndexRouteImport.update({
+    id: '/affiliate/',
+    path: '/affiliate/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedClassesIndexRoute =
   AuthenticatedClassesIndexRouteImport.update({
     id: '/classes/',
@@ -476,6 +495,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
+  '/admin/affiliate': typeof AdminAffiliateRoute
   '/admin/announcement': typeof AdminAnnouncementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
@@ -483,6 +503,7 @@ export interface FileRoutesByFullPath {
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/ptntour/$slug': typeof PtntourSlugRouteWithChildren
+  '/r/$code': typeof RCodeRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
   '/ptntour/': typeof PtntourIndexRoute
@@ -498,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/admin/tryout/create': typeof AdminTryoutCreateRoute
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
   '/ptntour/$slug/success': typeof PtntourSlugSuccessRoute
+  '/affiliate/': typeof AuthenticatedAffiliateIndexRoute
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
@@ -545,12 +567,14 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
+  '/admin/affiliate': typeof AdminAffiliateRoute
   '/admin/announcement': typeof AdminAnnouncementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
   '/admin/live-class': typeof AdminLiveClassRoute
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
+  '/r/$code': typeof RCodeRoute
   '/admin': typeof AdminIndexRoute
   '/home-premium': typeof HomePremiumIndexRoute
   '/ptntour': typeof PtntourIndexRoute
@@ -565,6 +589,7 @@ export interface FileRoutesByTo {
   '/admin/tryout/create': typeof AdminTryoutCreateRoute
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
   '/ptntour/$slug/success': typeof PtntourSlugSuccessRoute
+  '/affiliate': typeof AuthenticatedAffiliateIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
@@ -617,6 +642,7 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
+  '/admin/affiliate': typeof AdminAffiliateRoute
   '/admin/announcement': typeof AdminAnnouncementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dashboard-content': typeof AdminDashboardContentRoute
@@ -624,6 +650,7 @@ export interface FileRoutesById {
   '/admin/recordings': typeof AdminRecordingsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/ptntour/$slug': typeof PtntourSlugRouteWithChildren
+  '/r/$code': typeof RCodeRoute
   '/admin/': typeof AdminIndexRoute
   '/home-premium/': typeof HomePremiumIndexRoute
   '/ptntour/': typeof PtntourIndexRoute
@@ -639,6 +666,7 @@ export interface FileRoutesById {
   '/admin/tryout/create': typeof AdminTryoutCreateRoute
   '/admin/tryout/passing-grade': typeof AdminTryoutPassingGradeRoute
   '/ptntour/$slug/success': typeof PtntourSlugSuccessRoute
+  '/_authenticated/affiliate/': typeof AuthenticatedAffiliateIndexRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
@@ -690,6 +718,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/admin/affiliate'
     | '/admin/announcement'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
@@ -697,6 +726,7 @@ export interface FileRouteTypes {
     | '/admin/recordings'
     | '/admin/referrals'
     | '/ptntour/$slug'
+    | '/r/$code'
     | '/admin/'
     | '/home-premium/'
     | '/ptntour/'
@@ -712,6 +742,7 @@ export interface FileRouteTypes {
     | '/admin/tryout/create'
     | '/admin/tryout/passing-grade'
     | '/ptntour/$slug/success'
+    | '/affiliate/'
     | '/classes/'
     | '/dashboard/'
     | '/latihan-soal/'
@@ -759,12 +790,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/admin/affiliate'
     | '/admin/announcement'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
     | '/admin/live-class'
     | '/admin/recordings'
     | '/admin/referrals'
+    | '/r/$code'
     | '/admin'
     | '/home-premium'
     | '/ptntour'
@@ -779,6 +812,7 @@ export interface FileRouteTypes {
     | '/admin/tryout/create'
     | '/admin/tryout/passing-grade'
     | '/ptntour/$slug/success'
+    | '/affiliate'
     | '/classes'
     | '/dashboard'
     | '/latihan-soal'
@@ -830,6 +864,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_auth/reset-password'
+    | '/admin/affiliate'
     | '/admin/announcement'
     | '/admin/dashboard'
     | '/admin/dashboard-content'
@@ -837,6 +872,7 @@ export interface FileRouteTypes {
     | '/admin/recordings'
     | '/admin/referrals'
     | '/ptntour/$slug'
+    | '/r/$code'
     | '/admin/'
     | '/home-premium/'
     | '/ptntour/'
@@ -852,6 +888,7 @@ export interface FileRouteTypes {
     | '/admin/tryout/create'
     | '/admin/tryout/passing-grade'
     | '/ptntour/$slug/success'
+    | '/_authenticated/affiliate/'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/latihan-soal/'
@@ -900,6 +937,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   PtntourRoute: typeof PtntourRouteWithChildren
+  RCodeRoute: typeof RCodeRoute
   HomePremiumIndexRoute: typeof HomePremiumIndexRoute
 }
 
@@ -975,6 +1013,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/affiliate': {
+      id: '/admin/affiliate'
+      path: '/affiliate'
+      fullPath: '/admin/affiliate'
+      preLoaderRoute: typeof AdminAffiliateRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/announcement': {
       id: '/admin/announcement'
       path: '/announcement'
@@ -1037,6 +1082,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/ptntour/$slug'
       preLoaderRoute: typeof PtntourSlugRouteImport
       parentRoute: typeof PtntourRoute
+    }
+    '/r/$code': {
+      id: '/r/$code'
+      path: '/r/$code'
+      fullPath: '/r/$code'
+      preLoaderRoute: typeof RCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/affiliate/': {
+      id: '/_authenticated/affiliate/'
+      path: '/affiliate'
+      fullPath: '/affiliate/'
+      preLoaderRoute: typeof AuthenticatedAffiliateIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/classes/': {
       id: '/_authenticated/classes/'
@@ -1446,6 +1505,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedTryoutSessionRoute: typeof AuthenticatedTryoutSessionRoute
   AuthenticatedTryoutTestRoute: typeof AuthenticatedTryoutTestRoute
+  AuthenticatedAffiliateIndexRoute: typeof AuthenticatedAffiliateIndexRoute
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
@@ -1473,6 +1533,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedTryoutSessionRoute: AuthenticatedTryoutSessionRoute,
   AuthenticatedTryoutTestRoute: AuthenticatedTryoutTestRoute,
+  AuthenticatedAffiliateIndexRoute: AuthenticatedAffiliateIndexRoute,
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
@@ -1545,6 +1606,7 @@ const AdminClassesShortNameContentIdRouteWithChildren =
   )
 
 interface AdminRouteChildren {
+  AdminAffiliateRoute: typeof AdminAffiliateRoute
   AdminAnnouncementRoute: typeof AdminAnnouncementRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDashboardContentRoute: typeof AdminDashboardContentRoute
@@ -1573,6 +1635,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAffiliateRoute: AdminAffiliateRoute,
   AdminAnnouncementRoute: AdminAnnouncementRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDashboardContentRoute: AdminDashboardContentRoute,
@@ -1636,6 +1699,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   PtntourRoute: PtntourRouteWithChildren,
+  RCodeRoute: RCodeRoute,
   HomePremiumIndexRoute: HomePremiumIndexRoute,
 }
 export const routeTree = rootRouteImport

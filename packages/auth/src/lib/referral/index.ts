@@ -1,8 +1,6 @@
 import { db } from "@habitutor/db";
 import { referralCode } from "@habitutor/db/schema/referral";
-
-const CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_";
-const CODE_LENGTH = 11;
+import { generateFriendlyCode } from "@habitutor/shared/referral-code";
 
 class ReferralCodeGenerationError extends Error {
   constructor() {
@@ -11,17 +9,10 @@ class ReferralCodeGenerationError extends Error {
   }
 }
 
-function generateCodeString(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(CODE_LENGTH));
-  return Array.from(bytes)
-    .map((byte) => CHARS[byte % CHARS.length])
-    .join("");
-}
-
 async function createForUser(userId: string) {
   let attempts = 0;
   while (true) {
-    const code = generateCodeString();
+    const code = generateFriendlyCode();
     const [result] = await db
       .insert(referralCode)
       .values({ code, userId })

@@ -260,6 +260,13 @@
       "when": 1794610332541,
       "tag": "0036_sharp_mandarin",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794805605948,
+      "tag": "0037_fast_betty_ross",
+      "breakpoints": true
     }
   ]
 }

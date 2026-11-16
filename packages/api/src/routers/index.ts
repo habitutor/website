@@ -7,6 +7,7 @@ import { adminPromoRouter } from "./admin/promos";
 import { adminQuestionRouter } from "./admin/question";
 import { adminRecordingRouter } from "./admin/recording";
 import { adminReferralRouter } from "./admin/referrals";
+import { adminAffiliateRouter, affiliateRouter } from "./affiliate";
 import { adminStatisticsRouter } from "./admin/statistics";
 import { adminTryoutRouter } from "./admin/tryout";
 import { adminTransactionRouter } from "./admin/transactions";
@@ -88,6 +89,7 @@ const adminRouter: {
   transactions: typeof adminTransactionRouter;
   promos: typeof adminPromoRouter;
   referrals: typeof adminReferralRouter;
+  affiliate: typeof adminAffiliateRouter;
   dashboardContent: typeof adminDashboardContentRouter;
   recording: typeof adminRecordingRouter;
 } = {
@@ -126,6 +128,7 @@ const adminRouter: {
   transactions: adminTransactionRouter,
   promos: adminPromoRouter,
   referrals: adminReferralRouter,
+  affiliate: adminAffiliateRouter,
   dashboardContent: adminDashboardContentRouter,
   recording: adminRecordingRouter,
 };
@@ -143,6 +146,7 @@ export const appRouter: {
   admin: typeof adminRouter;
   transaction: typeof transactionRouter;
   referral: typeof referralRouter;
+  affiliate: typeof affiliateRouter;
   streak: typeof streakRouter;
   notification: typeof notificationRouter;
   recording: typeof recordingRouter;
@@ -161,6 +165,7 @@ export const appRouter: {
   admin: adminRouter,
   transaction: transactionRouter,
   referral: referralRouter,
+  affiliate: affiliateRouter,
   streak: streakRouter,
   notification: notificationRouter,
   recording: recordingRouter,

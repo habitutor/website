@@ -54,7 +54,7 @@ const validate = authed
 
     if (!validation.ok) {
       if (validation.reason === "invalid_length") {
-        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral harus 11 karakter." });
+        throw errors.UNPROCESSABLE_CONTENT({ message: "Kode referral tidak valid." });
       }
       if (validation.reason === "not_found") {
         throw errors.NOT_FOUND({ message: "Kode referral tidak ditemukan." });

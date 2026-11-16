@@ -15,6 +15,8 @@ import {
 } from "../../lib/constants";
 import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
+import { computeCommission, AFFILIATE, getCommissionAvailableAt } from "../affiliate/logic";
+import { affiliateRepo } from "../affiliate/repo";
 import { ptnTourRepo } from "../ptn-tour/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { addMonthsUtc, resolveExpiryWithoutShortening } from "./premium-expiry";
@@ -101,7 +103,10 @@ async function processReferralReward(input: {
   userId: string;
   referralCodeId: string;
   productSlug: string;
+  grossAmount: number;
+  paidAt: Date;
 }) {
+  let earned = null as { affiliateUserId: string; amount: number } | null;
   try {
     await db.transaction(async (trx) => {
       const alreadyRecorded = await referralRepo.getUsageByTransactionId({
@@ -110,8 +115,23 @@ async function processReferralReward(input: {
       });
       if (alreadyRecorded) return;
 
-      const originalProduct = await transactionRepo.getProductBySlug({ db: trx, slug: input.productSlug });
-      const cashback = originalProduct ? String(Math.floor(Number(originalProduct.price) * 0.25)) : "0";
+      // Komisi afiliator = 10% dari uang yang benar-benar dibayar teman (sudah setelah diskon 15%).
+      const commission = computeCommission(input.grossAmount);
+      const cashback = String(commission);
+      const affiliateUserId = await affiliateRepo.getCodeOwner({ db: trx, referralCodeId: input.referralCodeId });
+      if (affiliateUserId && affiliateUserId !== input.userId && commission > 0) {
+        await affiliateRepo.createCommission({
+          db: trx,
+          affiliateUserId,
+          buyerUserId: input.userId,
+          transactionId: input.orderId,
+          baseAmount: input.grossAmount,
+          ratePercent: AFFILIATE.COMMISSION_PERCENT,
+          amount: commission,
+          availableAt: getCommissionAvailableAt(input.paidAt),
+        });
+        earned = { affiliateUserId, amount: commission };
+      }
 
       const linkedUsage = await referralRepo.attachPendingUsageToTransaction({
         db: trx,
@@ -145,6 +165,7 @@ async function processReferralReward(input: {
       });
     }
   }
+  return earned;
 }
 
 export async function markTransactionAsSuccess(orderId: string, paidAtFromGateway?: Date) {
@@ -234,7 +255,13 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
       // Only process referral once, on the transition into success.
       referral:
         !alreadySuccessful && tx.referralCodeId && tx.userId
-          ? { userId: tx.userId, referralCodeId: tx.referralCodeId, productSlug: existingTransaction.prodSlug }
+          ? {
+              userId: tx.userId,
+              referralCodeId: tx.referralCodeId,
+              productSlug: existingTransaction.prodSlug,
+              grossAmount: Number(tx.grossAmount ?? 0),
+              paidAt: resolvedPaidAt,
+            }
           : null,
     };
   });
@@ -242,7 +269,20 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
   if (!result) return null;
 
   if (result.referral) {
-    await processReferralReward({ orderId, ...result.referral });
+    const earned = await processReferralReward({ orderId, ...result.referral });
+    if (earned) {
+      // Beri tahu afiliator; kegagalan kirim tidak boleh mengganggu pembayaran yang sudah sukses.
+      try {
+        await notifyUser({
+          userId: earned.affiliateUserId,
+          type: "system",
+          title: "Komisi masuk! 🎉",
+          body: `Temanmu membeli Premium lewat kodemu. Komisi Rp${earned.amount.toLocaleString("id-ID")} tercatat dan bisa dicairkan setelah ${AFFILIATE.HOLD_DAYS} hari.`,
+        });
+      } catch (err) {
+        logger.error("Failed to send affiliate commission notification", { orderId, error: err });
+      }
+    }
   }
 
   // Inbox + push happen outside the DB transaction: delivery must never roll
@@ -344,6 +384,10 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
         premiumTier: replacementPremium?.tier ?? null,
         premiumExpiresAt: replacementPremium?.expiresAt ?? null,
       });
+    }
+
+    if (revokeSuccessfulPayment && wasSuccessful) {
+      await affiliateRepo.voidCommission({ db: trx, transactionId: orderId });
     }
 
     if (

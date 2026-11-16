@@ -12,6 +12,7 @@ import * as notification from "./schema/notification";
 import * as practice from "./schema/practice-pack";
 import * as question from "./schema/question";
 import * as recording from "./schema/recording";
+import * as affiliate from "./schema/affiliate";
 import * as referral from "./schema/referral";
 import * as transaction from "./schema/transaction";
 import * as tryout from "./schema/tryout";
@@ -29,6 +30,7 @@ const schema = {
   ...flashcard,
   ...freemium,
   ...dashboard,
+  ...affiliate,
   ...referral,
   ...transaction,
   ...tryout,

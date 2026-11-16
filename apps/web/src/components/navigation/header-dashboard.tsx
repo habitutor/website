@@ -4,6 +4,7 @@ import {
   CrownIcon,
   ExamIcon,
   FilmStripIcon,
+  HandCoinsIcon,
   HouseIcon,
   ListIcon,
   SignOutIcon,
@@ -42,6 +43,7 @@ import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
 import { shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
+import { useAffiliateSeen } from "@/hooks/data/use-affiliate-seen";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -63,6 +65,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
     enabled: isDashboard,
   });
   const [open, setOpen] = useState(false);
+  const { isNew: affiliateIsNew } = useAffiliateSeen();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
   const dashboardPopupPending =
@@ -158,12 +161,18 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           {session && <StreakIndicator autoOpenBlocked={dashboardPopupPending} />}
           <div className="hidden md:flex md:items-center md:gap-4">
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-0.5 transition-shadow hover:shadow-sr-2">
+              <DropdownMenuTrigger className="relative flex items-center gap-2 rounded-full p-0.5 transition-shadow hover:shadow-sr-2">
                 {session?.user.isPremium && <PremiumBadge />}
                 <Avatar className="ring-2 ring-sr-blue-100">
                   <AvatarImage src={avatarSrc} alt="User Profile Picture" />
                   <AvatarFallback>{firstInitial}</AvatarFallback>
                 </Avatar>
+                {affiliateIsNew && (
+                  <span
+                    aria-label="Ada fitur baru: Ajak Teman"
+                    className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-sr-sun-500 ring-2 ring-white motion-safe:animate-pulse"
+                  />
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-sr-sm">
                 <DropdownMenuLabel className="max-w-64 wrap-break-word whitespace-normal">
@@ -173,6 +182,15 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                   <Link to="/profile">
                     <UserCircleIcon />
                     Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/affiliate">
+                    <HandCoinsIcon />
+                    Ajak Teman
+                    <span className="ml-auto rounded-full bg-sr-sun-100 px-2 py-0.5 text-[10px] font-black text-sr-amber-700">
+                      {affiliateIsNew ? "Baru" : "Dapat 10%"}
+                    </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
@@ -186,11 +204,17 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full text-sr-ink lg:hidden"
+            className="relative rounded-full text-sr-ink lg:hidden"
             onClick={() => setMobileMenuOpen(true)}
-            aria-label="Buka menu"
+            aria-label={affiliateIsNew ? "Buka menu, ada fitur baru: Ajak Teman" : "Buka menu"}
           >
             <ListIcon weight="bold" className="size-6" />
+            {affiliateIsNew && (
+              <span
+                aria-hidden
+                className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-sr-sun-500 ring-2 ring-white motion-safe:animate-pulse"
+              />
+            )}
           </Button>
         </div>
       </div>
@@ -252,7 +276,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                       key={link.to}
                       to={link.to}
                       className={cn(
-                        "flex items-center gap-3 rounded-sr-sm border px-3 py-3 font-semibold transition-colors",
+                        "relative flex items-center gap-3 rounded-sr-sm border px-3 py-3 font-semibold transition-colors",
                         active
                           ? "border-transparent bg-sr-blue-500 text-white shadow-sr-2"
                           : "border-sr-line bg-white text-sr-ink hover:border-sr-blue-200 hover:bg-sr-blue-50",
@@ -264,6 +288,11 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                       {"badge" in link && (
                         <span className="rounded-full bg-sr-sun-400 px-1.5 py-0.5 text-[10px] leading-none font-black text-sr-ink">
                           {link.badge}
+                        </span>
+                      )}
+                      {link.to === "/affiliate" && affiliateIsNew && (
+                        <span className="absolute -top-2 -right-1 rounded-full bg-sr-sun-400 px-2 py-0.5 text-[10px] font-black text-sr-ink shadow-sr-1 ring-2 ring-sr-ivory">
+                          Baru
                         </span>
                       )}
                     </Link>
@@ -292,7 +321,12 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
   );
 }
 
-const mobileLinks = [...links, { name: "Profil", to: "/profile", icon: UserCircleIcon }] as const;
+// Ajak Teman tidak masuk navbar utama supaya tidak terlalu panjang; ada di menu akun dan menu HP.
+const mobileLinks = [
+  ...links,
+  { name: "Ajak Teman", to: "/affiliate", icon: HandCoinsIcon },
+  { name: "Profil", to: "/profile", icon: UserCircleIcon },
+] as const;
 
 const PremiumBadge = () => (
   <Badge className="gap-1 border-0 bg-(image:--sr-grad-sun) text-sr-ink shadow-sr-sun">

@@ -163,6 +163,8 @@ type PremiumPackageCardProps = {
   isDisabled?: boolean;
   onSubscribe?: () => void;
   hasInitiatedPurchase?: boolean;
+  /** Diskon referral (persen) yang berlaku untuk pembeli ini; harga akhir dihitung sama seperti di server. */
+  referralDiscountPercent?: number;
 };
 
 const CTA_CLASS_NAME = cn(
@@ -179,6 +181,7 @@ export function PremiumPackageCard({
   isDisabled = false,
   onSubscribe,
   hasInitiatedPurchase = false,
+  referralDiscountPercent = 0,
 }: PremiumPackageCardProps) {
   const copy = PREMIUM_PACKAGE_COPY[pkg.slug];
   const buttonLabel = isSubscribed
@@ -228,6 +231,13 @@ export function PremiumPackageCard({
             )}
             <span className="text-xs text-white/80">/ sekali bayar</span>
           </div>
+          {referralDiscountPercent > 0 && pkg.isAvailable && (
+            <p className="mt-2 inline-flex flex-wrap items-center gap-2 rounded-full bg-sr-sun-100 px-3 py-1.5 text-xs font-extrabold text-sr-amber-700">
+              Dengan kode referral:{" "}
+              {formatRupiah(Math.round((pkg.currentPrice * (100 - referralDiscountPercent)) / 100))}
+              <span className="rounded-full bg-white px-2 py-0.5">Hemat {referralDiscountPercent}%</span>
+            </p>
+          )}
           <div className="mt-4 flex items-start gap-3 rounded-sr-sm border border-white/25 bg-white/10 px-4 py-3">
             <CalendarBlankIcon size={22} weight="duotone" className="mt-0.5 shrink-0 text-sr-sun-200" />
             <p className="text-sm font-bold text-white">{getAccessLabel(pkg)}</p>
@@ -288,6 +298,7 @@ type PremiumPackageGridProps = {
   initiatedSlug?: PremiumPackageSlug;
   isDisabled?: boolean;
   onSubscribe?: (slug: PremiumPackageSlug) => void;
+  referralDiscountPercent?: number;
 };
 
 export function PremiumPackageGrid({
@@ -296,6 +307,7 @@ export function PremiumPackageGrid({
   initiatedSlug,
   isDisabled = false,
   onSubscribe,
+  referralDiscountPercent = 0,
 }: PremiumPackageGridProps) {
   const { packages, isPending } = usePremiumPackages();
 
@@ -318,6 +330,7 @@ export function PremiumPackageGrid({
               isDisabled={isDisabled}
               onSubscribe={() => onSubscribe?.(pkg.slug)}
               hasInitiatedPurchase={initiatedSlug === pkg.slug}
+              referralDiscountPercent={referralDiscountPercent}
             />
           </motion.div>
         ))}
