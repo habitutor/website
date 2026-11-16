@@ -1,4 +1,5 @@
 import { ImageSquareIcon } from "@phosphor-icons/react";
+import { motion } from "motion/react";
 import { useMutation } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -115,7 +116,13 @@ function Field({
 
 function Group({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1">
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: [0.2, 0.7, 0.2, 1] }}
+      className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2"
+    >
       <div className="mb-4 flex items-center gap-3">
         <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
         <div>
@@ -124,7 +131,7 @@ function Group({ title, description, children }: { title: string; description?: 
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -253,7 +260,10 @@ export function EventForm({
             required
           />
         </Field>
-        <Field label="Link event (slug) *" hint={`habitutor.id/ptntour/${form.slug || "judul-event"}`}>
+        <Field
+          label="Alamat link event *"
+          hint={`Alamat halaman event: habitutor.id/ptntour/${form.slug || "judul-event"}. Terisi otomatis dari judul. Hanya huruf kecil, angka, dan tanda hubung. Jangan diubah setelah link dibagikan ke IG, nanti link lama tidak bisa dibuka.`}
+        >
           <Input
             value={form.slug}
             onChange={(e) => {
@@ -286,7 +296,7 @@ export function EventForm({
           <Input
             value={form.campus}
             onChange={(e) => set("campus", e.target.value)}
-            placeholder="UI · Pendidikan"
+            placeholder="FH UGM"
             required
           />
         </Field>

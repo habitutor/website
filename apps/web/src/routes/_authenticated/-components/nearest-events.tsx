@@ -39,7 +39,7 @@ export function NearestEvents() {
       }
     >
       <div className="grid gap-4 md:grid-cols-2">
-        {nearest.map((event) => {
+        {nearest.map((event, index) => {
           const status = getEventStatus(event, isPremium);
           const access = getAccessBadge(event);
           const locked = isPremiumLocked(event, isPremium);
@@ -48,7 +48,8 @@ export function NearestEvents() {
               key={event.slug}
               to="/ptntour/$slug"
               params={{ slug: event.slug }}
-              className="group flex sr-lift gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-1"
+              className="group flex animate-sr-rise sr-lift gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-1"
+              style={{ animationDelay: `${index * 80}ms` }}
             >
               <img
                 src={event.posterUrl}

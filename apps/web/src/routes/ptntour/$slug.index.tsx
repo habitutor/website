@@ -22,11 +22,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { COMMUNITY_LINKS } from "@/lib/community-links";
 import { cn } from "@/lib/utils";
 import { TiltCard } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 import { CountdownTiles } from "./-components/countdown-tiles";
 import { RecordingLockedDialog } from "./-components/recording-locked-dialog";
+import { RichDescription } from "./-components/rich-description";
 import { RegisterDialog } from "./-components/register-dialog";
 import { useJoinEvent, usePtnTourSettings, useWatchRecording } from "./-hooks";
 import {
@@ -70,6 +72,7 @@ function EventDetailPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const join = useJoinEvent();
   const watch = useWatchRecording();
+  const { data: settings } = usePtnTourSettings();
 
   // Setelah login dari tombol "Daftar Gratis", pengguna kembali ke sini dan formulir langsung terbuka.
   const autoOpen = Boolean(daftar && session?.user && event && !event.registered && event.phase !== "ended");
@@ -244,9 +247,7 @@ function EventDetailPage() {
           {event.longDescription && (
             <motion.div {...fadeUp}>
               <Section title="Tentang event ini">
-                <p className="text-sm leading-relaxed whitespace-pre-line text-sr-ink-2 sm:text-base">
-                  {event.longDescription}
-                </p>
+                <RichDescription text={event.longDescription} />
               </Section>
             </motion.div>
           )}
@@ -383,6 +384,17 @@ function EventDetailPage() {
                   </a>
                 </Button>
               )}
+              {event.registered && (
+                <Button asChild variant="outline" className="justify-start rounded-full">
+                  <a
+                    href={settings?.whatsapp_channel_url ?? COMMUNITY_LINKS.whatsappChannel}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <WhatsappLogoIcon weight="fill" className="text-emerald-600" /> Follow Channel WhatsApp
+                  </a>
+                </Button>
+              )}
               <Button variant="outline" className="justify-start rounded-full" onClick={share}>
                 <ShareNetworkIcon /> Bagikan ke teman
               </Button>
@@ -433,7 +445,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:p-7">
+    <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-2 sm:p-7">
       <div className="mb-4 flex items-center gap-3">
         <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
         <div>
