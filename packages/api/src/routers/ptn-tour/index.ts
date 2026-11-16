@@ -18,7 +18,7 @@ import {
   parseDateOrThrow,
   PtnTourError,
 } from "./logic";
-import { uploadTryoutImage } from "../../lib/cloudinary";
+import { isCloudinaryConfigured, uploadTryoutImage } from "../../lib/cloudinary";
 import { ptnTourRepo } from "./repo";
 import { notifyScheduleChange } from "./jobs";
 
@@ -482,6 +482,13 @@ const adminUploadPoster = admin
     run(errors as unknown as Errors, async () => {
       if (!/^data:image\/(png|jpe?g|webp);base64,/.test(input.image) || input.image.length > 8_000_000) {
         throw new PtnTourError("BAD_REQUEST", "Poster harus gambar PNG, JPG, atau WebP di bawah ±6 MB.");
+      }
+      // Tanpa Cloudinary, helper hanya mengembalikan data base64 yang terlalu panjang dan ditolak saat disimpan.
+      if (!isCloudinaryConfigured()) {
+        throw new PtnTourError(
+          "BAD_REQUEST",
+          "Penyimpanan gambar (Cloudinary) belum diatur di server ini. Tempel tautan gambar https:// secara manual, atau atur CLOUDINARY_* di server.",
+        );
       }
       const url = await uploadTryoutImage(input.image, "habitutor/ptn-tour/poster");
       return { url };
