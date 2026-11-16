@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatRupiah, formatWibDate } from "@/lib/premium-packages";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/affiliate/")({
@@ -46,7 +47,7 @@ const PAYOUT_STATUS = {
 } as const;
 
 function RouteComponent() {
-  const { data, isPending } = useQuery(orpc.affiliate.overview.queryOptions());
+  const { data, isPending, isError, error, refetch } = useQuery(orpc.affiliate.overview.queryOptions());
   const { data: rules } = useQuery(orpc.affiliate.rules.queryOptions());
   const discountPercent = rules?.buyerDiscountPercent ?? 15;
   const commissionPercent = rules?.commissionPercent ?? 10;
@@ -83,8 +84,23 @@ function RouteComponent() {
         </div>
       </MotionStaggerItem>
 
+      {isError && (
+        <MotionStaggerItem>
+          <div className="flex flex-col gap-2 rounded-sr-xl border border-destructive/30 bg-destructive/5 p-5">
+            <p className="font-black text-sr-ink">Data afiliasi belum bisa dimuat</p>
+            <p className="text-sm text-sr-muted">
+              {error?.message ?? "Terjadi kesalahan."} Pastikan server API versi terbaru sedang berjalan, lalu coba
+              lagi.
+            </p>
+            <Button variant="outline" className="w-fit rounded-full" onClick={() => refetch()}>
+              Coba lagi
+            </Button>
+          </div>
+        </MotionStaggerItem>
+      )}
+
       <MotionStaggerItem>
-        <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 sm:p-6">
+        <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2 sm:p-6">
           <h2 className="font-black text-sr-ink">Kode dan link ajakanmu</h2>
           {isPending ? (
             <Skeleton className="mt-3 h-24 w-full" />
@@ -123,19 +139,19 @@ function RouteComponent() {
 
       <MotionStaggerItem>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Stat icon={<UserPlusIcon weight="fill" />} label="Teman daftar" value={data?.signupCount} pending={isPending} />
-          <Stat icon={<UsersThreeIcon weight="fill" />} label="Teman beli" value={data?.buyerCount} pending={isPending} />
+          <Stat icon={<UserPlusIcon weight="fill" />} label="Teman daftar" value={data ? <CountUp to={data.signupCount} /> : undefined} pending={isPending} />
+          <Stat icon={<UsersThreeIcon weight="fill" />} label="Teman beli" value={data ? <CountUp to={data.buyerCount} /> : undefined} pending={isPending} />
           <Stat
             icon={<ClockIcon weight="fill" />}
             label="Komisi ditahan"
-            value={data ? formatRupiah(data.balance.pending) : undefined}
+            value={data ? <CountUp to={data.balance.pending} prefix="Rp" /> : undefined}
             hint={`Cair setelah ${rules?.holdDays ?? 7} hari`}
             pending={isPending}
           />
           <Stat
             icon={<WalletIcon weight="fill" />}
             label="Saldo bisa dicairkan"
-            value={data ? formatRupiah(data.balance.available) : undefined}
+            value={data ? <CountUp to={data.balance.available} prefix="Rp" /> : undefined}
             highlight
             pending={isPending}
           />
@@ -154,7 +170,7 @@ function RouteComponent() {
 
       <MotionStaggerItem>
         <div className="grid gap-5 lg:grid-cols-2">
-          <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1">
+          <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2">
             <h2 className="font-black text-sr-ink">Progres teman yang kamu ajak</h2>
             {isPending ? (
               <Skeleton className="mt-3 h-28 w-full" />
@@ -184,7 +200,7 @@ function RouteComponent() {
             )}
           </section>
 
-          <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1">
+          <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2">
             <h2 className="font-black text-sr-ink">Riwayat pencairan</h2>
             {isPending ? (
               <Skeleton className="mt-3 h-28 w-full" />
@@ -278,7 +294,10 @@ function Stat({
   pending?: boolean;
 }) {
   return (
-    <div className={cn("rounded-sr-lg border p-4 shadow-sr-1", highlight ? "border-sr-sun-300 bg-sr-sun-100" : "border-sr-line bg-white")}>
+    <div className={cn(
+        "rounded-sr-lg border p-4 shadow-sr-1 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-2",
+        highlight ? "border-sr-sun-300 bg-sr-sun-100" : "border-sr-line bg-white",
+      )}>
       <div className="flex items-center gap-1.5 text-xs font-bold text-sr-muted [&>svg]:size-4">
         {icon}
         {label}

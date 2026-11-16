@@ -53,7 +53,6 @@ const links = [
   { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
   { name: "Live Recording", to: "/recordings", icon: FilmStripIcon },
   { name: "Premium", to: "/premium", icon: CrownIcon },
-  { name: "Ajak Teman", to: "/affiliate", icon: HandCoinsIcon },
 ] as const;
 
 export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
@@ -169,6 +168,15 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                     Profile
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/affiliate">
+                    <HandCoinsIcon />
+                    Ajak Teman
+                    <span className="ml-auto rounded-full bg-sr-sun-100 px-2 py-0.5 text-[10px] font-black text-sr-amber-700">
+                      Dapat 10%
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
                   <SignOutIcon />
                   Keluar
@@ -281,7 +289,12 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
   );
 }
 
-const mobileLinks = [...links, { name: "Profil", to: "/profile", icon: UserCircleIcon }] as const;
+// Ajak Teman tidak masuk navbar utama supaya tidak terlalu panjang; ada di menu akun dan menu HP.
+const mobileLinks = [
+  ...links,
+  { name: "Ajak Teman", to: "/affiliate", icon: HandCoinsIcon },
+  { name: "Profil", to: "/profile", icon: UserCircleIcon },
+] as const;
 
 const PremiumBadge = () => (
   <Badge className="gap-1 border-0 bg-(image:--sr-grad-sun) text-sr-ink shadow-sr-sun">

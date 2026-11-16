@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatRupiah, formatWibDate } from "@/lib/premium-packages";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/affiliate")({
@@ -44,30 +45,30 @@ function RouteComponent() {
       />
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Afiliator aktif" value={summary?.affiliates} pending={summaryPending} />
-        <Stat label="Teman daftar" value={summary?.signups} pending={summaryPending} />
-        <Stat label="Pembelian lewat afiliasi" value={summary?.buyers} pending={summaryPending} />
+        <Stat label="Afiliator aktif" value={summary ? <CountUp to={summary.affiliates} /> : undefined} pending={summaryPending} />
+        <Stat label="Teman daftar" value={summary ? <CountUp to={summary.signups} /> : undefined} pending={summaryPending} />
+        <Stat label="Pembelian lewat afiliasi" value={summary ? <CountUp to={summary.buyers} /> : undefined} pending={summaryPending} />
         <Stat
           label="Omzet dari afiliasi"
-          value={summary ? formatRupiah(summary.revenue) : undefined}
+          value={summary ? <CountUp to={summary.revenue} prefix="Rp" /> : undefined}
           pending={summaryPending}
         />
         <Stat
           label="Total komisi"
-          value={summary ? formatRupiah(summary.commissions) : undefined}
+          value={summary ? <CountUp to={summary.commissions} prefix="Rp" /> : undefined}
           pending={summaryPending}
         />
         <Stat
           label="Menunggu ditransfer"
-          value={summary ? formatRupiah(summary.requested) : undefined}
+          value={summary ? <CountUp to={summary.requested} prefix="Rp" /> : undefined}
           hint={summary ? `${summary.requestedCount} permintaan` : undefined}
           highlight={Boolean(summary?.requestedCount)}
           pending={summaryPending}
         />
-        <Stat label="Sudah dibayar" value={summary ? formatRupiah(summary.paid) : undefined} pending={summaryPending} />
+        <Stat label="Sudah dibayar" value={summary ? <CountUp to={summary.paid} prefix="Rp" /> : undefined} pending={summaryPending} />
       </div>
 
-      <section className="mb-6 rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1">
+      <section className="mb-6 animate-sr-rise rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-black text-sr-ink">Pencairan komisi</h2>
           <div className="flex gap-1.5">
@@ -160,7 +161,7 @@ function RouteComponent() {
         </div>
       </section>
 
-      <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1">
+      <section className="animate-sr-rise rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2">
         <h2 className="font-black text-sr-ink">Afiliator</h2>
         <div className="mt-4 overflow-x-auto">
           <Table>
@@ -226,7 +227,10 @@ function Stat({
   pending?: boolean;
 }) {
   return (
-    <div className={cn("rounded-sr-lg border p-4 shadow-sr-1", highlight ? "border-sr-sun-300 bg-sr-sun-100" : "border-sr-line bg-white")}>
+    <div className={cn(
+        "animate-sr-rise rounded-sr-lg border p-4 shadow-sr-1 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-2",
+        highlight ? "border-sr-sun-300 bg-sr-sun-100" : "border-sr-line bg-white",
+      )}>
       <p className="text-xs font-bold text-sr-muted">{label}</p>
       {pending ? <Skeleton className="mt-2 h-7 w-20" /> : <p className="mt-1 text-xl font-black text-sr-ink">{value ?? 0}</p>}
       {hint && <p className="mt-0.5 text-[11px] text-sr-muted">{hint}</p>}
