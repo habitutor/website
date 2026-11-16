@@ -1,5 +1,6 @@
 import {
   ArrowLeftIcon,
+  ArrowRightIcon,
   CheckIcon,
   CopyIcon,
   CrownSimpleIcon,
@@ -201,6 +202,10 @@ function ReferralCard({
   isGenerating: boolean;
   onAction: () => void;
 }) {
+  const { data: rules } = useQuery({ ...orpc.affiliate.rules.queryOptions(), staleTime: 5 * 60_000 });
+  const commission = rules?.commissionPercent ?? 10;
+  const discount = rules?.buyerDiscountPercent ?? 15;
+  const holdDays = rules?.holdDays ?? 7;
   return (
     <section className="relative overflow-hidden rounded-sr-xl sr-card-sun p-5 sm:p-6">
       <div className="pointer-events-none absolute -top-12 -right-12 size-40 rounded-full border-[18px] border-white/30" />
@@ -211,7 +216,7 @@ function ReferralCard({
         <div>
           <p className="text-xs font-semibold text-sr-amber-700">Program referral</p>
           <h2 className="text-base font-extrabold text-sr-ink sm:text-lg">
-            Ajak teman, dapat <span className="font-sr-serif italic">cashback 25%</span>
+            Ajak teman, dapat <span className="font-sr-serif italic">komisi {commission}%</span>
           </h2>
         </div>
       </div>
@@ -259,13 +264,22 @@ function ReferralCard({
         <span className="text-xs font-semibold text-sr-ink-2">teman terdaftar pakai kodemu</span>
       </div>
 
+      <Link
+        to="/affiliate"
+        className="relative mt-3 flex items-center justify-between gap-2 rounded-sr-md bg-sr-ink px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-sr-ink-2"
+      >
+        Lihat progres, saldo, dan pencairan
+        <ArrowRightIcon weight="bold" className="size-4" />
+      </Link>
+
       <details className="group relative mt-3 rounded-sr-md bg-white/50 px-3 py-2.5 text-xs text-sr-ink-2">
         <summary className="cursor-pointer list-none font-bold text-sr-ink [&::-webkit-details-marker]:hidden">
           Syarat & ketentuan <span className="inline-block transition-transform group-open:rotate-180">▾</span>
         </summary>
         <ul className="mt-2 list-disc space-y-1 pl-4 leading-relaxed">
-          <li>Cashback 25% berlaku untuk pembelian paket oleh teman (pengguna baru).</li>
-          <li>Saldo akan masuk setelah transaksi teman terverifikasi.</li>
+          <li>Teman hemat {discount}% di pembelian paket Premium pertamanya.</li>
+          <li>Kamu dapat komisi {commission}% dari yang dibayar teman (setelah diskon), masuk ke saldo.</li>
+          <li>Komisi ditahan {holdDays} hari lalu bisa dicairkan, dibatalkan bila pembayaran dikembalikan.</li>
           <li>Habitutor berhak membatalkan reward jika ditemukan indikasi kecurangan.</li>
         </ul>
       </details>

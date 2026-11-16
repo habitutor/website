@@ -196,11 +196,17 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full text-sr-ink lg:hidden"
+            className="relative rounded-full text-sr-ink lg:hidden"
             onClick={() => setMobileMenuOpen(true)}
-            aria-label="Buka menu"
+            aria-label={affiliateIsNew ? "Buka menu, ada fitur baru: Ajak Teman" : "Buka menu"}
           >
             <ListIcon weight="bold" className="size-6" />
+            {affiliateIsNew && (
+              <span
+                aria-hidden
+                className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-sr-sun-500 ring-2 ring-white motion-safe:animate-pulse"
+              />
+            )}
           </Button>
         </div>
       </div>
@@ -262,7 +268,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                       key={link.to}
                       to={link.to}
                       className={cn(
-                        "flex items-center gap-3 rounded-sr-sm border px-3 py-3 font-semibold transition-colors",
+                        "relative flex items-center gap-3 rounded-sr-sm border px-3 py-3 font-semibold transition-colors",
                         active
                           ? "border-transparent bg-sr-blue-500 text-white shadow-sr-2"
                           : "border-sr-line bg-white text-sr-ink hover:border-sr-blue-200 hover:bg-sr-blue-50",
@@ -271,6 +277,11 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                     >
                       <Icon weight={active ? "fill" : "duotone"} className="size-5 shrink-0" />
                       <span className="truncate text-sm">{link.name}</span>
+                      {link.to === "/affiliate" && affiliateIsNew && (
+                        <span className="absolute -top-2 -right-1 rounded-full bg-sr-sun-400 px-2 py-0.5 text-[10px] font-black text-sr-ink shadow-sr-1 ring-2 ring-sr-ivory">
+                          Baru
+                        </span>
+                      )}
                     </Link>
                   );
                 })}

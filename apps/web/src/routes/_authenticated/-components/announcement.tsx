@@ -27,15 +27,9 @@ const DUMMY_PRIMARY: AnnouncementItem = {
   order: 1,
 };
 
-const CASHBACK: AnnouncementItem = {
-  id: 2,
-  title: "Dapatkan cashback 25%!",
-  description: "Bagikan kode affiliate di profilmu. Temanmu ikut belajar, kamu dapat cashback.",
-  variant: "cashback",
-  ctaLink: "/profile",
-  ctaLabel: "Lihat kode affiliate",
-  order: 2,
-};
+// Persen diambil dari aturan program di server (affiliate.rules), jadi tidak perlu diubah manual di sini.
+const CTA_LINK = "/affiliate";
+const CTA_LABEL = "Mulai ajak teman";
 
 // Deskripsi panjang dipotong dulu supaya kartu tetap rapi; siswa bisa membuka sisanya.
 const LONG_DESCRIPTION = 200;
@@ -44,7 +38,9 @@ export const Announcement = () => {
   const { data: dashboardContent } = useQuery(orpc.dashboard.content.queryOptions());
   const announcements = dashboardContent?.announcements;
   const primaryAnnouncement = announcements?.find((item) => item.variant === "primary") ?? DUMMY_PRIMARY;
-  const cashbackCtaLink = CASHBACK.ctaLink || "/profile";
+  const { data: rules } = useQuery({ ...orpc.affiliate.rules.queryOptions(), staleTime: 5 * 60_000 });
+  const commission = rules?.commissionPercent ?? 10;
+  const discount = rules?.buyerDiscountPercent ?? 15;
   const [expanded, setExpanded] = useState(false);
   const isLong = primaryAnnouncement.description.length > LONG_DESCRIPTION;
   const primaryCta = primaryAnnouncement.ctaLink;
@@ -124,16 +120,16 @@ export const Announcement = () => {
           <div className="relative mb-6">
             <p className="text-sm font-semibold text-white/80">Ajak teman belajar bareng</p>
             <p className="mt-1 flex items-baseline gap-2">
-              <span className="text-6xl leading-none font-extrabold text-sr-sun-400">25%</span>
-              <span className="text-lg font-bold text-white">cashback</span>
+              <span className="text-6xl leading-none font-extrabold text-sr-sun-400">{commission}%</span>
+              <span className="text-lg font-bold text-white">komisi</span>
             </p>
             <p className="mt-3 max-w-[62%] text-sm leading-relaxed text-white/85 sm:max-w-none sm:pr-28 md:pr-32 lg:pr-36">
-              {CASHBACK.description}
+              Temanmu hemat {discount}% di Premium pertamanya, kamu dapat {commission}% dari yang mereka bayar.
             </p>
           </div>
           <Button variant="secondary" className="sr-sheen relative z-10 mt-auto w-fit rounded-full" asChild>
-            <Link to={cashbackCtaLink}>
-              {CASHBACK.ctaLabel} <ArrowRightIcon weight="bold" />
+            <Link to={CTA_LINK}>
+              {CTA_LABEL} <ArrowRightIcon weight="bold" />
             </Link>
           </Button>
           <img

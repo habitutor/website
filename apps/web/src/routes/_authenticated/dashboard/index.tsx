@@ -11,7 +11,6 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
-import { ReferralPromoCard } from "@/components/affiliate/referral-promo-card";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -268,8 +267,6 @@ function RouteComponent() {
               </div>
             </div>
           </section>
-
-          <ReferralPromoCard variant="dashboard" dismissible />
 
           {session?.user.isPremium && showPremiumBanner ? (
             <div className="flex flex-col gap-10">
