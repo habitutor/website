@@ -49,6 +49,7 @@ import { orpc } from "@/utils/orpc";
 
 const links = [
   { name: "Dashboard", to: "/dashboard", icon: HouseIcon },
+  { name: "PTN Tour", to: "/ptntour", icon: SparkleIcon, badge: "Gratis" },
   { name: "Try Out", to: "/tryout", icon: ExamIcon },
   { name: "Kelas", to: "/classes", icon: BooksIcon },
   { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
@@ -103,7 +104,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
     <header className="fixed inset-x-0 top-0 z-50">
       {!session?.user.isPremium &&
         !location.pathname.startsWith("/classes/") &&
-        !/^\/(premium|recordings|classes|live-class)\/?$|^\/tryout(\/.*)?$|^\/dashboard\/flashcard/.test(
+        !/^\/(premium|recordings|classes|live-class|ptntour)\/?$|^\/(tryout|ptntour)(\/.*)?$|^\/dashboard\/flashcard/.test(
           location.pathname,
         ) && (
           <div className="relative flex items-center justify-center gap-2 overflow-hidden bg-(image:--sr-grad-blue) p-2 text-sm font-medium text-white max-sm:flex-col max-sm:text-center sm:gap-4">
@@ -143,7 +144,14 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
-                <span className="relative">{link.name}</span>
+                <span className="relative inline-flex items-center gap-1.5">
+                  {link.name}
+                  {"badge" in link && (
+                    <span className="rounded-full bg-sr-sun-400 px-1.5 py-0.5 text-[10px] leading-none font-black text-sr-ink">
+                      {link.badge}
+                    </span>
+                  )}
+                </span>
               </Link>
             );
           })}
@@ -277,6 +285,11 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                     >
                       <Icon weight={active ? "fill" : "duotone"} className="size-5 shrink-0" />
                       <span className="truncate text-sm">{link.name}</span>
+                      {"badge" in link && (
+                        <span className="rounded-full bg-sr-sun-400 px-1.5 py-0.5 text-[10px] leading-none font-black text-sr-ink">
+                          {link.badge}
+                        </span>
+                      )}
                       {link.to === "/affiliate" && affiliateIsNew && (
                         <span className="absolute -top-2 -right-1 rounded-full bg-sr-sun-400 px-2 py-0.5 text-[10px] font-black text-sr-ink shadow-sr-1 ring-2 ring-sr-ivory">
                           Baru

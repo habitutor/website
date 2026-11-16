@@ -8,6 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/routes/-home/motion-bits";
 import { client, orpc } from "@/utils/orpc";
 import { WeekPicker } from "./-components/week-picker";
 
@@ -210,7 +211,7 @@ function ScheduleHeader({ weekCount }: { weekCount?: number }) {
       <div className="relative mt-5 flex flex-wrap gap-2">
         {weekCount !== undefined && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
-            <VideoCameraIcon weight="fill" className="size-4 text-sr-sun-400" /> {weekCount} kelas minggu ini
+            <VideoCameraIcon weight="fill" className="size-4 text-sr-sun-400" /> <CountUp to={weekCount} /> kelas minggu ini
           </span>
         )}
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">

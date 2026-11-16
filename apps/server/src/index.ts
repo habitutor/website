@@ -1,5 +1,5 @@
 import { createContext } from "@habitutor/api/context";
-import { startTransactionReconciliationJob } from "@habitutor/api/jobs";
+import { startPtnTourJobs, startTransactionReconciliationJob } from "@habitutor/api/jobs";
 import { appRouter } from "@habitutor/api/routers/index";
 import { isAdminRole } from "@habitutor/shared/auth-domain";
 import { logger } from "@habitutor/shared/logger";
@@ -120,6 +120,7 @@ app.get("/", (c) => {
 
 if (process.env.NODE_ENV !== "test") {
   startTransactionReconciliationJob();
+  startPtnTourJobs();
 }
 
 export function normalizeForwardedRequest(req: Request) {

@@ -5,6 +5,7 @@ import { logger } from "@habitutor/shared/logger";
 import {
   FREEMIUM_PEMBAHASAN_PRODUCT,
   FREEMIUM_PRODUCT,
+  PTN_TOUR_EVENT_PRODUCT,
   PAKET_2_BULAN,
   PATUNGAN_BERTIGA,
   PERINTIS_2027,
@@ -16,6 +17,7 @@ import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
 import { computeCommission, AFFILIATE, getCommissionAvailableAt } from "../affiliate/logic";
 import { affiliateRepo } from "../affiliate/repo";
+import { ptnTourRepo } from "../ptn-tour/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { addMonthsUtc, resolveExpiryWithoutShortening } from "./premium-expiry";
 import { getPackageExpiry } from "./pricing";
@@ -181,6 +183,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     const alreadySuccessful = tx.status === "success";
     const premiumUnlockedUserIds: string[] = [];
     const freemiumUnlocked: { userId: string; kind: "paket" | "pembahasan" }[] = [];
+    const ptnTourRegistered: { userId: string; eventId: number }[] = [];
 
     await transactionRepo.updateTransactionStatus({
       db: trx,
@@ -218,6 +221,12 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
       if (!alreadySuccessful) freemiumUnlocked.push({ userId: tx.userId, kind: freemiumKind });
     }
 
+    // Pendaftaran event PTN Tour (Rp10.000): peserta terdaftar otomatis begitu pembayaran settle.
+    if (existingTransaction.prodSlug === PTN_TOUR_EVENT_PRODUCT.SLUG && tx.userId) {
+      const activated = await ptnTourRepo.activatePayment({ db: trx, transactionId: orderId });
+      if (activated && !alreadySuccessful) ptnTourRegistered.push(activated);
+    }
+
     // Patungan Bertiga: premium unlocks for every member only once the whole
     // group has paid (getPremiumDetails intentionally excludes this slug).
     if (existingTransaction.prodSlug === PATUNGAN_BERTIGA.SLUG && tx.paymentGroupId) {
@@ -242,6 +251,7 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
       resolvedPaidAt,
       premiumUnlockedUserIds,
       freemiumUnlocked,
+      ptnTourRegistered,
       // Only process referral once, on the transition into success.
       referral:
         !alreadySuccessful && tx.referralCodeId && tx.userId
@@ -306,6 +316,19 @@ export async function markTransactionAsSuccess(orderId: string, paidAtFromGatewa
     }
   }
 
+  for (const { userId } of result.ptnTourRegistered) {
+    try {
+      await notifyUser({
+        userId,
+        type: "system",
+        title: "Pendaftaran event berhasil! 🎉",
+        body: "Pembayaran Rp10.000 berhasil dan kamu sudah terdaftar. Buka halaman event untuk grup WA dan jadwalnya.",
+      });
+    } catch (err) {
+      logger.error("Failed to send PTN Tour notification", { userId, error: err });
+    }
+  }
+
   return {
     status: "success" as const,
     paidAt: result.resolvedPaidAt,
@@ -365,6 +388,14 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
 
     if (revokeSuccessfulPayment && wasSuccessful) {
       await affiliateRepo.voidCommission({ db: trx, transactionId: orderId });
+    }
+
+    if (
+      revokeSuccessfulPayment &&
+      wasSuccessful &&
+      existingTransaction.prodSlug === PTN_TOUR_EVENT_PRODUCT.SLUG
+    ) {
+      await ptnTourRepo.revokePayment({ db: trx, transactionId: orderId });
     }
 
     if (
