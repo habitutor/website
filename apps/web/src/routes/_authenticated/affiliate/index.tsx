@@ -10,9 +10,10 @@ import {
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
+import { useAffiliateSeen } from "@/hooks/data/use-affiliate-seen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,11 @@ const PAYOUT_STATUS = {
 } as const;
 
 function RouteComponent() {
+  const { markSeen } = useAffiliateSeen();
+  useEffect(() => {
+    markSeen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { data, isPending, isError, error, refetch } = useQuery(orpc.affiliate.overview.queryOptions());
   const { data: rules } = useQuery(orpc.affiliate.rules.queryOptions());
   const discountPercent = rules?.buyerDiscountPercent ?? 15;

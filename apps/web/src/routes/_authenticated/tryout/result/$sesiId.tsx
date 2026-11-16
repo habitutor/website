@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { cn } from "@/lib/utils";
+import { ReferralPromoCard } from "@/components/affiliate/referral-promo-card";
 import { orpc } from "@/utils/orpc";
 import { PembahasanPaywall } from "../-components/freemium-access";
 
@@ -179,6 +180,8 @@ function TryoutResultPage() {
           label={bestSubtes ? `Terbaik: ${bestSubtes.namaSubtes}` : "Skor terbaik"}
         />
       </div>
+
+      <ReferralPromoCard variant="result" />
 
       <section className="space-y-3">
         <div>

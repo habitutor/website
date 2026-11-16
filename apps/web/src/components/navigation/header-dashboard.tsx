@@ -43,6 +43,7 @@ import { authClient } from "@/lib/auth-client";
 import { getAvatarSrc } from "@/lib/avatar";
 import { shouldShowPremiumWhatsappInvite } from "@/lib/community-links";
 import { WELCOME_VIDEO_ENABLED } from "@/lib/feature-flags";
+import { useAffiliateSeen } from "@/hooks/data/use-affiliate-seen";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -63,6 +64,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
     enabled: isDashboard,
   });
   const [open, setOpen] = useState(false);
+  const { isNew: affiliateIsNew } = useAffiliateSeen();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(getAvatarSrc(session?.user.image));
   const dashboardPopupPending =
@@ -151,12 +153,18 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           {session && <StreakIndicator autoOpenBlocked={dashboardPopupPending} />}
           <div className="hidden md:flex md:items-center md:gap-4">
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-0.5 transition-shadow hover:shadow-sr-2">
+              <DropdownMenuTrigger className="relative flex items-center gap-2 rounded-full p-0.5 transition-shadow hover:shadow-sr-2">
                 {session?.user.isPremium && <PremiumBadge />}
                 <Avatar className="ring-2 ring-sr-blue-100">
                   <AvatarImage src={avatarSrc} alt="User Profile Picture" />
                   <AvatarFallback>{firstInitial}</AvatarFallback>
                 </Avatar>
+                {affiliateIsNew && (
+                  <span
+                    aria-label="Ada fitur baru: Ajak Teman"
+                    className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-sr-sun-500 ring-2 ring-white motion-safe:animate-pulse"
+                  />
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="rounded-sr-sm">
                 <DropdownMenuLabel className="max-w-64 wrap-break-word whitespace-normal">
@@ -173,7 +181,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
                     <HandCoinsIcon />
                     Ajak Teman
                     <span className="ml-auto rounded-full bg-sr-sun-100 px-2 py-0.5 text-[10px] font-black text-sr-amber-700">
-                      Dapat 10%
+                      {affiliateIsNew ? "Baru" : "Dapat 10%"}
                     </span>
                   </Link>
                 </DropdownMenuItem>

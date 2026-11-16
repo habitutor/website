@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ReferralPromoCard } from "@/components/affiliate/referral-promo-card";
 import { MotionStagger, MotionStaggerItem } from "@/components/motion/motion-components";
 import { useMidtransScript } from "@/lib/midtrans";
 import type { PremiumPackageSlug } from "@/lib/premium-packages";
@@ -96,7 +97,10 @@ function RouteComponent() {
         <div className="rounded-sr-xl border border-sr-line bg-white/80 p-4 shadow-sr-1 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-4xl">
             {isPremium ? (
-              <PremiumFeatureList />
+              <>
+                <ReferralPromoCard variant="purchase" className="mb-6" />
+                <PremiumFeatureList />
+              </>
             ) : (
               <>
                 <ReferralBox
