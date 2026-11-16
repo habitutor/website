@@ -17,6 +17,7 @@ import { PasswordInput } from "./-components/password-input";
 import { getPostLoginRedirectPath } from "./auth-routing";
 
 export const Route = createFileRoute("/_auth/login")({
+  validateSearch: type({ "redirect?": "string" }),
   head: () => ({
     meta: createMeta({
       title: "Masuk",
@@ -68,6 +69,7 @@ const fieldMotion = (index: number) => ({
 });
 
 function SignInForm({ onPasswordFocusChange }: { onPasswordFocusChange: (focused: boolean) => void }) {
+  const redirect = Route.useSearch({ select: (search) => search.redirect });
   const navigate = useNavigate({
     from: "/",
   });
@@ -97,7 +99,7 @@ function SignInForm({ onPasswordFocusChange }: { onPasswordFocusChange: (focused
 
             const session = await authClient.getSession();
             const user = session.data?.user as { role?: string } | undefined;
-            navigate({ to: getPostLoginRedirectPath(user?.role) });
+            navigate({ to: redirect || getPostLoginRedirectPath(user?.role) });
           },
           onError: (error) => {
             shake();

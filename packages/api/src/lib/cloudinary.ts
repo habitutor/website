@@ -25,6 +25,11 @@ function ensureConfigured(): boolean {
   return true;
 }
 
+/** Apakah penyimpanan gambar (Cloudinary) sudah diatur di server ini. */
+export function isCloudinaryConfigured() {
+  return ensureConfigured();
+}
+
 export async function uploadTryoutImage(source: string, folder = "habitutor/tryout/misc") {
   const isConfiguredOk = ensureConfigured();
   if (!isConfiguredOk) {

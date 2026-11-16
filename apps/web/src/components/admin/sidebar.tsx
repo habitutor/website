@@ -2,6 +2,7 @@
 
 import {
   BooksIcon,
+  SparkleIcon,
   Broadcast,
   House,
   Megaphone,
@@ -98,6 +99,11 @@ const adminNavLinks = [
     icon: Megaphone,
   },
   {
+    name: "PTN Tour",
+    to: "/admin/ptntour" as const,
+    icon: SparkleIcon,
+  },
+  {
     name: "Users",
     to: "/admin/users" as const,
     icon: User,
@@ -119,8 +125,8 @@ const adminNavLinks = [
   },
 ];
 
-const workspaceLinks = adminNavLinks.slice(0, 8);
-const businessLinks = adminNavLinks.slice(8);
+const workspaceLinks = adminNavLinks.slice(0, 9);
+const businessLinks = adminNavLinks.slice(9);
 
 export function AdminSidebar() {
   const location = useLocation();
