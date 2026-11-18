@@ -254,7 +254,7 @@ export function EventForm({
             value={form.title}
             onChange={(e) => {
               set("title", e.target.value);
-              if (!slugTouched) set("slug", slugify(e.target.value));
+              if (!slugTouched || (mode === "create" && !form.slug)) set("slug", slugify(e.target.value));
             }}
             placeholder="Contoh: Bedah Pola Soal TKA Gel 2"
             required
