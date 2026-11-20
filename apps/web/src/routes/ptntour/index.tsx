@@ -169,7 +169,7 @@ function PtnTourListPage() {
       </div>
 
       {isError ? (
-        <div className="flex flex-col items-center gap-3 rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-white/70 px-6 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-white px-6 py-12 text-center">
           <WarningCircleIcon className="size-8 text-destructive" />
           <p className="font-bold text-sr-ink">Event belum bisa dimuat</p>
           <p className="text-sm text-sr-muted">Periksa koneksi kamu lalu coba lagi.</p>
@@ -200,8 +200,6 @@ function Hero({ upcoming, participants, loaded }: { upcoming: number; participan
   // Ukuran dan susunan sama dengan header Premium, Live Class, dan Recordings supaya konsisten.
   return (
     <section className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
-      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
-      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
       <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         PTN Tour & Masterclass
@@ -260,7 +258,6 @@ function FeaturedEvent({ event, isPremium }: { event: PtnEvent; isPremium: boole
       aria-label="Event terdekat"
       className="relative overflow-hidden rounded-sr-xl border border-sr-blue-100 bg-white shadow-sr-2"
     >
-      <div className="pointer-events-none absolute -top-20 -right-16 size-64 rounded-full bg-sr-sun-100/70" />
       <div className="relative grid gap-5 p-4 sm:grid-cols-[13rem_1fr] sm:gap-7 sm:p-6 lg:grid-cols-[15rem_1fr]">
         <TiltCard maxTilt={6} className="mx-auto w-44 sm:w-full">
           <Link to="/ptntour/$slug" params={{ slug: event.slug }}>
@@ -318,7 +315,7 @@ function EmptyState({ tab, loggedIn, hasFilter }: { tab: Tab; loggedIn: boolean;
           : { title: "Belum ada event terjadwal", body: "Event baru tayang tiap pekan. Cek lagi sebentar lagi ya." };
 
   return (
-    <div className="flex flex-col items-center rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-sr-blue-50/50 px-6 py-12 text-center">
+    <div className="flex flex-col items-center rounded-sr-xl border-2 border-dashed border-sr-blue-200 bg-white px-6 py-12 text-center">
       <img src="/avatar/confused-avatar.webp" alt="" aria-hidden className="h-28 w-auto select-none" />
       <p className="mt-3 font-bold text-sr-ink">{text.title}</p>
       <p className="mt-1 text-sm text-sr-muted">{text.body}</p>

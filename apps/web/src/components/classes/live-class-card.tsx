@@ -70,23 +70,24 @@ export const LIVE_CLASS_CATEGORY_STYLE: Record<
   LiveClassCategory,
   { label: string; badge: string; art: string; mark: string }
 > = {
+  // Warna mengikuti jenis ujian dan sama dengan kartu Try Out: SNBT biru, TKA kuning tua, Mandiri navy.
   TKA: {
     label: "TKA",
-    badge: "bg-sr-blue-500 text-white",
-    art: "from-sr-blue-100 to-sr-blue-200",
-    mark: "text-sr-blue-300/60",
+    badge: "bg-sr-amber-700 text-white",
+    art: "bg-sr-sun-100",
+    mark: "text-sr-sun-200",
   },
   SNBT: {
     label: "SNBT",
-    badge: "bg-sr-sun-500 text-sr-ink",
-    art: "from-sr-sun-100 to-sr-sun-200",
-    mark: "text-sr-sun-400/60",
+    badge: "bg-sr-blue-600 text-white",
+    art: "bg-sr-blue-100",
+    mark: "text-sr-blue-200",
   },
   MANDIRI: {
     label: "Mandiri",
-    badge: "bg-sr-orange-500 text-white",
-    art: "from-sr-orange-100 to-sr-orange-200",
-    mark: "text-sr-orange-200",
+    badge: "bg-sr-ink text-white",
+    art: "bg-sr-blue-50",
+    mark: "text-sr-blue-200",
   },
 };
 
@@ -139,8 +140,7 @@ export function LiveClassScheduleCard({
       )}
     >
       {/* Pita atas: jam mulai dibuat besar supaya jadwal terbaca sekilas. */}
-      <div className={cn("relative overflow-hidden bg-linear-to-br px-4 pt-4 pb-5", style.art)}>
-        <div className="pointer-events-none absolute -right-8 -bottom-14 size-36 rounded-full bg-white/45" />
+      <div className={cn("relative overflow-hidden px-4 pt-4 pb-5", style.art)}>
         <span
           aria-hidden
           className={cn(

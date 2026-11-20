@@ -81,7 +81,6 @@ function TryoutDetailPage() {
 
       {!isAccessGated && (
         <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:pr-96">
-          <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
           <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
             Mulai Try Out sekarang
           </h1>

@@ -65,7 +65,7 @@ function TryoutResultPage() {
 
   if (!result) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-12 text-center">
+      <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white px-6 py-12 text-center">
         <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto" />
         <p className="text-lg font-extrabold text-sr-ink">Hasil tidak ditemukan</p>
         <Button asChild className="mt-2 rounded-full">
@@ -86,7 +86,6 @@ function TryoutResultPage() {
     return (
       <div className="flex w-full flex-col gap-6 pb-20">
         <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 py-6 sm:px-8 sm:py-8 sm:pr-64">
-          <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
           <Button
             variant="white"
             size="sm"
@@ -150,7 +149,6 @@ function TryoutResultPage() {
       <BackButton to="/tryout" className="w-fit" />
 
       <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:pr-96">
-        <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
         <h1 className="relative text-2xl leading-tight font-extrabold text-balance text-white sm:text-3xl">
           {result.judulTryout || "Hasil Try Out"}
         </h1>

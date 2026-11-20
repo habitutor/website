@@ -80,13 +80,19 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
 const TRYOUT_PAGE_SIZE = 9;
 const PASSING_GRADE_PAGE_SIZE = 20;
 
-// Kartu try out bergiliran biru, kuning, oranye seperti kartu Kelas.
-const CARD_TINTS = [
-  // Warna label sengaja solid dan gelap: kontras terhadap gradien kartunya minimal 3,5:1 (teks besar butuh 3:1).
-  { art: "from-sr-blue-100 to-sr-blue-200", mark: "text-sr-blue-800" },
-  { art: "from-sr-sun-100 to-sr-sun-200", mark: "text-sr-amber-700" },
-  { art: "from-sr-orange-100 to-sr-orange-200", mark: "text-sr-orange-700" },
-] as const;
+// Warna kartu mengikuti jenis ujian (dibaca dari judul try out), bukan urutan kartu, supaya warnanya berarti.
+// Semua ubin solid dengan teks putih: kontras minimal 5:1.
+const EXAM_TONES = {
+  mandiri: { tile: "bg-sr-ink", label: "Mandiri" },
+  tka: { tile: "bg-sr-amber-700", label: "TKA" },
+  utbk: { tile: "bg-sr-blue-600", label: "UTBK" },
+} as const;
+
+function getExamTone(judul: string) {
+  if (/mandiri/i.test(judul)) return EXAM_TONES.mandiri;
+  if (/\btka\b/i.test(judul)) return EXAM_TONES.tka;
+  return EXAM_TONES.utbk;
+}
 
 function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? value : [];
@@ -177,8 +183,6 @@ function TryoutHeader({ stats }: { stats?: { available: number; finished?: numbe
   return (
     // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
     <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
-      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
-      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
       <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         Try Out UTBK
@@ -367,21 +371,24 @@ function TryoutCard({
   progress: ReturnType<typeof getTryoutProgress>;
   freemiumStatus?: FreemiumStatus;
 }) {
-  const tint = CARD_TINTS[index % CARD_TINTS.length];
+  const tone = getExamTone(tryout.judul);
 
   return (
-    <article className="group flex h-full sr-lift flex-col overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1">
-      <div className={cn("relative h-24 overflow-hidden bg-linear-to-br px-4 pt-4", tint.art)}>
-        <div className="pointer-events-none absolute -right-10 -bottom-16 size-40 rounded-full bg-white/45" />
-        <span
+    <article className="group flex h-full sr-lift flex-col overflow-hidden rounded-sr-lg border border-sr-line bg-white shadow-sr-1">
+      <div className="flex items-center gap-3 p-4 pb-0">
+        <div
           className={cn(
-            "pointer-events-none absolute right-4 bottom-1.5 text-3xl font-extrabold tracking-tight sm:text-4xl",
-            tint.mark,
+            "flex size-14 shrink-0 flex-col items-center justify-center rounded-sr-sm text-white",
+            tone.tile,
           )}
         >
-          Try Out {index + 1}
-        </span>
-        <ProgressChip progress={progress} />
+          <span className="text-[11px] leading-none font-bold">Try Out</span>
+          <span className="mt-0.5 text-2xl leading-none font-black tabular-nums">{index + 1}</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold text-sr-muted">{tone.label}</p>
+          <ProgressChip progress={progress} />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-4">
@@ -433,20 +440,20 @@ function TryoutCard({
 function ProgressChip({ progress }: { progress: ReturnType<typeof getTryoutProgress> }) {
   if (progress.status === "selesai") {
     return (
-      <span className="relative inline-flex items-center gap-1 rounded-full bg-sr-live px-2.5 py-1 text-xs font-bold text-white shadow-sr-1">
+      <span className="mt-1 inline-flex items-center gap-1 rounded-sr-xs bg-[#e1f5ec] px-2 py-1 text-xs font-bold text-[#0b6b47]">
         <CheckCircleIcon weight="fill" className="size-3.5" /> Selesai · Skor {progress.session?.totalSkor ?? 0}
       </span>
     );
   }
   if (progress.status === "berjalan") {
     return (
-      <span className="relative inline-flex items-center gap-1 rounded-full bg-sr-sun-500 px-2.5 py-1 text-xs font-bold text-sr-ink shadow-sr-1">
+      <span className="mt-1 inline-flex items-center gap-1 rounded-sr-xs bg-sr-sun-500 px-2 py-1 text-xs font-bold text-sr-ink">
         <HourglassIcon weight="fill" className="size-3.5" /> Sedang dikerjakan
       </span>
     );
   }
   return (
-    <span className="relative inline-flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-sr-ink-2 shadow-sr-1">
+    <span className="mt-1 inline-flex items-center gap-1 rounded-sr-xs bg-sr-blue-50 px-2 py-1 text-xs font-bold text-sr-ink-2">
       Belum dikerjakan
     </span>
   );
@@ -734,7 +741,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 
 function TryoutEmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white px-6 py-10 text-center">
       <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto motion-safe:animate-sr-drift" />
       <p className="text-lg font-extrabold text-sr-ink">{title}</p>
       <p className="max-w-sm text-sm leading-relaxed text-sr-muted">{description}</p>
@@ -790,7 +797,6 @@ function HistoryTabContent({ onStart }: { onStart: () => void }) {
             </Button>
           </div>
           <div className="relative flex flex-col justify-between gap-5 overflow-hidden rounded-sr-xl sr-card-blue p-5 md:p-6">
-            <div className="pointer-events-none absolute -right-10 -bottom-16 size-40 rounded-full bg-white/10" />
             <div className="relative">
               <p className="flex items-center gap-1.5 text-sm font-semibold text-white/80">
                 <CrownSimpleIcon weight="fill" className="size-4 text-sr-sun-400" /> Try Out Premium

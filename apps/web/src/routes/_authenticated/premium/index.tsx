@@ -101,7 +101,7 @@ function RouteComponent() {
       </MotionStaggerItem>
 
       <MotionStaggerItem>
-        <div className="rounded-sr-xl border border-sr-line bg-white/80 p-4 shadow-sr-1 sm:p-6 lg:p-8">
+        <div className="rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-4xl">
             {isPremium ? (
               <>

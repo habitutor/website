@@ -28,21 +28,14 @@ function PtnTourLayout() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10 bg-sr-ivory"
-        style={{
-          backgroundImage:
-            "radial-gradient(60rem 40rem at 100% 0%, rgb(47 107 255 / 0.10), transparent 60%), radial-gradient(50rem 36rem at 0% 30%, rgb(255 214 95 / 0.14), transparent 60%)",
-        }}
-      />
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-sr-blue-50" />
       {session ? <HeaderDashboard session={session} /> : <Header />}
-      <div className="flex min-h-dvh flex-col">
+      <div className="relative z-10 min-h-dvh">
         <Container className="flex flex-col gap-6 pt-24 pb-24 sm:pt-28 sm:pb-16">
           <Outlet />
         </Container>
-        <CampusSkyline />
       </div>
+      <CampusSkyline />
     </MotionConfig>
   );
 }

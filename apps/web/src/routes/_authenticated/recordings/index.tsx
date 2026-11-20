@@ -320,8 +320,6 @@ function RecordingsHeader() {
   return (
     // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
     <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-36 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
-      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
-      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
       <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         Live Recording
@@ -346,7 +344,7 @@ function RecordingsHeader() {
 
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white px-6 py-10 text-center">
       <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto motion-safe:animate-sr-drift" />
       <p className="text-lg font-extrabold text-sr-ink">{title}</p>
       <p className="max-w-sm text-sm leading-relaxed text-sr-muted">{description}</p>
@@ -359,7 +357,6 @@ const LOCKED_BENEFITS = ["Rekaman TKA, SNBT, dan Mandiri", "Tonton ulang tanpa b
 function LockedState() {
   return (
     <div className="relative overflow-hidden rounded-sr-xl border border-sr-sun-200 bg-linear-to-br from-sr-cream via-white to-sr-sun-100 p-6 shadow-sr-1 md:p-8">
-      <div className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-sr-sun-200/50" />
       <div className="relative flex flex-col gap-6 md:flex-row md:items-center">
         <img
           src="/avatar/avatar-premium.webp"

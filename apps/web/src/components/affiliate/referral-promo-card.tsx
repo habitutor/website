@@ -49,7 +49,6 @@ export function ReferralPromoCard({ variant, className }: { variant: Variant; cl
         className,
       )}
     >
-      <div className="pointer-events-none absolute -top-10 -right-8 size-32 rounded-full bg-sr-sun-200/50" />
       <span className="relative flex size-12 shrink-0 items-center justify-center rounded-sr-md bg-sr-sun-400 text-sr-ink shadow-sr-sun">
         <HandCoinsIcon weight="fill" className="size-7" />
       </span>

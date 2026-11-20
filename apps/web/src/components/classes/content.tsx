@@ -453,7 +453,7 @@ export function ContentList({
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       {!isLoading && !error && (!localItems || localItems.length === 0) && (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-sr-lg border border-dashed border-sr-line-2 bg-white/80 py-10 text-center">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-sr-lg border border-dashed border-sr-line-2 bg-white py-10 text-center">
           <Image
             src="/avatar/confused-avatar.webp"
             alt="Empty State"
