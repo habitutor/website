@@ -86,6 +86,7 @@ function TryoutResultPage() {
     return (
       <div className="flex w-full flex-col gap-6 pb-20">
         <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 py-6 sm:px-8 sm:py-8 sm:pr-64">
+          <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
           <Button
             variant="white"
             size="sm"
@@ -149,6 +150,7 @@ function TryoutResultPage() {
       <BackButton to="/tryout" className="w-fit" />
 
       <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:pr-96">
+        <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
         <h1 className="relative text-2xl leading-tight font-extrabold text-balance text-white sm:text-3xl">
           {result.judulTryout || "Hasil Try Out"}
         </h1>

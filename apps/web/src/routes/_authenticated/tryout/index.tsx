@@ -183,7 +183,8 @@ function TryoutHeader({ stats }: { stats?: { available: number; finished?: numbe
   return (
     // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
     <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
-
+      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
+      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
       <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         Try Out UTBK
       </h1>
@@ -788,6 +789,7 @@ function HistoryTabContent({ onStart }: { onStart: () => void }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="relative flex flex-col justify-between gap-5 overflow-hidden rounded-sr-xl sr-card-sun p-5 md:p-6">
             <div className="pointer-events-none absolute -right-10 -bottom-16 size-40 rounded-full bg-white/40" />
+            <div className="pointer-events-none absolute -right-10 -bottom-16 size-40 rounded-full bg-white/10" />
             <div className="relative">
               <p className="text-sm font-semibold text-sr-amber-700">Gratis untuk dicoba</p>
               <p className="mt-1 text-xl font-extrabold">Mulai try out sekarang</p>

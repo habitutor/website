@@ -142,6 +142,7 @@ function EventDetailPage() {
           aria-hidden
           className="pointer-events-none absolute inset-0 size-full scale-125 object-cover opacity-25 blur-3xl"
         />
+        <div className="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-white/10" />
         <div className="relative grid gap-6 p-5 sm:p-8 lg:grid-cols-[17rem_1fr] lg:gap-10 lg:p-10">
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
@@ -556,6 +557,7 @@ function UpsellBanner({ event }: { event: PtnEvent }) {
   const days = event.recordingFreeDays;
   return (
     <section className="relative overflow-hidden rounded-sr-xl sr-card-blue p-5 text-white shadow-sr-2 sm:p-7">
+      <div className="pointer-events-none absolute -top-16 -right-10 size-48 rounded-full bg-white/10" />
       <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <CrownIcon weight="fill" className="mt-1 size-6 shrink-0 text-sr-sun-400" />

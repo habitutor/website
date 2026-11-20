@@ -200,6 +200,8 @@ function Hero({ upcoming, participants, loaded }: { upcoming: number; participan
   // Ukuran dan susunan sama dengan header Premium, Live Class, dan Recordings supaya konsisten.
   return (
     <section className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
+      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
       <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         PTN Tour & Masterclass
@@ -258,6 +260,7 @@ function FeaturedEvent({ event, isPremium }: { event: PtnEvent; isPremium: boole
       aria-label="Event terdekat"
       className="relative overflow-hidden rounded-sr-xl border border-sr-blue-100 bg-white shadow-sr-2"
     >
+      <div className="pointer-events-none absolute -top-20 -right-16 size-64 rounded-full bg-sr-sun-100/70" />
       <div className="relative grid gap-5 p-4 sm:grid-cols-[13rem_1fr] sm:gap-7 sm:p-6 lg:grid-cols-[15rem_1fr]">
         <TiltCard maxTilt={6} className="mx-auto w-44 sm:w-full">
           <Link to="/ptntour/$slug" params={{ slug: event.slug }}>

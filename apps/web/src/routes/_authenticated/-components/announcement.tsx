@@ -115,6 +115,8 @@ export const Announcement = () => {
         </article>
 
         <article className="group relative flex min-h-56 sr-lift flex-col overflow-hidden rounded-sr-xl sr-card-blue p-5 md:p-7 lg:col-span-2">
+          <div className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-white/10" />
+          <div className="pointer-events-none absolute -bottom-20 -left-12 size-44 rounded-full bg-white/5" />
           <div className="relative mb-6">
             <p className="text-sm font-semibold text-white/80">Ajak teman belajar bareng</p>
             <p className="mt-1 flex items-baseline gap-2">

@@ -97,6 +97,8 @@ function ProfileHero({
 }) {
   return (
     <div className="relative overflow-hidden rounded-sr-xl sr-card-blue p-5 sm:p-8">
+      <div className="pointer-events-none absolute -top-20 -right-16 size-64 rounded-full bg-white/10" />
+      <div className="pointer-events-none absolute -bottom-24 left-1/3 size-48 rounded-full bg-sr-sun-400/15 blur-2xl" />
 
       <div className="relative flex items-center gap-4 sm:gap-6">
         <motion.div

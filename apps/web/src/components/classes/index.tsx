@@ -22,6 +22,8 @@ export function SubtestHeader({ stats }: { stats?: { subtests: number; contents:
   return (
     // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
     <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+      <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
+      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
       <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
         <BooksIcon weight="fill" className="size-4 text-sr-sun-400" />
@@ -57,23 +59,27 @@ export function SubtestHeader({ stats }: { stats?: { subtests: number; contents:
   );
 }
 
-// Dua warna saja, dibedakan menurut kelompok materi: biru untuk penalaran dan matematika, kuning untuk bahasa dan
-// literasi. Latar datar tanpa gradien dan lingkaran dekoratif supaya maskot yang jadi titik fokusnya.
+// Warna kartu bergiliran biru, kuning, oranye supaya grid subtes tetap ceria tapi satu bahasa visual.
 const TINTS = {
-  blue: { art: "bg-sr-blue-100", chip: "bg-sr-blue-50 text-sr-blue-700", mark: "text-sr-blue-200" },
-  sun: { art: "bg-sr-sun-100", chip: "bg-sr-sun-100 text-sr-amber-700", mark: "text-sr-sun-200" },
+  blue: { art: "from-sr-blue-100 to-sr-blue-200", chip: "bg-sr-blue-50 text-sr-blue-700", mark: "text-sr-blue-300/60" },
+  sun: { art: "from-sr-sun-100 to-sr-sun-200", chip: "bg-sr-sun-100 text-sr-amber-700", mark: "text-sr-sun-400/60" },
+  orange: {
+    art: "from-sr-orange-100 to-sr-orange-200",
+    chip: "bg-sr-orange-100 text-sr-orange-700",
+    mark: "text-sr-orange-200",
+  },
 } as const;
 
 const subtestTint: Record<string, keyof typeof TINTS> = {
-  pu: "blue",
-  ppu: "sun",
-  pbm: "sun",
+  pu: "sun",
+  ppu: "blue",
+  pbm: "orange",
   pk: "blue",
   lbi: "sun",
-  lbing: "sun",
-  pm: "blue",
+  lbing: "blue",
+  pm: "orange",
   hab: "blue",
-  tka: "blue",
+  tka: "sun",
 };
 
 // Versi maskot yang sudah dipangkas pas ke badan tupai, jadi bisa menempel rata di dasar kartu.
@@ -111,7 +117,9 @@ export function SubtestCard({
       className="group relative flex h-full sr-lift animate-sr-rise flex-col overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1"
       style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
     >
-      <div className={cn("relative h-44 overflow-hidden", tint.art)}>
+      <div className={cn("relative h-44 overflow-hidden bg-linear-to-br", tint.art)}>
+        <div className="pointer-events-none absolute -right-10 -bottom-16 size-52 rounded-full bg-white/45" />
+        <div className="pointer-events-none absolute -top-10 -left-8 size-28 rounded-full bg-white/30" />
         <span
           aria-hidden
           className={cn(
@@ -191,10 +199,12 @@ export function ClassHeader({ shortName }: { shortName: string }) {
     <div className="relative overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1 sm:flex sm:flex-row-reverse">
       <div
         className={cn(
-          "relative h-40 shrink-0 overflow-hidden sm:h-auto sm:min-h-60 sm:w-2/5",
+          "relative h-40 shrink-0 overflow-hidden bg-linear-to-br sm:h-auto sm:min-h-60 sm:w-2/5",
           tint.art,
         )}
       >
+        <div className="pointer-events-none absolute -right-10 -bottom-16 size-56 rounded-full bg-white/45" />
+        <div className="pointer-events-none absolute -top-10 -left-8 size-28 rounded-full bg-white/30" />
         <span
           aria-hidden
           className={cn(

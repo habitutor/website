@@ -620,6 +620,8 @@ function FreeAccessCard({ onOpenRequirements }: { onOpenRequirements: () => void
 function PaidAccessCard({ onPay, isPending }: { onPay: () => void; isPending: boolean }) {
   return (
     <div className="group relative flex flex-col justify-between overflow-hidden rounded-sr-xl sr-card-blue p-6 text-white shadow-sr-2 ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-3 md:p-7">
+      <div className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-white/10 blur-xl" />
+      <div className="pointer-events-none absolute -bottom-16 -left-16 size-40 rounded-full bg-white/5 blur-lg" />
 
       <div className="relative z-10 flex flex-col gap-5">
         <div className="flex items-center justify-between gap-2">

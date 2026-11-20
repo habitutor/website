@@ -74,6 +74,7 @@ function RouteComponent() {
     <MotionStagger className="flex flex-col gap-5 sm:gap-6">
       <MotionStaggerItem>
         <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 py-7 sm:px-8 sm:py-9">
+          <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
           <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl">
             Ajak teman belajar, dapat {commissionPercent}% dari setiap paket Premium
           </h1>

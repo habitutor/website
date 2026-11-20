@@ -22,6 +22,7 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
     <div className="space-y-4">
       {/* Di HP maskot mengintip dari bawah kartu di bawah teks; mulai sm duduk di kanan. */}
       <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-36 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+        <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
 
         <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
           {title}

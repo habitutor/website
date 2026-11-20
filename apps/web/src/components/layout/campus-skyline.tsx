@@ -27,7 +27,7 @@ export function CampusSkyline({ className }: { className?: string }) {
           height={673}
           loading="lazy"
           decoding="async"
-          className="block size-full object-cover object-bottom opacity-85"
+          className="block size-full object-cover object-bottom opacity-60"
         />
       </div>
     </div>

@@ -56,8 +56,15 @@ function AuthedLayout() {
 
   return (
     <MotionConfig reducedMotion="user">
-      {/* Dasar datar biru sangat muda: tanpa glow berwarna, supaya kartu putih dan ilustrasi kampus jadi pusat perhatian. */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-sr-blue-50" />
+      {/* Latar hangat ala landing: gradien CSS statis (tanpa filter blur) supaya tetap ringan di HP. */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 bg-sr-ivory"
+        style={{
+          backgroundImage:
+            "radial-gradient(60rem 40rem at 100% 0%, rgb(47 107 255 / 0.10), transparent 60%), radial-gradient(50rem 36rem at 0% 30%, rgb(255 214 95 / 0.16), transparent 60%)",
+        }}
+      />
       <HeaderDashboard session={context.session} />
 
       <div className="relative z-10 min-h-dvh">
