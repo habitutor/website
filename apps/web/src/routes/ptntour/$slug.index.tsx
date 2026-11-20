@@ -194,7 +194,7 @@ function EventDetailPage() {
               <HeroChip icon={<UsersThreeIcon weight="fill" />}>{getSpotsLabel(event)}</HeroChip>
             </div>
 
-            <div className="flex items-center gap-3 rounded-sr-lg bg-white/10 p-3 ring-1 ring-white/20 backdrop-blur sm:w-fit sm:pr-6">
+            <div className="flex items-center gap-3 rounded-sr-lg bg-white/15 p-3 ring-1 ring-white/20 sm:w-fit sm:pr-6">
               {event.tutorPhotoUrl ? (
                 <img
                   src={event.tutorPhotoUrl}
@@ -427,7 +427,7 @@ function EventDetailPage() {
 
 function HeroChip({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 ring-1 ring-white/20 backdrop-blur [&>svg]:size-4 [&>svg]:text-sr-sun-400">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 ring-1 ring-white/20 [&>svg]:size-4 [&>svg]:text-sr-sun-400">
       {icon}
       {children}
     </span>
@@ -446,12 +446,9 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-2 sm:p-7">
-      <div className="mb-4 flex items-center gap-3">
-        <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
-        <div>
-          <h2 className="text-lg font-black text-sr-ink sm:text-xl">{title}</h2>
-          {hint && <p className="text-xs text-sr-muted">{hint}</p>}
-        </div>
+      <div className="mb-4">
+        <h2 className="text-lg font-black text-sr-ink sm:text-xl">{title}</h2>
+        {hint && <p className="text-xs text-sr-muted">{hint}</p>}
       </div>
       {children}
     </section>

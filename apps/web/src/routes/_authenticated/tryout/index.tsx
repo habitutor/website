@@ -82,9 +82,10 @@ const PASSING_GRADE_PAGE_SIZE = 20;
 
 // Kartu try out bergiliran biru, kuning, oranye seperti kartu Kelas.
 const CARD_TINTS = [
-  { art: "from-sr-blue-100 to-sr-blue-200", mark: "text-sr-blue-300/60" },
-  { art: "from-sr-sun-100 to-sr-sun-200", mark: "text-sr-sun-400/60" },
-  { art: "from-sr-orange-100 to-sr-orange-200", mark: "text-sr-orange-200" },
+  // Warna label sengaja solid dan gelap: kontras terhadap gradien kartunya minimal 3,5:1 (teks besar butuh 3:1).
+  { art: "from-sr-blue-100 to-sr-blue-200", mark: "text-sr-blue-800" },
+  { art: "from-sr-sun-100 to-sr-sun-200", mark: "text-sr-amber-700" },
+  { art: "from-sr-orange-100 to-sr-orange-200", mark: "text-sr-orange-700" },
 ] as const;
 
 function asArray<T>(value: unknown): T[] {
@@ -179,11 +180,7 @@ function TryoutHeader({ stats }: { stats?: { available: number; finished?: numbe
       <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
       <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
-      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
-        <ExamIcon weight="fill" className="size-4 text-sr-sun-400" />
-        Simulasi UTBK
-      </span>
-      <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+      <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         Try Out UTBK
       </h1>
       <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
@@ -377,9 +374,8 @@ function TryoutCard({
       <div className={cn("relative h-24 overflow-hidden bg-linear-to-br px-4 pt-4", tint.art)}>
         <div className="pointer-events-none absolute -right-10 -bottom-16 size-40 rounded-full bg-white/45" />
         <span
-          aria-hidden
           className={cn(
-            "pointer-events-none absolute right-4 bottom-1 text-3xl font-extrabold tracking-tight select-none sm:text-4xl",
+            "pointer-events-none absolute right-4 bottom-1.5 text-3xl font-extrabold tracking-tight sm:text-4xl",
             tint.mark,
           )}
         >
@@ -481,6 +477,7 @@ function Pagination({
         variant="outline"
         size="sm"
         className="rounded-full"
+        aria-label="Halaman sebelumnya"
         disabled={page === 1}
         onClick={() => onChange(page - 1)}
       >
@@ -493,6 +490,7 @@ function Pagination({
         variant="outline"
         size="sm"
         className="rounded-full"
+        aria-label="Halaman berikutnya"
         disabled={page === totalPages}
         onClick={() => onChange(page + 1)}
       >

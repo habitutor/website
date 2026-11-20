@@ -2,10 +2,8 @@ import {
   CalendarCheckIcon,
   ClockIcon,
   MagnifyingGlassIcon,
-  PlayCircleIcon,
-  SparkleIcon,
+  ClockCountdownIcon,
   UserPlusIcon,
-  VideoCameraIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
@@ -31,27 +29,6 @@ const TABS: ReadonlyArray<{ value: Tab; label: string }> = [
   { value: "registered", label: "Terdaftar" },
   { value: "recordings", label: "Rekaman" },
 ];
-
-const STEPS = [
-  {
-    icon: UserPlusIcon,
-    title: "Daftar",
-    text: "Isi satu layar, data profilmu terisi otomatis.",
-    tone: "bg-sr-blue-50 text-sr-blue-600",
-  },
-  {
-    icon: VideoCameraIcon,
-    title: "Ikut live di Zoom",
-    text: "Tombol Join aktif 15 menit sebelum mulai.",
-    tone: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    icon: PlayCircleIcon,
-    title: "Tonton ulang & ambil materi",
-    text: "Rekaman dan bonus materi tersedia setelahnya.",
-    tone: "bg-sr-sun-100 text-sr-amber-700",
-  },
-] as const;
 
 function PtnTourListPage() {
   const { data: session } = authClient.useSession();
@@ -116,34 +93,9 @@ function PtnTourListPage() {
     <>
       <Hero upcoming={counts.upcoming} participants={totalParticipants} loaded={Boolean(events)} />
 
-      <section aria-label="Cara ikut" className="grid gap-3 sm:grid-cols-3">
-        {STEPS.map((step, index) => (
-          <motion.div
-            key={step.title}
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1, ease: [0.2, 0.7, 0.2, 1] }}
-            whileHover={{ y: -4 }}
-            className="relative flex items-start gap-3 rounded-sr-lg border border-sr-line bg-white p-4 shadow-sr-1"
-          >
-            <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-sr-md", step.tone)}>
-              <step.icon weight="fill" className="size-6" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-black text-sr-ink">
-                <span className="mr-1.5 text-sr-muted">{index + 1}.</span>
-                {step.title}
-              </p>
-              <p className="mt-0.5 text-xs leading-relaxed text-sr-muted">{step.text}</p>
-            </div>
-          </motion.div>
-        ))}
-      </section>
-
       {featured && <FeaturedEvent event={featured} isPremium={isPremium} />}
 
-      <div className="sticky top-[4.75rem] z-20 flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white/90 p-3 shadow-sr-2 backdrop-blur-md sm:top-24 sm:p-4">
+      <div className="sticky top-[4.75rem] z-20 flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-2 sm:top-24 sm:p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="flex gap-1 rounded-full bg-sr-ivory p-1 lg:shrink-0" role="tablist" aria-label="Daftar event">
             {TABS.map((item) => (
@@ -251,11 +203,7 @@ function Hero({ upcoming, participants, loaded }: { upcoming: number; participan
       <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
       <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
-      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
-        <SparkleIcon weight="fill" className="size-4 text-sr-sun-400" />
-        Ngobrol bareng mentor PTN
-      </span>
-      <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+      <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         PTN Tour & Masterclass
       </h1>
       <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
@@ -326,7 +274,7 @@ function FeaturedEvent({ event, isPremium }: { event: PtnEvent; isPremium: boole
         <div className="flex min-w-0 flex-col justify-center gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-sr-blue-500 px-3 py-1 text-xs font-black text-white">
-              <SparkleIcon weight="fill" className="size-3.5" /> Event terdekat
+              <ClockCountdownIcon weight="fill" className="size-3.5" /> Event terdekat
             </span>
             <span className="rounded-full bg-sr-sun-100 px-3 py-1 text-xs font-bold text-sr-amber-700">
               {event.category}

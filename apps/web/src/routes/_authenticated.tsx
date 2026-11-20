@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "@tanstack/react-router";
 import { MotionConfig } from "motion/react";
 import { useEffect, useRef } from "react";
+import { CampusSkyline } from "@/components/layout/campus-skyline";
 import { HeaderDashboard } from "@/components/navigation/header-dashboard";
 import { Container } from "@/components/ui/container";
 import { useOnboardingGuard } from "@/hooks/data/use-onboarding-guard";
@@ -50,6 +51,8 @@ function AuthedLayout() {
   }, [location.pathname, isPending]);
 
   const pathname = isPending ? stablePathnameRef.current : location.pathname;
+  // Halaman fokus (video, catatan, latihan soal, onboarding, Brain Gym) tetap bersih tanpa ilustrasi.
+  const showSkyline = !/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal)|onboarding|dashboard\/flashcard)/.test(pathname);
 
   return (
     <MotionConfig reducedMotion="user">
@@ -64,6 +67,7 @@ function AuthedLayout() {
       />
       <HeaderDashboard session={context.session} />
 
+      <div className="flex min-h-dvh flex-col">
       {/^\/(classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal))/.test(pathname) ? (
         <Container className="flex flex-col gap-6 py-0">
           <Outlet />
@@ -97,6 +101,8 @@ function AuthedLayout() {
           <Outlet />
         </Container>
       )}
+      {showSkyline && <CampusSkyline />}
+      </div>
     </MotionConfig>
   );
 }

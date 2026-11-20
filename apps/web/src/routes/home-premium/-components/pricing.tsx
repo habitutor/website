@@ -288,7 +288,7 @@ export function PremiumPackageCard({
               </button>
               {hasInitiatedPurchase && !isSubscribed && (
                 <p className="rounded-lg border border-sr-sun-400 bg-sr-sun-100 px-3 py-2 text-center text-xs font-semibold text-sr-amber-700">
-                  Tunggu 15 Menit — pembayaranmu sedang diproses, status premium akan aktif otomatis setelah
+                  Tunggu 15 menit, pembayaranmu sedang diproses, status premium akan aktif otomatis setelah
                   terkonfirmasi.
                 </p>
               )}

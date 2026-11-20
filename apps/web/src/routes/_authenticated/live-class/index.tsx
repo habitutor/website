@@ -197,11 +197,7 @@ function ScheduleHeader({ weekCount }: { weekCount?: number }) {
       <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
       <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
-      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
-        <span className="size-2 rounded-full bg-sr-sun-400 motion-safe:animate-pulse" />
-        Belajar langsung bareng mentor
-      </span>
-      <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+      <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         Jadwal Live Class
       </h1>
       <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">

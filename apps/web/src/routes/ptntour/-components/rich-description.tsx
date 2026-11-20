@@ -73,6 +73,13 @@ function mergeLists(blocks: Block[]) {
   return merged;
 }
 
+/** "YANG KALIAN DAPET" ditampilkan sebagai "Yang kalian dapet": lebih mudah dibaca daripada huruf kapital semua. */
+function toSentenceCase(text: string) {
+  const lower = text.toLocaleLowerCase("id-ID");
+  const firstLetter = lower.search(/\p{L}/u);
+  return firstLetter < 0 ? lower : lower.slice(0, firstLetter) + lower.charAt(firstLetter).toLocaleUpperCase("id-ID") + lower.slice(firstLetter + 1);
+}
+
 /** @habitutor.id -> tautan Instagram. */
 function linkify(text: string): ReactNode[] {
   return text.split(/(@[\w.]+\w)/g).map((part, index) =>
@@ -103,12 +110,8 @@ export function RichDescription({ text, className }: { text: string; className?:
         const key = `${block.kind}-${index.toString()}`;
         if (block.kind === "heading") {
           return (
-            <h3
-              key={key}
-              className="mt-3 flex items-center gap-2 text-xs font-black tracking-wider text-sr-blue-700 uppercase first:mt-0"
-            >
-              <span className="h-4 w-1 rounded-full bg-sr-sun-500" />
-              {block.text}
+            <h3 key={key} className="mt-3 text-base font-black text-sr-ink first:mt-0">
+              {toSentenceCase(block.text)}
             </h3>
           );
         }

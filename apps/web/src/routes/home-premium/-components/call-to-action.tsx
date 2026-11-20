@@ -66,7 +66,7 @@ export function CallToAction() {
                     duration={1.2}
                     className="text-xl font-black text-sr-blue-600 md:text-3xl"
                   />
-                  <span className="font-semibold">— sekali bayar.</span>
+                  <span className="font-semibold">sekali bayar.</span>
                 </m.p>
               </div>
 

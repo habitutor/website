@@ -589,7 +589,7 @@ export function MonthlyReport() {
                       <TableCell className="px-5">Total</TableCell>
                       <TableCell className="text-right">{totals.signups.toLocaleString("id-ID")}</TableCell>
                       <TableCell className="text-right">
-                        {lastRow ? lastRow.totalUsers.toLocaleString("id-ID") : "—"}
+                        {lastRow ? lastRow.totalUsers.toLocaleString("id-ID") : "-"}
                       </TableCell>
                       <TableCell className="text-right">{totals.premiumCustomers.toLocaleString("id-ID")}</TableCell>
                       <TableCell className="text-right">{idr.format(totals.revenuePremium)}</TableCell>

@@ -58,7 +58,7 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-sr-ink/70 to-transparent" />
         <span
           className={cn(
-            "absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-sr-1 backdrop-blur",
+            "absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-sr-1",
             status.tone,
           )}
         >

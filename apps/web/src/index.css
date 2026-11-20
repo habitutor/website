@@ -196,6 +196,25 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Semua kontrol yang bisa diklik menampilkan kursor tangan; yang nonaktif menampilkan larangan. */
+  a[href],
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label[for],
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="switch"],
+  [role="radio"],
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled,
+  select:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 @keyframes package-detail-wiggle {

@@ -1,6 +1,7 @@
 import {
   ArrowRightIcon,
   BooksIcon,
+  ChalkboardTeacherIcon,
   CrownIcon,
   ExamIcon,
   FilmStripIcon,
@@ -8,7 +9,6 @@ import {
   HouseIcon,
   ListIcon,
   SignOutIcon,
-  SparkleIcon,
   SpinnerIcon,
   UserCircleIcon,
   VideoCameraIcon,
@@ -49,7 +49,7 @@ import { orpc } from "@/utils/orpc";
 
 const links = [
   { name: "Dashboard", to: "/dashboard", icon: HouseIcon },
-  { name: "PTN Tour", to: "/ptntour", icon: SparkleIcon, badge: "Gratis" },
+  { name: "PTN Tour", to: "/ptntour", icon: ChalkboardTeacherIcon, badge: "Gratis" },
   { name: "Try Out", to: "/tryout", icon: ExamIcon },
   { name: "Kelas", to: "/classes", icon: BooksIcon },
   { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
@@ -110,7 +110,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
           <div className="relative flex items-center justify-center gap-2 overflow-hidden bg-(image:--sr-grad-blue) p-2 text-sm font-medium text-white max-sm:flex-col max-sm:text-center sm:gap-4">
             <div className="pointer-events-none absolute -top-10 -left-6 size-28 animate-sr-drift rounded-full bg-white/10" />
             <span className="relative flex items-center gap-2">
-              <SparkleIcon weight="fill" className="size-4 text-sr-sun-400" />
+              <CrownIcon weight="fill" className="size-4 text-sr-sun-400" />
               Dapatkan Semua Fitur dan Akses
             </span>
             <Button variant="secondary" size="sm" className="sr-sheen relative" asChild>

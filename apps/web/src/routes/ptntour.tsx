@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { MotionConfig } from "motion/react";
+import { CampusSkyline } from "@/components/layout/campus-skyline";
 import { HeaderDashboard } from "@/components/navigation/header-dashboard";
 import Header from "@/components/navigation/header";
 import { Container } from "@/components/ui/container";
@@ -36,9 +37,12 @@ function PtnTourLayout() {
         }}
       />
       {session ? <HeaderDashboard session={session} /> : <Header />}
-      <Container className="flex flex-col gap-6 pt-24 pb-24 sm:pt-28 sm:pb-16">
-        <Outlet />
-      </Container>
+      <div className="flex min-h-dvh flex-col">
+        <Container className="flex flex-col gap-6 pt-24 pb-24 sm:pt-28 sm:pb-16">
+          <Outlet />
+        </Container>
+        <CampusSkyline />
+      </div>
     </MotionConfig>
   );
 }

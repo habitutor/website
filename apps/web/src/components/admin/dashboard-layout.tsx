@@ -1,7 +1,7 @@
 import {
   ArrowLeftIcon,
   BooksIcon,
-  SparkleIcon,
+  ChalkboardTeacherIcon,
   Broadcast,
   HandCoinsIcon,
   House,
@@ -49,7 +49,7 @@ const SECTION_ICONS: Record<string, Icon> = {
   classes: BooksIcon,
   "live-class": Broadcast,
   announcement: Megaphone,
-  ptntour: SparkleIcon,
+  ptntour: ChalkboardTeacherIcon,
   "dashboard-content": Megaphone,
   recordings: VideoCameraIcon,
   users: User,
