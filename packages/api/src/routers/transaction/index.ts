@@ -15,6 +15,7 @@ import { processMidtransNotification } from "./notification";
 import { getPackagePrice, isPackageAvailable, listPremiumPackages } from "./pricing";
 import { PROMO_PAYMENT_WINDOW_MINUTES } from "./promo-pricing";
 import { quotePromo } from "./promo-quote";
+import { promoRepo } from "./promo-repo";
 import { transactionRepo } from "./repo";
 import { syncTransactionStatus } from "./sync";
 
@@ -86,6 +87,19 @@ const subscribe = authed
     if (promoCode) {
       // The promo row is locked until commit, so concurrent buyers serialize on the quota check.
       const outcome = await db.transaction(async (trx) => {
+        // Closing the Snap popup leaves a held pending payment; reopen it instead of rejecting.
+        const promo = await promoRepo.getByCode({ db: trx, code: promoCode, lock: true });
+        const resumable = promo
+          ? await transactionRepo.findResumablePromoPayment({
+              db: trx,
+              userId,
+              productId: plan.id,
+              promoCodeId: promo.id,
+              orderedAfter: new Date(Date.now() - PROMO_PAYMENT_WINDOW_MINUTES * 60_000),
+            })
+          : undefined;
+        if (resumable) return { ok: true as const, resumed: resumable };
+
         const quote = await quotePromo({ db: trx, code: promoCode, slug: input.name, userId, lock: true });
         if (!quote.ok) return quote;
         const created = await transactionRepo.createTransaction({
@@ -96,9 +110,10 @@ const subscribe = authed
           userId,
           promoCodeId: quote.promoId,
         });
-        return { ok: true as const, finalPrice: quote.finalPrice, created };
+        return { ok: true as const, resumed: undefined, finalPrice: quote.finalPrice, created };
       });
       if (!outcome.ok) throw errors.UNPROCESSABLE_CONTENT({ message: outcome.message });
+      if (outcome.resumed) return outcome.resumed;
       grossAmount = outcome.finalPrice;
       createdTransaction = outcome.created;
     } else {
@@ -141,6 +156,9 @@ const subscribe = authed
       });
       throw error;
     }
+
+    if (promoCode)
+      await transactionRepo.saveSnapPayment({ orderId, token: payment.token, redirectUrl: payment.redirectUrl });
 
     return {
       ...payment,

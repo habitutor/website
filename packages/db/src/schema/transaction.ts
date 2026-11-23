@@ -84,6 +84,9 @@ export const transaction = pgTable(
     status: statusEnum("status").notNull().default("pending"),
     referralCodeId: uuid("referral_code_id").references(() => referralCode.id, { onDelete: "set null" }),
     promoCodeId: uuid("promo_code_id").references(() => promoCode.id, { onDelete: "set null" }),
+    // Kept so a promo buyer who closes the Snap popup can reopen the same payment.
+    snapToken: text("snap_token"),
+    snapRedirectUrl: text("snap_redirect_url"),
     gatewayTransactionId: text("gateway_transaction_id"),
     gatewayStatus: text("gateway_status"),
     paymentType: text("payment_type"),
