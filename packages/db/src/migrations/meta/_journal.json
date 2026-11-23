@@ -267,6 +267,20 @@
       "when": 1794805605948,
       "tag": "0037_fast_betty_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1795409043672,
+      "tag": "0038_easy_norrin_radd",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1795415000973,
+      "tag": "0039_brainy_galactus",
+      "breakpoints": true
     }
   ]
 }

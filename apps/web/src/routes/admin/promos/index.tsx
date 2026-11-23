@@ -7,6 +7,7 @@ import { AdminContainer, AdminHeader, STICKY_FIRST_COLUMN } from "@/components/a
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,25 +18,31 @@ export const Route = createFileRoute("/admin/promos/")({
   component: PromosPage,
 });
 
+type PackageSelection = Record<string, { selected: boolean; quota: string }>;
+
 function PromosPage() {
   const queryClient = useQueryClient();
   const promosQuery = useQuery(orpc.admin.promos.list.queryOptions());
   const productsQuery = useQuery(orpc.admin.promos.products.queryOptions());
   const [form, setForm] = useState({
     code: "",
-    productId: "",
     discountType: "percentage" as "percentage" | "fixed_price",
     discountValue: "",
     expiresAt: "",
-    totalUsageLimit: "",
     perUserLimit: "1",
     isActive: true,
   });
+  const [selection, setSelection] = useState<PackageSelection>({});
+  const selectedPackages = Object.entries(selection)
+    .filter(([, entry]) => entry.selected)
+    .map(([productId, entry]) => ({ productId, usageLimit: entry.quota ? Number(entry.quota) : null }));
+
   const createMutation = useMutation(
     orpc.admin.promos.create.mutationOptions({
       onSuccess: async (promo) => {
         toast.success(`Promo ${promo?.code ?? ""} berhasil dibuat`);
-        setForm((current) => ({ ...current, code: "", discountValue: "", expiresAt: "", totalUsageLimit: "" }));
+        setForm((current) => ({ ...current, code: "", discountValue: "", expiresAt: "" }));
+        setSelection({});
         await queryClient.invalidateQueries({ queryKey: orpc.admin.promos.list.queryKey() });
       },
       onError: (error) => toast.error("Gagal membuat promo", { description: error.message }),
@@ -52,7 +59,10 @@ function PromosPage() {
 
   return (
     <AdminContainer>
-      <AdminHeader title="Promo Codes" description="Buat dan kelola promosi paket Habitutor." />
+      <AdminHeader
+        title="Promo Codes"
+        description="Satu kode bisa berlaku untuk beberapa paket, masing-masing dengan kuota sendiri (pembelian yang sudah dibayar atau masih berjalan)."
+      />
       <Card className="mb-6 sr-lift space-y-4 rounded-sr-xl border-sr-line bg-linear-to-br from-white to-sr-sun-100/60 p-5 shadow-sr-1">
         <div className="flex items-center gap-2">
           <Tag className="size-5" />
@@ -66,20 +76,6 @@ function PromosPage() {
               placeholder="PROMO-2027"
             />
           </Field>
-          <Field label="Paket">
-            <select
-              value={form.productId}
-              onChange={(event) => setForm((current) => ({ ...current, productId: event.target.value }))}
-              className="h-10 w-full rounded-full border border-sr-line bg-white px-3 text-sm text-sr-ink focus:border-sr-blue-300 focus:ring-4 focus:ring-sr-blue-100"
-            >
-              <option value="">Pilih paket</option>
-              {productsQuery.data?.map((product) => (
-                <option key={product.slug} value={product.slug}>
-                  {product.name}
-                </option>
-              ))}
-            </select>
-          </Field>
           <Field label="Jenis diskon">
             <select
               value={form.discountType}
@@ -89,35 +85,19 @@ function PromosPage() {
                   discountType: event.target.value as "percentage" | "fixed_price",
                 }))
               }
-              className="h-10 w-full rounded-full border border-sr-line bg-white px-3 text-sm text-sr-ink focus:border-sr-blue-300 focus:ring-4 focus:ring-sr-blue-100"
+              className="h-10 w-full cursor-pointer rounded-full border border-sr-line bg-white px-3 text-sm text-sr-ink focus:border-sr-blue-300 focus:ring-4 focus:ring-sr-blue-100"
             >
               <option value="percentage">Diskon persentase</option>
               <option value="fixed_price">Harga akhir tetap</option>
             </select>
           </Field>
-          <Field label={form.discountType === "percentage" ? "Discount (%)" : "Final price (Rp)"}>
+          <Field label={form.discountType === "percentage" ? "Diskon (%)" : "Harga akhir (Rp)"}>
             <Input
               type="number"
               min={1}
               max={form.discountType === "percentage" ? 100 : undefined}
               value={form.discountValue}
               onChange={(event) => setForm((current) => ({ ...current, discountValue: event.target.value }))}
-            />
-          </Field>
-          <Field label="Berlaku sampai">
-            <Input
-              type="datetime-local"
-              value={form.expiresAt}
-              onChange={(event) => setForm((current) => ({ ...current, expiresAt: event.target.value }))}
-            />
-          </Field>
-          <Field label="Batas pemakaian total">
-            <Input
-              type="number"
-              min={1}
-              placeholder="Tanpa batas"
-              value={form.totalUsageLimit}
-              onChange={(event) => setForm((current) => ({ ...current, totalUsageLimit: event.target.value }))}
             />
           </Field>
           <Field label="Batas per user">
@@ -128,24 +108,70 @@ function PromosPage() {
               onChange={(event) => setForm((current) => ({ ...current, perUserLimit: event.target.value }))}
             />
           </Field>
+          <Field label="Berlaku sampai (kosong = tanpa batas)">
+            <Input
+              type="datetime-local"
+              value={form.expiresAt}
+              onChange={(event) => setForm((current) => ({ ...current, expiresAt: event.target.value }))}
+            />
+          </Field>
         </div>
+
+        <fieldset className="space-y-2">
+          <legend className="mb-1 text-sm font-medium">Paket dan kuota (kuota kosong = tanpa batas)</legend>
+          {productsQuery.isPending && <p className="text-sm text-muted-foreground">Memuat paket...</p>}
+          {productsQuery.isError && (
+            <p className="text-sm text-destructive">Gagal memuat paket: {productsQuery.error.message}</p>
+          )}
+          <div className="grid gap-2 md:grid-cols-2">
+            {productsQuery.data?.map((product) => {
+              const entry = selection[product.id] ?? { selected: false, quota: "" };
+              return (
+                <div key={product.id} className="flex items-center gap-3 rounded-md border bg-white px-3 py-2">
+                  <Checkbox
+                    id={`promo-package-${product.id}`}
+                    checked={entry.selected}
+                    onCheckedChange={(checked) =>
+                      setSelection((current) => ({
+                        ...current,
+                        [product.id]: { ...entry, selected: checked === true },
+                      }))
+                    }
+                  />
+                  <Label htmlFor={`promo-package-${product.id}`} className="min-w-0 flex-1 cursor-pointer text-sm">
+                    {product.name}
+                  </Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    aria-label={`Kuota untuk ${product.name}`}
+                    placeholder="Tanpa batas"
+                    disabled={!entry.selected}
+                    value={entry.quota}
+                    onChange={(event) =>
+                      setSelection((current) => ({ ...current, [product.id]: { ...entry, quota: event.target.value } }))
+                    }
+                    className="h-8 w-28"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </fieldset>
+
         <Button
-          disabled={!form.productId || !form.discountValue || createMutation.isPending}
-          onClick={() => {
-            const productId = productsQuery.data?.find(({ slug }) => slug === form.productId)?.slug;
-            const product = productsQuery.data?.find(({ slug }) => slug === productId);
-            if (!product) return;
+          disabled={selectedPackages.length === 0 || !form.discountValue || createMutation.isPending}
+          onClick={() =>
             createMutation.mutate({
               code: form.code || undefined,
-              productId: product.slug,
               discountType: form.discountType,
               discountValue: Number(form.discountValue),
               expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
-              totalUsageLimit: form.totalUsageLimit ? Number(form.totalUsageLimit) : null,
               perUserLimit: Number(form.perUserLimit),
               isActive: form.isActive,
-            });
-          }}
+              packages: selectedPackages,
+            })
+          }
         >
           <Plus className="size-4" /> Buat promo
         </Button>
@@ -156,27 +182,57 @@ function PromosPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Kode</TableHead>
-              <TableHead>Paket</TableHead>
               <TableHead>Diskon</TableHead>
-              <TableHead>Pemakaian</TableHead>
+              <TableHead>Paket (terpakai / kuota)</TableHead>
+              <TableHead>Per user</TableHead>
               <TableHead>Berakhir</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
+            {promosQuery.isPending && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  Memuat kode promo...
+                </TableCell>
+              </TableRow>
+            )}
+            {promosQuery.isError && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-destructive">
+                  Gagal memuat kode promo: {promosQuery.error.message}
+                </TableCell>
+              </TableRow>
+            )}
+            {promosQuery.isSuccess && promosQuery.data.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  Belum ada kode promo. Buat yang pertama di atas.
+                </TableCell>
+              </TableRow>
+            )}
             {promosQuery.data?.map((promo) => (
               <TableRow key={promo.id}>
                 <TableCell className="font-mono font-semibold">{promo.code}</TableCell>
-                <TableCell>{promo.productName}</TableCell>
                 <TableCell>
                   {promo.discountType === "percentage"
-                    ? `${promo.discountValue}% off`
+                    ? `${Number(promo.discountValue)}% off`
                     : `Rp ${Number(promo.discountValue).toLocaleString("id-ID")}`}
                 </TableCell>
                 <TableCell>
-                  {promo.usageCount}/{promo.totalUsageLimit ?? "∞"} total · {promo.perUserLimit}/user
+                  <ul className="space-y-0.5 text-sm">
+                    {promo.packages.map((pkg) => (
+                      <li key={pkg.productId}>
+                        {pkg.productName}:{" "}
+                        <span className="font-semibold tabular-nums">
+                          {pkg.usageCount}/{pkg.usageLimit ?? "∞"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </TableCell>
+                <TableCell>{promo.perUserLimit}</TableCell>
                 <TableCell>
                   {promo.expiresAt ? new Date(promo.expiresAt).toLocaleString("id-ID") : "Tidak ada batas"}
                 </TableCell>
@@ -194,17 +250,16 @@ function PromosPage() {
                       updateMutation.mutate({
                         id: promo.id,
                         code: promo.code,
-                        productId: promo.productId,
                         discountType: promo.discountType,
                         discountValue: Number(promo.discountValue),
                         expiresAt: promo.expiresAt?.toISOString() ?? null,
-                        totalUsageLimit: promo.totalUsageLimit,
                         perUserLimit: promo.perUserLimit,
                         isActive: !promo.isActive,
+                        packages: promo.packages.map(({ productId, usageLimit }) => ({ productId, usageLimit })),
                       })
                     }
                   >
-                    {promo.isActive ? "Deactivate" : "Activate"}
+                    {promo.isActive ? "Nonaktifkan" : "Aktifkan"}
                   </Button>
                 </TableCell>
               </TableRow>

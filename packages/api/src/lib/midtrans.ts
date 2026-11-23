@@ -13,17 +13,25 @@ function getSnap() {
   return snapClient;
 }
 
+/** Midtrans Snap expiry start_time: "yyyy-MM-dd HH:mm:ss +0700", always WIB. */
+export function formatMidtransStartTime(date: Date): string {
+  const wib = new Date(date.getTime() + 7 * 60 * 60 * 1000).toISOString();
+  return `${wib.slice(0, 10)} ${wib.slice(11, 19)} +0700`;
+}
+
 export async function createSubscriptionTransaction({
   id,
   name,
   grossAmount,
   session,
   returnPath,
+  expiryMinutes,
 }: {
   id: string;
   name: string;
   grossAmount: number;
   returnPath?: string;
+  expiryMinutes?: number;
   session: {
     user: {
       name: string;
@@ -61,6 +69,9 @@ export async function createSubscriptionTransaction({
           error: `${process.env.CORS_ORIGIN}/premium/payment/error`,
           pending: `${process.env.CORS_ORIGIN}/premium/payment/unfinish`,
         },
+    ...(expiryMinutes
+      ? { expiry: { start_time: formatMidtransStartTime(new Date()), unit: "minutes", duration: expiryMinutes } }
+      : {}),
   };
 
   const snapTransaction = await getSnap().createTransaction(params);

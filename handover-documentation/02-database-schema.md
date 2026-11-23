@@ -153,9 +153,13 @@ Session graph: `tryout_sesi` → `tryout_sesi_subtes` → `tryout_sesi_soal` →
 
 - `product`: id uuid PK · name NN · slug NN UNIQUE (`perintis2027`) · price decimal NN ·
   type enum(`subscription`,`product`) NN.
-- `promo_code`: id uuid PK · code NN UNIQUE · product_id NN FK CASCADE ·
+- `promo_code`: id uuid PK · code NN UNIQUE ·
   discount_type enum(`fixed_price`,`percentage`) NN · discount_value decimal NN · expires_at N ·
-  total_usage_limit N · per_user_limit NN default 1 · is_active NN default true · timestamps.
+  per_user_limit NN default 1 · is_active NN default true · timestamps.
+- `promo_code_package`: id uuid PK · promo_code_id NN FK CASCADE · product_id NN FK CASCADE · usage_limit N
+  (null = unlimited). UNIQUE (promo_code_id, product_id). One shared code covers several packages, each with its
+  own quota. A transaction holds a slot when it is `success`, or `pending` and ordered within the last 32 minutes
+  (30 min Snap expiry + 2 min grace); `failed` never holds one.
 - `transaction`: id text PK (order id) · user_id N FK SET NULL · product_id N FK SET NULL ·
   gross_amount decimal N · status enum(`pending`,`success`,`failed`) NN default pending ·
   referral_code_id N · promo_code_id N · gateway_transaction_id N · gateway_status N · payment_type N ·

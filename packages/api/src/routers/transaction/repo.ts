@@ -61,6 +61,57 @@ export const transactionRepo = {
     return tx;
   },
 
+  saveSnapPayment: async ({
+    db = defaultDb,
+    orderId,
+    token,
+    redirectUrl,
+  }: {
+    db?: DrizzleDatabase;
+    orderId: string;
+    token: string;
+    redirectUrl: string;
+  }) => {
+    await db
+      .update(transaction)
+      .set({ snapToken: token, snapRedirectUrl: redirectUrl })
+      .where(eq(transaction.id, orderId));
+  },
+
+  // A pending promo payment whose Snap token is still valid, so the buyer can reopen it.
+  findResumablePromoPayment: async ({
+    db = defaultDb,
+    userId,
+    productId,
+    promoCodeId,
+    orderedAfter,
+  }: {
+    db?: DrizzleDatabase;
+    userId: string;
+    productId: string;
+    promoCodeId: string;
+    orderedAfter: Date;
+  }) => {
+    const [row] = await db
+      .select({ id: transaction.id, token: transaction.snapToken, redirectUrl: transaction.snapRedirectUrl })
+      .from(transaction)
+      .where(
+        and(
+          eq(transaction.userId, userId),
+          eq(transaction.productId, productId),
+          eq(transaction.promoCodeId, promoCodeId),
+          eq(transaction.status, "pending"),
+          isNotNull(transaction.snapToken),
+          isNotNull(transaction.snapRedirectUrl),
+          gte(transaction.orderedAt, orderedAfter),
+        ),
+      )
+      .orderBy(desc(transaction.orderedAt))
+      .limit(1);
+    if (!row?.token || !row.redirectUrl) return undefined;
+    return { orderId: row.id, token: row.token, redirectUrl: row.redirectUrl };
+  },
+
   createPaymentGroup: async ({
     db = defaultDb,
     inviteCode,

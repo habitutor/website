@@ -13,6 +13,9 @@ import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { mobileTransactionRouter } from "./mobile";
 import { processMidtransNotification } from "./notification";
 import { getPackagePrice, isPackageAvailable, listPremiumPackages } from "./pricing";
+import { PROMO_PAYMENT_WINDOW_MINUTES } from "./promo-pricing";
+import { quotePromo } from "./promo-quote";
+import { promoRepo } from "./promo-repo";
 import { transactionRepo } from "./repo";
 import { syncTransactionStatus } from "./sync";
 
@@ -45,10 +48,12 @@ const subscribe = authed
     tags: ["Payment", "Subscription"],
   })
   .input(
-    // Only the four premium packages are sold; referral and promo codes do not apply.
+    // Only the premium packages are sold. Referral codes do not apply; an optional promo code
+    // is validated and priced server-side.
     type({
       name: "'paketmandiri2027' | 'paketutbk2027' | 'paketutbk2027nolive' | 'paket3bulan' | 'paket1bulan'",
       "referralCode?": "string",
+      "promoCode?": "string",
     }),
   )
   .output(
@@ -69,25 +74,67 @@ const subscribe = authed
 
     // The amount is decided here, never by the client; Midtrans settlement is
     // later checked against this stored amount.
-    // Diskon afiliasi (pembelian Premium pertama) dihitung di server; klien hanya mengirim kodenya.
-    let referral: Awaited<ReturnType<typeof affiliateRepo.resolveDiscount>>;
-    try {
-      referral = await affiliateRepo.resolveDiscount({ userId: context.session.user.id, code: input.referralCode });
-    } catch (error) {
-      if (error instanceof AffiliateError) throw new ORPCError(error.code, { message: error.message });
-      throw error;
-    }
-    const basePrice = getPackagePrice(input.name);
-    const grossAmount = referral ? applyBuyerDiscount(basePrice) : basePrice;
     const orderId = `tx_${crypto.randomUUID()}`;
+    const userId = context.session.user.id;
+    const promoCode = input.promoCode?.trim();
 
-    const createdTransaction = await transactionRepo.createTransaction({
-      id: orderId,
-      productId: plan.id,
-      grossAmount: String(grossAmount),
-      userId: context.session.user.id,
-      referralCodeId: referral?.id,
-    });
+    // Promo and affiliate discounts are mutually exclusive: one purchase gets one discount.
+    if (promoCode && input.referralCode?.trim())
+      throw errors.UNPROCESSABLE_CONTENT({ message: "Pilih salah satu: kode promo atau kode afiliasi." });
+
+    let grossAmount: number;
+    let createdTransaction: Awaited<ReturnType<typeof transactionRepo.createTransaction>>;
+    if (promoCode) {
+      // The promo row is locked until commit, so concurrent buyers serialize on the quota check.
+      const outcome = await db.transaction(async (trx) => {
+        // Closing the Snap popup leaves a held pending payment; reopen it instead of rejecting.
+        const promo = await promoRepo.getByCode({ db: trx, code: promoCode, lock: true });
+        const resumable = promo
+          ? await transactionRepo.findResumablePromoPayment({
+              db: trx,
+              userId,
+              productId: plan.id,
+              promoCodeId: promo.id,
+              orderedAfter: new Date(Date.now() - PROMO_PAYMENT_WINDOW_MINUTES * 60_000),
+            })
+          : undefined;
+        if (resumable) return { ok: true as const, resumed: resumable };
+
+        const quote = await quotePromo({ db: trx, code: promoCode, slug: input.name, userId, lock: true });
+        if (!quote.ok) return quote;
+        const created = await transactionRepo.createTransaction({
+          db: trx,
+          id: orderId,
+          productId: plan.id,
+          grossAmount: String(quote.finalPrice),
+          userId,
+          promoCodeId: quote.promoId,
+        });
+        return { ok: true as const, resumed: undefined, finalPrice: quote.finalPrice, created };
+      });
+      if (!outcome.ok) throw errors.UNPROCESSABLE_CONTENT({ message: outcome.message });
+      if (outcome.resumed) return outcome.resumed;
+      grossAmount = outcome.finalPrice;
+      createdTransaction = outcome.created;
+    } else {
+      // Diskon afiliasi (pembelian Premium pertama) dihitung di server; klien hanya mengirim kodenya.
+      let referral: Awaited<ReturnType<typeof affiliateRepo.resolveDiscount>>;
+      try {
+        referral = await affiliateRepo.resolveDiscount({ userId, code: input.referralCode });
+      } catch (error) {
+        if (error instanceof AffiliateError) throw new ORPCError(error.code, { message: error.message });
+        throw error;
+      }
+      const basePrice = getPackagePrice(input.name);
+      grossAmount = referral ? applyBuyerDiscount(basePrice) : basePrice;
+      createdTransaction = await transactionRepo.createTransaction({
+        id: orderId,
+        productId: plan.id,
+        grossAmount: String(grossAmount),
+        userId,
+        referralCodeId: referral?.id,
+      });
+    }
     if (!createdTransaction)
       throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
 
@@ -98,6 +145,7 @@ const subscribe = authed
         session: context.session,
         name: plan.name,
         grossAmount,
+        ...(promoCode ? { expiryMinutes: PROMO_PAYMENT_WINDOW_MINUTES } : {}),
       });
     } catch (error) {
       await transactionRepo.updateTransactionStatus({ orderId, status: "failed" });
@@ -109,10 +157,37 @@ const subscribe = authed
       throw error;
     }
 
+    if (promoCode)
+      await transactionRepo.saveSnapPayment({ orderId, token: payment.token, redirectUrl: payment.redirectUrl });
+
     return {
       ...payment,
       orderId,
     };
+  });
+
+const promoPreview = authed
+  .route({
+    path: "/transactions/promo/preview",
+    method: "POST",
+    tags: ["Payment", "Subscription"],
+  })
+  .input(
+    type({
+      code: "string",
+      name: "'paketmandiri2027' | 'paketutbk2027' | 'paketutbk2027nolive' | 'paket3bulan' | 'paket1bulan'",
+    }),
+  )
+  .output(type({ originalPrice: "number", finalPrice: "number" }))
+  .handler(async ({ input, context, errors }) => {
+    const quote = await quotePromo({
+      code: input.code,
+      slug: input.name,
+      userId: context.session.user.id,
+      preview: true,
+    });
+    if (!quote.ok) throw errors.UNPROCESSABLE_CONTENT({ message: quote.message });
+    return { originalPrice: quote.originalPrice, finalPrice: quote.finalPrice };
   });
 
 const FREEMIUM_CHECKOUT_OUTPUT = type({
@@ -290,6 +365,7 @@ const getStatus = authed
 
 export const transactionRouter = {
   subscribe,
+  promoPreview,
   subscribeFreemium,
   subscribeFreemiumPembahasan,
   webhook: notification,
