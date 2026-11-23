@@ -31,21 +31,32 @@ export const promoCode = pgTable(
   {
     id: uuid().defaultRandom().primaryKey(),
     code: text().notNull(),
-    productId: uuid("product_id")
-      .notNull()
-      .references(() => product.id, { onDelete: "cascade" }),
     discountType: promoDiscountTypeEnum("discount_type").notNull(),
     discountValue: decimal("discount_value").notNull(),
     expiresAt: timestamp("expires_at"),
-    totalUsageLimit: integer("total_usage_limit"),
     perUserLimit: integer("per_user_limit").notNull().default(1),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
+  (table) => [uniqueIndex("promo_code_code_unique").on(table.code)],
+);
+
+export const promoCodePackage = pgTable(
+  "promo_code_package",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    promoCodeId: uuid("promo_code_id")
+      .notNull()
+      .references(() => promoCode.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => product.id, { onDelete: "cascade" }),
+    usageLimit: integer("usage_limit"),
+  },
   (table) => [
-    uniqueIndex("promo_code_code_unique").on(table.code),
-    index("promo_code_product_idx").on(table.productId),
+    uniqueIndex("promo_code_package_unique").on(table.promoCodeId, table.productId),
+    index("promo_code_package_product_idx").on(table.productId),
   ],
 );
 
