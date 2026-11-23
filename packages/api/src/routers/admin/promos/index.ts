@@ -7,13 +7,12 @@ import { adminPromoRepo } from "./repo";
 
 const promoInput = type({
   "code?": "string",
-  productId: "string",
   discountType: "'fixed_price' | 'percentage'",
   discountValue: "number",
   "expiresAt?": "string | null",
-  "totalUsageLimit?": "number | null",
   "perUserLimit?": "number",
   "isActive?": "boolean",
+  packages: type({ productId: "string", usageLimit: "number | null" }).array(),
 });
 
 function normalizeCode(code?: string) {
@@ -24,7 +23,6 @@ function validateValues(values: {
   code: string;
   discountType: "fixed_price" | "percentage";
   discountValue: number;
-  totalUsageLimit: number | null;
   perUserLimit: number;
   expiresAt: Date | null;
 }) {
@@ -38,14 +36,37 @@ function validateValues(values: {
   ) {
     throw new ORPCError("BAD_REQUEST", { message: "Invalid discount value." });
   }
-  if (values.totalUsageLimit !== null && (!Number.isInteger(values.totalUsageLimit) || values.totalUsageLimit < 1)) {
-    throw new ORPCError("BAD_REQUEST", { message: "Total usage limit must be a positive integer." });
-  }
   if (!Number.isInteger(values.perUserLimit) || values.perUserLimit < 1) {
     throw new ORPCError("BAD_REQUEST", { message: "Per-user limit must be a positive integer." });
   }
   if (values.expiresAt && Number.isNaN(values.expiresAt.getTime())) {
     throw new ORPCError("BAD_REQUEST", { message: "Invalid expiration date." });
+  }
+}
+
+type PackageInput = { productId: string; usageLimit: number | null };
+
+async function validatePackages(
+  packages: PackageInput[],
+  discount: { discountType: "fixed_price" | "percentage"; discountValue: number },
+) {
+  if (packages.length === 0) {
+    throw new ORPCError("BAD_REQUEST", { message: "Select at least one package." });
+  }
+  if (new Set(packages.map((pkg) => pkg.productId)).size !== packages.length) {
+    throw new ORPCError("BAD_REQUEST", { message: "Each package can only be added once." });
+  }
+  for (const pkg of packages) {
+    if (pkg.usageLimit !== null && (!Number.isInteger(pkg.usageLimit) || pkg.usageLimit < 1)) {
+      throw new ORPCError("BAD_REQUEST", { message: "Usage limit must be a positive integer." });
+    }
+    const product = await transactionRepo.getProductById({ id: pkg.productId });
+    if (!product || product.type !== "subscription") {
+      throw new ORPCError("NOT_FOUND", { message: "Product not found." });
+    }
+    if (discount.discountType === "fixed_price" && discount.discountValue > Number(product.price)) {
+      throw new ORPCError("BAD_REQUEST", { message: "Fixed promo price cannot exceed the package price." });
+    }
   }
 }
 
@@ -61,29 +82,21 @@ const create = admin
   .route({ path: "/admin/promos", method: "POST", tags: ["Admin - Promos"] })
   .input(promoInput)
   .handler(async ({ input, errors }) => {
-    const code = normalizeCode(input.code);
-    const expiresAt = input.expiresAt ? new Date(input.expiresAt) : null;
     const values = {
-      code,
-      productId: input.productId,
+      code: normalizeCode(input.code),
       discountType: input.discountType,
       discountValue: input.discountValue,
-      expiresAt,
-      totalUsageLimit: input.totalUsageLimit ?? null,
+      expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
       perUserLimit: input.perUserLimit ?? 1,
       isActive: input.isActive ?? true,
     };
     validateValues(values);
-
-    const product = await transactionRepo.getProductById({ id: input.productId });
-    if (!product || product.type !== "subscription") throw errors.NOT_FOUND({ message: "Product not found." });
-    if (values.discountType === "fixed_price" && values.discountValue > Number(product.price)) {
-      throw errors.BAD_REQUEST({ message: "Fixed promo price cannot exceed the package price." });
-    }
+    await validatePackages(input.packages, values);
 
     try {
       return await adminPromoRepo.create({
         values: { ...values, discountValue: String(values.discountValue) },
+        packages: input.packages,
       });
     } catch (error) {
       if (error instanceof Error && "code" in error && (error as { code: string }).code === "23505") {
@@ -102,25 +115,27 @@ const update = admin
 
     const values = {
       code: normalizeCode(input.code ?? existing.code),
-      productId: input.productId,
       discountType: input.discountType,
       discountValue: input.discountValue,
       expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
-      totalUsageLimit: input.totalUsageLimit ?? null,
       perUserLimit: input.perUserLimit ?? existing.perUserLimit,
       isActive: input.isActive ?? existing.isActive,
     };
     validateValues(values);
-    const product = await transactionRepo.getProductById({ id: input.productId });
-    if (!product || product.type !== "subscription") throw errors.NOT_FOUND({ message: "Product not found." });
-    if (values.discountType === "fixed_price" && values.discountValue > Number(product.price)) {
-      throw errors.BAD_REQUEST({ message: "Fixed promo price cannot exceed the package price." });
-    }
+    await validatePackages(input.packages, values);
 
-    return adminPromoRepo.update({
-      id: input.id,
-      values: { ...values, discountValue: String(values.discountValue) },
-    });
+    try {
+      return await adminPromoRepo.update({
+        id: input.id,
+        values: { ...values, discountValue: String(values.discountValue) },
+        packages: input.packages,
+      });
+    } catch (error) {
+      if (error instanceof Error && "code" in error && (error as { code: string }).code === "23505") {
+        throw errors.CONFLICT({ message: "Promo code already exists." });
+      }
+      throw error;
+    }
   });
 
 export const adminPromoRouter = { list, products, create, update };

@@ -66,7 +66,7 @@ const userListSelect = {
 export const adminUserRepo = {
   listSubscriptionProducts: async ({ db = defaultDb }: { db?: DrizzleDatabase } = {}) => {
     return db
-      .select({ name: product.name, slug: product.slug })
+      .select({ id: product.id, name: product.name, slug: product.slug })
       .from(product)
       .where(eq(product.type, "subscription"))
       .orderBy(product.name);
