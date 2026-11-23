@@ -154,8 +154,11 @@ function MandiriExtras() {
   );
 }
 
+export type PromoQuote = { code: string; originalPrice: number; finalPrice: number };
+
 type PremiumPackageCardProps = {
   pkg: PremiumPackage;
+  promoQuote?: PromoQuote;
   isPricePending?: boolean;
   mode?: "marketing" | "checkout";
   isSubscribed?: boolean;
@@ -174,6 +177,7 @@ const CTA_CLASS_NAME = cn(
 
 export function PremiumPackageCard({
   pkg,
+  promoQuote,
   isPricePending = false,
   mode = "marketing",
   isSubscribed = false,
@@ -191,10 +195,12 @@ export function PremiumPackageCard({
       : isPending
         ? "Memproses..."
         : copy.cta;
+  const strikePrice = promoQuote ? promoQuote.originalPrice : pkg.isPromo ? pkg.normalPrice : null;
+  const shownPrice = promoQuote ? promoQuote.finalPrice : pkg.currentPrice;
 
   return (
     <div className="relative h-full w-full pt-3">
-      {pkg.isPromo && (
+      {(pkg.isPromo || promoQuote) && (
         <span className="absolute top-0 right-6 z-20 rounded-full border border-sr-sun-200 bg-sr-sun-100 px-3 py-1 text-xs font-extrabold whitespace-nowrap text-sr-amber-700 shadow-sr-1">
           Promo
         </span>
@@ -215,9 +221,9 @@ export function PremiumPackageCard({
         </div>
 
         <div className="relative z-10 px-6 py-5">
-          {pkg.isPromo && (
+          {strikePrice !== null && (
             <div className="relative inline-block text-base font-bold text-white/70">
-              {formatRupiah(pkg.normalPrice)}
+              {formatRupiah(strikePrice)}
               <span className="pointer-events-none absolute top-1/2 left-0 h-0.5 w-full -rotate-6 bg-sr-orange-500" />
             </div>
           )}
@@ -226,12 +232,12 @@ export function PremiumPackageCard({
               <Skeleton className="h-12 w-44 bg-white/20" />
             ) : (
               <p className="text-4xl font-black tracking-tight text-sr-sun-200 sm:text-5xl">
-                {formatRupiah(pkg.currentPrice)}
+                {formatRupiah(shownPrice)}
               </p>
             )}
             <span className="text-xs text-white/80">/ sekali bayar</span>
           </div>
-          {referralDiscountPercent > 0 && pkg.isAvailable && (
+          {referralDiscountPercent > 0 && !promoQuote && pkg.isAvailable && (
             <p className="mt-2 inline-flex flex-wrap items-center gap-2 rounded-full bg-sr-sun-100 px-3 py-1.5 text-xs font-extrabold text-sr-amber-700">
               Dengan kode referral:{" "}
               {formatRupiah(Math.round((pkg.currentPrice * (100 - referralDiscountPercent)) / 100))}
@@ -242,10 +248,16 @@ export function PremiumPackageCard({
             <CalendarBlankIcon size={22} weight="duotone" className="mt-0.5 shrink-0 text-sr-sun-200" />
             <p className="text-sm font-bold text-white">{getAccessLabel(pkg)}</p>
           </div>
-          {pkg.isPromo && (
-            <p className="mt-2 text-xs text-white/75">
-              Harga promo sampai {formatWibDate(pkg.promoEndsAt)} pukul 23.59 WIB
+          {promoQuote ? (
+            <p className="mt-2 text-xs font-semibold text-sr-sun-200">
+              Kode {promoQuote.code} terpasang, hemat {formatRupiah(promoQuote.originalPrice - promoQuote.finalPrice)}
             </p>
+          ) : (
+            pkg.isPromo && (
+              <p className="mt-2 text-xs text-white/75">
+                Harga promo sampai {formatWibDate(pkg.promoEndsAt)} pukul 23.59 WIB
+              </p>
+            )
           )}
         </div>
 
@@ -294,6 +306,7 @@ export function PremiumPackageCard({
 
 type PremiumPackageGridProps = {
   mode?: "marketing" | "checkout";
+  promoQuotes?: Partial<Record<PremiumPackageSlug, PromoQuote>>;
   pendingSlug?: PremiumPackageSlug;
   initiatedSlug?: PremiumPackageSlug;
   isDisabled?: boolean;
@@ -303,6 +316,7 @@ type PremiumPackageGridProps = {
 
 export function PremiumPackageGrid({
   mode = "marketing",
+  promoQuotes,
   pendingSlug,
   initiatedSlug,
   isDisabled = false,
@@ -324,6 +338,7 @@ export function PremiumPackageGrid({
           >
             <PremiumPackageCard
               pkg={pkg}
+              promoQuote={promoQuotes?.[pkg.slug]}
               isPricePending={isPending}
               mode={mode}
               isPending={pendingSlug === pkg.slug}

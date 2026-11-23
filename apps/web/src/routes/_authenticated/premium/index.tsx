@@ -10,6 +10,7 @@ import { createMeta } from "@/lib/seo-utils";
 import { PremiumFeatureList, PremiumPackageGrid, PricingExtras } from "@/routes/home-premium/-components/pricing";
 import { orpc } from "@/utils/orpc";
 import { PremiumHeader } from "./-components/premium-header";
+import { PromoCodeForm, type PromoQuotes } from "./-components/promo-code-form";
 import { usePremiumPaymentEffect } from "./premium-payment";
 
 export const Route = createFileRoute("/_authenticated/premium/")({
@@ -35,6 +36,7 @@ function RouteComponent() {
   const [initiatedPlan, setInitiatedPlan] = useState<PremiumPackageSlug>();
   const [referralInput, setReferralInput] = useState("");
   const [appliedReferral, setAppliedReferral] = useState<string>();
+  const [promoQuotes, setPromoQuotes] = useState<PromoQuotes>({});
 
   const isPremium = session?.user.isPremium ?? false;
   const pendingPlan = transactionMutation.isPending ? transactionMutation.variables?.name : undefined;
@@ -70,9 +72,12 @@ function RouteComponent() {
   const handleSubscribe = (plan: PremiumPackageSlug) => {
     if (transactionMutation.isPending) return;
 
+    const promoCode = promoQuotes[plan]?.code;
+
     setInitiatedPlan(plan);
     transactionMutation.mutate(
-      { name: plan, referralCode: activeReferral },
+      // One purchase gets one discount: a promo code on this package replaces the referral code.
+      { name: plan, promoCode, referralCode: promoCode ? undefined : activeReferral },
       {
         onSuccess: (data) => {
           setPaymentToken(data.token);
@@ -81,6 +86,8 @@ function RouteComponent() {
         },
         onError: (error) => {
           setInitiatedPlan(undefined);
+          // A rejected code (quota gone, already used) must not keep showing a discounted price.
+          if (promoCode) setPromoQuotes((current) => ({ ...current, [plan]: undefined }));
           toast.error(error.message);
         },
       },
@@ -114,14 +121,17 @@ function RouteComponent() {
                     setReferralInput("");
                   }}
                 />
-              <PremiumPackageGrid
-                referralDiscountPercent={discountPercent}
-                mode="checkout"
-                pendingSlug={pendingPlan}
-                initiatedSlug={initiatedPlan}
-                isDisabled={transactionMutation.isPending}
-                onSubscribe={handleSubscribe}
-              />
+                <PromoCodeForm quotes={promoQuotes} onChange={setPromoQuotes} />
+                <PremiumPackageGrid
+                  referralDiscountPercent={discountPercent}
+                  mode="checkout"
+                  promoQuotes={promoQuotes}
+                  pendingSlug={pendingPlan}
+                  initiatedSlug={initiatedPlan}
+                  isDisabled={transactionMutation.isPending}
+                  onSubscribe={handleSubscribe}
+                />
+
               </>
             )}
           </div>
