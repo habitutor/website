@@ -59,5 +59,6 @@ export const PROMO_REJECTION_MESSAGES: Record<PromoRejection, string> = {
   wrong_package: "Kode promo tidak berlaku untuk paket ini.",
   usage_limit_reached: "Kuota kode promo untuk paket ini sudah habis.",
   already_used: "Kamu sudah pernah memakai kode promo ini.",
-  payment_in_progress: "Kamu masih punya pembayaran yang menunggu dengan kode ini. Selesaikan dulu.",
+  payment_in_progress:
+    "Kode ini masih terpakai di pembayaran yang belum selesai. Lanjutkan pembayaran itu dengan memilih paket yang sama, atau tunggu sekitar 30 menit sampai kode bisa dipakai lagi.",
 };
