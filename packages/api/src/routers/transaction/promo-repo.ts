@@ -1,14 +1,9 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
-import { promoCode, transaction } from "@habitutor/db/schema/transaction";
-import { and, count, eq, inArray } from "drizzle-orm";
+import { promoCode, promoCodePackage, transaction } from "@habitutor/db/schema/transaction";
+import { and, count, eq, gt, or } from "drizzle-orm";
+import { evaluatePromo, getPromoHoldCutoff, type PromoRejection } from "./promo-pricing";
 
-export type PromoValidationReason =
-  | "not_found"
-  | "inactive"
-  | "expired"
-  | "usage_limit_reached"
-  | "already_used"
-  | "wrong_package";
+type PromoCodeRow = typeof promoCode.$inferSelect;
 
 export const promoRepo = {
   getByCode: async ({ db = defaultDb, code, lock = false }: { db?: DrizzleDatabase; code: string; lock?: boolean }) => {
@@ -22,53 +17,57 @@ export const promoRepo = {
     code,
     productId,
     userId,
+    now = new Date(),
     lock = false,
   }: {
     db?: DrizzleDatabase;
     code: string;
     productId: string;
     userId: string;
+    now?: Date;
     lock?: boolean;
-  }) => {
+  }): Promise<{ ok: true; promo: PromoCodeRow } | { ok: false; reason: PromoRejection }> => {
     const promo = await promoRepo.getByCode({ db, code, lock });
-    if (!promo) return { ok: false as const, reason: "not_found" as const };
-    if (!promo.isActive) return { ok: false as const, reason: "inactive" as const };
-    if (promo.expiresAt && promo.expiresAt.getTime() <= Date.now()) {
-      return { ok: false as const, reason: "expired" as const };
-    }
-    if (promo.productId !== productId) return { ok: false as const, reason: "wrong_package" as const };
+    if (!promo) return { ok: false, reason: "not_found" };
 
-    const activeStatuses = ["pending", "success"] as const;
-    const [totalUsage, userUsage] = await Promise.all([
+    const [packageRow] = await db
+      .select({ usageLimit: promoCodePackage.usageLimit })
+      .from(promoCodePackage)
+      .where(and(eq(promoCodePackage.promoCodeId, promo.id), eq(promoCodePackage.productId, productId)))
+      .limit(1);
+
+    const holdCutoff = getPromoHoldCutoff(now);
+    const isSuccess = eq(transaction.status, "success");
+    const isHeldPending = and(eq(transaction.status, "pending"), gt(transaction.orderedAt, holdCutoff));
+    const holdsQuota = or(isSuccess, isHeldPending);
+
+    const [packageUsage, userSuccess, userHeldPending] = await Promise.all([
       db
         .select({ total: count() })
         .from(transaction)
-        .where(and(eq(transaction.promoCodeId, promo.id), inArray(transaction.status, activeStatuses))),
+        .where(and(eq(transaction.promoCodeId, promo.id), eq(transaction.productId, productId), holdsQuota)),
       db
         .select({ total: count() })
         .from(transaction)
-        .where(
-          and(
-            eq(transaction.promoCodeId, promo.id),
-            eq(transaction.userId, userId),
-            inArray(transaction.status, activeStatuses),
-          ),
-        ),
+        .where(and(eq(transaction.promoCodeId, promo.id), eq(transaction.userId, userId), isSuccess)),
+      db
+        .select({ total: count() })
+        .from(transaction)
+        .where(and(eq(transaction.promoCodeId, promo.id), eq(transaction.userId, userId), isHeldPending)),
     ]);
 
-    if (promo.totalUsageLimit !== null && (totalUsage[0]?.total ?? 0) >= promo.totalUsageLimit) {
-      return { ok: false as const, reason: "usage_limit_reached" as const };
-    }
-    if ((userUsage[0]?.total ?? 0) >= promo.perUserLimit) {
-      return { ok: false as const, reason: "already_used" as const };
-    }
+    const verdict = evaluatePromo({
+      isActive: promo.isActive,
+      expiresAt: promo.expiresAt,
+      perUserLimit: promo.perUserLimit,
+      packageUsageLimit: packageRow ? packageRow.usageLimit : undefined,
+      packageUsage: packageUsage[0]?.total ?? 0,
+      userSuccess: userSuccess[0]?.total ?? 0,
+      userHeldPending: userHeldPending[0]?.total ?? 0,
+      now,
+    });
+    if (!verdict.ok) return { ok: false, reason: verdict.reason };
 
-    return { ok: true as const, promo };
+    return { ok: true, promo };
   },
 };
-
-export function calculatePromoPrice(originalPrice: number, discountType: "fixed_price" | "percentage", value: string) {
-  const numericValue = Number(value);
-  if (discountType === "fixed_price") return Math.round(numericValue);
-  return Math.max(0, Math.ceil(originalPrice * (1 - numericValue / 100)));
-}
