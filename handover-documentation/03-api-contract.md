@@ -107,8 +107,8 @@ with a 30s cooldown. The client doesn't manage any of this.
 | Procedure | Tier | HTTP | Input | Behavior |
 |---|---|---|---|---|
 | `transaction.perintisAvailability` | pub | GET /transactions/perintis-2027 | — | Current price / early-bird availability |
-| `transaction.subscribe` | authed | POST /subscribe | `{ name: "perintis2027", referralCode?, promoCode? }` | Creates pending tx + Midtrans Snap token/redirect URL. Referral (25% off) and promo are mutually exclusive |
-| `transaction.validatePromo` | authed | POST /transactions/promo/validate | `{ code, productSlug: "perintis2027" }` | Validates + returns discounted price |
+| `transaction.subscribe` | authed | POST /subscribe | `{ name: <package slug>, referralCode?, promoCode? }` | Creates pending tx + Midtrans Snap token/redirect URL. With `promoCode` the server locks the promo row, checks the per-package quota, charges the discounted price (from the package's normal price) and sets a 30 minute Snap expiry. Referral and promo codes are mutually exclusive |
+| `transaction.promoPreview` | authed | POST /transactions/promo/preview | `{ code, name: <package slug> }` | Returns `{ originalPrice, finalPrice }` or an Indonesian rejection message. No lock, no insert |
 | `transaction.status` | authed | GET /transactions/status | `{ orderId }` | Syncs status from Midtrans (call on return from payment + on app resume while pending) |
 | `transaction.webhook` | pub | POST /webhooks/midtrans | Midtrans payload | Server-to-server only — never called by the app |
 
