@@ -180,7 +180,12 @@ const promoPreview = authed
   )
   .output(type({ originalPrice: "number", finalPrice: "number" }))
   .handler(async ({ input, context, errors }) => {
-    const quote = await quotePromo({ code: input.code, slug: input.name, userId: context.session.user.id });
+    const quote = await quotePromo({
+      code: input.code,
+      slug: input.name,
+      userId: context.session.user.id,
+      preview: true,
+    });
     if (!quote.ok) throw errors.UNPROCESSABLE_CONTENT({ message: quote.message });
     return { originalPrice: quote.originalPrice, finalPrice: quote.finalPrice };
   });

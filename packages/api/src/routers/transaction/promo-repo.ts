@@ -19,6 +19,7 @@ export const promoRepo = {
     userId,
     now = new Date(),
     lock = false,
+    ignoreOwnPending = false,
   }: {
     db?: DrizzleDatabase;
     code: string;
@@ -26,6 +27,8 @@ export const promoRepo = {
     userId: string;
     now?: Date;
     lock?: boolean;
+    // Preview only judges the code itself; a payment the buyer already started is dealt with at checkout.
+    ignoreOwnPending?: boolean;
   }): Promise<{ ok: true; promo: PromoCodeRow } | { ok: false; reason: PromoRejection }> => {
     const promo = await promoRepo.getByCode({ db, code, lock });
     if (!promo) return { ok: false, reason: "not_found" };
@@ -63,7 +66,7 @@ export const promoRepo = {
       packageUsageLimit: packageRow ? packageRow.usageLimit : undefined,
       packageUsage: packageUsage[0]?.total ?? 0,
       userSuccess: userSuccess[0]?.total ?? 0,
-      userHeldPending: userHeldPending[0]?.total ?? 0,
+      userHeldPending: ignoreOwnPending ? 0 : (userHeldPending[0]?.total ?? 0),
       now,
     });
     if (!verdict.ok) return { ok: false, reason: verdict.reason };
