@@ -167,7 +167,7 @@ const promoPreview = authed
     return { originalPrice: quote.originalPrice, finalPrice: quote.finalPrice };
   });
 
-const FREEMIUM_CHECKOUT_OUTPUT =type({
+const FREEMIUM_CHECKOUT_OUTPUT = type({
   token: "string",
   redirectUrl: "string",
   orderId: "string",
