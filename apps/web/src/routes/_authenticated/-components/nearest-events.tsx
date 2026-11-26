@@ -31,7 +31,7 @@ export function NearestEvents() {
         </>
       }
       action={
-        <Button asChild variant="ghost" size="sm" className="rounded-full text-sr-blue-600">
+        <Button asChild variant="ghost" size="sm" className="rounded-full text-sr-blue-800">
           <Link to="/ptntour">
             Lihat semua <ArrowRightIcon weight="bold" />
           </Link>

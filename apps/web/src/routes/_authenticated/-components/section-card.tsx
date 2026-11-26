@@ -10,7 +10,7 @@ type SectionCardProps = {
 
 // Kata aksen serif miring di judul bagian, sama seperti judul-judul di landing page.
 export function Accent({ children }: { children: ReactNode }) {
-  return <span className="font-sr-serif font-semibold text-sr-blue-600 italic">{children}</span>;
+  return <span className="font-sr-serif font-semibold text-sr-blue-700 italic">{children}</span>;
 }
 
 // Bagian dashboard tanpa kotak pembungkus supaya tidak ada kartu di dalam kartu.
