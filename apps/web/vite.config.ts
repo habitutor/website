@@ -20,9 +20,20 @@ const CACHED_PUBLIC_PATHS = [
   "/logo.svg",
   "/logo.webp",
   "/og-image.png",
+  "/site.webmanifest",
   "/web-app-manifest-192x192.png",
   "/web-app-manifest-512x512.png",
   "/web-app-manifest-maskable-512x512.png",
+];
+
+// Tanpa pengelompokan, satu halaman meminta puluhan file JS kecil dan tiap file dihitung sebagai satu CDN request.
+// Hati-hati mengubah grup: "entriesAware" tanpa batas ke paket tertentu pernah membuat halaman error saat dimuat.
+const CHUNK_GROUPS = [
+  {
+    name: "core",
+    test: /node_modules[\\/](react|react-dom|scheduler|@tanstack|@radix-ui|@floating-ui|@orpc|motion|framer-motion|motion-dom|motion-utils|better-auth|better-call|nanostores)[\\/]/,
+  },
+  { name: "icons", test: /@phosphor-icons/, entriesAware: true, entriesAwareMergeThreshold: 60_000 },
 ];
 
 export default defineConfig({
@@ -31,6 +42,9 @@ export default defineConfig({
   },
   resolve: {
     tsconfigPaths: true,
+  },
+  environments: {
+    client: { build: { rolldownOptions: { output: { codeSplitting: { groups: CHUNK_GROUPS } } } } },
   },
   plugins: [
     tailwindcss(),
