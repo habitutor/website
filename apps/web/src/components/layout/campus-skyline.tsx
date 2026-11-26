@@ -1,24 +1,21 @@
 import { cn } from "@/lib/utils";
 
 // Sisi kiri-kanan dipudarkan tipis supaya tepi gambar tidak terlihat sebagai garis potong; atas dipudarkan
-// pendek supaya atap tetap terlihat, bawah sedikit karena tepi bawah gambar aslinya bergerigi.
+// pendek supaya atap tetap terlihat. Bawah gambar sudah rata, jadi tidak perlu dipudarkan.
 const EDGE_FADE = {
   maskImage:
-    "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 22%, #000 92%, transparent)",
+    "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 22%)",
   maskComposite: "intersect",
   WebkitMaskImage:
-    "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 22%, #000 92%, transparent)",
+    "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 22%)",
   WebkitMaskComposite: "source-in",
 } as const;
 
 /**
  * Langit halaman siswa, pasangan `CampusSkyline`. Diam di layar (tidak ikut menggulir), jadi di posisi gulir mana
  * pun kartu selalu dibingkai pemandangan yang sama: biru di atas layar, krem tipis di tengah tempat konten dibaca,
- * biru muda di dasar yang menyambung ke gedung. Lingkaran mengulang lingkaran di ilustrasi kampus; yang di tengah
- * hanya di tepi layar (setengahnya keluar) supaya tidak berada di belakang teks.
+ * biru muda di dasar yang menyambung ke gedung.
  */
-const CIRCLE = "absolute rounded-full border border-sky-200/80 bg-sky-100/55";
-
 export function CampusSky({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none", className)}>
@@ -29,10 +26,6 @@ export function CampusSky({ className }: { className?: string }) {
             "linear-gradient(to bottom, #cfdfff 0%, #e2ebff 22%, #fff8ec 50%, #fff8ec 68%, #e6eeff 100%)",
         }}
       />
-      {/* Semua lingkaran menempel di tepi layar dengan setengahnya keluar, satu gaya, ukuran mengecil ke bawah. */}
-      <div className={`${CIRCLE} top-32 -right-36 size-80`} />
-      <div className={`${CIRCLE} top-[38%] -left-32 hidden size-64 md:block`} />
-      <div className={`${CIRCLE} top-[58%] -right-24 hidden size-48 md:block`} />
     </div>
   );
 }
@@ -53,7 +46,7 @@ export function CampusSkyline({ className }: { className?: string }) {
       )}
     >
       <img
-        src="/kampus-biru.webp"
+        src="/kampus-biru.svg"
         alt=""
         width={1440}
         height={563}

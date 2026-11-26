@@ -61,7 +61,7 @@ function StreakHero({ streak, completedToday }: { streak: number; completedToday
         <span
           className={cn(
             "relative mt-2.5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold sm:mt-3 sm:text-xs",
-            completedToday ? "bg-sr-live/20 text-[#7ee2b8]" : "bg-white/10 text-white/80",
+            completedToday ? "bg-sr-live/20 text-[#7ee2b8]" : "bg-white/10 text-white/95",
           )}
         >
           {completedToday ? (
@@ -139,7 +139,7 @@ export function StreakDialog({ open, onOpenChange, streak, saves, maxSaves, comp
       >
         <DialogClose
           aria-label="Tutup"
-          className="absolute top-3 right-3 z-20 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+          className="absolute top-3 right-3 z-20 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white/95 transition-colors hover:bg-white/20 hover:text-white"
         >
           <XIcon weight="bold" className="size-4" />
         </DialogClose>

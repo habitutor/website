@@ -98,7 +98,7 @@ function TryoutResultPage() {
           >
             <ArrowLeftIcon weight="bold" /> Kembali ke ringkasan
           </Button>
-          <p className="relative mt-4 text-sm font-semibold text-white/80">Review hasil try out</p>
+          <p className="relative mt-4 text-sm font-semibold text-white/95">Review hasil try out</p>
           <h1 className="relative mt-1 text-2xl leading-tight font-extrabold text-white sm:text-3xl">
             {selectedSubtestName}
           </h1>
@@ -154,12 +154,12 @@ function TryoutResultPage() {
         <h1 className="relative text-2xl leading-tight font-extrabold text-balance text-white sm:text-3xl">
           {result.judulTryout || "Hasil Try Out"}
         </h1>
-        <p className="relative mt-2 text-sm text-white/80">Kerja bagus sudah menyelesaikannya! Ini skor kamu:</p>
+        <p className="relative mt-2 text-sm text-white/95">Kerja bagus sudah menyelesaikannya! Ini skor kamu:</p>
         <p className="relative mt-3 flex items-baseline gap-2">
           <span className="text-6xl leading-none font-extrabold text-sr-sun-400 tabular-nums">
             {Number.isInteger(result.totalSkor) ? <CountUp to={result.totalSkor} duration={1.4} /> : result.totalSkor}
           </span>
-          <span className="text-sm font-bold text-white/80">total skor</span>
+          <span className="text-sm font-bold text-white/95">total skor</span>
         </p>
         <motion.img
           src="/avatar/testimone-avatar.webp"
@@ -184,7 +184,7 @@ function TryoutResultPage() {
       <ReferralPromoCard variant="result" />
 
       <section className="space-y-3">
-        <div>
+        <div className="sr-halo-text">
           <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">Skor per subtes</h2>
           <p className="text-sm text-sr-muted">
             Ketuk salah satu subtes untuk melihat soal, jawabanmu, dan pembahasan.

@@ -31,7 +31,8 @@ export function NearestEvents() {
         </>
       }
       action={
-        <Button asChild variant="ghost" size="sm" className="rounded-full text-sr-blue-800">
+        // Bentuknya sama dengan tombol di Kelas terakhirmu dan Live Class.
+        <Button asChild className="shrink-0 rounded-full">
           <Link to="/ptntour">
             Lihat semua <ArrowRightIcon weight="bold" />
           </Link>
@@ -48,7 +49,7 @@ export function NearestEvents() {
               key={event.slug}
               to="/ptntour/$slug"
               params={{ slug: event.slug }}
-              className="group flex animate-sr-rise sr-lift gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-1"
+              className="group flex sr-lift animate-sr-rise gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-1"
               style={{ animationDelay: `${index * 80}ms` }}
             >
               <img
@@ -93,8 +94,8 @@ export function NearestEvents() {
                         : status.key === "cancelled"
                           ? "Dibatalkan"
                           : status.key === "full"
-                          ? "Kuota penuh"
-                          : "Daftar Gratis"}
+                            ? "Kuota penuh"
+                            : "Daftar Gratis"}
                   <ArrowRightIcon weight="bold" />
                 </span>
               </div>

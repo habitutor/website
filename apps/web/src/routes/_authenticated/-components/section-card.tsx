@@ -19,7 +19,7 @@ export function SectionCard({ title, action, className, children }: SectionCardP
     <section className={cn("relative w-full", className)}>
       {(title || action) && (
         <div className="mb-4 flex items-center justify-between gap-3">
-          {title && <h2 className="text-xl font-extrabold tracking-tight text-sr-ink md:text-2xl">{title}</h2>}
+          {title && <h2 className="text-xl font-extrabold tracking-tight text-sr-ink sr-halo-text md:text-2xl">{title}</h2>}
           {action}
         </div>
       )}

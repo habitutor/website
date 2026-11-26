@@ -77,7 +77,7 @@ export function PremiumWhatsappDialog({ open, plan }: { open: boolean; plan?: Pr
           </a>
         </Button>
 
-        <DialogFooter className="items-stretch gap-4 sm:flex-col">
+        <DialogFooter className="flex-col items-stretch gap-4 sm:flex-col">
           <Label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm font-normal">
             <Checkbox
               className="mt-0.5"

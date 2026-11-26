@@ -127,7 +127,7 @@ export function WeekPicker({
                   <span
                     className={cn(
                       "text-[10px] font-semibold uppercase sm:text-xs",
-                      isSelected ? "text-white/80" : "text-sr-muted",
+                      isSelected ? "text-white/95" : "text-sr-muted",
                     )}
                   >
                     <span className={cn(isToday && "sm:hidden")}>{formatDay(date, { weekday: "short" })}</span>

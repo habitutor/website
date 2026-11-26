@@ -125,35 +125,34 @@ function TryoutPage() {
         }
       />
 
-      <div className="rounded-sr-xl border border-sr-line bg-white p-2 shadow-sr-1 sm:p-3">
-        <div className="grid grid-cols-3 gap-1 rounded-full bg-sr-blue-50 p-1 sm:flex sm:w-fit" role="tablist">
-          {TABS.map((item) => {
-            const active = item.value === tab;
-            return (
-              <button
-                key={item.value}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setTab(item.value)}
-                className={cn(
-                  "relative rounded-full px-1 py-2 text-[13px] font-bold whitespace-nowrap transition-colors sm:px-5 sm:text-sm",
-                  active ? "text-white" : "text-sr-ink-2 hover:text-sr-blue-600",
-                )}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="tryout-tab-pill"
-                    className="absolute inset-0 rounded-full bg-sr-blue-500 shadow-sr-2"
-                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                  />
-                )}
-                <span className="relative sm:hidden">{item.short}</span>
-                <span className="relative hidden sm:inline">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Tab bergaris bawah supaya beda tingkat dari filter status di bawahnya. */}
+      <div className="grid grid-cols-3 border-b border-sr-line-2 sm:flex sm:gap-2" role="tablist">
+        {TABS.map((item) => {
+          const active = item.value === tab;
+          return (
+            <button
+              key={item.value}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setTab(item.value)}
+              className={cn(
+                "relative h-11 px-1 text-[13px] font-bold whitespace-nowrap transition-colors sm:px-4 sm:text-base",
+                active ? "text-sr-blue-700" : "text-sr-ink-2 hover:text-sr-blue-700",
+              )}
+            >
+              {active && (
+                <motion.span
+                  layoutId="tryout-tab-pill"
+                  className="absolute inset-x-0 -bottom-px h-[3px] rounded-full bg-sr-blue-500"
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                />
+              )}
+              <span className="whitespace-nowrap sm:hidden">{item.short}</span>
+              <span className="hidden sm:inline">{item.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       <motion.div
@@ -181,25 +180,26 @@ function TryoutPage() {
 
 function TryoutHeader({ stats }: { stats?: { available: number; finished?: number } }) {
   return (
-    // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
-    <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
+    // Maskot duduk di kanan bawah; di HP ukurannya kecil, di samping label angka, supaya daftar cepat terlihat.
+    <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 py-5 sm:px-8 sm:py-6 sm:pr-60 lg:px-10 lg:py-7 lg:pr-80">
       <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
-      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
       <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         Try Out UTBK
       </h1>
-      <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
+      <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/95 sm:text-base">
         Latihan dengan suasana ujian sungguhan, lalu lihat skormu dan bandingkan dengan passing grade kampus impian.
       </p>
 
       {stats && (
-        <div className="relative mt-5 flex flex-wrap gap-2">
+        <div className="relative mt-4 flex flex-wrap gap-2 min-[360px]:max-sm:pr-28">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
-            <ExamIcon weight="fill" className="size-4 text-sr-sun-400" /> <CountUp to={stats.available} /> try out tersedia
+            <ExamIcon weight="fill" className="size-4 text-sr-sun-400" /> <CountUp to={stats.available} /> try out
+            tersedia
           </span>
           {stats.finished !== undefined && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
-              <TrophyIcon weight="fill" className="size-4 text-sr-sun-400" /> <CountUp to={stats.finished} /> sudah kamu kerjakan
+              <TrophyIcon weight="fill" className="size-4 text-sr-sun-400" /> <CountUp to={stats.finished} /> sudah kamu
+              kerjakan
             </span>
           )}
         </div>
@@ -210,7 +210,7 @@ function TryoutHeader({ stats }: { stats?: { available: number; finished?: numbe
         alt=""
         width={485}
         height={520}
-        className="pointer-events-none absolute right-1/2 bottom-0 h-36 w-auto translate-x-1/2 select-none sm:right-10 sm:h-48 sm:translate-x-0 lg:right-16 lg:h-60"
+        className="pointer-events-none absolute right-3 bottom-0 h-24 w-auto select-none max-[359px]:hidden sm:right-10 sm:h-40 lg:right-16 lg:h-48"
         initial={{ y: 40 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
@@ -269,20 +269,21 @@ function TryoutListTab({
 
       {/* Pencarian & filter status saat siswa sudah memiliki akses */}
       {tryouts.length > 1 && (
-        <div className="flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-1 sm:p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:pb-0">
             {STATUS_FILTERS.map((item) => (
               <button
                 key={item.value}
                 type="button"
+                aria-pressed={statusFilter === item.value}
                 onClick={() => {
                   setStatusFilter(item.value);
                   setPage(1);
                 }}
                 className={cn(
-                  "shrink-0 rounded-full border px-4 py-2 text-sm font-semibold whitespace-nowrap transition-all duration-300",
+                  "h-11 shrink-0 rounded-full border px-4 text-sm font-semibold whitespace-nowrap transition-colors",
                   statusFilter === item.value
-                    ? "border-transparent bg-sr-blue-500 text-white shadow-sr-2"
+                    ? "border-sr-blue-500 bg-sr-blue-50 text-sr-blue-700"
                     : "border-sr-line bg-white text-sr-ink-2 hover:border-sr-blue-200 hover:text-sr-blue-600",
                 )}
               >
@@ -304,7 +305,7 @@ function TryoutListTab({
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="h-11 w-full rounded-full border border-sr-line bg-sr-ivory/60 pr-4 pl-10 text-sm text-sr-ink transition-colors outline-none placeholder:text-sr-muted focus:border-sr-blue-300 focus:bg-white focus:ring-4 focus:ring-sr-blue-100"
+              className="h-11 w-full rounded-full border border-sr-line bg-white pr-4 pl-10 text-sm text-sr-ink transition-colors outline-none placeholder:text-sr-muted focus:border-sr-blue-300 focus:ring-4 focus:ring-sr-blue-100"
             />
           </label>
         </div>
@@ -424,6 +425,10 @@ function TryoutCard({
                 </Link>
               </Button>
             </div>
+          ) : progress.status === "baru" && tryout.totalSoal === 0 ? (
+            <Button className="w-full rounded-full" disabled>
+              Soal belum tersedia
+            </Button>
           ) : (
             <Button className="sr-sheen w-full rounded-full" asChild>
               <Link to="/tryout/$tryoutId" params={{ tryoutId: tryout.id }}>
@@ -788,8 +793,6 @@ function HistoryTabContent({ onStart }: { onStart: () => void }) {
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="relative flex flex-col justify-between gap-5 overflow-hidden rounded-sr-xl sr-card-sun p-5 md:p-6">
-            <div className="pointer-events-none absolute -right-10 -bottom-16 size-40 rounded-full bg-white/40" />
-            <div className="pointer-events-none absolute -right-10 -bottom-16 size-40 rounded-full bg-white/10" />
             <div className="relative">
               <p className="text-sm font-semibold text-sr-amber-700">Gratis untuk dicoba</p>
               <p className="mt-1 text-xl font-extrabold">Mulai try out sekarang</p>
@@ -800,7 +803,7 @@ function HistoryTabContent({ onStart }: { onStart: () => void }) {
           </div>
           <div className="relative flex flex-col justify-between gap-5 overflow-hidden rounded-sr-xl sr-card-blue p-5 md:p-6">
             <div className="relative">
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-white/80">
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-white/95">
                 <CrownSimpleIcon weight="fill" className="size-4 text-sr-sun-400" /> Try Out Premium
               </p>
               <p className="mt-1 text-xl font-extrabold">Buka pembahasan lengkap</p>

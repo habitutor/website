@@ -32,8 +32,7 @@ const Material = () => {
       to="/classes"
       className="group relative flex min-h-48 sr-lift flex-col overflow-hidden rounded-sr-lg sr-card-blue p-4 md:p-5"
     >
-      <div className="pointer-events-none absolute -right-10 -bottom-12 size-36 rounded-full bg-white/10 md:size-44" />
-      <p className="relative text-sm font-semibold text-white/80">Materi dipelajari</p>
+      <p className="relative text-sm font-semibold text-white/95">Materi dipelajari</p>
       <p
         className={`relative mt-1 text-4xl font-extrabold text-sr-sun-400 md:text-5xl ${isPending ? "animate-pulse" : ""}`}
       >
@@ -59,7 +58,6 @@ const Tryout = () => {
       to="/tryout"
       className="group relative flex min-h-48 sr-lift flex-col overflow-hidden rounded-sr-lg bg-linear-to-br from-sr-ink to-sr-blue-800 p-4 text-white shadow-sr-3 md:p-5"
     >
-      <div className="pointer-events-none absolute -right-10 -bottom-12 size-36 rounded-full bg-white/8 md:size-44" />
       <p className="relative text-sm font-semibold text-sr-sun-400">Try Out SNBT</p>
       <p className="relative mt-1 text-base leading-tight font-extrabold md:text-xl">Uji kemampuanmu</p>
       <span className="relative z-10 mt-auto inline-flex w-fit items-center gap-1 rounded-full bg-sr-sun-500 px-3 py-1.5 text-sm font-bold text-sr-ink shadow-sr-sun transition-colors group-hover:bg-sr-sun-400">
@@ -86,7 +84,6 @@ const Flashcard = () => {
 
   return (
     <div className="group relative col-span-2 flex min-h-56 sr-lift flex-col overflow-hidden rounded-sr-lg sr-card-sun p-5 md:p-6">
-      <div className="pointer-events-none absolute -right-12 -bottom-16 size-56 rounded-full bg-white/40 md:size-64" />
 
       <div className="relative z-10 max-w-[60%] sm:max-w-none sm:pr-40 md:pr-48">
         <h3 className="text-2xl font-extrabold">Brain Gym</h3>

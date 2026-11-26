@@ -32,7 +32,7 @@ function RouteComponent() {
       <SubtestHeader stats={stats} />
 
       <section>
-        <div className="mb-4">
+        <div className="mb-4 sr-halo-text">
           <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">Pilih subtes</h2>
           <p className="text-sm text-sr-ink">
             Mulai dari subtes yang paling ingin kamu kuasai, satu BAB dulu juga keren.

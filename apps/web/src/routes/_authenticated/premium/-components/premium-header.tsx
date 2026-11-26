@@ -27,7 +27,7 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
         <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
           {title}
         </h1>
-        <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">{subtitle}</p>
+        <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/95 sm:text-base">{subtitle}</p>
 
         <motion.img
           src="/avatar/avatar-premium.webp"

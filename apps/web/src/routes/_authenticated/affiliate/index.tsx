@@ -78,7 +78,7 @@ function RouteComponent() {
           <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl">
             Ajak teman belajar, dapat {commissionPercent}% dari setiap paket Premium
           </h1>
-          <p className="relative mt-2.5 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
+          <p className="relative mt-2.5 max-w-xl text-sm leading-relaxed text-white/95 sm:text-base">
             Temanmu langsung hemat {discountPercent}% saat beli Premium pertamanya. Kamu dapat komisi{" "}
             {commissionPercent}% dari yang mereka bayar, masuk ke saldo di akunmu.
           </p>

@@ -161,7 +161,6 @@ function RegistrationSuccessPage() {
           {...rise(0.85)}
           className="relative overflow-hidden rounded-sr-xl sr-card-blue p-5 text-white shadow-sr-2"
         >
-          <div className="pointer-events-none absolute -top-12 -right-8 size-40 rounded-full bg-white/10" />
           <div className="relative flex items-start gap-3">
             <CrownIcon weight="fill" className="mt-0.5 size-6 shrink-0 text-sr-sun-400" />
             <div>

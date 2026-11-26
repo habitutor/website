@@ -67,25 +67,34 @@ function TryoutDetailPage() {
     }),
   );
 
+  const tryoutsQuery = useQuery(orpc.tryout.list.queryOptions({ input: {} }));
+  const judul = tryoutsQuery.data?.find((item) => item.id === tryoutId)?.judul;
+
   const subtests = subtesQuery.data ?? [];
   const totalSoal = subtests.reduce((sum, item) => sum + (Number(item.jumlahSoal) || 0), 0);
   const totalMenit = subtests.reduce((sum, item) => sum + (Number(item.durasiMenit) || 0), 0);
-  const startDisabled = startMutation.isPending || isCheckingAccess;
-  const startLabel = startMutation.isPending ? "Memulai..." : "Mulai Try Out";
+  const hasNoQuestions = subtesQuery.isSuccess && totalSoal === 0;
+  const startDisabled = startMutation.isPending || isCheckingAccess || hasNoQuestions;
+  const startLabel = hasNoQuestions ? "Soal belum tersedia" : startMutation.isPending ? "Memulai..." : "Mulai Try Out";
 
   return (
     <div className="flex w-full flex-col gap-6">
       <BackButton to="/tryout" className="w-fit" />
 
-      {isAccessGated && freemiumStatus.data && <TryoutDetailGate tryoutId={tryoutId} status={freemiumStatus.data} />}
+      {isAccessGated && freemiumStatus.data && (
+        <>
+          {judul && <h1 className="text-2xl font-extrabold text-balance text-sr-ink sm:text-3xl">{judul}</h1>}
+          <TryoutDetailGate tryoutId={tryoutId} status={freemiumStatus.data} />
+        </>
+      )}
 
       {!isAccessGated && (
-        <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:pr-96">
+        <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 py-5 sm:px-8 sm:py-6 sm:pr-60 lg:px-10 lg:py-7 lg:pr-80">
           <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
           <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
-            Mulai Try Out sekarang
+            {judul ?? "Detail Try Out"}
           </h1>
-          <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
+          <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/95 sm:text-base">
             Baca petunjuknya sebentar, siapkan diri, lalu kerjakan dengan tenang. Semangat!
           </p>
           <Button
@@ -100,7 +109,7 @@ function TryoutDetailPage() {
           <motion.img
             src="/avatar/subtest/tka.webp"
             alt=""
-            className="pointer-events-none absolute right-1/2 bottom-0 h-36 w-auto translate-x-1/2 select-none sm:right-10 sm:h-48 sm:translate-x-0 lg:right-16 lg:h-56"
+            className="pointer-events-none absolute right-3 bottom-0 h-20 w-auto select-none max-[359px]:hidden sm:right-10 sm:h-40 lg:right-16 lg:h-48"
             initial={{ y: 40 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
@@ -167,7 +176,7 @@ function TryoutDetailPage() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">Urutan subtes</h2>
+        <h2 className="text-lg font-extrabold text-sr-ink sr-halo-text sm:text-xl">Urutan subtes</h2>
         <div className="overflow-hidden rounded-sr-xl border border-sr-line bg-white shadow-sr-1">
           {subtesQuery.isPending ? (
             <div className="space-y-3 p-4">
