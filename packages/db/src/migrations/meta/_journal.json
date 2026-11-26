@@ -281,6 +281,13 @@
       "when": 1795415000973,
       "tag": "0039_brainy_galactus",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1795700067828,
+      "tag": "0040_ptn_tour_display_participant_count",
+      "breakpoints": true
     }
   ]
 }

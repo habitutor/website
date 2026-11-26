@@ -1,0 +1,1 @@
+ALTER TABLE "ptn_tour_event" ADD COLUMN "display_participant_count" integer;

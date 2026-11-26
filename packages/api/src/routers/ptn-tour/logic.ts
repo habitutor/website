@@ -189,6 +189,27 @@ export const DEFAULT_SETTINGS = {
   promo_text: "Premium membuka live class, semua rekaman event, dan bank soal lengkap untuk SNBT.",
   promo_cta_label: "Lihat Paket Premium",
   promo_cta_url: "/premium",
+  // Total peserta sejak PTN Tour pertama (termasuk sebelum ada website), diisi admin. Kosong = disembunyikan.
+  hero_participants: "",
+  show_event_counts: "true",
 } as const;
 export type SettingKey = keyof typeof DEFAULT_SETTINGS;
 export const SETTING_KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];
+
+/**
+ * Angka peserta yang boleh dilihat publik. Penuh atau tidaknya selalu dari pendaftar asli; angka isian admin hanya
+ * untuk tampilan. quota dan spotsLeft tetap dikirim sebagai null supaya web versi lama tidak rusak saat rilis.
+ */
+export function toPublicSpots(input: {
+  quota: number | null;
+  registered: number;
+  shownByAdmin: number | null;
+  ended: boolean;
+}) {
+  return {
+    registrationCount: input.shownByAdmin ?? input.registered,
+    quota: null,
+    spotsLeft: null,
+    isFull: !input.ended && input.quota !== null && input.registered >= input.quota,
+  };
+}

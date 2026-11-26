@@ -5,6 +5,7 @@ import {
   PlayCircleIcon,
   SparkleIcon,
   UserPlusIcon,
+  UsersThreeIcon,
   VideoCameraIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
@@ -20,7 +21,17 @@ import { CountUp, TiltCard } from "@/routes/-home/motion-bits";
 import { orpc } from "@/utils/orpc";
 import { CountdownTiles } from "./-components/countdown-tiles";
 import { EventCard, EventCardSkeleton } from "./-components/event-card";
-import { EVENT_CATEGORIES, EVENT_SUBJECTS, formatDate, formatTime, getEventStatus, type PtnEvent } from "./-lib";
+import { usePtnTourSettings } from "./-hooks";
+import {
+  EVENT_CATEGORIES,
+  EVENT_SUBJECTS,
+  formatDate,
+  formatTime,
+  getEventStatus,
+  getSpotsLabel,
+  parseHeroParticipants,
+  type PtnEvent,
+} from "./-lib";
 
 export const Route = createFileRoute("/ptntour/")({ component: PtnTourListPage });
 
@@ -79,10 +90,8 @@ function PtnTourListPage() {
     }),
     [events],
   );
-  const totalParticipants = useMemo(
-    () => events?.reduce((sum, event) => sum + event.registrationCount, 0) ?? 0,
-    [events],
-  );
+  const { data: settings } = usePtnTourSettings();
+  const totalParticipants = parseHeroParticipants(settings?.hero_participants);
 
   const hasSubjects = useMemo(() => events?.some((event) => event.subjects.length > 0) ?? false, [events]);
   const hasFilter = category !== "Semua" || subject !== "Semua" || search.trim() !== "";
@@ -244,7 +253,7 @@ function PtnTourListPage() {
   );
 }
 
-function Hero({ upcoming, participants, loaded }: { upcoming: number; participants: number; loaded: boolean }) {
+function Hero({ upcoming, participants, loaded }: { upcoming: number; participants: number | null; loaded: boolean }) {
   // Ukuran dan susunan sama dengan header Premium, Live Class, dan Recordings supaya konsisten.
   return (
     <section className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
@@ -268,10 +277,10 @@ function Hero({ upcoming, participants, loaded }: { upcoming: number; participan
           <CalendarCheckIcon weight="fill" className="size-4 text-sr-sun-400" />
           {loaded ? <CountUp to={upcoming} /> : "…"} event akan datang
         </span>
-        {participants > 0 && (
+        {participants !== null && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
             <UserPlusIcon weight="fill" className="size-4 text-sr-sun-400" />
-            <CountUp to={participants} suffix="+" /> peserta ikut
+            <CountUp to={participants} suffix="+" /> peserta sejak PTN Tour pertama
           </span>
         )}
       </div>
@@ -292,6 +301,8 @@ function Hero({ upcoming, participants, loaded }: { upcoming: number; participan
 }
 
 function FeaturedEvent({ event, isPremium }: { event: PtnEvent; isPremium: boolean }) {
+  const { data: settings } = usePtnTourSettings();
+  const spotsLabel = getSpotsLabel(event, settings?.show_event_counts === "true");
   const status = getEventStatus(event, isPremium);
   const label =
     status.key === "live"
@@ -342,6 +353,12 @@ function FeaturedEvent({ event, isPremium }: { event: PtnEvent; isPremium: boole
               <ClockIcon weight="fill" className="size-4 text-sr-blue-500" />
               {formatDate(event.startsAt)}, {formatTime(event.startsAt)}
             </span>
+            {spotsLabel && (
+              <span className="inline-flex items-center gap-1.5">
+                <UsersThreeIcon weight="fill" className="size-4 text-sr-blue-500" />
+                {spotsLabel}
+              </span>
+            )}
           </p>
           <CountdownTiles event={event} tone="light" />
           <div>
