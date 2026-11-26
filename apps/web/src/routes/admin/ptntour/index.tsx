@@ -253,7 +253,7 @@ function AdminPtnTourPage() {
                   <TableCell className="text-sm font-bold text-sr-ink">
                     {event.registrationCount}
                     {event.quota !== null && <span className="font-normal text-sr-muted"> / {event.quota}</span>}
-                    {event.displayParticipantCount !== null && (
+                    {event.displayParticipantCount != null && (
                       <span className="block text-xs font-normal text-sr-muted">
                         Tampil ke siswa: {event.displayParticipantCount.toLocaleString("id-ID")}
                       </span>
@@ -294,7 +294,7 @@ function AdminPtnTourPage() {
                   <p className="text-xs text-sr-muted">
                     <strong className="text-sr-ink">{event.registrationCount}</strong>
                     {event.quota !== null && ` / ${event.quota}`} pendaftar
-                    {event.displayParticipantCount !== null && ` (tampil ${event.displayParticipantCount})`} ·{" "}
+                    {event.displayParticipantCount != null && ` (tampil ${event.displayParticipantCount})`} ·{" "}
                     <strong className="text-sr-ink">{event.attendedCount}</strong> hadir
                   </p>
                   {actions(event)}
