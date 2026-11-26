@@ -11,14 +11,14 @@
   /* Ink (teks dan navy) */
   --color-sr-ink: #14224e;
   --color-sr-ink-2: #34426a;
-  --color-sr-muted: #626d8c;
+  --color-sr-muted: #525c7d;
 
   /* Blue */
   --color-sr-blue-50: #f1f6ff;
   --color-sr-blue-100: #dfe9ff;
   --color-sr-blue-200: #c2d4ff;
   --color-sr-blue-300: #8fb2ff;
-  --color-sr-blue-500: #2f6bff;
+  --color-sr-blue-500: #2c68fa;
   --color-sr-blue-600: #2356e8;
   --color-sr-blue-700: #1b44c4;
   --color-sr-blue-800: #16339a;
@@ -142,11 +142,18 @@
 /* Gradien: dipakai lewat `bg-(image:--sr-grad-blue)` atau `var(--sr-grad-blue)` */
 :root {
   --sr-grad-blue:
-    radial-gradient(420px 260px at 88% 0%, #6a98ff 0%, transparent 70%),
     linear-gradient(145deg, #2f6bff 0%, #2356e8 52%, #1b44c4 100%);
   --sr-grad-sun:
     radial-gradient(360px 220px at 85% 0%, #fff3c4 0%, transparent 70%),
     linear-gradient(150deg, #ffe28a 0%, #ffcf4f 55%, #ffc12e 100%);
+}
+
+/* Pendar terang di belakang judul yang berdiri langsung di atas latar, supaya tetap jelas saat melewati gedung. */
+@utility sr-halo-text {
+  text-shadow:
+    0 0 4px #fff,
+    0 0 10px #fff,
+    0 0 18px rgb(255 255 255 / 0.9);
 }
 
 /* ---------- Utilitas interaksi ---------- */

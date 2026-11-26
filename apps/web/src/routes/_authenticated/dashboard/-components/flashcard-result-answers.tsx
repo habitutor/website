@@ -93,7 +93,6 @@ function CompletionHero({ score, correct, total }: { score: number; correct: num
     <div className="relative">
       {celebrate && <Confetti className="absolute top-20 left-1/2" />}
       <div className="relative overflow-hidden rounded-sr-xl sr-card-sun py-5 pr-28 pl-5 sm:py-7 sm:pr-60 sm:pl-8">
-        <div className="pointer-events-none absolute -top-16 -right-12 size-48 rounded-full bg-white/30" />
 
         <span className="relative inline-flex rounded-full bg-white/70 px-3 py-1 text-xs font-bold text-sr-ink">
           Latihan selesai
@@ -157,7 +156,7 @@ export function ResultsSection() {
         <CompletionHero score={score} correct={data?.correctAnswersCount ?? 0} total={data?.questionsCount ?? 5} />
       )}
       <StreakBanner />
-      <h2 className="text-lg font-extrabold text-sr-ink">Pembahasan jawaban</h2>
+      <h2 className="text-lg font-extrabold text-sr-ink sr-halo-text">Pembahasan jawaban</h2>
       <div className="flex flex-col gap-3">
         {isPending ? (
           <Skeleton className="h-72 w-full" />

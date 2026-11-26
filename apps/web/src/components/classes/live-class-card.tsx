@@ -140,7 +140,6 @@ export function LiveClassScheduleCard({
     >
       {/* Pita atas: jam mulai dibuat besar supaya jadwal terbaca sekilas. */}
       <div className={cn("relative overflow-hidden bg-linear-to-br px-4 pt-4 pb-5", style.art)}>
-        <div className="pointer-events-none absolute -right-8 -bottom-14 size-36 rounded-full bg-white/45" />
         <span
           aria-hidden
           className={cn(

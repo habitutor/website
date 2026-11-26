@@ -621,7 +621,6 @@ function PaidAccessCard({ onPay, isPending }: { onPay: () => void; isPending: bo
   return (
     <div className="group relative flex flex-col justify-between overflow-hidden rounded-sr-xl sr-card-blue p-6 text-white shadow-sr-2 ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-3 md:p-7">
       <div className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-white/10 blur-xl" />
-      <div className="pointer-events-none absolute -bottom-16 -left-16 size-40 rounded-full bg-white/5 blur-lg" />
 
       <div className="relative z-10 flex flex-col gap-5">
         <div className="flex items-center justify-between gap-2">
@@ -640,7 +639,7 @@ function PaidAccessCard({ onPay, isPending }: { onPay: () => void; isPending: bo
         <div className="flex flex-col gap-2 border-y border-white/20 py-3.5">
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black text-sr-sun-200 sm:text-4xl">{FREEMIUM_PAKET_PRICE_LABEL}</span>
-            <span className="text-xs font-semibold text-white/80">/ 3 Try Out</span>
+            <span className="text-xs font-semibold text-white/95">/ 3 Try Out</span>
           </div>
           <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-bold text-white">
             <CheckCircleIcon weight="fill" className="size-3.5 text-sr-sun-400" />

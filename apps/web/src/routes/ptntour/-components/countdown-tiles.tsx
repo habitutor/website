@@ -10,7 +10,7 @@ function Tile({ value, label, tone }: { value: number; label: string; tone: "lig
       className={cn(
         "flex min-w-14 flex-1 flex-col items-center rounded-sr-md px-2 py-2.5 sm:min-w-16 sm:py-3",
         tone === "dark"
-          ? "bg-white/12 text-white ring-1 ring-white/20 backdrop-blur"
+          ? "bg-white/15 text-white ring-1 ring-white/20"
           : "bg-sr-blue-50 text-sr-blue-700 ring-1 ring-sr-blue-100",
       )}
     >

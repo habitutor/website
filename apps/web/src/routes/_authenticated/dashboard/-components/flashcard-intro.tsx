@@ -29,7 +29,6 @@ export const FlashcardIntro = () => {
         transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
         className="relative w-full max-w-3xl overflow-hidden rounded-sr-xl sr-card-sun px-6 pt-8 pb-44 text-center sm:px-10 sm:py-12 sm:pr-80 sm:text-left"
       >
-        <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/30" />
 
         <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-sm font-extrabold text-sr-ink tabular-nums">
           <TimerIcon weight="bold" className="size-4 text-sr-orange-500" /> 10:00

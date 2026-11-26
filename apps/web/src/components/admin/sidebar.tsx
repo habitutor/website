@@ -2,7 +2,7 @@
 
 import {
   BooksIcon,
-  SparkleIcon,
+  ChalkboardTeacherIcon,
   Broadcast,
   House,
   Megaphone,
@@ -102,7 +102,7 @@ const adminNavLinks = [
   {
     name: "PTN Tour",
     to: "/admin/ptntour" as const,
-    icon: SparkleIcon,
+    icon: ChalkboardTeacherIcon,
   },
   {
     name: "Users",

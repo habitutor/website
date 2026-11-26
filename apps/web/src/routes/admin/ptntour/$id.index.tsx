@@ -165,7 +165,6 @@ function MaterialsManager({ eventId }: { eventId: number }) {
   return (
     <section className="animate-sr-rise rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2">
       <div className="mb-4 flex items-center gap-3">
-        <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
         <div>
           <h2 className="font-black text-sr-ink">Materi & bonus</h2>
           <p className="text-xs text-sr-muted">

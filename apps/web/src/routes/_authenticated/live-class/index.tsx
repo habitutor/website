@@ -141,7 +141,7 @@ function LiveClassSchedulePage() {
 
       <section className="space-y-4" aria-live="polite">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-extrabold text-sr-ink capitalize sm:text-xl">
+          <h2 className="text-lg font-extrabold text-sr-ink capitalize sr-halo-text sm:text-xl">
             {formatDay(selectedDate, { weekday: "long", day: "numeric", month: "long" })}
           </h2>
           {schedule.data && (
@@ -195,16 +195,11 @@ function ScheduleHeader({ weekCount }: { weekCount?: number }) {
     // Di HP maskot mengintip dari bawah teks; mulai sm duduk di kanan, sama seperti header Premium.
     <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
       <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
-      <div className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-white/5" />
 
-      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
-        <span className="size-2 rounded-full bg-sr-sun-400 motion-safe:animate-pulse" />
-        Belajar langsung bareng mentor
-      </span>
-      <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+      <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
         Jadwal Live Class
       </h1>
-      <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
+      <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/95 sm:text-base">
         Tanya langsung ke mentor, bahas soal bareng teman. Tombol Gabung aktif 15 menit sebelum kelas dimulai.
       </p>
 
@@ -235,7 +230,7 @@ function ScheduleHeader({ weekCount }: { weekCount?: number }) {
 
 function EmptyDay({ title, description }: { title: string; description: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white px-6 py-10 text-center">
       <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto motion-safe:animate-sr-drift" />
       <p className="text-lg font-extrabold text-sr-ink">{title}</p>
       <p className="max-w-sm text-sm leading-relaxed text-sr-muted">{description}</p>

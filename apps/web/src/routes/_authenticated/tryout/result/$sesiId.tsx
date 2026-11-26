@@ -65,7 +65,7 @@ function TryoutResultPage() {
 
   if (!result) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-12 text-center">
+      <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white px-6 py-12 text-center">
         <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto" />
         <p className="text-lg font-extrabold text-sr-ink">Hasil tidak ditemukan</p>
         <Button asChild className="mt-2 rounded-full">
@@ -98,7 +98,7 @@ function TryoutResultPage() {
           >
             <ArrowLeftIcon weight="bold" /> Kembali ke ringkasan
           </Button>
-          <p className="relative mt-4 text-sm font-semibold text-white/80">Review hasil try out</p>
+          <p className="relative mt-4 text-sm font-semibold text-white/95">Review hasil try out</p>
           <h1 className="relative mt-1 text-2xl leading-tight font-extrabold text-white sm:text-3xl">
             {selectedSubtestName}
           </h1>
@@ -151,18 +151,15 @@ function TryoutResultPage() {
 
       <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-40 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:pr-96">
         <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
-        <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
-          <TrophyIcon weight="fill" className="size-4 text-sr-sun-400" /> Hasil try out
-        </span>
-        <h1 className="relative mt-3 text-2xl leading-tight font-extrabold text-balance text-white sm:text-3xl">
+        <h1 className="relative text-2xl leading-tight font-extrabold text-balance text-white sm:text-3xl">
           {result.judulTryout || "Hasil Try Out"}
         </h1>
-        <p className="relative mt-2 text-sm text-white/80">Kerja bagus sudah menyelesaikannya! Ini skor kamu:</p>
+        <p className="relative mt-2 text-sm text-white/95">Kerja bagus sudah menyelesaikannya! Ini skor kamu:</p>
         <p className="relative mt-3 flex items-baseline gap-2">
           <span className="text-6xl leading-none font-extrabold text-sr-sun-400 tabular-nums">
             {Number.isInteger(result.totalSkor) ? <CountUp to={result.totalSkor} duration={1.4} /> : result.totalSkor}
           </span>
-          <span className="text-sm font-bold text-white/80">total skor</span>
+          <span className="text-sm font-bold text-white/95">total skor</span>
         </p>
         <motion.img
           src="/avatar/testimone-avatar.webp"
@@ -187,7 +184,7 @@ function TryoutResultPage() {
       <ReferralPromoCard variant="result" />
 
       <section className="space-y-3">
-        <div>
+        <div className="sr-halo-text">
           <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">Skor per subtes</h2>
           <p className="text-sm text-sr-muted">
             Ketuk salah satu subtes untuk melihat soal, jawabanmu, dan pembahasan.

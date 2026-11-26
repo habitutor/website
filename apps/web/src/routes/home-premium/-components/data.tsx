@@ -39,11 +39,11 @@ export const PREMIUM_DATA = {
       iconClassName: "bg-red-100 border-red-200 text-red-500",
       title: "Sistem biar lo gak tumbang di tengah jalan",
       description:
-        "Streak harian, pantau progress, mabok vocab, template belajar — plus komunitas Discord & grup WA. 10 bulan itu maraton; lo gak lari sendirian.",
+        "Streak harian, pantau progress, mabok vocab, template belajar, plus komunitas Discord & grup WA. 10 bulan itu maraton; lo gak lari sendirian.",
     },
   ] satisfies Benefit[],
   comingSoon: {
-    label: "Coming soon — September",
+    label: "Segera hadir, September",
     description:
       "Aplikasi iOS & Android, AI personal tutor, tes minat-jurusan. Daftar sekarang = dapet semuanya otomatis, tanpa bayar lagi.",
   },

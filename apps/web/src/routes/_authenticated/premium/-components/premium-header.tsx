@@ -1,4 +1,4 @@
-import { CalendarCheckIcon, CrownSimpleIcon, SealCheckIcon } from "@phosphor-icons/react";
+import { CalendarCheckIcon, SealCheckIcon } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import type { authClient } from "@/lib/auth-client";
 import { PREMIUM_PLAN_NAME, type PremiumPlan, formatWibDate } from "@/lib/premium-packages";
@@ -24,14 +24,10 @@ export function PremiumHeader({ session, subscribedPlan }: PremiumHeaderProps) {
       <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 pt-6 pb-36 sm:px-8 sm:py-9 sm:pr-72 lg:px-10 lg:py-11 lg:pr-96">
         <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
 
-        <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
-          <CrownSimpleIcon weight="fill" className="size-4 text-sr-sun-400" />
-          {isPremium ? "Member Premium" : "Paket Premium"}
-        </span>
-        <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
+        <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
           {title}
         </h1>
-        <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">{subtitle}</p>
+        <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/95 sm:text-base">{subtitle}</p>
 
         <motion.img
           src="/avatar/avatar-premium.webp"

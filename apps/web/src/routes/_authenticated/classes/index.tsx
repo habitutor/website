@@ -32,9 +32,9 @@ function RouteComponent() {
       <SubtestHeader stats={stats} />
 
       <section>
-        <div className="mb-4">
+        <div className="mb-4 sr-halo-text">
           <h2 className="text-lg font-extrabold text-sr-ink sm:text-xl">Pilih subtes</h2>
-          <p className="text-sm text-sr-muted">
+          <p className="text-sm text-sr-ink">
             Mulai dari subtes yang paling ingin kamu kuasai, satu BAB dulu juga keren.
           </p>
         </div>
@@ -54,7 +54,7 @@ function RouteComponent() {
         )}
 
         {subtests.isError && (
-          <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-10 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white px-6 py-10 text-center">
             <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto" />
             <p className="text-lg font-extrabold text-sr-ink">Kelas gagal dimuat</p>
             <p className="max-w-sm text-sm text-sr-muted">Coba muat ulang halaman ini, ya.</p>
@@ -62,7 +62,7 @@ function RouteComponent() {
         )}
 
         {subtests.data && items.length === 0 && (
-          <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white/80 px-6 py-10 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-sr-xl border border-dashed border-sr-line-2 bg-white px-6 py-10 text-center">
             <img src="/avatar/confused-avatar.webp" alt="" className="h-32 w-auto motion-safe:animate-sr-drift" />
             <p className="text-lg font-extrabold text-sr-ink">Kelasnya lagi diracik</p>
             <p className="max-w-sm text-sm text-sr-muted">Subtes akan muncul di sini begitu materinya siap.</p>

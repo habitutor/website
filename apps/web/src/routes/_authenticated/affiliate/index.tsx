@@ -2,7 +2,6 @@ import {
   ClockIcon,
   CopyIcon,
   CoinsIcon,
-  HandCoinsIcon,
   ShareNetworkIcon,
   UserPlusIcon,
   UsersThreeIcon,
@@ -76,14 +75,10 @@ function RouteComponent() {
       <MotionStaggerItem>
         <div className="relative overflow-hidden rounded-sr-xl sr-card-blue px-5 py-7 sm:px-8 sm:py-9">
           <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
-          <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">
-            <HandCoinsIcon weight="fill" className="size-4 text-sr-sun-400" />
-            Program Afiliasi
-          </span>
-          <h1 className="relative mt-3 text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl">
+          <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl">
             Ajak teman belajar, dapat {commissionPercent}% dari setiap paket Premium
           </h1>
-          <p className="relative mt-2.5 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
+          <p className="relative mt-2.5 max-w-xl text-sm leading-relaxed text-white/95 sm:text-base">
             Temanmu langsung hemat {discountPercent}% saat beli Premium pertamanya. Kamu dapat komisi{" "}
             {commissionPercent}% dari yang mereka bayar, masuk ke saldo di akunmu.
           </p>
@@ -275,7 +270,7 @@ function CopyRow({ label, value, onCopy, mono }: { label: string; value: string;
     <div className="grid gap-1.5">
       <Label>{label}</Label>
       <div className="flex gap-2">
-        <Input readOnly value={value} className={cn("h-11", mono && "font-mono text-lg font-black tracking-widest")} />
+        <Input readOnly aria-label={label} value={value} className={cn("h-11", mono && "font-mono text-lg font-black tracking-widest")} />
         <Button type="button" variant="outline" className="h-11 rounded-full" onClick={onCopy}>
           <CopyIcon /> Salin
         </Button>

@@ -126,7 +126,6 @@ function Group({ title, description, children }: { title: string; description?: 
       className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-shadow duration-300 hover:shadow-sr-2"
     >
       <div className="mb-4 flex items-center gap-3">
-        <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
         <div>
           <h2 className="font-black text-sr-ink">{title}</h2>
           {description && <p className="text-xs text-sr-muted">{description}</p>}
@@ -256,7 +255,7 @@ export function EventForm({
             value={form.title}
             onChange={(e) => {
               set("title", e.target.value);
-              if (!slugTouched || (mode === "create" && !form.slug)) set("slug", slugify(e.target.value));
+              if (!slugTouched) set("slug", slugify(e.target.value));
             }}
             placeholder="Contoh: Bedah Pola Soal TKA Gel 2"
             required
@@ -392,7 +391,7 @@ export function EventForm({
           >
             {ACCESS_MODE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label} — {option.hint}
+                {option.label} ({option.hint})
               </option>
             ))}
           </select>

@@ -98,7 +98,6 @@ function ProfileHero({
   return (
     <div className="relative overflow-hidden rounded-sr-xl sr-card-blue p-5 sm:p-8">
       <div className="pointer-events-none absolute -top-20 -right-16 size-64 rounded-full bg-white/10" />
-      <div className="pointer-events-none absolute -bottom-24 left-1/3 size-48 rounded-full bg-sr-sun-400/15 blur-2xl" />
 
       <div className="relative flex items-center gap-4 sm:gap-6">
         <motion.div
@@ -208,7 +207,6 @@ function ReferralCard({
   const holdDays = rules?.holdDays ?? 7;
   return (
     <section className="relative overflow-hidden rounded-sr-xl sr-card-sun p-5 sm:p-6">
-      <div className="pointer-events-none absolute -top-12 -right-12 size-40 rounded-full border-[18px] border-white/30" />
       <div className="relative flex items-center gap-2">
         <span className="flex size-9 items-center justify-center rounded-sr-sm bg-white/60 text-sr-amber-700">
           <GiftIcon weight="fill" className="size-5" />

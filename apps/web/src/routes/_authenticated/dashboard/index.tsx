@@ -167,8 +167,6 @@ function RouteComponent() {
             {/* Hero mengikuti bahasa visual landing: badge pill bergradien, nama berkilau, maskot naik saat halaman dibuka. */}
             <div className="group relative overflow-hidden rounded-sr-xl sr-card-blue p-5 md:p-8">
               <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/10 md:-top-28 md:size-96" />
-              <div className="pointer-events-none absolute top-10 right-40 hidden size-14 rounded-full bg-white/10 md:block" />
-              <div className="pointer-events-none absolute -bottom-16 left-1/3 size-40 rounded-full bg-sr-sun-400/15 blur-2xl" />
 
               {/* Di HP maskot berdiri di atas kotak target; mulai md menempel ke dasar kartu. */}
               <div className="relative min-h-36 pr-28 md:static md:min-h-0 md:pr-64 lg:pr-80">

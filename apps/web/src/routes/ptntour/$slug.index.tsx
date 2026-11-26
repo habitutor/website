@@ -1,5 +1,4 @@
 import {
-  ArrowLeftIcon,
   CalendarBlankIcon,
   CalendarPlusIcon,
   CheckCircleIcon,
@@ -20,6 +19,7 @@ import { type } from "arktype";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { BackButton } from "@/components/navigation/back-button";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { COMMUNITY_LINKS } from "@/lib/community-links";
@@ -128,12 +128,7 @@ function EventDetailPage() {
 
   return (
     <>
-      <Link
-        to="/ptntour"
-        className="inline-flex w-fit items-center gap-2 text-sm font-bold text-sr-blue-600 transition-transform hover:-translate-x-0.5 hover:text-sr-blue-700"
-      >
-        <ArrowLeftIcon weight="bold" /> Semua event
-      </Link>
+      <BackButton to="/ptntour" className="w-fit" />
 
       <section className="relative overflow-hidden rounded-sr-xl sr-card-blue text-white shadow-sr-3">
         <img
@@ -142,7 +137,6 @@ function EventDetailPage() {
           aria-hidden
           className="pointer-events-none absolute inset-0 size-full scale-125 object-cover opacity-25 blur-3xl"
         />
-        <div className="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-white/10" />
         <div className="relative grid gap-6 p-5 sm:p-8 lg:grid-cols-[17rem_1fr] lg:gap-10 lg:p-10">
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
@@ -194,7 +188,7 @@ function EventDetailPage() {
               {spotsLabel && <HeroChip icon={<UsersThreeIcon weight="fill" />}>{spotsLabel}</HeroChip>}
             </div>
 
-            <div className="flex items-center gap-3 rounded-sr-lg bg-white/10 p-3 ring-1 ring-white/20 backdrop-blur sm:w-fit sm:pr-6">
+            <div className="flex items-center gap-3 rounded-sr-lg bg-white/15 p-3 ring-1 ring-white/20 sm:w-fit sm:pr-6">
               {event.tutorPhotoUrl ? (
                 <img
                   src={event.tutorPhotoUrl}
@@ -212,7 +206,7 @@ function EventDetailPage() {
               <div className="min-w-0">
                 <p className="text-[10px] font-bold tracking-wider text-white/70 uppercase">Pemateri</p>
                 <p className="truncate font-black">{event.tutor}</p>
-                <p className="truncate text-xs text-white/80">{event.campus}</p>
+                <p className="truncate text-xs text-white/95">{event.campus}</p>
                 {event.tutorAchievement && (
                   <p className="mt-0.5 line-clamp-2 max-w-xs text-xs font-semibold text-sr-sun-200">
                     {event.tutorAchievement}
@@ -408,7 +402,7 @@ function EventDetailPage() {
 
 function HeroChip({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 ring-1 ring-white/20 backdrop-blur [&>svg]:size-4 [&>svg]:text-sr-sun-400">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 ring-1 ring-white/20 [&>svg]:size-4 [&>svg]:text-sr-sun-400">
       {icon}
       {children}
     </span>
@@ -427,12 +421,9 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-sr-xl border border-sr-line bg-white p-5 shadow-sr-1 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sr-2 sm:p-7">
-      <div className="mb-4 flex items-center gap-3">
-        <span className="h-6 w-1.5 rounded-full bg-sr-sun-500" />
-        <div>
-          <h2 className="text-lg font-black text-sr-ink sm:text-xl">{title}</h2>
-          {hint && <p className="text-xs text-sr-muted">{hint}</p>}
-        </div>
+      <div className="mb-4">
+        <h2 className="text-lg font-black text-sr-ink sm:text-xl">{title}</h2>
+        {hint && <p className="text-xs text-sr-muted">{hint}</p>}
       </div>
       {children}
     </section>
@@ -467,7 +458,7 @@ function PrimaryAction({
   const status = getEventStatus(event, isPremium);
   // Di atas hero biru, tombol utama memakai gradien matahari dan tombol nonaktif dibuat transparan putih.
   const primary = onDark ? "border-transparent text-sr-ink shadow-sr-sun [background:var(--sr-grad-sun)] hover:brightness-105" : "";
-  const quiet = onDark ? "border-white/40 bg-white/15 text-white hover:bg-white/20 disabled:opacity-100" : "";
+  const quiet = onDark ? "border-white/40 bg-white/15 text-white hover:bg-white/20 disabled:bg-white/15 disabled:text-white disabled:opacity-100" : "";
   if (canJoin) {
     return (
       <Button size="lg" className="bg-sr-live text-white hover:bg-sr-live/90" disabled={joining} onClick={onJoin}>
