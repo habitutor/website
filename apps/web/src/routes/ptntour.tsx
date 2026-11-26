@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { MotionConfig } from "motion/react";
-import { CampusSkyline } from "@/components/layout/campus-skyline";
+import { CampusSky, CampusSkyline } from "@/components/layout/campus-skyline";
 import { HeaderDashboard } from "@/components/navigation/header-dashboard";
 import Header from "@/components/navigation/header";
 import { Container } from "@/components/ui/container";
@@ -36,6 +36,7 @@ function PtnTourLayout() {
             "radial-gradient(60rem 40rem at 100% 0%, rgb(47 107 255 / 0.10), transparent 60%), radial-gradient(50rem 36rem at 0% 30%, rgb(255 214 95 / 0.16), transparent 60%)",
         }}
       />
+      <CampusSky />
       {session ? <HeaderDashboard session={session} /> : <Header />}
       <div className="relative z-10 min-h-dvh">
         <Container className="flex flex-col gap-6 pt-24 pb-24 sm:pt-28 sm:pb-16">
