@@ -13,6 +13,7 @@ import {
   SNBT_2027_DEADLINE,
   isPremiumPackageSlug,
 } from "../../lib/constants";
+import { parseMidtransDate } from "../../lib/midtrans";
 import { notifyUser } from "../notification/service";
 import { referralRepo } from "../referral/repo";
 import { computeCommission, AFFILIATE, getCommissionAvailableAt } from "../affiliate/logic";
@@ -20,10 +21,12 @@ import { affiliateRepo } from "../affiliate/repo";
 import { ptnTourRepo } from "../ptn-tour/repo";
 import { freemiumRepo } from "../student/tryout/freemium-repo";
 import { addMonthsUtc, resolveExpiryWithoutShortening } from "./premium-expiry";
+import { isSamePaymentByTransactionId, isTransactionNotFound } from "./gateway-lookup";
 import { getPackageExpiry } from "./pricing";
 import { transactionRepo } from "./repo";
 
 type MidtransStatusResponse = {
+  order_id?: string;
   transaction_status: string;
   fraud_status?: string;
   gross_amount: string;
@@ -34,12 +37,12 @@ type MidtransStatusResponse = {
   status_code?: string;
 };
 
-async function fetchMidtransTransactionStatus(orderId: string): Promise<MidtransStatusResponse | null> {
+async function fetchMidtransTransactionStatus(id: string): Promise<MidtransStatusResponse | null> {
   const serverKey = process.env.MIDTRANS_SERVER_KEY || "";
   const auth = Buffer.from(`${serverKey}:`).toString("base64");
 
   const statusResponse = await fetch(
-    `https://api${process.env.NODE_ENV === "production" ? "" : ".sandbox"}.midtrans.com/v2/${orderId}/status`,
+    `https://api${process.env.NODE_ENV === "production" ? "" : ".sandbox"}.midtrans.com/v2/${encodeURIComponent(id)}/status`,
     {
       headers: {
         Authorization: `Basic ${auth}`,
@@ -56,13 +59,42 @@ async function fetchMidtransTransactionStatus(orderId: string): Promise<Midtrans
   }
 
   if (!statusResponse.ok) {
-    logger.error("Midtrans API error", { status: statusResponse.status, orderId });
+    logger.error("Midtrans API error", { status: statusResponse.status, id });
     throw new ORPCError("INTERNAL_SERVER_ERROR", {
       message: "Failed to verify transaction status",
     });
   }
 
-  return (await statusResponse.json()) as MidtransStatusResponse;
+  const body = (await statusResponse.json()) as MidtransStatusResponse;
+  return isTransactionNotFound(body) ? null : body;
+}
+
+// BI SNAP payments are unknown to Midtrans by order id; fall back to the gateway transaction id,
+// taken from the signed webhook or stored by an earlier sync.
+async function findGatewayStatus(
+  tx: { id: string; grossAmount: string | null; orderedAt: Date | null },
+  transactionId?: string | null,
+) {
+  const byOrderId = await fetchMidtransTransactionStatus(tx.id);
+  if (byOrderId || !transactionId) return byOrderId;
+
+  const byTransactionId = await fetchMidtransTransactionStatus(transactionId);
+  if (!byTransactionId) return null;
+
+  const isOurs =
+    isSamePaymentByTransactionId({
+      status: byTransactionId,
+      orderId: tx.id,
+      transactionId,
+      localGrossAmount: tx.grossAmount,
+      orderedAt: tx.orderedAt,
+    }) && !(await transactionRepo.isGatewayTransactionIdTaken({ transactionId, orderId: tx.id }));
+
+  if (!isOurs) {
+    logger.error("Midtrans transaction id does not belong to this order", { orderId: tx.id, transactionId });
+    return null;
+  }
+  return byTransactionId;
 }
 
 function resolvePremiumExpiry(productSlug: string, paidAt: Date) {
@@ -418,17 +450,14 @@ async function markTransactionAsFailed(orderId: string, revokeSuccessfulPayment:
   });
 }
 
-function parseMidtransDate(value?: string) {
-  if (!value) return undefined;
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
-}
-
 function amountsMatch(first: string | null, second: string) {
   return first !== null && Number(first) === Number(second);
 }
 
-export async function syncTransactionStatus(orderId: string, options?: { expectedGrossAmount?: string }) {
+export async function syncTransactionStatus(
+  orderId: string,
+  options?: { expectedGrossAmount?: string; transactionId?: string },
+) {
   const tx = await transactionRepo.getTransactionById({ orderId });
 
   if (!tx) {
@@ -443,7 +472,7 @@ export async function syncTransactionStatus(orderId: string, options?: { expecte
     };
   }
 
-  const statusData = await fetchMidtransTransactionStatus(orderId);
+  const statusData = await findGatewayStatus(tx, options?.transactionId ?? tx.gatewayTransactionId);
 
   // No payment attempt recorded at Midtrans yet — keep local state untouched.
   if (!statusData) {

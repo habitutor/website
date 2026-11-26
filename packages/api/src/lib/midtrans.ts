@@ -19,6 +19,13 @@ export function formatMidtransStartTime(date: Date): string {
   return `${wib.slice(0, 10)} ${wib.slice(11, 19)} +0700`;
 }
 
+/** Midtrans timestamps ("yyyy-MM-dd HH:mm:ss") carry no offset and are always WIB. */
+export function parseMidtransDate(value?: string): Date | undefined {
+  if (!value) return undefined;
+  const parsed = new Date(`${value.replace(" ", "T")}+07:00`);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
 export async function createSubscriptionTransaction({
   id,
   name,
@@ -91,13 +98,6 @@ interface MidtransChargeResponse {
   expiry_time?: string;
 }
 
-/** Midtrans expiry_time is "YYYY-MM-DD HH:mm:ss" in WIB (UTC+7). */
-function parseMidtransExpiry(value?: string): string | null {
-  if (!value) return null;
-  const parsed = new Date(`${value.replace(" ", "T")}+07:00`);
-  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
-}
-
 /**
  * Direct Core API charge for the in-app mobile checkout (QRIS or bank
  * transfer VA), unlike the web flow which uses the hosted Snap popup.
@@ -151,6 +151,6 @@ export async function createMobileCharge({
     qrString: data.qr_string ?? null,
     qrImageUrl: data.actions?.find((action) => action.name === "generate-qr-code")?.url ?? null,
     vaNumber: data.va_numbers?.[0]?.va_number ?? null,
-    expiresAt: parseMidtransExpiry(data.expiry_time),
+    expiresAt: parseMidtransDate(data.expiry_time)?.toISOString() ?? null,
   };
 }
