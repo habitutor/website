@@ -42,11 +42,19 @@ export function getEventStatus(
   return { key: "open", label: "Daftar dibuka", tone: "bg-white/95 text-sr-ink" };
 }
 
-/** Sisa kuota / jumlah pendaftar untuk kotak info ketiga. */
-export function getSpotsLabel(event: PtnEvent) {
-  if (event.phase === "ended") return `${event.registrationCount.toLocaleString("id-ID")} peserta`;
-  if (event.spotsLeft !== null) return event.spotsLeft === 0 ? "Kuota penuh" : `${event.spotsLeft} kursi tersisa`;
-  return `${event.registrationCount.toLocaleString("id-ID")} terdaftar`;
+/** Total peserta di kartu atas, diisi admin. Null berarti disembunyikan. */
+export function parseHeroParticipants(value: string | undefined) {
+  const total = Number(value);
+  return Number.isInteger(total) && total > 0 ? total : null;
+}
+
+/** Jumlah peserta untuk kotak info ketiga; null kalau admin menyembunyikannya. Kuota tidak ditampilkan ke siswa. */
+export function getSpotsLabel(event: PtnEvent, showCounts: boolean) {
+  // "Kuota penuh" selalu tampil supaya siswa tahu kenapa tidak bisa daftar.
+  if (event.isFull) return "Kuota penuh";
+  if (!showCounts) return null;
+  const total = event.registrationCount.toLocaleString("id-ID");
+  return event.phase === "ended" ? `${total} peserta` : `${total} terdaftar`;
 }
 
 const toCalendarStamp = (date: Date) =>
@@ -139,12 +147,6 @@ export function useCountdownParts(target: Date | string, active = true) {
     return () => window.clearInterval(timer);
   }, [target, active]);
   return parts;
-}
-
-/** Seberapa penuh kuota (0..1) untuk bar di kartu; null kalau tanpa batas atau sudah selesai. */
-export function getSpotsFill(event: Pick<PtnEvent, "quota" | "registrationCount" | "phase">) {
-  if (event.phase === "ended" || event.quota === null || event.quota <= 0) return null;
-  return Math.min(1, event.registrationCount / event.quota);
 }
 
 export const SOCIAL_LINKS = {

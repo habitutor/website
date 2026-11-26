@@ -22,6 +22,8 @@ export const ptnTourEvent = pgTable(
     startsAt: timestamp("starts_at").notNull(),
     durationMinutes: integer("duration_minutes").notNull().default(120),
     quota: integer(),
+    /** Jumlah peserta yang ditampilkan ke siswa, diisi admin. Null berarti memakai jumlah pendaftar asli. */
+    displayParticipantCount: integer("display_participant_count"),
     whatsappGroupUrl: text("whatsapp_group_url"),
     zoomUrl: text("zoom_url"),
     recordingUrl: text("recording_url"),
