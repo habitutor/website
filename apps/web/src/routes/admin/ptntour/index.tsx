@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
@@ -252,6 +253,11 @@ function AdminPtnTourPage() {
                   <TableCell className="text-sm font-bold text-sr-ink">
                     {event.registrationCount}
                     {event.quota !== null && <span className="font-normal text-sr-muted"> / {event.quota}</span>}
+                    {event.displayParticipantCount != null && (
+                      <span className="block text-xs font-normal text-sr-muted">
+                        Tampil ke siswa: {event.displayParticipantCount.toLocaleString("id-ID")}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm font-bold text-sr-ink">{event.attendedCount}</TableCell>
                   <TableCell className="text-sm font-bold text-sr-ink">{event.purchasedCount}</TableCell>
@@ -287,7 +293,8 @@ function AdminPtnTourPage() {
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-xs text-sr-muted">
                     <strong className="text-sr-ink">{event.registrationCount}</strong>
-                    {event.quota !== null && ` / ${event.quota}`} pendaftar ·{" "}
+                    {event.quota !== null && ` / ${event.quota}`} pendaftar
+                    {event.displayParticipantCount != null && ` (tampil ${event.displayParticipantCount})`} ·{" "}
                     <strong className="text-sr-ink">{event.attendedCount}</strong> hadir
                   </p>
                   {actions(event)}
@@ -308,7 +315,7 @@ function AdminPtnTourPage() {
           onPageChange={list.setPage}
         />
       )}
-      <SettingsCard />
+      <SettingsCard websiteRegistrations={events?.reduce((sum, event) => sum + event.registrationCount, 0)} />
     </AdminContainer>
   );
 }
@@ -334,7 +341,7 @@ const SETTING_FIELDS = [
 ] as const;
 
 /** Pengaturan pusat: link channel WA dan teks promo yang sama untuk semua event. */
-function SettingsCard() {
+function SettingsCard({ websiteRegistrations }: { websiteRegistrations: number | undefined }) {
   const queryClient = useQueryClient();
   const { data } = useQuery(orpc.ptnTour.settings.queryOptions());
   const [draft, setDraft] = useState<Record<string, string>>({});
@@ -371,6 +378,39 @@ function SettingsCard() {
             {field.hint && <p className="text-xs text-sr-muted">{field.hint}</p>}
           </div>
         ))}
+      </div>
+      <div className="mt-5 grid gap-4 border-t border-sr-line pt-5 sm:grid-cols-2">
+        <div className="grid content-start gap-1.5">
+          <Label htmlFor="hero-participants">Total peserta di kartu atas PTN Tour</Label>
+          <Input
+            id="hero-participants"
+            inputMode="numeric"
+            placeholder="Kosongkan untuk menyembunyikan"
+            value={draft.hero_participants ?? data?.hero_participants ?? ""}
+            onChange={(e) =>
+              setDraft((current) => ({ ...current, hero_participants: e.target.value.replace(/\D/g, "") }))
+            }
+          />
+          <p className="text-xs text-sr-muted">
+            Isi total peserta asli sejak PTN Tour pertama, termasuk sebelum ada website. Angka 500 tampil sebagai
+            "500+ peserta sejak PTN Tour pertama".
+            {websiteRegistrations !== undefined &&
+              ` Sebagai acuan, pendaftaran lewat website: ${websiteRegistrations.toLocaleString("id-ID")}.`}
+          </p>
+        </div>
+        <div className="flex items-start justify-between gap-4 rounded-sr-sm border border-sr-line p-3">
+          <div className="grid gap-1">
+            <Label htmlFor="show-event-counts">Tampilkan jumlah peserta tiap event ke siswa</Label>
+            <p className="text-xs text-sr-muted">
+              Angka dari isian di tiap event, atau pendaftar website kalau kosong. Kuota tidak pernah ditampilkan. Kalau dimatikan, hanya "Kuota penuh" yang tampil.
+            </p>
+          </div>
+          <Switch
+            id="show-event-counts"
+            checked={(draft.show_event_counts ?? data?.show_event_counts) === "true"}
+            onCheckedChange={(checked) => setDraft((current) => ({ ...current, show_event_counts: String(checked) }))}
+          />
+        </div>
       </div>
       <Button className="mt-4" disabled={!dirty || save.isPending} onClick={() => save.mutate(draft)}>
         {save.isPending ? "Menyimpan…" : "Simpan Pengaturan"}

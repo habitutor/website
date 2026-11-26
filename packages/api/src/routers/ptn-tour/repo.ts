@@ -28,6 +28,7 @@ import {
   SETTING_KEYS,
   type SettingKey,
   validateProofs,
+  toPublicSpots,
 } from "./logic";
 
 type EventRow = typeof ptnTourEvent.$inferSelect;
@@ -67,7 +68,6 @@ function toPublicEvent(
 ) {
   const endsAt = getEndsAt(row.startsAt, row.durationMinutes);
   const phase = getPhase(row, now);
-  const spotsLeft = row.quota === null ? null : Math.max(0, row.quota - extra.registrationCount);
   return {
     id: row.id,
     slug: row.slug,
@@ -88,10 +88,12 @@ function toPublicEvent(
     durationMinutes: row.durationMinutes,
     accessMode: row.accessMode,
     scheduleStatus: row.scheduleStatus,
-    quota: row.quota,
-    registrationCount: extra.registrationCount,
-    spotsLeft,
-    isFull: spotsLeft === 0 && phase !== "ended",
+    ...toPublicSpots({
+      quota: row.quota,
+      registered: extra.registrationCount,
+      shownByAdmin: row.displayParticipantCount,
+      ended: phase === "ended",
+    }),
     phase,
     hasRecording: Boolean(row.recordingUrl),
     recordingFreeDays: row.recordingFreeDays,

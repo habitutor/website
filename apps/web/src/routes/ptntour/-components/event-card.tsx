@@ -11,13 +11,12 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useJoinEvent, useWatchRecording } from "../-hooks";
+import { usePtnTourSettings, useJoinEvent, useWatchRecording } from "../-hooks";
 import {
   formatDate,
   formatTime,
   getAccessBadge,
   getEventStatus,
-  getSpotsFill,
   getSpotsLabel,
   isPremiumLocked,
   type PtnEvent,
@@ -33,8 +32,9 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
   const canJoin = status.key === "live" && (event.registered || isPremium);
   const access = getAccessBadge(event);
   const premiumLocked = isPremiumLocked(event, isPremium);
-  const fill = getSpotsFill(event);
-  const almostFull = fill !== null && fill >= 0.8 && !event.isFull;
+  const { data: settings } = usePtnTourSettings();
+  const showCounts = settings?.show_event_counts === "true";
+  const spotsLabel = getSpotsLabel(event, showCounts);
 
   return (
     <motion.article
@@ -119,29 +119,12 @@ export function EventCard({ event, isPremium, index = 0 }: { event: PtnEvent; is
           </span>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between gap-2 text-xs font-semibold">
-            <span className="inline-flex items-center gap-1.5 text-sr-ink-2">
-              <UsersThreeIcon weight="fill" className="size-4 text-sr-blue-500" />
-              {getSpotsLabel(event)}
-            </span>
-            {almostFull && <span className="font-black text-destructive">Hampir penuh!</span>}
-          </div>
-          {fill !== null && (
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-sr-blue-50">
-              <motion.div
-                initial={{ width: 0 }}
-                whileInView={{ width: `${Math.max(6, fill * 100)}%` }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1], delay: 0.15 }}
-                className={cn(
-                  "h-full rounded-full",
-                  almostFull || event.isFull ? "bg-destructive" : "bg-linear-to-r from-sr-blue-400 to-sr-blue-600",
-                )}
-              />
-            </div>
-          )}
-        </div>
+        {spotsLabel && (
+          <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-sr-ink-2">
+            <UsersThreeIcon weight="fill" className="size-4 text-sr-blue-500" />
+            {spotsLabel}
+          </p>
+        )}
 
         {event.bonus.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

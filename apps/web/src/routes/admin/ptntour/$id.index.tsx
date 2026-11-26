@@ -61,6 +61,7 @@ function EditPtnTourPage() {
     startsAt: toWibInput(event.startsAt),
     durationMinutes: String(event.durationMinutes),
     quota: event.quota === null ? "" : String(event.quota),
+    displayParticipantCount: event.displayParticipantCount == null ? "" : String(event.displayParticipantCount),
     tutor: event.tutor,
     campus: event.campus,
     tutorPhotoUrl: event.tutorPhotoUrl ?? "",

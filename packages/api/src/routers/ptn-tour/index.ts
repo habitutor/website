@@ -58,6 +58,7 @@ type EventFields = {
   startsAt?: string;
   durationMinutes?: number;
   quota?: number | null;
+  displayParticipantCount?: number | null;
   whatsappGroupUrl?: string | null;
   zoomUrl?: string | null;
   recordingUrl?: string | null;
@@ -117,6 +118,12 @@ function normalizeEventInput(input: EventFields) {
     if (input.quota !== null && input.quota < 1) throw new PtnTourError("BAD_REQUEST", "Kuota minimal 1, atau kosongkan untuk tanpa batas.");
     out.quota = input.quota;
   }
+  if (input.displayParticipantCount !== undefined) {
+    const shown = input.displayParticipantCount;
+    if (shown !== null && (shown < 1 || shown > 1_000_000))
+      throw new PtnTourError("BAD_REQUEST", "Jumlah peserta tampil harus 1 sampai 1.000.000, atau kosongkan.");
+    out.displayParticipantCount = shown;
+  }
   for (const key of ["whatsappGroupUrl", "zoomUrl", "recordingUrl"] as const) {
     if (input[key] !== undefined) {
       const value = blankToNull(input[key]);
@@ -169,6 +176,7 @@ const eventFieldsSchema = {
   "startsAt?": "string",
   "durationMinutes?": "number.integer",
   "quota?": "number.integer | null",
+  "displayParticipantCount?": "number.integer | null",
   "whatsappGroupUrl?": "string | null",
   "zoomUrl?": "string | null",
   "recordingUrl?": "string | null",
@@ -363,6 +371,7 @@ const adminCreate = admin
       startsAt: "string",
       "durationMinutes?": "number.integer",
       "quota?": "number.integer | null",
+      "displayParticipantCount?": "number.integer | null",
       "whatsappGroupUrl?": "string | null",
       "zoomUrl?": "string | null",
       "recordingUrl?": "string | null",
@@ -452,6 +461,8 @@ const adminSettingsUpdate = admin
       "promo_text?": "string",
       "promo_cta_label?": "string",
       "promo_cta_url?": "string",
+      "hero_participants?": "string",
+      "show_event_counts?": "'true' | 'false'",
     }),
   )
   .handler(({ input, errors }) =>
@@ -461,7 +472,10 @@ const adminSettingsUpdate = admin
         const value = (input as Record<string, string | undefined>)[key];
         if (value === undefined) continue;
         const trimmed = value.trim();
-        if (!trimmed) throw new PtnTourError("BAD_REQUEST", "Pengaturan tidak boleh kosong.");
+        if (!trimmed && key !== "hero_participants")
+          throw new PtnTourError("BAD_REQUEST", "Pengaturan tidak boleh kosong.");
+        if (key === "hero_participants" && trimmed && !/^[1-9]\d{0,6}$/.test(trimmed))
+          throw new PtnTourError("BAD_REQUEST", "Jumlah peserta harus berupa angka bulat lebih dari 0.");
         if ((key === "whatsapp_channel_url") && !isValidAssetUrl(trimmed)) throw new PtnTourError("BAD_REQUEST", "Link channel WhatsApp tidak valid.");
         if (key === "promo_cta_url" && !isValidAssetUrl(trimmed)) throw new PtnTourError("BAD_REQUEST", "Link tombol promo tidak valid.");
         values[key] = trimmed;

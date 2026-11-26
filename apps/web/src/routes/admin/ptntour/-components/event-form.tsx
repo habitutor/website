@@ -27,6 +27,7 @@ export type EventFormValues = {
   startsAt: string; // "YYYY-MM-DDTHH:mm" dalam WIB
   durationMinutes: string;
   quota: string;
+  displayParticipantCount: string;
   tutor: string;
   campus: string;
   tutorPhotoUrl: string;
@@ -53,6 +54,7 @@ export const EMPTY_EVENT_FORM: EventFormValues = {
   startsAt: "",
   durationMinutes: "120",
   quota: "",
+  displayParticipantCount: "",
   tutor: "",
   campus: "",
   tutorPhotoUrl: "",
@@ -360,13 +362,25 @@ export function EventForm({
             onChange={(e) => set("durationMinutes", e.target.value)}
           />
         </Field>
-        <Field label="Kuota peserta" hint="Kosongkan untuk tanpa batas.">
+        <Field label="Kuota peserta" hint="Kosongkan untuk tanpa batas. Tidak ditampilkan ke siswa.">
           <Input
             type="number"
             min={1}
             value={form.quota}
             onChange={(e) => set("quota", e.target.value)}
             placeholder="Tanpa batas"
+          />
+        </Field>
+        <Field
+          label="Jumlah peserta tampil"
+          hint="Angka peserta asli yang dilihat siswa. Kosongkan untuk otomatis dari pendaftar website."
+        >
+          <Input
+            type="number"
+            min={1}
+            value={form.displayParticipantCount}
+            onChange={(e) => set("displayParticipantCount", e.target.value)}
+            placeholder="Otomatis"
           />
         </Field>
         <Field label="Mode akses">
@@ -589,6 +603,7 @@ export function toEventPayload(form: EventFormValues) {
     startsAt: fromWibInput(form.startsAt),
     durationMinutes: Number(form.durationMinutes) || 120,
     quota: form.quota.trim() ? Number(form.quota) : null,
+    displayParticipantCount: form.displayParticipantCount.trim() ? Number(form.displayParticipantCount) : null,
     whatsappGroupUrl: nullable(form.whatsappGroupUrl),
     zoomUrl: nullable(form.zoomUrl),
     recordingUrl: nullable(form.recordingUrl),

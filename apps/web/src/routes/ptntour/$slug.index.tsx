@@ -37,7 +37,6 @@ import {
   getAccessBadge,
   getEventStatus,
   getGoogleCalendarUrl,
-  getSpotsFill,
   getSpotsLabel,
   isPremiumLocked,
   parseRundown,
@@ -97,7 +96,8 @@ function EventDetailPage() {
   const canJoin = status.key === "live" && (event.registered || isPremium);
   const canWatchNow = event.phase === "ended" && event.hasRecording && (event.registered || isPremium);
   const access = getAccessBadge(event);
-  const fill = getSpotsFill(event);
+  const showCounts = settings?.show_event_counts === "true";
+  const spotsLabel = getSpotsLabel(event, showCounts);
   const share = async () => {
     const url = window.location.href;
     try {
@@ -185,7 +185,7 @@ function EventDetailPage() {
               <HeroChip icon={<ClockIcon weight="fill" />}>
                 {formatTime(event.startsAt)} · {event.durationMinutes} menit
               </HeroChip>
-              <HeroChip icon={<UsersThreeIcon weight="fill" />}>{getSpotsLabel(event)}</HeroChip>
+              {spotsLabel && <HeroChip icon={<UsersThreeIcon weight="fill" />}>{spotsLabel}</HeroChip>}
             </div>
 
             <div className="flex items-center gap-3 rounded-sr-lg bg-white/15 p-3 ring-1 ring-white/20 sm:w-fit sm:pr-6">
@@ -344,25 +344,6 @@ function EventDetailPage() {
               <SummaryRow label="Jam" value={`${formatTime(event.startsAt)} (${event.durationMinutes} menit)`} />
               <SummaryRow label="Akses" value={event.accessMode === "premium" ? "Khusus Premium" : access.label === "GRATIS" ? "Gratis untuk semua" : "Sebagian gratis"} />
             </dl>
-            {fill !== null && (
-              <div className="mt-4">
-                <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-sr-ink-2">Kuota</span>
-                  <span className={fill >= 0.8 ? "text-destructive" : "text-sr-blue-600"}>{getSpotsLabel(event)}</span>
-                </div>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-sr-blue-50">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.max(6, fill * 100)}%` }}
-                    transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1], delay: 0.3 }}
-                    className={cn(
-                      "h-full rounded-full",
-                      fill >= 0.8 ? "bg-destructive" : "bg-linear-to-r from-sr-blue-400 to-sr-blue-600",
-                    )}
-                  />
-                </div>
-              </div>
-            )}
             <div className="mt-5 flex flex-col gap-2">
               {event.registered && event.phase !== "ended" && (
                 <Button asChild variant="outline" className="justify-start rounded-full">
