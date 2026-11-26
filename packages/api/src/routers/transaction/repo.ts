@@ -112,6 +112,23 @@ export const transactionRepo = {
     return { orderId: row.id, token: row.token, redirectUrl: row.redirectUrl };
   },
 
+  isGatewayTransactionIdTaken: async ({
+    db = defaultDb,
+    transactionId,
+    orderId,
+  }: {
+    db?: DrizzleDatabase;
+    transactionId: string;
+    orderId: string;
+  }) => {
+    const [row] = await db
+      .select({ id: transaction.id })
+      .from(transaction)
+      .where(and(eq(transaction.gatewayTransactionId, transactionId), ne(transaction.id, orderId)))
+      .limit(1);
+    return Boolean(row);
+  },
+
   createPaymentGroup: async ({
     db = defaultDb,
     inviteCode,

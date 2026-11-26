@@ -60,6 +60,7 @@ export async function processMidtransNotification(notification: MidtransNotifica
     // correctly signed, stale notification from regressing a newer status.
     const result = await syncTransactionStatus(notification.order_id, {
       expectedGrossAmount: notification.gross_amount,
+      transactionId: notification.transaction_id,
     });
 
     if (!result) {
