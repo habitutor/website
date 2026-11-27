@@ -39,7 +39,8 @@ export function NearestEvents() {
         </Button>
       }
     >
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* grid-cols-1 membatasi kolom selebar layar; tanpa itu teks tutor yang panjang melebarkan seluruh halaman. */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {nearest.map((event, index) => {
           const status = getEventStatus(event, isPremium);
           const access = getAccessBadge(event);
