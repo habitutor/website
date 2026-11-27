@@ -106,7 +106,11 @@ function PtnTourListPage() {
 
       <div className="sticky top-[4.75rem] z-20 flex flex-col gap-3 rounded-sr-xl border border-sr-line bg-white p-3 shadow-sr-2 sm:top-24 sm:p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <div className="flex gap-1 rounded-full bg-sr-ivory p-1 lg:shrink-0" role="tablist" aria-label="Daftar event">
+          <div
+            className="flex gap-0.5 overflow-x-auto rounded-full bg-sr-ivory p-1 min-[400px]:gap-1 lg:shrink-0"
+            role="tablist"
+            aria-label="Daftar event"
+          >
             {TABS.map((item) => (
               <button
                 key={item.value}
@@ -115,7 +119,7 @@ function PtnTourListPage() {
                 aria-selected={tab === item.value}
                 onClick={() => setTab(item.value)}
                 className={cn(
-                  "relative flex-1 rounded-full px-3 py-2 text-xs font-bold whitespace-nowrap transition-colors sm:px-4 sm:text-sm",
+                  "relative flex-1 rounded-full px-1.5 py-2 text-xs font-bold whitespace-nowrap transition-colors min-[400px]:px-3 sm:px-4 sm:text-sm",
                   tab === item.value ? "text-white" : "text-sr-muted hover:text-sr-ink",
                 )}
               >
@@ -128,7 +132,9 @@ function PtnTourListPage() {
                 )}
                 <span className="relative whitespace-nowrap">
                   {item.label}
-                  {events && <span className="ml-1.5 text-[11px] opacity-75">{counts[item.value]}</span>}
+                  {events && (
+                    <span className="ml-1 text-[11px] opacity-75 min-[400px]:ml-1.5">{counts[item.value]}</span>
+                  )}
                 </span>
               </button>
             ))}
