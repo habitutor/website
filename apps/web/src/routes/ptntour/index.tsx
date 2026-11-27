@@ -218,7 +218,7 @@ function Hero({ upcoming, participants, loaded }: { upcoming: number; participan
       <div className="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/8" />
 
       <h1 className="relative text-[26px] leading-tight font-extrabold text-balance text-white sm:text-3xl lg:text-4xl">
-        PTN Tour & Masterclass
+        Masterclass
       </h1>
       <p className="relative mt-2.5 max-w-lg text-sm leading-relaxed text-white/95 sm:text-base">
         Ikut live, tanya apa saja ke mentor dari PTN impianmu, lalu tonton ulang rekamannya kapan pun. Tombol Join aktif
@@ -233,7 +233,7 @@ function Hero({ upcoming, participants, loaded }: { upcoming: number; participan
         {participants !== null && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/15 sm:text-sm">
             <UserPlusIcon weight="fill" className="size-4 text-sr-sun-400" />
-            <CountUp to={participants} suffix="+" /> peserta sejak PTN Tour pertama
+            <CountUp to={participants} suffix="+" /> peserta
           </span>
         )}
       </div>

@@ -174,7 +174,7 @@ function AdminPtnTourPage() {
 
   return (
     <AdminContainer>
-      <AdminHeader title="PTN Tour" description="Kelola event gratis: jadwal, link, materi, dan peserta">
+      <AdminHeader title="Masterclass" description="Kelola event gratis: jadwal, link, materi, dan peserta">
         <Button asChild>
           <Link to="/admin/ptntour/create">
             <PlusIcon weight="bold" /> Buat Event
@@ -381,7 +381,7 @@ function SettingsCard({ websiteRegistrations }: { websiteRegistrations: number |
       </div>
       <div className="mt-5 grid gap-4 border-t border-sr-line pt-5 sm:grid-cols-2">
         <div className="grid content-start gap-1.5">
-          <Label htmlFor="hero-participants">Total peserta di kartu atas PTN Tour</Label>
+          <Label htmlFor="hero-participants">Total peserta di kartu atas Masterclass</Label>
           <Input
             id="hero-participants"
             inputMode="numeric"
@@ -392,8 +392,8 @@ function SettingsCard({ websiteRegistrations }: { websiteRegistrations: number |
             }
           />
           <p className="text-xs text-sr-muted">
-            Isi total peserta asli sejak PTN Tour pertama, termasuk sebelum ada website. Angka 500 tampil sebagai
-            "500+ peserta sejak PTN Tour pertama".
+            Isi total peserta asli dari semua acara, termasuk sebelum ada website. Angka 500 tampil sebagai
+            "500+ peserta".
             {websiteRegistrations !== undefined &&
               ` Sebagai acuan, pendaftaran lewat website: ${websiteRegistrations.toLocaleString("id-ID")}.`}
           </p>

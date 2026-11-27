@@ -100,7 +100,7 @@ const adminNavLinks = [
     icon: Megaphone,
   },
   {
-    name: "PTN Tour",
+    name: "Masterclass",
     to: "/admin/ptntour" as const,
     icon: ChalkboardTeacherIcon,
   },

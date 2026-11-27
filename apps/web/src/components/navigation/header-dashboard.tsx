@@ -49,7 +49,7 @@ import { orpc } from "@/utils/orpc";
 
 const links = [
   { name: "Dashboard", to: "/dashboard", icon: HouseIcon },
-  { name: "PTN Tour", to: "/ptntour", icon: ChalkboardTeacherIcon, badge: "Gratis" },
+  { name: "Masterclass", to: "/ptntour", icon: ChalkboardTeacherIcon, badge: "Gratis" },
   { name: "Try Out", to: "/tryout", icon: ExamIcon },
   { name: "Kelas", to: "/classes", icon: BooksIcon },
   { name: "Live Class", to: "/live-class", icon: VideoCameraIcon },
