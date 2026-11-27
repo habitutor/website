@@ -221,7 +221,11 @@ export const LiveClass = () => {
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex w-[85%] shrink-0 snap-start sm:w-[calc((100%-0.75rem)/2)] lg:w-[calc((100%-1.5rem)/3)]"
+              // Satu jadwal mengisi lebar HP; dua atau lebih sengaja menyisakan intipan kartu berikutnya.
+              className={cn(
+                "flex shrink-0 snap-start sm:w-[calc((100%-0.75rem)/2)] lg:w-[calc((100%-1.5rem)/3)]",
+                items.length === 1 ? "w-full" : "w-[85%]",
+              )}
             >
               <LiveClassScheduleCard
                 title={item.title}
