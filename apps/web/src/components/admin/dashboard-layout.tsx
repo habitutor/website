@@ -30,7 +30,7 @@ const ROUTE_LABELS: Record<string, string> = {
   "passing-grade": "Passing Grade",
   "live-class": "Live Class",
   announcement: "Pengumuman",
-  ptntour: "PTN Tour",
+  ptntour: "Masterclass",
   participants: "Peserta",
   "dashboard-content": "Live Class",
   recordings: "Recordings",

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/ptntour/$slug")({
   },
   head: ({ loaderData }) => ({
     meta: createMeta({
-      title: loaderData ? loaderData.title : "Event PTN Tour",
+      title: loaderData ? loaderData.title : "Event Masterclass",
       description: loaderData?.description ?? "Event gratis Habitutor.",
       image: loaderData?.posterUrl,
     }),

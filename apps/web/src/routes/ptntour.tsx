@@ -11,7 +11,7 @@ import { createMeta } from "@/lib/seo-utils";
 export const Route = createFileRoute("/ptntour")({
   head: () => ({
     meta: createMeta({
-      title: "PTN Tour",
+      title: "Masterclass",
       description: "Event gratis Habitutor: Masterclass, PTN Tour, dan sesi intensif persiapan SNBT.",
     }),
   }),
