@@ -64,6 +64,7 @@ export function PackInfoHeader({ packId, backTo }: PackInfoHeaderProps) {
         {backTo && (
           <Link
             to={backTo}
+            search={true}
             className="relative mb-3 inline-flex sr-action items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/25 hover:bg-white/25"
           >
             <ArrowLeftIcon size={14} weight="bold" />

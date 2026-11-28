@@ -9,9 +9,11 @@ import { AddExistingQuestionModal } from "./-components/add-existing-modal";
 import { CreateQuestionForm } from "./-components/create-question-form";
 import { PackInfoHeader } from "./-components/pack-info-header";
 import { QuestionsList } from "./-components/questions-list";
+import { packSearchSchema } from "./-search-params";
 
 export const Route = createFileRoute("/admin/practice-packs/$id")({
   component: PracticePackDetailPage,
+  validateSearch: packSearchSchema,
 });
 
 function PracticePackDetailPage() {

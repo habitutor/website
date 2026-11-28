@@ -44,7 +44,7 @@ export function EditPackDialog({ packId, trigger }: EditPackDialogProps) {
       onSuccess: () => {
         toast.success("Practice pack updated successfully");
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
+          queryKey: orpc.admin.practicePack.list.key(),
         });
         queryClient.invalidateQueries(orpc.admin.practicePack.find.queryOptions({ input: { id: packId } }));
         setOpen(false);

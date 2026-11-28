@@ -1,8 +1,9 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePack, practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
-import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { convertToTiptap } from "../../../lib/tiptap";
+import { matchesQuestionText } from "../question/search";
 
 // Cocok dengan nama pack, deskripsi, atau isi salah satu soal di dalam pack.
 function packSearchFilter(search: string) {
@@ -14,7 +15,7 @@ function packSearchFilter(search: string) {
       select 1 from ${practicePackQuestions}
       inner join ${question} on ${question.id} = ${practicePackQuestions.questionId}
       where ${practicePackQuestions.practicePackId} = ${practicePack.id}
-        and ${question.content} ilike ${pattern}
+        and ${matchesQuestionText(search)}
     )`,
   );
 }
@@ -111,7 +112,8 @@ export const adminPracticePackRepo = {
 
     const filteredQuery = search ? baseQuery.where(packSearchFilter(search)) : baseQuery;
 
-    return filteredQuery.limit(limit).offset(offset).orderBy(practicePack.id);
+    // Pack terbaru tampil paling atas.
+    return filteredQuery.limit(limit).offset(offset).orderBy(desc(practicePack.id));
   },
 
   count: async ({ db = defaultDb, search }: { db?: DrizzleDatabase; search: string }) => {

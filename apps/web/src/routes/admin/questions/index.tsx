@@ -1,11 +1,10 @@
 import { Cards, DotsThree, Exam, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { type } from "arktype";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import { AdminPagination } from "@/components/admin/pagination";
+import { LoadMore, useReturnToItem, WhenNearScreen } from "@/components/admin/infinite-list";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import {
   AlertDialog,
@@ -31,12 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
-
-const questionsSearchSchema = type({
-  "search?": "string",
-  "page?": "number",
-  "flashcard?": "'true' | 'false'",
-});
+import { questionsSearchSchema } from "./-search-params";
 
 export const Route = createFileRoute("/admin/questions/")({
   component: QuestionsPage,
@@ -47,24 +41,17 @@ function QuestionsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
   const flashcardParam = Route.useSearch({ select: (s) => s.flashcard ?? undefined });
-  const page = Route.useSearch({ select: (s) => s.page ?? 1 });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 300);
-  const isFirstRender = useRef(true);
-  const limit = 12;
+  const limit = 50; // batas API per permintaan; sisanya dimuat saat digulir
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
     navigate({
-      search: (prev) => ({
-        ...prev,
-        search: debouncedSearch || undefined,
-        page: undefined,
-      }),
+      search: (prev) => {
+        const next = debouncedSearch || undefined;
+        return prev.search === next ? prev : { ...prev, search: next };
+      },
       replace: true,
     });
   }, [debouncedSearch, navigate]);
@@ -74,25 +61,30 @@ function QuestionsPage() {
       search: (prev) => ({
         ...prev,
         flashcard: value,
-        page: undefined,
       }),
       replace: true,
     });
   };
 
-  const { data, isLoading } = useQuery(
-    orpc.admin.question.list.queryOptions({
-      input: {
+  const { data, isPending, isError, isFetching, hasNextPage, fetchNextPage } = useInfiniteQuery(
+    orpc.admin.question.list.infiniteOptions({
+      input: (page: number) => ({
         limit,
         page,
         search: searchParam,
         isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
-      },
+      }),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage, pages) => (pages.length * limit < lastPage.total ? pages.length + 1 : undefined),
+      placeholderData: keepPreviousData,
     }),
   );
 
-  const questions = data?.data || [];
-  const total = data?.total ?? 0;
+  // Soal baru yang masuk saat menggulir bisa menggeser batas halaman, jadi buang yang dobel.
+  const questions = [...new Map(data?.pages.flatMap((page) => page.data).map((q) => [q.id, q])).values()];
+  const total = data?.pages.at(-1)?.total ?? 0;
+  const loadMore = useCallback(() => void fetchNextPage(), [fetchNextPage]);
+  const rememberItem = useReturnToItem("admin-questions-last", questions.length > 0);
 
   return (
     <AdminContainer>
@@ -137,7 +129,13 @@ function QuestionsPage() {
         </div>
       </div>
 
-      {isLoading ? (
+      {total > 0 && (
+        <p className="mb-3 text-sm font-semibold text-sr-muted" aria-live="polite">
+          {searchParam ? "Ditemukan" : "Total"} {total} soal · tampil {questions.length}
+        </p>
+      )}
+
+      {isPending ? (
         <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
           {Array.from({ length: 12 }).map((_, index) => (
             <Card
@@ -188,22 +186,19 @@ function QuestionsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
           {questions.map((question) => (
-            <QuestionCard key={question.id} question={question} />
+            <div
+              key={question.id}
+              data-list-item={question.id}
+              onClickCapture={() => rememberItem(question.id)}
+              className="grid"
+            >
+              <QuestionCard question={question} />
+            </div>
           ))}
         </div>
       )}
 
-      {total > 0 && (
-        <AdminPagination
-          className="mt-6"
-          label="Soal"
-          page={page}
-          total={total}
-          pageSize={limit}
-          isLoading={isLoading}
-          onPageChange={(next) => navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })}
-        />
-      )}
+      <LoadMore hasMore={hasNextPage} isFetching={isFetching} isError={isError} onLoad={loadMore} />
     </AdminContainer>
   );
 }
@@ -228,7 +223,7 @@ function QuestionCard({
       onSuccess: () => {
         toast.success("Question deleted successfully");
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.question.list.queryKey({ input: {} }),
+          queryKey: orpc.admin.question.list.key(),
         });
         setDeleteDialogOpen(false);
       },
@@ -245,7 +240,7 @@ function QuestionCard({
       onSuccess: () => {
         toast.success(question.isFlashcardQuestion ? "Removed from flashcard" : "Added to flashcard");
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.question.list.queryKey({ input: {} }),
+          queryKey: orpc.admin.question.list.key(),
         });
       },
       onError: (error) => {
@@ -273,9 +268,10 @@ function QuestionCard({
         <Link
           to="/admin/questions/$id"
           params={{ id: question.id.toString() }}
+          search={(prev) => prev}
           className="flex flex-1 flex-col px-6 py-6"
         >
-          <div className="mb-4 flex-1 space-y-3">
+          <WhenNearScreen className="mb-4 min-h-32 flex-1 space-y-3">
             <div className="prose prose-sm line-clamp-3 max-w-none text-foreground">
               <TiptapRenderer content={question.content} />
             </div>
@@ -287,7 +283,7 @@ function QuestionCard({
             <div className="line-clamp-1 text-xs text-sr-muted italic opacity-80">
               <TiptapRenderer content={question.discussion} />
             </div>
-          </div>
+          </WhenNearScreen>
 
           {/* Metadata */}
           <div className="mt-auto flex items-center gap-4 text-xs font-medium text-sr-muted">
@@ -333,6 +329,7 @@ function QuestionCard({
                   navigate({
                     to: "/admin/questions/$id",
                     params: { id: question.id.toString() },
+                    search: (prev) => prev,
                   })
                 }
               >

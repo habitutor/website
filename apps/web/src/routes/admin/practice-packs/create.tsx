@@ -23,7 +23,7 @@ function CreatePracticePackPage() {
       onSuccess: () => {
         toast.success("Practice pack berhasil dibuat");
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
+          queryKey: orpc.admin.practicePack.list.key(),
         });
         navigate({ to: "/admin/practice-packs" });
       },
