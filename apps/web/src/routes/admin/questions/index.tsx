@@ -1,10 +1,11 @@
 import { Cards, DotsThree, Exam, Flag, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
-import { keepPreviousData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import { LoadMore, useReturnToItem, WhenNearScreen } from "@/components/admin/infinite-list";
+import { LoadFailed, useFetchAll, useReturnToItem, WhenNearScreen } from "@/components/admin/infinite-list";
+import { AdminPagination } from "@/components/admin/pagination";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import {
   AlertDialog,
@@ -44,16 +45,19 @@ function QuestionsPage() {
   const flashcardParam = Route.useSearch({ select: (s) => s.flashcard ?? undefined });
 
   const reportedParam = Route.useSearch({ select: (s) => s.reported });
+  const page = Route.useSearch({ select: (s) => s.page ?? 1 });
+  const searching = searchParam !== "";
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 300);
-  const limit = 50; // batas API per permintaan; sisanya dimuat saat digulir
+  const pageSize = 12;
+  const batchSize = 50; // batas API per permintaan saat mengambil semua hasil pencarian
 
   useEffect(() => {
     navigate({
       search: (prev) => {
         const next = debouncedSearch || undefined;
-        return prev.search === next ? prev : { ...prev, search: next };
+        return prev.search === next ? prev : { ...prev, search: next, page: undefined };
       },
       replace: true,
     });
@@ -65,34 +69,47 @@ function QuestionsPage() {
         ...prev,
         flashcard: value,
         reported: undefined,
+        page: undefined,
       }),
       replace: true,
     });
   };
 
   const showReported = () =>
-    navigate({ search: (prev) => ({ ...prev, flashcard: undefined, reported: "true" as const }), replace: true });
+    navigate({
+      search: (prev) => ({ ...prev, flashcard: undefined, reported: "true" as const, page: undefined }),
+      replace: true,
+    });
 
-  const { data, isPending, isError, isFetching, hasNextPage, fetchNextPage } = useInfiniteQuery(
+  const filters = {
+    search: searchParam,
+    reported: reportedParam === "true" ? true : undefined,
+    isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
+  };
+  const paged = useQuery({
+    ...orpc.admin.question.list.queryOptions({ input: { limit: pageSize, page, ...filters } }),
+    enabled: !searching,
+    placeholderData: keepPreviousData,
+  });
+  const found = useInfiniteQuery(
     orpc.admin.question.list.infiniteOptions({
-      input: (page: number) => ({
-        limit,
-        page,
-        search: searchParam,
-        reported: reportedParam === "true" ? true : undefined,
-        isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
-      }),
+      input: (batch: number) => ({ limit: batchSize, page: batch, ...filters }),
       initialPageParam: 1,
-      getNextPageParam: (lastPage, pages) => (pages.length * limit < lastPage.total ? pages.length + 1 : undefined),
-      placeholderData: keepPreviousData,
+      getNextPageParam: (lastPage, pages) => (pages.length * batchSize < lastPage.total ? pages.length + 1 : undefined),
+      enabled: searching,
     }),
   );
+  useFetchAll(found);
 
-  // Soal baru yang masuk saat menggulir bisa menggeser batas halaman, jadi buang yang dobel.
-  const questions = [...new Map(data?.pages.flatMap((page) => page.data).map((q) => [q.id, q])).values()];
-  const total = data?.pages.at(-1)?.total ?? 0;
-  const loadMore = useCallback(() => void fetchNextPage(), [fetchNextPage]);
-  const rememberItem = useReturnToItem("admin-questions-last", questions.length > 0);
+  const isPending = searching ? found.isPending : paged.isPending;
+  // Soal baru yang masuk saat mengambil hasil bisa menggeser batas halaman, jadi buang yang dobel.
+  const rows = searching ? (found.data?.pages.flatMap((batch) => batch.data) ?? []) : (paged.data?.data ?? []);
+  const questions = [...new Map(rows.map((q) => [q.id, q])).values()];
+  const total = (searching ? found.data?.pages.at(-1)?.total : paged.data?.total) ?? 0;
+  const rememberItem = useReturnToItem(
+    "admin-questions-last",
+    questions.length > 0 && (!searching || !found.hasNextPage),
+  );
 
   return (
     <AdminContainer>
@@ -150,7 +167,8 @@ function QuestionsPage() {
 
       {total > 0 && (
         <p className="mb-3 text-sm font-semibold text-sr-muted" aria-live="polite">
-          {searchParam ? "Ditemukan" : "Total"} {total} soal · tampil {questions.length}
+          {searching ? "Ditemukan" : "Total"} {total} soal
+          {searching && found.hasNextPage && ` · memuat ${questions.length} dari ${total}…`}
         </p>
       )}
 
@@ -217,7 +235,19 @@ function QuestionsPage() {
         </div>
       )}
 
-      <LoadMore hasMore={hasNextPage} isFetching={isFetching} isError={isError} onLoad={loadMore} />
+      {searching && found.isError && <LoadFailed onRetry={() => found.fetchNextPage()} />}
+
+      {!searching && total > 0 && (
+        <AdminPagination
+          className="mt-6"
+          label="Soal"
+          page={page}
+          total={total}
+          pageSize={pageSize}
+          isLoading={isPending}
+          onPageChange={(next) => navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })}
+        />
+      )}
     </AdminContainer>
   );
 }
