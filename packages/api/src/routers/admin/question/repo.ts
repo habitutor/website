@@ -1,7 +1,8 @@
 import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { matchesQuestionText } from "./search";
 
 export const adminQuestionRepo = {
   list: async ({
@@ -32,7 +33,7 @@ export const adminQuestionRepo = {
       .from(question)
       .where(
         and(
-          search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
+          search.length > 0 ? matchesQuestionText(search) : undefined,
           cursorId ? sql`${question.id} < ${cursorId}` : undefined,
           isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
         ),
@@ -58,7 +59,7 @@ export const adminQuestionRepo = {
       .from(question)
       .where(
         and(
-          search.length > 0 ? ilike(question.content, `%${search}%`) : undefined,
+          search.length > 0 ? matchesQuestionText(search) : undefined,
           isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
         ),
       );

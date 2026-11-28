@@ -113,6 +113,8 @@ export function generateBreadcrumbs(pathname: string, matches: BreadcrumbRouteMa
   return breadcrumbs;
 }
 
+const KEEP_SEARCH_CRUMBS = ["/admin/questions", "/admin/practice-packs"];
+
 export function AdminBreadcrumbs() {
   const location = useLocation();
   const matches = useMatches();
@@ -127,7 +129,12 @@ export function AdminBreadcrumbs() {
         <Fragment key={`${crumb.label}-${crumb.href || "current"}`}>
           <span className="text-sr-line">/</span>
           {crumb.href ? (
-            <Link to={crumb.href} className="hover:text-sr-blue-600">
+            <Link
+              to={crumb.href}
+              // Kembali lewat breadcrumb dari halaman detail juga mempertahankan pencarian.
+              search={KEEP_SEARCH_CRUMBS.includes(crumb.href) ? true : undefined}
+              className="hover:text-sr-blue-600"
+            >
               {crumb.label}
             </Link>
           ) : (
@@ -144,9 +151,11 @@ interface AdminHeaderProps {
   description?: string;
   children?: React.ReactNode;
   backTo?: TRoutes;
+  /** Bawa parameter pencarian halaman ini saat kembali. */
+  keepSearch?: boolean;
 }
 
-export function AdminHeader({ title, description, children, backTo }: AdminHeaderProps) {
+export function AdminHeader({ title, description, children, backTo, keepSearch }: AdminHeaderProps) {
   const location = useLocation();
   const HeaderIcon = SECTION_ICONS[location.pathname.split("/")[2] ?? ""] ?? House;
 
@@ -157,6 +166,7 @@ export function AdminHeader({ title, description, children, backTo }: AdminHeade
         {backTo && (
           <Link
             to={backTo}
+            search={keepSearch ? true : undefined}
             className="mb-3 inline-flex sr-action items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/25 hover:bg-white/25"
           >
             <ArrowLeftIcon size={14} weight="bold" />

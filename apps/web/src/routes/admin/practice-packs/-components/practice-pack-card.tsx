@@ -40,7 +40,7 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
       onSuccess: () => {
         toast.success("Practice pack berhasil dihapus");
         queryClient.invalidateQueries({
-          queryKey: orpc.admin.practicePack.list.queryKey({ input: {} }),
+          queryKey: orpc.admin.practicePack.list.key(),
         });
         setDeleteDialogOpen(false);
       },
@@ -64,6 +64,7 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
           params={{
             id: String(pack.id),
           }}
+          search={(prev) => prev}
           className="flex flex-1 flex-col px-6 py-6"
         >
           <div className="mb-4 flex-1">
@@ -85,7 +86,7 @@ export function PracticePackCard({ pack }: { pack: PracticePackCardData }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => navigate({ to: `/admin/practice-packs/${pack.id}` })}>
+              <DropdownMenuItem onClick={() => navigate({ to: "/admin/practice-packs/$id", params: { id: String(pack.id) }, search: (prev) => prev })}>
                 <PencilSimple className="mr-2 size-4" />
                 Edit Info
               </DropdownMenuItem>

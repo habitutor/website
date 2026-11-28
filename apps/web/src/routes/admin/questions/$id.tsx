@@ -6,14 +6,17 @@ import { QuestionForm, type QuestionFormData } from "@/components/admin/question
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { questionsSearchSchema } from "./-search-params";
 import { getInitialAnswerOptions, syncQuestionAndAnswers } from "./question-edit-helpers";
 
 export const Route = createFileRoute("/admin/questions/$id")({
   component: QuestionEditPage,
+  validateSearch: questionsSearchSchema,
 });
 
 function QuestionEditPage() {
   const { id } = Route.useParams();
+  const listSearch = Route.useSearch();
   const questionId = Number.parseInt(id, 10);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -54,15 +57,15 @@ function QuestionEditPage() {
 
     toast.success("Question updated successfully");
     queryClient.invalidateQueries(orpc.admin.question.find.queryOptions({ input: { id: questionId } }));
-    queryClient.invalidateQueries({ queryKey: orpc.admin.question.list.queryKey({ input: {} }) });
+    queryClient.invalidateQueries({ queryKey: orpc.admin.question.list.key() });
 
     setTimeout(() => {
-      navigate({ to: "/admin/questions" });
+      navigate({ to: "/admin/questions", search: listSearch });
     }, 500);
   };
 
   const handleCancel = () => {
-    navigate({ to: "/admin/questions" });
+    navigate({ to: "/admin/questions", search: listSearch });
   };
 
   if (Number.isNaN(questionId)) throw notFound();
@@ -107,6 +110,7 @@ function QuestionEditPage() {
         title="Edit Question"
         description="Update question content and answer options"
         backTo="/admin/questions"
+        keepSearch
       />
 
       <QuestionForm
