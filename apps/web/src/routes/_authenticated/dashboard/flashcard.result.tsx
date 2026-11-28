@@ -47,7 +47,8 @@ function RouteComponent() {
         />
       </div>
 
-      <div className="min-h-screen pb-25">
+      {/* Confetti terbang melewati tepi layar; tanpa clip, halaman melebar di HP dan muncul celah di kanan. */}
+      <div className="min-h-screen overflow-x-clip pb-25">
         <div className="mx-auto grid max-w-300 grid-cols-1 items-start gap-4 px-3 py-4 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:py-8">
           <LeaderboardSection />
           <ResultsSection />

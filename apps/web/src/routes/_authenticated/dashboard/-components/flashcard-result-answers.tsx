@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect } from "react";
+import { ReportQuestionButton } from "@/components/brain-gym/report-question-button";
 import { Confetti } from "@/components/streak/streak-celebration";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +22,7 @@ type AnswerOption = {
 type AssignedQuestion = {
   selectedAnswerId: number | null;
   question: {
+    id: number;
     discussion: string;
     answerOptions: AnswerOption[];
   };
@@ -69,6 +71,9 @@ function AnswerItem({ assignedQuestion, index }: { assignedQuestion: AssignedQue
       <div className="border-t border-sr-line px-4 py-3 text-xs leading-relaxed text-sr-ink-2 sm:text-sm">
         <p className="mb-1 font-bold text-sr-ink">Pembahasan</p>
         <TiptapRenderer content={question.discussion} />
+        <div className="mt-2 flex justify-end">
+          <ReportQuestionButton questionId={question.id} />
+        </div>
       </div>
     </div>
   );
@@ -93,7 +98,6 @@ function CompletionHero({ score, correct, total }: { score: number; correct: num
     <div className="relative">
       {celebrate && <Confetti className="absolute top-20 left-1/2" />}
       <div className="relative overflow-hidden rounded-sr-xl sr-card-sun py-5 pr-28 pl-5 sm:py-7 sm:pr-60 sm:pl-8">
-
         <span className="relative inline-flex rounded-full bg-white/70 px-3 py-1 text-xs font-bold text-sr-ink">
           Latihan selesai
         </span>

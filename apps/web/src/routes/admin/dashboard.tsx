@@ -5,6 +5,7 @@ import { AdminContainer } from "@/components/admin/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { ReportSummary } from "./questions/-report-panel";
 import {
   AudienceSection,
   MonthlyReport,
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/admin/dashboard")({
 function AdminDashboard() {
   return (
     <AdminContainer>
+      <ReportSummary />
       <div className="relative mb-8 overflow-hidden rounded-sr-xl sr-card-blue p-5 shadow-sr-2 transition-shadow duration-300 hover:shadow-sr-3 sm:p-7">
         <div className="pointer-events-none absolute -top-20 -right-12 size-56 rounded-full bg-white/10" />
         <div className="relative flex items-start gap-3">

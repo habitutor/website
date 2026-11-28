@@ -2,6 +2,7 @@ import { type DrizzleDatabase, db as defaultDb } from "@habitutor/db";
 import { practicePackQuestions } from "@habitutor/db/schema/practice-pack";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { isHeldByReports, openReportCount } from "../../flashcard/report-repo";
 import { matchesQuestionText } from "./search";
 
 export const adminQuestionRepo = {
@@ -12,8 +13,10 @@ export const adminQuestionRepo = {
     cursorId,
     search,
     isFlashcardQuestion,
+    reported,
   }: {
     db?: DrizzleDatabase;
+    reported?: boolean;
     limit: number;
     offset?: number;
     cursorId: number | null;
@@ -29,6 +32,8 @@ export const adminQuestionRepo = {
         discussionJson: question.discussionJson,
         isFlashcardQuestion: question.isFlashcardQuestion,
         packCount: sql<number>`cast(count(${practicePackQuestions.practicePackId}) as integer)`,
+        reportCount: openReportCount,
+        isHeld: isHeldByReports,
       })
       .from(question)
       .where(
@@ -36,11 +41,13 @@ export const adminQuestionRepo = {
           search.length > 0 ? matchesQuestionText(search) : undefined,
           cursorId ? sql`${question.id} < ${cursorId}` : undefined,
           isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
+          reported ? sql`${openReportCount} > 0` : undefined,
         ),
       )
       .leftJoin(practicePackQuestions, eq(question.id, practicePackQuestions.questionId))
       .groupBy(question.id)
-      .orderBy(desc(question.id))
+      // Di filter Dilaporkan, soal dengan pelapor terbanyak didahulukan.
+      .orderBy(...(reported ? [desc(openReportCount), desc(question.id)] : [desc(question.id)]))
       .limit(limit + 1)
       .offset(offset);
   },
@@ -49,8 +56,10 @@ export const adminQuestionRepo = {
     db = defaultDb,
     search,
     isFlashcardQuestion,
+    reported,
   }: {
     db?: DrizzleDatabase;
+    reported?: boolean;
     search: string;
     isFlashcardQuestion?: boolean;
   }) => {
@@ -61,6 +70,7 @@ export const adminQuestionRepo = {
         and(
           search.length > 0 ? matchesQuestionText(search) : undefined,
           isFlashcardQuestion !== undefined ? eq(question.isFlashcardQuestion, isFlashcardQuestion) : undefined,
+          reported ? sql`${openReportCount} > 0` : undefined,
         ),
       );
     return row?.total ?? 0;

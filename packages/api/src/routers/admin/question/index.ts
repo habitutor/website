@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { type } from "arktype";
 import { admin } from "../../../index";
 import { convertToTiptap } from "../../../lib/tiptap";
+import { questionReportRepo } from "../../flashcard/report-repo";
 import { adminQuestionRepo } from "./repo";
 
 interface CursorData {
@@ -33,6 +34,7 @@ const list = admin
       "cursor?": "string",
       "search?": "string",
       "isFlashcardQuestion?": "boolean",
+      "reported?": "boolean",
     }),
   )
   .handler(async ({ input }) => {
@@ -41,7 +43,11 @@ const list = admin
     const page = input.page ? Math.max(1, Math.floor(input.page)) : null;
     const cursorData = !page && input.cursor ? decodeCursor(input.cursor) : null;
     const total = page
-      ? await adminQuestionRepo.count({ search, isFlashcardQuestion: input.isFlashcardQuestion })
+      ? await adminQuestionRepo.count({
+          search,
+          isFlashcardQuestion: input.isFlashcardQuestion,
+          reported: input.reported,
+        })
       : null;
 
     const rawData = await adminQuestionRepo.list({
@@ -50,6 +56,7 @@ const list = admin
       cursorId: cursorData?.id ?? null,
       search,
       isFlashcardQuestion: input.isFlashcardQuestion,
+      reported: input.reported,
     });
 
     const hasMore = rawData.length > limit;
@@ -68,12 +75,16 @@ const list = admin
           discussion: string;
           discussionJson: unknown;
           isFlashcardQuestion: boolean;
+          reportCount: number;
+          isHeld: boolean;
         }) => ({
           id: q.id,
           packCount: q.packCount,
           content: q.contentJson || convertToTiptap(q.content),
           discussion: q.discussionJson || convertToTiptap(q.discussion),
           isFlashcardQuestion: q.isFlashcardQuestion,
+          reportCount: q.reportCount,
+          isHeld: q.isHeld,
         }),
       ),
       nextCursor,
@@ -337,7 +348,27 @@ const deleteAnswer = admin
     return { message: "Berhasil menghapus answer option" };
   });
 
+const reports = admin
+  .route({ path: "/admin/questions/{id}/reports", method: "GET", tags: ["Admin - Questions"] })
+  .input(type({ id: "number" }))
+  .handler(({ input }) => questionReportRepo.listOpen({ questionId: input.id }));
+
+const resolveReports = admin
+  .route({ path: "/admin/questions/{id}/reports/resolve", method: "POST", tags: ["Admin - Questions"] })
+  .input(type({ id: "number", resolution: "'fixed' | 'disabled'" }))
+  .handler(async ({ input }) => {
+    const resolved = await questionReportRepo.resolve({ questionId: input.id, resolution: input.resolution });
+    return { resolved };
+  });
+
+const reportSummary = admin
+  .route({ path: "/admin/question-reports/summary", method: "GET", tags: ["Admin - Questions"] })
+  .handler(() => questionReportRepo.summary());
+
 export const adminQuestionRouter = {
+  reports,
+  resolveReports,
+  reportSummary,
   list,
   find: get,
   create,
