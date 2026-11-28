@@ -6,6 +6,7 @@ import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { ReportQuestionButton } from "@/components/brain-gym/report-question-button";
 import { TiptapRenderer } from "@/components/tiptap/renderer";
 import { refreshAuthSession } from "@/lib/auth-session";
 import useCountdown from "@/lib/hooks/use-countdown";
@@ -120,6 +121,18 @@ export const FlashcardCard = () => {
     }
   };
 
+  // Soal yang dilewati sudah keluar dari sesi: lanjut ke soal berikutnya, atau kumpulkan kalau itu yang terakhir.
+  const handleReported = async ({ skipped }: { skipped: boolean }) => {
+    if (!skipped) return;
+    if (isLastQuestion) {
+      await handleSubmit();
+      return;
+    }
+    saveAnswerMutation.reset();
+    setSelectedAnswerId(null);
+    queryClient.removeQueries({ queryKey: orpc.flashcard.session.key() });
+  };
+
   const isLowTime = hours === "00" && Number(minutes) < 1;
   const progressPercent = totalQuestionsCount > 0 ? ((currentPage - 1) / totalQuestionsCount) * 100 : 0;
   const isAnswerCorrect =
@@ -171,9 +184,19 @@ export const FlashcardCard = () => {
         transition={{ duration: 0.35, ease: "easeOut" }}
         className="rounded-sr-xl border border-sr-line bg-white p-4 shadow-sr-1 sm:p-6 md:p-8"
       >
-        <span className="mb-4 inline-flex rounded-full bg-sr-blue-50 px-3 py-1 text-xs font-bold text-sr-blue-700">
-          No. {currentPage}
-        </span>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <span className="inline-flex rounded-full bg-sr-blue-50 px-3 py-1 text-xs font-bold text-sr-blue-700">
+            No. {currentPage}
+          </span>
+          {currentQuestion && (
+            <ReportQuestionButton
+              key={currentQuestion.question.id}
+              questionId={currentQuestion.question.id}
+              disabled={hasChecked || disableInteraction || submitMutation.isPending}
+              onReported={handleReported}
+            />
+          )}
+        </div>
 
         <div className="mb-6 text-base font-medium wrap-break-word text-sr-ink sm:text-lg">
           <TiptapRenderer content={currentQuestion?.question.content} />

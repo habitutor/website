@@ -3,6 +3,7 @@ import { user } from "@habitutor/db/schema/auth";
 import { userFlashcardAttempt, userFlashcardQuestionAnswer } from "@habitutor/db/schema/flashcard";
 import { question, questionAnswerOption } from "@habitutor/db/schema/question";
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
+import { isHeldByReports } from "./report-repo";
 
 type ExecuteRowsResult = unknown;
 
@@ -80,7 +81,7 @@ export const flashcardRepo = {
         FROM ${question}
         INNER JOIN ${questionAnswerOption}
           ON ${questionAnswerOption.questionId} = ${question.id}
-        WHERE ${question.isFlashcardQuestion} = true
+        WHERE ${question.isFlashcardQuestion} = true AND NOT ${isHeldByReports}
       ) q
       ORDER BY RANDOM()
       LIMIT ${limit}

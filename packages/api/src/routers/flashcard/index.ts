@@ -14,6 +14,8 @@ import {
   shouldIncrementFlashcardStreak,
 } from "./logic";
 import { flashcardRepo } from "./repo";
+import { checkReport, DAILY_REPORT_LIMIT, normalizeReportNote } from "./report-logic";
+import { questionReportRepo } from "./report-repo";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 const FLASHCARD_QUESTION_LIMIT = 5;
@@ -52,6 +54,17 @@ const start = authed
     //     message: "Mohon selesaikan sesi flashcard yang ada terlebih dahulu.",
     //   });
 
+    // Soal diacak sebelum sesi dibuat: kalau stok kurang, siswa gratis tidak kehilangan jatah hari itu.
+    const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
+      db,
+      limit: FLASHCARD_QUESTION_LIMIT,
+    });
+
+    if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
+      throw errors.NOT_FOUND({
+        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
+      });
+
     const attempt = await flashcardRepo.createAttempt({
       db,
       userId: context.session.user.id,
@@ -61,16 +74,6 @@ const start = authed
     if (!attempt)
       throw errors.INTERNAL_SERVER_ERROR({
         message: "Gagal membuat sesi flashcard.",
-      });
-
-    const randomQuestionIds = await flashcardRepo.getRandomFlashcardQuestionIds({
-      db,
-      limit: FLASHCARD_QUESTION_LIMIT,
-    });
-
-    if (randomQuestionIds.length < FLASHCARD_QUESTION_LIMIT)
-      throw errors.NOT_FOUND({
-        message: "Belum cukup soal flashcard tersedia. Silahkan coba lagi nanti.",
       });
 
     const availableQuestions = await flashcardRepo.getQuestionsByIds({
@@ -397,7 +400,70 @@ const leaderboard = authed
     };
   });
 
+const report = authed
+  .route({
+    path: "/flashcard/report",
+    method: "POST",
+    tags: ["Flashcard"],
+  })
+  .input(
+    type({
+      questionId: "number.integer",
+      reason: "'missing_context' | 'wrong_answer' | 'broken' | 'other'",
+      "note?": "string",
+    }),
+  )
+  .handler(async ({ input, context, errors }) => {
+    const userId = context.session.user.id;
+    const today = getStartOfDay();
+
+    // Hanya soal yang memang diberikan ke siswa ini hari ini yang bisa dilaporkan.
+    const attempt = await flashcardRepo.getAttemptForQuestion({ db, userId, questionId: input.questionId, today });
+    if (!attempt) throw errors.NOT_FOUND({ message: "Soal ini tidak ada di sesi Brain Gym kamu hari ini." });
+
+    return db.transaction(async (tx) => {
+      const answers = await flashcardRepo.getAttemptQuestionAnswers({ db: tx, attemptId: attempt.id });
+      const current = answers.find((answer) => answer.question.id === input.questionId);
+      const expired = isAttemptExpired({
+        deadline: attempt.deadline,
+        now: Date.now(),
+        gracePeriodSeconds: GRACE_PERIOD_SECONDS,
+      });
+      const latest = await flashcardRepo.getLatestAttempt({ db: tx, userId });
+      const inProgress = latest?.id === attempt.id && !latest.submittedAt && !expired;
+      const check = checkReport({
+        reportsToday: await questionReportRepo.countByUserSince({ db: tx, userId, since: today }),
+        questionsInAttempt: answers.length,
+        answered: !inProgress || current?.selectedAnswerId != null,
+      });
+      if (!check.allowed)
+        throw errors.UNPROCESSABLE_CONTENT({
+          message: `Kamu sudah mengirim ${DAILY_REPORT_LIMIT} laporan hari ini. Coba lagi besok.`,
+        });
+
+      const created = await questionReportRepo.create({
+        db: tx,
+        questionId: input.questionId,
+        userId,
+        reason: input.reason,
+        note: normalizeReportNote(input.note),
+      });
+      if (!created) throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah melaporkan soal ini." });
+
+      const skipped = check.skip
+        ? await questionReportRepo.removeUnansweredFromAttempt({
+            db: tx,
+            attemptId: attempt.id,
+            questionId: input.questionId,
+          })
+        : false;
+
+      return { skipped };
+    });
+  });
+
 export const flashcardRouter = {
+  report,
   start,
   get,
   save,

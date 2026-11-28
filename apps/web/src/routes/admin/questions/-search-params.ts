@@ -4,4 +4,5 @@ import { type } from "arktype";
 export const questionsSearchSchema = type({
   "search?": "string",
   "flashcard?": "'true' | 'false'",
+  "reported?": "'true'",
 });

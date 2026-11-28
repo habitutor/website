@@ -1,4 +1,4 @@
-import { Cards, DotsThree, Exam, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
+import { Cards, DotsThree, Exam, Flag, MagnifyingGlass, Package, PencilSimple, Trash } from "@phosphor-icons/react";
 import { keepPreviousData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
@@ -30,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
+import { QuestionReports, ReportSummary } from "./-report-panel";
 import { questionsSearchSchema } from "./-search-params";
 
 export const Route = createFileRoute("/admin/questions/")({
@@ -41,6 +42,8 @@ function QuestionsPage() {
   const navigate = useNavigate({ from: Route.fullPath });
   const searchParam = Route.useSearch({ select: (s) => s.search ?? "" });
   const flashcardParam = Route.useSearch({ select: (s) => s.flashcard ?? undefined });
+
+  const reportedParam = Route.useSearch({ select: (s) => s.reported });
 
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const debouncedSearch = useDebounceValue(searchQuery, 300);
@@ -61,10 +64,14 @@ function QuestionsPage() {
       search: (prev) => ({
         ...prev,
         flashcard: value,
+        reported: undefined,
       }),
       replace: true,
     });
   };
+
+  const showReported = () =>
+    navigate({ search: (prev) => ({ ...prev, flashcard: undefined, reported: "true" as const }), replace: true });
 
   const { data, isPending, isError, isFetching, hasNextPage, fetchNextPage } = useInfiniteQuery(
     orpc.admin.question.list.infiniteOptions({
@@ -72,6 +79,7 @@ function QuestionsPage() {
         limit,
         page,
         search: searchParam,
+        reported: reportedParam === "true" ? true : undefined,
         isFlashcardQuestion: flashcardParam === "true" ? true : flashcardParam === "false" ? false : undefined,
       }),
       initialPageParam: 1,
@@ -90,6 +98,8 @@ function QuestionsPage() {
     <AdminContainer>
       <AdminHeader title="Bank Soal" description="Kelola semua soal dari seluruh practice pack" />
 
+      <ReportSummary />
+
       <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-sr-muted" />
@@ -100,9 +110,9 @@ function QuestionsPage() {
             className="pl-9"
           />
         </div>
-        <div className="flex items-center gap-1 rounded-full border border-sr-line bg-sr-ivory p-1">
+        <div className="flex flex-wrap items-center gap-1 rounded-sr-lg border border-sr-line bg-sr-ivory p-1">
           <Button
-            variant={flashcardParam === undefined ? "secondary" : "ghost"}
+            variant={flashcardParam === undefined && !reportedParam ? "secondary" : "ghost"}
             size="sm"
             className="h-7 px-3 text-xs"
             onClick={() => handleFlashcardFilter(undefined)}
@@ -125,6 +135,15 @@ function QuestionsPage() {
             onClick={() => handleFlashcardFilter("false")}
           >
             Tanpa Flashcard
+          </Button>
+          <Button
+            variant={reportedParam ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-3 text-xs"
+            onClick={showReported}
+          >
+            <Flag className="mr-1.5 size-3" />
+            Dilaporkan
           </Button>
         </div>
       </div>
@@ -212,6 +231,8 @@ function QuestionCard({
     discussion: unknown;
     packCount: number;
     isFlashcardQuestion: boolean;
+    reportCount?: number;
+    isHeld?: boolean;
   };
 }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -314,6 +335,14 @@ function QuestionCard({
             <div className="font-mono text-[10px] opacity-60">ID: {question.id}</div>
           </div>
         </Link>
+
+        {Boolean(question.reportCount) && (
+          <QuestionReports
+            questionId={question.id}
+            count={question.reportCount ?? 0}
+            isHeld={Boolean(question.isHeld)}
+          />
+        )}
 
         <div className="absolute top-4 right-4 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           <DropdownMenu>
