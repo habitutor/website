@@ -6,6 +6,7 @@ import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres/session";
 import { Pool } from "pg";
 import * as auth from "./schema/auth";
 import * as community from "./schema/community";
+import * as contentPracticeAnswer from "./schema/content-practice-answer";
 import * as dashboard from "./schema/dashboard";
 import * as flashcard from "./schema/flashcard";
 import * as notification from "./schema/notification";
@@ -24,6 +25,7 @@ import * as ptnTour from "./schema/ptn-tour";
 const schema = {
   ...auth,
   ...community,
+  ...contentPracticeAnswer,
   ...notification,
   ...practice,
   ...question,

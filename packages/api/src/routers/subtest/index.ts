@@ -7,6 +7,7 @@ import { authed, authedRateLimited } from "../../index";
 import { canAccessContent } from "@habitutor/shared/content-access";
 import { convertToTiptap } from "../../lib/tiptap";
 import { recordStreakActivity } from "../streak/service";
+import { practiceRouter } from "./practice";
 import { subtestRepo } from "./repo";
 
 /**
@@ -357,6 +358,7 @@ export const subtestRouter = {
   byShortName: getSubtestByShortName,
   progressOverview: getProgressOverview,
   content: {
+    practice: practiceRouter,
     list: listContentByCategory,
     find: getContentById,
     trackView,
