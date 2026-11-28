@@ -1,9 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { useEffect } from "react";
-import { PracticeQuestion, PracticeQuestionHeader } from "@/components/classes/practice";
-import { TiptapRenderer } from "@/components/tiptap/renderer";
+import { InteractivePractice } from "@/components/classes/interactive-practice";
+import { PracticeQuestionHeader } from "@/components/classes/practice";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/latihan-soal")({
@@ -30,17 +29,6 @@ function RouteComponent() {
       },
     }),
   );
-
-  // Update progress when practice questions are viewed
-  useEffect(() => {
-    if (content.data?.practiceQuestions) {
-      updateProgressMutation.mutate({
-        id: Number(contentId),
-        practiceQuestionsCompleted: true,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content.data?.practiceQuestions, contentId, updateProgressMutation.mutate]);
 
   if (content.isPending) {
     return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
@@ -82,40 +70,14 @@ function RouteComponent() {
 
       <hr />
 
-      {Array.isArray(practiceQuestions?.questions) && practiceQuestions.questions.length > 0 ? (
-        practiceQuestions.questions.map((q, idx) => (
-          <PracticeQuestion
-            key={q.questionId}
-            questionNumber={idx + 1}
-            totalQuestions={practiceQuestions.questions.length}
-            question={<TiptapRenderer className="mt-4" content={q.question} />}
-            answer={
-              <div className="space-y-3">
-                {q.answers && q.answers.length > 0 && (
-                  <div className="space-y-2">
-                    {q.answers.map((answer) => (
-                      <p
-                        key={answer.id}
-                        className={
-                          answer.isCorrect ? "text-sm font-semibold text-sr-live" : "text-sm text-muted-foreground"
-                        }
-                      >
-                        {answer.code}. {answer.content}
-                        {answer.isCorrect && " ✓"}
-                      </p>
-                    ))}
-                  </div>
-                )}
-                {q.discussion && (
-                  <div className="mt-3 border-t border-sr-line pt-3">
-                    <p className="mb-1 text-sm font-medium">Pembahasan:</p>
-                    <TiptapRenderer content={q.discussion} />
-                  </div>
-                )}
-              </div>
-            }
-          />
-        ))
+      {practiceQuestions.questions.length > 0 ? (
+        // Materi baru tercatat selesai setelah semua soal dijawab.
+        <InteractivePractice
+          key={contentId}
+          contentId={Number(contentId)}
+          questions={practiceQuestions.questions}
+          onCompleted={() => updateProgressMutation.mutate({ id: Number(contentId), practiceQuestionsCompleted: true })}
+        />
       ) : (
         <p className="text-sm text-muted-foreground">Belum ada latihan soal untuk materi ini.</p>
       )}
