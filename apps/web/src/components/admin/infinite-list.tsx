@@ -1,36 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-/** Penanda di dasar daftar: halaman berikutnya dimuat otomatis saat penanda ini mendekati layar. */
-export function LoadMore({
-  hasMore,
+/** Muat semua halaman hasil pencarian berurutan, supaya seluruh hasil tampil tanpa nomor halaman. */
+export function useFetchAll({
+  hasNextPage,
   isFetching,
   isError,
-  onLoad,
+  fetchNextPage,
 }: {
-  hasMore: boolean;
+  hasNextPage: boolean;
   isFetching: boolean;
   isError: boolean;
-  onLoad: () => void;
+  fetchNextPage: () => unknown;
 }) {
-  const sentinel = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     // Saat gagal tidak dicoba otomatis, supaya server tidak ditembak terus-menerus.
-    if (!sentinel.current || !hasMore || isFetching || isError) return;
-    const observer = new IntersectionObserver((entries) => entries[0]?.isIntersecting && onLoad(), {
-      rootMargin: "600px",
-    });
-    observer.observe(sentinel.current);
-    return () => observer.disconnect();
-  }, [hasMore, isFetching, isError, onLoad]);
+    if (hasNextPage && !isFetching && !isError) fetchNextPage();
+  }, [hasNextPage, isFetching, isError, fetchNextPage]);
+}
 
-  if (!hasMore) return null;
-
+export function LoadFailed({ onRetry }: { onRetry: () => void }) {
   return (
-    <div ref={sentinel} className="mt-6 flex justify-center">
-      <Button variant="outline" disabled={isFetching} onClick={onLoad}>
-        {isFetching ? "Memuat…" : isError ? "Gagal memuat, coba lagi" : "Muat lebih banyak"}
+    <div className="mt-6 flex justify-center">
+      <Button variant="outline" onClick={onRetry}>
+        Gagal memuat sisanya, coba lagi
       </Button>
     </div>
   );
