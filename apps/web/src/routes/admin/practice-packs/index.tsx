@@ -1,10 +1,11 @@
 import { MagnifyingGlass, Package, Plus } from "@phosphor-icons/react";
-import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDebounceValue } from "@/hooks/timing/use-debounce-value";
 import { AdminContainer, AdminHeader } from "@/components/admin/dashboard-layout";
-import { LoadMore, useReturnToItem } from "@/components/admin/infinite-list";
+import { LoadFailed, useFetchAll, useReturnToItem } from "@/components/admin/infinite-list";
+import { AdminPagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,25 +25,46 @@ function PracticePacksListPage() {
   const [searchQuery, setSearchQuery] = useState(searchParam);
   // Dicari di server (nama pack, deskripsi, dan isi soal) supaya mencakup semua pack.
   const debouncedSearch = useDebounceValue(searchQuery.trim(), 300);
-  const limit = 30;
+  const page = Route.useSearch({ select: (s) => s.page ?? 1 });
+  const searching = searchParam !== "";
+  const pageSize = 9;
+  const batchSize = 50;
 
   useEffect(() => {
-    navigate({ search: { search: debouncedSearch || undefined }, replace: true });
+    navigate({
+      search: (prev) => {
+        const next = debouncedSearch || undefined;
+        // Nomor halaman hanya direset kalau kata carinya berubah, bukan saat kembali dari detail.
+        return prev.search === next ? prev : { search: next };
+      },
+      replace: true,
+    });
   }, [debouncedSearch, navigate]);
 
-  const { data, isPending, isError, error, isFetching, hasNextPage, fetchNextPage } = useInfiniteQuery(
+  const paged = useQuery({
+    ...orpc.admin.practicePack.list.queryOptions({ input: { limit: pageSize, offset: (page - 1) * pageSize } }),
+    enabled: !searching,
+    placeholderData: keepPreviousData,
+  });
+  const found = useInfiniteQuery(
     orpc.admin.practicePack.list.infiniteOptions({
-      input: (offset: number) => ({ limit, offset, search: searchParam || undefined }),
+      input: (offset: number) => ({ limit: batchSize, offset, search: searchParam }),
       initialPageParam: 0,
-      getNextPageParam: (lastPage, pages) => (pages.length * limit < lastPage.total ? pages.length * limit : undefined),
-      placeholderData: keepPreviousData,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * batchSize < lastPage.total ? pages.length * batchSize : undefined,
+      enabled: searching,
     }),
   );
+  useFetchAll(found);
 
-  const packs = [...new Map(data?.pages.flatMap((page) => page.data).map((pack) => [pack.id, pack])).values()];
-  const total = data?.pages.at(-1)?.total ?? 0;
-  const loadMore = useCallback(() => void fetchNextPage(), [fetchNextPage]);
-  const rememberItem = useReturnToItem("admin-practice-packs-last", packs.length > 0);
+  const { data, isPending, isError, error } = searching ? found : paged;
+  const rows = searching ? (found.data?.pages.flatMap((batch) => batch.data) ?? []) : (paged.data?.data ?? []);
+  const packs = [...new Map(rows.map((pack) => [pack.id, pack])).values()];
+  const total = (searching ? found.data?.pages.at(-1)?.total : paged.data?.total) ?? 0;
+  const rememberItem = useReturnToItem(
+    "admin-practice-packs-last",
+    packs.length > 0 && (!searching || !found.hasNextPage),
+  );
 
   return (
     <AdminContainer>
@@ -74,7 +96,8 @@ function PracticePacksListPage() {
 
       {total > 0 && (
         <p className="mb-3 text-sm font-semibold text-sr-muted" aria-live="polite">
-          {searchParam ? "Ditemukan" : "Total"} {total} pack · tampil {packs.length}
+          {searching ? "Ditemukan" : "Total"} {total} pack
+          {searching && found.hasNextPage && ` · memuat ${packs.length} dari ${total}…`}
         </p>
       )}
 
@@ -123,7 +146,19 @@ function PracticePacksListPage() {
         ))}
       </div>
 
-      <LoadMore hasMore={hasNextPage} isFetching={isFetching} isError={isError} onLoad={loadMore} />
+      {searching && found.isError && <LoadFailed onRetry={() => found.fetchNextPage()} />}
+
+      {!searching && total > 0 && (
+        <AdminPagination
+          className="mt-6"
+          label="Pack"
+          page={page}
+          total={total}
+          pageSize={pageSize}
+          isLoading={isPending}
+          onPageChange={(next) => navigate({ search: { page: next > 1 ? next : undefined } })}
+        />
+      )}
     </AdminContainer>
   );
 }
